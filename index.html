@@ -2,60 +2,43 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>馥靈之鑰｜情緒商業共振系統</title>
+  <title>HOUR × LIGHT 成長閉環｜馥靈之鑰 Hour Light</title>
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
+      margin: 0; padding: 0; height: 100%;
       font-family: Arial, sans-serif;
       overflow-x: hidden;
     }
-body.loaded {
-  background: url('https://raw.githubusercontent.com/HourLight/11/main/background.jpg') center/cover fixed no-repeat; /* ✅ */
-  position: relative;
-  overflow-x: hidden;
-}
-    .splash {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: url('P0001.png') center center / cover no-repeat;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  transition: opacity 2s ease;
-}
-
-    .splash.fade-out {
-      opacity: 0;
-      pointer-events: none;
+    /* ✅ 用可直連 RAW 網址；進站後才套用背景 */
+    body.loaded {
+      background: url('https://raw.githubusercontent.com/HourLight/11/main/background.jpg') center/cover fixed no-repeat;
+      position: relative; overflow-x: hidden;
     }
+
+    /* ---- Splash（只保留一層） ---- */
+    .splash {
+      position: fixed; inset: 0;
+      background: url('P0001.png') center center / cover no-repeat;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10; transition: opacity 1.6s ease;
+    }
+    .splash.fade-out { opacity: 0; pointer-events: none; }
 
     .enter-message {
-      position: absolute;
-      bottom: 60px;
-      text-align: center;
-      color: white;
-      font-size: 1.2rem;
-      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-      animation: blink 2s infinite;
-      cursor: pointer;
+      position: absolute; bottom: 60px; text-align: center; color: #fff;
+      font-size: 1.2rem; text-shadow: 0 2px 6px rgba(0,0,0,.4);
+      animation: blink 2s infinite; cursor: pointer;
+      padding: 8px 14px; border-radius: 999px; background: rgba(0,0,0,.28);
     }
+    @keyframes blink { 0%,100%{opacity:.6} 50%{opacity:1} }
 
+    /* ---- 主要內容 ---- */
     .main-content {
-      display: none;
-      min-height: 100vh;
-      background: transparent;
-      padding: 40px;
-      box-sizing: border-box;
-      overflow-y: auto;
+      display: none; min-height: 100vh;
+      background: transparent; /* ✅ 透明，才看得到背景圖 */
+      padding: 40px; box-sizing: border-box; overflow-y: auto;
     }
-
-    .main-content.show {
-      display: block;
-    }
+    .main-content.show { display: block; }
 
     :root {
       --milk:#f9f5f0; --cocoa:#6b4f3e;
@@ -64,337 +47,172 @@ body.loaded {
 
     .container {
       position: relative;
-      background:rgba(255,255,255,.95);
-      border-radius:15px;
-      box-shadow:0 4px 12px rgba(0,0,0,.3);
-      padding:36px;
-      max-width:960px;
-      margin: 60px auto;
-      text-align: center; 
-      }
-
-    .hero-title {
-      text-align: center;
-      margin-bottom: 24px;
+      background: rgba(255,255,255,.80); /* ✅ 降低不透明度，保留底圖 */
+      backdrop-filter: saturate(120%) blur(4px);
+      border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,.3);
+      padding: 36px; max-width: 960px; margin: 60px auto; text-align: center;
     }
 
-    .hero-title h1 {
-      font-size: 2.6rem;
-      color: var(--cocoa);
-      letter-spacing: 1px;
-    }
+    .hero-title { text-align: center; margin-bottom: 24px; }
+    .hero-title h1 { font-size: 2.6rem; color: var(--cocoa); letter-spacing: 1px; }
+    .hero-title p { font-size: 1.05rem; color: var(--rose-dark); margin-top: 12px; }
 
-    .hero-title p {
-      font-size: 1.05rem;
-      color: var(--rose-dark);
-      margin-top: 12px;
-    }
-
-    h3.intro-title {
-      color:#a88257;
-      font-size:1.4rem;
-      margin:18px auto;
-      padding:10px 16px;
-      background:rgba(255,255,255,0.7);
-      border-radius:12px;
+    h3.intro-title{
+      color:#a88257; font-size:1.4rem; margin:18px auto; padding:10px 16px;
+      background:rgba(255,255,255,0.7); border-radius:12px; display:inline-block;
       box-shadow:0 4px 12px rgba(0,0,0,0.15);
-      display: inline-block;
     }
 
-    .footer {
-      text-align:center;
-      font-size:12px;color:#777;margin-top:32px
+    .footer { text-align:center; font-size:12px; color:#777; margin-top:32px }
+
+    /* ---- CTA 卡片（上下堆疊、半透明） ---- */
+    .hl-cta-stack {
+      display: flex; flex-direction: column; gap: 18px;
+      margin: 34px auto; max-width: 720px;
+    }
+    .hl-cta-box {
+      border-radius: 14px; padding: 20px 22px;
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(6px) saturate(120%);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.18); text-align: left;
+    }
+    .hl-cta-title { margin: 0 0 8px; font-size: 22px; font-weight: 900; color: var(--cocoa); }
+    .hl-cta-sub { margin: 0 0 14px; font-size: 15px; color: var(--rose-dark); }
+    .hl-cta-badges { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px }
+    .hl-cta-badge {
+      font-size: 12px; padding: 6px 10px; border-radius: 999px; color: #fff;
+      background: linear-gradient(135deg, var(--rose), var(--rose-dark));
+      box-shadow: inset 0 0 5px rgba(255,255,255,0.25);
+    }
+    .hl-cta-buttons { display:flex; gap:10px; flex-wrap:wrap; margin-top: 8px; }
+    .hl-btn {
+      display:inline-block; padding:10px 18px; border-radius:24px; font-weight:700; text-decoration:none; transition:.25s;
+    }
+    .hl-btn.primary { background: linear-gradient(135deg, var(--rose), var(--rose-dark)); color:#fff; }
+    .hl-btn.primary:hover { filter: brightness(1.05); }
+    .hl-btn.secondary { background: rgba(255,255,255,0.9); color: var(--cocoa); border: 1.5px solid var(--cocoa); }
+
+    /* ---- 其他原有樣式 ---- */
+    .card-links { display:flex; flex-wrap:wrap; justify-content:center; gap:18px; margin:20px 0 32px; }
+    .card-links a{
+      width:360px; height:100px; display:flex; align-items:center; justify-content:center; flex-direction:row;
+      background: linear-gradient(135deg, var(--rose) 0%, var(--rose-dark) 100%); color:#fff; text-decoration:none;
+      border-radius:16px; box-shadow:0 0 10px rgba(255,214,153,0.3), inset 0 0 5px rgba(255,255,255,0.2);
+      transition:.6s ease; font-size:17px; padding:14px 20px; gap:14px; margin:auto; border:1.5px solid rgba(255,255,255,0.4); text-align:center; position:relative; overflow:hidden;
+    }
+    .card-links a:hover { transform: scale(1.03); box-shadow: 0 0 18px rgba(255,200,100,0.5), inset 0 0 10px rgba(255,255,255,0.3); }
+
+    .service-btn{
+      display:inline-block; background: var(--cocoa); color:#fff; padding:12px 26px; border-radius:28px;
+      margin:26px auto 12px; text-decoration:none; font-size:17px; box-shadow:0 4px 8px rgba(0,0,0,.25); transition:.3s;
+    }
+    .service-btn:hover{ background: var(--rose-dark); transform: translateY(-3px); }
+
+    .links a{
+      background: var(--rose); color:#fff; padding:10px 16px; border-radius:8px; text-decoration:none; font-size:15px; font-weight:bold;
+      box-shadow:0 3px 6px rgba(0,0,0,0.15); transition: all .3s; display:inline-block; margin:8px;
+    }
+    .links a:hover{ background: var(--rose-dark); transform: scale(1.05); }
+
+    .contact-info{
+      background: rgba(235,215,190,.7); padding: 18px; border-radius: 12px; margin-top: 34px; line-height: 1.8; font-size: 15px;
+      display: inline-block; text-align: left;
     }
 
-    /* 手機響應式設定 */
+    /* 手機 */
     @media(max-width:768px){
-      .container{
-        padding:24px;
-        margin: 30px auto;
-      }
-      .hero-title h1{
-        font-size:2rem;
-      }
-      .hero-title p{
-        font-size:0.95rem;
-      }
+      .container{ padding:24px; margin:30px auto; }
+      .hero-title h1{ font-size:2rem }
+      .hero-title p{ font-size:0.95rem }
+      .hl-cta-title{ font-size:20px }
     }
-.card-links {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 18px;
-  margin: 20px 0 32px;
-}
-
-.card-links a {
-  width: 360px;
-  height: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: row;
-  background: linear-gradient(135deg, var(--rose) 0%, var(--rose-dark) 100%);
-  color: #fff;
-  text-decoration: none;
-  border-radius: 16px;
-  box-shadow: 0 0 10px rgba(255, 214, 153, 0.3),
-              inset 0 0 5px rgba(255,255,255,0.2);
-  transition: 0.6s ease;
-  font-size: 17px;
-  padding: 14px 20px;
-  gap: 14px;
-  margin: auto;
-  border: 1.5px solid rgba(255,255,255,0.4);
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.card-links a:hover {
-  transform: scale(1.03);
-  box-shadow: 0 0 18px rgba(255, 200, 100, 0.5),
-              inset 0 0 10px rgba(255,255,255,0.3);
-}
-
-.service-btn {
-  display: inline-block;
-  background: var(--cocoa);
-  color: #fff;
-  padding: 12px 26px;
-  border-radius: 28px;
-  margin: 26px auto 12px;
-  text-decoration: none;
-  font-size: 17px;
-  box-shadow: 0 4px 8px rgba(0,0,0,.25);
-  transition: 0.3s;
-}
-.service-btn:hover {
-  background: var(--rose-dark);
-  transform: translateY(-3px);
-}
-.container * {
-  margin-left: auto;
-  margin-right: auto;
-}
-
-h2 {
-  text-align: center;
-}
-
-table {
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.contact-info {
-  background: rgba(235,215,190,.7);
-  padding: 18px;
-  border-radius: 12px;
-  margin-top: 34px;
-  line-height: 1.8;
-  font-size: 15px;
-  display: inline-block;       /* ✅ 讓它不佔整排 */
-  text-align: left;            /* ✅ 文字仍保持易讀靠左 */
-}
-.service-btn {
-  display: inline-block;
-  text-align: center;
-  margin: 26px auto 12px;
-}
-.links a {
-  background: var(--rose);
-  color: #fff;
-  padding: 10px 16px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-size: 15px;
-  font-weight: bold;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-  transition: all 0.3s ease;
-  display: inline-block;
-  margin: 8px;
-}
-.links a:hover {
-  background: var(--rose-dark);
-  transform: scale(1.05);
-}
-body.loaded::before {
-  background: none !important;
-  animation: none !important;
-  display: none !important;
-}
   </style>
 </head>
 
 <body>
-  <div class="splash" id="splash">
- <div class="splash" id="splash" onclick="enterSite()">
-  <div class="enter-message">點擊開始旅程</div>
-</div>
+  <!-- ✅ 只保留一層 splash -->
+  <div class="splash" id="splash" onclick="enterSite()">
+    <div class="enter-message">點擊開始旅程</div>
   </div>
 
   <div class="main-content" id="main">
     <div class="container">
-    <div class="hero-title">
-  <h1>馥靈之鑰 Hour Light</h1>
-  <p><strong><em>130 張牌卡 × HOUR 四步節奏，把香氣、色彩與意念鎖進日常。</em></strong></p>
-</div>
-<h3 style="
-    color:#a88257;
-    font-size:1.4rem;
-    margin:18px auto;
-    padding:10px 16px;
-    display:inline-block;
-    background:rgba(255,255,255,0.7);
-    border-radius:12px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.15);
-    ">
-    ✨ 半年打造市場唯一的美業營運系統｜馥靈之鑰 Hour Light ✨
-</h3>
-    <p>
-        <strong style="color:#6b4f3e;">『陪你喚醒內在的力量』</strong><br><br>
-                一套結合<em style="color:#a88257;font-weight:bold;font-style:normal;">情緒科學與內在智慧</em>的頻率調頻系統，<br>
-        透過<strong style="color:#6b4f3e;">『感官科學 × 能量共振 × 內在覺察』</strong>，<br>
-        管理壓力、看見自我、紓解情緒。<br><br>
-        適合全球化市場、符合法規，不流於迷信<br>
-                
-     <br>讓情緒共振和能量引導成為一門人人能懂、能感受、能落地的專業服務。<br><br>
-    </p>
-</div>
-<!-- Hour Light CTA（上下版，半透明，不遮底圖） -->
-<style>
-  .hl-cta-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    margin: 34px auto;
-    max-width: 720px;
-  }
-  .hl-cta-box {
-    border-radius: 14px;
-    padding: 20px 22px;
-    background: rgba(255,255,255,0.50); /* 半透明白 */
-    backdrop-filter: blur(6px) saturate(120%);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
-  }
-  .hl-cta-title {
-    margin: 0 0 8px;
-    font-size: 22px;
-    font-weight: 900;
-    color: var(--cocoa);
-  }
-  .hl-cta-sub {
-    margin: 0 0 14px;
-    font-size: 15px;
-    color: var(--rose-dark);
-  }
-  .hl-cta-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-  .hl-cta-badge {
-    font-size: 12px;
-    padding: 6px 10px;
-    border-radius: 999px;
-    color: #fff;
-    background: linear-gradient(135deg, var(--rose), var(--rose-dark));
-    box-shadow: inset 0 0 5px rgba(255,255,255,0.25);
-  }
-  .hl-cta-buttons {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .hl-btn {
-    display: inline-block;
-    padding: 10px 18px;
-    border-radius: 24px;
-    font-weight: 700;
-    text-decoration: none;
-    transition: .25s;
-  }
-  .hl-btn.primary {
-    background: linear-gradient(135deg, var(--rose), var(--rose-dark));
-    color: #fff;
-  }
-  .hl-btn.primary:hover { filter: brightness(1.05); }
-  .hl-btn.secondary {
-    background: rgba(255,255,255,0.8);
-    color: var(--cocoa);
-    border: 1.5px solid var(--cocoa);
-  }
-  .hl-list {
-    margin: 6px 0 0;
-    padding-left: 18px;
-    font-size: 14px;
-    color: #5d493b;
-  }
-</style>
+      <div class="hero-title">
+        <h1>馥靈之鑰 Hour Light</h1>
+        <p><strong><em>HOUR × LIGHT 成長閉環｜半年打造市場唯一的美業營運系統</em></strong></p>
+      </div>
 
-<div class="hl-cta-stack">
-  <div class="hl-cta-box">
-    <h3 class="hl-cta-title">HOUR × LIGHT｜半年打造市場唯一</h3>
-    <p class="hl-cta-sub">不是跟風做行銷，而是以四階段閉環（聚焦／架構／放大／穩固）建立可持續、可複製、可放大的獲利系統。</p>
-    <div class="hl-cta-badges">
-      <span class="hl-cta-badge">特色挖掘</span>
-      <span class="hl-cta-badge">高價策略</span>
-      <span class="hl-cta-badge">團隊賦能</span>
-      <span class="hl-cta-badge">會員成長</span>
-    </div>
-    <div class="hl-cta-buttons">
-      <a class="hl-btn primary" href="/hourlight/">了解豐碩計畫</a>
-      <a class="hl-btn secondary" href="/hourlight/contact.html">預約 30 分鐘策略諮詢</a>
-    </div>
-  </div>
+      <h3 class="intro-title">✨ 特色挖掘 × 高價策略 × 團隊賦能 × 會員成長 ✨</h3>
 
-  <div class="hl-cta-box">
-    <b style="color: var(--rose-dark)">這套專案適合你，如果……</b>
-    <ul class="hl-list">
-      <li>想擺脫同質性，做出不可複製的風格</li>
-      <li>想從削價走到高價，還能被指名</li>
-      <li>想讓團隊在你不在場時也能穩定運作</li>
-    </ul>
-  </div>
-</div>
-    <!-- 🔮 主按鈕：大卡片帶箭頭、動畫、金光 -->
-    <h2>🔮 內在覺察共振系統</h2>
-<div class="card-links">
-  <a href="https://hourlight.github.io/11/index.html">
-    <span class="emo" style="font-size:42px;filter: brightness(0) invert(1);">🌿</span>
-    <span class="text" style="
-        font-size:24px;
-        font-weight:bold;
-        letter-spacing:1px;
-        color:#fff;
-        text-shadow:0 2px 6px rgba(0,0,0,0.3);">
-        芳香調頻·線上抽牌 <span class="arrow" style="font-size:24px;">→</span>
-    </span>
-  </a>
-</div>
-    <!-- 💅 指尖 × SPA 能量調頻 -->
-<h2>💅 指尖 × SPA 能量調頻</h2>
-<div style="text-align:center;">
-  <div class="links">
-    <a href="hourlight-energy-nails.html">能量美甲</a>
-    <a href="hourlight-energy-spa.html">SPA 調理</a>
-    <a href="https://www.instagram.com/histudio_nailnlash/" target="_blank">HI Studio</a>
-    <a href="https://HourLight.github.io/gel-nail-course.html">美甲師資</a>
-  </div>
-</div>
+      <p>
+        <strong style="color:#6b4f3e;">我們做的是「差異化 + 穩定成長」</strong><br><br>
+        以 <span style="color:#a88257;font-weight:bold;">感官科學與品牌管理</span> 的方法，<br>
+        建立可落地的 <strong style="color:#6b4f3e;">HOUR × LIGHT</strong> 獲利系統：<br>
+        聚焦（Highlight）→ 架構（Optimize）→ 放大（Unleash）→ 穩固（Reinforce）。<br><br>
+        用數據與流程，幫你做出**不可被複製**的風格，<br>
+        提升回流、提高客單、擺脫價格戰。<br><br>
+      </p>
 
-    <!-- 📖 品牌介紹 -->
-<h2>📖 認識 Hour Light</h2>
-<div style="text-align:center;">
-  <div class="links">
-    <a href="founder.html">創始人</a>
-    <a href="brand-story.html">品牌故事</a>
-    <a href="brand-vision.html">品牌願景</a>
-    <a href="hourlight-energy-focus.html">族群解析</a>
-  </div>
-</div>
+      <!-- ✅ CTA：上下堆疊、半透明、不遮底圖 -->
+      <div class="hl-cta-stack">
+        <div class="hl-cta-box">
+          <h3 class="hl-cta-title">HOUR × LIGHT｜半年打造市場唯一</h3>
+          <p class="hl-cta-sub">不是跟風做行銷，而是用四階段閉環（聚焦／架構／放大／穩固）建立可持續、可複製、可放大的獲利系統。</p>
+          <div class="hl-cta-badges">
+            <span class="hl-cta-badge">特色挖掘</span>
+            <span class="hl-cta-badge">高價策略</span>
+            <span class="hl-cta-badge">團隊賦能</span>
+            <span class="hl-cta-badge">會員成長</span>
+          </div>
+          <div class="hl-cta-buttons">
+            <a class="hl-btn primary" href="/hourlight/">了解豐碩計畫</a>
+            <a class="hl-btn secondary" href="/hourlight/contact.html">預約 30 分鐘策略諮詢</a>
+          </div>
+        </div>
+
+        <div class="hl-cta-box">
+          <b style="color: var(--rose-dark)">這套專案適合你，如果……</b>
+          <ul class="hl-cta-list" style="margin:6px 0 0; padding-left:18px; font-size:14px; color:#5d493b;">
+            <li>想擺脫同質性，做出不可複製的風格</li>
+            <li>想從削價走到高價，還能被指名</li>
+            <li>想讓團隊在你不在場時也能穩定運作</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 🔮 主按鈕：大卡片 -->
+      <h2>🔮 內在覺察共振系統</h2>
+      <div class="card-links">
+        <a href="https://hourlight.github.io/11/index.html">
+          <span class="emo" style="font-size:42px;filter: brightness(0) invert(1);">🌿</span>
+          <span class="text" style="font-size:24px;font-weight:bold;letter-spacing:1px;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,0.3);">
+            芳香調頻·線上抽牌 <span class="arrow" style="font-size:24px;">→</span>
+          </span>
+        </a>
+      </div>
+
+      <!-- 💅 指尖 × SPA 能量調頻 -->
+      <h2>💅 指尖 × SPA 能量調理</h2>
+      <div style="text-align:center;">
+        <div class="links">
+          <a href="hourlight-energy-nails.html">能量美甲</a>
+          <a href="hourlight-energy-spa.html">SPA 調理</a>
+          <a href="https://www.instagram.com/histudio_nailnlash/" target="_blank">HI Studio</a>
+          <a href="https://HourLight.github.io/gel-nail-course.html">美甲師資</a>
+        </div>
+      </div>
+
+      <!-- 📖 品牌介紹 -->
+      <h2>📖 認識 Hour Light</h2>
+      <div style="text-align:center;">
+        <div class="links">
+          <a href="founder.html">創始人</a>
+          <a href="brand-story.html">品牌故事</a>
+          <a href="brand-vision.html">品牌願景</a>
+          <a href="hourlight-energy-focus.html">族群解析</a>
+        </div>
+      </div>
+
     <!-- 💬 智慧客服 -->
 <div style="text-align:center;">
   <a href="https://chatgpt.com/g/g-681ebdcf6bb881918e1d0bc354300384-fu-ling-zhi-yao-zhi-hui-ke-fu" class="service-btn">
@@ -402,43 +220,45 @@ body.loaded::before {
   </a>
 </div>
 
-    <!-- 🌐 社群入口 -->
-<h2>🌐 一站式入口</h2>
-<div style="text-align:center;">
-  <div class="links">
-    <a href="https://www.youtube.com/channel/UCnQuCOApUvPXbfqQaWRaj9w">📺 YouTube</a>
-    <a href="https://www.instagram.com/hourlight.yichun/">📷 Instagram</a>
-    <a href="https://lin.ee/vpbLhNjF">🌿 LINE 預約</a>
-    <a href="https://solink.soundon.fm/HourLight">🔗 連結總表</a>
-    <a href="pet-energy.html">🐾 寵物溝通</a>
-  </div>
-</div>
 
-    <!-- 聯絡資訊 -->
-<div style="text-align:center;">
-  <div class="contact-info">
-    📍 <strong>嗨執甲概念美學</strong><br>
-    桃園市桃園區同安街 666 號 1F<br>
-    📞 0905-723-595　|　📧 judyanee@gmail.com<br>
-    💬 官方 LINE　|　歡迎加盟洽談、課程報名
-  </div>
-</div>
+      <!-- 🌐 社群入口 -->
+      <h2>🌐 一站式入口</h2>
+      <div style="text-align:center;">
+        <div class="links">
+          <a href="https://www.youtube.com/channel/UCnQuCOApUvPXbfqQaWRaj9w">📺 YouTube</a>
+          <a href="https://www.instagram.com/hourlight.yichun/">📷 Instagram</a>
+          <a href="https://lin.ee/vpbLhNjF">🌿 LINE 預約（ID：judyanee）</a>
+          <a href="https://solink.soundon.fm/HourLight">🔗 連結總表</a>
+          <a href="pet-energy.html">🐾 寵物溝通</a>
+        </div>
+      </div>
 
-    <div class="footer">
-        © 馥靈之鑰 Hour Light — 內容僅供身心放鬆與情緒紓解參考
+      <!-- 聯絡資訊 -->
+      <div style="text-align:center;">
+        <div class="contact-info">
+          📍 <strong>嗨執甲概念美學</strong><br>
+          桃園市桃園區同安街 666 號 1F（採預約制）<br>
+          💬 LINE：judyanee　|　📧 ask.hourlight@gmail.com
+        </div>
+      </div>
+
+      <div class="footer">
+        © 馥靈之鑰 Hour Light — 內容僅供身心放鬆、情緒紓解、壓力管理與能量調頻參考
+      </div>
     </div>
   </div>
 
   <script>
     function enterSite() {
-      document.getElementById('splash').classList.add('fade-out');
+      // ✅ 淡出 splash → 顯示主內容 → 啟用背景圖
+      const s = document.getElementById('splash');
+      s.classList.add('fade-out');
       setTimeout(() => {
-        document.getElementById('splash').style.display = 'none';
+        s.style.display = 'none';
         document.getElementById('main').classList.add('show');
         document.body.classList.add('loaded');
-      }, 2000);
+      }, 1200);
     }
   </script>
-
 </body>
 </html>
