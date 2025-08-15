@@ -1,0 +1,73 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8">
+<title>塔羅抽牌｜獨立 78 張</title><link rel="icon" href="favicon.ico">
+<style>
+:root{--milk:#f9f5f0;--cocoa:#6b4f3e;--rose:#cda86e;--rose-dark:#a88257}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:url('https://github.com/HourLight/11/raw/main/background.jpg') center/cover fixed no-repeat;font-family:"Noto Sans TC","PingFang TC","Arial",sans-serif;color:#333;text-align:center;padding:22px}
+h1{display:block;width:fit-content;margin:0 auto 12px;padding:10px 24px;background:#fff;border-radius:14px;box-shadow:0 4px 10px rgba(0,0,0,.18);color:#6b4f3e}
+.controls{margin:12px 0}
+button{background:var(--rose);color:#fff;border:none;padding:12px 22px;font-size:18px;margin:6px;border-radius:12px;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.25);transition:.3s}
+button:hover{background:var(--rose-dark);transform:translateY(-3px)}
+#copyBtn{background:var(--cocoa)}
+.grid{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:10px auto;max-width:1000px}
+.card{flex:0 0 300px;background:rgba(255,255,255,.9);border-radius:12px;padding:12px;box-shadow:0 3px 10px rgba(0,0,0,.15);text-align:left}
+.card h3{margin:0 0 6px;color:#6b4f3e}
+.small{font-size:13px;color:#7b6a5d}
+</style></head><body>
+<h1>🃏 塔羅抽牌（78 張）</h1>
+<div class="controls">
+  <button onclick="drawTarot(1)">抽 1 張</button>
+  <button onclick="drawTarot(3)">抽 3 張</button>
+  <button onclick="drawTarot(5)">抽 5 張</button>
+  <button onclick="drawTarot(7)">抽 7 張</button>
+</div>
+<div id="tresult" class="grid"></div>
+<button id="copyBtn" onclick="copyTarot()">📋 複製結果</button>
+<div class="small" style="margin-top:10px">每張卡含正/逆位，並附一句行動提示，方便你立刻落地。</div>
+<div style="margin:16px 0"><a href="index.html" style="text-decoration:none;color:#6b4f3e">🏠 返回首頁</a></div>
+<script>
+const majors = ["愚者","魔術師","女祭司","女皇","皇帝","教皇","戀人","戰車","力量","隱者","命運之輪","正義","吊人","死神","節制","惡魔","高塔","星星","月亮","太陽","審判","世界"];
+const suits = { "權杖":["權杖一","權杖二","權杖三","權杖四","權杖五","權杖六","權杖七","權杖八","權杖九","權杖十","權杖侍者","權杖騎士","權杖皇后","權杖國王"],
+                "聖杯":["聖杯一","聖杯二","聖杯三","聖杯四","聖杯五","聖杯六","聖杯七","聖杯八","聖杯九","聖杯十","聖杯侍者","聖杯騎士","聖杯皇后","聖杯國王"],
+                "寶劍":["寶劍一","寶劍二","寶劍三","寶劍四","寶劍五","寶劍六","寶劍七","寶劍八","寶劍九","寶劍十","寶劍侍者","寶劍騎士","寶劍皇后","寶劍國王"],
+                "錢幣":["錢幣一","錢幣二","錢幣三","錢幣四","錢幣五","錢幣六","錢幣七","錢幣八","錢幣九","錢幣十","錢幣侍者","錢幣騎士","錢幣皇后","錢幣國王"] };
+const tarot = [...majors.map(n=>({name:n,type:"大牌"}))];
+for (const [s, arr] of Object.entries(suits)) { arr.forEach(n=>tarot.push({name:n,type:s})); }
+
+let picked = [];
+function drawTarot(n){
+  alert("請閉眼深呼吸，心裡默念問題，再點確認。");
+  picked = [];
+  const pool = [...tarot];
+  for(let i=0;i<n;i++){
+    const idx = Math.floor(Math.random()*pool.length);
+    const card = pool.splice(idx,1)[0];
+    const reversed = Math.random()<0.48;
+    picked.push({ ...card, reversed });
+  }
+  renderTarot();
+}
+function tipFor(card){
+  const base = card.name;
+  if(!card.reversed){
+    return "行動提示：選一個最簡單的下一步，今天就做。";
+  } else {
+    return "行動提示：先移除一個干擾，再決定下一步。";
+  }
+}
+function renderTarot(){
+  const box = document.getElementById('tresult');
+  box.innerHTML = picked.map(c=>`
+    <div class="card">
+      <h3>${c.name}${c.reversed?"（逆）":"（正）"}</h3>
+      <div class="small">類型：${c.type}</div>
+      <p style="margin:6px 0 0">${tipFor(c)}</p>
+    </div>
+  `).join("");
+}
+function copyTarot(){
+  if(!picked.length){ alert("請先抽牌再複製！"); return; }
+  const txt = picked.map(c=>`${c.name}${c.reversed?"(逆)":""}`).join("，");
+  navigator.clipboard.writeText(txt).then(()=>alert("已複製："+txt)).catch(()=>alert("複製失敗，請手動："+txt));
+}
+</script></body></html>

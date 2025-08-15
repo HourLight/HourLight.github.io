@@ -1,0 +1,58 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8">
+<title>馥靈之鑰 Hour Light｜130 卡線上抽牌</title><link rel="icon" href="favicon.ico">
+<style>
+:root{--milk:#f9f5f0;--cocoa:#6b4f3e;--rose:#cda86e;--rose-dark:#a88257}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:url('https://github.com/HourLight/11/raw/main/background.jpg') center/cover fixed no-repeat;font-family:"Noto Sans TC","PingFang TC","Arial",sans-serif;color:#333;text-align:center;padding:22px}
+h1{display:block;width:fit-content;margin:0 auto 12px;padding:10px 24px;background:#fff;border-radius:14px;box-shadow:0 4px 10px rgba(0,0,0,.18);color:#6b4f3e}
+h2{display:block;width:fit-content;margin:0 auto 12px;padding:8px 18px;background:#fff;border-radius:12px;color:#a88257}
+button{background:var(--rose);color:#fff;border:none;padding:12px 22px;font-size:18px;margin:6px;border-radius:12px;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.25);transition:.3s}
+button:hover{background:var(--rose-dark);transform:translateY(-3px)}
+#copyBtn{background:var(--cocoa)}
+.card-container{display:inline-block;margin:12px}
+.card-container img{width:220px;border-radius:15px;box-shadow:0 0 12px rgba(0,0,0,.35)}
+.card-number{margin-top:8px;font-size:18px;font-weight:bold;background:rgba(255,255,255,.75);padding:6px 10px;border-radius:10px}
+.section{max-width:900px;margin:16px auto;background:rgba(255,255,255,.9);padding:14px;border-radius:12px;box-shadow:0 3px 10px rgba(0,0,0,.15);text-align:left}
+</style></head><body>
+<h1>馥靈之鑰 Hour Light</h1>
+<h2>130 卡線上抽牌</h2>
+<div>
+  <button onclick="drawCards(1)">抽 1 張</button>
+  <button onclick="drawCards(3)">抽 3 張</button>
+  <button onclick="drawCards(5)">抽 5 張</button>
+  <button onclick="drawCards(7)">抽 7 張</button>
+  <button onclick="drawCards(9)">抽 9 張</button>
+  <button onclick="drawCards(12)">抽 12 張</button>
+  <button onclick="drawCards(15)">抽 15 張</button>
+</div>
+<div id="result"></div>
+<button id="copyBtn" onclick="copyResult()">📋 複製牌卡編號</button>
+<div class="section"><p>抽牌後把「編號」貼給老師即可，例如 A03, 007, 118 …</p></div>
+<a href="index.html" style="display:inline-block;margin:12px 0 8px;text-decoration:none;color:#6b4f3e">🏠 返回首頁</a>
+<script>
+let selectedCards = [];
+function drawCards(num){
+  alert("請閉眼深呼吸，心裡默念問題，再點確認。");
+  selectedCards = [];
+  while (selectedCards.length < num){
+    const n = Math.floor(Math.random()*130)+1;
+    if(!selectedCards.includes(n)) selectedCards.push(n);
+  }
+  updateResults();
+}
+function updateResults(){
+  const resultDiv = document.getElementById('result');
+  resultDiv.innerHTML = selectedCards.map(c => {
+    const cardNumber = formatCardNumber(c);
+    return `<div class="card-container">
+      <img src="https://github.com/HourLight/11/raw/main/LINE_ALBUM_2025.3.23_250323_${c}.jpg" alt="Card">
+      <div class="card-number">編號：${cardNumber}</div></div>`;
+  }).join('');
+}
+function formatCardNumber(n){ return n<=22 ? 'A'+String(n-1).padStart(2,'0') : String(n-22).padStart(3,'0'); }
+function copyResult(){
+  if(!selectedCards.length){ alert("請先抽牌再複製！"); return; }
+  const txt = selectedCards.map(formatCardNumber).join(', ');
+  navigator.clipboard.writeText(txt).then(()=>alert('已複製：'+txt)).catch(()=>alert('複製失敗，請手動：'+txt));
+}
+</script></body></html>
