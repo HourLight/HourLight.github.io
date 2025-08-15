@@ -9,12 +9,13 @@
 :root{
   --milk:#f9f5f0; --cocoa:#6b4f3e;
   --rose:#cda86e; --rose-dark:#a88257;
-  --ink:#2a2a2a;
+  --ink:#2a2a2a; --line:rgba(0,0,0,.08);
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
-  background:url('https://github.com/HourLight/11/raw/main/background.jpg') center/cover fixed no-repeat;
+  /* ✅ 改用 raw.githubusercontent 端點 */
+  background:url('https://raw.githubusercontent.com/HourLight/11/main/background.jpg') center/cover fixed no-repeat;
   font-family:"Noto Sans TC","PingFang TC","Arial",sans-serif;
   color:var(--ink);
 }
@@ -102,6 +103,50 @@ details p,details ul{margin:6px 0 14px 0;line-height:1.8}
 }
 .footer a{color:#ffe4bc;text-decoration:none}
 .footer a:hover{text-decoration:underline}
+
+/* =========================
+   🔮 Quick Draw 抽牌模態窗
+   ========================= */
+.qd-mask{
+  position:fixed; inset:0; background:rgba(0,0,0,.45);
+  display:none; align-items:center; justify-content:center; z-index:99;
+}
+.qd-mask.show{ display:flex; }
+.qd{
+  width:min(980px,92vw); max-height:90vh; overflow:auto;
+  background:#fff; border-radius:16px; box-shadow:0 14px 40px rgba(0,0,0,.28);
+  border:1px solid var(--line); padding:16px;
+}
+.qd-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:6px 4px 10px}
+.qd-head h3{margin:0;color:var(--cocoa)}
+.qd-close{appearance:none;border:none;background:transparent;font-size:22px;cursor:pointer;color:#6b4f3e}
+
+.qd-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+@media(max-width:900px){.qd-row{grid-template-columns:1fr}}
+
+.qd-box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+.qd-box h4{margin:0 0 8px;color:var(--cocoa)}
+.qd-buttons{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+@media(max-width:760px){.qd-buttons{grid-template-columns:repeat(3,1fr)}}
+.qd-btn{
+  appearance:none;border:none;cursor:pointer;
+  padding:12px 10px;border-radius:12px;
+  background:linear-gradient(135deg,var(--rose),var(--rose-dark));
+  color:#fff;font-weight:900;box-shadow:0 6px 16px rgba(0,0,0,.18);
+}
+.qd-btn.secondary{background:#fff;color:var(--cocoa);border:1.6px solid var(--cocoa);box-shadow:none}
+
+.qd-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+@media(max-width:1000px){.qd-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:760px){.qd-grid{grid-template-columns:repeat(2,1fr)}}
+
+.qd-card{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.qd-thumb{display:block;width:100%;height:auto;object-fit:contain;background:#fff}
+.qd-cap{padding:6px 8px;text-align:center;font-weight:800;color:var(--cocoa);background:#fff7ed;border-top:1px solid var(--line)}
+
+.qd-cta{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.qd-cta a{display:inline-block;text-decoration:none;color:#fff;font-weight:900;background:linear-gradient(135deg,var(--rose),var(--rose-dark));padding:10px 16px;border-radius:24px;box-shadow:0 6px 14px rgba(0,0,0,.18)}
+.qd-cta a.secondary{background:#fff;color:var(--cocoa);border:1.6px solid var(--cocoa);box-shadow:none}
 </style>
 </head>
 <body>
@@ -113,7 +158,8 @@ details p,details ul{margin:6px 0 14px 0;line-height:1.8}
     <p>能量覺察 × 業力釋放 × 脈輪調頻｜不只是鬆開，更是與自己對話的一場靜心約會。</p>
     <div style="margin-top:10px">
       <a class="btn" href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener">📅 預約體驗</a>
-      <a class="btn secondary" href="gps.html">🔮 先抽：內在GPS 線上對焦</a>
+      <!-- 點擊將打開 Quick Draw（保留 href 作為備援/長按） -->
+      <a class="btn secondary" id="openQuickDraw" href="gps.html">🔮 先抽：內在GPS 線上對焦</a>
     </div>
   </div>
 
@@ -146,7 +192,6 @@ details p,details ul{margin:6px 0 14px 0;line-height:1.8}
         <li>帶走一句就懂的行動提示</li>
       </ul>
     </div>
-
     <div class="tier">
       <h4>5 張牌｜深入釐清 <span class="badge">約 90–120 分</span></h4>
       <div class="price">NT$ 3,280</div>
@@ -156,7 +201,6 @@ details p,details ul{margin:6px 0 14px 0;line-height:1.8}
         <li>7 日日常作業表（PDF）</li>
       </ul>
     </div>
-
     <div class="tier">
       <h4>9 張牌｜藍圖整合 <span class="badge">約 150–180 分</span></h4>
       <div class="price">NT$ 5,280</div>
@@ -242,7 +286,7 @@ details p,details ul{margin:6px 0 14px 0;line-height:1.8}
   <div class="glass cta" style="margin-top:16px;">
     <h3 style="color:var(--cocoa);margin:0 0 8px">準備好，讓身體與心同一個節拍嗎？</h3>
     <a class="btn" href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener">📲 立即預約</a>
-    <a class="btn secondary" href="gps.html">🔮 先抽牌對焦主題</a>
+    <a class="btn secondary" id="openQuickDraw2" href="gps.html">🔮 先抽牌對焦主題</a>
   </div>
 
   <!-- Footer -->
@@ -252,21 +296,129 @@ details p,details ul{margin:6px 0 14px 0;line-height:1.8}
     ※ 本頁內容僅供壓力管理、情緒紓解、能量調頻與日常指引之參考，非醫療行為。<br/>
     © 馥靈之鑰 Hour Light ｜ <a href="privacy.html">隱私權政策</a> ｜ <a href="terms.html">服務條款</a>
   </div>
-
 </div>
-<!-- 返回首頁按鈕（放在每頁底部） -->
+
+<!-- 返回首頁按鈕（統一底部） -->
 <div style="text-align:center; margin: 24px 0;">
   <a href="index.html" 
-     style="display:inline-block; 
-            background:linear-gradient(135deg,#cda86e,#a88257); 
-            color:#fff; font-weight:800; 
-            padding:10px 18px; border-radius:24px; 
-            text-decoration:none; 
-            box-shadow:0 4px 10px rgba(0,0,0,0.18); 
-            transition:.25s;">
+     style="display:inline-block;background:linear-gradient(135deg,#cda86e,#a88257);color:#fff;font-weight:800;
+            padding:10px 18px;border-radius:24px;text-decoration:none;box-shadow:0 4px 10px rgba(0,0,0,0.18);transition:.25s;">
     🏠 返回首頁
   </a>
 </div>
 
+<!-- =========================
+     🔮 Quick Draw 模態窗（不影響本頁排版）
+     ========================= -->
+<div class="qd-mask" id="qdMask" aria-hidden="true">
+  <div class="qd" role="dialog" aria-modal="true">
+    <div class="qd-head">
+      <h3>內在 GPS｜快閃抽牌</h3>
+      <button class="qd-close" id="qdClose" aria-label="關閉">✕</button>
+    </div>
+
+    <div class="qd-row">
+      <!-- 左：抽牌控制 -->
+      <div class="qd-box">
+        <h4>選張數</h4>
+        <div class="qd-buttons">
+          <button class="qd-btn" data-n="1">抽 1 張</button>
+          <button class="qd-btn" data-n="3">抽 3 張</button>
+          <button class="qd-btn" data-n="5">抽 5 張</button>
+          <button class="qd-btn" data-n="7">抽 7 張</button>
+          <button class="qd-btn" data-n="9">抽 9 張</button>
+          <button class="qd-btn secondary" id="qdClear">清除</button>
+        </div>
+        <p style="margin:10px 0 0;color:#666;font-size:13px">
+          抽牌前，請閉眼三次深呼吸，默念本次主題。
+        </p>
+      </div>
+
+      <!-- 右：結果與引導 CTA -->
+      <div class="qd-box">
+        <h4>結果</h4>
+        <div id="qdGrid" class="qd-grid"></div>
+        <div class="qd-cta" id="qdCta" style="display:none;">
+          <a href="plan30.html">🚀 跟上 30 天行動</a>
+          <a href="abundance.html" class="secondary">🌱 了解 90 天藍圖</a>
+          <a href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener">💬 私訊預約</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================
+   快閃抽牌：資料與控制
+   ============================ */
+const RAW = 'https://raw.githubusercontent.com/HourLight/11/main/';
+const RAW_ALT = 'https://github.com/HourLight/11/raw/main/';
+
+const majors = Array.from({length:22}, (_,i)=>`A${String(i).padStart(2,'0')}.png`);
+const minors = Array.from({length:108}, (_,i)=>`${String(i+1).padStart(3,'0')}.png`);
+const allFiles = majors.concat(minors);
+
+let qdSelected = [];
+
+// 開關模態窗（保留原 href 作備援；JS 成功時阻止跳轉）
+function hookOpen(btnId){
+  const el = document.getElementById(btnId);
+  if(!el) return;
+  el.addEventListener('click', (e)=>{
+    e.preventDefault();
+    document.getElementById('qdMask').classList.add('show');
+    document.getElementById('qdMask').setAttribute('aria-hidden','false');
+  });
+}
+hookOpen('openQuickDraw');
+hookOpen('openQuickDraw2');
+
+document.getElementById('qdClose').addEventListener('click', closeQD);
+document.getElementById('qdMask').addEventListener('click', (e)=>{
+  if(e.target.id === 'qdMask') closeQD();
+});
+function closeQD(){
+  document.getElementById('qdMask').classList.remove('show');
+  document.getElementById('qdMask').setAttribute('aria-hidden','true');
+}
+
+document.querySelectorAll('.qd-btn[data-n]').forEach(btn=>{
+  btn.addEventListener('click', ()=> qdDraw(Number(btn.dataset.n)));
+});
+document.getElementById('qdClear').addEventListener('click', ()=>{
+  qdSelected = []; qdRender(); document.getElementById('qdCta').style.display='none';
+});
+
+function qdDraw(n){
+  if(!confirm('請閉眼深呼吸，心裡默念本次主題，再按「確定」抽牌。')) return;
+  qdSelected = [];
+  const used = new Set();
+  while(qdSelected.length < n){
+    const r = Math.floor(Math.random()*allFiles.length);
+    if(!used.has(r)){ used.add(r); qdSelected.push(r); }
+  }
+  qdRender();
+  document.getElementById('qdCta').style.display='flex'; // 抽到牌才顯示 30/90 CTA
+}
+
+function qdRender(){
+  const grid = document.getElementById('qdGrid');
+  if(!qdSelected.length){ grid.innerHTML = ''; return; }
+  grid.innerHTML = qdSelected.map(i=>{
+    const name = allFiles[i];
+    const code = name.replace('.png','');
+    const src1 = RAW + name + '?v=' + Date.now();
+    const src2 = RAW_ALT + name + '?v=' + Date.now();
+    return `
+      <div class="qd-card">
+        <img class="qd-thumb" src="${src1}" data-alt="${src2}" alt="${code}"
+             referrerpolicy="no-referrer" loading="lazy"
+             onerror="if(this.dataset.alt){this.src=this.dataset.alt;this.dataset.alt='';}">
+        <div class="qd-cap">編號：${code}</div>
+      </div>`;
+  }).join('');
+}
+</script>
 </body>
 </html>
