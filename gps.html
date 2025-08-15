@@ -1,80 +1,385 @@
 <!DOCTYPE html>
-<html lang="zh-Hant"><head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>內在GPS｜總覽</title>
-<link rel="icon" href="favicon.ico">
-<link rel="stylesheet" href="assets/css/style.css">
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>馥靈之鑰｜內在GPS 線上抽牌（130 張）</title>
+<link rel="icon" href="favicon.ico" />
+<style>
+  :root{
+    --milk:#f9f5f0; --cocoa:#6b4f3e;
+    --rose:#cda86e; --rose-dark:#a88257;
+    --ink:#2a2a2a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background: url('https://github.com/HourLight/11/raw/main/background.jpg') center/cover fixed no-repeat;
+    font-family: "Noto Sans TC","PingFang TC","Arial",sans-serif;
+    color: var(--ink);
+  }
+
+  /* 內容外殼：保留品牌底圖，但保證字可讀 */
+  .wrap{
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+  }
+  .glass{
+    background: rgba(255,255,255,.9);
+    backdrop-filter: blur(6px) saturate(120%);
+    border: 1px solid rgba(0,0,0,.06);
+    border-radius: 16px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.15);
+    padding: 22px;
+  }
+
+  /* 標題 */
+  .page-title{
+    text-align:center;
+    margin: 8px auto 14px;
+  }
+  .page-title h1{
+    margin: 0;
+    font-size: 1.95rem;
+    color: var(--cocoa);
+    letter-spacing: .5px;
+  }
+  .page-title p{
+    margin: 8px 0 0;
+    color: var(--rose-dark);
+    font-weight: 600;
+  }
+
+  /* 牌陣＆價格區 */
+  .modes{
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: 1.1fr .9fr;
+    gap: 16px;
+  }
+  @media(max-width: 900px){ .modes{ grid-template-columns: 1fr; } }
+
+  .mode-buttons{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  @media(max-width:700px){
+    .mode-buttons{ grid-template-columns: repeat(3, 1fr); }
+  }
+  .btn{
+    appearance:none;border:none;cursor:pointer;
+    padding: 12px 10px;border-radius: 12px;
+    background: linear-gradient(135deg, var(--rose), var(--rose-dark));
+    color:#fff;font-weight:800;letter-spacing:.5px;
+    box-shadow: 0 4px 10px rgba(0,0,0,.18);
+    transition: .25s;
+  }
+  .btn:hover{ transform: translateY(-2px); filter: brightness(1.05); }
+  .btn.secondary{
+    background: #fff; color: var(--cocoa);
+    border: 1.5px solid var(--cocoa);
+  }
+
+  .price-table{
+    border-radius: 14px; overflow: hidden;
+    border: 1px solid rgba(0,0,0,.08);
+  }
+  table{ width:100%; border-collapse: collapse; }
+  th,td{ padding: 12px 10px; text-align: center; }
+  thead th{ background: #fff2e0; color: #6b4f3e; }
+  tbody tr:nth-child(odd){ background: #fff; }
+  tbody tr:nth-child(even){ background: #fff8f0; }
+  td:first-child{ font-weight: 800; color: var(--cocoa); }
+
+  /* 說明區（可折疊） */
+  details{
+    border: 1px solid rgba(0,0,0,.08);
+    border-radius: 12px; padding: 0 12px;
+    background: rgba(255,255,255,.88);
+    margin: 10px 0;
+  }
+  summary{
+    cursor: pointer; list-style: none; padding: 12px 0;
+    font-weight: 800; color: var(--rose-dark);
+  }
+  summary::-webkit-details-marker{ display:none; }
+  details[open]{ background: rgba(255,255,255,.96); }
+
+  /* 結果區 */
+  .toolbar{
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center;
+    margin: 18px 0 6px;
+  }
+  .hint{
+    text-align:center; color:#666; font-size: 14px; margin: 6px 0 14px;
+  }
+  .grid{
+    display:grid; gap: 14px; margin-top: 6px;
+    grid-template-columns: repeat(5, 1fr);
+  }
+  @media(max-width:1000px){ .grid{ grid-template-columns: repeat(4,1fr); } }
+  @media(max-width:800px){ .grid{ grid-template-columns: repeat(3,1fr); } }
+  @media(max-width:560px){ .grid{ grid-template-columns: repeat(2,1fr); } }
+
+  .card{
+    background:#fff; border:1px solid rgba(0,0,0,.08);
+    border-radius: 12px; overflow:hidden;
+    box-shadow: 0 3px 10px rgba(0,0,0,.12);
+  }
+  .thumb{
+    width:100%; aspect-ratio: 3/4; object-fit: cover; display:block;
+  }
+  .cap{
+    padding: 8px 10px; text-align:center; font-weight: 800; color: var(--cocoa);
+    background: #fff7ed;
+    border-top: 1px solid rgba(0,0,0,.06);
+  }
+
+  /* 底部資訊 */
+  .footer{
+    margin-top: 22px; text-align:center; color:#777; font-size: 13px; line-height: 1.7;
+  }
+  .cta{
+    text-align:center; margin-top: 16px;
+  }
+  .link{
+    display:inline-block; text-decoration:none; color:#fff; font-weight:800;
+    background: linear-gradient(135deg, var(--rose), var(--rose-dark));
+    padding: 10px 18px; border-radius: 22px;
+    box-shadow: 0 3px 8px rgba(0,0,0,.2);
+  }
+  .link:hover{ filter: brightness(1.05); transform: translateY(-2px); }
+
+  .note{ color:#a88257; font-weight:700; }
+</style>
 </head>
 <body>
-<div class="page-wrap">
+  <div class="wrap">
+    <div class="glass page-title">
+      <h1>馥靈之鑰｜內在GPS 線上抽牌（130 張）</h1>
+      <p>130 張牌卡 × HOUR 四步，<span class="note">它不是算命，是日常微調器</span>。</p>
+    </div>
 
-<div class="nav">
-  <div class="nav-inner">
-    <a class="brand" href="index.html" aria-label="返回首頁">
-      <span class="brand-title">馥靈之鑰 Hour Light</span>
-    </a>
-    <div class="nav-links">
-      <a href="gps.html">內在GPS</a>
-      <a href="draw-hl.html">抽牌（馥靈）</a>
-      <a href="tarot.html">抽牌（塔羅）</a>
-      <a href="consulting.html">美業轉型</a>
-      <a href="nail-energy.html">能量美甲</a>
-      <a href="spa.html">SPA</a>
-      <a href="enterprise.html">企業培訓</a>
-      <a href="brand-intro.html">品牌介紹</a>
-      <a href="founder.html">創始人</a>
-      <a class="cta" href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener">LINE 預約</a>
+    <div class="modes">
+      <!-- 左：抽牌按鈕 -->
+      <div class="glass">
+        <h3 style="text-align:center;margin:0 0 10px;color:#6b4f3e;">選擇抽牌張數</h3>
+        <div class="mode-buttons">
+          <button class="btn" data-n="1">抽 1 張</button>
+          <button class="btn" data-n="3">抽 3 張</button>
+          <button class="btn" data-n="5">抽 5 張</button>
+          <button class="btn" data-n="7">抽 7 張</button>
+          <button class="btn" data-n="9">抽 9 張</button>
+          <button class="btn" data-n="12">抽 12 張</button>
+          <button class="btn" data-n="15">抽 15 張</button>
+          <button class="btn secondary" id="clearBtn">清除重抽</button>
+        </div>
+      </div>
+
+      <!-- 右：價格表 -->
+      <div class="glass">
+        <h3 style="text-align:center;margin:0 0 10px;color:#6b4f3e;">價格一覽（參考，可客製）</h3>
+        <div class="price-table">
+          <table>
+            <thead>
+              <tr><th>張數</th><th>價格（NT$）</th><th>用途速記</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1 張</td><td>300</td><td>此刻訊息、快對焦</td></tr>
+              <tr><td>3 張</td><td>600</td><td>過去×現在×未來</td></tr>
+              <tr><td>5 張</td><td>900</td><td>卡點掃描＋對策</td></tr>
+              <tr><td>7 張</td><td>1,200</td><td>結構深掃（如七構面）</td></tr>
+              <tr><td>9 張</td><td>1,500</td><td>藍圖地圖、整體布局</td></tr>
+              <tr><td>12 張</td><td>1,800</td><td>年度節奏、月主題</td></tr>
+              <tr><td>15 張</td><td>2,200</td><td>完整藍圖＋行動路線</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 說明（保留你原本完整結構，避開禁詞） -->
+    <div class="glass" style="margin-top:14px;">
+      <h3 style="text-align:center;margin:0 0 12px;color:#6b4f3e;">抽多少？看這裡（用途 × 問法示例）</h3>
+
+      <details>
+        <summary>1 張｜即時訊息 × 快速對焦</summary>
+        <ul>
+          <li>今日關鍵提醒 / 當下情緒訊號</li>
+          <li>身體的小聲告白、關係溫度計</li>
+          <li>快問快答：現在最適合的行動是？</li>
+        </ul>
+      </details>
+
+      <details>
+        <summary>3 張｜過去・現在・未來 能量流</summary>
+        <ul>
+          <li>事件源頭 × 現況 × 走向</li>
+          <li>職涯或感情的節拍方向</li>
+          <li>轉型卡點與最近的轉機在哪？</li>
+        </ul>
+      </details>
+
+      <details>
+        <summary>5 張｜卡點掃描 × 行動解方</summary>
+        <ul>
+          <li>金錢 / 關係卡住的根因</li>
+          <li>下一步要做什麼、資源從哪來</li>
+          <li>五構面觀照：生理・情緒・人際・習慣・意念</li>
+        </ul>
+      </details>
+
+      <details>
+        <summary>7 張｜深層結構掃描</summary>
+        <ul>
+          <li>七大構面平衡與能量分配</li>
+          <li>情緒釋放七步驟</li>
+          <li>顯性／隱性驅動力一次看清</li>
+        </ul>
+      </details>
+
+      <details>
+        <summary>9 張｜藍圖地圖（整體布局）</summary>
+        <ul>
+          <li>內在 × 外在 × 系統資源盤點</li>
+          <li>九宮格行動策展、節奏快慢配置</li>
+          <li>月運／季運趨勢總覽</li>
+        </ul>
+      </details>
+
+      <details>
+        <summary>12 張｜年度規劃 × 能量重整</summary>
+        <ul>
+          <li>12 個月主題導航、每月關鍵字</li>
+          <li>12 面向平衡盤點、重點任務排序</li>
+          <li>月相週期追蹤（節奏管理）</li>
+        </ul>
+      </details>
+
+      <details>
+        <summary>15 張｜完整藍圖 Ultimate</summary>
+        <ul>
+          <li>原型特質 × 核心課題 × 盲點</li>
+          <li>高維祝福訊息 × 行動清單</li>
+          <li>30–90 天整合路線圖</li>
+        </ul>
+      </details>
+    </div>
+
+    <!-- 工具列與抽牌結果 -->
+    <div class="glass" style="margin-top:14px;">
+      <div class="toolbar">
+        <button class="btn secondary" id="copyBtn">📋 複製卡號</button>
+        <a class="btn" href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener">🌿 LINE 預約</a>
+      </div>
+      <div class="hint">抽牌後下方會顯示卡圖與卡號（A00–A21 / 001–108）。</div>
+      <div id="grid" class="grid"></div>
+    </div>
+
+    <!-- 底部 -->
+    <div class="footer">
+      桃園市桃園區同安街 666 號 1樓（或線上服務）｜ LINE ID：judyanee ｜ Email：judyanee@gmail.com ｜ 0905-723-595<br/>
+      ※ 本頁內容僅供壓力管理、情緒紓解、能量調頻與日常指引參考，非醫療行為。<br/>
+      © 馥靈之鑰 Hour Light
+      <div class="cta" style="margin-top:8px;">
+        <a class="link" href="https://hourlight.github.io/">🏠 返回首頁</a>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="container">
+<script>
+/**
+ * ✅ 卡圖來源設定
+ * 若圖片與本頁「同資料夾」，請把 basePath 改成空字串： ''
+ * 若圖片放在 GitHub repo HourLight/11（main 分支根目錄），維持預設即可。
+ */
+const basePath = 'https://github.com/HourLight/11/raw/main/'; // ← 改成 '' 可走相對路徑
 
-<div class="hero">
-  <h1>內在GPS（HOUR × LIGHT）</h1>
-  <p class="lead">H｜Heart Reset　O｜Observe Mirror　U｜Unfold Story　R｜Re-align Action</p>
-  <div class="badges">
-    <span class="badge">情緒紓解</span><span class="badge">壓力管理</span><span class="badge">行動落地</span>
-  </div>
-  <p><a class="btn primary" href="draw-hl.html">線上抽牌（馥靈）</a></p>
-</div>
+// 建立 130 張檔名（A00–A21、001–108）
+const majors = Array.from({length:22}, (_,i)=>`A${String(i).padStart(2,'0')}.png`);
+const minors = Array.from({length:108}, (_,i)=>`${String(i+1).padStart(3,'0')}.png`);
+const allFiles = majors.concat(minors); // 長度 130
 
-<div class="section">
-  <h2>四步節奏</h2>
-  <ul class="center-list">
-    <li><strong>H — 心動啟程：</strong>快閃卡＋芳香呼吸，先把雜訊降到靜音。</li>
-    <li><strong>O — 觀照鏡像：</strong>130 張能量卡 × 指尖掃描，四構面一次看清。</li>
-    <li><strong>U — 故事展開：</strong>把牌意翻成一句就懂的小劇本。</li>
-    <li><strong>R — 行動校準：</strong>指尖設計 × 氣味方案 × 行動清單，回到日常就能做。</li>
-  </ul>
-</div>
+let selected = [];
 
-<div class="section">
-  <h2>你會得到</h2>
-  <ul class="center-list">
-    <li>明確的主題與行動句</li>
-    <li>對應的色彩 / 水晶 / 芳香建議</li>
-    <li>30–90 天的追蹤節奏</li>
-  </ul>
-</div>
+// 綁定抽牌按鈕
+document.querySelectorAll('.btn[data-n]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const n = Number(btn.dataset.n);
+    drawCards(n);
+  });
+});
 
-</div>
+// 清除
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  selected = [];
+  render();
+  toast('已清除，請重新抽牌');
+});
 
-<div class="footer">
-  <div class="links">
-    <a href="privacy.html">隱私權政策</a> ｜
-    <a href="terms.html">服務條款</a> ｜
-    <a href="hourlight-energy-focus.html">族群解析</a> ｜
-    <a href="hour-ideology.html">HOUR 核心理念</a> ｜
-    <a href="brand-story.html">品牌故事</a>
-  </div>
-  <div class="small">
-    桃園市桃園區同安街 666 號 1樓（或線上服務）｜ LINE ID：judyanee ｜ Email：judyanee@gmail.com ｜ 0905-723-595
-    <br>※ 本平台內容僅供壓力管理、情緒紓解、能量調頻與日常指引之參考，非醫療行為。
-  </div>
-  <div class="small">© 馥靈之鑰 Hour Light</div>
-</div>
+// 複製卡號
+document.getElementById('copyBtn').addEventListener('click', ()=>{
+  if(!selected.length){ toast('請先抽牌再複製'); return; }
+  const txt = selected.map(i=>allFiles[i].replace('.png','')).join(', ');
+  navigator.clipboard.writeText(txt).then(()=>{
+    toast('已複製：' + txt);
+  }).catch(()=>{
+    alert('複製失敗，請手動：' + txt);
+  });
+});
 
-</div>
-</body></html>
+function drawCards(n){
+  // 小儀式：請使用者先對焦
+  if(!confirm('請閉眼深呼吸，心裡默念本次主題，再按「確定」抽牌。')) return;
+
+  selected = [];
+  const used = new Set();
+  while(selected.length < n){
+    const r = Math.floor(Math.random()*allFiles.length); // 0..129
+    if(!used.has(r)){ used.add(r); selected.push(r); }
+  }
+  render();
+  // 捲動到結果
+  document.getElementById('grid').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function render(){
+  const grid = document.getElementById('grid');
+  if(!selected.length){ grid.innerHTML = ''; return; }
+
+  grid.innerHTML = selected.map(i=>{
+    const name = allFiles[i]; // e.g. A03.png / 042.png
+    const code = name.replace('.png','');
+    const url  = basePath + name;
+    return `
+      <div class="card">
+        <img class="thumb" src="${url}" alt="${code}" loading="lazy" />
+        <div class="cap">編號：${code}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// 簡易提示
+function toast(msg){
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.position='fixed';
+  t.style.left='50%';
+  t.style.bottom='24px';
+  t.style.transform='translateX(-50%)';
+  t.style.background='rgba(0,0,0,.8)';
+  t.style.color='#fff';
+  t.style.padding='10px 14px';
+  t.style.borderRadius='10px';
+  t.style.fontSize='14px';
+  t.style.boxShadow='0 4px 12px rgba(0,0,0,.25)';
+  t.style.zIndex='9999';
+  document.body.appendChild(t);
+  setTimeout(()=>{ t.remove(); }, 1600);
+}
+</script>
+</body>
+</html>
