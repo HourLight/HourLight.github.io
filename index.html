@@ -3,260 +3,268 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>馥靈之鑰 Hour Light｜HOUR × LIGHT 成長閉環</title>
+  <title>馥靈之鑰 Hour Light｜內在GPS × HOUR×LIGHT 美業營運系統</title>
   <link rel="icon" href="favicon.ico" />
   <style>
     :root{
-      --milk:#f9f5f0; --cocoa:#6b4f3e;
+      --milk:#f9f5f0; --cocoa:#4b392d;
       --rose:#cda86e; --rose-dark:#a88257;
-      --ink:#2a2a2a;
+      --ink:#2a2a2a; --veil:rgba(255,255,255,.86);
+      --veildark:rgba(0,0,0,.22);
     }
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;height:100%}
     body{
-      font-family: "Noto Sans TC","PingFang TC","Arial",sans-serif;
-      overflow-x:hidden; color:var(--ink);
-      background:#000; /* 進站前用純黑托底，避免閃白 */
+      font-family:"Noto Sans TC","PingFang TC","Arial",sans-serif;
+      color:var(--ink);
+      background:#000; /* 進站前先黑底，進站後才載入背景 */
+      overflow-x:hidden;
     }
-    /* 進站後才掛背景圖（避免載入閃爍） */
+    /* 進站後才套背景，避免讀不到字 */
     body.loaded{
-      background: url('https://raw.githubusercontent.com/HourLight/11/main/background.jpg') center/cover fixed no-repeat;
+      background:url('https://raw.githubusercontent.com/HourLight/11/main/background.jpg') center/cover fixed no-repeat;
     }
 
-    /* —— 進場 Splash（點圖片進站） —— */
+    /* ───── 進站大圖（保留你的原圖） ───── */
     .splash{
       position:fixed; inset:0;
-      background:#000; display:flex; align-items:center; justify-content:center;
-      z-index: 10; transition: opacity 1.2s ease;
+      background:url('P0001.png') center/cover no-repeat;
+      display:flex; align-items:center; justify-content:center;
+      z-index:999; transition:opacity 1.2s ease;
     }
-    .splash__art{
-      width:min(92vw, 1024px); max-height: 92vh; object-fit:contain; cursor:pointer;
-      border-radius:14px; box-shadow:0 10px 28px rgba(0,0,0,.5);
-      /* 你的精心製作圖：放專案同資料夾 P0001.png；若在 images/ 自行改路徑 */
+    .splash.fade-out{opacity:0; pointer-events:none}
+    .enter{
+      position:absolute; bottom:60px; padding:10px 16px;
+      color:#fff; background:rgba(0,0,0,.28); border-radius:999px;
+      font-weight:700; letter-spacing:.5px; cursor:pointer;
+      text-shadow:0 2px 6px rgba(0,0,0,.45);
+      animation:blink 2s infinite;
     }
-    .enter-message{
-      position:absolute; bottom:24px; left:50%; transform:translateX(-50%);
-      color:#fff; font-weight:700; font-size:14px;
-      padding:8px 12px; border-radius:999px; background:rgba(0,0,0,.35);
-      text-shadow:0 2px 6px rgba(0,0,0,.6); letter-spacing:.5px;
-      animation:blink 1.8s infinite;
-    }
-    .splash.fade-out{ opacity:0; pointer-events:none; }
-    @keyframes blink {0%,100%{opacity:.65} 50%{opacity:1}}
+    @keyframes blink{0%,100%{opacity:.7}50%{opacity:1}}
 
-    /* —— 主內容 —— */
-    .main{display:none; min-height:100vh; padding:40px 16px 64px;}
-    .main.show{display:block;}
-    .container{
-      max-width: 1080px; margin: 0 auto;
-      background: rgba(255,255,255,.82);
-      backdrop-filter: blur(6px) saturate(120%);
+    /* ───── 主內容殼 ───── */
+    .main{display:none; min-height:100vh; padding:28px 16px 60px;}
+    .main.show{display:block}
+    .wrap{max-width:1100px; margin:0 auto}
+
+    /* 玻璃卡 */
+    .glass{
+      background:var(--veil);
+      backdrop-filter:blur(6px) saturate(120%);
       border:1px solid rgba(0,0,0,.06);
-      border-radius: 16px; box-shadow: 0 10px 28px rgba(0,0,0,.2);
-      padding: 32px 22px;
-    }
-    .hero{text-align:center}
-    .hero h1{margin:0;color:var(--cocoa);font-size:2.2rem;letter-spacing:.6px}
-    .hero p{margin:8px 0 0;color:var(--rose-dark);font-weight:700}
-
-    .pill{
-      display:inline-block; margin:14px 0 0; padding:8px 14px; border-radius:999px;
-      background:#fff; color:var(--rose-dark); font-weight:800; border:1px solid rgba(0,0,0,.08)
+      border-radius:16px; box-shadow:0 8px 26px rgba(0,0,0,.18);
+      padding:22px;
     }
 
-    /* CTA 區（上下堆疊） */
-    .stack{display:flex; flex-direction:column; gap:16px; margin:26px auto 10px; max-width:840px}
-    .card{
-      background:#fff; border:1px solid rgba(0,0,0,.06); border-radius:16px; padding:18px;
-      box-shadow:0 6px 18px rgba(0,0,0,.12)
+    /* 頁首英雄區：雙軌說清楚 */
+    .hero{display:grid; grid-template-columns:1.15fr .85fr; gap:16px; align-items:stretch}
+    @media(max-width:980px){.hero{grid-template-columns:1fr}}
+
+    .brand{
+      text-align:center;
+      background:rgba(255,255,255,.9);
     }
-    .card h3{margin:0 0 8px; color:var(--cocoa)}
-    .muted{color:#6b4f3e; opacity:.9}
-    .badges{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 4px}
-    .badge{
-      display:inline-block; font-size:12px; padding:6px 10px; border-radius:999px; color:#fff;
+    .brand h1{
+      margin:4px 0 6px; font-size:2.1rem; color:var(--cocoa);
+      letter-spacing:.5px;
+    }
+    .brand p{margin:6px 0 0; color:var(--rose-dark); font-weight:700}
+
+    .split{
+      display:grid; gap:16px; grid-template-rows:auto auto;
+    }
+    .track{
+      border-radius:14px; padding:18px 18px 14px;
+      background:rgba(255,255,255,.9);
+      border:1px solid rgba(0,0,0,.06);
+      box-shadow:0 6px 18px rgba(0,0,0,.12);
+    }
+    .track h3{margin:0 0 6px; color:var(--cocoa); font-size:1.25rem}
+    .badges{display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 10px}
+    .badge{font-size:12px; color:#fff; padding:6px 10px; border-radius:999px;
       background:linear-gradient(135deg,var(--rose),var(--rose-dark));
-      box-shadow:inset 0 0 5px rgba(255,255,255,.25)
+      box-shadow:inset 0 0 5px rgba(255,255,255,.25);
     }
-    .btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+    .btns{display:flex; flex-wrap:wrap; gap:10px}
     .btn{
       display:inline-block; text-decoration:none; font-weight:800;
-      padding:10px 16px; border-radius:24px; transition:.25s; box-shadow:0 6px 12px rgba(0,0,0,.16)
+      padding:10px 16px; border-radius:24px; transition:.25s;
     }
-    .btn.primary{ color:#fff; background: linear-gradient(135deg, var(--rose), var(--rose-dark));}
-    .btn.secondary{ color:var(--cocoa); background:#fff; border:1.5px solid var(--cocoa); box-shadow:none}
-    .btn:hover{ filter:brightness(1.05); transform:translateY(-2px)}
+    .btn.primary{color:#fff; background:linear-gradient(135deg,var(--rose),var(--rose-dark))}
+    .btn.primary:hover{filter:brightness(1.05)}
+    .btn.secondary{color:var(--cocoa); background:#fff; border:1.5px solid var(--cocoa)}
+    .btn.secondary:hover{transform:translateY(-2px)}
 
-    /* 大按鈕卡片 */
-    .big-links{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin:18px 0 28px}
-    .big-links a{
-      width:min(420px, 92%); min-height:100px; display:flex; gap:12px; align-items:center; justify-content:center; text-align:center;
-      color:#fff; text-decoration:none; font-size:20px; font-weight:900; letter-spacing:.5px;
-      background: linear-gradient(135deg, var(--rose) 0%, var(--rose-dark) 100%);
-      border-radius:16px; border:1.5px solid rgba(255,255,255,.45);
-      box-shadow:0 0 14px rgba(255,214,153,.28), inset 0 0 6px rgba(255,255,255,.25);
-      transition:.3s
+    /* 快速入口：把你所有重要頁面都露出 */
+    .grid{
+      margin-top:18px;
+      display:grid; gap:14px;
+      grid-template-columns:repeat(3,1fr);
     }
-    .big-links a:hover{ transform:scale(1.03) }
+    @media(max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:640px){.grid{grid-template-columns:1fr}}
 
-    /* 連結群組 */
-    .links{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
-    .links a{
-      display:inline-block; background:var(--rose); color:#fff; text-decoration:none; font-weight:800;
-      padding:10px 14px; border-radius:10px; box-shadow:0 3px 6px rgba(0,0,0,.15); transition:.25s
+    .tile{
+      display:flex; flex-direction:column; gap:10px; text-decoration:none;
+      padding:16px; border-radius:14px;
+      background:rgba(255,255,255,.86); border:1px solid rgba(0,0,0,.06);
+      box-shadow:0 6px 18px rgba(0,0,0,.12);
+      transition:.25s; color:var(--cocoa);
+      min-height:120px;
     }
-    .links a:hover{ background:var(--rose-dark); transform:translateY(-2px) }
+    .tile:hover{transform:translateY(-2px)}
+    .tile .t1{font-weight:900; font-size:1.05rem}
+    .tile .t2{font-size:.92rem; color:#6a5747}
 
-    .info{
-      margin-top:20px; text-align:center; display:flex; justify-content:center
+    /* 雙欄特色區 */
+    .two{
+      display:grid; gap:16px; grid-template-columns:1fr 1fr; margin-top:18px;
     }
-    .info .box{
-      background:rgba(235,215,190,.72); border:1px solid rgba(0,0,0,.06); color:#2f2a26;
-      border-radius:12px; padding:16px; line-height:1.8; font-size:15px; display:inline-block; text-align:left
-    }
+    @media(max-width:900px){.two{grid-template-columns:1fr}}
 
+    /* 頁尾 */
     .footer{
-      margin-top:20px; text-align:center; color:#fff; font-size:13px; line-height:1.7;
-      background: rgba(0,0,0,.55); border-radius:12px; padding:12px
+      text-align:center; color:#fff; line-height:1.6; font-size:13px;
+      margin:24px 0 0; padding:12px 10px; border-radius:12px;
+      background:rgba(0,0,0,.45);
     }
-    .footer a{ color:#ffe4bc; text-decoration:none }
-    .footer a:hover{ text-decoration:underline }
-
-    @media (max-width:768px){
-      .hero h1{font-size:1.9rem}
-      .big-links a{font-size:18px}
+    .fbtns{margin-top:8px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
+    .fbtn{
+      text-decoration:none; color:#fff; font-weight:800; padding:8px 14px; border-radius:999px;
+      background:linear-gradient(135deg,var(--rose),var(--rose-dark));
+      box-shadow:0 3px 10px rgba(0,0,0,.25); transition:.2s;
     }
+    .fbtn:hover{filter:brightness(1.05)}
   </style>
 </head>
 <body>
 
-  <!-- Splash：點圖進站（保留你的精心圖片） -->
-  <div class="splash" id="splash">
-    <img src="P0001.png" alt="點擊開始旅程" class="splash__art" id="splashArt" />
-    <div class="enter-message">點擊圖片開始旅程</div>
+  <!-- 進站大圖（保留你的原圖） -->
+  <div class="splash" id="splash" onclick="enterSite()">
+    <div class="enter">點擊開始旅程</div>
   </div>
 
-  <!-- Main -->
+  <!-- 主內容 -->
   <main class="main" id="main">
-    <div class="container">
-      <!-- Hero -->
-      <section class="hero" aria-label="品牌抬頭與標語">
-        <h1>馥靈之鑰 Hour Light</h1>
-        <p>HOUR × LIGHT 成長閉環｜半年打造市場唯一的美業營運系統</p>
-        <span class="pill">特色挖掘・高價策略・團隊賦能・會員成長</span>
+    <div class="wrap">
+
+      <!-- 英雄區：左品牌＋右雙軌 -->
+      <section class="hero">
+        <div class="glass brand">
+          <h1>馥靈之鑰 Hour Light</h1>
+          <p>雙主軌：<strong>內在GPS</strong> × <strong>HOUR × LIGHT 美業營運系統</strong></p>
+        </div>
+
+        <div class="split">
+          <!-- Track A：內在GPS 產品線 -->
+          <div class="track">
+            <h3>🔮 內在GPS｜馥靈之鑰系統</h3>
+            <div class="badges">
+              <span class="badge">130 張卡</span><span class="badge">身心調頻</span><span class="badge">日常對焦</span>
+            </div>
+            <div class="btns">
+              <a class="btn primary" href="gps.html">線上抽牌（內在GPS）</a>
+              <a class="btn secondary" href="tarot.html">塔羅預測（獨立 78 張）</a>
+              <a class="btn secondary" href="plan30.html">30 天躍升計劃</a>
+              <a class="btn secondary" href="abundance.html">90 天豐盛藍圖</a>
+            </div>
+          </div>
+
+          <!-- Track B：HOUR × LIGHT 顧問線 -->
+          <div class="track">
+            <h3>🏭 HOUR × LIGHT｜美業營運顧問</h3>
+            <div class="badges">
+              <span class="badge">特色挖掘</span><span class="badge">高價策略</span><span class="badge">團隊賦能</span><span class="badge">會員成長</span>
+            </div>
+            <div class="btns">
+              <a class="btn primary" href="enterprise.html">企業 / 連鎖導入</a>
+              <a class="btn secondary" href="consulting.html">顧問服務（百萬級）</a>
+              <a class="btn secondary" href="monetization.html">變現策略與收益模型</a>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <!-- 兩塊主 CTA（上下堆疊） -->
-      <section class="stack" aria-label="主行動區塊">
-        <div class="card">
-          <h3>HOUR × LIGHT｜半年打造市場唯一</h3>
-          <p class="muted">不是跟風做行銷，而是用四階段閉環（聚焦／架構／放大／穩固）建立可持續、可複製、可放大的獲利系統。</p>
-          <div class="badges">
-            <span class="badge">差異化定位</span>
-            <span class="badge">高價服務設計</span>
-            <span class="badge">流程 SOP 化</span>
-            <span class="badge">會員營收成長</span>
-          </div>
-          <div class="btns">
-            <!-- 內部頁面用相對路徑，任何子目錄部署都能用 -->
-            <a class="btn primary" href="enterprise.html">了解豐碩計畫</a>
-            <a class="btn secondary" href="consulting.html">預約 30 分鐘策略諮詢</a>
+      <!-- 快速入口（把你所有重要頁都帶進來） -->
+      <section class="grid">
+        <a class="tile" href="hourlight-energy-nails.html">
+          <span class="t1">💅 能量美甲</span>
+          <span class="t2">指尖 × 水晶 × 金屬，成為你的能量天線</span>
+        </a>
+        <a class="tile" href="hourlight-energy-spa.html">
+          <span class="t1">💆 SPA 調理</span>
+          <span class="t2">能量覺察 × 業力釋放 × 脈輪調頻</span>
+        </a>
+        <a class="tile" href="pet-energy.html">
+          <span class="t1">🐾 寵物溝通牌卡</span>
+          <span class="t2">與毛孩同步呼吸：HOUR 四步 × 牌卡導航</span>
+        </a>
+        <a class="tile" href="nail-mentor.html">
+          <span class="t1">👩‍🏫 能量美甲｜師資</span>
+          <span class="t2">講師介紹 / 課程報名 / 店務 SOP</span>
+        </a>
+        <a class="tile" href="gel-nail-course.html">
+          <span class="t1">📚 美甲師資課程</span>
+          <span class="t2">凝膠基礎、極薄建構、證照輔考</span>
+        </a>
+        <a class="tile" href="draw-hl.html">
+          <span class="t1">🃏 內在GPS｜抽牌（簡版）</span>
+          <span class="t2">卡圖即顯、複製卡號、LINE 預約</span>
+        </a>
+      </section>
+
+      <!-- 雙欄特色：品牌與方法論 -->
+      <section class="two">
+        <div class="glass">
+          <h3 style="margin:0 0 8px;color:var(--cocoa)">📖 認識品牌</h3>
+          <div class="btns" style="margin-top:6px">
+            <a class="btn secondary" href="founder.html">創始人</a>
+            <a class="btn secondary" href="brand-story.html">品牌故事</a>
+            <a class="btn secondary" href="brand-vision.html">品牌願景</a>
+            <a class="btn secondary" href="brand-intro.html">品牌介紹</a>
+            <a class="btn secondary" href="brand-origin.html">品牌起源</a>
           </div>
         </div>
-
-        <div class="card">
-          <h3>這套專案適合你，如果…</h3>
-          <ul style="margin:8px 0 0 20px; line-height:1.8">
-            <li>想擺脫同質性，做出不可複製的風格</li>
-            <li>想從削價走到高價，還能被指名</li>
-            <li>想讓團隊在你不在場時也能穩定運作</li>
-          </ul>
+        <div class="glass">
+          <h3 style="margin:0 0 8px;color:var(--cocoa)">🧭 方法論與系統</h3>
+          <div class="btns" style="margin-top:6px">
+            <a class="btn secondary" href="hourlight-core.html">HOUR 核心理念</a>
+            <a class="btn secondary" href="hourlight-system.html">系統總覽</a>
+            <a class="btn secondary" href="hour-ideology.html">內訓理念</a>
+            <a class="btn secondary" href="hourlight-hour.html">HOUR 四步節奏</a>
+            <a class="btn secondary" href="hourlight-energy-focus.html">族群解析</a>
+            <a class="btn secondary" href="gps-system.html">內在GPS 系統版</a>
+          </div>
         </div>
       </section>
 
-      <!-- 內在覺察共振系統（大卡片按鈕） -->
-      <h2 style="text-align:center; color:var(--cocoa); margin:22px 0 10px;">🔮 內在覺察共振系統</h2>
-      <div class="big-links">
-        <!-- 你的抽牌主頁（內在GPS） -->
-        <a href="gps.html" aria-label="內在GPS 線上抽牌">🌿 內在GPS·線上抽牌 →</a>
-      </div>
-
-      <!-- 指尖 × SPA -->
-      <h2 style="text-align:center; color:var(--cocoa); margin:10px 0 10px;">💅 指尖 × SPA 能量調理</h2>
-      <div class="links" aria-label="服務連結">
-        <a href="nail-energy.html">能量美甲</a>
-        <a href="spa.html">SPA 調理</a>
-        <a href="nail-mentor.html">美甲師資</a>
-        <a href="https://www.instagram.com/histudio_nailnlash/" target="_blank" rel="noopener">HI Studio（外部）</a>
-      </div>
-
-      <!-- 認識品牌 -->
-      <h2 style="text-align:center; color:var(--cocoa); margin:18px 0 10px;">📖 認識 Hour Light</h2>
-      <div class="links" aria-label="品牌資訊連結">
-        <a href="founder.html">創始人</a>
-        <a href="brand-story.html">品牌故事</a>
-        <a href="brand-intro.html">品牌介紹 / 願景</a>
-        <a href="hourlight-energy-focus.html">族群解析</a>
-        <a href="hourlight-core.html">HOUR 核心理念</a>
-      </div>
-
-      <!-- 社群入口 -->
-      <h2 style="text-align:center; color:var(--cocoa); margin:18px 0 10px;">🌐 一站式入口</h2>
-      <div class="links" aria-label="社群連結">
-        <a href="https://www.youtube.com/channel/UCnQuCOApUvPXbfqQaWRaj9w" target="_blank" rel="noopener">📺 YouTube</a>
-        <a href="https://www.instagram.com/hourlight.yichun/" target="_blank" rel="noopener">📷 Instagram</a>
-        <a href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener">🌿 LINE 預約（ID：judyanee）</a>
-        <a href="https://solink.soundon.fm/HourLight" target="_blank" rel="noopener">🔗 連結總表</a>
-        <a href="pet-energy.html">🐾 寵物溝通</a>
-        <a href="abundance.html">📜 90 天豐盛之境藍圖</a>
-      </div>
-
-      <!-- 智慧客服 -->
-      <div class="links" style="margin-top:14px">
-        <a href="https://chatgpt.com/g/g-681ebdcf6bb881918e1d0bc354300384-fu-ling-zhi-yao-zhi-hui-ke-fu" target="_blank" rel="noopener">💬 智慧客服 · 立即提問</a>
-      </div>
-
-      <!-- 聯絡資訊 -->
-      <div class="info">
-        <div class="box">
-          📍 <strong>嗨執甲概念美學</strong><br />
-          桃園市桃園區同安街 666 號 1F（採預約制）<br />
-          💬 LINE：judyanee　|　📧 judyanee@gmail.com　|　📞 0905-723-595
+      <!-- 頁尾（含返回首頁 & 變現策略） -->
+      <footer class="footer glass" style="margin-top:18px">
+        桃園市桃園區同安街 666 號 1F（採預約制）｜ LINE：judyanee ｜ Email：ask.hourlight@gmail.com ｜ 0905-723-595<br/>
+        ※ 本網站內容僅供壓力管理、情緒紓解、能量調頻與日常指引參考，非醫療行為。<br/>
+        © 馥靈之鑰 Hour Light
+        <div class="fbtns">
+          <a class="fbtn" href="index.html">🏠 返回首頁</a>
+          <a class="fbtn" href="monetization.html">💰 變現策略</a>
+          <a class="fbtn" href="privacy.html">🔒 隱私權政策</a>
+          <a class="fbtn" href="terms.html">📜 服務條款</a>
         </div>
-      </div>
-
-      <!-- Footer -->
-      <footer class="footer" aria-label="頁尾">
-        ※ 本網站內容僅供壓力管理、情緒紓解、能量調頻與日常指引參考，非醫療行為。<br />
-        © 馥靈之鑰 Hour Light　
-        <a href="privacy.html">隱私權政策</a> ｜ <a href="terms.html">服務條款</a>
       </footer>
     </div>
   </main>
 
   <script>
-    // —— 進場：點擊圖片或 Enter 進站
-    const splash = document.getElementById('splash');
-    const splashArt = document.getElementById('splashArt');
     function enterSite(){
-      splash.classList.add('fade-out');
+      const s = document.getElementById('splash');
+      s.classList.add('fade-out');
       setTimeout(()=>{
-        splash.style.display='none';
+        s.style.display='none';
         document.getElementById('main').classList.add('show');
         document.body.classList.add('loaded');
+        // 捲回頂部
+        window.scrollTo({top:0, behavior:'instant' });
       }, 900);
     }
-    splashArt.addEventListener('click', enterSite);
-    // 鍵盤可用性（Enter）
-    document.addEventListener('keydown', e=>{
-      if(e.key === 'Enter' && splash.style.display !== 'none'){ enterSite(); }
-    });
-
-    // —— 外部連結：自動在新分頁開啟（安全 rel 已加）
-    document.querySelectorAll('a[href^="http"]').forEach(a=>{
-      if(!a.hasAttribute('target')) a.setAttribute('target','_blank');
-      if(!a.hasAttribute('rel')) a.setAttribute('rel','noopener');
-    });
   </script>
 </body>
 </html>
