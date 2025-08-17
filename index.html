@@ -1,271 +1,245 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>馥靈之鑰 Hour Light｜內在GPS × HOUR×LIGHT顧問系統</title>
-  <link rel="icon" href="favicon.ico" />
-  <style>
-    :root{
-      --milk:#f9f5f0; --cocoa:#4b392d;
-      --rose:#cda86e; --rose-dark:#a88257;
-      --ink:#2a2a2a; --veil:rgba(255,255,255,.86);
-      --veildark:rgba(0,0,0,.22);
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;height:100%}
-    body{
-      font-family:"Noto Sans TC","PingFang TC","Arial",sans-serif;
-      color:var(--ink);
-      background:#000; /* 進站前先黑底，進站後才載入背景 */
-      overflow-x:hidden;
-    }
-    /* 進站後才套背景，避免讀不到字 */
-    body.loaded{
-      background:url('https://raw.githubusercontent.com/HourLight/11/main/background.jpg') center/cover fixed no-repeat;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>馥靈之鑰 Hour Light｜內在GPS × HOUR×LIGHT 顧問系統</title>
+<link rel="icon" href="favicon.ico" />
+<style>
+  :root{
+    --milk:#f9f5f0; --cocoa:#4b392d;
+    --rose:#cda86e; --rose-dark:#a88257;
+    --ink:#2a2a2a; --veil:rgba(255,255,255,.88);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%}
+  body{
+    font-family:"Noto Sans TC","PingFang TC","Arial",sans-serif;
+    color:var(--ink); background:#000; overflow-x:hidden;
+  }
+  /* 進站後才套背景，避免文字壓暗 */
+  body.loaded{
+    background:url('https://raw.githubusercontent.com/HourLight/11/main/background.jpg') center/cover fixed no-repeat;
+  }
 
-    /* ───── 進站大圖（保留你的原圖） ───── */
-    .splash{
-      position:fixed; inset:0;
-      background:url('P0001.png') center/cover no-repeat;
-      display:flex; align-items:center; justify-content:center;
-      z-index:999; transition:opacity 1.2s ease;
-    }
-    .splash.fade-out{opacity:0; pointer-events:none}
-    .enter{
-      position:absolute; bottom:60px; padding:10px 16px;
-      color:#fff; background:rgba(0,0,0,.28); border-radius:999px;
-      font-weight:700; letter-spacing:.5px; cursor:pointer;
-      text-shadow:0 2px 6px rgba(0,0,0,.45);
-      animation:blink 2s infinite;
-    }
-    @keyframes blink{0%,100%{opacity:.7}50%{opacity:1}}
+  /* Splash（保留你的封面圖 P0001.png） */
+  .splash{
+    position:fixed; inset:0; background:url('P0001.png') center/cover no-repeat;
+    display:flex; align-items:center; justify-content:center;
+    z-index:999; transition:opacity 1.1s ease;
+  }
+  .splash.fade-out{opacity:0; pointer-events:none}
+  .enter{
+    position:absolute; bottom:64px; padding:10px 18px; border-radius:999px;
+    color:#fff; background:rgba(0,0,0,.3); font-weight:800; letter-spacing:.5px;
+    text-shadow:0 2px 6px rgba(0,0,0,.45); cursor:pointer; animation:blink 2s infinite;
+  }
+  @keyframes blink{0%,100%{opacity:.7}50%{opacity:1}}
 
-    /* ───── 主內容殼 ───── */
-    .main{display:none; min-height:100vh; padding:28px 16px 60px;}
-    .main.show{display:block}
-    .wrap{max-width:1100px; margin:0 auto}
+  /* 主內容殼 */
+  .main{display:none; min-height:100vh; padding:28px 16px 60px;}
+  .main.show{display:block}
+  .wrap{max-width:1100px; margin:0 auto}
 
-    /* 玻璃卡 */
-    .glass{
-      background:var(--veil);
-      backdrop-filter:blur(6px) saturate(120%);
-      border:1px solid rgba(0,0,0,.06);
-      border-radius:16px; box-shadow:0 8px 26px rgba(0,0,0,.18);
-      padding:22px;
-    }
+  /* 玻璃卡 */
+  .glass{
+    background:var(--veil); backdrop-filter:blur(6px) saturate(120%);
+    border:1px solid rgba(0,0,0,.06); border-radius:16px;
+    box-shadow:0 8px 26px rgba(0,0,0,.18); padding:22px;
+  }
 
-    /* 頁首英雄區：雙軌說清楚 */
-    .hero{display:grid; grid-template-columns:1.15fr .85fr; gap:16px; align-items:stretch}
-    @media(max-width:980px){.hero{grid-template-columns:1fr}}
+  /* 英雄區：左品牌＋右雙軌 */
+  .hero{display:grid; grid-template-columns:1.15fr .85fr; gap:16px; align-items:stretch}
+  @media(max-width:980px){.hero{grid-template-columns:1fr}}
+  .brand{text-align:center; background:#fff}
+  .brand h1{margin:4px 0 6px; font-size:2.1rem; color:var(--cocoa); letter-spacing:.5px;}
+  .brand p{margin:6px 0 0; color:var(--rose-dark); font-weight:700}
 
-    .brand{
-      text-align:center;
-      background:rgba(255,255,255,.9);
-    }
-    .brand h1{
-      margin:4px 0 6px; font-size:2.1rem; color:var(--cocoa);
-      letter-spacing:.5px;
-    }
-    .brand p{margin:6px 0 0; color:var(--rose-dark); font-weight:700}
+  .split{display:grid; gap:16px; grid-template-rows:auto auto;}
+  .track{
+    border-radius:14px; padding:18px 18px 14px; background:#fff;
+    border:1px solid rgba(0,0,0,.06); box-shadow:0 6px 18px rgba(0,0,0,.12);
+  }
+  .track h3{margin:0 0 8px; color:var(--cocoa); font-size:1.22rem}
+  .badges{display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 10px}
+  .badge{
+    font-size:12px; color:#fff; padding:6px 10px; border-radius:999px;
+    background:linear-gradient(135deg,var(--rose),var(--rose-dark));
+    box-shadow:inset 0 0 5px rgba(255,255,255,.25);
+  }
+  .btns{display:flex; flex-wrap:wrap; gap:10px}
+  .btn{
+    display:inline-block; text-decoration:none; font-weight:800;
+    padding:10px 16px; border-radius:24px; transition:.25s;
+  }
+  .btn.primary{color:#fff; background:linear-gradient(135deg,var(--rose),var(--rose-dark))}
+  .btn.primary:hover{filter:brightness(1.05)}
+  .btn.secondary{color:var(--cocoa); background:#fff; border:1.6px solid var(--cocoa)}
+  .btn.secondary:hover{transform:translateY(-2px)}
 
-    .split{
-      display:grid; gap:16px; grid-template-rows:auto auto;
-    }
-    .track{
-      border-radius:14px; padding:18px 18px 14px;
-      background:rgba(255,255,255,.9);
-      border:1px solid rgba(0,0,0,.06);
-      box-shadow:0 6px 18px rgba(0,0,0,.12);
-    }
-    .track h3{margin:0 0 6px; color:var(--cocoa); font-size:1.25rem}
-    .badges{display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 10px}
-    .badge{font-size:12px; color:#fff; padding:6px 10px; border-radius:999px;
-      background:linear-gradient(135deg,var(--rose),var(--rose-dark));
-      box-shadow:inset 0 0 5px rgba(255,255,255,.25);
-    }
-    .btns{display:flex; flex-wrap:wrap; gap:10px}
-    .btn{
-      display:inline-block; text-decoration:none; font-weight:800;
-      padding:10px 16px; border-radius:24px; transition:.25s;
-    }
-    .btn.primary{color:#fff; background:linear-gradient(135deg,var(--rose),var(--rose-dark))}
-    .btn.primary:hover{filter:brightness(1.05)}
-    .btn.secondary{color:var(--cocoa); background:#fff; border:1.5px solid var(--cocoa)}
-    .btn.secondary:hover{transform:translateY(-2px)}
+  /* 快速入口 */
+  .grid{margin-top:18px; display:grid; gap:14px; grid-template-columns:repeat(3,1fr)}
+  @media(max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  .tile{
+    display:flex; flex-direction:column; gap:10px; text-decoration:none;
+    padding:16px; border-radius:14px; background:#fff;
+    border:1px solid rgba(0,0,0,.06); box-shadow:0 6px 18px rgba(0,0,0,.12);
+    transition:.25s; color:var(--cocoa); min-height:120px;
+  }
+  .tile:hover{transform:translateY(-2px)}
+  .tile .t1{font-weight:900; font-size:1.05rem}
+  .tile .t2{font-size:.92rem; color:#6a5747}
 
-    /* 快速入口：把你所有重要頁面都露出 */
-    .grid{
-      margin-top:18px;
-      display:grid; gap:14px;
-      grid-template-columns:repeat(3,1fr);
-    }
-    @media(max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}}
-    @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  /* 雙欄：品牌／系統 */
+  .two{display:grid; gap:16px; grid-template-columns:1fr 1fr; margin-top:18px;}
+  @media(max-width:900px){.two{grid-template-columns:1fr}}
 
-    .tile{
-      display:flex; flex-direction:column; gap:10px; text-decoration:none;
-      padding:16px; border-radius:14px;
-      background:rgba(255,255,255,.86); border:1px solid rgba(0,0,0,.06);
-      box-shadow:0 6px 18px rgba(0,0,0,.12);
-      transition:.25s; color:var(--cocoa);
-      min-height:120px;
-    }
-    .tile:hover{transform:translateY(-2px)}
-    .tile .t1{font-weight:900; font-size:1.05rem}
-    .tile .t2{font-size:.92rem; color:#6a5747}
-
-    /* 雙欄特色區 */
-    .two{
-      display:grid; gap:16px; grid-template-columns:1fr 1fr; margin-top:18px;
-    }
-    @media(max-width:900px){.two{grid-template-columns:1fr}}
-
-    /* 頁尾 */
-    .footer{
-      text-align:center; color:#fff; line-height:1.6; font-size:13px;
-      margin:24px 0 0; padding:12px 10px; border-radius:12px;
-      background:rgba(0,0,0,.45);
-    }
-    .fbtns{margin-top:8px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
-    .fbtn{
-      text-decoration:none; color:#fff; font-weight:800; padding:8px 14px; border-radius:999px;
-      background:linear-gradient(135deg,var(--rose),var(--rose-dark));
-      box-shadow:0 3px 10px rgba(0,0,0,.25); transition:.2s;
-    }
-    .fbtn:hover{filter:brightness(1.05)}
-  </style>
+  /* Footer */
+  .footer{
+    text-align:center; color:#fff; line-height:1.6; font-size:13px;
+    margin:24px 0 0; padding:12px 10px; border-radius:12px;
+    background:rgba(0,0,0,.45);
+  }
+  .fbtns{margin-top:8px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
+  .fbtn{
+    text-decoration:none; color:#fff; font-weight:800; padding:8px 14px; border-radius:999px;
+    background:linear-gradient(135deg,var(--rose),var(--rose-dark));
+    box-shadow:0 3px 10px rgba(0,0,0,.25); transition:.2s;
+  }
+  .fbtn:hover{filter:brightness(1.05)}
+</style>
 </head>
 <body>
 
-  <!-- 進站大圖（保留你的原圖） -->
-  <div class="splash" id="splash" onclick="enterSite()">
-    <div class="enter">點擊開始旅程</div>
+<!-- 進站大圖（點擊進站） -->
+<div class="splash" id="splash" onclick="enterSite()">
+  <div class="enter">點擊開始旅程</div>
+</div>
+
+<!-- 主內容 -->
+<main class="main" id="main">
+  <div class="wrap">
+
+    <!-- 英雄區：左品牌＋右雙軌 -->
+    <section class="hero">
+      <div class="glass brand">
+        <h1>馥靈之鑰 Hour Light</h1>
+        <p>雙主軌：<strong>內在GPS</strong> × <strong>HOUR × LIGHT 顧問系統</strong></p>
+      </div>
+
+      <div class="split">
+        <!-- A：內在GPS -->
+        <div class="track">
+          <h3>🔮 內在GPS｜馥靈之鑰系統</h3>
+          <div class="badges">
+            <span class="badge">130 張卡</span><span class="badge">身心調頻</span><span class="badge">日常對焦</span>
+          </div>
+          <div class="btns">
+            <a class="btn primary" href="draw-hl.html">線上抽牌（內在GPS）</a>
+            <a class="btn secondary" href="tarot.html">塔羅預測</a>
+            <a class="btn secondary" href="plan30.html">30 天躍升計劃</a>
+            <a class="btn secondary" href="abundance.html">90 天豐盛藍圖</a>
+          </div>
+        </div>
+
+        <!-- B：顧問線 -->
+        <div class="track">
+          <h3>🏭 HOUR × LIGHT｜美業營運顧問</h3>
+          <div class="badges">
+            <span class="badge">特色挖掘</span><span class="badge">高價策略</span>
+            <span class="badge">團隊賦能</span><span class="badge">會員成長</span>
+          </div>
+          <div class="btns">
+            <a class="btn primary" href="enterprise.html">企業 / 連鎖導入</a>
+            <a class="btn secondary" href="consulting.html">轉型訂製顧問服務</a>
+            <a class="btn secondary" href="monetization.html">變現策略與收益模型</a>
+            <a class="btn secondary" href="partners-jumeng.html">顧問夥伴｜聚盟智匯</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 快速入口 -->
+    <section class="grid">
+      <a class="tile" href="hourlight-energy-nails.html">
+        <span class="t1">💅 能量美甲</span>
+        <span class="t2">指尖 × 水晶 × 金屬，成為你的能量天線</span>
+      </a>
+      <a class="tile" href="hourlight-energy-spa.html">
+        <span class="t1">💆 SPA 調理</span>
+        <span class="t2">能量覺察 × 業力釋放 × 脈輪調頻</span>
+      </a>
+      <a class="tile" href="pet-energy.html">
+        <span class="t1">🐾 寵物溝通牌卡</span>
+        <span class="t2">與毛孩同步呼吸：HOUR 四步 × 牌卡導航</span>
+      </a>
+      <a class="tile" href="nail-mentor.html">
+        <span class="t1">👩‍🏫 能量美甲｜師資</span>
+        <span class="t2">講師介紹 / 課程報名 / 店務 SOP</span>
+      </a>
+      <a class="tile" href="gel-nail-course.html">
+        <span class="t1">📚 美甲師資課程</span>
+        <span class="t2">凝膠基礎、極薄建構、證照輔考</span>
+      </a>
+      <a class="tile" href="draw-hl.html">
+        <span class="t1">🃏 內在GPS｜線上抽牌</span>
+        <span class="t2">卡圖即顯、複製卡號、LINE 預約</span>
+      </a>
+    </section>
+
+    <!-- 雙欄：品牌與方法論 -->
+    <section class="two">
+      <div class="glass">
+        <h3 style="margin:0 0 8px;color:var(--cocoa)">📖 認識品牌</h3>
+        <div class="btns" style="margin-top:6px">
+          <a class="btn secondary" href="founder.html">創始人</a>
+          <a class="btn secondary" href="brand-story.html">品牌故事</a>
+          <a class="btn secondary" href="brand-vision.html">品牌願景</a>
+          <a class="btn secondary" href="brand-intro.html">品牌介紹</a>
+          <a class="btn secondary" href="brand-origin.html">品牌起源</a>
+        </div>
+      </div>
+      <div class="glass">
+        <h3 style="margin:0 0 8px;color:var(--cocoa)">🧭 方法論與系統</h3>
+        <div class="btns" style="margin-top:6px">
+          <a class="btn secondary" href="hourlight-core.html">HOUR 核心理念</a>
+          <a class="btn secondary" href="hourlight-system.html">系統總覽</a>
+          <a class="btn secondary" href="hour-ideology.html">內訓理念</a>
+          <a class="btn secondary" href="hourlight-hour.html">HOUR 四步節奏</a>
+          <a class="btn secondary" href="hourlight-energy-focus.html">族群解析</a>
+          <a class="btn secondary" href="gps-system.html">內在GPS 系統版</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer glass" style="margin-top:18px">
+      桃園市桃園區同安街 666 號 1F（採預約制）｜ LINE：judyanee ｜ Email：judyanee@gmail.com ｜ 0905-723-595<br/>
+      ※ 本網站內容僅供壓力管理、情緒紓解、能量調頻與日常指引參考，非醫療行為。<br/>
+      © 馥靈之鑰 Hour Light
+      <div class="fbtns">
+        <a class="fbtn" href="index.html">🏠 返回首頁</a>
+        <a class="fbtn" href="monetization.html">💰 變現策略</a>
+        <a class="fbtn" href="privacy.html">🔒 隱私權政策</a>
+        <a class="fbtn" href="terms.html">📜 服務條款</a>
+      </div>
+    </footer>
+
   </div>
+</main>
 
-  <!-- 主內容 -->
-  <main class="main" id="main">
-    <div class="wrap">
-
-      <!-- 英雄區：左品牌＋右雙軌 -->
-      <section class="hero">
-        <div class="glass brand">
-          <h1>馥靈之鑰 Hour Light</h1>
-          <p>雙主軌：<strong>內在GPS</strong> × <strong>HOUR × LIGHT 顧問系統</strong></p>
-        </div>
-
-        <div class="split">
-          <!-- Track A：內在GPS 產品線 -->
-          <div class="track">
-            <h3>🔮 內在GPS｜馥靈之鑰系統</h3>
-            <div class="badges">
-              <span class="badge">130 張卡</span><span class="badge">身心調頻</span><span class="badge">日常對焦</span>
-            </div>
-            <div class="btns">
-              <a class="btn primary" href="draw-hl.html">線上抽牌（內在GPS）</a>
-              <a class="btn secondary" href="tarot.html">塔羅預測</a>
-              <a class="btn secondary" href="plan30.html">30 天躍升計劃</a>
-              <a class="btn secondary" href="abundance.html">90 天豐盛藍圖</a>
-            </div>
-          </div>
-
-          <!-- Track B：HOUR × LIGHT 顧問線 -->
-          <div class="track">
-            <h3>🏭 HOUR × LIGHT｜美業營運顧問</h3>
-            <div class="badges">
-              <span class="badge">特色挖掘</span><span class="badge">高價策略</span><span class="badge">團隊賦能</span><span class="badge">會員成長</span>
-            </div>
-            <div class="btns">
-              <a class="btn primary" href="enterprise.html">企業 / 連鎖導入</a>
-              <a class="btn secondary" href="consulting.html">轉型訂製顧問服務</a>
-              <a class="btn secondary" href="monetization.html">變現策略與收益模型</a>
-              <a class="hl-btn secondary" href="partners-jumeng.html">顧問夥伴｜聚盟智匯</a>
-            </div>
-          </div>
-        </div>
-      </section>
-      <!-- 快速入口（把你所有重要頁都帶進來） -->
-      <section class="grid">
-        <a class="tile" href="hourlight-energy-nails.html">
-          <span class="t1">💅 能量美甲</span>
-          <span class="t2">指尖 × 水晶 × 金屬，成為你的能量天線</span>
-        </a>
-        <a class="tile" href="hourlight-energy-spa.html">
-          <span class="t1">💆 SPA 調理</span>
-          <span class="t2">能量覺察 × 業力釋放 × 脈輪調頻</span>
-        </a>
-        <a class="tile" href="pet-energy.html">
-          <span class="t1">🐾 寵物溝通牌卡</span>
-          <span class="t2">與毛孩同步呼吸：HOUR 四步 × 牌卡導航</span>
-        </a>
-        <a class="tile" href="nail-mentor.html">
-          <span class="t1">👩‍🏫 能量美甲｜師資</span>
-          <span class="t2">講師介紹 / 課程報名 / 店務 SOP</span>
-        </a>
-        <a class="tile" href="gel-nail-course.html">
-          <span class="t1">📚 美甲師資課程</span>
-          <span class="t2">凝膠基礎、極薄建構、證照輔考</span>
-        </a>
-        <a class="tile" href="draw-hl.html">
-          <span class="t1">🃏 內在GPS｜線上抽牌</span>
-          <span class="t2">卡圖即顯、複製卡號、LINE 預約</span>
-        </a>
-      </section>
-
-      <!-- 雙欄特色：品牌與方法論 -->
-      <section class="two">
-        <div class="glass">
-          <h3 style="margin:0 0 8px;color:var(--cocoa)">📖 認識品牌</h3>
-          <div class="btns" style="margin-top:6px">
-            <a class="btn secondary" href="founder.html">創始人</a>
-            <a class="btn secondary" href="brand-story.html">品牌故事</a>
-            <a class="btn secondary" href="brand-vision.html">品牌願景</a>
-            <a class="btn secondary" href="brand-intro.html">品牌介紹</a>
-            <a class="btn secondary" href="brand-origin.html">品牌起源</a>
-          </div>
-        </div>
-        <div class="glass">
-          <h3 style="margin:0 0 8px;color:var(--cocoa)">🧭 方法論與系統</h3>
-          <div class="btns" style="margin-top:6px">
-            <a class="btn secondary" href="hourlight-core.html">HOUR 核心理念</a>
-            <a class="btn secondary" href="hourlight-system.html">系統總覽</a>
-            <a class="btn secondary" href="hour-ideology.html">內訓理念</a>
-            <a class="btn secondary" href="hourlight-hour.html">HOUR 四步節奏</a>
-            <a class="btn secondary" href="hourlight-energy-focus.html">族群解析</a>
-            <a class="btn secondary" href="advisory.html">👥 策略顧問團隊</a>
-            <a class="btn secondary" href="gps-system.html">內在GPS 系統版</a>
-          </div>
-        </div>
-      </section>
-
-      <!-- 頁尾（含返回首頁 & 變現策略） -->
-      <footer class="footer glass" style="margin-top:18px">
-        桃園市桃園區同安街 666 號 1F（採預約制）｜ LINE：judyanee ｜ Email：judyanee@gmail.com ｜ 0905-723-595<br/>
-        ※ 本網站內容僅供壓力管理、情緒紓解、能量調頻與日常指引參考，非醫療行為。<br/>
-        © 馥靈之鑰 Hour Light
-        <div class="fbtns">
-          <a class="fbtn" href="index.html">🏠 返回首頁</a>
-          <a class="fbtn" href="monetization.html">💰 變現策略</a>
-          <a class="fbtn" href="privacy.html">🔒 隱私權政策</a>
-          <a class="fbtn" href="terms.html">📜 服務條款</a>
-        </div>
-      </footer>
-    </div>
-  </main>
-
-  <script>
-    function enterSite(){
-      const s = document.getElementById('splash');
-      s.classList.add('fade-out');
-      setTimeout(()=>{
-        s.style.display='none';
-        document.getElementById('main').classList.add('show');
-        document.body.classList.add('loaded');
-        // 捲回頂部
-        window.scrollTo({top:0, behavior:'instant' });
-      }, 900);
-    }
-  </script>
+<script>
+  function enterSite(){
+    const s = document.getElementById('splash');
+    s.classList.add('fade-out');
+    setTimeout(()=>{
+      s.style.display='none';
+      document.getElementById('main').classList.add('show');
+      document.body.classList.add('loaded');
+      window.scrollTo({top:0, behavior:'instant'});
+    }, 900);
+  }
+</script>
 </body>
 </html>
