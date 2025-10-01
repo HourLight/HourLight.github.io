@@ -4,12 +4,25 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>馥靈之鑰｜內在GPS 線上抽牌</title>
+
+<!-- SEO / OG -->
+<meta name="description" content="130 張牌卡 × HOUR 四步，幫你在混亂中重新對頻。不是算命，是日常微調器。" />
+<meta property="og:title" content="馥靈之鑰｜內在GPS 線上抽牌" />
+<meta property="og:description" content="一鍵抽牌，得到今天的行動指引。不是算命，是日常微調器。" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="cover.jpg" />
 <link rel="icon" href="favicon.ico" />
+
 <style>
-  :root{ --milk:#f9f5f0; --cocoa:#6b4f3e; --rose:#cda86e; --rose-dark:#a88257; --ink:#2a2a2a; --line:rgba(0,0,0,.08); }
+  :root{
+    --milk:#f9f5f0; --cocoa:#6b4f3e; --rose:#cda86e; --rose-dark:#a88257; --ink:#2a2a2a; --line:rgba(0,0,0,.08);
+    --ok:#0ea65d; --warn:#d2691e;
+  }
   *{box-sizing:border-box} html,body{margin:0;padding:0}
   body{
-    background:url('background.jpg') center/cover fixed no-repeat;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.78)),
+      url('background.jpg') center/cover fixed no-repeat;
     font-family:"Noto Sans TC","PingFang TC","Arial",sans-serif; color:var(--ink);
   }
   .wrap{ max-width:1080px; margin:0 auto; padding:24px 16px 64px; }
@@ -22,14 +35,15 @@
   .modes{display:grid;grid-template-columns:1.05fr .95fr;gap:16px}
   @media(max-width:900px){.modes{grid-template-columns:1fr}}
 
-  .mode-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .mode-buttons{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
   @media(max-width:900px){.mode-buttons{grid-template-columns:repeat(3,1fr)}}
-  @media(max-width:560px){.mode-buttons{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:560px){.mode-buttons{grid-template-columns:repeat(2,1fr)}}
 
   .btn{appearance:none;border:none;cursor:pointer;padding:16px 14px;border-radius:14px;
     background:linear-gradient(135deg,var(--rose),var(--rose-dark));color:#fff;font-weight:900;letter-spacing:.5px;font-size:18px;line-height:1.15;
     box-shadow:0 8px 20px rgba(0,0,0,.18);transition:.25s}
   .btn:hover{transform:translateY(-2px);filter:brightness(1.06)}
+  .btn[disabled]{opacity:.55;cursor:not-allowed;transform:none;filter:none}
   .btn.secondary{background:#fff;color:var(--cocoa);border:1.8px solid var(--cocoa);box-shadow:none}
 
   .price-table{border-radius:14px;overflow:hidden;border:1px solid var(--line)}
@@ -38,7 +52,7 @@
   td:first-child{font-weight:800;color:var(--cocoa)}
 
   details{border:1px solid var(--line);border-radius:12px;padding:0 12px;background:rgba(255,255,255,.9);margin:10px 0}
-  summary{cursor:pointer;list-style:none;padding:12px 0;font-weight:800;color:var(--rose-dark)}
+  summary{cursor:pointer;list-style:none;padding:12px 0;font-weight:800;color:#6b4f3e}
   summary::-webkit-details-marker{display:none}
 
   .plans{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -67,131 +81,121 @@
     padding:10px 16px;border-radius:22px;box-shadow:0 4px 12px rgba(0,0,0,.18);margin-top:8px}
   .link:hover{filter:brightness(1.05);transform:translateY(-2px)}
   .note{color:#a88257;font-weight:700}
+
+  /* 游標提示框（跟著游標） */
+  .hover-tip{
+    position: fixed; left: 0; top: 0;
+    transform: translate(-50%,-120%);
+    max-width: 320px;
+    background: rgba(43,43,43,.95);
+    color:#fff; font-size:13px; line-height:1.55;
+    padding:10px 12px; border-radius:10px;
+    box-shadow:0 8px 22px rgba(0,0,0,.25);
+    pointer-events: none; z-index: 10000;
+    opacity: 0; transition: opacity .12s ease;
+    border:1px solid rgba(255,255,255,.08);
+  }
+  .hover-tip.show{ opacity: 1; }
+
+  /* 尊重系統減少動效 */
+  @media (prefers-reduced-motion: reduce){
+    .btn:hover{transform:none}
+    html{scroll-behavior:auto}
+  }
+  /* 行動裝置提示：底部短暫顯示 */
+  @media (hover:none) and (pointer:coarse){
+    .hover-tip{ transform:none; left:50%; top:auto; bottom:18px; translate:-50% 0; }
+  }
 </style>
 </head>
 <body>
   <div class="wrap">
     <div class="glass page-title">
       <h1>馥靈之鑰｜內在GPS 線上抽牌</h1>
-      <p>130 張牌卡 × HOUR 四步，<span class="note">它不是算命，是日常微調器</span>。</p>
+      <p>130 張牌卡 × HOUR 四步，<span class="note">不是算命，是日常微調器</span>。</p>
     </div>
 
     <div class="modes">
-      <!-- 抽牌按鈕（官方三種：5／9／15） -->
+      <!-- 抽牌按鈕 -->
       <div class="glass">
         <h3 style="text-align:center;margin:0 0 10px;color:#6b4f3e;">選擇抽牌張數</h3>
-        <div class="mode-buttons">
-          <button class="btn" data-n="5">抽 5 張</button>
-          <button class="btn" data-n="9">抽 9 張</button>
+        <div class="mode-buttons" role="group" aria-label="抽牌張數">
+          <button class="btn" data-n="1">抽 1 張（免費）</button>
+          <button class="btn" data-n="3">抽 3 張</button>
+          <button class="btn" data-n="7">抽 7 張</button>
+          <button class="btn" data-n="12">抽 12 張</button>
           <button class="btn" data-n="15">抽 15 張</button>
-          <button class="btn secondary" id="clearBtn">清除重抽</button>
+          <button class="btn" data-n="20">抽 20 張</button>
+          <button class="btn secondary" id="clearBtn" title="清除已抽結果">清除重抽</button>
         </div>
+        <p class="hint">建議：第一次先抽 1 張免費，養成每日覺察習慣；熟悉後再升級 3／7／12 張；若要完整藍圖，選 15 或 20 張。</p>
       </div>
 
-      <!-- 價格表（標準定價保留；優惠放在下方專區） -->
+      <!-- 價格表 -->
       <div class="glass">
-        <h3 style="text-align:center;margin:0 0 10px;color:#6b4f3e;">標準化服務與定價</h3>
+        <h3 style="text-align:center;margin:0 0 10px;color:#6b4f3e;">服務與定價</h3>
         <div class="price-table">
-          <table>
+          <table aria-describedby="priceNote">
             <thead>
               <tr><th>張數</th><th>價格（NT$）</th><th>牌位定義 / 交付重點</th></tr>
             </thead>
             <tbody>
               <tr>
-                <td>5 張｜核心洞察</td>
-                <td>8,000</td>
-                <td style="text-align:left">
-                  ①現況覺察 ②核心議題 ③內在資源 ④行動指引 ⑤能量調頻；<br/>30 分鐘、行動建議＋一週提醒清單。
-                </td>
+                <td>1 張｜每日訊息</td>
+                <td><strong class="note">免費</strong></td>
+                <td style="text-align:left">立刻顯示一句覺察＋行動指引；適合建立每日自抽習慣。</td>
               </tr>
               <tr>
-                <td>9 張｜生命導航</td>
-                <td>15,000</td>
-                <td style="text-align:left">
-                  【內在三角】①靈魂本質 ②情緒模式 ③思維框架｜【外在三角】④關係動力 ⑤事業財富 ⑥健康活力｜【整合三角】⑦挑戰課題 ⑧支持資源 ⑨未來趨勢；<br/>60 分鐘、完整報告＋30 天行動計畫。
-                </td>
+                <td>3 張｜能量流向</td>
+                <td>800</td>
+                <td style="text-align:left">過去 / 現在 / 未來；看懂轉折與下一步；文字摘要（200–300 字）。</td>
+              </tr>
+              <tr>
+                <td>7 張｜深層課題掃描</td>
+                <td>3,600</td>
+                <td style="text-align:left">核心課題、內在挑戰、外在牽動、直覺訊息、行動建議、能量支援、最終趨勢；40–50 分，行動清單＋一週提醒。</td>
+              </tr>
+              <tr>
+                <td>12 張｜全域優化佈局</td>
+                <td>6,600</td>
+                <td style="text-align:left">能場總檢、核心挑戰、隱形支援、避免路徑、五行分析、使命提醒、他人影響、情緒調整、財富頻率、貴人磁場、最佳行動、3–6 個月策略；70–80 分＋30 天計畫。</td>
               </tr>
               <tr>
                 <td>15 張｜靈魂藍圖</td>
-                <td>35,000</td>
-                <td style="text-align:left">
-                  【生命基礎層】①使命 ②天賦 ③業力 ④守護 ⑤生命主題｜【現實顯化層】⑥愛情 ⑦家庭 ⑧事業 ⑨財富 ⑩健康｜【未來創造層】⑪內在整合 ⑫外在行動 ⑬時機 ⑭資源整合 ⑮願景顯化；<br/>90 分鐘、心智圖＋AI 摘要＋90 天分段行動藍圖。
-                </td>
+                <td>依個案報價</td>
+                <td style="text-align:left">90 分深度解讀＋PDF 報告＋90 天分段行動；可整合事業/關係/身心，適用重大轉折與願景落地。</td>
+              </tr>
+              <tr>
+                <td>20 張｜戰略藍圖</td>
+                <td>依個案報價</td>
+                <td style="text-align:left">120–150 分專案工作坊＋Notion/看板藍圖＋90 天檢核；適用年度佈局、創業規劃、品牌策略與資源配置。</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <p class="hint">以上為標準定價；專屬優惠詳見下方「服務內容與專屬優惠」。</p>
+        <p id="priceNote" class="hint">15／20 張為客製化：先對談釐清主題與範圍後報價。</p>
       </div>
     </div>
 
-    <!-- 服務內容與專屬優惠（依你提供的三組文案） -->
-    <div class="glass">
-      <h3 style="text-align:center;margin:0 0 12px;color:#6b4f3e;">服務內容與專屬優惠</h3>
-      <div class="plans">
-        <!-- 5 張 -->
-        <div class="plan">
-          <div class="ttl">🎯 5張牌 - 核心洞察</div>
-          <div class="price">標準價：NT$ 8,000｜<span style="color:#d2691e;">首次體驗價：NT$ 1,888</span></div>
-          <ul>
-            <li>五芒星牌陣解讀</li>
-            <li>核心問題深度分析</li>
-            <li>即時行動建議</li>
-            <li>精油調頻指引</li>
-            <li>書面報告摘要</li>
-          </ul>
-        </div>
-        <!-- 9 張 -->
-        <div class="plan">
-          <div class="ttl">🧭 9張牌 - 生命導航</div>
-          <div class="price">標準價：NT$ 15,000｜<span style="color:#d2691e;">Podcast聽眾專屬：NT$ 3,888</span></div>
-          <ul>
-            <li>三重三角牌陣解讀</li>
-            <li>內在外在整合分析</li>
-            <li>生命數字對應解讀</li>
-            <li>詳細行動計劃</li>
-            <li>完整書面報告</li>
-            <li>7天後續追蹤</li>
-          </ul>
-        </div>
-        <!-- 15 張 -->
-        <div class="plan">
-          <div class="ttl">🌟 15張牌 - 靈魂藍圖</div>
-          <div class="price">標準價：NT$ 35,000｜<span style="color:#d2691e;">夥伴推薦優惠：NT$ 15,888</span></div>
-          <ul>
-            <li>生命之樹牌陣解讀</li>
-            <li>靈魂層面深度探索</li>
-            <li>商業創業藍圖設計</li>
-            <li>多維度整合分析</li>
-            <li>專業網頁報告</li>
-            <li>30天持續指導</li>
-          </ul>
-        </div>
-      </div>
-      <p class="hint">＊優惠資格依活動與管道（首次體驗／Podcast／夥伴推薦）認定；實際以預約當下公告為準。</p>
-    </div>
-
-    <!-- 升級方案：30 / 90 天（文件版內容＋連到定價） -->
+    <!-- 升級方案（可選） -->
     <div class="glass">
       <h3 style="text-align:center;margin:0 0 12px;color:#6b4f3e;">升級你的節奏 · 兩款藍圖計畫</h3>
       <div class="plans">
         <div class="plan">
           <div class="ttl">30 天躍升計劃</div>
-          <div class="price"><a href="pricing.html" class="ctaA" style="padding:6px 14px;border-radius:18px">查看定價</a></div>
+          <div class="price">可由 1/3/7/12/15/20 結果銜接</div>
           <ul>
             <li>初次深度諮詢（約 90 分）＋每週追蹤 4 次（各 30 分）。</li>
-            <li>個人化行動計劃、LINE 即時支持、成果評估報告。</li>
-            <li>可由 5/9/15 結果銜接，作為行動藍圖起點。</li>
+            <li>個人化行動計畫、LINE 即時支持、成果評估報告。</li>
           </ul>
           <a class="ctaA" href="plan30.html">📅 看 30 天計畫</a>
         </div>
         <div class="plan">
           <div class="ttl">90 天豐盛藍圖</div>
-          <div class="price"><a href="pricing.html" class="ctaA" style="padding:6px 14px;border-radius:18px">查看定價</a></div>
+          <div class="price">可由 1/3/7/12/15/20 結果銜接</div>
           <ul>
             <li>深度藍圖諮詢（約 120 分）＋雙週追蹤 6 次（各 45 分）。</li>
-            <li>24 小時 LINE 支援、商業思維培養、夥伴潛力評估。</li>
-            <li>專屬藍圖手冊（PDF）＋里程碑檢核，鎖定 90 天目標。</li>
+            <li>24 小時 LINE 支援、商業思維培養、夥伴資源盤點。</li>
           </ul>
           <a class="ctaA" href="abundance.html">📜 了解 90 天計畫</a>
         </div>
@@ -199,13 +203,29 @@
     </div>
 
     <!-- 抽牌結果 -->
-    <div class="glass">
+    <div class="glass" id="drawSection">
       <div class="toolbar">
-        <button class="btn secondary" id="copyBtn">📋 複製卡號</button>
-        <a class="btn" href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener">🌿 LINE 預約</a>
+        <button class="btn secondary" id="copyBtn" disabled title="複製選卡卡號">📋 複製卡號</button>
+        <button class="btn secondary" id="shareBtn" disabled title="產生分享連結">🔗 產生連結</button>
+        <a class="btn" id="lineBtn" href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener" aria-label="LINE 預約">🌿 LINE 預約</a>
       </div>
-      <div class="hint">抽牌後下方會顯示卡圖與卡號（A00–A21 / 001–108）。</div>
-      <div id="grid" class="grid"></div>
+
+      <!-- 當抽 1 張時，這裡會顯示那張卡的一句覺察與行動 -->
+      <div id="oneHint" class="hint" style="display:none"></div>
+
+      <div class="hint" id="guideHint">抽牌後下方會顯示卡圖與卡號（A00–A21 / 001–108）。滑鼠移到卡片上可查看「一句覺察＋行動」。</div>
+      <div id="grid" class="grid" aria-live="polite"></div>
+
+      <!-- 一鍵複製預約文字 -->
+      <details>
+        <summary>📨 一鍵複製預約文字（自動帶入卡號）</summary>
+        <div style="padding:0 0 12px">
+          <textarea id="prefill" style="width:100%;min-height:110px;padding:10px;border:1px solid var(--line);border-radius:10px" readonly aria-label="預約訊息範本"></textarea>
+          <div class="toolbar" style="margin-top:8px">
+            <button class="btn secondary" id="copyMsgBtn" disabled>複製預約訊息</button>
+          </div>
+        </div>
+      </details>
     </div>
 
     <!-- 底部 -->
@@ -219,9 +239,14 @@
     </div>
   </div>
 
+<!-- 游標提示框 -->
+<div id="hoverTip" class="hover-tip" role="tooltip" aria-hidden="true"></div>
+<!-- 螢幕閱讀提示 -->
+<div class="sr-live" aria-live="polite" id="sr" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden"></div>
+
 <script>
 /* 站內資源（根目錄） */
-const BASE = ''; // 同資料夾/根目錄
+const BASE = ''; // 圖片與此頁同資料夾
 
 // 檔名列表：A00–A21、001–108
 const majors = Array.from({length:22}, (_,i)=>`A${String(i).padStart(2,'0')}.png`);
@@ -229,59 +254,354 @@ const minors = Array.from({length:108}, (_,i)=>`${String(i+1).padStart(3,'0')}.p
 const allFiles = majors.concat(minors);
 let selected = [];
 
-// 綁定
+// DOM
+const grid = document.getElementById('grid');
+const copyBtn = document.getElementById('copyBtn');
+const shareBtn = document.getElementById('shareBtn');
+const clearBtn = document.getElementById('clearBtn');
+const copyMsgBtn = document.getElementById('copyMsgBtn');
+const prefillEl = document.getElementById('prefill');
+const sr = document.getElementById('sr');
+const oneHint = document.getElementById('oneHint');
+
+// 綁定抽牌按鈕
 document.querySelectorAll('.btn[data-n]').forEach(btn=>{
   btn.addEventListener('click', ()=> drawCards(Number(btn.dataset.n)));
 });
-document.getElementById('clearBtn').addEventListener('click', ()=>{
-  selected = []; render(); toast('已清除，請重新抽牌');
-});
-document.getElementById('copyBtn').addEventListener('click', ()=>{
-  if(!selected.length){ toast('請先抽牌再複製'); return; }
-  const txt = selected.map(i=>allFiles[i].replace('.png','')).join(', ');
-  navigator.clipboard.writeText(txt).then(()=>toast('已複製：' + txt))
-  .catch(()=>alert('複製失敗，請手動：' + txt));
+
+// 清除
+clearBtn.addEventListener('click', ()=>{
+  selected = [];
+  updateURL('');
+  render();
+  toast('已清除，請重新抽牌');
 });
 
-// 抽牌
+// 複製卡號
+copyBtn.addEventListener('click', ()=>{
+  if(!selected.length){ toast('請先抽牌'); return; }
+  const txt = getCodes().join(', ');
+  navigator.clipboard.writeText(txt).then(()=>{
+    toast('已複製卡號'); sr.textContent = '卡號已複製';
+  }).catch(()=>alert('複製失敗，請手動：' + txt));
+});
+
+// 產生分享連結（URL 參數 ?pick=）
+shareBtn.addEventListener('click', ()=>{
+  if(!selected.length){ toast('請先抽牌'); return; }
+  const url = withPickParam(location.href, getCodes().join(','));
+  navigator.clipboard.writeText(url).then(()=>{
+    toast('分享連結已複製'); sr.textContent = '分享連結已複製';
+  }).catch(()=> prompt('複製失敗，請手動複製：', url));
+});
+
+// 複製預約訊息
+copyMsgBtn.addEventListener('click', ()=>{
+  if(!selected.length){ toast('請先抽牌'); return; }
+  navigator.clipboard.writeText(prefillEl.value).then(()=>{
+    toast('預約訊息已複製'); sr.textContent = '預約訊息已複製';
+  });
+});
+
+// 抽牌（1 張免費：顯示一句覺察＋行動）
 function drawCards(n){
-  if(!confirm('請閉眼深呼吸，心裡默念想問的問題，再按「確定」抽牌。')) return;
-  selected = [];
-  const used = new Set();
-  while(selected.length < n){
-    const r = Math.floor(Math.random()*allFiles.length);
-    if(!used.has(r)){ used.add(r); selected.push(r); }
-  }
-  render();
-  document.getElementById('grid').scrollIntoView({behavior:'smooth', block:'start'});
+  toast('請閉眼 3 秒，深呼吸並在心中設定問題…');
+  setTimeout(()=>{
+    selected = [];
+    const used = new Set();
+    while(selected.length < n){
+      const r = Math.floor(Math.random()*allFiles.length);
+      if(!used.has(r)){ used.add(r); selected.push(r); }
+    }
+    // 更新 URL
+    updateURL(getCodes().join(','));
+    render(true, n===1);
+    document.getElementById('drawSection').scrollIntoView({behavior:'smooth', block:'start'});
+  }, 600);
 }
 
 // 顯示
-function render(){
-  const grid = document.getElementById('grid');
-  if(!selected.length){ grid.innerHTML = ''; return; }
-  grid.innerHTML = selected.map(idx=>{
+function render(updatePrefill=false, showOneSummary=false){
+  if(!selected.length){
+    grid.innerHTML = ''; oneHint.style.display='none';
+    copyBtn.disabled = true; shareBtn.disabled = true; copyMsgBtn.disabled = true;
+    prefillEl.value = '';
+    return;
+  }
+  const cards = selected.map(idx=>{
     const name = allFiles[idx];
     const code = name.replace('.png','');
-    const url  = BASE + name; // 站內圖片
+    const url  = BASE + name;
+    const summary = SUMMARIES[code] || '';
     return `
-      <div class="card">
-        <img class="thumb" src="${url}" alt="${code}" loading="lazy" />
+      <div class="card" data-code="${code}" title="${summary.replace(/"/g,'&quot;')}">
+        <img class="thumb" src="${url}" alt="卡片編號 ${code}" loading="lazy" />
         <div class="cap">編號：${code}</div>
       </div>`;
   }).join('');
+  grid.innerHTML = cards;
+
+  // 一張免費：在頂部顯示覺察語
+  if(showOneSummary){
+    const firstCode = getCodes()[0];
+    const s = SUMMARIES[firstCode] || '';
+    oneHint.innerHTML = `📝 <strong>今日覺察：</strong>${escapeHTML(s)}（<span style="color:#a88257">卡號：${firstCode}</span>）`;
+    oneHint.style.display='block';
+  }else{
+    oneHint.style.display='none';
+  }
+
+  copyBtn.disabled = false;
+  shareBtn.disabled = false;
+  copyMsgBtn.disabled = false;
+  if(updatePrefill) prefillEl.value = buildPrefill();
+
+  attachCardTooltips(); // 綁定卡片 hover 提示
+  toast(`共抽到 ${selected.length} 張`);
+  sr.textContent = `已抽到 ${selected.length} 張卡`;
 }
 
-// 提示
+// 工具：取得卡號陣列
+function getCodes(){
+  return selected.map(i=>allFiles[i].replace('.png',''));
+}
+
+// LINE 預約文字（自動帶卡號與方案）
+function buildPrefill(){
+  const codes = getCodes().join(', ');
+  return `您好，我想預約《馥靈之鑰》解牌：
+抽牌張數：${selected.length} 張
+卡號：${codes}
+我想聚焦的主題是：（請簡述 1–2 句）
+方案期待：（1 張免費 / 3 張 800 / 7 張 3600 / 12 張 6600 / 15/20 客製）
+期望時段：（範例：平日晚間 / 週末白天）
+謝謝 🙏`;
+}
+
+// 提示（toast）
 function toast(msg){
   const t = document.createElement('div');
   t.textContent = msg;
   Object.assign(t.style,{
     position:'fixed',left:'50%',bottom:'24px',transform:'translateX(-50%)',
-    background:'rgba(0,0,0,.8)',color:'#fff',padding:'10px 14px',borderRadius:'10px',
+    background:'rgba(0,0,0,.85)',color:'#fff',padding:'10px 14px',borderRadius:'10px',
     fontSize:'14px',boxShadow:'0 4px 12px rgba(0,0,0,.25)',zIndex:9999
   });
   document.body.appendChild(t); setTimeout(()=>t.remove(),1600);
+}
+
+// 參數：帶選卡到 URL
+function withPickParam(href, pickStr){
+  const url = new URL(href);
+  url.searchParams.set('pick', pickStr);
+  return url.toString();
+}
+function updateURL(pickStr){
+  const url = new URL(location.href);
+  if(pickStr) url.searchParams.set('pick', pickStr);
+  else url.searchParams.delete('pick');
+  history.replaceState(null,'',url);
+}
+
+// 讀取 ?pick= 參數回填
+(function restoreFromURL(){
+  const url = new URL(location.href);
+  const pick = (url.searchParams.get('pick')||'').trim();
+  if(!pick) return;
+  const codes = pick.split(',').map(s=>s.trim()).filter(Boolean);
+  if(!codes.length) return;
+  const codeToIdx = new Map(allFiles.map((f,i)=>[f.replace('.png',''), i]));
+  const idxs = codes.map(c=>codeToIdx.get(c)).filter(n=>Number.isInteger(n));
+  if(idxs.length){
+    selected = idxs;
+    render(true, idxs.length===1);
+  }
+})();
+
+// ======= 游標提示框：把卡義跟著游標顯示 =======
+const tip = document.getElementById('hoverTip');
+let tipTimer = null;
+function showTip(text){
+  if(!text) return;
+  tip.textContent = text;
+  tip.classList.add('show');
+  tip.setAttribute('aria-hidden','false');
+}
+function moveTip(e){
+  if(window.matchMedia('(hover:hover)').matches){
+    const pad = 16;
+    let x = e.clientX + 16;
+    let y = e.clientY - 16;
+    const rect = tip.getBoundingClientRect();
+    if(x + rect.width + pad > window.innerWidth) x = e.clientX - rect.width - 16;
+    if(y - rect.height - pad < 0) y = e.clientY + 24;
+    tip.style.left = x + 'px';
+    tip.style.top  = y + 'px';
+  }
+}
+function hideTip(){
+  tip.classList.remove('show');
+  tip.setAttribute('aria-hidden','true');
+  tip.textContent = '';
+  tipTimer && clearTimeout(tipTimer);
+}
+function attachCardTooltips(){
+  document.querySelectorAll('.card').forEach(card=>{
+    const code = card.getAttribute('data-code');
+    const summary = SUMMARIES[code] || '';
+    if(summary) card.setAttribute('title', summary);
+    // 桌面 hover
+    card.addEventListener('mouseenter', e=>{ showTip(summary); moveTip(e); });
+    card.addEventListener('mousemove', moveTip);
+    card.addEventListener('mouseleave', hideTip);
+    // 行動：點一下顯示 2.5 秒
+    card.addEventListener('touchstart', ()=>{
+      if(!summary) return;
+      showTip(summary);
+      tipTimer && clearTimeout(tipTimer);
+      tipTimer = setTimeout(hideTip, 2500);
+    }, {passive:true});
+  });
+}
+
+// 安全字串
+function escapeHTML(str){ return (str||'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
+</script>
+
+<!-- 130 張卡的一句覺察語（完整 JSON） -->
+<script type="application/json" id="card-summaries">
+{
+  "A00":"現在就是無限可能的起點，與其等完美，不如先做一個行動決定。",
+  "A01":"你的現實由意圖與行動編碼，輸入清晰目標，輸出一致行為。",
+  "A02":"雜訊過多時，主動選擇靜默，答案已在你的內在覺知。",
+  "A03":"承認你配得，多接收少內疚，讓創造力與回饋成正循環。",
+  "A04":"建立規則與紀律，用果斷決策主導方向，不再被動。",
+  "A05":"只吸收能轉化現實的知識，並立刻轉為可見行為。",
+  "A06":"關係是鏡子，誠實不犧牲地選擇對等連結。",
+  "A07":"整合內在、維持節奏，帶著定力突破瓶頸。",
+  "A08":"停下逞強，力量來自穩定與自我調節，而非壓抑。",
+  "A09":"焦慮時先退噪，方向來自安靜獨處的清明。",
+  "A10":"處於轉變期，主動跨出第一步，推動新版本人生。",
+  "A11":"每個選擇都在累積回應，讓動機與行為對得起良心。",
+  "A12":"卡在單一路徑時換角度，讓不確定帶來新清晰。",
+  "A13":"結束舊模式，果斷斷捨離，為新身份騰出空間。",
+  "A14":"停止超載，設定邊界，用剛剛好的節奏運作。",
+  "A15":"束縛來自執著，隨時可把主控權收回自己手裡。",
+  "A16":"允許不穩定崩解，用真實自我進行重建。",
+  "A17":"釋放麻木與沉重，讓穩定的希望自然回流。",
+  "A18":"直覺浮現時，信任身體訊號，穿越表象迷霧。",
+  "A19":"停止自我懷疑，主動展現價值與能量。",
+  "A20":"進入自我審視期，對齊內在最真的目標並啟動。",
+  "A21":"承認完成，帶著整合與輕盈迎接下一階段。",
+
+  "001":"疲憊來自能量分散，立刻邊界化、歸檔，專注回收注意力。",
+  "002":"你的話語能改變場域，說出真實想法讓能量開始流動。",
+  "003":"別再準備，能量已臨界，現在就把想法落地。",
+  "004":"雜訊過量導致混亂，清理能場與邊界，回到聚焦。",
+  "005":"釐清與刪除雜選項，用果斷訓練決策肌肉。",
+  "006":"進行徹底清理，排空混濁，為新靈感讓位。",
+  "007":"停止過度承擔，把不屬於你的責任放下。",
+  "008":"終結已失效的連結與模式，乾淨開新局。",
+  "009":"用溫和堅定的步伐跨出第一步，行動即證明。",
+  "010":"移除過載輸入，智慧從安靜與沉澱長出。",
+  "011":"釋放舊信念與情緒，打破循環，騰出新空間。",
+  "012":"允許真正休息，自我照顧讓力量回流。",
+  "013":"清掉阻塞，立刻挑一個可做的小行動。",
+  "014":"允許快樂驅動生命，自信展現你本質的光。",
+  "015":"能量過度開放會心累，馬上立邊界、做清理。",
+  "016":"深度轉化靠紀律與日復一日的實作。",
+  "017":"此刻再拖就錯過，點燃熱情果斷行動。",
+  "018":"療癒從不逃避開始，向深層痛點道別。",
+  "019":"別硬扛，建立安全連結與溫柔支持。",
+  "020":"停滯源於未清理的累積，強化清場刷新系統。",
+  "021":"不必大革命，做精準微調，提升效能與清晰。",
+  "022":"能量傾斜時回到中心，平衡給與受。",
+  "023":"情緒正轉化，鬆開對失落的抓取，讓位於潛能。",
+  "024":"停止自責與苛求，設邊界、回核心。",
+  "025":"內在膠著時，用果斷點火突破僵局。",
+  "026":"放慢與溫柔，是跨越而非強迫。",
+  "027":"把重心拉回身體，先紮根再前進。",
+  "028":"強力清除過時習慣與連結，清空背景程式。",
+  "029":"別急著追，先建構穩固內外結構再承接豐盛。",
+  "030":"直覺已響，勇敢清晰地表達。",
+  "031":"已進入擴張週期，主動展現影響力。",
+  "032":"疲憊時先守成，長期經營勝過短暫爆衝。",
+  "033":"啟動系統維修，移除舊記憶與卡點完成重啟。",
+  "034":"不必完美才值得被愛，為自己創造安全與滋養。",
+  "035":"暫停再學，煉化現有經驗，靜中生智。",
+  "036":"補好能量邊界，只讓有益訊息進入。",
+  "037":"承認疲憊，給自己放鬆的權利，重拾平靜。",
+  "038":"信任自身穩定，放下他評焦慮，穩穩發光。",
+  "039":"愛要有邊界，先滋養自己再溫柔給予。",
+  "040":"深度減負與清理，讓身心回到輕盈高效。",
+  "041":"遠離模糊與負能量源，保護你的專注。",
+  "042":"把焦點轉向內在滿足，重啟平靜與喜悅。",
+  "043":"先換氣與清場，再談答案。",
+  "044":"精煉語言與計畫，用清晰帶動落實。",
+  "045":"停止過度輸出，回到身體，重建溫柔連結。",
+  "046":"放慢腳步，穩定節奏，對齊核心本質。",
+  "047":"能量足夠就點火，讓潛能轉成突破。",
+  "048":"過濾雜訊就能聽到內在導航。",
+  "049":"進入升級瞬間，清空不共振的舊能量。",
+  "050":"快樂可被啟動，主動設計明亮節奏。",
+  "051":"臨界點已到，任何拖延都消耗核心。",
+  "052":"停止硬撐，專注修補安全感與防護。",
+  "053":"回到內在資料庫，最高解法已內建。",
+  "054":"放下戰備狀態，深度放鬆才會平衡。",
+  "055":"停止自評過嚴，讓無條件的自愛流動。",
+  "056":"允許舊傷釋放，把痛轉為重生力。",
+  "057":"把頻率對準喜悅，豐盛自然靠近。",
+  "058":"慢下來消化資訊，清晰觀點帶你出圈。",
+  "059":"鬆開封鎖，自愛喚醒吸引力與和諧。",
+  "060":"在轉場風口放下執著，迎新而行。",
+  "061":"環境吵雜時鞏固內在安全感與結構。",
+  "062":"停止自我遺忘，把愛的能量先給自己。",
+  "063":"快速刷新，清理滯留思緒，重啟系統。",
+  "064":"先把日常節奏與根基打穩，外在自然可控。",
+  "065":"用溫暖動能驅散拖延，立即啟動身體行動。",
+  "066":"讓理性與直覺對齊，做清晰且不被情緒綁架的選擇。",
+  "067":"面對並釋放恐懼，建立堅實防護後再升級。",
+  "068":"以實際行動宣告已準備好承接與擴張。",
+  "069":"主動淨場斷鏈，重新對接清晰指引。",
+  "070":"把焦點從外求轉為內在充足，開啟幸福感受。",
+  "071":"情緒不需解決，只需被陪伴與流動。",
+  "072":"你的光未熄，只是卡在低頻，選擇回到光。",
+  "073":"把意志鎖定目標，立刻行動而非反覆猶豫。",
+  "074":"降速停輸入，讓智慧在靜中顯現。",
+  "075":"階段已完成，把靈感整合為踏實新任務。",
+  "076":"停止長期透支，優先自我滋養與能量回補。",
+  "077":"讓行動帶動氣血，破除鬱滯與悶塞。",
+  "078":"清場疏通，讓思緒與身體恢復清爽。",
+  "079":"以溫柔接納修補創傷，建立可持續的內在支點。",
+  "080":"去除雜訊與混頻，讓能場保持純淨。",
+  "081":"收回專注，先穩根基再談累積。",
+  "082":"清除雜音，信任第一個直覺並真誠表達。",
+  "083":"結束過載舊模式，用乾淨姿態迎新。",
+  "084":"暫停輸入、轉為行動，清晰決策破卡。",
+  "085":"以穿透性動作清出停滯，快速釋放無用能量。",
+  "086":"創造力待引爆，精準微調行動點並果斷執行。",
+  "087":"堆積造成停滯，刷新系統恢復清晰流動。",
+  "088":"斬斷猶豫，以清晰思維配上即刻行動。",
+  "089":"停止外求，回身體與直覺中心導航。",
+  "090":"雜訊過多致混亂，清理與釋放讓思維通透。",
+  "091":"建立柔軟且穩定的邊界，讓自己被滋養。",
+  "092":"放慢修補裂縫，以溫柔愛重建穩定。",
+  "093":"覺察漏洞並補強，鞏固內在防護。",
+  "094":"啟動再生機制，穩定更新、強化結構。",
+  "095":"停止自我壓縮，選擇發光並擴張自信。",
+  "096":"不是為別人修好，而是為自己穩定深入。",
+  "097":"重設頻率中心，以沉著作為一切行動的底盤。",
+  "098":"身體已示警，立刻安排釋放與休息。",
+  "099":"拔除連結與雜訊，進入靜謐空間重啟核心。",
+  "100":"調整「消化頻率」，別亂塞，讓系統有效吸收。",
+  "101":"解除「應該」枷鎖，釋放壓力回到平靜。",
+  "102":"對齊自我價值並以行動開啟接收通道。",
+  "103":"把柔和視為力量，允許本質魅力自然綻放。",
+  "104":"以深呼吸釋壓，讓能量與思緒再次流動。",
+  "105":"價值不由時間定義，選擇在此刻接納自己。",
+  "106":"主動採取正向觀點並行動，讓頻率上升。",
+  "107":"立刻築起邊界，不再當他人情緒接收器。",
+  "108":"從死撐轉為鬆手，讓壓力流通後回到舒適。"
 }
 </script>
 </body>
