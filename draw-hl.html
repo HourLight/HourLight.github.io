@@ -1004,41 +1004,6 @@
       </div>
     </div>
   </div>
-// 單張抽牌：讓覺察文字顯示在牌卡下面
-function showExplainBelowCard() {
-  const grid = document.getElementById('grid');
-  const allFiles = window.allFiles || [];
-  const SUMMARIES = window.SUMMARIES || {};
-  if (!grid || !window.selected || window.selected.length !== 1) return;
-
-  const firstCard = grid.querySelector('.card');
-  if (!firstCard) return;
-
-  const code = allFiles[window.selected[0]].replace('.png', '');
-  const s = SUMMARIES[code] || {};
-  const text = `覺察：${s['覺察'] || ''}\n行動指引：${s['行動指引'] || ''}`;
-
-  // 如果已經有舊的文字就刪掉
-  const old = document.querySelector('.card-explain');
-  if (old) old.remove();
-
-  // 建立新說明區塊
-  const explain = document.createElement('div');
-  explain.className = 'card-explain';
-  explain.innerHTML = `
-    <span class="kicker">✨ 卡 ${code}</span>
-    <span class="title">重點</span>
-    <span class="body">${text.replace(/\n/g,'<br>')}</span>
-  `;
-  firstCard.insertAdjacentElement('afterend', explain);
-  explain.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
-// 每次抽完牌就執行
-const _oldRenderCards = renderCards;
-renderCards = function(...args){
-  _oldRenderCards.apply(this, args);
-  if (args[1] === true) showExplainBelowCard();
 };
 
   <script type="application/json" id="card-summaries">
@@ -1367,15 +1332,9 @@ function renderCards(updatePrefill = true, isOneCard = false) {
   }
   guideHint.style.display = 'none';
 
-  if (isOneCard) {
-    const code = allFiles[selected[0]].replace('.png', '');
-    const summaryData = SUMMARIES[code];
-    const summary = summaryData ? `覺察：${summaryData['覺察']} \n行動指引：${summaryData['行動指引']}` : '';
-    oneHint.textContent = summary ? `🌟 ${summary}` : '🌟 今日訊息已生成';
-    oneHint.style.display = 'block';
-  } else {
-    oneHint.style.display = 'none';
-  }
+// 單張時，不在上方顯示提示，改放牌卡下方
+oneHint.style.display = 'none';
+oneHint.className = '';
 
   selected.forEach((idx, position) => {
     const filename = allFiles[idx];
@@ -1399,7 +1358,29 @@ function renderCards(updatePrefill = true, isOneCard = false) {
     cardDiv.appendChild(cap);
     grid.appendChild(cardDiv);
   });
+// 單張：把覺察＋行動放到第一張牌的下方
+if (isOneCard) {
+  const firstCard = grid.querySelector('.card');
+  if (firstCard) {
+    const code = allFiles[selected[0]].replace('.png', '');
+    const s = SUMMARIES[code] || {};
+    const text = `覺察：${s['覺察'] || ''}\n行動指引：${s['行動指引'] || ''}`;
 
+    // 先清掉舊的說明塊，避免重複
+    const old = grid.parentElement.querySelector('.card-explain');
+    if (old) old.remove();
+
+    const explain = document.createElement('div');
+    explain.className = 'card-explain';
+    explain.innerHTML = `
+      <span class="kicker">✨ 卡 ${code}</span>
+      <span class="title">重點</span>
+      <span class="body">${text.replace(/\n/g,'<br>')}</span>
+    `;
+    firstCard.insertAdjacentElement('afterend', explain);
+    explain.scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+}
   if (copyBtn) copyBtn.disabled = false;
   if (shareBtn) shareBtn.disabled = false;
   if (copyMsgBtn) copyMsgBtn.disabled = false;
