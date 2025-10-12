@@ -1004,6 +1004,42 @@
       </div>
     </div>
   </div>
+// 單張抽牌：讓覺察文字顯示在牌卡下面
+function showExplainBelowCard() {
+  const grid = document.getElementById('grid');
+  const allFiles = window.allFiles || [];
+  const SUMMARIES = window.SUMMARIES || {};
+  if (!grid || !window.selected || window.selected.length !== 1) return;
+
+  const firstCard = grid.querySelector('.card');
+  if (!firstCard) return;
+
+  const code = allFiles[window.selected[0]].replace('.png', '');
+  const s = SUMMARIES[code] || {};
+  const text = `覺察：${s['覺察'] || ''}\n行動指引：${s['行動指引'] || ''}`;
+
+  // 如果已經有舊的文字就刪掉
+  const old = document.querySelector('.card-explain');
+  if (old) old.remove();
+
+  // 建立新說明區塊
+  const explain = document.createElement('div');
+  explain.className = 'card-explain';
+  explain.innerHTML = `
+    <span class="kicker">✨ 卡 ${code}</span>
+    <span class="title">重點</span>
+    <span class="body">${text.replace(/\n/g,'<br>')}</span>
+  `;
+  firstCard.insertAdjacentElement('afterend', explain);
+  explain.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// 每次抽完牌就執行
+const _oldRenderCards = renderCards;
+renderCards = function(...args){
+  _oldRenderCards.apply(this, args);
+  if (args[1] === true) showExplainBelowCard();
+};
 
   <script type="application/json" id="card-summaries">
     {
@@ -1516,6 +1552,33 @@ Email：${email}
           white-space: nowrap;
           border-width: 0;
       }
+    .card-explain {
+  background: #fff9f3;
+  border: 2px solid #cda86e;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-top: 10px;
+  box-shadow: 0 6px 18px rgba(205,168,110,.22);
+  color: #2a2a2a;
+  line-height: 1.8;
+}
+.card-explain .kicker{
+  display:inline-block;
+  font-weight:900;
+  color:#6b4f3e;
+  background:#fff2e0;
+  border:1px solid rgba(205,168,110,.6);
+  border-radius:999px;
+  padding:2px 10px;
+  font-size:13px;
+  margin-right:8px;
+}
+.card-explain .title{
+  font-weight:900;
+  color:#a88257;
+  margin-right:6px;
+}
+.card-explain .body{ white-space:pre-wrap; }
   </style>
 </body>
 </html>
