@@ -1099,245 +1099,247 @@
     }
   </script>
 
-  <script>
-    'use strict';
+ <script>
+'use strict';
 
-    // ========== 全域變數 ==========
-    const allFiles = [
-      'A00.png','A01.png','A02.png','A03.png','A04.png','A05.png','A06.png','A07.png',
-      'A08.png','A09.png','A10.png','A11.png','A12.png','A13.png','A14.png','A15.png',
-      'A16.png','A17.png','A18.png','A19.png','A20.png','A21.png',
-      '001.png','002.png','003.png','004.png','005.png','006.png','007.png','008.png',
-      '009.png','010.png','011.png','012.png','013.png','014.png','015.png','016.png',
-      '017.png','018.png','019.png','020.png','021.png','022.png','023.png','024.png',
-      '025.png','026.png','027.png','028.png','029.png','030.png','031.png','032.png',
-      '033.png','034.png','035.png','036.png','037.png','038.png','039.png','040.png',
-      '041.png','042.png','043.png','044.png','045.png','046.png','047.png','048.png',
-      '049.png','050.png','051.png','052.png','053.png','054.png','055.png','056.png',
-      '057.png','058.png','059.png','060.png','061.png','062.png','063.png','064.png',
-      '065.png','066.png','067.png','068.png','069.png','070.png','071.png','072.png',
-      '073.png','074.png','075.png','076.png','077.png','078.png','079.png','080.png',
-      '081.png','082.png','083.png','084.png','085.png','086.png','087.png','088.png',
-      '089.png','090.png','091.png','092.png','093.png','094.png','095.png','096.png',
-      '097.png','098.png','099.png','100.png','101.png','102.png','103.png','104.png',
-      '105.png','106.png','107.png','108.png'
-    ];
+// ===== 安全報錯提示（可留可不留） =====
+window.addEventListener('error', (e) => {
+  console.warn('腳本錯誤：', e.message);
+});
 
-    let selected = [];
-    let SUMMARIES = {};
-    let pendingDrawCount = 0; // 待抽張數
+// ===== 全域變數 =====
+const allFiles = [
+  'A00.png','A01.png','A02.png','A03.png','A04.png','A05.png','A06.png','A07.png',
+  'A08.png','A09.png','A10.png','A11.png','A12.png','A13.png','A14.png','A15.png',
+  'A16.png','A17.png','A18.png','A19.png','A20.png','A21.png',
+  '001.png','002.png','003.png','004.png','005.png','006.png','007.png','008.png',
+  '009.png','010.png','011.png','012.png','013.png','014.png','015.png','016.png',
+  '017.png','018.png','019.png','020.png','021.png','022.png','023.png','024.png',
+  '025.png','026.png','027.png','028.png','029.png','030.png','031.png','032.png',
+  '033.png','034.png','035.png','036.png','037.png','038.png','039.png','040.png',
+  '041.png','042.png','043.png','044.png','045.png','046.png','047.png','048.png',
+  '049.png','050.png','051.png','052.png','053.png','054.png','055.png','056.png',
+  '057.png','058.png','059.png','060.png','061.png','062.png','063.png','064.png',
+  '065.png','066.png','067.png','068.png','069.png','070.png','071.png','072.png',
+  '073.png','074.png','075.png','076.png','077.png','078.png','079.png','080.png',
+  '081.png','082.png','083.png','084.png','085.png','086.png','087.png','088.png',
+  '089.png','090.png','091.png','092.png','093.png','094.png','095.png','096.png',
+  '097.png','098.png','099.png','100.png','101.png','102.png','103.png','104.png',
+  '105.png','106.png','107.png','108.png'
+];
 
-    // DOM 元素
-    const grid = document.getElementById('grid');
-    const copyBtn = document.getElementById('copyBtn');
-    const shareBtn = document.getElementById('shareBtn');
-    const copyMsgBtn = document.getElementById('copyMsgBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const prefillEl = document.getElementById('prefill');
-    const oneHint = document.getElementById('oneHint');
-    const guideHint = document.getElementById('guideHint');
-    const sr = document.getElementById('sr');
-    const applyForm = document.getElementById('applyForm');
-    const applyOk = document.getElementById('applyOk');
+let selected = [];
+let SUMMARIES = {};
+let pendingDrawCount = 0;
 
-    // Modal 元素
-    const confirmModal = document.getElementById('confirmModal');
-    const modalQuestion = document.getElementById('modalQuestion');
-    const modalConfirm = document.getElementById('modalConfirm');
-    const modalCancel = document.getElementById('modalCancel');
+// DOM 取得改成函式，避免載入時序問題
+const $ = (id) => document.getElementById(id);
 
-    // ========== 初始化 ==========
-    function init() {
-      loadSummaries();
-      restoreFromURL();
-      bindEvents();
+let grid, copyBtn, shareBtn, copyMsgBtn, clearBtn, prefillEl, oneHint, guideHint, sr, applyForm, applyOk;
+let confirmModal, modalQuestion, modalConfirm, modalCancel;
+
+// ===== 啟動：等 DOM 準備好再綁定 =====
+document.addEventListener('DOMContentLoaded', () => {
+  grid = $('grid');
+  copyBtn = $('copyBtn');
+  shareBtn = $('shareBtn');
+  copyMsgBtn = $('copyMsgBtn');
+  clearBtn = $('clearBtn');
+  prefillEl = $('prefill');
+  oneHint = $('oneHint');
+  guideHint = $('guideHint');
+  sr = $('sr');
+  applyForm = $('applyForm');
+  applyOk = $('applyOk');
+  confirmModal = $('confirmModal');
+  modalQuestion = $('modalQuestion');
+  modalConfirm = $('modalConfirm');
+  modalCancel = $('modalCancel');
+
+  loadSummariesSafe();
+  restoreFromURL();
+  bindEventsSafe();
+});
+
+// ===== JSON 載入容錯 =====
+function loadSummariesSafe() {
+  const el = $('card-summaries');
+  if (!el) return;
+  try {
+    const txt = el.textContent.trim();
+    // 去除可能混入的 BOM 或不可見字元
+    const clean = txt.replace(/^\uFEFF/, '');
+    SUMMARIES = JSON.parse(clean);
+  } catch (e) {
+    console.warn('卡義 JSON 解析失敗，單張提示將停用：', e);
+    SUMMARIES = {}; // 不中斷主流程
+  }
+}
+
+// ===== 事件（委派＋保底抽牌） =====
+function bindEventsSafe() {
+  // 1) 抽牌按鈕：用事件委派，避免綁定失效
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.mode-buttons .btn[data-n]');
+    if (!btn) return;
+    const n = parseInt(btn.getAttribute('data-n'), 10);
+    if (!Number.isFinite(n) || n <= 0) return;
+
+    pendingDrawCount = n;
+    // 嘗試先走 Modal；若任何原因失敗，直接抽牌當作保底
+    try {
+      showConfirmModal();
+    } catch (_) {
+      performDraw(n);
     }
+  });
 
-    // ========== 載入卡義資料 ==========
-    function loadSummaries() {
-      const el = document.getElementById('card-summaries');
-      if (!el) return;
-      try {
-        SUMMARIES = JSON.parse(el.textContent.trim());
-      } catch (e) {
-        console.warn('卡義 JSON 解析失敗', e);
-      }
-    }
+  // 2) 清除
+  if (clearBtn) clearBtn.addEventListener('click', clearDraw);
 
-    // ========== 綁定事件 ==========
-    function bindEvents() {
-      // 抽牌按鈕
-      document.querySelectorAll('.mode-buttons .btn[data-n]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const n = parseInt(btn.getAttribute('data-n'), 10);
-          if (n > 0) {
-            pendingDrawCount = n;
-            showConfirmModal();
-          }
-        });
-      });
+  // 3) 複製卡號
+  if (copyBtn) copyBtn.addEventListener('click', copyCardCodes);
 
-      // 清除按鈕
-      clearBtn.addEventListener('click', clearDraw);
+  // 4) 產生分享連結
+  if (shareBtn) shareBtn.addEventListener('click', generateShareLink);
 
-      // 複製卡號
-      copyBtn.addEventListener('click', copyCardCodes);
+  // 5) 複製預約訊息
+  if (copyMsgBtn) copyMsgBtn.addEventListener('click', copyPrefillMessage);
 
-      // 產生分享連結
-      shareBtn.addEventListener('click', generateShareLink);
+  // 6) Modal 確認 / 取消
+  if (modalConfirm) modalConfirm.addEventListener('click', handleModalConfirm);
+  if (modalCancel) modalCancel.addEventListener('click', hideConfirmModal);
+  if (confirmModal) {
+    confirmModal.addEventListener('click', (e) => {
+      if (e.target === confirmModal) hideConfirmModal();
+    });
+  }
 
-      // 複製預約訊息
-      copyMsgBtn.addEventListener('click', copyPrefillMessage);
+  // 7) 申請表單
+  if (applyForm) applyForm.addEventListener('submit', handleApplyFormSubmit);
+}
 
-      // Modal 確認
-      modalConfirm.addEventListener('click', handleModalConfirm);
-
-      // Modal 取消
-      modalCancel.addEventListener('click', hideConfirmModal);
-
-      // Modal 背景點擊關閉
-      confirmModal.addEventListener('click', (e) => {
-        if (e.target === confirmModal) {
-          hideConfirmModal();
-        }
-      });
-
-      // 申請表單
-      applyForm.addEventListener('submit', handleApplyFormSubmit);
-    }
-
-    // ========== 顯示確認 Modal ==========
-    function showConfirmModal() {
-      confirmModal.classList.add('show');
-      modalQuestion.value = '';
-      modalQuestion.focus();
-      document.body.style.overflow = 'hidden';
-    }
-
-    // ========== 隱藏確認 Modal ==========
-    function hideConfirmModal() {
-      confirmModal.classList.remove('show');
-      document.body.style.overflow = '';
-      pendingDrawCount = 0;
-    }
-
-    // ========== 處理 Modal 確認 ==========
-    function handleModalConfirm() {
+// ===== Modal 流程（保底路徑） =====
+function showConfirmModal() {
+  if (!confirmModal) { performDraw(pendingDrawCount); return; }
+  confirmModal.classList.add('show');
+  if (modalQuestion) modalQuestion.value = '';
+  document.body.style.overflow = 'hidden';
+  // 若 600ms 內看不到（例如 CSS 被蓋掉），直接抽牌保底
+  setTimeout(() => {
+    const visible = window.getComputedStyle(confirmModal).pointerEvents !== 'none';
+    if (!visible && pendingDrawCount > 0) {
       hideConfirmModal();
-      if (pendingDrawCount > 0) {
-        performDraw(pendingDrawCount);
-      }
+      performDraw(pendingDrawCount);
     }
+  }, 600);
+}
 
-    // ========== 執行抽牌 ==========
-    function performDraw(n) {
-      if (n > allFiles.length) {
-        showToast('張數超過牌庫總數！');
-        return;
-      }
+function hideConfirmModal() {
+  if (confirmModal) confirmModal.classList.remove('show');
+  document.body.style.overflow = '';
+}
 
-      const pool = Array.from({ length: allFiles.length }, (_, i) => i);
-      const picked = [];
+function handleModalConfirm() {
+  hideConfirmModal();
+  if (pendingDrawCount > 0) {
+    performDraw(pendingDrawCount);
+    pendingDrawCount = 0;
+  }
+}
 
-      for (let i = 0; i < n; i++) {
-        const idx = Math.floor(Math.random() * pool.length);
-        picked.push(pool.splice(idx, 1)[0]);
-      }
+// ===== 抽牌核心 =====
+function performDraw(n) {
+  if (n > allFiles.length) {
+    showToast('張數超過牌庫總數！');
+    return;
+  }
+  const pool = Array.from({ length: allFiles.length }, (_, i) => i);
+  const picked = [];
+  for (let i = 0; i < n; i++) {
+    const idx = Math.floor(Math.random() * pool.length);
+    picked.push(pool.splice(idx, 1)[0]);
+  }
+  selected = picked;
+  renderCards(true, n === 1);
+  updateURL(getCardCodes().join(','));
+}
 
-      selected = picked;
-      renderCards(true, n === 1);
-      updateURL(getCardCodes().join(','));
-    }
+// ===== 其餘原函式（原樣保留） =====
+function clearDraw() {
+  if (selected.length === 0) { showToast('目前沒有已抽的牌'); return; }
+  if (confirm('確定要清除目前的抽牌結果嗎？')) {
+    selected = [];
+    renderCards(false);
+    updateURL('');
+    showToast('已清除抽牌結果');
+  }
+}
 
-    // ========== 清除抽牌 ==========
-    function clearDraw() {
-      if (selected.length === 0) {
-        showToast('目前沒有已抽的牌');
-        return;
-      }
+function renderCards(updatePrefill = true, isOneCard = false) {
+  grid.innerHTML = '';
+  if (selected.length === 0) {
+    guideHint.style.display = 'block';
+    oneHint.style.display = 'none';
+    if (copyBtn) copyBtn.disabled = true;
+    if (shareBtn) shareBtn.disabled = true;
+    if (copyMsgBtn) copyMsgBtn.disabled = true;
+    prefillEl.value = '';
+    sr.textContent = '';
+    return;
+  }
+  guideHint.style.display = 'none';
 
-      if (confirm('確定要清除目前的抽牌結果嗎？')) {
-        selected = [];
-        renderCards(false);
-        updateURL('');
-        showToast('已清除抽牌結果');
-      }
-    }
+  if (isOneCard) {
+    const code = allFiles[selected[0]].replace('.png', '');
+    const summaryData = SUMMARIES[code];
+    const summary = summaryData ? `覺察：${summaryData['覺察']} \n行動指引：${summaryData['行動指引']}` : '';
+    oneHint.textContent = summary ? `🌟 ${summary}` : '🌟 今日訊息已生成';
+    oneHint.style.display = 'block';
+  } else {
+    oneHint.style.display = 'none';
+  }
 
-    // ========== 渲染卡片 ==========
-    function renderCards(updatePrefill = true, isOneCard = false) {
-      grid.innerHTML = '';
+  selected.forEach((idx, position) => {
+    const filename = allFiles[idx];
+    const code = filename.replace('.png', '');
+    const cardDiv = document.createElement('div');
+    cardDiv.className = 'card';
+    cardDiv.setAttribute('data-code', code);
+    cardDiv.style.animationDelay = `${position * 0.08}s`;
 
-      if (selected.length === 0) {
-        guideHint.style.display = 'block';
-        oneHint.style.display = 'none';
-        copyBtn.disabled = true;
-        shareBtn.disabled = true;
-        copyMsgBtn.disabled = true;
-        prefillEl.value = '';
-        sr.textContent = '';
-        return;
-      }
+    const img = document.createElement('img');
+    img.className = 'thumb';
+    img.src = 'assets/hourlight/' + filename;
+    img.alt = `卡片 ${code}`;
+    img.loading = 'lazy';
 
-      guideHint.style.display = 'none';
+    const cap = document.createElement('div');
+    cap.className = 'cap';
+    cap.textContent = code;
 
-      // 單張卡片顯示提示
-      if (isOneCard) {
-        const code = allFiles[selected[0]].replace('.png', '');
-        const summaryData = SUMMARIES[code];
-        const summary = summaryData ? `覺察：${summaryData['覺察']} \n行動指引：${summaryData['行動指引']}` : '';
-        oneHint.textContent = `🌟 ${summary}`;
-        oneHint.style.display = 'block';
-      } else {
-        oneHint.style.display = 'none';
-      }
+    cardDiv.appendChild(img);
+    cardDiv.appendChild(cap);
+    grid.appendChild(cardDiv);
+  });
 
-      // 渲染卡片
-      selected.forEach((idx, position) => {
-        const filename = allFiles[idx];
-        const code = filename.replace('.png', '');
-        const cardDiv = document.createElement('div');
-        cardDiv.className = 'card';
-        cardDiv.setAttribute('data-code', code);
-        cardDiv.style.animationDelay = `${position * 0.08}s`;
+  if (copyBtn) copyBtn.disabled = false;
+  if (shareBtn) shareBtn.disabled = false;
+  if (copyMsgBtn) copyMsgBtn.disabled = false;
 
-        const img = document.createElement('img');
-        img.className = 'thumb';
-        img.src = 'assets/hourlight/' + filename;
-        img.alt = `卡片 ${code}`;
-        img.loading = 'lazy';
+  if (updatePrefill) prefillEl.value = buildPrefillMessage();
 
-        const cap = document.createElement('div');
-        cap.className = 'cap';
-        cap.textContent = code;
+  showToast(`共抽到 ${selected.length} 張牌`);
+  sr.textContent = `已抽到 ${selected.length} 張卡`;
+}
 
-        cardDiv.appendChild(img);
-        cardDiv.appendChild(cap);
-        grid.appendChild(cardDiv);
-      });
+function getCardCodes() {
+  return selected.map(i => allFiles[i].replace('.png', ''));
+}
 
-      // 啟用按鈕
-      copyBtn.disabled = false;
-      shareBtn.disabled = false;
-      copyMsgBtn.disabled = false;
-
-      if (updatePrefill) {
-        prefillEl.value = buildPrefillMessage();
-      }
-
-      showToast(`共抽到 ${selected.length} 張牌`);
-      sr.textContent = `已抽到 ${selected.length} 張卡`;
-    }
-
-    // ========== 取得卡號陣列 ==========
-    function getCardCodes() {
-      return selected.map(i => allFiles[i].replace('.png', ''));
-    }
-
-    // ========== 建立預約訊息 ==========
-    function buildPrefillMessage() {
-      const codes = getCardCodes().join(', ');
-      return `您好，我想預約《馥靈之鑰》解牌：
+function buildPrefillMessage() {
+  const codes = getCardCodes().join(', ');
+  return `您好，我想預約《馥靈之鑰》解牌：
 
 抽牌張數：${selected.length} 張
 卡號：${codes}
@@ -1346,112 +1348,95 @@
 期望時段：（範例：平日晚間 / 週末白天）
 
 謝謝 🙏`;
-    }
+}
 
-    // ========== 複製卡號 ==========
-    function copyCardCodes() {
-      const codes = getCardCodes().join(', ');
-      copyToClipboard(codes, '卡號已複製！');
-    }
+function copyCardCodes() {
+  const codes = getCardCodes().join(', ');
+  copyToClipboard(codes, '卡號已複製！');
+}
 
-    // ========== 產生分享連結 ==========
-    function generateShareLink() {
-      const codes = getCardCodes().join(',');
-      const url = withPickParam(location.href, codes);
-      copyToClipboard(url, '分享連結已複製！');
-    }
+function generateShareLink() {
+  const codes = getCardCodes().join(',');
+  const url = withPickParam(location.href, codes);
+  copyToClipboard(url, '分享連結已複製！');
+}
 
-    // ========== 複製預約訊息 ==========
-    function copyPrefillMessage() {
-      const msg = prefillEl.value;
-      if (!msg) return;
-      copyToClipboard(msg, '預約訊息已複製！');
-    }
+function copyPrefillMessage() {
+  const msg = prefillEl.value;
+  if (!msg) return;
+  copyToClipboard(msg, '預約訊息已複製！');
+}
 
-    // ========== 複製到剪貼簿 ==========
-    function copyToClipboard(text, successMsg) {
-      if (!navigator.clipboard) {
-        // 降級方案
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        showToast(successMsg);
-        return;
-      }
+function copyToClipboard(text, successMsg) {
+  if (!navigator.clipboard) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    showToast(successMsg);
+    return;
+  }
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(successMsg);
+  }).catch(() => {
+    showToast('複製失敗，請手動複製');
+  });
+}
 
-      navigator.clipboard.writeText(text).then(() => {
-        showToast(successMsg);
-      }).catch(err => {
-        console.error('複製失敗', err);
-        showToast('複製失敗，請手動複製');
-      });
-    }
+function showToast(msg) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 1800);
+}
 
-    // ========== Toast 通知 ==========
-    function showToast(msg) {
-      const toast = document.createElement('div');
-      toast.className = 'toast';
-      toast.textContent = msg;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 2000);
-    }
+function withPickParam(href, pickStr) {
+  const url = new URL(href, location.origin);
+  url.searchParams.set('pick', pickStr);
+  return url.toString();
+}
 
-    // ========== URL 參數處理 ==========
-    function withPickParam(href, pickStr) {
-      const url = new URL(href);
-      url.searchParams.set('pick', pickStr);
-      return url.toString();
-    }
+function updateURL(pickStr) {
+  const url = new URL(location.href);
+  if (pickStr) url.searchParams.set('pick', pickStr);
+  else url.searchParams.delete('pick');
+  history.replaceState(null, '', url);
+}
 
-    function updateURL(pickStr) {
-      const url = new URL(location.href);
-      if (pickStr) {
-        url.searchParams.set('pick', pickStr);
-      } else {
-        url.searchParams.delete('pick');
-      }
-      history.replaceState(null, '', url);
-    }
+function restoreFromURL() {
+  const url = new URL(location.href);
+  const pick = (url.searchParams.get('pick') || '').trim();
+  if (!pick) return;
+  const codes = pick.split(',').map(s => s.trim()).filter(Boolean);
+  const codeToIdx = new Map(allFiles.map((f, i) => [f.replace('.png', ''), i]));
+  const idxs = codes.map(c => codeToIdx.get(c)).filter((n) => Number.isInteger(n));
+  if (idxs.length) {
+    selected = idxs;
+    renderCards(true, idxs.length === 1);
+  }
+}
 
-    function restoreFromURL() {
-      const url = new URL(location.href);
-      const pick = (url.searchParams.get('pick') || '').trim();
-      if (!pick) return;
+function handleApplyFormSubmit(e) {
+  e.preventDefault();
+  const name = $('name').value.trim();
+  const lineid = $('lineid').value.trim();
+  const email = $('email').value.trim();
+  const phone = $('phone').value.trim();
+  const exp = $('exp').value.trim();
+  const hours = $('hours').value;
+  const focus = $('focus').value.trim();
+  const note = $('note').value.trim();
 
-      const codes = pick.split(',').map(s => s.trim()).filter(Boolean);
-      const codeToIdx = new Map(allFiles.map((f, i) => [f.replace('.png', ''), i]));
-      const idxs = codes.map(c => codeToIdx.get(c)).filter(n => Number.isInteger(n));
-
-      if (idxs.length) {
-        selected = idxs;
-        renderCards(true, idxs.length === 1);
-      }
-    }
-
-    // ========== 申請表單處理 ==========
-    function handleApplyFormSubmit(e) {
-      e.preventDefault();
-
-      const name = document.getElementById('name').value.trim();
-      const lineid = document.getElementById('lineid').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const exp = document.getElementById('exp').value.trim();
-      const hours = document.getElementById('hours').value;
-      const focus = document.getElementById('focus').value.trim();
-      const note = document.getElementById('note').value.trim();
-
-      if (!name || !lineid || !email || !phone) {
-        showToast('請填寫必填欄位（姓名 / LINE ID / Email / 電話）');
-        return;
-      }
-
-      const content = `【合作共創申請】
+  if (!name || !lineid || !email || !phone) {
+    showToast('請填寫必填欄位（姓名 / LINE ID / Email / 電話）');
+    return;
+  }
+  const content = `【合作共創申請】
 姓名：${name}
 LINE ID：${lineid}
 Email：${email}
@@ -1463,22 +1448,19 @@ Email：${email}
 
 （系統訊息：此摘要已複製，請貼到 LINE「judyanee」或寄信到 judyanee@gmail.com）`;
 
-      copyToClipboard(content, '申請摘要已複製！');
-      applyOk.style.display = 'inline';
+  copyToClipboard(content, '申請摘要已複製！');
+  if (applyOk) applyOk.style.display = 'inline';
 
-      setTimeout(() => {
-        if (confirm('要用 LINE 傳送嗎？（會開啟 LINE 加入頁）')) {
-          window.open('https://line.me/R/ti/p/~judyanee', '_blank');
-        } else if (confirm('要改用 Email 寄出嗎？')) {
-          const mail = `mailto:judyanee@gmail.com?subject=${encodeURIComponent('合作共創申請 - ' + name)}&body=${encodeURIComponent(content)}`;
-          window.location.href = mail;
-        }
-      }, 500);
+  setTimeout(() => {
+    if (confirm('要用 LINE 傳送嗎？（會開啟 LINE 加入頁）')) {
+      window.open('https://line.me/R/ti/p/~judyanee', '_blank');
+    } else if (confirm('要改用 Email 寄出嗎？')) {
+      const mail = `mailto:judyanee@gmail.com?subject=${encodeURIComponent('合作共創申請 - ' + name)}&body=${encodeURIComponent(content)}`;
+      window.location.href = mail;
     }
-
-    // ========== 啟動 ==========
-    init();
-  </script>
+  }, 500);
+}
+</script>
 
   <style>
       /* 螢幕閱讀器專用 */
