@@ -3,171 +3,710 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="description" content="HourLight 馥靈之鑰｜內在GPS系統 × 美業顧問｜情緒紓解、能量調頻、壓力管理的專業服務平台">
 <title>HourLight馥靈之鑰｜內在GPS</title>
 <link rel="icon" href="favicon.ico" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <style>
-  :root{
-    --milk:#f9f5f0; --cocoa:#4b392d;
-    --rose:#cda86e; --rose-dark:#a88257;
-    --ink:#2a2a2a; --veil:rgba(255,255,255,.88);
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0;height:100%}
-  body{
-    font-family:"Noto Sans TC","PingFang TC","Arial",sans-serif;
-    color:var(--ink); background:#000; overflow-x:hidden;
-  }
-  /* 進站後才套背景，避免文字壓暗 */
-  body.loaded{
-    background:url('https://raw.githubusercontent.com/HourLight/11/main/background.jpg') center/cover fixed no-repeat;
-  }
-
-  /* Splash（保留你的封面圖 P0001.png） */
-  .splash{
-    position:fixed; inset:0; background:url('P0001.png') center/cover no-repeat;
-    display:flex; align-items:center; justify-content:center;
-    z-index:999; transition:opacity 1.1s ease;
-  }
-  .splash.fade-out{opacity:0; pointer-events:none}
-  .enter{
-    position:absolute; bottom:64px; padding:10px 18px; border-radius:999px;
-    color:#fff; background:rgba(0,0,0,.3); font-weight:800; letter-spacing:.5px;
-    text-shadow:0 2px 6px rgba(0,0,0,.45); cursor:pointer; animation:blink 2s infinite;
-  }
-  @keyframes blink{0%,100%{opacity:.7}50%{opacity:1}}
-
-  /* 主內容殼 */
-  .main{display:none; min-height:100vh; padding:28px 16px 60px;}
-  .main.show{display:block}
-  .wrap{max-width:1100px; margin:0 auto}
-
-  /* 玻璃卡 */
-  .glass{
-    background:var(--veil); backdrop-filter:blur(6px) saturate(120%);
-    border:1px solid rgba(0,0,0,.06); border-radius:16px;
-    box-shadow:0 8px 26px rgba(0,0,0,.18); padding:22px;
+  /* ===== 色彩系統 ===== */
+  :root {
+    --color-milk: #f9f5f0;
+    --color-cocoa: #4b392d;
+    --color-rose: #cda86e;
+    --color-rose-dark: #a88257;
+    --color-ink: #2a2a2a;
+    --color-veil: rgba(255, 255, 255, .88);
+    --color-shadow: rgba(0, 0, 0, .18);
+    --color-highlight: #ff6b9d;
+    
+    /* 間距系統 */
+    --space-xs: 8px;
+    --space-sm: 12px;
+    --space-md: 16px;
+    --space-lg: 22px;
+    --space-xl: 28px;
+    
+    /* 圓角系統 */
+    --radius-sm: 12px;
+    --radius-md: 14px;
+    --radius-lg: 16px;
+    --radius-full: 999px;
+    
+    /* 過渡時間 */
+    --transition-fast: 0.2s;
+    --transition-normal: 0.25s;
+    --transition-slow: 0.35s;
   }
 
-  /* 英雄區：左品牌＋右雙軌 */
-  .hero{display:grid; grid-template-columns:1.15fr .85fr; gap:16px; align-items:stretch}
-  @media(max-width:980px){.hero{grid-template-columns:1fr}}
-  .brand{text-align:center; background:#fff}
-  .brand h1{margin:4px 0 6px; font-size:2.1rem; color:var(--cocoa); letter-spacing:.5px;}
-  .brand p{margin:6px 0 0; color:var(--rose-dark); font-weight:700}
+  /* ===== 基礎重置 ===== */
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-  .split{display:grid; gap:16px; grid-template-rows:auto auto;}
-  .track{
-    border-radius:14px; padding:18px 18px 14px; background:#fff;
-    border:1px solid rgba(0,0,0,.06); box-shadow:0 6px 18px rgba(0,0,0,.12);
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  .track h3{margin:0 0 8px; color:var(--cocoa); font-size:1.22rem}
-  .badges{display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 10px}
-  .badge{
-    font-size:12px; color:#fff; padding:6px 10px; border-radius:999px;
-    background:linear-gradient(135deg,var(--rose),var(--rose-dark));
-    box-shadow:inset 0 0 5px rgba(255,255,255,.25);
-  }
-  .btns{display:flex; flex-wrap:wrap; gap:10px}
-  .btn{
-    display:inline-block; text-decoration:none; font-weight:800;
-    padding:10px 16px; border-radius:24px; transition:.25s;
-  }
-  .btn.primary{color:#fff; background:linear-gradient(135deg,var(--rose),var(--rose-dark))}
-  .btn.primary:hover{filter:brightness(1.05)}
-  .btn.secondary{color:var(--cocoa); background:#fff; border:1.6px solid var(--cocoa)}
-  .btn.secondary:hover{transform:translateY(-2px)}
 
-  /* 快速入口 */
-  .grid{margin-top:18px; display:grid; gap:14px; grid-template-columns:repeat(3,1fr)}
-  @media(max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:640px){.grid{grid-template-columns:1fr}}
-  .tile{
-    display:flex; flex-direction:column; gap:10px; text-decoration:none;
-    padding:16px; border-radius:14px; background:#fff;
-    border:1px solid rgba(0,0,0,.06); box-shadow:0 6px 18px rgba(0,0,0,.12);
-    transition:.25s; color:var(--cocoa); min-height:120px;
+  html, body {
+    height: 100%;
   }
-  .tile:hover{transform:translateY(-2px)}
-  .tile .t1{font-weight:900; font-size:1.05rem}
-  .tile .t2{font-size:.92rem; color:#6a5747}
 
-  /* 雙欄：品牌／系統 */
-  .two{display:grid; gap:16px; grid-template-columns:1fr 1fr; margin-top:18px;}
-  @media(max-width:900px){.two{grid-template-columns:1fr}}
+  body {
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Arial", sans-serif;
+    color: var(--color-ink);
+    background: #000;
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
 
-  /* Footer */
-  .footer{
-    text-align:center; color:#fff; line-height:1.6; font-size:13px;
-    margin:24px 0 0; padding:12px 10px; border-radius:12px;
-    background:rgba(0,0,0,.45);
+  body.loaded {
+    background: url('https://raw.githubusercontent.com/HourLight/11/main/background.jpg') center/cover fixed no-repeat;
   }
-  .fbtns{margin-top:8px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
-  .fbtn{
-    text-decoration:none; color:#fff; font-weight:800; padding:8px 14px; border-radius:999px;
-    background:linear-gradient(135deg,var(--rose),var(--rose-dark));
-    box-shadow:0 3px 10px rgba(0,0,0,.25); transition:.2s;
+
+  /* ===== 進場畫面 ===== */
+  .splash {
+    position: fixed;
+    inset: 0;
+    background: url('P0001.png') center/cover no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 1.1s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .fbtn:hover{filter:brightness(1.05)}
+
+  .splash.fade-out {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .enter-btn {
+    position: absolute;
+    bottom: 64px;
+    padding: 12px 24px;
+    border-radius: var(--radius-full);
+    color: #fff;
+    background: rgba(0, 0, 0, .4);
+    font-weight: 800;
+    font-size: 1.05rem;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, .5);
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, .3);
+    transition: all var(--transition-normal);
+    animation: gentle-pulse 2.5s ease-in-out infinite;
+  }
+
+  .enter-btn:hover {
+    background: rgba(0, 0, 0, .6);
+    border-color: rgba(255, 255, 255, .5);
+    transform: translateY(-2px);
+  }
+
+  @keyframes gentle-pulse {
+    0%, 100% { opacity: 0.75; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.02); }
+  }
+
+  /* ===== 主要內容容器 ===== */
+  .main {
+    display: none;
+    min-height: 100vh;
+    padding: var(--space-xl) var(--space-md) 60px;
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .main.show {
+    display: block;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* ===== 玻璃擬態卡片 ===== */
+  .glass {
+    background: var(--color-veil);
+    backdrop-filter: blur(8px) saturate(120%);
+    -webkit-backdrop-filter: blur(8px) saturate(120%);
+    border: 1px solid rgba(0, 0, 0, .06);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 32px var(--color-shadow);
+    padding: var(--space-lg);
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  }
+
+  /* ===== 免費抽牌 CTA（超顯眼的那種）===== */
+  .free-draw-hero {
+    background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 50%, #ffa6bb 100%);
+    border-radius: var(--radius-lg);
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(255, 107, 157, .35);
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    animation: gentle-glow 3s ease-in-out infinite;
+  }
+
+  @keyframes gentle-glow {
+    0%, 100% { box-shadow: 0 12px 40px rgba(255, 107, 157, .35); }
+    50% { box-shadow: 0 12px 50px rgba(255, 107, 157, .5); }
+  }
+
+  .free-draw-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="30" r="2" fill="white" opacity="0.3"/><circle cx="80" cy="70" r="1.5" fill="white" opacity="0.4"/><circle cx="50" cy="50" r="1" fill="white" opacity="0.3"/><circle cx="70" cy="20" r="2" fill="white" opacity="0.2"/></svg>') repeat;
+    animation: sparkle 20s linear infinite;
+    opacity: 0.6;
+  }
+
+  @keyframes sparkle {
+    from { background-position: 0 0; }
+    to { background-position: 100px 100px; }
+  }
+
+  .free-draw-hero > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .free-draw-hero .label {
+    display: inline-block;
+    background: rgba(255, 255, 255, .9);
+    color: #ff6b9d;
+    padding: 6px 16px;
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .1);
+  }
+
+  .free-draw-hero h2 {
+    color: #fff;
+    font-size: clamp(1.6rem, 5vw, 2rem);
+    font-weight: 900;
+    margin: 8px 0;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, .2);
+  }
+
+  .free-draw-hero p {
+    color: rgba(255, 255, 255, .95);
+    font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+    margin: 8px 0 20px;
+    line-height: 1.6;
+  }
+
+  .free-draw-btn {
+    display: inline-block;
+    background: #fff;
+    color: #ff6b9d;
+    font-weight: 900;
+    font-size: 1.15rem;
+    padding: 14px 32px;
+    border-radius: var(--radius-full);
+    text-decoration: none;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .15);
+    transition: all var(--transition-normal);
+    border: 3px solid rgba(255, 255, 255, .5);
+  }
+
+  .free-draw-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, .25);
+    background: rgba(255, 255, 255, .95);
+  }
+
+  /* ===== 英雄區 ===== */
+  .hero {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: var(--space-md);
+    align-items: stretch;
+  }
+
+  @media (max-width: 980px) {
+    .hero {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .brand {
+    text-align: center;
+    background: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .brand::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(205, 168, 110, 0.08) 0%, transparent 70%);
+    animation: rotate-gradient 20s linear infinite;
+  }
+
+  @keyframes rotate-gradient {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .brand > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .brand h1 {
+    margin: 4px 0 8px;
+    font-size: clamp(1.5rem, 4vw, 2.1rem);
+    color: var(--color-cocoa);
+    letter-spacing: 0.5px;
+    font-weight: 900;
+  }
+
+  .brand .tagline {
+    margin: 6px 0 12px;
+    color: var(--color-rose-dark);
+    font-weight: 700;
+    font-size: clamp(0.9rem, 2vw, 1rem);
+  }
+
+  .brand .essence {
+    color: #555;
+    font-weight: 500;
+    font-size: clamp(0.85rem, 1.8vw, 0.92rem);
+    line-height: 1.7;
+    padding: 0 12px;
+    margin-top: 10px;
+    font-style: italic;
+  }
+
+  /* ===== 雙軌系統 ===== */
+  .split {
+    display: grid;
+    gap: var(--space-md);
+    grid-template-rows: auto auto;
+  }
+
+  .track {
+    border-radius: var(--radius-md);
+    padding: 18px;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, .06);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, .12);
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .track::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 0%, rgba(205, 168, 110, 0.05) 100%);
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+  }
+
+  .track:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, .16);
+  }
+
+  .track:hover::before {
+    opacity: 1;
+  }
+
+  .track > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .track h3 {
+    margin: 0 0 10px;
+    color: var(--color-cocoa);
+    font-size: clamp(1.05rem, 2.5vw, 1.22rem);
+    font-weight: 800;
+  }
+
+  /* ===== 標籤徽章 ===== */
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin: 10px 0 12px;
+  }
+
+  .badge {
+    font-size: 12px;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--color-rose), var(--color-rose-dark));
+    box-shadow: inset 0 0 8px rgba(255, 255, 255, .3);
+    font-weight: 600;
+    transition: transform var(--transition-fast);
+  }
+
+  .badge:hover {
+    transform: scale(1.05);
+  }
+
+  /* ===== 按鈕系統 ===== */
+  .btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .btn {
+    display: inline-block;
+    text-decoration: none;
+    font-weight: 800;
+    padding: 10px 16px;
+    border-radius: 24px;
+    transition: all var(--transition-normal);
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: none;
+    text-align: center;
+  }
+
+  .btn.primary {
+    color: #fff;
+    background: linear-gradient(135deg, var(--color-rose), var(--color-rose-dark));
+    box-shadow: 0 4px 12px rgba(205, 168, 110, .3);
+  }
+
+  .btn.primary:hover {
+    filter: brightness(1.08);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(205, 168, 110, .4);
+  }
+
+  .btn.secondary {
+    color: var(--color-cocoa);
+    background: #fff;
+    border: 2px solid var(--color-cocoa);
+  }
+
+  .btn.secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+    background: var(--color-milk);
+  }
+
+  /* ===== 夥伴計畫 CTA ===== */
+  .partner-cta {
+    padding: 56px 20px;
+    border-top: 1px solid rgba(0, 0, 0, .06);
+    border-bottom: 1px solid rgba(0, 0, 0, .06);
+    background: rgba(255, 255, 255, .92);
+    margin-top: var(--space-md);
+    border-radius: var(--radius-lg);
+  }
+
+  .partner-cta-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .partner-cta .label {
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    opacity: 0.7;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .partner-cta h2 {
+    font-size: clamp(1.5rem, 4vw, 28px);
+    line-height: 1.3;
+    margin: 12px 0 8px;
+    color: var(--color-cocoa);
+    font-weight: 900;
+  }
+
+  .partner-cta p {
+    font-size: clamp(0.9rem, 2vw, 16px);
+    opacity: 0.9;
+    margin: 0;
+    color: #555;
+  }
+
+  .partner-cta .btns {
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  /* ===== 快速入口網格 ===== */
+  .grid {
+    margin-top: 18px;
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  @media (max-width: 640px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .tile {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-decoration: none;
+    padding: 18px;
+    border-radius: var(--radius-md);
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, .06);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .12);
+    transition: all var(--transition-normal);
+    color: var(--color-cocoa);
+    min-height: 120px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tile::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(205, 168, 110, 0.05) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+  }
+
+  .tile:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .18);
+  }
+
+  .tile:hover::before {
+    opacity: 1;
+  }
+
+  .tile > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .tile .t1 {
+    font-weight: 900;
+    font-size: clamp(1rem, 2vw, 1.08rem);
+    color: var(--color-cocoa);
+  }
+
+  .tile .t2 {
+    font-size: clamp(0.85rem, 1.8vw, 0.92rem);
+    color: #6a5747;
+    line-height: 1.5;
+  }
+
+  /* ===== 雙欄佈局 ===== */
+  .two {
+    display: grid;
+    gap: var(--space-md);
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    margin-top: 18px;
+  }
+
+  @media (max-width: 900px) {
+    .two {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .two .glass h3 {
+    margin: 0 0 10px;
+    color: var(--color-cocoa);
+    font-size: 1.15rem;
+    font-weight: 800;
+  }
+
+  /* ===== 頁尾 ===== */
+  .footer {
+    text-align: center;
+    color: #fff;
+    line-height: 1.7;
+    font-size: 13px;
+    margin: 24px 0 0;
+    padding: 18px 16px;
+    border-radius: var(--radius-sm);
+    background: rgba(0, 0, 0, .5);
+    backdrop-filter: blur(6px);
+  }
+
+  .footer a {
+    color: inherit;
+    text-decoration: underline;
+    transition: opacity var(--transition-fast);
+  }
+
+  .footer a:hover {
+    opacity: 0.8;
+  }
+
+  .fbtns {
+    margin-top: 12px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .fbtn {
+    text-decoration: none;
+    color: #fff;
+    font-weight: 800;
+    padding: 8px 14px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--color-rose), var(--color-rose-dark));
+    box-shadow: 0 3px 12px rgba(0, 0, 0, .25);
+    transition: all var(--transition-fast);
+    font-size: 12px;
+  }
+
+  .fbtn:hover {
+    filter: brightness(1.08);
+    transform: translateY(-2px);
+  }
+
+  /* ===== 無障礙與效能優化 ===== */
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* 減少動畫偏好 */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ===== 響應式微調 ===== */
+  @media (max-width: 640px) {
+    .btns {
+      flex-direction: column;
+    }
+    
+    .btn {
+      width: 100%;
+    }
+  }
 </style>
 </head>
 <body>
 
-<!-- 進站大圖（點擊進站） -->
-<div class="splash" id="splash" onclick="enterSite()">
-  <div class="enter">點擊開始旅程</div>
+<!-- 進站大圖 -->
+<div class="splash" id="splash" onclick="enterSite()" role="button" tabindex="0" aria-label="點擊進入網站">
+  <div class="enter-btn">✨ 點擊開始旅程 ✨</div>
 </div>
 
 <!-- 主內容 -->
 <main class="main" id="main">
   <div class="wrap">
 
+    <!-- 免費抽牌 Hero -->
+    <div class="free-draw-hero">
+      <div class="label">🎁 完全免費</div>
+      <h2>抽一張牌，聽聽內在的聲音</h2>
+      <p>不用會員、不用登入，隨時都能來問問自己今天需要什麼提醒</p>
+      <a href="draw-hl.html" class="free-draw-btn">🔮 立即免費抽牌</a>
+    </div>
+
     <!-- 英雄區：左品牌＋右雙軌 -->
     <section class="hero">
       <div class="glass brand">
         <h1>Hour Light 馥靈之鑰｜內在GPS</h1>
-        <p>雙主軌：<strong>內在GPS</strong> × <strong>HOUR × LIGHT 顧問系統</strong></p>
-        <!-- 溫度＋對齊三階服務 -->
-        <p style="margin:6px 0 0; font-weight:600; color:#6a5747;">三段深度（5／9／15 張）｜情緒紓解 × 能量調頻 × 行動地圖</p>
+        <p class="tagline">雙主軌：<strong>內在GPS</strong> × <strong>HOUR × LIGHT 顧問系統</strong></p>
+        <p class="essence">「當你知道自己在哪裡，才知道該往哪走」<br/>
+        就像手機導航會告訴你「左轉還是右轉」，馥靈之鑰用 130 張牌卡當你的情緒 GPS，<br/>
+        讓卡在迷霧裡的心，找到那條「對，就是這樣」的路。</p>
       </div>
 
       <div class="split">
         <!-- A：內在GPS -->
-        <div class="track">
-          <h3>🔮HourLight馥靈之鑰｜內在GPS系統</h3>
+        <article class="track">
+          <h3>🔮 HourLight 馥靈之鑰｜內在GPS系統</h3>
           <div class="badges">
-            <span class="badge">130 張標準卡</span><span class="badge">情緒紓解</span><span class="badge">日常對焦</span>
+            <span class="badge">130 張標準卡</span>
+            <span class="badge">情緒紓解</span>
+            <span class="badge">日常對焦</span>
+            <span class="badge">能量調頻</span>
           </div>
           <div class="btns">
             <a class="btn primary" href="draw-hl.html">線上抽牌（內在GPS）</a>
             <a class="btn secondary" href="plan30.html">30 天躍升計劃</a>
             <a class="btn secondary" href="abundance.html">90 天豐盛藍圖</a>
           </div>
-        </div>
+        </article>
 
         <!-- B：顧問線 -->
-        <div class="track">
+        <article class="track">
           <h3>🏭 HOUR × LIGHT｜美業營運顧問</h3>
           <div class="badges">
-            <span class="badge">特色挖掘</span><span class="badge">高價策略</span>
-            <span class="badge">團隊賦能</span><span class="badge">會員成長</span>
+            <span class="badge">特色挖掘</span>
+            <span class="badge">高價策略</span>
+            <span class="badge">團隊賦能</span>
+            <span class="badge">會員成長</span>
           </div>
           <div class="btns">
             <a class="btn primary" href="enterprise.html">企業 / 連鎖導入</a>
             <a class="btn secondary" href="consulting.html">轉型訂製顧問服務</a>
             <a class="btn secondary" href="monetization.html">變現策略與收益模型</a>
-            <a class="btn secondary" href="https://www.facebook.com/SUFUYASPA/">HOUR LIGHT未來美容學苑</a>
+            <a class="btn secondary" href="https://www.facebook.com/SUFUYASPA/" target="_blank" rel="noopener">HOUR LIGHT未來美容學苑</a>
           </div>
-        </div>
+        </article>
       </div>
     </section>
 
     <!-- 夥伴計畫 CTA 區塊 -->
-    <section id="partner-cta" style="padding:56px 0; border-top:1px solid rgba(0,0,0,.06); border-bottom:1px solid rgba(0,0,0,.06); background:rgba(255,255,255,.9); margin-top:16px;">
-      <div style="max-width:1100px; margin:0 auto; padding:0 20px; text-align:center;">
-        <div style="font-size:14px; letter-spacing:.12em; opacity:.75;">共創夥伴計畫</div>
-        <h2 style="font-size:28px; line-height:1.3; margin:10px 0 6px; color:var(--cocoa);">專業服務 × 創業平台｜一起把價值變現</h2>
-        <p style="font-size:16px; opacity:.9; margin:0;">年收入 50–200 萬｜完整培訓與工具支援｜彈性工作節奏</p>
-        <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:18px;">
+    <section class="partner-cta glass">
+      <div class="partner-cta-content">
+        <div class="label">共創夥伴計畫</div>
+        <h2>專業服務 × 創業平台｜一起把價值變現</h2>
+        <p>年收入 50–200 萬｜完整培訓與工具支援｜彈性工作節奏</p>
+        <div class="btns">
           <a href="partners.html" class="btn secondary" style="border-color:#111; color:#111;">了解夥伴計畫</a>
           <a href="trial.html" class="btn primary">免費體驗 / 報名說明會</a>
         </div>
@@ -176,15 +715,15 @@
 
     <!-- 快速入口 -->
     <section class="grid">
-        <a class="tile" href="https://hour-light-beauty-dui5l3h.gamma.site/">
-    <span class="t1">💖 嗨執甲概念美學美容部</span>
-    <span class="t2">逸君老師親自服務 × 美學 × 頻率能量</span>
+      <a class="tile" href="https://hour-light-beauty-dui5l3h.gamma.site/" target="_blank" rel="noopener">
+        <span class="t1">💖 嗨執甲概念美學美容部</span>
+        <span class="t2">逸君老師親自服務 × 美學 × 頻率能量</span>
       </a>
-      <a class="tile" href="https://fuling-zhi-yao-therapy-9ttxqcq.gamma.site/">
+      <a class="tile" href="https://fuling-zhi-yao-therapy-9ttxqcq.gamma.site/" target="_blank" rel="noopener">
         <span class="t1">🌿 芳療創業全能班</span>
         <span class="t2">國際認證 × 創業藍圖 × 全年陪跑</span>
       </a>
-      <a class="tile" href="https://hourlight.github.io/hourlight/">
+      <a class="tile" href="https://hourlight.github.io/hourlight/" target="_blank" rel="noopener">
         <span class="t1">✨ 美業顧問</span>
         <span class="t2">品牌 × 課程 × 營運藍圖</span>
       </a>
@@ -200,8 +739,6 @@
         <span class="t1">✨ 共創夥伴招募中</span>
         <span class="t2">全球首創情緒商業系統 × 50%利潤共享池</span>
       </a>
-
-      <!-- 四張必要入口磚（文案已對齊） -->
       <a class="tile" href="partners.html">
         <span class="t1">🤝 夥伴計畫</span>
         <span class="t2">三層級授權（首次授權） × 收益共享</span>
@@ -223,8 +760,8 @@
     <!-- 雙欄：品牌與方法論 -->
     <section class="two">
       <div class="glass">
-        <h3 style="margin:0 0 8px;color:var(--cocoa)">📖 認識品牌</h3>
-        <div class="btns" style="margin-top:6px">
+        <h3>📖 認識品牌</h3>
+        <div class="btns">
           <a class="btn secondary" href="founder.html">創始人</a>
           <a class="btn secondary" href="brand-story.html">品牌故事</a>
           <a class="btn secondary" href="brand-vision.html">品牌願景</a>
@@ -233,8 +770,8 @@
         </div>
       </div>
       <div class="glass">
-        <h3 style="margin:0 0 8px;color:var(--cocoa)">🧭 方法論與系統</h3>
-        <div class="btns" style="margin-top:6px">
+        <h3>🧭 方法論與系統</h3>
+        <div class="btns">
           <a class="btn secondary" href="hourlight-core.html">HOUR 核心理念</a>
           <a class="btn secondary" href="hourlight-system.html">系統總覽</a>
           <a class="btn secondary" href="hour-ideology.html">內訓理念</a>
@@ -246,11 +783,13 @@
     </section>
 
     <!-- Footer -->
-    <footer class="footer glass" style="margin-top:18px">
-      桃園市<span style="white-space:nowrap">桃園區同安街 666 號 </span>（採預約制）｜
-      LINE：judyanee ｜ Email：judyanee@gmail.com ｜ 0905-723-595<br/>
-      ※ 本網站內容僅供壓力管理、情緒紓解、能量調頻與日常指引參考，非醫療行為。<br/>
-      © HourLight馥靈之鑰｜內在GPS系統
+    <footer class="footer glass">
+      <strong>桃園市桃園區同安街 666 號</strong>（採預約制）<br/>
+      LINE：<a href="https://line.me/ti/p/judyanee" target="_blank" rel="noopener">judyanee</a> ｜ 
+      Email：<a href="mailto:judyanee@gmail.com">judyanee@gmail.com</a> ｜ 
+      <a href="tel:+886905723595">0905-723-595</a><br/>
+      <small>※ 本網站內容僅供壓力管理、情緒紓解、能量調頻與日常指引參考，非醫療行為。</small><br/>
+      <small>© 2025 HourLight 馥靈之鑰｜內在GPS系統</small>
       <div class="fbtns">
         <a class="fbtn" href="index.html">🏠 返回首頁</a>
         <a class="fbtn" href="monetization.html">💰 變現策略</a>
@@ -263,15 +802,48 @@
 </main>
 
 <script>
-  function enterSite(){
-    const s = document.getElementById('splash');
-    s.classList.add('fade-out');
-    setTimeout(()=>{
-      s.style.display='none';
-      document.getElementById('main').classList.add('show');
+  // 進站功能
+  function enterSite() {
+    const splash = document.getElementById('splash');
+    const main = document.getElementById('main');
+    
+    splash.classList.add('fade-out');
+    
+    setTimeout(() => {
+      splash.style.display = 'none';
+      main.classList.add('show');
       document.body.classList.add('loaded');
-      window.scrollTo({top:0, behavior:'instant'});
+      window.scrollTo({ top: 0, behavior: 'instant' });
     }, 900);
+  }
+
+  // 鍵盤無障礙支援
+  document.getElementById('splash').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      enterSite();
+    }
+  });
+
+  // 平滑滾動到錨點
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      const targetId = this.getAttribute('href');
+      if (targetId !== '#' && targetId.length > 1) {
+        const target = document.querySelector(targetId);
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    });
+  });
+
+  // 效能優化：延遲載入非關鍵資源
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(() => {
+      // 可在此處載入非關鍵的第三方腳本
+    });
   }
 </script>
 </body>
