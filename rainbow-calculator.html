@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>彩虹數字計算器｜馥靈之鑰</title>
+<meta name="description" content="找到你的生命色彩，解鎖你的能量頻率。源自台灣，馥靈之鑰。">
+<link rel="icon" href="favicon.ico" />
+<style>
+  :root{
+    --milk:#f9f5f0; --cocoa:#6b4f3e;
+    --rose:#cda86e; --rose-dark:#a88257;
+    --ink:#2a2a2a; --line:rgba(0,0,0,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:url('https://github.com/HourLight/11/raw/main/background.jpg') center/cover fixed no-repeat;
+    font-family:"Noto Sans TC","PingFang TC","Arial",sans-serif;
+    color:var(--ink);
+    padding:20px;
+    min-height:100vh;
+  }
+  .container{
+    max-width:700px;
+    margin:0 auto;
+    background:rgba(255,255,255,.95);
+    backdrop-filter:blur(8px);
+    border-radius:20px;
+    padding:40px 32px;
+    box-shadow:0 12px 40px rgba(0,0,0,.15);
+  }
+  h1{
+    text-align:center;
+    color:var(--cocoa);
+    font-size:clamp(1.8rem,4vw,2.2rem);
+    margin-bottom:8px;
+    font-weight:900;
+  }
+  .subtitle{
+    text-align:center;
+    color:#888;
+    font-size:0.9rem;
+    margin-bottom:32px;
+  }
+
+  .input-section{
+    background:rgba(249,245,240,.6);
+    border-radius:16px;
+    padding:24px;
+    margin-bottom:24px;
+  }
+  .input-label{
+    font-size:0.95rem;
+    font-weight:700;
+    color:var(--cocoa);
+    margin-bottom:12px;
+    display:block;
+  }
+  .date-input{
+    width:100%;
+    padding:14px 16px;
+    border:2px solid var(--line);
+    border-radius:12px;
+    font-size:1rem;
+    font-family:inherit;
+    transition:.25s;
+    background:#fff;
+  }
+  .date-input:focus{
+    outline:none;
+    border-color:var(--rose);
+    box-shadow:0 0 0 3px rgba(205,168,110,.15);
+  }
+
+  .calc-btn{
+    display:block;
+    width:100%;
+    background:linear-gradient(135deg,var(--rose),var(--rose-dark));
+    color:#fff;
+    border:none;
+    padding:16px 24px;
+    border-radius:14px;
+    font-size:1.1rem;
+    font-weight:900;
+    cursor:pointer;
+    box-shadow:0 6px 18px rgba(205,168,110,.4);
+    transition:.25s;
+    margin-top:16px;
+  }
+  .calc-btn:hover{
+    transform:translateY(-3px);
+    box-shadow:0 8px 24px rgba(205,168,110,.5);
+  }
+
+  .result-section{
+    display:none;
+    margin-top:32px;
+  }
+  .result-section.show{
+    display:block;
+    animation:fadeIn 0.5s;
+  }
+  @keyframes fadeIn{
+    from{opacity:0;transform:translateY(20px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+
+  .rainbow-card{
+    background:#fff;
+    border-radius:16px;
+    padding:32px 24px;
+    margin-bottom:24px;
+    text-align:center;
+    box-shadow:0 8px 24px rgba(0,0,0,.12);
+    position:relative;
+    overflow:hidden;
+  }
+  .rainbow-card::before{
+    content:'';
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    height:6px;
+    background:linear-gradient(90deg,#ff0000,#ff7f00,#ffff00,#00ff00,#0000ff,#4b0082,#9400d3);
+  }
+  .color-circle{
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    margin:0 auto 20px;
+    box-shadow:0 8px 24px rgba(0,0,0,.2);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:3rem;
+    font-weight:900;
+    color:#fff;
+    text-shadow:0 2px 4px rgba(0,0,0,.3);
+  }
+  .color-name{
+    font-size:1.5rem;
+    font-weight:900;
+    color:var(--cocoa);
+    margin-bottom:8px;
+  }
+  .color-desc{
+    font-size:1rem;
+    color:#666;
+    line-height:1.7;
+    margin-bottom:16px;
+  }
+  .energy-tag{
+    display:inline-block;
+    padding:6px 16px;
+    background:rgba(205,168,110,.15);
+    border-radius:999px;
+    font-size:0.85rem;
+    font-weight:700;
+    color:var(--rose);
+    margin:4px;
+  }
+
+  .info-section{
+    background:rgba(249,245,240,.6);
+    border-radius:12px;
+    padding:20px;
+    margin-bottom:20px;
+  }
+  .info-title{
+    font-size:1rem;
+    font-weight:800;
+    color:var(--cocoa);
+    margin-bottom:12px;
+  }
+  .info-text{
+    font-size:0.95rem;
+    color:#666;
+    line-height:1.6;
+  }
+
+  .copy-btn{
+    display:block;
+    width:100%;
+    background:#fff;
+    border:2px solid var(--cocoa);
+    color:var(--cocoa);
+    padding:12px 20px;
+    border-radius:12px;
+    font-size:1rem;
+    font-weight:800;
+    cursor:pointer;
+    transition:.25s;
+  }
+  .copy-btn:hover{
+    background:var(--cocoa);
+    color:#fff;
+    transform:translateY(-2px);
+  }
+  .copy-btn.copied{
+    background:#4caf50;
+    border-color:#4caf50;
+    color:#fff;
+  }
+
+  .back-home{
+    display:block;
+    text-align:center;
+    margin-top:24px;
+    color:var(--rose);
+    text-decoration:none;
+    font-weight:700;
+    transition:.25s;
+  }
+  .back-home:hover{
+    color:var(--rose-dark);
+    text-decoration:underline;
+  }
+
+  @media(max-width:600px){
+    .container{padding:28px 20px}
+    .color-circle{width:100px;height:100px;font-size:2.5rem}
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌈 彩虹數字計算器</h1>
+    <p class="subtitle">🇹🇼 源自台灣｜馥靈之鑰</p>
+
+    <div class="input-section">
+      <label class="input-label">請輸入你的出生日期</label>
+      <input type="date" class="date-input" id="birthDate" max="2025-12-31">
+      <button class="calc-btn" onclick="calculate()">🔮 找到我的生命色彩</button>
+    </div>
+
+    <div class="result-section" id="resultSection">
+      <div class="rainbow-card">
+        <div class="color-circle" id="colorCircle">-</div>
+        <div class="color-name" id="colorName">-</div>
+        <div class="color-desc" id="colorDesc">-</div>
+        <div id="energyTags"></div>
+      </div>
+
+      <div class="info-section">
+        <div class="info-title">✨ 你的能量特質</div>
+        <div class="info-text" id="energyText">-</div>
+      </div>
+
+      <div class="info-section">
+        <div class="info-title">💫 給你的建議</div>
+        <div class="info-text" id="adviceText">-</div>
+      </div>
+
+      <button class="copy-btn" onclick="copyResult()">📋 一鍵複製結果</button>
+    </div>
+
+    <a href="index.html" class="back-home">🏠 返回首頁</a>
+  </div>
+
+<script>
+// 彩虹數字資料
+const rainbowData = {
+  1: {
+    color: '#FF0000',
+    name: '紅色｜行動力',
+    desc: '你是熱情的開創者，充滿行動力和勇氣。紅色代表生命力、熱情與勇敢。',
+    energy: '你擁有強大的行動力和領導能力，天生不怕挑戰。你的能量像火焰一樣熾熱，能夠點燃周圍的人。當你專注在目標上時，沒有什麼能夠阻擋你前進。',
+    advice: '學會在行動前深呼吸，給自己一點思考的空間。你的熱情是禮物，但也要記得適時休息，避免燃燒殆盡。',
+    tags: ['熱情','勇氣','行動力']
+  },
+  2: {
+    color: '#FF7F00',
+    name: '橙色｜創造力',
+    desc: '你是溫暖的創造者，充滿創意和喜悅。橙色代表創造力、喜悅與熱情。',
+    energy: '你擁有源源不絕的創意和表達欲，天生樂觀開朗。你的能量像陽光一樣溫暖，能夠療癒周圍的人。當你自由表達時，你就是最美的自己。',
+    advice: '相信你的創意，不要害怕與眾不同。你的獨特性就是你的超能力，勇敢地展現出來吧。',
+    tags: ['創造力','喜悅','表達']
+  },
+  3: {
+    color: '#FFFF00',
+    name: '黃色｜智慧',
+    desc: '你是明亮的智者，充滿智慧和洞察力。黃色代表智慧、清晰與光明。',
+    energy: '你擁有清晰的思維和敏銳的洞察力，天生善於學習和分析。你的能量像陽光一樣明亮，能夠照亮真相。當你專注思考時，你能看見別人看不見的真理。',
+    advice: '不要過度分析，有時候直覺比邏輯更重要。學會放鬆你的大腦，讓智慧自然流動。',
+    tags: ['智慧','清晰','洞察']
+  },
+  4: {
+    color: '#00FF00',
+    name: '綠色｜療癒',
+    desc: '你是溫柔的療癒者，充滿愛心和平衡。綠色代表療癒、成長與和諧。',
+    energy: '你擁有療癒的能量和平衡的智慧，天生關懷他人。你的能量像大自然一樣滋養，能夠撫慰受傷的心靈。當你敞開心扉時，你就是最強大的療癒師。',
+    advice: '記得先照顧好自己，才能照顧別人。你的愛是無限的，但你的能量需要補充。學會說不，保護你的界限。',
+    tags: ['療癒','愛','平衡']
+  },
+  5: {
+    color: '#0000FF',
+    name: '藍色｜溝通',
+    desc: '你是真誠的溝通者，充滿表達力和真實。藍色代表溝通、真理與平靜。',
+    energy: '你擁有清晰的表達能力和真誠的心，天生善於溝通。你的能量像海洋一樣深邃，能夠傳遞真理。當你說出真心話時，你的話語充滿力量。',
+    advice: '勇敢說出你的真實感受，不要壓抑你的聲音。你的真誠是你最大的魅力，世界需要聽見你的聲音。',
+    tags: ['溝通','真實','表達']
+  },
+  6: {
+    color: '#4B0082',
+    name: '靛色｜直覺',
+    desc: '你是敏銳的直覺者，充滿洞察力和靈性。靛色代表直覺、靈性與洞察。',
+    energy: '你擁有強大的直覺和靈性連結，天生能感知能量。你的能量像夜空一樣神秘，能夠看見隱藏的真相。當你信任直覺時，你永遠不會迷路。',
+    advice: '相信你的直覺，它永遠不會騙你。學會區分恐懼和直覺，前者讓你退縮，後者引導你前進。',
+    tags: ['直覺','靈性','洞察']
+  },
+  7: {
+    color: '#9400D3',
+    name: '紫色｜靈性',
+    desc: '你是神聖的靈性者，充滿智慧和超越。紫色代表靈性、智慧與轉化。',
+    energy: '你擁有深刻的靈性智慧和轉化能力，天生連結更高的意識。你的能量像宇宙一樣浩瀚，能夠超越物質界限。當你靜心時，你能接收到宇宙的訊息。',
+    advice: '不要害怕你的與眾不同，你的靈性天賦是禮物。學會在物質與靈性之間找到平衡，你可以同時活在兩個世界。',
+    tags: ['靈性','智慧','轉化']
+  },
+  8: {
+    color: '#FFD700',
+    name: '金色｜豐盛',
+    desc: '你是豐盛的顯化者，充滿力量和成就。金色代表豐盛、力量與成功。',
+    energy: '你擁有強大的顯化能力和商業頭腦，天生能創造豐盛。你的能量像黃金一樣珍貴，能夠吸引財富和成功。當你相信自己時，你能創造奇蹟。',
+    advice: '記得豐盛不只是金錢，還包括愛、健康和喜悅。學會感恩你已經擁有的，宇宙會給你更多。',
+    tags: ['豐盛','力量','成功']
+  },
+  9: {
+    color: '#FFFFFF',
+    name: '白色｜圓滿',
+    desc: '你是圓滿的大師，充滿智慧和包容。白色代表圓滿、純淨與完整。',
+    energy: '你擁有包容一切的智慧和無私的愛，天生能看見全貌。你的能量像光一樣純淨，能夠照亮所有黑暗。當你敞開心時，你就是愛本身。',
+    advice: '不要忘記照顧自己，你的大愛需要從自愛開始。學會放下不屬於你的責任，你已經做得夠好了。',
+    tags: ['圓滿','大愛','智慧']
+  }
+};
+
+function reduceToSingle(num){
+  while(num>9){
+    num = String(num).split('').reduce((a,b)=>a+parseInt(b),0);
+  }
+  return num;
+}
+
+function calculate(){
+  const dateInput = document.getElementById('birthDate').value;
+  if(!dateInput){
+    alert('請先輸入你的出生日期！');
+    return;
+  }
+
+  const [year,month,day] = dateInput.split('-').map(Number);
+  const allDigits = String(year)+String(month)+String(day);
+  const sum = allDigits.split('').reduce((a,b)=>a+parseInt(b),0);
+  const rainbowNum = reduceToSingle(sum);
+
+  const data = rainbowData[rainbowNum];
+  
+  document.getElementById('colorCircle').style.background = data.color;
+  document.getElementById('colorCircle').textContent = rainbowNum;
+  document.getElementById('colorName').textContent = data.name;
+  document.getElementById('colorDesc').textContent = data.desc;
+  document.getElementById('energyText').textContent = data.energy;
+  document.getElementById('adviceText').textContent = data.advice;
+  
+  const tagsHtml = data.tags.map(tag=>`<span class="energy-tag">${tag}</span>`).join('');
+  document.getElementById('energyTags').innerHTML = tagsHtml;
+
+  document.getElementById('resultSection').classList.add('show');
+
+  window.currentResult = {
+    date: dateInput,
+    number: rainbowNum,
+    color: data.name,
+    desc: data.desc,
+    energy: data.energy,
+    advice: data.advice
+  };
+}
+
+function copyResult(){
+  if(!window.currentResult) return;
+  
+  const r = window.currentResult;
+  const text = `🌈 彩虹數字計算結果
+━━━━━━━━━━━━━━
+出生日期：${r.date}
+彩虹數字：${r.number}
+生命色彩：${r.color}
+
+核心特質：${r.desc}
+
+能量特質：${r.energy}
+
+給你的建議：${r.advice}
+━━━━━━━━━━━━━━
+🇹🇼 源自台灣｜馥靈之鑰`;
+
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = event.target;
+    btn.textContent = '✅ 已複製！';
+    btn.classList.add('copied');
+    setTimeout(()=>{
+      btn.textContent = '📋 一鍵複製結果';
+      btn.classList.remove('copied');
+    },2000);
+  }).catch(()=>{
+    alert('複製失敗，請手動複製：\n\n'+text);
+  });
+}
+</script>
+</body>
+</html>

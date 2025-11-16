@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>生命靈數計算器｜馥靈之鑰</title>
+<meta name="description" content="輸入你的生日，解鎖你的生命密碼。源自台灣，馥靈之鑰。">
+<link rel="icon" href="favicon.ico" />
+<style>
+  :root{
+    --milk:#f9f5f0; --cocoa:#6b4f3e;
+    --rose:#cda86e; --rose-dark:#a88257;
+    --ink:#2a2a2a; --line:rgba(0,0,0,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:url('https://github.com/HourLight/11/raw/main/background.jpg') center/cover fixed no-repeat;
+    font-family:"Noto Sans TC","PingFang TC","Arial",sans-serif;
+    color:var(--ink);
+    padding:20px;
+    min-height:100vh;
+  }
+  .container{
+    max-width:700px;
+    margin:0 auto;
+    background:rgba(255,255,255,.95);
+    backdrop-filter:blur(8px);
+    border-radius:20px;
+    padding:40px 32px;
+    box-shadow:0 12px 40px rgba(0,0,0,.15);
+  }
+  h1{
+    text-align:center;
+    color:var(--cocoa);
+    font-size:clamp(1.8rem,4vw,2.2rem);
+    margin-bottom:8px;
+    font-weight:900;
+  }
+  .subtitle{
+    text-align:center;
+    color:#888;
+    font-size:0.9rem;
+    margin-bottom:32px;
+  }
+
+  /* 輸入區 */
+  .input-section{
+    background:rgba(249,245,240,.6);
+    border-radius:16px;
+    padding:24px;
+    margin-bottom:24px;
+  }
+  .input-label{
+    font-size:0.95rem;
+    font-weight:700;
+    color:var(--cocoa);
+    margin-bottom:12px;
+    display:block;
+  }
+  .date-input{
+    width:100%;
+    padding:14px 16px;
+    border:2px solid var(--line);
+    border-radius:12px;
+    font-size:1rem;
+    font-family:inherit;
+    transition:.25s;
+    background:#fff;
+  }
+  .date-input:focus{
+    outline:none;
+    border-color:var(--rose);
+    box-shadow:0 0 0 3px rgba(205,168,110,.15);
+  }
+
+  /* 計算按鈕 */
+  .calc-btn{
+    display:block;
+    width:100%;
+    background:linear-gradient(135deg,var(--rose),var(--rose-dark));
+    color:#fff;
+    border:none;
+    padding:16px 24px;
+    border-radius:14px;
+    font-size:1.1rem;
+    font-weight:900;
+    cursor:pointer;
+    box-shadow:0 6px 18px rgba(205,168,110,.4);
+    transition:.25s;
+    margin-top:16px;
+  }
+  .calc-btn:hover{
+    transform:translateY(-3px);
+    box-shadow:0 8px 24px rgba(205,168,110,.5);
+  }
+
+  /* 結果區 */
+  .result-section{
+    display:none;
+    margin-top:32px;
+  }
+  .result-section.show{
+    display:block;
+    animation:fadeIn 0.5s;
+  }
+  @keyframes fadeIn{
+    from{opacity:0;transform:translateY(20px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+
+  .number-card{
+    background:linear-gradient(135deg,rgba(205,168,110,.15),rgba(168,130,87,.1));
+    border:2px solid var(--rose);
+    border-radius:16px;
+    padding:24px;
+    margin-bottom:20px;
+    text-align:center;
+  }
+  .number-title{
+    font-size:0.9rem;
+    color:#888;
+    margin-bottom:8px;
+    font-weight:600;
+  }
+  .number-value{
+    font-size:3rem;
+    font-weight:900;
+    color:var(--rose);
+    margin-bottom:12px;
+  }
+  .number-desc{
+    font-size:1rem;
+    color:var(--cocoa);
+    line-height:1.6;
+  }
+
+  .info-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:16px;
+    margin-bottom:24px;
+  }
+  .info-card{
+    background:#fff;
+    border:2px solid var(--line);
+    border-radius:12px;
+    padding:20px;
+    text-align:center;
+  }
+  .info-card-title{
+    font-size:0.85rem;
+    color:#888;
+    margin-bottom:8px;
+    font-weight:600;
+  }
+  .info-card-value{
+    font-size:2rem;
+    font-weight:900;
+    color:var(--rose);
+  }
+  .info-card-label{
+    font-size:0.9rem;
+    color:var(--cocoa);
+    margin-top:4px;
+    font-weight:700;
+  }
+
+  /* 複製按鈕 */
+  .copy-btn{
+    display:block;
+    width:100%;
+    background:#fff;
+    border:2px solid var(--cocoa);
+    color:var(--cocoa);
+    padding:12px 20px;
+    border-radius:12px;
+    font-size:1rem;
+    font-weight:800;
+    cursor:pointer;
+    transition:.25s;
+  }
+  .copy-btn:hover{
+    background:var(--cocoa);
+    color:#fff;
+    transform:translateY(-2px);
+  }
+  .copy-btn.copied{
+    background:#4caf50;
+    border-color:#4caf50;
+    color:#fff;
+  }
+
+  .back-home{
+    display:block;
+    text-align:center;
+    margin-top:24px;
+    color:var(--rose);
+    text-decoration:none;
+    font-weight:700;
+    transition:.25s;
+  }
+  .back-home:hover{
+    color:var(--rose-dark);
+    text-decoration:underline;
+  }
+
+  @media(max-width:600px){
+    .container{padding:28px 20px}
+    .number-value{font-size:2.5rem}
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔢 生命靈數計算器</h1>
+    <p class="subtitle">🇹🇼 源自台灣｜馥靈之鑰</p>
+
+    <div class="input-section">
+      <label class="input-label">請輸入你的出生日期</label>
+      <input type="date" class="date-input" id="birthDate" max="2025-12-31">
+      <button class="calc-btn" onclick="calculate()">🔮 解鎖我的生命密碼</button>
+    </div>
+
+    <div class="result-section" id="resultSection">
+      <div class="number-card">
+        <div class="number-title">你的生命靈數</div>
+        <div class="number-value" id="lifePathNumber">-</div>
+        <div class="number-desc" id="lifePathDesc">-</div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-card-title">天賦數</div>
+          <div class="info-card-value" id="talentNumber">-</div>
+          <div class="info-card-label" id="talentLabel">-</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-title">命運數</div>
+          <div class="info-card-value" id="destinyNumber">-</div>
+          <div class="info-card-label" id="destinyLabel">-</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-title">靈魂數</div>
+          <div class="info-card-value" id="soulNumber">-</div>
+          <div class="info-card-label" id="soulLabel">-</div>
+        </div>
+      </div>
+
+      <button class="copy-btn" onclick="copyResult()">📋 一鍵複製結果</button>
+    </div>
+
+    <a href="index.html" class="back-home">🏠 返回首頁</a>
+  </div>
+
+<script>
+// 生命靈數描述
+const descriptions = {
+  1: {
+    desc: "獨立領導者｜你是天生的開創者，擁有強大的意志力和領導能力。你的使命是勇敢做自己，開創新局面。",
+    talent: "創新力",
+    destiny: "領導者",
+    soul: "獨立"
+  },
+  2: {
+    desc: "和諧協調者｜你擁有敏銳的直覺和同理心，天生善於傾聽和協調。你的使命是建立和諧，成為橋樑。",
+    talent: "同理心",
+    destiny: "協調者",
+    soul: "和平"
+  },
+  3: {
+    desc: "創意表達者｜你充滿創造力和表達欲，天生樂觀開朗。你的使命是用創意和喜悅感染世界。",
+    talent: "創造力",
+    destiny: "表達者",
+    soul: "喜悅"
+  },
+  4: {
+    desc: "穩健建設者｜你務實可靠，擅長建立穩固的基礎。你的使命是用紀律和毅力，建造持久的價值。",
+    talent: "執行力",
+    destiny: "建設者",
+    soul: "穩定"
+  },
+  5: {
+    desc: "自由冒險家｜你熱愛自由和變化，充滿好奇心。你的使命是探索世界，體驗多元的人生。",
+    talent: "適應力",
+    destiny: "冒險家",
+    soul: "自由"
+  },
+  6: {
+    desc: "愛的守護者｜你充滿愛心和責任感，天生關懷他人。你的使命是用愛和服務，療癒這個世界。",
+    talent: "關懷力",
+    destiny: "守護者",
+    soul: "愛"
+  },
+  7: {
+    desc: "智慧探索者｜你深思熟慮，追求真理和智慧。你的使命是深入探索，找到生命的意義。",
+    talent: "洞察力",
+    destiny: "探索者",
+    soul: "智慧"
+  },
+  8: {
+    desc: "力量顯化者｜你擁有強大的顯化能力和商業頭腦。你的使命是創造豐盛，實現物質與精神的平衡。",
+    talent: "顯化力",
+    destiny: "成就者",
+    soul: "豐盛"
+  },
+  9: {
+    desc: "博愛奉獻者｜你擁有宏觀視野和無私的愛。你的使命是超越小我，為人類的福祉貢獻。",
+    talent: "包容力",
+    destiny: "奉獻者",
+    soul: "大愛"
+  }
+};
+
+// 計算單一數字總和
+function reduceToSingle(num){
+  while(num>9 && num!==11 && num!==22 && num!==33){
+    num = String(num).split('').reduce((a,b)=>a+parseInt(b),0);
+  }
+  return num>9?num%9||9:num;
+}
+
+// 計算生命靈數
+function calculate(){
+  const dateInput = document.getElementById('birthDate').value;
+  if(!dateInput){
+    alert('請先輸入你的出生日期！');
+    return;
+  }
+
+  const [year,month,day] = dateInput.split('-').map(Number);
+  
+  // 生命靈數（所有數字相加）
+  const allDigits = String(year)+String(month)+String(day);
+  const sum = allDigits.split('').reduce((a,b)=>a+parseInt(b),0);
+  const lifePathNum = reduceToSingle(sum);
+
+  // 天賦數（日）
+  const talentNum = reduceToSingle(day);
+
+  // 命運數（年）
+  const destinyNum = reduceToSingle(year);
+
+  // 靈魂數（月）
+  const soulNum = reduceToSingle(month);
+
+  // 顯示結果
+  const data = descriptions[lifePathNum];
+  document.getElementById('lifePathNumber').textContent = lifePathNum;
+  document.getElementById('lifePathDesc').textContent = data.desc;
+  document.getElementById('talentNumber').textContent = talentNum;
+  document.getElementById('talentLabel').textContent = descriptions[talentNum].talent;
+  document.getElementById('destinyNumber').textContent = destinyNum;
+  document.getElementById('destinyLabel').textContent = descriptions[destinyNum].destiny;
+  document.getElementById('soulNumber').textContent = soulNum;
+  document.getElementById('soulLabel').textContent = descriptions[soulNum].soul;
+
+  document.getElementById('resultSection').classList.add('show');
+
+  // 儲存結果供複製使用
+  window.currentResult = {
+    date: dateInput,
+    lifePath: lifePathNum,
+    talent: talentNum,
+    destiny: destinyNum,
+    soul: soulNum,
+    desc: data.desc
+  };
+}
+
+// 複製結果
+function copyResult(){
+  if(!window.currentResult) return;
+  
+  const r = window.currentResult;
+  const text = `🔢 生命靈數計算結果
+━━━━━━━━━━━━━━
+出生日期：${r.date}
+生命靈數：${r.lifePath}
+天賦數：${r.talent}（${descriptions[r.talent].talent}）
+命運數：${r.destiny}（${descriptions[r.destiny].destiny}）
+靈魂數：${r.soul}（${descriptions[r.soul].soul}）
+
+核心特質：${r.desc}
+━━━━━━━━━━━━━━
+🇹🇼 源自台灣｜馥靈之鑰`;
+
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = event.target;
+    btn.textContent = '✅ 已複製！';
+    btn.classList.add('copied');
+    setTimeout(()=>{
+      btn.textContent = '📋 一鍵複製結果';
+      btn.classList.remove('copied');
+    },2000);
+  }).catch(()=>{
+    alert('複製失敗，請手動複製：\n\n'+text);
+  });
+}
+</script>
+</body>
+</html>

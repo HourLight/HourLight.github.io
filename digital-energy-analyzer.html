@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>數字能量分析器｜馥靈之鑰 量子靈數™</title>
+<meta name="description" content="輸入你的手機號碼與生日，解鎖你的數字磁場密碼。基於八星能量理論，為你揭示財富、健康、事業的能量頻率。">
+<link rel="icon" href="favicon.ico" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --milk:#f9f5f0; --cocoa:#6b4f3e;
+    --rose:#cda86e; --rose-dark:#a88257;
+    --ink:#2a2a2a; --line:rgba(0,0,0,.10);
+    --green:#4caf50; --red:#f44336;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:url('https://github.com/HourLight/11/raw/main/background.jpg') center/cover fixed no-repeat;
+    font-family:"Noto Sans TC","PingFang TC","Arial",sans-serif;
+    color:var(--ink);
+    padding:20px;
+    min-height:100vh;
+  }
+  .container{
+    max-width:900px;
+    margin:0 auto;
+    background:rgba(255,255,255,.95);
+    backdrop-filter:blur(8px);
+    border-radius:20px;
+    padding:40px 32px;
+    box-shadow:0 12px 40px rgba(0,0,0,.15);
+  }
+  
+  /* 標題區 */
+  h1{
+    text-align:center;
+    color:var(--cocoa);
+    font-size:clamp(1.8rem,4vw,2.4rem);
+    margin-bottom:8px;
+    font-weight:900;
+  }
+  .subtitle{
+    text-align:center;
+    color:#888;
+    font-size:0.95rem;
+    margin-bottom:32px;
+    line-height:1.6;
+  }
+  
+  /* 輸入區 */
+  .input-section{
+    background:rgba(249,245,240,.6);
+    border-radius:16px;
+    padding:28px;
+    margin-bottom:24px;
+  }
+  .input-group{
+    margin-bottom:20px;
+  }
+  .input-group:last-child{
+    margin-bottom:0;
+  }
+  .input-label{
+    font-size:0.95rem;
+    font-weight:700;
+    color:var(--cocoa);
+    margin-bottom:10px;
+    display:block;
+  }
+  .input-label .required{
+    color:var(--red);
+    margin-left:4px;
+  }
+  .input-field{
+    width:100%;
+    padding:14px 16px;
+    border:2px solid var(--line);
+    border-radius:12px;
+    font-size:1rem;
+    font-family:inherit;
+    transition:.25s;
+    background:#fff;
+  }
+  .input-field:focus{
+    outline:none;
+    border-color:var(--rose);
+    box-shadow:0 0 0 3px rgba(205,168,110,.15);
+  }
+  .input-hint{
+    font-size:0.85rem;
+    color:#999;
+    margin-top:6px;
+  }
+  
+  /* 按鈕 */
+  .analyze-btn{
+    display:block;
+    width:100%;
+    background:linear-gradient(135deg,var(--rose),var(--rose-dark));
+    color:#fff;
+    border:none;
+    padding:16px 24px;
+    border-radius:14px;
+    font-size:1.1rem;
+    font-weight:900;
+    cursor:pointer;
+    box-shadow:0 6px 18px rgba(205,168,110,.4);
+    transition:.25s;
+    margin-top:24px;
+  }
+  .analyze-btn:hover{
+    transform:translateY(-3px);
+    box-shadow:0 8px 24px rgba(205,168,110,.5);
+  }
+  .analyze-btn:disabled{
+    opacity:0.6;
+    cursor:not-allowed;
+    transform:none;
+  }
+  
+  /* 結果區 */
+  .result-section{
+    display:none;
+    margin-top:32px;
+  }
+  .result-section.show{
+    display:block;
+    animation:fadeIn 0.5s;
+  }
+  @keyframes fadeIn{
+    from{opacity:0;transform:translateY(20px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+  
+  /* 總分卡片 */
+  .score-card{
+    background:linear-gradient(135deg,rgba(205,168,110,.2),rgba(168,130,87,.15));
+    border:3px solid var(--rose);
+    border-radius:16px;
+    padding:32px;
+    margin-bottom:28px;
+    text-align:center;
+  }
+  .score-title{
+    font-size:1rem;
+    color:#888;
+    margin-bottom:12px;
+    font-weight:600;
+  }
+  .score-value{
+    font-size:4rem;
+    font-weight:900;
+    color:var(--rose);
+    margin-bottom:8px;
+    line-height:1;
+  }
+  .score-desc{
+    font-size:1.1rem;
+    color:var(--cocoa);
+    font-weight:700;
+  }
+  
+  /* 八星分析 */
+  .stars-section{
+    background:#fff;
+    border-radius:16px;
+    padding:24px;
+    margin-bottom:24px;
+    border:2px solid var(--line);
+  }
+  .section-title{
+    font-size:1.3rem;
+    font-weight:900;
+    color:var(--cocoa);
+    margin-bottom:20px;
+    padding-bottom:12px;
+    border-bottom:2px solid var(--line);
+  }
+  .star-item{
+    display:flex;
+    align-items:center;
+    padding:12px;
+    margin-bottom:10px;
+    border-radius:10px;
+    background:rgba(249,245,240,.4);
+  }
+  .star-item.lucky{
+    background:rgba(76,175,80,.1);
+    border-left:4px solid var(--green);
+  }
+  .star-item.unlucky{
+    background:rgba(244,67,54,.1);
+    border-left:4px solid var(--red);
+  }
+  .star-name{
+    font-weight:700;
+    color:var(--cocoa);
+    min-width:80px;
+  }
+  .star-combo{
+    font-family:monospace;
+    background:rgba(0,0,0,.05);
+    padding:4px 8px;
+    border-radius:6px;
+    margin:0 12px;
+    font-size:0.9rem;
+  }
+  .star-desc{
+    flex:1;
+    font-size:0.9rem;
+    color:#666;
+  }
+  
+  /* 能量雷達圖 */
+  .chart-container{
+    background:#fff;
+    border-radius:16px;
+    padding:24px;
+    margin-bottom:24px;
+    border:2px solid var(--line);
+  }
+  .chart-wrapper{
+    max-width:500px;
+    margin:0 auto;
+    padding:20px 0;
+  }
+  
+  /* 建議區 */
+  .recommendations{
+    background:linear-gradient(135deg,rgba(124,77,255,.08),rgba(255,107,53,.08));
+    border-radius:16px;
+    padding:24px;
+    margin-bottom:24px;
+  }
+  .rec-item{
+    background:#fff;
+    border-radius:12px;
+    padding:16px 20px;
+    margin-bottom:12px;
+    border-left:4px solid var(--rose);
+  }
+  .rec-item:last-child{
+    margin-bottom:0;
+  }
+  .rec-title{
+    font-weight:700;
+    color:var(--cocoa);
+    margin-bottom:6px;
+  }
+  .rec-content{
+    color:#666;
+    line-height:1.6;
+  }
+  
+  /* CTA區 */
+  .cta-section{
+    background:linear-gradient(135deg,var(--cocoa),#8b6f5e);
+    color:#fff;
+    border-radius:16px;
+    padding:32px;
+    text-align:center;
+  }
+  .cta-title{
+    font-size:1.5rem;
+    font-weight:900;
+    margin-bottom:12px;
+  }
+  .cta-desc{
+    font-size:1rem;
+    margin-bottom:24px;
+    opacity:0.9;
+    line-height:1.6;
+  }
+  .cta-btn{
+    display:inline-block;
+    background:#fff;
+    color:var(--cocoa);
+    padding:14px 32px;
+    border-radius:12px;
+    font-weight:900;
+    text-decoration:none;
+    transition:.25s;
+    box-shadow:0 4px 12px rgba(0,0,0,.2);
+  }
+  .cta-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 16px rgba(0,0,0,.3);
+  }
+  
+  /* 返回按鈕 */
+  .back-link{
+    display:inline-block;
+    margin-top:24px;
+    color:var(--cocoa);
+    text-decoration:none;
+    font-weight:700;
+    transition:.25s;
+  }
+  .back-link:hover{
+    color:var(--rose);
+  }
+  
+  @media(max-width:600px){
+    .container{padding:28px 20px}
+    .input-section{padding:20px}
+    .score-value{font-size:3rem}
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🔮 數字能量分析器</h1>
+  <p class="subtitle">
+    基於八星磁場理論，為你揭示隱藏在數字背後的能量密碼<br>
+    這不是算命，而是一套科學化的能量調頻工具
+  </p>
+  
+  <!-- 輸入表單 -->
+  <div class="input-section">
+    <div class="input-group">
+      <label class="input-label">
+        手機號碼<span class="required">*</span>
+      </label>
+      <input type="tel" id="phoneInput" class="input-field" placeholder="請輸入11位手機號碼（例如：13912345678）" maxlength="11">
+      <div class="input-hint">手機號碼是你最常使用的數字磁場，影響著你的能量頻率</div>
+    </div>
+    
+    <div class="input-group">
+      <label class="input-label">
+        出生日期<span class="required">*</span>
+      </label>
+      <input type="date" id="birthInput" class="input-field">
+      <div class="input-hint">生日決定了你的生命靈數，是你與生俱來的能量印記</div>
+    </div>
+    
+    <div class="input-group">
+      <label class="input-label">
+        姓名（選填）
+      </label>
+      <input type="text" id="nameInput" class="input-field" placeholder="請輸入您的姓名">
+      <div class="input-hint">提供姓名可獲得更個性化的分析報告</div>
+    </div>
+    
+    <button class="analyze-btn" onclick="analyzeEnergy()">
+      ✨ 開始分析我的數字能量
+    </button>
+  </div>
+  
+  <!-- 結果區 -->
+  <div id="resultSection" class="result-section">
+    <!-- 總分 -->
+    <div class="score-card">
+      <div class="score-title">你的綜合能量指數</div>
+      <div class="score-value" id="totalScore">--</div>
+      <div class="score-desc" id="scoreLevel">--</div>
+    </div>
+    
+    <!-- 八星分析 -->
+    <div class="stars-section">
+      <h2 class="section-title">📱 手機號碼八星磁場分析</h2>
+      <div id="starsContainer"></div>
+    </div>
+    
+    <!-- 能量雷達圖 -->
+    <div class="chart-container">
+      <h2 class="section-title">📊 五維能量雷達圖</h2>
+      <div class="chart-wrapper">
+        <canvas id="energyChart"></canvas>
+      </div>
+    </div>
+    
+    <!-- 生命靈數 -->
+    <div class="stars-section">
+      <h2 class="section-title">🌟 生命靈數分析</h2>
+      <div id="lifePathContainer"></div>
+    </div>
+    
+    <!-- 調頻建議 -->
+    <div class="recommendations">
+      <h2 class="section-title">💡 能量調頻建議</h2>
+      <div id="recommendationsContainer"></div>
+    </div>
+    
+    <!-- CTA -->
+    <div class="cta-section">
+      <div class="cta-title">想要更深入的能量調頻？</div>
+      <div class="cta-desc">
+        預約一對一深度諮詢，讓專業調頻師為你量身打造<br>
+        專屬的能量提升方案，開啟你的量子顯化之旅
+      </div>
+      <a href="consulting.html" class="cta-btn">預約深度諮詢</a>
+    </div>
+  </div>
+  
+  <a href="index.html" class="back-link">← 返回首頁</a>
+</div>
+
+<script>
+// ========== 八星磁場數據 ==========
+const EIGHT_STARS = {
+  // 吉星
+  '14': { name: '生氣', type: 'lucky', desc: '貴人運強，智慧樂觀' },
+  '41': { name: '生氣', type: 'lucky', desc: '貴人運強，智慧樂觀' },
+  '67': { name: '生氣', type: 'lucky', desc: '貴人運強，智慧樂觀' },
+  '76': { name: '生氣', type: 'lucky', desc: '貴人運強，智慧樂觀' },
+  '93': { name: '生氣', type: 'lucky', desc: '貴人運強，智慧樂觀' },
+  '39': { name: '生氣', type: 'lucky', desc: '貴人運強，智慧樂觀' },
+  '82': { name: '生氣', type: 'lucky', desc: '貴人運強，智慧樂觀' },
+  '28': { name: '生氣', type: 'lucky', desc: '貴人運強，智慧樂觀' },
+  
+  '13': { name: '天醫', type: 'lucky', desc: '財運極佳，心地善良' },
+  '31': { name: '天醫', type: 'lucky', desc: '財運極佳，心地善良' },
+  '68': { name: '天醫', type: 'lucky', desc: '財運極佳，心地善良' },
+  '86': { name: '天醫', type: 'lucky', desc: '財運極佳，心地善良' },
+  '94': { name: '天醫', type: 'lucky', desc: '財運極佳，心地善良' },
+  '49': { name: '天醫', type: 'lucky', desc: '財運極佳，心地善良' },
+  '72': { name: '天醫', type: 'lucky', desc: '財運極佳，心地善良' },
+  '27': { name: '天醫', type: 'lucky', desc: '財運極佳，心地善良' },
+  
+  '19': { name: '延年', type: 'lucky', desc: '事業有成，領導力強' },
+  '91': { name: '延年', type: 'lucky', desc: '事業有成，領導力強' },
+  '87': { name: '延年', type: 'lucky', desc: '事業有成，領導力強' },
+  '78': { name: '延年', type: 'lucky', desc: '事業有成，領導力強' },
+  '43': { name: '延年', type: 'lucky', desc: '事業有成，領導力強' },
+  '34': { name: '延年', type: 'lucky', desc: '事業有成，領導力強' },
+  '26': { name: '延年', type: 'lucky', desc: '事業有成，領導力強' },
+  '62': { name: '延年', type: 'lucky', desc: '事業有成，領導力強' },
+  
+  '11': { name: '伏位', type: 'lucky', desc: '耐心等待，潛力無限' },
+  '22': { name: '伏位', type: 'lucky', desc: '耐心等待，潛力無限' },
+  '33': { name: '伏位', type: 'lucky', desc: '耐心等待，潛力無限' },
+  '44': { name: '伏位', type: 'lucky', desc: '耐心等待，潛力無限' },
+  '66': { name: '伏位', type: 'lucky', desc: '耐心等待，潛力無限' },
+  '77': { name: '伏位', type: 'lucky', desc: '耐心等待，潛力無限' },
+  '88': { name: '伏位', type: 'lucky', desc: '耐心等待，潛力無限' },
+  '99': { name: '伏位', type: 'lucky', desc: '耐心等待，潛力無限' },
+  
+  // 凶星
+  '12': { name: '絕命', type: 'unlucky', desc: '投資波動大，需謹慎' },
+  '21': { name: '絕命', type: 'unlucky', desc: '投資波動大，需謹慎' },
+  '69': { name: '絕命', type: 'unlucky', desc: '投資波動大，需謹慎' },
+  '96': { name: '絕命', type: 'unlucky', desc: '投資波動大，需謹慎' },
+  '84': { name: '絕命', type: 'unlucky', desc: '投資波動大，需謹慎' },
+  '48': { name: '絕命', type: 'unlucky', desc: '投資波動大，需謹慎' },
+  '73': { name: '絕命', type: 'unlucky', desc: '投資波動大，需謹慎' },
+  '37': { name: '絕命', type: 'unlucky', desc: '投資波動大，需謹慎' },
+  
+  '18': { name: '五鬼', type: 'unlucky', desc: '才華洋溢，但需穩定' },
+  '81': { name: '五鬼', type: 'unlucky', desc: '才華洋溢，但需穩定' },
+  '97': { name: '五鬼', type: 'unlucky', desc: '才華洋溢，但需穩定' },
+  '79': { name: '五鬼', type: 'unlucky', desc: '才華洋溢，但需穩定' },
+  '36': { name: '五鬼', type: 'unlucky', desc: '才華洋溢，但需穩定' },
+  '63': { name: '五鬼', type: 'unlucky', desc: '才華洋溢，但需穩定' },
+  '42': { name: '五鬼', type: 'unlucky', desc: '才華洋溢，但需穩定' },
+  '24': { name: '五鬼', type: 'unlucky', desc: '才華洋溢，但需穩定' },
+  
+  '17': { name: '禍害', type: 'unlucky', desc: '口才佳，但易口舌' },
+  '71': { name: '禍害', type: 'unlucky', desc: '口才佳，但易口舌' },
+  '89': { name: '禍害', type: 'unlucky', desc: '口才佳，但易口舌' },
+  '98': { name: '禍害', type: 'unlucky', desc: '口才佳，但易口舌' },
+  '64': { name: '禍害', type: 'unlucky', desc: '口才佳，但易口舌' },
+  '46': { name: '禍害', type: 'unlucky', desc: '口才佳，但易口舌' },
+  '32': { name: '禍害', type: 'unlucky', desc: '口才佳，但易口舌' },
+  '23': { name: '禍害', type: 'unlucky', desc: '口才佳，但易口舌' },
+  
+  '16': { name: '六煞', type: 'unlucky', desc: '人緣好，但易優柔' },
+  '61': { name: '六煞', type: 'unlucky', desc: '人緣好，但易優柔' },
+  '74': { name: '六煞', type: 'unlucky', desc: '人緣好，但易優柔' },
+  '47': { name: '六煞', type: 'unlucky', desc: '人緣好，但易優柔' },
+  '38': { name: '六煞', type: 'unlucky', desc: '人緣好，但易優柔' },
+  '83': { name: '六煞', type: 'unlucky', desc: '人緣好，但易優柔' },
+  '92': { name: '六煞', type: 'unlucky', desc: '人緣好，但易優柔' },
+  '29': { name: '六煞', type: 'unlucky', desc: '人緣好，但易優柔' },
+};
+
+// 生命靈數特質
+const LIFE_PATH_TRAITS = {
+  1: { title: '領導者', desc: '獨立自主，開創精神，天生的領導者' },
+  2: { title: '協調者', desc: '善於溝通，重視和諧，優秀的調解者' },
+  3: { title: '創造者', desc: '充滿創意，表達力強，藝術天賦' },
+  4: { title: '建設者', desc: '務實穩重，組織力強，值得信賴' },
+  5: { title: '冒險家', desc: '熱愛自由，勇於嘗試，適應力強' },
+  6: { title: '照顧者', desc: '富有愛心，責任感重，家庭為重' },
+  7: { title: '智者', desc: '追求真理，深度思考，靈性覺醒' },
+  8: { title: '實踐家', desc: '目標明確，執行力強，財富磁場' },
+  9: { title: '完成者', desc: '胸懷寬廣，無私奉獻，智慧圓滿' },
+};
+
+// ========== 核心分析函數 ==========
+function analyzeEnergy() {
+  const phone = document.getElementById('phoneInput').value.trim();
+  const birth = document.getElementById('birthInput').value;
+  const name = document.getElementById('nameInput').value.trim();
+  
+  // 驗證
+  if (!phone || phone.length !== 11 || !/^\d+$/.test(phone)) {
+    alert('請輸入正確的11位手機號碼');
+    return;
+  }
+  if (!birth) {
+    alert('請選擇您的出生日期');
+    return;
+  }
+  
+  // 分析八星磁場
+  const starsAnalysis = analyzeEightStars(phone);
+  
+  // 計算生命靈數
+  const lifePathNumber = calculateLifePath(birth);
+  
+  // 計算能量分數
+  const energyScores = calculateEnergyScores(starsAnalysis, lifePathNumber);
+  
+  // 生成建議
+  const recommendations = generateRecommendations(starsAnalysis, energyScores);
+  
+  // 顯示結果
+  displayResults(starsAnalysis, lifePathNumber, energyScores, recommendations, name);
+}
+
+function analyzeEightStars(phone) {
+  const stars = [];
+  const starCounts = { lucky: 0, unlucky: 0 };
+  
+  for (let i = 0; i < phone.length - 1; i++) {
+    const combo = phone[i] + phone[i + 1];
+    if (EIGHT_STARS[combo]) {
+      const star = EIGHT_STARS[combo];
+      stars.push({ combo, ...star, position: i + 1 });
+      starCounts[star.type]++;
+    }
+  }
+  
+  return { stars, starCounts };
+}
+
+function calculateLifePath(birthDate) {
+  const digits = birthDate.replace(/-/g, '').split('').map(Number);
+  let sum = digits.reduce((a, b) => a + b, 0);
+  
+  while (sum > 9 && sum !== 11 && sum !== 22 && sum !== 33) {
+    sum = sum.toString().split('').map(Number).reduce((a, b) => a + b, 0);
+  }
+  
+  return sum;
+}
+
+function calculateEnergyScores(starsAnalysis, lifePathNumber) {
+  const { starCounts } = starsAnalysis;
+  const total = starCounts.lucky + starCounts.unlucky;
+  const luckyRatio = total > 0 ? starCounts.lucky / total : 0.5;
+  
+  return {
+    wealth: Math.round(40 + luckyRatio * 40 + Math.random() * 20),
+    health: Math.round(45 + luckyRatio * 35 + Math.random() * 20),
+    career: Math.round(40 + luckyRatio * 40 + Math.random() * 20),
+    relationship: Math.round(45 + luckyRatio * 35 + Math.random() * 20),
+    overall: Math.round(50 + luckyRatio * 30 + Math.random() * 20),
+  };
+}
+
+function generateRecommendations(starsAnalysis, energyScores) {
+  const recs = [];
+  const { starCounts } = starsAnalysis;
+  
+  if (starCounts.unlucky > starCounts.lucky) {
+    recs.push({
+      title: '建議更換手機號碼',
+      content: '您的手機號碼中凶星數量較多，建議選擇含有更多「天醫」、「生氣」、「延年」組合的號碼，以提升整體能量場。'
+    });
+  }
+  
+  if (energyScores.wealth < 60) {
+    recs.push({
+      title: '財富能量提升',
+      content: '建議在號碼中增加「天醫」（13、68、94、72）組合，可提升財運和智慧財富的能量頻率。'
+    });
+  }
+  
+  if (energyScores.health < 60) {
+    recs.push({
+      title: '健康能量調頻',
+      content: '建議多使用「天醫」和「延年」的組合，這兩個磁場對健康和長壽有正面的能量支持。'
+    });
+  }
+  
+  recs.push({
+    title: '持續能量調頻',
+    content: '數字能量是動態的，建議每3-6個月重新檢視您的數字磁場，並根據人生階段調整使用的數字組合。'
+  });
+  
+  return recs;
+}
+
+function displayResults(starsAnalysis, lifePathNumber, energyScores, recommendations, name) {
+  // 顯示總分
+  document.getElementById('totalScore').textContent = energyScores.overall;
+  let level = '需要調頻';
+  if (energyScores.overall >= 80) level = '能量充沛';
+  else if (energyScores.overall >= 65) level = '能量良好';
+  else if (energyScores.overall >= 50) level = '能量平衡';
+  document.getElementById('scoreLevel').textContent = level;
+  
+  // 顯示八星分析
+  const starsContainer = document.getElementById('starsContainer');
+  starsContainer.innerHTML = '';
+  
+  if (starsAnalysis.stars.length === 0) {
+    starsContainer.innerHTML = '<p style="color:#999;text-align:center">未檢測到標準八星組合</p>';
+  } else {
+    starsAnalysis.stars.forEach(star => {
+      const div = document.createElement('div');
+      div.className = `star-item ${star.type}`;
+      div.innerHTML = `
+        <span class="star-name">${star.name}</span>
+        <span class="star-combo">${star.combo}</span>
+        <span class="star-desc">${star.desc}</span>
+      `;
+      starsContainer.appendChild(div);
+    });
+  }
+  
+  // 顯示生命靈數
+  const lifePathContainer = document.getElementById('lifePathContainer');
+  const trait = LIFE_PATH_TRAITS[lifePathNumber] || { title: '特殊數字', desc: '您擁有獨特的生命能量' };
+  lifePathContainer.innerHTML = `
+    <div style="text-align:center;padding:20px">
+      <div style="font-size:3rem;font-weight:900;color:var(--rose);margin-bottom:12px">${lifePathNumber}</div>
+      <div style="font-size:1.2rem;font-weight:700;color:var(--cocoa);margin-bottom:8px">${trait.title}</div>
+      <div style="color:#666;line-height:1.6">${trait.desc}</div>
+    </div>
+  `;
+  
+  // 顯示建議
+  const recsContainer = document.getElementById('recommendationsContainer');
+  recsContainer.innerHTML = '';
+  recommendations.forEach(rec => {
+    const div = document.createElement('div');
+    div.className = 'rec-item';
+    div.innerHTML = `
+      <div class="rec-title">${rec.title}</div>
+      <div class="rec-content">${rec.content}</div>
+    `;
+    recsContainer.appendChild(div);
+  });
+  
+  // 繪製雷達圖
+  drawEnergyChart(energyScores);
+  
+  // 顯示結果區
+  document.getElementById('resultSection').classList.add('show');
+  document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function drawEnergyChart(scores) {
+  const ctx = document.getElementById('energyChart').getContext('2d');
+  
+  // 如果已有圖表，先銷毀
+  if (window.energyChartInstance) {
+    window.energyChartInstance.destroy();
+  }
+  
+  window.energyChartInstance = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: ['財富', '健康', '事業', '人際', '整體'],
+      datasets: [{
+        label: '能量指數',
+        data: [scores.wealth, scores.health, scores.career, scores.relationship, scores.overall],
+        backgroundColor: 'rgba(205, 168, 110, 0.2)',
+        borderColor: 'rgba(205, 168, 110, 1)',
+        borderWidth: 2,
+        pointBackgroundColor: 'rgba(205, 168, 110, 1)',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: 'rgba(205, 168, 110, 1)'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      scales: {
+        r: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            stepSize: 20,
+            font: { size: 12 }
+          },
+          pointLabels: {
+            font: { size: 14, weight: 'bold' }
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    }
+  });
+}
+</script>
+
+</body>
+</html>
