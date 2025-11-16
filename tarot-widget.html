@@ -1,0 +1,286 @@
+<!-- 
+  馥靈之鑰｜塔羅抽牌模組
+  使用方法：將此檔案的內容複製到任何頁面的 <body> 中即可
+-->
+
+<style>
+  /* 塔羅抽牌模組樣式 */
+  .tarot-widget{
+    background:rgba(255,255,255,.95);
+    backdrop-filter:blur(8px);
+    border-radius:18px;
+    padding:24px;
+    box-shadow:0 8px 24px rgba(0,0,0,.12);
+    margin:20px 0;
+  }
+  .tarot-widget h3{
+    text-align:center;
+    color:#6b4f3e;
+    font-size:1.3rem;
+    margin-bottom:6px;
+    font-weight:800;
+  }
+  .tarot-widget .widget-subtitle{
+    text-align:center;
+    color:#888;
+    font-size:0.85rem;
+    margin-bottom:18px;
+  }
+  .tarot-count-selector{
+    display:flex;
+    justify-content:center;
+    gap:6px;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .tarot-count-btn{
+    background:#fff;
+    border:2px solid #cda86e;
+    color:#6b4f3e;
+    padding:6px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:700;
+    transition:.25s;
+    font-size:0.85rem;
+  }
+  .tarot-count-btn:hover{
+    background:#cda86e;
+    color:#fff;
+    transform:translateY(-2px);
+  }
+  .tarot-count-btn.active{
+    background:linear-gradient(135deg,#cda86e,#a88257);
+    color:#fff;
+    border-color:#a88257;
+  }
+  .tarot-draw-btn{
+    display:block;
+    width:100%;
+    max-width:220px;
+    margin:0 auto 18px;
+    background:linear-gradient(135deg,#cda86e,#a88257);
+    color:#fff;
+    border:none;
+    padding:12px 20px;
+    border-radius:12px;
+    font-size:1rem;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 4px 14px rgba(205,168,110,.3);
+    transition:.25s;
+  }
+  .tarot-draw-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 18px rgba(205,168,110,.4);
+  }
+  .tarot-cards-container{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
+    gap:12px;
+    margin-bottom:16px;
+    min-height:160px;
+  }
+  .tarot-card{
+    background:#fff;
+    border:2px solid rgba(0,0,0,.08);
+    border-radius:12px;
+    padding:14px 8px;
+    text-align:center;
+    box-shadow:0 3px 10px rgba(0,0,0,.06);
+    transition:.4s;
+    opacity:0;
+    transform:scale(0.8) rotateY(180deg);
+    animation:tarotCardAppear 0.5s forwards;
+  }
+  @keyframes tarotCardAppear{
+    to{opacity:1;transform:scale(1) rotateY(0deg)}
+  }
+  .tarot-card.reversed{
+    background:linear-gradient(135deg,#f5f5f5,#e8e8e8);
+  }
+  .tarot-card:hover{
+    transform:translateY(-3px) scale(1.02);
+    box-shadow:0 6px 16px rgba(0,0,0,.1);
+  }
+  .tarot-card-icon{
+    font-size:2.2rem;
+    margin-bottom:8px;
+    display:block;
+    transition:.3s;
+  }
+  .tarot-card.reversed .tarot-card-icon{
+    transform:rotate(180deg);
+  }
+  .tarot-card-name-zh{
+    font-size:0.95rem;
+    font-weight:800;
+    color:#6b4f3e;
+    margin-bottom:3px;
+  }
+  .tarot-card-name-en{
+    font-size:0.7rem;
+    color:#999;
+    margin-bottom:6px;
+  }
+  .tarot-card-position{
+    display:inline-block;
+    padding:3px 10px;
+    border-radius:999px;
+    font-size:0.7rem;
+    font-weight:700;
+  }
+  .tarot-card-position.upright{
+    background:rgba(76,175,80,.15);
+    color:#2e7d32;
+  }
+  .tarot-card-position.reversed{
+    background:rgba(156,39,176,.15);
+    color:#7b1fa2;
+  }
+  .tarot-copy-btn{
+    display:block;
+    width:100%;
+    max-width:220px;
+    margin:0 auto;
+    background:#fff;
+    border:2px solid #6b4f3e;
+    color:#6b4f3e;
+    padding:10px 18px;
+    border-radius:10px;
+    font-size:0.9rem;
+    font-weight:800;
+    cursor:pointer;
+    transition:.25s;
+  }
+  .tarot-copy-btn:hover{
+    background:#6b4f3e;
+    color:#fff;
+    transform:translateY(-2px);
+  }
+  .tarot-copy-btn.copied{
+    background:#4caf50;
+    border-color:#4caf50;
+    color:#fff;
+  }
+  .tarot-empty-state{
+    text-align:center;
+    padding:30px 16px;
+    color:#aaa;
+    font-size:0.9rem;
+  }
+  @media(max-width:600px){
+    .tarot-cards-container{
+      grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
+      gap:10px;
+    }
+    .tarot-card{padding:12px 6px}
+    .tarot-card-icon{font-size:2rem}
+  }
+</style>
+
+<div class="tarot-widget">
+  <h3>🎴 塔羅抽牌</h3>
+  <p class="widget-subtitle">🇹🇼 源自台灣｜馥靈之鑰</p>
+
+  <div class="tarot-count-selector">
+    <button class="tarot-count-btn" data-count="1">1張</button>
+    <button class="tarot-count-btn active" data-count="3">3張</button>
+    <button class="tarot-count-btn" data-count="5">5張</button>
+    <button class="tarot-count-btn" data-count="7">7張</button>
+    <button class="tarot-count-btn" data-count="9">9張</button>
+    <button class="tarot-count-btn" data-count="12">12張</button>
+  </div>
+
+  <button class="tarot-draw-btn" onclick="tarotDraw()">🔮 開始抽牌</button>
+
+  <div class="tarot-cards-container" id="tarotCardsContainer">
+    <div class="tarot-empty-state">選擇張數後，點擊「開始抽牌」</div>
+  </div>
+
+  <button class="tarot-copy-btn" id="tarotCopyBtn" onclick="tarotCopyResult()" style="display:none">
+    📋 一鍵複製結果
+  </button>
+</div>
+
+<script>
+(function(){
+  // 塔羅牌資料
+  const majorArcana=[{zh:"愚者",en:"The Fool",icon:"🌟"},{zh:"魔術師",en:"The Magician",icon:"🎩"},{zh:"女祭司",en:"The High Priestess",icon:"🌙"},{zh:"皇后",en:"The Empress",icon:"👑"},{zh:"皇帝",en:"The Emperor",icon:"⚔️"},{zh:"教皇",en:"The Hierophant",icon:"📿"},{zh:"戀人",en:"The Lovers",icon:"💕"},{zh:"戰車",en:"The Chariot",icon:"🏇"},{zh:"力量",en:"Strength",icon:"🦁"},{zh:"隱者",en:"The Hermit",icon:"🕯️"},{zh:"命運之輪",en:"Wheel of Fortune",icon:"🎡"},{zh:"正義",en:"Justice",icon:"⚖️"},{zh:"倒吊人",en:"The Hanged Man",icon:"🔄"},{zh:"死神",en:"Death",icon:"🌑"},{zh:"節制",en:"Temperance",icon:"🍶"},{zh:"惡魔",en:"The Devil",icon:"😈"},{zh:"高塔",en:"The Tower",icon:"🗼"},{zh:"星星",en:"The Star",icon:"⭐"},{zh:"月亮",en:"The Moon",icon:"🌜"},{zh:"太陽",en:"The Sun",icon:"☀️"},{zh:"審判",en:"Judgement",icon:"📯"},{zh:"世界",en:"The World",icon:"🌍"}];
+  const suits={wands:{zh:"權杖",en:"Wands",icon:"🔥"},cups:{zh:"聖杯",en:"Cups",icon:"💧"},swords:{zh:"寶劍",en:"Swords",icon:"⚔️"},pentacles:{zh:"錢幣",en:"Pentacles",icon:"💰"}};
+  const ranks=[{zh:"王牌",en:"Ace"},{zh:"二",en:"Two"},{zh:"三",en:"Three"},{zh:"四",en:"Four"},{zh:"五",en:"Five"},{zh:"六",en:"Six"},{zh:"七",en:"Seven"},{zh:"八",en:"Eight"},{zh:"九",en:"Nine"},{zh:"十",en:"Ten"},{zh:"侍者",en:"Page"},{zh:"騎士",en:"Knight"},{zh:"王后",en:"Queen"},{zh:"國王",en:"King"}];
+  
+  const allCards=[...majorArcana];
+  Object.entries(suits).forEach(([key,suit])=>{
+    ranks.forEach(rank=>{
+      allCards.push({zh:`${suit.zh}${rank.zh}`,en:`${rank.en} of ${suit.en}`,icon:suit.icon});
+    });
+  });
+
+  let selectedCount=3;
+  let drawnCards=[];
+
+  // 選擇張數
+  document.querySelectorAll('.tarot-count-btn').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('.tarot-count-btn').forEach(b=>b.classList.remove('active'));
+      this.classList.add('active');
+      selectedCount=parseInt(this.dataset.count);
+    });
+  });
+
+  // 抽牌
+  window.tarotDraw=function(){
+    const container=document.getElementById('tarotCardsContainer');
+    const copyBtn=document.getElementById('tarotCopyBtn');
+    
+    const shuffled=[...allCards].sort(()=>Math.random()-0.5);
+    drawnCards=shuffled.slice(0,selectedCount).map(card=>({...card,reversed:Math.random()>0.5}));
+
+    container.innerHTML='';
+
+    drawnCards.forEach((card,index)=>{
+      const cardEl=document.createElement('div');
+      cardEl.className='tarot-card'+(card.reversed?' reversed':'');
+      cardEl.style.animationDelay=`${index*0.08}s`;
+      cardEl.innerHTML=`
+        <span class="tarot-card-icon">${card.icon}</span>
+        <div class="tarot-card-name-zh">${card.zh}</div>
+        <div class="tarot-card-name-en">${card.en}</div>
+        <span class="tarot-card-position ${card.reversed?'reversed':'upright'}">
+          ${card.reversed?'逆位':'正位'}
+        </span>
+      `;
+      container.appendChild(cardEl);
+    });
+
+    copyBtn.style.display='block';
+    copyBtn.textContent='📋 一鍵複製結果';
+    copyBtn.classList.remove('copied');
+  };
+
+  // 複製結果
+  window.tarotCopyResult=function(){
+    const now=new Date();
+    const time=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    
+    let text='🎴 塔羅抽牌結果\n━━━━━━━━━━━━━━\n';
+    drawnCards.forEach((card,i)=>{
+      text+=`${i+1}. ${card.zh} (${card.en}) - ${card.reversed?'逆位':'正位'}\n`;
+    });
+    text+=`━━━━━━━━━━━━━━\n抽牌時間：${time}\n🇹🇼 源自台灣｜馥靈之鑰`;
+
+    navigator.clipboard.writeText(text).then(()=>{
+      const btn=document.getElementById('tarotCopyBtn');
+      btn.textContent='✅ 已複製！';
+      btn.classList.add('copied');
+      setTimeout(()=>{
+        btn.textContent='📋 一鍵複製結果';
+        btn.classList.remove('copied');
+      },2000);
+    }).catch(err=>{
+      alert('複製失敗，請手動複製：\n\n'+text);
+    });
+  };
+})();
+</script>

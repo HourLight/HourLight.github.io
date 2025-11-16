@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>塔羅抽牌｜馥靈之鑰</title>
+<meta name="description" content="簡潔優雅的塔羅抽牌工具，支援正逆位，可選擇抽1/3/5/7/9/12張牌，一鍵複製結果。">
+<link rel="icon" href="favicon.ico" />
+<style>
+  :root{
+    --milk:#f9f5f0; --cocoa:#6b4f3e;
+    --rose:#cda86e; --rose-dark:#a88257;
+    --ink:#2a2a2a; --line:rgba(0,0,0,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:url('https://github.com/HourLight/11/raw/main/background.jpg') center/cover fixed no-repeat;
+    font-family:"Noto Sans TC","PingFang TC","Arial",sans-serif;
+    color:var(--ink);
+    padding:20px;
+    min-height:100vh;
+  }
+  .container{
+    max-width:900px;
+    margin:0 auto;
+    background:rgba(255,255,255,.95);
+    backdrop-filter:blur(8px);
+    border-radius:20px;
+    padding:32px;
+    box-shadow:0 12px 40px rgba(0,0,0,.15);
+  }
+  h1{
+    text-align:center;
+    color:var(--cocoa);
+    font-size:clamp(1.5rem,4vw,2rem);
+    margin-bottom:8px;
+    font-weight:900;
+  }
+  .subtitle{
+    text-align:center;
+    color:#888;
+    font-size:0.9rem;
+    margin-bottom:24px;
+  }
+
+  /* 選擇張數 */
+  .count-selector{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+  }
+  .count-btn{
+    background:#fff;
+    border:2px solid var(--rose);
+    color:var(--cocoa);
+    padding:8px 16px;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:700;
+    transition:.25s;
+    font-size:0.9rem;
+  }
+  .count-btn:hover{
+    background:var(--rose);
+    color:#fff;
+    transform:translateY(-2px);
+  }
+  .count-btn.active{
+    background:linear-gradient(135deg,var(--rose),var(--rose-dark));
+    color:#fff;
+    border-color:var(--rose-dark);
+  }
+
+  /* 抽牌按鈕 */
+  .draw-btn{
+    display:block;
+    width:100%;
+    max-width:280px;
+    margin:0 auto 24px;
+    background:linear-gradient(135deg,var(--rose),var(--rose-dark));
+    color:#fff;
+    border:none;
+    padding:14px 24px;
+    border-radius:14px;
+    font-size:1.1rem;
+    font-weight:900;
+    cursor:pointer;
+    box-shadow:0 6px 18px rgba(205,168,110,.4);
+    transition:.25s;
+  }
+  .draw-btn:hover{
+    transform:translateY(-3px);
+    box-shadow:0 8px 24px rgba(205,168,110,.5);
+  }
+  .draw-btn:active{
+    transform:translateY(0);
+  }
+
+  /* 卡片容器 */
+  .cards-container{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:16px;
+    margin-bottom:20px;
+    min-height:200px;
+  }
+  
+  /* 單張卡片 */
+  .card{
+    background:#fff;
+    border:2px solid var(--line);
+    border-radius:14px;
+    padding:20px 12px;
+    text-align:center;
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+    transition:.4s;
+    opacity:0;
+    transform:scale(0.8) rotateY(180deg);
+    animation:cardAppear 0.6s forwards;
+  }
+  @keyframes cardAppear{
+    to{opacity:1;transform:scale(1) rotateY(0deg)}
+  }
+  .card.reversed{
+    background:linear-gradient(135deg,#f5f5f5,#e8e8e8);
+  }
+  .card:hover{
+    transform:translateY(-4px) scale(1.02);
+    box-shadow:0 8px 20px rgba(0,0,0,.12);
+  }
+
+  /* 卡片圖示 */
+  .card-icon{
+    font-size:3rem;
+    margin-bottom:12px;
+    display:block;
+    transition:.3s;
+  }
+  .card.reversed .card-icon{
+    transform:rotate(180deg);
+  }
+
+  /* 卡片名稱 */
+  .card-name-zh{
+    font-size:1.1rem;
+    font-weight:800;
+    color:var(--cocoa);
+    margin-bottom:4px;
+  }
+  .card-name-en{
+    font-size:0.85rem;
+    color:#888;
+    margin-bottom:8px;
+  }
+  .card-position{
+    display:inline-block;
+    padding:4px 12px;
+    border-radius:999px;
+    font-size:0.75rem;
+    font-weight:700;
+  }
+  .card-position.upright{
+    background:rgba(76,175,80,.15);
+    color:#2e7d32;
+  }
+  .card-position.reversed{
+    background:rgba(156,39,176,.15);
+    color:#7b1fa2;
+  }
+
+  /* 複製按鈕 */
+  .copy-btn{
+    display:block;
+    width:100%;
+    max-width:280px;
+    margin:0 auto;
+    background:#fff;
+    border:2px solid var(--cocoa);
+    color:var(--cocoa);
+    padding:12px 20px;
+    border-radius:12px;
+    font-size:1rem;
+    font-weight:800;
+    cursor:pointer;
+    transition:.25s;
+  }
+  .copy-btn:hover{
+    background:var(--cocoa);
+    color:#fff;
+    transform:translateY(-2px);
+  }
+  .copy-btn.copied{
+    background:#4caf50;
+    border-color:#4caf50;
+    color:#fff;
+  }
+
+  /* 空狀態 */
+  .empty-state{
+    text-align:center;
+    padding:40px 20px;
+    color:#aaa;
+    font-size:0.95rem;
+  }
+
+  /* 返回首頁 */
+  .back-home{
+    display:block;
+    text-align:center;
+    margin-top:24px;
+    color:var(--rose);
+    text-decoration:none;
+    font-weight:700;
+    transition:.25s;
+  }
+  .back-home:hover{
+    color:var(--rose-dark);
+    text-decoration:underline;
+  }
+
+  /* 響應式 */
+  @media(max-width:600px){
+    .cards-container{
+      grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+      gap:12px;
+    }
+    .card{padding:16px 8px}
+    .card-icon{font-size:2.5rem}
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎴 塔羅抽牌</h1>
+    <p class="subtitle">🇹🇼 源自台灣｜馥靈之鑰</p>
+
+    <!-- 選擇張數 -->
+    <div class="count-selector">
+      <button class="count-btn" data-count="1">1張</button>
+      <button class="count-btn active" data-count="3">3張</button>
+      <button class="count-btn" data-count="5">5張</button>
+      <button class="count-btn" data-count="7">7張</button>
+      <button class="count-btn" data-count="9">9張</button>
+      <button class="count-btn" data-count="12">12張</button>
+    </div>
+
+    <!-- 抽牌按鈕 -->
+    <button class="draw-btn" onclick="drawCards()">🔮 開始抽牌</button>
+
+    <!-- 卡片容器 -->
+    <div class="cards-container" id="cardsContainer">
+      <div class="empty-state">選擇張數後，點擊「開始抽牌」</div>
+    </div>
+
+    <!-- 複製按鈕 -->
+    <button class="copy-btn" id="copyBtn" onclick="copyResult()" style="display:none">
+      📋 一鍵複製結果
+    </button>
+
+    <!-- 返回首頁 -->
+    <a href="index.html" class="back-home">🏠 返回首頁</a>
+  </div>
+
+<script>
+// 塔羅牌資料（22張大阿爾克那）
+const majorArcana = [
+  {zh:"愚者",en:"The Fool",icon:"🌟"},
+  {zh:"魔術師",en:"The Magician",icon:"🎩"},
+  {zh:"女祭司",en:"The High Priestess",icon:"🌙"},
+  {zh:"皇后",en:"The Empress",icon:"👑"},
+  {zh:"皇帝",en:"The Emperor",icon:"⚔️"},
+  {zh:"教皇",en:"The Hierophant",icon:"📿"},
+  {zh:"戀人",en:"The Lovers",icon:"💕"},
+  {zh:"戰車",en:"The Chariot",icon:"🏇"},
+  {zh:"力量",en:"Strength",icon:"🦁"},
+  {zh:"隱者",en:"The Hermit",icon:"🕯️"},
+  {zh:"命運之輪",en:"Wheel of Fortune",icon:"🎡"},
+  {zh:"正義",en:"Justice",icon:"⚖️"},
+  {zh:"倒吊人",en:"The Hanged Man",icon:"🔄"},
+  {zh:"死神",en:"Death",icon:"🌑"},
+  {zh:"節制",en:"Temperance",icon:"🍶"},
+  {zh:"惡魔",en:"The Devil",icon:"😈"},
+  {zh:"高塔",en:"The Tower",icon:"🗼"},
+  {zh:"星星",en:"The Star",icon:"⭐"},
+  {zh:"月亮",en:"The Moon",icon:"🌜"},
+  {zh:"太陽",en:"The Sun",icon:"☀️"},
+  {zh:"審判",en:"Judgement",icon:"📯"},
+  {zh:"世界",en:"The World",icon:"🌍"}
+];
+
+// 小阿爾克那（56張）
+const suits = {
+  wands: {zh:"權杖",en:"Wands",icon:"🔥"},
+  cups: {zh:"聖杯",en:"Cups",icon:"💧"},
+  swords: {zh:"寶劍",en:"Swords",icon:"⚔️"},
+  pentacles: {zh:"錢幣",en:"Pentacles",icon:"💰"}
+};
+
+const ranks = [
+  {zh:"王牌",en:"Ace"},
+  {zh:"二",en:"Two"},
+  {zh:"三",en:"Three"},
+  {zh:"四",en:"Four"},
+  {zh:"五",en:"Five"},
+  {zh:"六",en:"Six"},
+  {zh:"七",en:"Seven"},
+  {zh:"八",en:"Eight"},
+  {zh:"九",en:"Nine"},
+  {zh:"十",en:"Ten"},
+  {zh:"侍者",en:"Page"},
+  {zh:"騎士",en:"Knight"},
+  {zh:"王后",en:"Queen"},
+  {zh:"國王",en:"King"}
+];
+
+// 生成完整78張塔羅牌
+const allCards = [...majorArcana];
+Object.entries(suits).forEach(([key,suit])=>{
+  ranks.forEach(rank=>{
+    allCards.push({
+      zh:`${suit.zh}${rank.zh}`,
+      en:`${rank.en} of ${suit.en}`,
+      icon:suit.icon
+    });
+  });
+});
+
+let selectedCount = 3;
+let drawnCards = [];
+
+// 選擇張數
+document.querySelectorAll('.count-btn').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.count-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    selectedCount = parseInt(this.dataset.count);
+  });
+});
+
+// 抽牌
+function drawCards(){
+  const container = document.getElementById('cardsContainer');
+  const copyBtn = document.getElementById('copyBtn');
+  
+  // 洗牌
+  const shuffled = [...allCards].sort(()=>Math.random()-0.5);
+  drawnCards = shuffled.slice(0,selectedCount).map(card=>({
+    ...card,
+    reversed: Math.random()>0.5
+  }));
+
+  // 清空容器
+  container.innerHTML = '';
+
+  // 渲染卡片
+  drawnCards.forEach((card,index)=>{
+    const cardEl = document.createElement('div');
+    cardEl.className = 'card' + (card.reversed?' reversed':'');
+    cardEl.style.animationDelay = `${index*0.1}s`;
+    cardEl.innerHTML = `
+      <span class="card-icon">${card.icon}</span>
+      <div class="card-name-zh">${card.zh}</div>
+      <div class="card-name-en">${card.en}</div>
+      <span class="card-position ${card.reversed?'reversed':'upright'}">
+        ${card.reversed?'逆位':'正位'}
+      </span>
+    `;
+    container.appendChild(cardEl);
+  });
+
+  // 顯示複製按鈕
+  copyBtn.style.display = 'block';
+  copyBtn.textContent = '📋 一鍵複製結果';
+  copyBtn.classList.remove('copied');
+}
+
+// 複製結果
+function copyResult(){
+  const now = new Date();
+  const time = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  
+  let text = '🎴 塔羅抽牌結果\n━━━━━━━━━━━━━━\n';
+  drawnCards.forEach((card,i)=>{
+    text += `${i+1}. ${card.zh} (${card.en}) - ${card.reversed?'逆位':'正位'}\n`;
+  });
+  text += `━━━━━━━━━━━━━━\n抽牌時間：${time}\n🇹🇼 源自台灣｜馥靈之鑰`;
+
+  // 複製到剪貼簿
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✅ 已複製！';
+    btn.classList.add('copied');
+    setTimeout(()=>{
+      btn.textContent = '📋 一鍵複製結果';
+      btn.classList.remove('copied');
+    },2000);
+  }).catch(err=>{
+    alert('複製失敗，請手動複製：\n\n'+text);
+  });
+}
+</script>
+</body>
+</html>
