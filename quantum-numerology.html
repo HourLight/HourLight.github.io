@@ -445,15 +445,17 @@
             const day = date.getDate();
 
             // 計算基礎數字
-            const dayNum = reduceToSingle(day);
+            const birthDayDigits = day.toString().split('').map(Number);
+            const birthDaySum = birthDayDigits.reduce((a, b) => a + b, 0);
+            const dayNum = reduceToSingle(birthDaySum); // 生日數各位數相加
             const monthNum = reduceToSingle(month);
             const yearFront = reduceToSingle(Math.floor(year / 100));
             const yearBack = year >= 2000 && year % 100 === 0 ? 5 : reduceToSingle(year % 100);
 
             // 計算三角數字
-            const leftSecond = reduceToSingle(dayNum + monthNum);
-            const rightSecond = reduceToSingle(yearFront + yearBack);
-            const core = reduceToSingle(leftSecond + rightSecond);
+            const leftSecond = dayNum; // 左二 = 生日數本身
+            const rightSecond = reduceToSingle(yearFront + yearBack); // 右二 = 年前 + 年後
+            const core = reduceToSingle(leftSecond + rightSecond); // 內核 = 左二 + 右二
 
             // 計算九宮格
             const gridData = calculateGrid(year, month, day);
@@ -555,9 +557,20 @@
                     </div>
                 </div>
                 <div class="trait-card" style="margin-top: 15px;">
-                    <div class="trait-title">💫 情感面（${left2}）× 行動面（${right2}）</div>
+                    <div class="trait-title">💫 左三角（${leftSecond}）× 右三角（${rightSecond}）</div>
                     <div class="trait-content">
-                        您的情感直覺由數字${left2}主導，行動理性由數字${right2}引領。兩者結合形成您獨特的人格特質。
+                        <strong>左三角（${leftSecond}）</strong>：由生日數主導，代表您的內在情感與直覺面。<br>
+                        <strong>右三角（${rightSecond}）</strong>：由年份主導，代表您的外在行動與理性面。<br>
+                        兩者結合形成您獨特的人格特質。
+                    </div>
+                </div>
+                <div class="trait-card" style="margin-top: 15px; background: linear-gradient(135deg, #fff9f0 0%, #fff4e6 100%); border-left-color: #ff8c00;">
+                    <div class="trait-title">🎓 人生三階段特別數</div>
+                    <div class="trait-content">
+                        <strong>20-40歲</strong>：對朋友及工作的態度<br>
+                        <strong>41-60歲</strong>：對子女及下屬的態度<br>
+                        <strong>61歲後</strong>：對家庭的態度<br>
+                        <em style="color: #a88257; font-size: 0.9em; margin-top: 8px; display: block;">💭 這些階段的特別數會影響您在不同人生時期的外在表現。</em>
                     </div>
                 </div>
             `;
