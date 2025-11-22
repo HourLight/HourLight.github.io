@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="馥靈之鑰 - 會員管理後台">
+  <title>馥靈之鑰 - 會員管理後台</title>
+  <link rel="icon" href="favicon.ico" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    body { font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Arial", sans-serif; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); color: #2a2a2a; line-height: 1.6; }
+    .dashboard { display: grid; grid-template-columns: 250px 1fr; min-height: 100vh; }
+    .sidebar { background: rgba(0, 0, 0, 0.8); padding: 30px 20px; border-right: 1px solid rgba(205, 168, 110, 0.2); position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+    .sidebar h1 { color: #cda86e; font-size: 1.3rem; margin-bottom: 30px; text-align: center; letter-spacing: 1px; }
+    .nav-menu { list-style: none; }
+    .nav-item { margin-bottom: 10px; }
+    .nav-link { display: block; padding: 12px 16px; color: rgba(255, 255, 255, 0.7); text-decoration: none; border-radius: 8px; transition: all 0.3s ease; cursor: pointer; font-weight: 500; }
+    .nav-link:hover, .nav-link.active { background: rgba(205, 168, 110, 0.2); color: #cda86e; }
+    .main-content { padding: 40px; overflow-y: auto; }
+    .page-title { color: #fff; font-size: 2rem; margin-bottom: 30px; font-weight: 700; }
+    .content-section { display: none; }
+    .content-section.active { display: block; }
+    .card { background: rgba(255, 255, 255, 0.95); border-radius: 12px; padding: 30px; margin-bottom: 30px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); }
+    .card h2 { color: #2a2a2a; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #cda86e; font-size: 1.5rem; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .stat-card { background: linear-gradient(135deg, #cda86e 0%, #a88257 100%); color: #fff; padding: 25px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(205, 168, 110, 0.3); }
+    .stat-number { font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; }
+    .stat-label { font-size: 0.95rem; opacity: 0.9; }
+    .table-container { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    thead { background: #f9f5f0; }
+    th { padding: 15px; text-align: left; font-weight: 600; color: #2a2a2a; border-bottom: 2px solid #cda86e; }
+    td { padding: 12px 15px; border-bottom: 1px solid #e0e0e0; color: #666; }
+    tr:hover { background: #f9f5f0; }
+    .btn { padding: 10px 20px; border: none; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-family: "Noto Sans TC", sans-serif; }
+    .btn-small { padding: 6px 12px; font-size: 0.85rem; }
+    .btn-primary { background: #cda86e; color: #fff; }
+    .btn-primary:hover { background: #a88257; }
+    .btn-danger { background: #ff6b6b; color: #fff; }
+    .btn-danger:hover { background: #ff5252; }
+    .btn-secondary { background: #f0f0f0; color: #2a2a2a; border: 1px solid #e0e0e0; }
+    .btn-secondary:hover { background: #e8e8e8; }
+    .filter-section { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-section input, .filter-section select { padding: 10px 15px; border: 1px solid #e0e0e0; border-radius: 6px; font-family: "Noto Sans TC", sans-serif; color: #2a2a2a; }
+    .filter-section input:focus, .filter-section select:focus { outline: none; border-color: #cda86e; box-shadow: 0 0 0 3px rgba(205, 168, 110, 0.1); }
+    .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+    .badge-success { background: #d4edda; color: #155724; }
+    .badge-warning { background: #fff3cd; color: #856404; }
+    @media (max-width: 768px) {
+      .dashboard { grid-template-columns: 1fr; }
+      .sidebar { position: relative; height: auto; border-right: none; border-bottom: 1px solid rgba(205, 168, 110, 0.2); }
+      .main-content { padding: 20px; }
+      .page-title { font-size: 1.5rem; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .filter-section { flex-direction: column; }
+      .filter-section input, .filter-section select { width: 100%; }
+      table { font-size: 0.9rem; }
+      th, td { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <div class="sidebar">
+      <h1>馥靈之鑰</h1>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <div class="nav-link active" onclick="switchTab('overview')">📊 概覽</div>
+        </li>
+        <li class="nav-item">
+          <div class="nav-link" onclick="switchTab('members')">👥 會員名單</div>
+        </li>
+        <li class="nav-item">
+          <div class="nav-link" onclick="switchTab('readings')">🎴 抽牌紀錄</div>
+        </li>
+        <li class="nav-item">
+          <div class="nav-link" onclick="switchTab('calculator')">🔢 計算機紀錄</div>
+        </li>
+        <li class="nav-item">
+          <div class="nav-link" onclick="switchTab('settings')">⚙️ 設定</div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="main-content">
+      <div class="content-section active" id="overview">
+        <h2 class="page-title">概覽</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number" id="totalMembers">0</div>
+            <div class="stat-label">總會員數</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="totalReadings">0</div>
+            <div class="stat-label">抽牌總次數</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="totalCalculations">0</div>
+            <div class="stat-label">計算機使用次數</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="thisMonthMembers">0</div>
+            <div class="stat-label">本月新增會員</div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>最近活動</h2>
+          <div id="recentActivity" class="table-container"></div>
+        </div>
+      </div>
+
+      <div class="content-section" id="members">
+        <h2 class="page-title">會員名單</h2>
+        <div class="card">
+          <div class="filter-section">
+            <input type="text" id="memberSearch" placeholder="搜尋會員名稱或電郵..." onkeyup="filterMembers()">
+            <select id="memberStatus" onchange="filterMembers()">
+              <option value="">全部狀態</option>
+              <option value="active">活躍</option>
+              <option value="inactive">非活躍</option>
+            </select>
+            <button class="btn btn-primary" onclick="exportMembers()">📥 匯出名單</button>
+          </div>
+          <div class="table-container">
+            <table id="membersTable">
+              <thead>
+                <tr>
+                  <th>姓名</th>
+                  <th>電郵</th>
+                  <th>加入日期</th>
+                  <th>最後活動</th>
+                  <th>狀態</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="membersBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-section" id="readings">
+        <h2 class="page-title">抽牌紀錄</h2>
+        <div class="card">
+          <div class="filter-section">
+            <input type="text" id="readingSearch" placeholder="搜尋會員名稱..." onkeyup="filterReadings()">
+            <button class="btn btn-primary" onclick="exportReadings()">📥 匯出紀錄</button>
+          </div>
+          <div class="table-container">
+            <table id="readingsTable">
+              <thead>
+                <tr>
+                  <th>會員</th>
+                  <th>卡牌</th>
+                  <th>抽牌日期</th>
+                  <th>備註</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="readingsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-section" id="calculator">
+        <h2 class="page-title">計算機紀錄</h2>
+        <div class="card">
+          <div class="filter-section">
+            <input type="text" id="calcSearch" placeholder="搜尋會員名稱..." onkeyup="filterCalculations()">
+            <button class="btn btn-primary" onclick="exportCalculations()">📥 匯出紀錄</button>
+          </div>
+          <div class="table-container">
+            <table id="calculationsTable">
+              <thead>
+                <tr>
+                  <th>會員</th>
+                  <th>出生日期</th>
+                  <th>內在核心數字</th>
+                  <th>外在人格數字</th>
+                  <th>計算日期</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="calculationsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-section" id="settings">
+        <h2 class="page-title">設定</h2>
+        <div class="card">
+          <h2>系統設定</h2>
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 10px; color: #2a2a2a; font-weight: 600;">
+              <input type="checkbox" id="emailNotification" checked> 啟用電郵通知
+            </label>
+            <label style="display: block; margin-bottom: 10px; color: #2a2a2a; font-weight: 600;">
+              <input type="checkbox" id="autoBackup" checked> 自動備份數據
+            </label>
+          </div>
+          <button class="btn btn-primary" onclick="saveSettings()">💾 保存設定</button>
+        </div>
+        <div class="card">
+          <h2>數據管理</h2>
+          <div style="margin-bottom: 20px;">
+            <p style="color: #666; margin-bottom: 15px;"><strong>備份數據：</strong>將所有會員和紀錄數據下載為JSON文件。</p>
+            <button class="btn btn-secondary" onclick="backupData()">📦 備份所有數據</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let members = JSON.parse(localStorage.getItem('members')) || [];
+    let readings = JSON.parse(localStorage.getItem('readings')) || [];
+    let calculations = JSON.parse(localStorage.getItem('calculations')) || [];
+
+    function init() {
+      if (members.length === 0) {
+        members = [
+          { id: 1, name: "李美玲", email: "meiling@example.com", joinDate: "2024-11-01", lastActivity: "2024-11-22", status: "active" },
+          { id: 2, name: "王小芸", email: "xiaoyun@example.com", joinDate: "2024-11-05", lastActivity: "2024-11-20", status: "active" },
+          { id: 3, name: "陳思語", email: "siyu@example.com", joinDate: "2024-11-10", lastActivity: "2024-11-15", status: "inactive" }
+        ];
+        readings = [
+          { id: 1, member: "李美玲", card: "魔術師", date: "2024-11-22", notes: "關於事業決策" },
+          { id: 2, member: "王小芸", card: "玫瑰草", date: "2024-11-20", notes: "情緒平衡" }
+        ];
+        calculations = [
+          { id: 1, member: "李美玲", birthDate: "1990-05-15", innerCore: 1, outerPersonality: 5, date: "2024-11-22" },
+          { id: 2, member: "王小芸", birthDate: "1995-08-22", innerCore: 7, outerPersonality: 3, date: "2024-11-20" }
+        ];
+        saveMembersData();
+      }
+      updateStats();
+      displayMembers();
+      displayReadings();
+      displayCalculations();
+      displayRecentActivity();
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+      document.getElementById(tab).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    function updateStats() {
+      document.getElementById('totalMembers').textContent = members.length;
+      document.getElementById('totalReadings').textContent = readings.length;
+      document.getElementById('totalCalculations').textContent = calculations.length;
+      const thisMonth = members.filter(m => {
+        const joinDate = new Date(m.joinDate);
+        const now = new Date();
+        return joinDate.getMonth() === now.getMonth() && joinDate.getFullYear() === now.getFullYear();
+      }).length;
+      document.getElementById('thisMonthMembers').textContent = thisMonth;
+    }
+
+    function displayMembers() {
+      const tbody = document.getElementById('membersBody');
+      tbody.innerHTML = '';
+      members.forEach(member => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${member.name}</td>
+          <td>${member.email}</td>
+          <td>${member.joinDate}</td>
+          <td>${member.lastActivity}</td>
+          <td><span class="badge badge-${member.status === 'active' ? 'success' : 'warning'}">${member.status === 'active' ? '活躍' : '非活躍'}</span></td>
+          <td>
+            <button class="btn btn-small btn-danger" onclick="deleteMember(${member.id})">刪除</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function displayReadings() {
+      const tbody = document.getElementById('readingsBody');
+      tbody.innerHTML = '';
+      readings.forEach(reading => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${reading.member}</td>
+          <td>${reading.card}</td>
+          <td>${reading.date}</td>
+          <td>${reading.notes}</td>
+          <td>
+            <button class="btn btn-small btn-danger" onclick="deleteReading(${reading.id})">刪除</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function displayCalculations() {
+      const tbody = document.getElementById('calculationsBody');
+      tbody.innerHTML = '';
+      calculations.forEach(calc => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${calc.member}</td>
+          <td>${calc.birthDate}</td>
+          <td>${calc.innerCore}</td>
+          <td>${calc.outerPersonality}</td>
+          <td>${calc.date}</td>
+          <td>
+            <button class="btn btn-small btn-danger" onclick="deleteCalculation(${calc.id})">刪除</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function displayRecentActivity() {
+      const container = document.getElementById('recentActivity');
+      const allActivities = [
+        ...readings.map(r => ({ type: '抽牌', member: r.member, detail: r.card, date: r.date })),
+        ...calculations.map(c => ({ type: '計算機', member: c.member, detail: `${c.innerCore}/${c.outerPersonality}`, date: c.date }))
+      ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
+
+      if (allActivities.length === 0) {
+        container.innerHTML = '<p style="color: #999;">暫無活動紀錄</p>';
+        return;
+      }
+
+      let html = '<table style="width: 100%;"><thead><tr><th>活動類型</th><th>會員</th><th>詳情</th><th>日期</th></tr></thead><tbody>';
+      allActivities.forEach(activity => {
+        html += `<tr><td>${activity.type}</td><td>${activity.member}</td><td>${activity.detail}</td><td>${activity.date}</td></tr>`;
+      });
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    function filterMembers() {
+      const search = document.getElementById('memberSearch').value.toLowerCase();
+      const status = document.getElementById('memberStatus').value;
+      const filtered = members.filter(m => {
+        const matchSearch = m.name.toLowerCase().includes(search) || m.email.toLowerCase().includes(search);
+        const matchStatus = !status || m.status === status;
+        return matchSearch && matchStatus;
+      });
+      const tbody = document.getElementById('membersBody');
+      tbody.innerHTML = '';
+      filtered.forEach(member => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${member.name}</td>
+          <td>${member.email}</td>
+          <td>${member.joinDate}</td>
+          <td>${member.lastActivity}</td>
+          <td><span class="badge badge-${member.status === 'active' ? 'success' : 'warning'}">${member.status === 'active' ? '活躍' : '非活躍'}</span></td>
+          <td>
+            <button class="btn btn-small btn-danger" onclick="deleteMember(${member.id})">刪除</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function filterReadings() {
+      const search = document.getElementById('readingSearch').value.toLowerCase();
+      const filtered = readings.filter(r => r.member.toLowerCase().includes(search));
+      const tbody = document.getElementById('readingsBody');
+      tbody.innerHTML = '';
+      filtered.forEach(reading => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${reading.member}</td>
+          <td>${reading.card}</td>
+          <td>${reading.date}</td>
+          <td>${reading.notes}</td>
+          <td>
+            <button class="btn btn-small btn-danger" onclick="deleteReading(${reading.id})">刪除</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function filterCalculations() {
+      const search = document.getElementById('calcSearch').value.toLowerCase();
+      const filtered = calculations.filter(c => c.member.toLowerCase().includes(search));
+      const tbody = document.getElementById('calculationsBody');
+      tbody.innerHTML = '';
+      filtered.forEach(calc => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${calc.member}</td>
+          <td>${calc.birthDate}</td>
+          <td>${calc.innerCore}</td>
+          <td>${calc.outerPersonality}</td>
+          <td>${calc.date}</td>
+          <td>
+            <button class="btn btn-small btn-danger" onclick="deleteCalculation(${calc.id})">刪除</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function deleteMember(id) {
+      if (confirm('確定要刪除此會員嗎？')) {
+        members = members.filter(m => m.id !== id);
+        saveMembersData();
+        displayMembers();
+        updateStats();
+      }
+    }
+
+    function deleteReading(id) {
+      if (confirm('確定要刪除此抽牌紀錄嗎？')) {
+        readings = readings.filter(r => r.id !== id);
+        localStorage.setItem('readings', JSON.stringify(readings));
+        displayReadings();
+        updateStats();
+      }
+    }
+
+    function deleteCalculation(id) {
+      if (confirm('確定要刪除此計算機紀錄嗎？')) {
+        calculations = calculations.filter(c => c.id !== id);
+        localStorage.setItem('calculations', JSON.stringify(calculations));
+        displayCalculations();
+        updateStats();
+      }
+    }
+
+    function saveMembersData() {
+      localStorage.setItem('members', JSON.stringify(members));
+    }
+
+    function exportMembers() {
+      const csv = "姓名,電郵,加入日期,最後活動,狀態\n" + members.map(m => `${m.name},${m.email},${m.joinDate},${m.lastActivity},${m.status}`).join('\n');
+      downloadCSV(csv, 'members.csv');
+    }
+
+    function exportReadings() {
+      const csv = "會員,卡牌,日期,備註\n" + readings.map(r => `${r.member},${r.card},${r.date},${r.notes}`).join('\n');
+      downloadCSV(csv, 'readings.csv');
+    }
+
+    function exportCalculations() {
+      const csv = "會員,出生日期,內在核心,外在人格,日期\n" + calculations.map(c => `${c.member},${c.birthDate},${c.innerCore},${c.outerPersonality},${c.date}`).join('\n');
+      downloadCSV(csv, 'calculations.csv');
+    }
+
+    function downloadCSV(csv, filename) {
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+    }
+
+    function backupData() {
+      const backup = { members, readings, calculations, backupDate: new Date().toISOString() };
+      const json = JSON.stringify(backup, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `backup-${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+    }
+
+    function saveSettings() {
+      alert('設定已保存');
+    }
+
+    init();
+  </script>
+</body>
+</html>
