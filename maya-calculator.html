@@ -386,12 +386,32 @@ const tones = [
   {name:'宇宙',desc:'臨在'}
 ];
 
+// 將日期轉換為儒略日數
+function dateToJulian(year, month, day) {
+  const a = Math.floor((14 - month) / 12);
+  const y = year + 4800 - a;
+  const m = month + 12 * a - 3;
+  
+  return day + Math.floor((153 * m + 2) / 5) + 365 * y + 
+         Math.floor(y / 4) - Math.floor(y / 100) + 
+         Math.floor(y / 400) - 32045;
+}
+
 function calculateKIN(date){
-  const baseDate = new Date(1987,6,26);
-  const diffTime = date - baseDate;
-  const diffDays = Math.floor(diffTime / (1000*60*60*24));
-  let kin = (diffDays % 260) + 1;
-  if(kin <= 0) kin += 260;
+  // 使用已知正確點：1976/2/5 = KIN 8
+  // 反推得出 KIN 1 的儒略日數 = 2442807 (1976/1/29)
+  const kin1_julian = 2442807;
+  
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1; // JavaScript月份0-11
+  const day = date.getDate();
+  
+  const current_julian = dateToJulian(year, month, day);
+  const diff = current_julian - kin1_julian;
+  
+  // 卓爾金曆260天循環
+  let kin = ((diff % 260) + 260) % 260 + 1;
+  
   return kin;
 }
 
