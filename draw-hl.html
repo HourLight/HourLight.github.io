@@ -4,1008 +4,319 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>馥靈之鑰｜內在GPS 線上抽牌</title>
-<meta name="description" content="130 張牌卡 × HOUR 四步，幫你在混亂中重新對頻。不是算命，是日常微調器。" />
-<meta property="og:title" content="馥靈之鑰｜內在GPS 線上抽牌" />
-<meta property="og:description" content="一鍵抽牌,得到今天的行動指引。不是算命,是日常微調器。" />
-<meta property="og:type" content="website" />
-<meta property="og:image" content="cover.jpg" />
+<meta name="description" content="130 張牌卡，幫你在混亂中重新對頻。不是算命，是日常微調器。" />
 <link rel="icon" href="favicon.ico" />
 <style>
-  /* ========== CSS 變數定義 ========== */
   :root {
-    --milk: #f9f5f0;
-    --cocoa: #6b4f3e;
-    --rose: #cda86e;
-    --rose-dark: #a88257;
-    --ink: #2a2a2a;
-    --line: rgba(0,0,0,.08);
-    --ok: #0ea65d;
-    --warn: #d2691e;
-    --shadow-sm: 0 4px 12px rgba(0,0,0,.08);
+    --milk: #f9f5f0; --cocoa: #6b4f3e;
+    --rose: #cda86e; --rose-dark: #a88257;
+    --ink: #2a2a2a; --line: rgba(0,0,0,.08);
     --shadow-md: 0 6px 18px rgba(0,0,0,.12);
     --shadow-lg: 0 8px 28px rgba(0,0,0,.18);
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-.thumb { aspect-ratio: 7/10; background:#fff; }
-  /* ========== 基礎重置 ========== */
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  html {
-    scroll-behavior: smooth;
-  }
-
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  
   body {
-    background: 
-      linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.78)),
-      url('background.jpg') center/cover fixed no-repeat;
+    background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.78)),
+                url('background.jpg') center/cover fixed no-repeat;
     font-family: "Noto Sans TC", "PingFang TC", "Arial", sans-serif;
-    color: var(--ink);
-    line-height: 1.6;
+    color: var(--ink); line-height: 1.6; padding: 24px 16px 64px;
   }
 
-  /* ========== 佈局容器 ========== */
-  .wrap {
-    max-width: 1080px;
-    margin: 0 auto;
-    padding: 24px 16px 64px;
-  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
 
   .glass {
-    background: rgba(255,255,255,.92);
-    backdrop-filter: blur(8px) saturate(120%);
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    box-shadow: var(--shadow-lg);
-    padding: 24px;
-    margin: 0 0 20px;
-    transition: var(--transition-smooth);
+    background: rgba(255,255,255,.92); backdrop-filter: blur(8px);
+    border: 1px solid var(--line); border-radius: 16px;
+    box-shadow: var(--shadow-lg); padding: 24px; margin: 0 0 20px;
+    transition: var(--transition);
   }
 
-  .glass:hover {
-    box-shadow: 0 12px 36px rgba(0,0,0,.15);
-  }
-
-  /* ========== 標題區 ========== */
-  .page-title {
-    text-align: center;
-    margin: 6px auto 16px;
-  }
-
+  .page-title { text-align: center; margin: 6px auto 24px; }
   .page-title h1 {
-    margin: 0;
-    font-size: 2rem;
-    color: var(--cocoa);
-    font-weight: 900;
-    letter-spacing: 1px;
+    margin: 0; font-size: clamp(1.8rem, 5vw, 2.2rem);
+    color: var(--cocoa); font-weight: 900;
   }
-
   .page-title p {
-    margin: 10px 0 0;
-    color: var(--rose-dark);
-    font-weight: 700;
-    font-size: 1.05rem;
+    margin: 10px 0 0; color: var(--rose-dark);
+    font-weight: 700; font-size: 1.05rem;
   }
 
-  /* ========== 按鈕系統 ========== */
   .btn {
-    appearance: none;
-    border: none;
-    cursor: pointer;
-    padding: 14px 16px;
+    border: none; cursor: pointer; padding: 14px 16px;
     border-radius: 14px;
     background: linear-gradient(135deg, var(--rose), var(--rose-dark));
-    color: #fff;
-    font-weight: 900;
-    letter-spacing: .5px;
-    font-size: 16px;
-    line-height: 1.2;
-    box-shadow: var(--shadow-md);
-    transition: var(--transition-smooth);
-    position: relative;
-    overflow: hidden;
+    color: #fff; font-weight: 900; font-size: 16px;
+    box-shadow: var(--shadow-md); transition: var(--transition);
   }
-
-  .btn::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(255,255,255,.2);
-    transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
-  }
-
-  .btn:hover::before {
-    width: 300px;
-    height: 300px;
-  }
-
-  .btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 24px rgba(0,0,0,.22);
-  }
-
-  .btn:active {
-    transform: translateY(-1px);
-  }
-
-  .btn[disabled] {
-    opacity: .5;
-    cursor: not-allowed;
-    transform: none;
-    filter: grayscale(0.3);
-  }
-
-  .btn[disabled]:hover {
-    box-shadow: var(--shadow-md);
-  }
-
+  .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,.22); }
+  .btn:active { transform: translateY(-1px); }
+  .btn[disabled] { opacity: .5; cursor: not-allowed; transform: none; }
   .btn.secondary {
-    background: #fff;
-    color: var(--cocoa);
+    background: #fff; color: var(--cocoa);
     border: 2px solid var(--cocoa);
-    box-shadow: var(--shadow-sm);
-  }
-
-  .btn.secondary:hover {
-    background: var(--milk);
-  }
-
-  .btn.ghost {
-    background: #fff;
-    color: var(--cocoa);
-    border: 2px solid var(--cocoa);
-  }
-
-  /* ========== 模式選擇區 ========== */
-  .modes {
-    display: grid;
-    grid-template-columns: 1.05fr .95fr;
-    gap: 18px;
-  }
-
-  @media(max-width:900px) {
-    .modes {
-      grid-template-columns: 1fr;
-    }
   }
 
   .mode-buttons {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 12px;
+    display: grid; grid-template-columns: repeat(6, 1fr);
+    gap: 12px; margin-bottom: 16px;
   }
+  @media(max-width:900px) { .mode-buttons { grid-template-columns: repeat(3, 1fr); } }
+  @media(max-width:560px) { .mode-buttons { grid-template-columns: repeat(2, 1fr); } }
 
-  @media(max-width:900px) {
-    .mode-buttons {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  @media(max-width:560px) {
-    .mode-buttons {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  /* ========== 價格表 ========== */
-  .price-table {
-    border-radius: 14px;
-    overflow: hidden;
-    border: 1px solid var(--line);
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  th, td {
-    padding: 14px 12px;
-    text-align: center;
-    vertical-align: top;
-  }
-
-  thead th {
-    background: #fff2e0;
-    color: var(--cocoa);
-    font-weight: 900;
-  }
-
-  tbody tr {
-    transition: background 0.2s ease;
-  }
-
-  tbody tr:nth-child(odd) {
-    background: #fff;
-  }
-
-  tbody tr:nth-child(even) {
-    background: #fff8f0;
-  }
-
-  tbody tr:hover {
-    background: #fff4e6;
-  }
-
-  td:first-child {
-    font-weight: 800;
-    color: var(--cocoa);
-  }
-
-  /* ========== 提示文字 ========== */
   .hint {
-    text-align: center;
-    color: #666;
-    font-size: 14px;
-    margin: 10px 0;
-    line-height: 1.6;
-    white-space: pre-wrap;
+    text-align: center; color: #666; font-size: 14px;
+    margin: 10px 0; line-height: 1.6;
   }
 
-  .note {
-    color: var(--rose-dark);
-    font-weight: 700;
-  }
-
-  /* ========== 工具列 ========== */
   .toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-    justify-content: center;
-    margin: 16px 0 12px;
+    display: flex; flex-wrap: wrap; gap: 12px;
+    align-items: center; justify-content: center; margin: 16px 0 12px;
   }
 
-  /* ========== 卡片網格 ========== */
   .grid {
-    display: grid;
-    gap: 16px;
-    margin-top: 12px;
+    display: grid; gap: 16px; margin-top: 12px;
     grid-template-columns: repeat(5, 1fr);
   }
-
-  @media(max-width:1000px) {
-    .grid {
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
-
-  @media(max-width:800px) {
-    .grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  @media(max-width:560px) {
-    .grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
+  @media(max-width:1000px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+  @media(max-width:800px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  @media(max-width:560px) { .grid { grid-template-columns: repeat(2, 1fr); } }
 
   .card {
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: var(--shadow-md);
-    transition: var(--transition-smooth);
-    cursor: pointer;
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 12px; overflow: hidden;
+    box-shadow: var(--shadow-md); transition: var(--transition);
     animation: cardFadeIn 0.5s ease-out backwards;
   }
-
   @keyframes cardFadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px) scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
   }
-
-  .card:hover {
-    transform: translateY(-6px) scale(1.02);
-    box-shadow: 0 12px 28px rgba(0,0,0,.18);
-  }
+  .card:hover { transform: translateY(-6px) scale(1.02); }
 
   .thumb {
-    display: block;
-    width: 100%;
-    height: auto;
-    object-fit: contain;
-    background: #fff;
+    display: block; width: 100%; height: auto;
+    aspect-ratio: 7/10; object-fit: contain; background: #fff;
   }
 
   .cap {
-    padding: 10px 12px;
-    text-align: center;
-    font-weight: 800;
-    color: var(--cocoa);
-    background: #fff7ed;
-    border-top: 1px solid var(--line);
-    font-size: 14px;
+    padding: 10px 12px; text-align: center;
+    font-weight: 800; color: var(--cocoa);
+    background: #fff7ed; border-top: 1px solid var(--line);
   }
 
-  /* ========== Toast 通知 ========== */
+  .card-explain {
+    background: #fff9f3; border: 2px solid #cda86e;
+    border-radius: 12px; padding: 14px 16px; margin-top: 10px;
+    box-shadow: 0 6px 18px rgba(205,168,110,.22);
+    color: #2a2a2a; line-height: 1.8;
+  }
+  .card-explain .kicker {
+    display: inline-block; font-weight: 900;
+    color: #6b4f3e; background: #fff2e0;
+    border: 1px solid rgba(205,168,110,.6);
+    border-radius: 999px; padding: 2px 10px;
+    font-size: 13px; margin-right: 8px;
+  }
+  .card-explain .title { font-weight: 900; color: #a88257; margin-right: 6px; }
+  .card-explain .body { white-space: pre-wrap; }
+
   .toast {
-    position: fixed;
-    left: 50%;
-    bottom: 30px;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,.88);
-    color: #fff;
-    padding: 12px 20px;
-    border-radius: 12px;
-    font-size: 15px;
-    font-weight: 600;
-    box-shadow: 0 6px 20px rgba(0,0,0,.3);
-    z-index: 9999;
+    position: fixed; left: 50%; bottom: 30px;
+    transform: translateX(-50%); background: rgba(0,0,0,.88);
+    color: #fff; padding: 12px 20px; border-radius: 12px;
+    font-size: 15px; font-weight: 600; z-index: 9999;
     animation: toastSlideUp 0.3s ease-out;
   }
-
   @keyframes toastSlideUp {
-    from {
-      opacity: 0;
-      transform: translateX(-50%) translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
+    from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
   }
 
-  /* ========== 確認對話框（Modal） ========== */
   .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,.5);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10001;
-    opacity: 0;
-    pointer-events: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.5); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 10001; opacity: 0; pointer-events: none;
     transition: opacity 0.3s ease;
   }
-
-  .modal-overlay.show {
-    opacity: 1;
-    pointer-events: all;
-  }
+  .modal-overlay.show { opacity: 1; pointer-events: all; }
 
   .modal-content {
-    background: #fff;
-    border-radius: 20px;
-    padding: 32px 28px;
-    max-width: 500px;
-    width: 90%;
+    background: #fff; border-radius: 20px;
+    padding: 32px 28px; max-width: 500px; width: 90%;
     box-shadow: 0 20px 60px rgba(0,0,0,.3);
-    transform: scale(0.9) translateY(20px);
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: scale(0.9); transition: transform 0.3s;
   }
+  .modal-overlay.show .modal-content { transform: scale(1); }
 
-  .modal-overlay.show .modal-content {
-    transform: scale(1) translateY(0);
-  }
-
-  .modal-header {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-
-  .modal-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-  }
-
+  .modal-header { text-align: center; margin-bottom: 20px; }
+  .modal-icon { font-size: 48px; margin-bottom: 12px; }
   .modal-title {
-    font-size: 24px;
-    font-weight: 900;
-    color: var(--cocoa);
-    margin-bottom: 8px;
+    font-size: 24px; font-weight: 900;
+    color: var(--cocoa); margin-bottom: 8px;
   }
+  .modal-subtitle { font-size: 15px; color: #666; line-height: 1.6; }
 
-  .modal-subtitle {
-    font-size: 15px;
-    color: #666;
-    line-height: 1.6;
-  }
-
-  .modal-body {
-    margin: 24px 0;
-  }
-
+  .modal-body { margin: 24px 0; }
   .modal-question {
-    background: var(--milk);
-    border: 2px solid var(--rose);
-    border-radius: 12px;
-    padding: 16px;
-    min-height: 100px;
-    font-size: 15px;
-    color: var(--ink);
-    resize: vertical;
-    width: 100%;
-    font-family: inherit;
-    transition: border-color 0.3s ease;
+    background: var(--milk); border: 2px solid var(--rose);
+    border-radius: 12px; padding: 16px; min-height: 80px;
+    font-size: 15px; color: var(--ink); resize: vertical;
+    width: 100%; font-family: inherit;
   }
-
   .modal-question:focus {
-    outline: none;
-    border-color: var(--rose-dark);
+    outline: none; border-color: var(--rose-dark);
     box-shadow: 0 0 0 3px rgba(205,168,110,.2);
   }
 
-  .modal-footer {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-  }
-
+  .modal-footer { display: flex; gap: 12px; justify-content: center; }
   .modal-btn {
-    padding: 14px 28px;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 800;
-    cursor: pointer;
-    border: none;
-    transition: var(--transition-smooth);
+    padding: 14px 28px; border-radius: 12px;
+    font-size: 16px; font-weight: 800;
+    cursor: pointer; border: none; transition: var(--transition);
   }
-
   .modal-btn-primary {
     background: linear-gradient(135deg, var(--rose), var(--rose-dark));
-    color: #fff;
-    box-shadow: var(--shadow-md);
+    color: #fff; box-shadow: var(--shadow-md);
   }
-
-  .modal-btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,0,0,.2);
-  }
-
+  .modal-btn-primary:hover { transform: translateY(-2px); }
   .modal-btn-secondary {
-    background: #fff;
-    color: var(--cocoa);
+    background: #fff; color: var(--cocoa);
     border: 2px solid var(--cocoa);
   }
 
-  .modal-btn-secondary:hover {
-    background: var(--milk);
+  .cta-section {
+    background: linear-gradient(135deg, #f5e6d3, #e8c39e);
+    border-radius: 16px; padding: 32px 24px;
+    text-align: center; margin: 24px 0;
+  }
+  .cta-section h3 {
+    color: var(--cocoa); font-size: 1.4rem;
+    font-weight: 900; margin-bottom: 12px;
+  }
+  .cta-section p {
+    color: #5a4a3a; font-size: 0.95rem;
+    line-height: 1.7; margin-bottom: 20px;
+  }
+  .cta-btns {
+    display: flex; flex-direction: column; gap: 12px;
+    max-width: 400px; margin: 0 auto;
+  }
+  .cta-btn {
+    display: block; text-decoration: none;
+    padding: 14px 24px; border-radius: 999px;
+    font-weight: 900; font-size: 1rem;
+    transition: var(--transition); text-align: center;
+  }
+  .cta-btn.primary {
+    background: linear-gradient(135deg, var(--cocoa), #3a2a1f);
+    color: #fff; border: 2px solid rgba(255,255,255,.9);
+  }
+  .cta-btn.primary:hover { transform: translateY(-2px); }
+  .cta-btn.secondary {
+    background: #fff; color: var(--cocoa);
+    border: 2px solid var(--cocoa);
+  }
+  .cta-btn.secondary:hover {
+    background: var(--cocoa); color: #fff;
   }
 
-  /* ========== 方案卡片 ========== */
-  .plans {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  @media(max-width:900px) {
-    .plans {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .plan {
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 24px;
-    box-shadow: var(--shadow-md);
-    text-align: center;
-    transition: var(--transition-smooth);
-  }
-
-  .plan:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0,0,0,.15);
-  }
-
-  .plan .ttl {
-    font-weight: 900;
-    color: var(--cocoa);
-    font-size: 22px;
-    margin-bottom: 8px;
-  }
-
-  .plan .price {
-    margin-top: 8px;
-    color: var(--rose-dark);
-    font-weight: 800;
-    font-size: 18px;
-  }
-
-  .plan ul {
-    text-align: left;
-    margin: 16px auto 16px;
-    line-height: 1.8;
-    max-width: 620px;
-    list-style: none;
-    padding-left: 0;
-  }
-
-  .plan ul li {
-    padding-left: 24px;
-    position: relative;
-    margin: 8px 0;
-  }
-
-  .plan ul li::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    color: var(--ok);
-    font-weight: 900;
-  }
-
-  .ctaA {
-    display: inline-block;
-    text-decoration: none;
-    color: #fff;
-    font-weight: 900;
-    background: linear-gradient(135deg, var(--rose), var(--rose-dark));
-    padding: 14px 24px;
-    border-radius: 28px;
-    box-shadow: var(--shadow-md);
-    transition: var(--transition-smooth);
-  }
-
-  .ctaA:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 22px rgba(0,0,0,.22);
-  }
-
-  /* ========== 詳細資訊摺疊 ========== */
-  details {
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 0 16px;
-    background: rgba(255,255,255,.95);
-    margin: 12px 0;
-    transition: var(--transition-smooth);
-  }
-
-  details[open] {
-    box-shadow: var(--shadow-sm);
-  }
-
-  summary {
-    cursor: pointer;
-    list-style: none;
-    padding: 14px 0;
-    font-weight: 800;
-    color: var(--cocoa);
-    user-select: none;
-  }
-
-  summary::-webkit-details-marker {
-    display: none;
-  }
-
-  summary::before {
-    content: '▶';
-    display: inline-block;
-    margin-right: 8px;
-    transition: transform 0.3s ease;
-  }
-
-  details[open] summary::before {
-    transform: rotate(90deg);
-  }
-
-  /* ========== 申請表單 ========== */
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  @media(max-width:900px) {
-    .form-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .field label {
-    font-weight: 800;
-    color: var(--cocoa);
-    font-size: 15px;
-  }
-
-  .field input,
-  .field select,
-  .field textarea {
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 12px;
-    font-size: 15px;
-    font-family: inherit;
-    transition: border-color 0.3s ease;
-  }
-
-  .field input:focus,
-  .field select:focus,
-  .field textarea:focus {
-    outline: none;
-    border-color: var(--rose);
-    box-shadow: 0 0 0 3px rgba(205,168,110,.15);
-  }
-
-  .ok {
-    color: var(--ok);
-    font-weight: 700;
-  }
-
-  /* ========== 頁尾 ========== */
-  .footer {
-    margin-top: 24px;
-    text-align: center;
-  }
-
+  .footer { margin-top: 24px; text-align: center; }
   .footer .block {
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 16px;
-    color: #4a3a2f;
-    font-size: 14px;
-    line-height: 1.75;
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 12px; padding: 16px;
+    color: #4a3a2f; font-size: 14px; line-height: 1.75;
   }
-
   .link {
-    display: inline-block;
-    text-decoration: none;
-    color: #fff;
-    font-weight: 800;
+    display: inline-block; text-decoration: none;
+    color: #fff; font-weight: 800;
     background: linear-gradient(135deg, var(--rose), var(--rose-dark));
-    padding: 12px 20px;
-    border-radius: 24px;
-    box-shadow: var(--shadow-md);
-    margin-top: 10px;
-    transition: var(--transition-smooth);
+    padding: 12px 20px; border-radius: 24px;
+    box-shadow: var(--shadow-md); margin-top: 10px;
+    transition: var(--transition);
   }
-
-  .link:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0,0,0,.2);
-  }
-
-  /* ========== 無障礙與動畫偏好 ========== */
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-
-    html {
-      scroll-behavior: auto;
-    }
-  }
-  
-  .text-center {
-    text-align: center;
-  }
-  #oneHint {
-  background: #fff9f3;
-  border: 2px solid #cda86e;
-  border-radius: 12px;
-  padding: 16px;
-  color: #2a2a2a;
-  font-size: 1.05rem;
-  line-height: 1.8;
-  box-shadow: 0 6px 20px rgba(205,168,110,.25);
-  text-align: left;
-  margin-top: 12px;
-}
-  /* 單張抽牌：卡片下方的說明 */
-.card-explain {
-  background: #fff9f3;
-  border: 2px solid #cda86e;
-  border-radius: 12px;
-  padding: 14px 16px;
-  margin-top: 10px;
-  box-shadow: 0 6px 18px rgba(205,168,110,.22);
-  color: #2a2a2a;
-  line-height: 1.8;
-}
-.card-explain .kicker{
-  display:inline-block;
-  font-weight:900;
-  color:#6b4f3e;
-  background:#fff2e0;
-  border:1px solid rgba(205,168,110,.6);
-  border-radius:999px;
-  padding:2px 10px;
-  font-size:13px;
-  margin-right:8px;
-}
-.card-explain .title{
-  font-weight:900;
-  color:#a88257;
-  margin-right:6px;
-}
-.card-explain .body{ white-space:pre-wrap; }
-
+  .link:hover { transform: translateY(-2px); }
 </style>
 </head>
 <body>
-  <div id="sr" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
-
   <div class="wrap">
     <div class="glass page-title">
       <h1>馥靈之鑰｜內在GPS 線上抽牌</h1>
-      <p>130 張牌卡 × HOUR 四步，<span class="note">不是算命，是日常微調器</span>。</p>
-    </div>
-
-    <div class="modes">
-      <div class="glass">
-        <h3 class="text-center" style="margin-top:0; margin-bottom:12px; color:var(--cocoa);">選擇抽牌張數</h3>
-        <div class="mode-buttons" role="group" aria-label="抽牌張數選擇">
-          <button class="btn" data-n="1">抽 1 張<br><small style="font-size:12px;opacity:0.85;">(免費)</small></button>
-          <button class="btn" data-n="3">抽 3 張</button>
-          <button class="btn" data-n="7">抽 7 張</button>
-          <button class="btn" data-n="12">抽 12 張</button>
-          <button class="btn" data-n="15">抽 15 張</button>
-          <button class="btn" data-n="20">抽 20 張</button>
-          <button class="btn secondary" id="clearBtn" title="清除已抽結果">🔄 清除重抽</button>
-        </div>
-        <p class="hint">
-          💡 <strong>建議</strong>：第一次先抽 1 張免費體驗（顯示一句覺察＋行動），熟悉後再升級 3／7／12 張；若要完整藍圖，選 15 或 20 張。
-        </p>
-      </div>
-
-      <div class="glass">
-        <h3 class="text-center" style="margin-top:0; margin-bottom:12px; color:var(--cocoa);">服務與定價</h3>
-        <div class="price-table">
-          <table aria-describedby="priceNote">
-            <thead>
-              <tr>
-                <th>張數</th>
-                <th>價格（NT$）</th>
-                <th>牌位定義 / 交付重點</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>1 張｜每日訊息</td>
-                <td><strong class="note">免費</strong></td>
-                <td style="text-align:left">立刻顯示一句覺察＋行動指引；適合建立每日自抽習慣。</td>
-              </tr>
-              <tr>
-                <td>3 張｜能量流向</td>
-                <td>800</td>
-                <td style="text-align:left">過去 / 現在 / 未來；看懂轉折與下一步；文字摘要（200–300 字）。</td>
-              </tr>
-              <tr>
-                <td>7 張｜深層課題掃描</td>
-                <td>3,600</td>
-                <td style="text-align:left">核心課題、內在挑戰、外在牽動、直覺訊息、行動建議、能量支援、最終趨勢；40–50 分，行動清單＋一週提醒。</td>
-              </tr>
-              <tr>
-                <td>12 張｜全域優化佈局</td>
-                <td>6,600</td>
-                <td style="text-align:left">能場總檢、核心挑戰、隱形支援、避免路徑、五行分析、使命提醒、他人影響、情緒調整、財富頻率、貴人磁場、最佳行動、3–6 個月策略；70–80 分＋30 天計畫。</td>
-              </tr>
-              <tr>
-                <td>15 張｜靈魂藍圖</td>
-                <td>依個案報價</td>
-                <td style="text-align:left">90 分深度解讀＋PDF 報告＋90 天分段行動；可整合事業/關係/身心，適用重大轉折與願景落地。</td>
-              </tr>
-              <tr>
-                <td>20 張｜戰略藍圖</td>
-                <td>依個案報價</td>
-                <td style="text-align:left">120–150 分專案工作坊＋Notion/看板藍圖＋90 天檢核；適用年度佈局、創業規劃、品牌策略與資源配置。</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <p id="priceNote" class="hint">
-          ℹ️ 15／20 張為客製化：先對談釐清主題與範圍後報價。
-        </p>
-      </div>
+      <p>130 張牌卡 × HOUR 四步，不是算命，是日常微調器</p>
     </div>
 
     <div class="glass">
-      <h3 class="text-center" style="margin-top:0; margin-bottom:12px; color:var(--cocoa);">升級你的節奏 · 兩款藍圖計畫</h3>
-      <div class="plans">
-        <div class="plan">
-          <div class="ttl">30 天陪跑計畫</div>
-          <div class="price">標準價：<strong>NT$ 6,600</strong></div>
-          <ul>
-            <li>初次深度諮詢（約 60–90 分）＋每週追蹤 4 次（各 30 分）。</li>
-            <li>個人化行動計畫、LINE 即時支持、成果評估報告。</li>
-            <li>可由 1/3/7/12/15/20 結果銜接。</li>
-          </ul>
-          <a class="ctaA" href="#apply">📅 立即申請</a>
-        </div>
-        <div class="plan">
-          <div class="ttl">90 天豐盛藍圖</div>
-          <div class="price">標準價：<strong>NT$ 20,000</strong></div>
-          <ul>
-            <li>深度藍圖諮詢（約 120 分）＋雙週追蹤 6 次（各 45 分）。</li>
-            <li>24 小時 LINE 支援、商業思維培養、夥伴資源盤點。</li>
-            <li>專屬藍圖手冊（PDF）＋里程碑檢核。</li>
-          </ul>
-          <a class="ctaA" href="#apply">📜 立即申請</a>
-        </div>
+      <h3 style="margin:0 0 12px; color:var(--cocoa); text-align:center;">選擇抽牌張數</h3>
+      <div class="mode-buttons">
+        <button class="btn" data-n="1">抽 1 張<br><small style="font-size:12px;opacity:0.85;">(免費)</small></button>
+        <button class="btn" data-n="3">抽 3 張</button>
+        <button class="btn" data-n="7">抽 7 張</button>
+        <button class="btn" data-n="12">抽 12 張</button>
+        <button class="btn" data-n="15">抽 15 張</button>
+        <button class="btn" data-n="20">抽 20 張</button>
       </div>
-      <p class="hint">以上兩方案維持新價格；若需企業/團隊版，請來信討論。</p>
-    </div>
-
-    <div class="glass text-center" id="partner" style="padding: 48px 24px;">
-      <h3 style="color:var(--cocoa); font-size: 2.2rem; margin-bottom: 16px; font-weight: 900;">
-        ✨ 啟動你的心靈共創事業 ✨
-      </h3>
-      <p style="font-size: 1.15rem; max-width: 720px; margin: 0 auto 32px; line-height: 1.8;">
-        一份兼顧<strong>財富與心靈</strong>的真誠邀請。<br>
-        我們相信，最好的事業是讓自己、他人與世界一同成長，實現「<strong>世界共好</strong>」的豐盛願景。
+      <p class="hint">
+        💡 <strong>1張免費體驗</strong>（顯示完整覺察＋行動指引）<br>
+        <strong>3張以上</strong>需預約解讀服務
       </p>
-      <div style="background: #fff2e0; border: 2px solid var(--rose); border-radius: 999px; padding: 16px 28px; display: inline-block; margin-bottom: 32px; box-shadow: var(--shadow-sm);">
-        <p style="margin:0; font-weight: 800; color: var(--cocoa); font-size: 1.2rem;">
-          共創夥伴年度方案：<strong style="color: var(--rose-dark); font-size: 1.3rem;">NT$ 100,000 / 年</strong> 起
-        </p>
-      </div>
-      <div class="partner-cta" style="justify-content: center; gap: 16px;">
-        <a class="btn" href="https://line.me/R/ti/p/~judyanee" target="_blank" rel="noopener" style="font-size: 18px; padding: 16px 32px; box-shadow: var(--shadow-lg);">
-          🌿 立即了解合作
-        </a>
-        <a class="btn ghost" href="#apply" style="font-size: 18px; padding: 16px 32px;">
-          📝 填寫申請表
-        </a>
-      </div>
     </div>
 
-    <div class="glass" id="drawSection">
+    <div class="glass">
       <div class="toolbar">
-        <button class="btn secondary" id="copyBtn" disabled title="複製選卡卡號">
-          📋 複製卡號
-        </button>
-        <button class="btn secondary" id="shareBtn" disabled title="產生分享連結">
-          🔗 產生連結
-        </button>
-        <a class="btn" id="lineBtn" href="https://line.me/R/ti/p/~judyanee" target="_blank" rel="noopener" aria-label="LINE 預約">
-          🌿 LINE 預約
-        </a>
+        <button class="btn secondary" id="copyBtn" disabled>📋 複製卡號</button>
+        <button class="btn secondary" id="shareBtn" disabled>🔗 產生連結</button>
+        <button class="btn secondary" id="clearBtn">🔄 清除重抽</button>
+        <a class="btn" href="https://line.me/R/ti/p/~judyanee" target="_blank" rel="noopener">🌿 LINE 預約</a>
       </div>
-
-      <div id="oneHint" class="hint" style="display:none"></div>
       <div class="hint" id="guideHint">
-        💫 抽牌後下方會顯示卡圖與卡號（A00–A21 / 001–108）。<br>
-        抽 1 張免費體驗會顯示完整覺察語，多張抽牌請預約解讀服務。
+        💫 抽牌後會顯示卡圖與卡號<br>
+        <strong>1張免費</strong>會顯示完整覺察語，<strong>3張以上請預約解讀</strong>
       </div>
-      <div id="grid" class="grid" aria-live="polite"></div>
-
-      <details>
-        <summary>📨 一鍵複製預約文字（自動帶入卡號）</summary>
-        <div style="padding:0 0 16px">
-          <textarea 
-            id="prefill" 
-            style="width:100%;min-height:130px;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:14px;line-height:1.6" 
-            readonly 
-            aria-label="預約訊息範本"
-          ></textarea>
-          <div class="toolbar" style="margin-top: 8px;">
-            <button class="btn secondary" id="copyMsgBtn" disabled>複製預約訊息</button>
-          </div>
-        </div>
-      </details>
+      <div id="grid" class="grid"></div>
     </div>
 
-    <div class="glass" id="apply">
-      <h3 style="margin-top:0; color:var(--cocoa)">合作共創申請表（3 分鐘）</h3>
-      <form id="applyForm" class="form-grid">
-        <div class="field">
-          <label for="name">姓名 *</label>
-          <input id="name" required placeholder="王小明" />
-        </div>
-        <div class="field">
-          <label for="lineid">LINE ID *</label>
-          <input id="lineid" required placeholder="judyanee" />
-        </div>
-        <div class="field">
-          <label for="email">Email *</label>
-          <input id="email" type="email" required placeholder="example@gmail.com" />
-        </div>
-        <div class="field">
-          <label for="phone">電話 *</label>
-          <input id="phone" type="tel" required placeholder="0912-345-678" />
-        </div>
-        <div class="field">
-          <label for="exp">經驗/身份（選填）</label>
-          <input id="exp" placeholder="例：身心靈工作者／教練／自由業" />
-        </div>
-        <div class="field">
-          <label for="hours">可投入時數/週</label>
-          <select id="hours">
-            <option value="5–10 小時">5–10 小時</option>
-            <option value="10–20 小時" selected>10–20 小時</option>
-            <option value="20+ 小時">20+ 小時</option>
-          </select>
-        </div>
-        <div class="field" style="grid-column:1/-1">
-          <label for="focus">主要服務主題/族群（選填）</label>
-          <input id="focus" placeholder="例：女性創業者／親子關係／職涯轉型" />
-        </div>
-        <div class="field" style="grid-column:1/-1">
-          <label for="note">補充說明（選填）</label>
-          <textarea id="note" rows="3" placeholder="任何想讓我們知道的資訊..."></textarea>
-        </div>
-        <div style="grid-column:1/-1;text-align:center">
-          <button type="submit" class="btn" style="padding:16px 40px;font-size:17px">
-            🚀 送出申請
-          </button>
-          <p class="ok" id="applyOk" style="display:none; margin-top: 8px;">
-            ✅ 已複製申請摘要！請貼到 LINE 或 Email 完成送出。
-          </p>
-        </div>
-      </form>
+    <div class="cta-section">
+      <h3>🌟 想要更深入的解讀？</h3>
+      <p>馥靈之鑰提供完整的情緒調頻服務<br>從3張到20張，不同深度的解讀方案</p>
+      <div class="cta-btns">
+        <a href="https://line.me/R/ti/p/~judyanee" class="cta-btn primary" target="_blank" rel="noopener">💬 LINE 諮詢與預約</a>
+        <a href="index.html" class="cta-btn secondary">🏠 返回首頁</a>
+      </div>
     </div>
 
     <div class="footer">
       <div class="block">
-        <p>
-          <strong>馥靈之鑰</strong>｜內在 GPS 線上抽牌系統<br>
-          讓每一次抽牌，都成為你與自己深度對話的起點。
-        </p>
-        <a class="link" href="https://line.me/R/ti/p/~judyanee" target="_blank" rel="noopener">
-          💬 聯絡我們
-        </a>
+        <strong>馥靈之鑰</strong>｜內在 GPS 線上抽牌系統<br>
+        讓每一次抽牌，都成為你與自己深度對話的起點
+        <a class="link" href="https://line.me/R/ti/p/~judyanee" target="_blank" rel="noopener">💬 聯絡我們</a>
       </div>
     </div>
   </div>
 
-  <div id="confirmModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div id="confirmModal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
         <div class="modal-icon">🔮</div>
-        <h2 id="modalTitle" class="modal-title">靜心片刻</h2>
+        <h2 class="modal-title">準備好了嗎？</h2>
         <p class="modal-subtitle">
-          在抽牌之前，請先閉上眼睛深呼吸，<br>
-          在心中默想你想探索的問題或主題。
+          請先在心中想好你要問的問題<br>然後按下確定開始抽牌
         </p>
       </div>
       <div class="modal-body">
-        <textarea 
-          id="modalQuestion" 
-          class="modal-question" 
-          placeholder="你可以在此寫下你的問題（選填）&#10;例如：我現在最需要關注的是什麼？"
-          aria-label="輸入你的問題"
-        ></textarea>
+        <textarea id="modalQuestion" class="modal-question" placeholder="你也可以在這裡寫下問題（選填）"></textarea>
       </div>
       <div class="modal-footer">
-        <button class="modal-btn modal-btn-secondary" id="modalCancel">
-          取消
-        </button>
-        <button class="modal-btn modal-btn-primary" id="modalConfirm">
-          ✨ 準備好了，開始抽牌
-        </button>
+        <button class="modal-btn modal-btn-secondary" id="modalCancel">取消</button>
+        <button class="modal-btn modal-btn-primary" id="modalConfirm">✨ 確定，開始抽牌</button>
       </div>
     </div>
   </div>
   <script type="application/json" id="card-summaries">
-    {
+{
       "A00": { "title": "起點密碼", "覺察": "你是不是又在等「時機成熟」了?就像買衣服等換季特價,結果最愛的那件早就被搶光。完美這件事根本不存在,它只是你拖延的高級藉口。", "行動指引": "今天就選一個最小的決定去做吧!不用驚天動地,就算只是把待辦清單的第一項劃掉也算。記住,走路才會產生風,坐著吹電扇永遠只是原地涼快。" },
       "A01": { "title": "意圖編碼", "覺察": "你的人生就像寫程式,輸入什麼就輸出什麼。如果你一邊說要減肥一邊半夜叫雞排,那系統當然跑不出你要的結果。目標跟行為不一致,就像導航設台北卻一路往高雄開。", "行動指引": "檢查你今天的每個行為是不是真的在支持你的目標。說要存錢就別手滑購物車,說要健康就別把消夜當正餐。讓你的行為跟意圖對得上頻,現實才會照你的劇本走。" },
       "A02": { "title": "靜默解答", "覺察": "你的腦袋是不是像24小時不停播的新聞台,吵到連自己的聲音都聽不見?外面的意見、別人的看法、網路的資訊,全部擠在你腦子裡開趴。其實答案早就在你心裡,只是被雜訊蓋住了。", "行動指引": "今天給自己十分鐘完全安靜的時間,手機關靜音、人找個沒人的角落。不用冥想不用儀式,就單純坐著,聽聽你內在那個聲音想說什麼。它一直都在,只是你太忙沒空理它。" },
@@ -1137,17 +448,12 @@
       "107": { "title": "情緒邊界", "覺察": "你是不是又當別人的情緒垃圾桶了?立刻築起邊界,不再當他人情緒接收器。別人的情緒是別人的,你不用照單全收。接收太多會中毒的,該擋就要擋。", "行動指引": "今天遇到別人情緒轟炸時,在心裡築一道牆,告訴自己:「這不是我的。」可以同理但不用吸收,可以陪伴但不用承擔。保護好你的情緒空間。" },
       "108": { "title": "鬆手流通", "覺察": "你是不是又在死撐了?從死撐轉為鬆手,讓壓力流通後回到舒適。撐著不會讓你變強,只會讓你變僵。鬆手才能流通,流通才能舒適,別再硬撐了。", "行動指引": "今天找一件你在硬撐的事,練習鬆手。可能是放下控制、接受幫助、或是允許不完美。鬆手不是放棄,是讓壓力流通的智慧。流通了,舒適就回來了。" }
     }
+ }
   </script>
-
- <script>
+  <script>
 'use strict';
 
-// ===== 安全報錯提示（可留可不留） =====
-window.addEventListener('error', (e) => {
-  console.warn('腳本錯誤：', e.message);
-});
-
-// ===== 全域變數 =====
+// 全域變數
 const allFiles = [
   'A00.png','A01.png','A02.png','A03.png','A04.png','A05.png','A06.png','A07.png',
   'A08.png','A09.png','A10.png','A11.png','A12.png','A13.png','A14.png','A15.png',
@@ -1172,81 +478,54 @@ let selected = [];
 let SUMMARIES = {};
 let pendingDrawCount = 0;
 
-// DOM 取得改成函式，避免載入時序問題
-const $ = (id) => document.getElementById(id);
-
-let grid, copyBtn, shareBtn, copyMsgBtn, clearBtn, prefillEl, oneHint, guideHint, sr, applyForm, applyOk;
+// DOM元素
+let grid, copyBtn, shareBtn, clearBtn, guideHint;
 let confirmModal, modalQuestion, modalConfirm, modalCancel;
 
-// ===== 啟動：等 DOM 準備好再綁定 =====
+// 啟動
 document.addEventListener('DOMContentLoaded', () => {
-  grid = $('grid');
-  copyBtn = $('copyBtn');
-  shareBtn = $('shareBtn');
-  copyMsgBtn = $('copyMsgBtn');
-  clearBtn = $('clearBtn');
-  prefillEl = $('prefill');
-  oneHint = $('oneHint');
-  guideHint = $('guideHint');
-  sr = $('sr');
-  applyForm = $('applyForm');
-  applyOk = $('applyOk');
-  confirmModal = $('confirmModal');
-  modalQuestion = $('modalQuestion');
-  modalConfirm = $('modalConfirm');
-  modalCancel = $('modalCancel');
+  grid = document.getElementById('grid');
+  copyBtn = document.getElementById('copyBtn');
+  shareBtn = document.getElementById('shareBtn');
+  clearBtn = document.getElementById('clearBtn');
+  guideHint = document.getElementById('guideHint');
+  confirmModal = document.getElementById('confirmModal');
+  modalQuestion = document.getElementById('modalQuestion');
+  modalConfirm = document.getElementById('modalConfirm');
+  modalCancel = document.getElementById('modalCancel');
 
-  loadSummariesSafe();
+  loadSummaries();
   restoreFromURL();
-  bindEventsSafe();
+  bindEvents();
 });
 
-// ===== JSON 載入容錯 =====
-function loadSummariesSafe() {
-  const el = $('card-summaries');
+// 載入卡義
+function loadSummaries() {
+  const el = document.getElementById('card-summaries');
   if (!el) return;
   try {
-    const txt = el.textContent.trim();
-    // 去除可能混入的 BOM 或不可見字元
-    const clean = txt.replace(/^\uFEFF/, '');
-    SUMMARIES = JSON.parse(clean);
+    SUMMARIES = JSON.parse(el.textContent.trim());
   } catch (e) {
-    console.warn('卡義 JSON 解析失敗，單張提示將停用：', e);
-    SUMMARIES = {}; // 不中斷主流程
+    console.warn('卡義載入失敗', e);
+    SUMMARIES = {};
   }
 }
 
-// ===== 事件（委派＋保底抽牌） =====
-function bindEventsSafe() {
-  // 1) 抽牌按鈕：用事件委派，避免綁定失效
+// 綁定事件
+function bindEvents() {
+  // 抽牌按鈕
   document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.mode-buttons .btn[data-n]');
+    const btn = e.target.closest('.btn[data-n]');
     if (!btn) return;
     const n = parseInt(btn.getAttribute('data-n'), 10);
-    if (!Number.isFinite(n) || n <= 0) return;
-
+    if (!n || n <= 0) return;
     pendingDrawCount = n;
-    // 嘗試先走 Modal；若任何原因失敗，直接抽牌當作保底
-    try {
-      showConfirmModal();
-    } catch (_) {
-      performDraw(n);
-    }
+    showConfirmModal();
   });
 
-  // 2) 清除
   if (clearBtn) clearBtn.addEventListener('click', clearDraw);
-
-  // 3) 複製卡號
   if (copyBtn) copyBtn.addEventListener('click', copyCardCodes);
-
-  // 4) 產生分享連結
   if (shareBtn) shareBtn.addEventListener('click', generateShareLink);
-
-  // 5) 複製預約訊息
-  if (copyMsgBtn) copyMsgBtn.addEventListener('click', copyPrefillMessage);
-
-  // 6) Modal 確認 / 取消
   if (modalConfirm) modalConfirm.addEventListener('click', handleModalConfirm);
   if (modalCancel) modalCancel.addEventListener('click', hideConfirmModal);
   if (confirmModal) {
@@ -1254,25 +533,14 @@ function bindEventsSafe() {
       if (e.target === confirmModal) hideConfirmModal();
     });
   }
-
-  // 7) 申請表單
-  if (applyForm) applyForm.addEventListener('submit', handleApplyFormSubmit);
 }
 
-// ===== Modal 流程（保底路徑） =====
+// Modal相關
 function showConfirmModal() {
-  if (!confirmModal) { performDraw(pendingDrawCount); return; }
+  if (!confirmModal) return;
   confirmModal.classList.add('show');
   if (modalQuestion) modalQuestion.value = '';
   document.body.style.overflow = 'hidden';
-  // 若 600ms 內看不到（例如 CSS 被蓋掉），直接抽牌保底
-  setTimeout(() => {
-    const visible = window.getComputedStyle(confirmModal).pointerEvents !== 'none';
-    if (!visible && pendingDrawCount > 0) {
-      hideConfirmModal();
-      performDraw(pendingDrawCount);
-    }
-  }, 600);
 }
 
 function hideConfirmModal() {
@@ -1288,7 +556,7 @@ function handleModalConfirm() {
   }
 }
 
-// ===== 抽牌核心 =====
+// 抽牌核心
 function performDraw(n) {
   if (n > allFiles.length) {
     showToast('張數超過牌庫總數！');
@@ -1301,13 +569,16 @@ function performDraw(n) {
     picked.push(pool.splice(idx, 1)[0]);
   }
   selected = picked;
-  renderCards(true, n === 1);
+  renderCards(n === 1);
   updateURL(getCardCodes().join(','));
 }
 
-// ===== 其餘原函式（原樣保留） =====
+// 清除
 function clearDraw() {
-  if (selected.length === 0) { showToast('目前沒有已抽的牌'); return; }
+  if (selected.length === 0) {
+    showToast('目前沒有已抽的牌');
+    return;
+  }
   if (confirm('確定要清除目前的抽牌結果嗎？')) {
     selected = [];
     renderCards(false);
@@ -1316,37 +587,28 @@ function clearDraw() {
   }
 }
 
-function renderCards(updatePrefill = true, isOneCard = false) {
+// 渲染卡片
+function renderCards(isOneCard) {
   grid.innerHTML = '';
   if (selected.length === 0) {
     guideHint.style.display = 'block';
-    oneHint.style.display = 'none';
     if (copyBtn) copyBtn.disabled = true;
     if (shareBtn) shareBtn.disabled = true;
-    if (copyMsgBtn) copyMsgBtn.disabled = true;
-    prefillEl.value = '';
-    sr.textContent = '';
     return;
   }
   guideHint.style.display = 'none';
-
-// 單張時，不在上方顯示提示，改放牌卡下方
-oneHint.style.display = 'none';
-oneHint.className = '';
 
   selected.forEach((idx, position) => {
     const filename = allFiles[idx];
     const code = filename.replace('.png', '');
     const cardDiv = document.createElement('div');
     cardDiv.className = 'card';
-    cardDiv.setAttribute('data-code', code);
     cardDiv.style.animationDelay = `${position * 0.08}s`;
 
     const img = document.createElement('img');
     img.className = 'thumb';
-    img.src = './' + filename + '?v=1';
+    img.src = './' + filename;
     img.alt = `卡片 ${code}`;
-    img.loading = 'lazy';
 
     const cap = document.createElement('div');
     cap.className = 'cap';
@@ -1356,73 +618,55 @@ oneHint.className = '';
     cardDiv.appendChild(cap);
     grid.appendChild(cardDiv);
   });
-// 單張：把覺察＋行動放到第一張牌的下方
-if (isOneCard) {
-  const firstCard = grid.querySelector('.card');
-  if (firstCard) {
-    const code = allFiles[selected[0]].replace('.png', '');
-    const s = SUMMARIES[code] || {};
-    const text = `覺察：${s['覺察'] || ''}\n行動指引：${s['行動指引'] || ''}`;
 
-    // 先清掉舊的說明塊，避免重複
-    const old = grid.parentElement.querySelector('.card-explain');
-    if (old) old.remove();
+  // 單張顯示覺察+行動
+  if (isOneCard) {
+    const firstCard = grid.querySelector('.card');
+    if (firstCard) {
+      const code = allFiles[selected[0]].replace('.png', '');
+      const s = SUMMARIES[code] || {};
+      const text = `覺察：${s['覺察'] || ''}\n行動指引：${s['行動指引'] || ''}`;
 
-    const explain = document.createElement('div');
-    explain.className = 'card-explain';
-    explain.innerHTML = `
-      <span class="kicker">✨ 卡 ${code}</span>
-      <span class="title">重點</span>
-      <span class="body">${text.replace(/\n/g,'<br>')}</span>
-    `;
-    firstCard.insertAdjacentElement('afterend', explain);
-    explain.scrollIntoView({ behavior:'smooth', block:'center' });
+      const old = grid.parentElement.querySelector('.card-explain');
+      if (old) old.remove();
+
+      const explain = document.createElement('div');
+      explain.className = 'card-explain';
+      explain.innerHTML = `
+        <span class="kicker">✨ 卡 ${code}</span>
+        <span class="title">重點</span>
+        <span class="body">${text.replace(/\n/g,'<br>')}</span>
+      `;
+      firstCard.insertAdjacentElement('afterend', explain);
+      explain.scrollIntoView({ behavior:'smooth', block:'center' });
+    }
   }
-}
+
   if (copyBtn) copyBtn.disabled = false;
   if (shareBtn) shareBtn.disabled = false;
-  if (copyMsgBtn) copyMsgBtn.disabled = false;
-
-  if (updatePrefill) prefillEl.value = buildPrefillMessage();
-
   showToast(`共抽到 ${selected.length} 張牌`);
-  sr.textContent = `已抽到 ${selected.length} 張卡`;
 }
 
+// 取得卡號
 function getCardCodes() {
   return selected.map(i => allFiles[i].replace('.png', ''));
 }
 
-function buildPrefillMessage() {
-  const codes = getCardCodes().join(', ');
-  return `您好，我想預約《馥靈之鑰》解牌：
-
-抽牌張數：${selected.length} 張
-卡號：${codes}
-我想聚焦的主題是：（請簡述 1–2 句）
-方案期待：（1 張免費 / 3 張 800 / 7 張 3600 / 12 張 6600 / 15/20 客製）
-期望時段：（範例：平日晚間 / 週末白天）
-
-謝謝 🙏`;
-}
-
+// 複製卡號
 function copyCardCodes() {
   const codes = getCardCodes().join(', ');
   copyToClipboard(codes, '卡號已複製！');
 }
 
+// 產生分享連結
 function generateShareLink() {
   const codes = getCardCodes().join(',');
-  const url = withPickParam(location.href, codes);
-  copyToClipboard(url, '分享連結已複製！');
+  const url = new URL(location.href);
+  url.searchParams.set('pick', codes);
+  copyToClipboard(url.toString(), '分享連結已複製！');
 }
 
-function copyPrefillMessage() {
-  const msg = prefillEl.value;
-  if (!msg) return;
-  copyToClipboard(msg, '預約訊息已複製！');
-}
-
+// 複製到剪貼簿
 function copyToClipboard(text, successMsg) {
   if (!navigator.clipboard) {
     const textarea = document.createElement('textarea');
@@ -1443,6 +687,7 @@ function copyToClipboard(text, successMsg) {
   });
 }
 
+// Toast通知
 function showToast(msg) {
   const toast = document.createElement('div');
   toast.className = 'toast';
@@ -1451,12 +696,7 @@ function showToast(msg) {
   setTimeout(() => toast.remove(), 1800);
 }
 
-function withPickParam(href, pickStr) {
-  const url = new URL(href, location.origin);
-  url.searchParams.set('pick', pickStr);
-  return url.toString();
-}
-
+// URL更新
 function updateURL(pickStr) {
   const url = new URL(location.href);
   if (pickStr) url.searchParams.set('pick', pickStr);
@@ -1464,100 +704,19 @@ function updateURL(pickStr) {
   history.replaceState(null, '', url);
 }
 
+// 從URL還原
 function restoreFromURL() {
   const url = new URL(location.href);
   const pick = (url.searchParams.get('pick') || '').trim();
   if (!pick) return;
   const codes = pick.split(',').map(s => s.trim()).filter(Boolean);
   const codeToIdx = new Map(allFiles.map((f, i) => [f.replace('.png', ''), i]));
-  const idxs = codes.map(c => codeToIdx.get(c)).filter((n) => Number.isInteger(n));
+  const idxs = codes.map(c => codeToIdx.get(c)).filter(n => Number.isInteger(n));
   if (idxs.length) {
     selected = idxs;
-    renderCards(true, idxs.length === 1);
+    renderCards(idxs.length === 1);
   }
 }
-
-function handleApplyFormSubmit(e) {
-  e.preventDefault();
-  const name = $('name').value.trim();
-  const lineid = $('lineid').value.trim();
-  const email = $('email').value.trim();
-  const phone = $('phone').value.trim();
-  const exp = $('exp').value.trim();
-  const hours = $('hours').value;
-  const focus = $('focus').value.trim();
-  const note = $('note').value.trim();
-
-  if (!name || !lineid || !email || !phone) {
-    showToast('請填寫必填欄位（姓名 / LINE ID / Email / 電話）');
-    return;
-  }
-  const content = `【合作共創申請】
-姓名：${name}
-LINE ID：${lineid}
-Email：${email}
-電話：${phone}
-經驗/身份：${exp || '-'}
-可投入時數：${hours}
-主題/族群：${focus || '-'}
-補充說明：${note || '-'}
-
-（系統訊息：此摘要已複製，請貼到 LINE「judyanee」或寄信到 judyanee@gmail.com）`;
-
-  copyToClipboard(content, '申請摘要已複製！');
-  if (applyOk) applyOk.style.display = 'inline';
-
-  setTimeout(() => {
-    if (confirm('要用 LINE 傳送嗎？（會開啟 LINE 加入頁）')) {
-      window.open('https://line.me/R/ti/p/~judyanee', '_blank');
-    } else if (confirm('要改用 Email 寄出嗎？')) {
-      const mail = `mailto:judyanee@gmail.com?subject=${encodeURIComponent('合作共創申請 - ' + name)}&body=${encodeURIComponent(content)}`;
-      window.location.href = mail;
-    }
-  }, 500);
-}
-</script>
-
-  <style>
-      /* 螢幕閱讀器專用 */
-      .sr-only {
-          position: absolute;
-          width: 1px;
-          height: 1px;
-          padding: 0;
-          margin: -1px;
-          overflow: hidden;
-          clip: rect(0,0,0,0);
-          white-space: nowrap;
-          border-width: 0;
-      }
-    .card-explain {
-  background: #fff9f3;
-  border: 2px solid #cda86e;
-  border-radius: 12px;
-  padding: 14px 16px;
-  margin-top: 10px;
-  box-shadow: 0 6px 18px rgba(205,168,110,.22);
-  color: #2a2a2a;
-  line-height: 1.8;
-}
-.card-explain .kicker{
-  display:inline-block;
-  font-weight:900;
-  color:#6b4f3e;
-  background:#fff2e0;
-  border:1px solid rgba(205,168,110,.6);
-  border-radius:999px;
-  padding:2px 10px;
-  font-size:13px;
-  margin-right:8px;
-}
-.card-explain .title{
-  font-weight:900;
-  color:#a88257;
-  margin-right:6px;
-}
-.card-explain .body{ white-space:pre-wrap; }
-  </style>
+  </script>
 </body>
 </html>
