@@ -43,7 +43,6 @@
     margin-bottom:32px;
   }
 
-  /* 輸入區 */
   .input-section{
     background:rgba(249,245,240,.6);
     border-radius:16px;
@@ -73,7 +72,6 @@
     box-shadow:0 0 0 3px rgba(205,168,110,.15);
   }
 
-  /* 計算按鈕 */
   .calc-btn{
     display:block;
     width:100%;
@@ -94,7 +92,6 @@
     box-shadow:0 8px 24px rgba(205,168,110,.5);
   }
 
-  /* 結果區 */
   .result-section{
     display:none;
     margin-top:32px;
@@ -165,7 +162,6 @@
     font-weight:700;
   }
 
-  /* 複製按鈕 */
   .copy-btn{
     display:block;
     width:100%;
@@ -178,6 +174,7 @@
     font-weight:800;
     cursor:pointer;
     transition:.25s;
+    margin-bottom:16px;
   }
   .copy-btn:hover{
     background:var(--cocoa);
@@ -188,6 +185,60 @@
     background:#4caf50;
     border-color:#4caf50;
     color:#fff;
+  }
+
+  .cta-section{
+    background:linear-gradient(135deg,#f5e6d3,#e8c39e);
+    border-radius:16px;
+    padding:32px 24px;
+    text-align:center;
+    margin:24px 0;
+  }
+  .cta-section h3{
+    color:var(--cocoa);
+    font-size:1.4rem;
+    font-weight:900;
+    margin-bottom:12px;
+  }
+  .cta-section p{
+    color:#5a4a3a;
+    font-size:0.95rem;
+    line-height:1.7;
+    margin-bottom:20px;
+  }
+  .cta-btns{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .cta-btn{
+    display:block;
+    text-decoration:none;
+    padding:14px 24px;
+    border-radius:999px;
+    font-weight:900;
+    font-size:1rem;
+    transition:.25s;
+    text-align:center;
+  }
+  .cta-btn.primary{
+    background:linear-gradient(135deg,var(--cocoa),#3a2a1f);
+    color:#fff;
+    border:2px solid rgba(255,255,255,.9);
+  }
+  .cta-btn.primary:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 20px rgba(42,42,42,.4);
+  }
+  .cta-btn.secondary{
+    background:#fff;
+    color:var(--cocoa);
+    border:2px solid var(--cocoa);
+  }
+  .cta-btn.secondary:hover{
+    background:var(--cocoa);
+    color:#fff;
+    transform:translateY(-2px);
   }
 
   .back-home{
@@ -247,13 +298,21 @@
       </div>
 
       <button class="copy-btn" onclick="copyResult()">📋 一鍵複製結果</button>
+
+      <div class="cta-section">
+        <h3>📊 想看更完整的數字命盤？</h3>
+        <p>這只是基礎解析。完整的數字命盤包含三角星位、九宮格、五行平衡、能量連線，讓你全方位了解自己！</p>
+        <div class="cta-btns">
+          <a href="numerology-calculator.html" class="cta-btn primary">📊 完整數字命盤解析</a>
+          <a href="draw-hl.html" class="cta-btn secondary">🔮 抽取馥靈之鑰牌卡</a>
+        </div>
+      </div>
     </div>
 
     <a href="index.html" class="back-home">🏠 返回首頁</a>
   </div>
 
 <script>
-// 生命靈數描述
 const descriptions = {
   1: {
     desc: "獨立領導者｜你是天生的開創者，擁有強大的意志力和領導能力。你的使命是勇敢做自己，開創新局面。",
@@ -311,7 +370,6 @@ const descriptions = {
   }
 };
 
-// 計算單一數字總和
 function reduceToSingle(num){
   while(num>9 && num!==11 && num!==22 && num!==33){
     num = String(num).split('').reduce((a,b)=>a+parseInt(b),0);
@@ -319,7 +377,6 @@ function reduceToSingle(num){
   return num>9?num%9||9:num;
 }
 
-// 計算生命靈數
 function calculate(){
   const dateInput = document.getElementById('birthDate').value;
   if(!dateInput){
@@ -329,21 +386,14 @@ function calculate(){
 
   const [year,month,day] = dateInput.split('-').map(Number);
   
-  // 生命靈數（所有數字相加）
   const allDigits = String(year)+String(month)+String(day);
   const sum = allDigits.split('').reduce((a,b)=>a+parseInt(b),0);
   const lifePathNum = reduceToSingle(sum);
 
-  // 天賦數（日）
   const talentNum = reduceToSingle(day);
-
-  // 命運數（年）
   const destinyNum = reduceToSingle(year);
-
-  // 靈魂數（月）
   const soulNum = reduceToSingle(month);
 
-  // 顯示結果
   const data = descriptions[lifePathNum];
   document.getElementById('lifePathNumber').textContent = lifePathNum;
   document.getElementById('lifePathDesc').textContent = data.desc;
@@ -356,7 +406,6 @@ function calculate(){
 
   document.getElementById('resultSection').classList.add('show');
 
-  // 儲存結果供複製使用
   window.currentResult = {
     date: dateInput,
     lifePath: lifePathNum,
@@ -367,7 +416,6 @@ function calculate(){
   };
 }
 
-// 複製結果
 function copyResult(){
   if(!window.currentResult) return;
   
