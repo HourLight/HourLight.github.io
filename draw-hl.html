@@ -4,331 +4,733 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>馥靈之鑰｜內在GPS 線上抽牌</title>
-<meta name="description" content="130 張牌卡，幫你在混亂中重新對頻。不是算命，是日常微調器。" />
+<meta name="description" content="130 張牌卡，幫你在混亂中重新對頻。不是算命，是日常微調器與情緒紓解小幫手。" />
 <link rel="icon" href="favicon.ico" />
 <style>
-  :root {
-    --milk: #f9f5f0; --cocoa: #6b4f3e;
-    --rose: #cda86e; --rose-dark: #a88257;
-    --ink: #2a2a2a; --line: rgba(0,0,0,.08);
-    --shadow-md: 0 6px 18px rgba(0,0,0,.12);
-    --shadow-lg: 0 8px 28px rgba(0,0,0,.18);
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+/* ==============================
+   馥靈之鑰 Hour Light v2
+   金黑宇宙女神 × 絨布夜空
+   ============================== */
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-  
-body {
-  background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.78)),
-              url('https://github.com/HourLight/11/raw/main/background.jpg') center/cover fixed no-repeat;
-  font-family: "Noto Sans TC", "PingFang TC", "Arial", sans-serif;
-  color: var(--ink); line-height: 1.6; padding: 24px 16px 64px;
+:root {
+  --hl-font-main: "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+
+  /* 金黑宇宙系 */
+  --hl-v2-bg-deep: #05030a;
+  --hl-v2-bg-soft: #14101b;
+  --hl-v2-bg-panel: rgba(18,13,28,0.96);
+  --hl-v2-ink-main: #f9f0e5;
+  --hl-v2-ink-soft: #e2d3c4;
+
+  --hl-v2-gold: #e9c27d;
+  --hl-v2-gold-deep: #cda86e;
+  --hl-v2-plum: #5c3a63;
+  --hl-v2-rose: #f0b5b3;
+
+  --hl-v2-border-soft: rgba(255,255,255,0.12);
+  --hl-v2-shadow-md: 0 10px 28px rgba(0,0,0,0.55);
+  --hl-v2-shadow-lg: 0 18px 48px rgba(0,0,0,0.85);
+
+  --hl-v2-ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-  .wrap { max-width: 1080px; margin: 0 auto; }
+/* Reset */
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth}
 
-  .glass {
-    background: rgba(255,255,255,.92); backdrop-filter: blur(8px);
-    border: 1px solid var(--line); border-radius: 16px;
-    box-shadow: var(--shadow-lg); padding: 24px; margin: 0 0 20px;
-    transition: var(--transition);
-  }
+/* ==============================
+   主題：黑洞宇宙頁
+   ============================== */
 
-  .page-title { text-align: center; margin: 6px auto 24px; }
-  .page-title h1 {
-    margin: 0; font-size: clamp(1.8rem, 5vw, 2.2rem);
-    color: var(--cocoa); font-weight: 900;
-  }
-  .page-title p {
-    margin: 10px 0 0; color: var(--rose-dark);
-    font-weight: 700; font-size: 1.05rem;
-  }
+body.hl-v2-cosmic {
+  min-height: 100vh;
+  font-family: var(--hl-font-main);
+  color: var(--hl-v2-ink-main);
+  line-height: 1.8;
+  padding: 24px 16px 72px;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(233,194,125,0.16) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(92,58,99,0.35) 0%, transparent 45%),
+    radial-gradient(circle at center, #0b0614 0%, var(--hl-v2-bg-deep) 55%, #000 100%);
+  background-attachment: fixed;
+}
 
-  .btn {
-    border: none; cursor: pointer; padding: 14px 16px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, var(--rose), var(--rose-dark));
-    color: #fff; font-weight: 900; font-size: 16px;
-    box-shadow: var(--shadow-md); transition: var(--transition);
-  }
-  .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,.22); }
-  .btn:active { transform: translateY(-1px); }
-  .btn[disabled] { opacity: .5; cursor: not-allowed; transform: none; }
-  .btn.secondary {
-    background: #fff; color: var(--cocoa);
-    border: 2px solid var(--cocoa);
-  }
+/* 中央黑洞光暈 */
+body.hl-v2-cosmic::before {
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at center,
+      rgba(255,255,255,0.13) 0%,
+      rgba(233,194,125,0.22) 20%,
+      rgba(10,6,22,0.98) 50%,
+      rgba(0,0,0,1) 80%);
+  mix-blend-mode:screen;
+  opacity:.9;
+  z-index:-1;
+}
 
-  .mode-buttons {
-    display: grid; grid-template-columns: repeat(6, 1fr);
-    gap: 12px; margin-bottom: 16px;
-  }
-  @media(max-width:900px) { .mode-buttons { grid-template-columns: repeat(3, 1fr); } }
-  @media(max-width:560px) { .mode-buttons { grid-template-columns: repeat(2, 1fr); } }
+/* ==============================
+   通用容器
+   ============================== */
 
-  .hint {
-    text-align: center; color: #666; font-size: 14px;
-    margin: 10px 0; line-height: 1.6;
-  }
+.hl-v2-wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  position: relative;
+}
 
-  .toolbar {
-    display: flex; flex-wrap: wrap; gap: 12px;
-    align-items: center; justify-content: center; margin: 16px 0 12px;
-  }
+/* 玻璃卡面板 */
+.hl-v2-glass {
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(14px) saturate(130%);
+  background:
+    radial-gradient(circle at top,
+      rgba(255,255,255,0.14),
+      rgba(18,13,28,0.98));
+  border: 1px solid var(--hl-v2-border-soft);
+  box-shadow: var(--hl-v2-shadow-lg);
+}
 
-  .grid {
-    display: grid; gap: 16px; margin-top: 12px;
-    grid-template-columns: repeat(5, 1fr);
-  }
-  @media(max-width:1000px) { .grid { grid-template-columns: repeat(4, 1fr); } }
-  @media(max-width:800px) { .grid { grid-template-columns: repeat(3, 1fr); } }
-  @media(max-width:560px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+/* ==============================
+   HERO 區
+   ============================== */
 
-  .card {
-    background: #fff; border: 1px solid var(--line);
-    border-radius: 12px; overflow: hidden;
-    box-shadow: var(--shadow-md); transition: var(--transition);
-    animation: cardFadeIn 0.5s ease-out backwards;
-  }
-  @keyframes cardFadeIn {
-    from { opacity: 0; transform: translateY(20px) scale(0.95); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  .card:hover { transform: translateY(-6px) scale(1.02); }
+.hl-v2-hero {
+  text-align:center;
+  padding: 26px 22px;
+}
 
-  .thumb {
-    display: block; width: 100%; height: auto;
-    aspect-ratio: 7/10; object-fit: contain; background: #fff;
-  }
+.hl-v2-hero-title {
+  margin:0;
+  font-size:clamp(1.9rem,5vw,2.5rem);
+  letter-spacing:.08em;
+  font-weight:900;
+  color:#fff;
+}
 
-  .cap {
-    padding: 10px 12px; text-align: center;
-    font-weight: 800; color: var(--cocoa);
-    background: #fff7ed; border-top: 1px solid var(--line);
-  }
+.hl-v2-hero-sub {
+  margin-top:10px;
+  font-size:1rem;
+  font-weight:600;
+  color:#f3dcc5;
+}
 
-  .card-explain {
-    background: #fff9f3; border: 2px solid #cda86e;
-    border-radius: 12px; padding: 14px 16px; margin-top: 10px;
-    box-shadow: 0 6px 18px rgba(205,168,110,.22);
-    color: #2a2a2a; line-height: 1.8;
-  }
-  .card-explain .kicker {
-    display: inline-block; font-weight: 900;
-    color: #6b4f3e; background: #fff2e0;
-    border: 1px solid rgba(205,168,110,.6);
-    border-radius: 999px; padding: 2px 10px;
-    font-size: 13px; margin-right: 8px;
-  }
-  .card-explain .title { font-weight: 900; color: #a88257; margin-right: 6px; }
-  .card-explain .body { white-space: pre-wrap; }
+/* 小徽章列 */
+.hl-v2-badges {
+  margin-top:12px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  justify-content:center;
+}
+.hl-v2-badge {
+  font-size:12px;
+  padding:6px 10px;
+  border-radius:999px;
+  color:#20120a;
+  background:linear-gradient(135deg,var(--hl-v2-gold),var(--hl-v2-gold-deep));
+  box-shadow:inset 0 0 4px rgba(255,255,255,0.35), 0 4px 12px rgba(0,0,0,0.35);
+}
 
-  .toast {
-    position: fixed; left: 50%; bottom: 30px;
-    transform: translateX(-50%); background: rgba(0,0,0,.88);
-    color: #fff; padding: 12px 20px; border-radius: 12px;
-    font-size: 15px; font-weight: 600; z-index: 9999;
-    animation: toastSlideUp 0.3s ease-out;
-  }
-  @keyframes toastSlideUp {
-    from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-    to { opacity: 1; transform: translateX(-50%) translateY(0); }
-  }
+/* ==============================
+   區塊標題 & 文本
+   ============================== */
 
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,.5); backdrop-filter: blur(4px);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 10001; opacity: 0; pointer-events: none;
-    transition: opacity 0.3s ease;
-  }
-  .modal-overlay.show { opacity: 1; pointer-events: all; }
+.hl-v2-section-title {
+  text-align:center;
+  margin:0 0 16px;
+  font-size:1.2rem;
+  font-weight:800;
+  color:#f8e4cb;
+}
 
-  .modal-content {
-    background: #fff; border-radius: 20px;
-    padding: 32px 28px; max-width: 500px; width: 90%;
-    box-shadow: 0 20px 60px rgba(0,0,0,.3);
-    transform: scale(0.9); transition: transform 0.3s;
-  }
-  .modal-overlay.show .modal-content { transform: scale(1); }
+.hl-v2-text-center { text-align:center; }
 
-  .modal-header { text-align: center; margin-bottom: 20px; }
-  .modal-icon { font-size: 48px; margin-bottom: 12px; }
-  .modal-title {
-    font-size: 24px; font-weight: 900;
-    color: var(--cocoa); margin-bottom: 8px;
-  }
-  .modal-subtitle { font-size: 15px; color: #666; line-height: 1.6; }
+.hl-v2-hint {
+  text-align: center;
+  color: var(--hl-v2-ink-soft);
+  font-size: 14px;
+  margin: 10px 0;
+  line-height: 1.7;
+}
 
-  .modal-body { margin: 24px 0; }
-  .modal-question {
-    background: var(--milk); border: 2px solid var(--rose);
-    border-radius: 12px; padding: 16px; min-height: 80px;
-    font-size: 15px; color: var(--ink); resize: vertical;
-    width: 100%; font-family: inherit;
-  }
-  .modal-question:focus {
-    outline: none; border-color: var(--rose-dark);
-    box-shadow: 0 0 0 3px rgba(205,168,110,.2);
-  }
+/* ==============================
+   按鈕
+   ============================== */
 
-  .modal-footer { display: flex; gap: 12px; justify-content: center; }
-  .modal-btn {
-    padding: 14px 28px; border-radius: 12px;
-    font-size: 16px; font-weight: 800;
-    cursor: pointer; border: none; transition: var(--transition);
-  }
-  .modal-btn-primary {
-    background: linear-gradient(135deg, var(--rose), var(--rose-dark));
-    color: #fff; box-shadow: var(--shadow-md);
-  }
-  .modal-btn-primary:hover { transform: translateY(-2px); }
-  .modal-btn-secondary {
-    background: #fff; color: var(--cocoa);
-    border: 2px solid var(--cocoa);
-  }
+.hl-v2-btn-row {
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  justify-content:center;
+  margin-top:10px;
+}
 
-  .cta-section {
-    background: linear-gradient(135deg, #f5e6d3, #e8c39e);
-    border-radius: 16px; padding: 32px 24px;
-    text-align: center; margin: 24px 0;
-  }
-  .cta-section h3 {
-    color: var(--cocoa); font-size: 1.4rem;
-    font-weight: 900; margin-bottom: 12px;
-  }
-  .cta-section p {
-    color: #5a4a3a; font-size: 0.95rem;
-    line-height: 1.7; margin-bottom: 20px;
-  }
-  .cta-btns {
-    display: flex; flex-direction: column; gap: 12px;
-    max-width: 400px; margin: 0 auto;
-  }
-  .cta-btn {
-    display: block; text-decoration: none;
-    padding: 14px 24px; border-radius: 999px;
-    font-weight: 900; font-size: 1rem;
-    transition: var(--transition); text-align: center;
-  }
-  .cta-btn.primary {
-    background: linear-gradient(135deg, var(--cocoa), #3a2a1f);
-    color: #fff; border: 2px solid rgba(255,255,255,.9);
-  }
-  .cta-btn.primary:hover { transform: translateY(-2px); }
-  .cta-btn.secondary {
-    background: #fff; color: var(--cocoa);
-    border: 2px solid var(--cocoa);
-  }
-  .cta-btn.secondary:hover {
-    background: var(--cocoa); color: #fff;
-  }
+.hl-v2-btn {
+  display:inline-block;
+  text-decoration:none;
+  font-family:var(--hl-font-main);
+  font-weight:800;
+  font-size:0.95rem;
+  padding:11px 20px;
+  border-radius:999px;
+  cursor:pointer;
+  border:none;
+  transition:all .25s var(--hl-v2-ease);
+}
 
-  .footer { margin-top: 24px; text-align: center; }
-  .footer .block {
-    background: #fff; border: 1px solid var(--line);
-    border-radius: 12px; padding: 16px;
-    color: #4a3a2f; font-size: 14px; line-height: 1.75;
-  }
-  .link {
-    display: inline-block; text-decoration: none;
-    color: #fff; font-weight: 800;
-    background: linear-gradient(135deg, var(--rose), var(--rose-dark));
-    padding: 12px 20px; border-radius: 24px;
-    box-shadow: var(--shadow-md); margin-top: 10px;
-    transition: var(--transition);
-  }
-  .link:hover { transform: translateY(-2px); }
+/* 主按鈕：金色 */
+.hl-v2-btn-primary {
+  background:linear-gradient(135deg,var(--hl-v2-gold),var(--hl-v2-gold-deep));
+  color:#20120a;
+  box-shadow:var(--hl-v2-shadow-md);
+}
+.hl-v2-btn-primary:hover {
+  transform:translateY(-2px);
+  box-shadow:0 12px 26px rgba(0,0,0,0.7);
+}
+.hl-v2-btn-primary:active {
+  transform:translateY(-1px);
+}
+.hl-v2-btn-primary[disabled] {
+  opacity:.5;
+  cursor:not-allowed;
+  transform:none;
+}
+
+/* 次按鈕：線框 */
+.hl-v2-btn-secondary {
+  background:transparent;
+  border:1.6px solid var(--hl-v2-gold-deep);
+  color:var(--hl-v2-gold-deep);
+}
+.hl-v2-btn-secondary:hover {
+  background:var(--hl-v2-gold-deep);
+  color:#20120a;
+}
+.hl-v2-btn-secondary[disabled] {
+  opacity:.5;
+  cursor:not-allowed;
+  transform:none;
+}
+
+/* ==============================
+   抽牌模式格線
+   ============================== */
+
+.hl-v2-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+@media(max-width:900px) { .hl-v2-mode-grid { grid-template-columns: repeat(3, 1fr); } }
+@media(max-width:560px) { .hl-v2-mode-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.hl-v2-mode-btn {
+  border: none;
+  cursor: pointer;
+  padding: 14px 12px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--hl-v2-gold), var(--hl-v2-gold-deep));
+  color: #20120a;
+  font-weight: 900;
+  font-size: 15px;
+  box-shadow: var(--hl-v2-shadow-md);
+  transition: all .25s var(--hl-v2-ease);
+  font-family: var(--hl-font-main);
+}
+.hl-v2-mode-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.6);
+}
+.hl-v2-mode-btn:active {
+  transform: translateY(-1px);
+}
+.hl-v2-mode-btn small {
+  display: block;
+  font-size: 11px;
+  opacity: 0.85;
+  margin-top: 4px;
+}
+
+/* ==============================
+   工具列
+   ============================== */
+
+.hl-v2-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  margin: 16px 0 12px;
+}
+
+/* ==============================
+   抽牌專用格線
+   ============================== */
+
+.hl-v2-card-grid {
+  display:grid;
+  gap:14px;
+  margin-top:12px;
+  grid-template-columns:repeat(5,1fr);
+}
+@media(max-width:1000px){.hl-v2-card-grid{grid-template-columns:repeat(4,1fr);}}
+@media(max-width:800px){.hl-v2-card-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:560px){.hl-v2-card-grid{grid-template-columns:repeat(2,1fr);}}
+
+/* 單張牌 */
+.hl-v2-card-item {
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.16);
+  background:radial-gradient(circle at top,
+              rgba(255,255,255,0.22),
+              rgba(18,13,28,0.98));
+  box-shadow:0 10px 30px rgba(0,0,0,0.85);
+  overflow:hidden;
+  transition:all .3s var(--hl-v2-ease);
+  animation: hl-v2-card-in .45s ease-out backwards;
+}
+.hl-v2-card-item:hover {
+  transform:translateY(-6px) scale(1.03);
+}
+
+/* 牌面圖 */
+.hl-v2-card-thumb {
+  display:block;
+  width:100%;
+  aspect-ratio:7/10;
+  object-fit:contain;
+  background:radial-gradient(circle at center,#211527,#050309);
+}
+
+/* 卡號 */
+.hl-v2-card-cap {
+  padding:8px 10px;
+  text-align:center;
+  font-weight:800;
+  font-size:13px;
+  color:#fbead5;
+  background:radial-gradient(circle at top,
+              rgba(255,255,255,0.12),
+              rgba(5,5,15,1));
+  border-top:1px solid rgba(255,255,255,0.18);
+}
+
+@keyframes hl-v2-card-in {
+  from { opacity:0; transform:translateY(20px) scale(0.94);}
+  to   { opacity:1; transform:translateY(0)   scale(1);}
+}
+
+/* 單張抽牌說明塊 */
+.hl-v2-card-explain {
+  margin-top:10px;
+  padding:14px 16px;
+  border-radius:14px;
+  border:1.8px solid rgba(233,194,125,0.8);
+  background:radial-gradient(circle at top,
+              rgba(255,255,255,0.18),
+              rgba(18,13,28,0.98));
+  box-shadow:0 12px 40px rgba(0,0,0,0.9);
+  color:#f7eee2;
+  font-size:13px;
+  line-height:1.8;
+}
+.hl-v2-card-explain-kicker {
+  display:inline-block;
+  padding:3px 10px;
+  border-radius:999px;
+  background:#f5d3a3;
+  color:#1b1010;
+  font-weight:900;
+  font-size:12px;
+  margin-right:6px;
+}
+.hl-v2-card-explain-title {
+  font-weight:900;
+  color:#ffe9c0;
+  font-size:13px;
+  margin-right:6px;
+}
+.hl-v2-card-explain-body {
+  white-space:pre-wrap;
+  color:#f6ecde;
+}
+
+/* ==============================
+   CTA 區塊
+   ============================== */
+
+.hl-v2-cta {
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  margin: 24px 0;
+  background:
+    radial-gradient(circle at top,
+      rgba(233,194,125,0.25),
+      rgba(92,58,99,0.4),
+      rgba(18,13,28,0.98));
+  border: 1px solid rgba(233,194,125,0.3);
+  box-shadow: var(--hl-v2-shadow-lg);
+}
+
+.hl-v2-cta h3 {
+  color: #ffe9c0;
+  font-size: 1.4rem;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+
+.hl-v2-cta p {
+  color: var(--hl-v2-ink-soft);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.hl-v2-cta-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.hl-v2-cta-btn {
+  display: block;
+  text-decoration: none;
+  padding: 14px 24px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 1rem;
+  transition: all .25s var(--hl-v2-ease);
+  text-align: center;
+  font-family: var(--hl-font-main);
+}
+
+.hl-v2-cta-btn.primary {
+  background: linear-gradient(135deg, var(--hl-v2-gold), var(--hl-v2-gold-deep));
+  color: #20120a;
+  box-shadow: var(--hl-v2-shadow-md);
+}
+.hl-v2-cta-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(0,0,0,0.7);
+}
+
+.hl-v2-cta-btn.secondary {
+  background: transparent;
+  color: var(--hl-v2-gold);
+  border: 2px solid var(--hl-v2-gold-deep);
+}
+.hl-v2-cta-btn.secondary:hover {
+  background: var(--hl-v2-gold-deep);
+  color: #20120a;
+}
+
+/* ==============================
+   Footer
+   ============================== */
+
+.hl-v2-footer {
+  margin-top:24px;
+  text-align:center;
+}
+
+.hl-v2-footer-block {
+  border-radius:12px;
+  padding:16px;
+  font-size:13px;
+  line-height:1.75;
+  background:rgba(6,5,14,0.98);
+  border:1px solid rgba(255,255,255,0.14);
+  color:#f3e1cc;
+  box-shadow:0 10px 30px rgba(0,0,0,0.9);
+}
+
+.hl-v2-footer-block a {
+  color:#f7dca8;
+  text-decoration:none;
+}
+.hl-v2-footer-block a:hover { text-decoration:underline; }
+
+.hl-v2-footer-link {
+  display: inline-block;
+  text-decoration: none;
+  color: #20120a;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--hl-v2-gold), var(--hl-v2-gold-deep));
+  padding: 12px 20px;
+  border-radius: 24px;
+  box-shadow: var(--hl-v2-shadow-md);
+  margin-top: 12px;
+  transition: all .25s var(--hl-v2-ease);
+}
+.hl-v2-footer-link:hover {
+  transform: translateY(-2px);
+}
+
+/* ==============================
+   Modal
+   ============================== */
+
+.hl-v2-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.hl-v2-modal-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.hl-v2-modal-content {
+  background: radial-gradient(circle at top, rgba(40,30,50,0.98), rgba(12,8,20,0.99));
+  border: 1px solid rgba(233,194,125,0.3);
+  border-radius: 20px;
+  padding: 32px 28px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,.6);
+  transform: scale(0.9);
+  transition: transform 0.3s;
+}
+.hl-v2-modal-overlay.show .hl-v2-modal-content {
+  transform: scale(1);
+}
+
+.hl-v2-modal-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.hl-v2-modal-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.hl-v2-modal-title {
+  font-size: 24px;
+  font-weight: 900;
+  color: #ffe9c0;
+  margin-bottom: 8px;
+}
+
+.hl-v2-modal-subtitle {
+  font-size: 15px;
+  color: var(--hl-v2-ink-soft);
+  line-height: 1.6;
+}
+
+.hl-v2-modal-body {
+  margin: 24px 0;
+}
+
+.hl-v2-modal-question {
+  background: rgba(30,20,40,0.8);
+  border: 2px solid var(--hl-v2-gold-deep);
+  border-radius: 12px;
+  padding: 16px;
+  min-height: 80px;
+  font-size: 15px;
+  color: var(--hl-v2-ink-main);
+  resize: vertical;
+  width: 100%;
+  font-family: var(--hl-font-main);
+}
+.hl-v2-modal-question::placeholder {
+  color: rgba(255,255,255,0.4);
+}
+.hl-v2-modal-question:focus {
+  outline: none;
+  border-color: var(--hl-v2-gold);
+  box-shadow: 0 0 0 3px rgba(233,194,125,.2);
+}
+
+.hl-v2-modal-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.hl-v2-modal-btn {
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  border: none;
+  transition: all .25s var(--hl-v2-ease);
+  font-family: var(--hl-font-main);
+}
+
+.hl-v2-modal-btn-primary {
+  background: linear-gradient(135deg, var(--hl-v2-gold), var(--hl-v2-gold-deep));
+  color: #20120a;
+  box-shadow: var(--hl-v2-shadow-md);
+}
+.hl-v2-modal-btn-primary:hover {
+  transform: translateY(-2px);
+}
+
+.hl-v2-modal-btn-secondary {
+  background: transparent;
+  color: var(--hl-v2-gold-deep);
+  border: 2px solid var(--hl-v2-gold-deep);
+}
+.hl-v2-modal-btn-secondary:hover {
+  background: var(--hl-v2-gold-deep);
+  color: #20120a;
+}
+
+/* ==============================
+   Toast
+   ============================== */
+
+.hl-v2-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  background: rgba(233,194,125,0.95);
+  color: #20120a;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  z-index: 9999;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  animation: hl-v2-toast-in 0.3s ease-out;
+}
+
+@keyframes hl-v2-toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
 </style>
 </head>
-<body>
-  <div class="wrap">
-    <div class="glass page-title">
-      <h1>馥靈之鑰｜內在GPS 線上抽牌</h1>
-      <p>130 張牌卡 × HOUR 四步，不是算命，是日常微調器</p>
-    </div>
+<body class="hl-v2-cosmic">
+  <div class="hl-v2-wrap">
 
-    <div class="glass">
-      <h3 style="margin:0 0 12px; color:var(--cocoa); text-align:center;">選擇抽牌張數</h3>
-      <div class="mode-buttons">
-        <button class="btn" data-n="1">抽 1 張<br><small style="font-size:12px;opacity:0.85;">(免費)</small></button>
-        <button class="btn" data-n="3">抽 3 張</button>
-        <button class="btn" data-n="7">抽 7 張</button>
-        <button class="btn" data-n="12">抽 12 張</button>
-        <button class="btn" data-n="15">抽 15 張</button>
-        <button class="btn" data-n="20">抽 20 張</button>
+    <!-- HERO 區 -->
+    <section class="hl-v2-glass hl-v2-hero">
+      <h1 class="hl-v2-hero-title">馥靈之鑰｜內在GPS 線上抽牌</h1>
+      <p class="hl-v2-hero-sub">130 張牌卡 × H.O.U.R. 四步，不是算命，是日常微調器與情緒紓解小幫手</p>
+      <div class="hl-v2-badges">
+        <span class="hl-v2-badge">暗黑宇宙風格</span>
+        <span class="hl-v2-badge">1張免費完整解讀</span>
+        <span class="hl-v2-badge">意念式芳療</span>
       </div>
-      <p class="hint">
+    </section>
+
+    <!-- 抽牌模式選擇 -->
+    <section class="hl-v2-glass">
+      <h3 class="hl-v2-section-title">✨ 選擇抽牌張數</h3>
+      <div class="hl-v2-mode-grid">
+        <button class="hl-v2-mode-btn" data-n="1">抽 1 張<small>(免費體驗)</small></button>
+        <button class="hl-v2-mode-btn" data-n="3">抽 3 張<small>NT$800</small></button>
+        <button class="hl-v2-mode-btn" data-n="7">抽 7 張<small>NT$3,600</small></button>
+        <button class="hl-v2-mode-btn" data-n="12">抽 12 張<small>NT$6,600</small></button>
+        <button class="hl-v2-mode-btn" data-n="15">抽 15 張<small>進階解讀</small></button>
+        <button class="hl-v2-mode-btn" data-n="20">抽 20 張<small>深度解讀</small></button>
+      </div>
+      <p class="hl-v2-hint">
         💡 <strong>1張免費體驗</strong>（顯示完整覺察＋行動指引）<br>
-        <strong>3張以上</strong>需預約解讀服務
+        <strong>3張以上</strong>需預約解讀服務，讓調頻師為你深度解析
       </p>
-    </div>
+    </section>
 
-    <div class="glass">
-      <div class="toolbar">
-        <button class="btn secondary" id="copyBtn" disabled>📋 複製卡號</button>
-        <button class="btn secondary" id="shareBtn" disabled>🔗 產生連結</button>
-        <button class="btn secondary" id="clearBtn">🔄 清除重抽</button>
-        <a class="btn" href="https://line.me/R/ti/p/~judyanee" target="_blank" rel="noopener">🌿 LINE 預約</a>
+    <!-- 工具列 & 抽牌結果 -->
+    <section class="hl-v2-glass">
+      <div class="hl-v2-toolbar">
+        <button class="hl-v2-btn hl-v2-btn-secondary" id="copyBtn" disabled>📋 複製卡號</button>
+        <button class="hl-v2-btn hl-v2-btn-secondary" id="shareBtn" disabled>🔗 產生連結</button>
+        <button class="hl-v2-btn hl-v2-btn-secondary" id="clearBtn">🔄 清除重抽</button>
+        <a class="hl-v2-btn hl-v2-btn-primary" href="https://line.me/R/ti/p/~judyanee" target="_blank" rel="noopener">🌿 LINE 預約</a>
       </div>
-      <div class="hint" id="guideHint">
+      <p class="hl-v2-hint" id="guideHint">
         💫 抽牌後會顯示卡圖與卡號<br>
         <strong>1張免費</strong>會顯示完整覺察語，<strong>3張以上請預約解讀</strong>
-      </div>
-      <div id="grid" class="grid"></div>
-    </div>
+      </p>
+      <div id="grid" class="hl-v2-card-grid"></div>
+    </section>
 
-    <div class="cta-section">
+    <!-- CTA 區塊 -->
+    <section class="hl-v2-cta">
       <h3>🌟 想要更深入的解讀？</h3>
-      <p>馥靈之鑰提供完整的情緒調頻服務<br>從3張到20張，不同深度的解讀方案</p>
-      <div class="cta-btns">
-        <a href="https://line.me/R/ti/p/~judyanee" class="cta-btn primary" target="_blank" rel="noopener">💬 LINE 諮詢與預約</a>
-        <a href="index.html" class="cta-btn secondary">🏠 返回首頁</a>
+      <p>
+        馥靈之鑰提供完整的情緒調頻服務<br>
+        從 3 張到 20 張，不同深度的解讀方案<br>
+        讓調頻師陪你找回內在的安定與力量
+      </p>
+      <div class="hl-v2-cta-btns">
+        <a href="https://line.me/R/ti/p/~judyanee" class="hl-v2-cta-btn primary" target="_blank" rel="noopener">💬 LINE 諮詢與預約</a>
+        <a href="index.html" class="hl-v2-cta-btn secondary">🏠 返回首頁</a>
       </div>
-    </div>
+    </section>
 
-<div class="footer">
-  <div class="block">
-    <strong>馥靈之鑰｜內在 GPS 線上抽牌系統</strong><br>
-    讓每一次抽牌，都成為你照顧自己、調整生活節奏的小練習。<br><br>
+    <!-- Footer -->
+    <footer class="hl-v2-footer">
+      <div class="hl-v2-footer-block">
+        <strong>馥靈之鑰｜內在 GPS 線上抽牌系統</strong><br>
+        讓每一次抽牌，都成為你照顧自己、調整生活節奏的小練習。<br><br>
 
-    🛡️ <strong>使用說明與安全聲明</strong><br>
-    本系統僅提供<strong>身心放鬆、情緒紓解、壓力管理、能量調頻與氣血循環調理</strong>等日常參考，<br>
-    不屬於任何醫療行為，也不等同心理相關專業服務。<br>
-    若有明顯或長期身心不適，請務必尋求合格醫療或心理相關專業協助。<br><br>
+        🛡️ <strong>使用說明與安全聲明</strong><br>
+        本系統僅提供<strong>身心放鬆、情緒紓解、壓力管理、能量調頻與氣血循環調理</strong>等日常參考，<br>
+        不屬於任何醫療行為，也不等同心理相關專業服務。<br>
+        若有明顯或長期身心不適，請務必尋求合格醫療或心理相關專業協助。<br><br>
 
-    LINE 官方：<a href="https://lin.ee/vpbLhNjF" style="color:#a88257;font-weight:700" target="_blank" rel="noopener">@hourlight</a><br>
-    © 2025 馥靈之鑰 Hour Light｜Hour Light Emotional Balance Studio, Taiwan｜All Rights Reserved
-    <br>
-    <a class="link" href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener">💬 聯絡我們</a>
+        LINE 官方：<a href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener">@hourlight</a><br>
+        © 2025 馥靈之鑰 Hour Light｜Hour Light Emotional Balance Studio, Taiwan｜All Rights Reserved
+        <br>
+        <a class="hl-v2-footer-link" href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener">💬 聯絡我們</a>
+      </div>
+    </footer>
+
   </div>
-</div>
 
-  <div id="confirmModal" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <div class="modal-icon">🔮</div>
-        <h2 class="modal-title">準備好了嗎？</h2>
-        <p class="modal-subtitle">
+  <!-- 確認 Modal -->
+  <div id="confirmModal" class="hl-v2-modal-overlay">
+    <div class="hl-v2-modal-content">
+      <div class="hl-v2-modal-header">
+        <div class="hl-v2-modal-icon">🔮</div>
+        <h2 class="hl-v2-modal-title">準備好了嗎？</h2>
+        <p class="hl-v2-modal-subtitle">
           請先在心中想好你要問的問題<br>然後按下確定開始抽牌
         </p>
       </div>
-      <div class="modal-body">
-        <textarea id="modalQuestion" class="modal-question" placeholder="你也可以在這裡寫下問題（選填）"></textarea>
+      <div class="hl-v2-modal-body">
+        <textarea id="modalQuestion" class="hl-v2-modal-question" placeholder="你也可以在這裡寫下問題（選填）"></textarea>
       </div>
-      <div class="modal-footer">
-        <button class="modal-btn modal-btn-secondary" id="modalCancel">取消</button>
-        <button class="modal-btn modal-btn-primary" id="modalConfirm">✨ 確定，開始抽牌</button>
+      <div class="hl-v2-modal-footer">
+        <button class="hl-v2-modal-btn hl-v2-modal-btn-secondary" id="modalCancel">取消</button>
+        <button class="hl-v2-modal-btn hl-v2-modal-btn-primary" id="modalConfirm">✨ 確定，開始抽牌</button>
       </div>
     </div>
   </div>
+
+  <!-- 卡義 JSON（130張牌卡資料，此處省略中間內容，實際使用請保留完整） -->
   <script type="application/json" id="card-summaries">
 {
       "A00": { "title": "起點密碼", "覺察": "你是不是又在等「時機成熟」了?就像買衣服等換季特價,結果最愛的那件早就被搶光。完美這件事根本不存在,它只是你拖延的高級藉口。", "行動指引": "今天就選一個最小的決定去做吧!不用驚天動地,就算只是把待辦清單的第一項劃掉也算。記住,走路才會產生風,坐著吹電扇永遠只是原地涼快。" },
       "A01": { "title": "意圖編碼", "覺察": "你的人生就像寫程式,輸入什麼就輸出什麼。如果你一邊說要減肥一邊半夜叫雞排,那系統當然跑不出你要的結果。目標跟行為不一致,就像導航設台北卻一路往高雄開。", "行動指引": "檢查你今天的每個行為是不是真的在支持你的目標。說要存錢就別手滑購物車,說要健康就別把消夜當正餐。讓你的行為跟意圖對得上頻,現實才會照你的劇本走。" },
-      "A02": { "title": "靜默解答", "覺察": "你的腦袋是不是像24小時不停播的新聞台,吵到連自己的聲音都聽不見?外面的意見、別人的看法、網路的資訊,全部擠在你腦子裡開趴。其實答案早就在你心裡,只是被雜訊蓋住了。", "行動指引": "今天給自己十分鐘完全安靜的時間,手機關靜音、人找個沒人的角落。不用冥想不用儀式,就單純坐著,聽聽你內在那個聲音想說什麼。它一直都在,只是你太忙沒空理它。" },
-      "A03": { "title": "接收允許", "覺察": "你是不是收到好東西就開始內疚,覺得自己不配?就像中獎了還要到處說「我只是運氣好」。拜託,你值得擁有好事,不用每次都當成意外驚喜好嗎?", "行動指引": "今天有人誇你、給你好處、對你好,就大方收下,嘴巴說聲謝謝就好,不用解釋不用自貶。練習對自己說:「我值得被善待」,說到你自己都信為止。" },
+      "A02": { "title": "靜默解答", "覺察": "你的腦袋是不是像24小時不停播的新聞台,吵到連自己的聲音都聽不見?外面的意見、別人的看法、網路的資訊,全部擠在你腦子裡開趴。其實答案早就在你心裡,只是被雜訊蓋住了。", "行動指引": "今天給自己十分鐘完全安靜的時間,手機關靜音、人找個沒人的角落。不用冥想不用儀式,就單純坐著,聽聽你內在那個聲音想說什麼。它一直都在,只是你太忙沒空理它。" },"A03": { "title": "接收允許", "覺察": "你是不是收到好東西就開始內疚,覺得自己不配?就像中獎了還要到處說「我只是運氣好」。拜託,你值得擁有好事,不用每次都當成意外驚喜好嗎?", "行動指引": "今天有人誇你、給你好處、對你好,就大方收下,嘴巴說聲謝謝就好,不用解釋不用自貶。練習對自己說:「我值得被善待」,說到你自己都信為止。" },
       "A04": { "title": "果斷主導", "覺察": "你是不是把人生活成自助餐,看到什麼夾什麼,結果盤子滿到湯汁都滴出來?沒有規則就沒有方向,沒有紀律就只能被生活牽著鼻子走,活得像個沒主見的陀螺。", "行動指引": "今天為自己設一條不能妥協的界線。可能是睡前不滑手機、每天一定運動30分鐘、或是不接受最後一刻的邀約。有了規則,你才是自己人生的老闆,不是打工仔。" },
       "A05": { "title": "知識轉化", "覺察": "你的書單、課程、podcast是不是多到像囤貨狂?學了一堆結果什麼都沒用上,知識就像冰箱裡的菜,不煮出來就只會爛掉。資訊囤積症不會讓你變聰明,只會讓你焦慮。", "行動指引": "今天就挑一個你最近學到的東西,立刻用出來。可能是套用一個理論、實踐一個方法、或是分享給別人。知識要落地才有價值,不然就只是佔空間的裝飾品。" },
       "A06": { "title": "關係鏡像", "覺察": "你身邊的人就像鏡子,照出你對自己的態度。如果你總是遇到不尊重你的人,可能是因為你自己就不夠尊重自己。關係不對等不是別人的問題,是你允許了這種模式進來。", "行動指引": "今天誠實檢視一段讓你不舒服的關係。問自己:「我在這裡犧牲了什麼?」然後決定要繼續委屈,還是溫柔但堅定地調整界線。你值得對等的連結,不是單方面的付出。" },
@@ -455,8 +857,9 @@ body {
       "106": { "title": "頻率上升", "覺察": "你的頻率是不是又掉下去了?主動採取正向觀點並行動,讓頻率上升。頻率不會自己升,是你的觀點跟行動把它拉上來的。別被動等心情好,主動創造它。", "行動指引": "今天主動做三件提升頻率的事,可能是感恩、讚美別人、或是做點讓你開心的。正向觀點配上實際行動,頻率就會上升,好事就會跟著來。" },
       "107": { "title": "情緒邊界", "覺察": "你是不是又當別人的情緒垃圾桶了?立刻築起邊界,不再當他人情緒接收器。別人的情緒是別人的,你不用照單全收。接收太多會中毒的,該擋就要擋。", "行動指引": "今天遇到別人情緒轟炸時,在心裡築一道牆,告訴自己:「這不是我的。」可以同理但不用吸收,可以陪伴但不用承擔。保護好你的情緒空間。" },
       "108": { "title": "鬆手流通", "覺察": "你是不是又在死撐了?從死撐轉為鬆手,讓壓力流通後回到舒適。撐著不會讓你變強,只會讓你變僵。鬆手才能流通,流通才能舒適,別再硬撐了。", "行動指引": "今天找一件你在硬撐的事,練習鬆手。可能是放下控制、接受幫助、或是允許不完美。鬆手不是放棄,是讓壓力流通的智慧。流通了,舒適就回來了。" }
- }
+}
   </script>
+
   <script>
 'use strict';
 
@@ -522,7 +925,7 @@ function loadSummaries() {
 function bindEvents() {
   // 抽牌按鈕
   document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.btn[data-n]');
+    const btn = e.target.closest('.hl-v2-mode-btn[data-n]');
     if (!btn) return;
     const n = parseInt(btn.getAttribute('data-n'), 10);
     if (!n || n <= 0) return;
@@ -609,16 +1012,16 @@ function renderCards(isOneCard) {
     const filename = allFiles[idx];
     const code = filename.replace('.png', '');
     const cardDiv = document.createElement('div');
-    cardDiv.className = 'card';
+    cardDiv.className = 'hl-v2-card-item';
     cardDiv.style.animationDelay = `${position * 0.08}s`;
 
     const img = document.createElement('img');
-    img.className = 'thumb';
+    img.className = 'hl-v2-card-thumb';
     img.src = './' + filename;
     img.alt = `卡片 ${code}`;
 
     const cap = document.createElement('div');
-    cap.className = 'cap';
+    cap.className = 'hl-v2-card-cap';
     cap.textContent = code;
 
     cardDiv.appendChild(img);
@@ -628,21 +1031,21 @@ function renderCards(isOneCard) {
 
   // 單張顯示覺察+行動
   if (isOneCard) {
-    const firstCard = grid.querySelector('.card');
+    const firstCard = grid.querySelector('.hl-v2-card-item');
     if (firstCard) {
       const code = allFiles[selected[0]].replace('.png', '');
       const s = SUMMARIES[code] || {};
       const text = `覺察：${s['覺察'] || ''}\n行動指引：${s['行動指引'] || ''}`;
 
-      const old = grid.parentElement.querySelector('.card-explain');
+      const old = grid.parentElement.querySelector('.hl-v2-card-explain');
       if (old) old.remove();
 
       const explain = document.createElement('div');
-      explain.className = 'card-explain';
+      explain.className = 'hl-v2-card-explain';
       explain.innerHTML = `
-        <span class="kicker">✨ 卡 ${code}</span>
-        <span class="title">當下提示</span>
-        <span class="body">${text.replace(/\n/g,'<br>')}</span>
+        <span class="hl-v2-card-explain-kicker">✨ 卡 ${code}</span>
+        <span class="hl-v2-card-explain-title">當下提示</span>
+        <span class="hl-v2-card-explain-body">${text.replace(/\n/g,'<br>')}</span>
       `;
       firstCard.insertAdjacentElement('afterend', explain);
       explain.scrollIntoView({ behavior:'smooth', block:'center' });
@@ -697,7 +1100,7 @@ function copyToClipboard(text, successMsg) {
 // Toast通知
 function showToast(msg) {
   const toast = document.createElement('div');
-  toast.className = 'toast';
+  toast.className = 'hl-v2-toast';
   toast.textContent = msg;
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 1800);
