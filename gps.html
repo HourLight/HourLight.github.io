@@ -2,181 +2,342 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>馥靈之鑰 Hour Light｜內在GPS線上抽牌</title>
 <link rel="icon" href="favicon.ico">
+<meta name="description" content="馥靈之鑰 Hour Light｜130 張牌卡 × H-O-U-R 四步，幫你快速對焦當下狀態，從靈感走向行動。">
+
+<!-- 共用金黑宇宙風格 v2 -->
+<link rel="stylesheet" href="hourlight-theme-v2.css" />
 
 <style>
-/* ───── 變數與全域 ───── */
-:root{--milk:#f9f5f0;--cocoa:#6b4f3e;--rose:#cda86e;--rose-dark:#a88257;}
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  background:url('https://github.com/HourLight/11/raw/main/background.jpg') center/cover fixed no-repeat;
-  font-family:"Noto Sans TC","PingFang TC","Arial",sans-serif;
-  color:#333;text-align:center;
-  padding:22px;
+/* ========== 內在GPS 抽牌頁：v2 專屬微調 ========== */
+
+body.hl-v2-cosmic {
+  padding-top:24px;
 }
 
-/* ───── 標題 3 行（白底跟字寬）───── */
-.main-title,.sub-title,.tagline{
-  display:block;width:fit-content;margin:0 auto 12px;padding:10px 24px;
-  background:#fff;border-radius:14px;box-shadow:0 4px 10px rgba(0,0,0,.18);
-}
-.main-title{font-size:2rem;color:#6b4f3e}
-.sub-title {font-size:1.35rem;color:#cda86e}
-.tagline   {font-size:1rem;color:#6b4f3e;max-width:880px}
-
-/* ───── 按鈕 & 牌卡 ───── */
-button{
-  background:var(--rose);color:#fff;border:none;padding:14px 28px;font-size:20px;
-  margin:8px;border-radius:15px;cursor:pointer;
-  box-shadow:0 3px 8px rgba(0,0,0,.25);transition:.3s;
-}
-button:hover{background:var(--rose-dark);transform:translateY(-3px)}
-#copyBtn{background:var(--cocoa)}
-.card-container{display:inline-block;margin:16px}
-.card-container img{width:220px;border-radius:15px;box-shadow:0 0 12px rgba(0,0,0,.35)}
-.card-number{
-  margin-top:10px;font-size:22px;font-weight:bold;
-  background:rgba(255,255,255,.85);padding:6px 12px;border-radius:10px;
+/* Hero 區補充文案 */
+.hl-gps-tagline {
+  margin-top:10px;
+  font-size:0.95rem;
+  max-width:720px;
+  margin-left:auto;
+  margin-right:auto;
 }
 
-/* ───── 摺疊說明 ───── */
-details{
-  border:1px solid #e4d6c8;border-radius:12px;margin:8px 0;
-  padding:0 14px;background:rgba(255,255,255,.88);box-shadow:0 2px 6px rgba(0,0,0,.07);
+/* 摺疊說明區 */
+.gps-section {
+  margin-top:8px;
+  font-size:0.95rem;
 }
-summary{cursor:pointer;list-style:none;font-weight:600;padding:14px 4px;color:var(--rose-dark)}
-summary::-webkit-details-marker{display:none}
-details[open]{background:rgba(255,255,255,.97)}
-details ul{margin:8px 0 18px 18px;font-size:15px;text-align:left}
+.gps-section details{
+  border-radius:12px;
+  margin:8px 0;
+  padding:0 14px;
+  background:rgba(6,5,14,0.96);
+  border:1px solid rgba(233,194,125,0.25);
+  box-shadow:0 4px 12px rgba(0,0,0,0.65);
+}
+body.hl-v2-soft .gps-section details{
+  background:rgba(255,255,255,.96);
+  border-color:rgba(0,0,0,0.06);
+  box-shadow:0 2px 8px rgba(0,0,0,0.12);
+}
+.gps-section summary{
+  cursor:pointer;
+  list-style:none;
+  font-weight:700;
+  padding:12px 4px;
+  color:#f7dca8;
+}
+.gps-section summary::-webkit-details-marker{display:none}
+.gps-section details[open]{background:rgba(10,7,18,0.98);}
+body.hl-v2-soft .gps-section details[open]{background:#fff;}
+.gps-section ul{
+  margin:4px 0 14px 20px;
+  line-height:1.75;
+  font-size:0.9rem;
+  color:#f6ecde;
+}
+body.hl-v2-soft .gps-section ul{color:#4a3a2f;}
 
-/* ───── 區塊外殼 ───── */
-.section{
-  max-width:880px;margin:36px auto;background:rgba(255,255,255,.9);
-  padding:24px;border-radius:16px;box-shadow:0 3px 10px rgba(0,0,0,.15);
-  line-height:1.75;font-size:18px;text-align:left;
+/* 抽牌按鈕列 */
+.gps-draw-row{
+  margin-top:8px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  justify-content:center;
 }
-.section h2{color:var(--cocoa);margin-bottom:12px;font-size:1.25rem;text-align:center}
 
-/* ───── 升級 CTA 卡區 ───── */
-.upgrade{
-  max-width:980px;margin:20px auto;background:rgba(255,255,255,.92);
-  border:1px solid rgba(0,0,0,.06);border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,.12);
-  padding:18px 16px;
+/* 結果卡片格線：沿用 v2 抽牌格線 */
+#gpsResultGrid{
+  margin-top:14px;
 }
-.upgrade h3{margin:0 0 10px;color:#6b4f3e}
-.plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:900px){.plan-grid{grid-template-columns:1fr}}
-.plan{
-  background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:16px;text-align:left
-}
-.plan .ttl{font-weight:900;color:#6b4f3e;font-size:20px;margin-bottom:6px}
-.plan .price{color:#a88257;font-weight:800;margin-bottom:4px}
-.plan ul{margin:8px 0 12px 20px;line-height:1.8}
-.plan .btn{
-  display:inline-block;text-decoration:none;color:#fff;font-weight:800;
-  background:linear-gradient(135deg,var(--rose),var(--rose-dark));
-  padding:10px 16px;border-radius:22px;box-shadow:0 6px 14px rgba(0,0,0,.18)
-}
-.plan .btn:hover{filter:brightness(1.05);transform:translateY(-2px)}
 
-/* ───── 返回首頁 ───── */
-.home-btn{
-  display:inline-block;background:var(--rose);color:#fff;padding:12px 28px;
-  text-decoration:none;border-radius:12px;box-shadow:0 3px 8px rgba(0,0,0,.25);
-  transition:.3s;margin:34px auto 0;font-size:18px
+/* 單張牌：沿用 hl-v2-card-item 但不顯示說明，只顯示圖＋編號 */
+.gps-card {
+  text-align:center;
 }
-.home-btn:hover{background:var(--rose-dark);transform:translateY(-3px)}
+.gps-card img{
+  width:100%;
+  aspect-ratio:7/10;
+  object-fit:cover;
+  display:block;
+}
+.gps-card-code{
+  padding:8px 8px 10px;
+  font-size:0.88rem;
+  font-weight:800;
+  color:#fbead5;
+  background:radial-gradient(circle at top,rgba(255,255,255,0.12),rgba(5,5,15,1));
+  border-top:1px solid rgba(255,255,255,0.18);
+}
+body.hl-v2-soft .gps-card-code{
+  color:#6b4f3e;
+  background:#fff7ed;
+  border-top-color:rgba(0,0,0,0.06);
+}
 
-/* ───── RWD 按鈕 ───── */
-@media(max-width:768px){
-  button,#copyBtn{width:94%;margin:10px auto;font-size:22px}
-  .card-container img{width:94%}
-  .section{padding:20px}
+/* 空狀態 */
+.gps-empty{
+  grid-column:1/-1;
+  text-align:center;
+  font-size:0.9rem;
+  opacity:0.8;
+  padding:18px 8px;
+}
+
+/* 升級 CTA 區 */
+.gps-upgrade-title{
+  text-align:center;
+  margin-bottom:10px;
+  font-size:1.05rem;
+}
+.gps-plan-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+@media(max-width:900px){
+  .gps-plan-grid{grid-template-columns:1fr;}
+}
+.gps-plan{
+  border-radius:16px;
+  padding:16px 16px 14px;
+}
+body.hl-v2-cosmic .gps-plan{
+  background:radial-gradient(circle at top,
+              rgba(255,255,255,0.10),
+              rgba(12,8,22,0.98));
+  border:1px solid rgba(255,255,255,0.12);
+  box-shadow:0 8px 24px rgba(0,0,0,0.85);
+}
+body.hl-v2-soft .gps-plan{
+  background:#fff;
+  border:1px solid rgba(0,0,0,0.06);
+  box-shadow:0 8px 20px rgba(0,0,0,0.15);
+}
+.gps-plan-ttl{
+  font-size:1.05rem;
+  font-weight:900;
+  margin-bottom:4px;
+}
+body.hl-v2-cosmic .gps-plan-ttl{color:#f8e4cb;}
+body.hl-v2-soft   .gps-plan-ttl{color:#6b4f3e;}
+.gps-plan-price{
+  font-size:0.95rem;
+  font-weight:800;
+  margin-bottom:6px;
+  color:#f0c67f;
+}
+body.hl-v2-soft .gps-plan-price{color:#a88257;}
+.gps-plan ul{
+  margin:4px 0 12px 18px;
+  font-size:0.9rem;
+  line-height:1.7;
+}
+.gps-plan-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+/* 返回首頁（頁面底部再給一顆） */
+.gps-home-bottom{
+  text-align:center;
+  margin:22px 0 8px;
+}
+.gps-home-bottom a{
+  display:inline-block;
+  background:linear-gradient(135deg,var(--hl-v2-gold),var(--hl-v2-gold-deep));
+  color:#20120a;
+  font-weight:800;
+  padding:10px 20px;
+  border-radius:24px;
+  text-decoration:none;
+  box-shadow:0 4px 12px rgba(0,0,0,0.4);
+  font-size:0.9rem;
+  transition:all .25s var(--hl-v2-ease);
+}
+.gps-home-bottom a:hover{
+  transform:translateY(-2px);
+  box-shadow:0 7px 18px rgba(0,0,0,0.6);
 }
 </style>
 </head>
-<body>
 
-<!-- 標題區 -->
-<h1 class="main-title">馥靈之鑰 Hour Light</h1>
-<h2 class="sub-title">內在GPS線上抽牌</h2>
-<p  class="tagline">130 張牌卡 × H-O-U-R 四步 — 快速對焦、立刻可行</p>
+<body class="hl-v2-cosmic">
+<div class="hl-v2-wrap">
 
-<!-- 摺疊說明（只保留 5／9／15） -->
-<div class="section">
-  <h2>🔮 抽多少？看這裡（目前僅支援 5／9／15）</h2>
-
-  <details open><summary>5 張｜核心洞察（30 分）</summary>
-    <ul>
-      <li>① 現況覺察　② 核心議題　③ 內在資源　④ 行動指引　⑤ 能量調頻</li>
-      <li>交付：行動建議＋ <b>7 天提醒清單</b></li>
-    </ul>
-  </details>
-
-  <details><summary>9 張｜生命導航（60 分）</summary>
-    <ul>
-      <li>內在三角（靈魂本質／情緒模式／思維框架）</li>
-      <li>外在三角（關係動力／事業財富／健康活力）</li>
-      <li>整合三角（挑戰課題／支持資源／未來趨勢）</li>
-      <li>交付：<b>完整書面報告＋30 天行動計劃</b></li>
-    </ul>
-  </details>
-
-  <details><summary>15 張｜藍圖計畫（90 分）</summary>
-    <ul>
-      <li>生命之樹 15 位（使命／天賦／課題／守護／主題 → 愛情／家庭／事業／財富／健康 → 整合／行動／時機／資源／願景）</li>
-      <li>交付：<b>心智圖＋AI 摘要＋90 天分段行動藍圖</b></li>
-    </ul>
-  </details>
-</div>
-
-<!-- 抽牌按鈕（只保留 5／9／15） -->
-<div>
-  <button onclick="drawCards(5)">抽 5 張</button>
-  <button onclick="drawCards(9)">抽 9 張</button>
-  <button onclick="drawCards(15)">抽 15 張</button>
-</div>
-
-<!-- 抽牌結果 -->
-<div id="result"></div>
-<button id="copyBtn" onclick="copyResult()">📋 複製牌卡編號</button>
-
-<!-- 🔥 升級引導 -->
-<div class="upgrade" id="upgrade">
-  <h3>把靈感變結果：兩款升級計畫</h3>
-  <div class="plan-grid">
-    <div class="plan">
-      <div class="ttl">30 天｜頻率躍升行動計劃</div>
-      <div class="price">NT$ <b>25,000</b></div>
-      <ul>
-        <li><b>初次深度諮詢 90 分鐘</b></li>
-        <li><b>每週追蹤 4 × 30 分鐘</b></li>
-        <li>LINE 即時支援｜個人化行動計劃｜成果評估報告</li>
-      </ul>
-      <a class="btn" href="plan30.html">📅 看 30 天內容</a>
-      <a class="btn" href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener">💬 LINE 私訊索取名額</a>
+  <!-- 標題區 / Hero -->
+  <section class="hl-v2-glass hl-v2-hero">
+    <h1 class="hl-v2-hero-title">馥靈之鑰 Hour Light</h1>
+    <p class="hl-v2-hero-sub">內在 GPS 線上抽牌</p>
+    <p class="hl-gps-tagline">130 張牌卡 × H-O-U-R 四步 — 快速對焦、立刻可行，不是算命，是日常頻率小調整。</p>
+    <div class="hl-v2-badges">
+      <span class="hl-v2-badge">130 張頻率牌卡</span>
+      <span class="hl-v2-badge">HOUR 四步驟</span>
+      <span class="hl-v2-badge">只支援 5／9／15 張深度抽牌</span>
     </div>
-    <div class="plan">
-      <div class="ttl">90 天｜豐盛之境藍圖計劃</div>
-      <div class="price">NT$ 20,000</div>
+  </section>
+
+  <!-- 抽多少？說明（只保留 5／9／15） -->
+  <section class="hl-v2-glass gps-section">
+    <h2 class="hl-v2-section-title">🔮 抽多少？看這裡（目前僅支援 5／9／15）</h2>
+
+    <details open>
+      <summary>5 張｜核心洞察（30 分）</summary>
       <ul>
-        <li>HOUR × LIGHT：聚焦／架構／放大／穩固</li>
-        <li>雙週追蹤 6 × 45 分鐘｜KPI 與里程碑追蹤</li>
-        <li>專屬藍圖手冊（PDF）＋ 90 天里程碑檢核</li>
+        <li>① 現況覺察　② 核心議題　③ 內在資源　④ 行動指引　⑤ 能量調頻</li>
+        <li>交付：行動建議＋ <b>7 天提醒清單</b></li>
       </ul>
-      <a class="btn" href="abundance.html">📜 了解 90 天計劃</a>
-      <a class="btn" href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener">📲 立即洽詢</a>
+    </details>
+
+    <details>
+      <summary>9 張｜生命導航（60 分）</summary>
+      <ul>
+        <li>內在三角（靈魂本質／情緒模式／思維框架）</li>
+        <li>外在三角（關係動力／事業財富／健康活力）</li>
+        <li>整合三角（挑戰課題／支持資源／未來趨勢）</li>
+        <li>交付：<b>完整書面報告＋30 天行動計劃</b></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>15 張｜藍圖計畫（90 分）</summary>
+      <ul>
+        <li>生命之樹 15 位（使命／天賦／課題／守護／主題 → 愛情／家庭／事業／財富／健康 → 整合／行動／時機／資源／願景）</li>
+        <li>交付：<b>心智圖＋AI 摘要＋90 天分段行動藍圖</b></li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- 抽牌按鈕列（只保留 5／9／15） -->
+  <section class="hl-v2-glass">
+    <h2 class="hl-v2-section-title">抽牌模式選擇</h2>
+    <p class="hl-v2-text-center hl-v2-text-muted">
+      小提醒：按下抽牌前，先深呼吸三次，心裡默念你的問題，<br>
+      然後選擇 5／9／15 張，讓系統幫你對焦當下最關鍵的訊息。
+    </p>
+    <div class="gps-draw-row">
+      <button class="hl-v2-btn hl-v2-btn-primary" data-gps-n="5">抽 5 張</button>
+      <button class="hl-v2-btn hl-v2-btn-primary" data-gps-n="9">抽 9 張</button>
+      <button class="hl-v2-btn hl-v2-btn-primary" data-gps-n="15">抽 15 張</button>
     </div>
-  </div>
+  </section>
+
+  <!-- 抽牌結果 -->
+  <section class="hl-v2-glass">
+    <div id="gpsResultGrid" class="hl-v2-card-grid">
+      <div class="gps-empty">
+        這裡會顯示你抽到的牌卡圖像與編號。<br>
+        先選擇張數，再按上方按鈕抽牌。
+      </div>
+    </div>
+
+    <div class="hl-v2-btn-row">
+      <button id="copyBtn" class="hl-v2-btn hl-v2-btn-secondary">
+        📋 複製牌卡編號
+      </button>
+    </div>
+  </section>
+
+  <!-- 升級引導 -->
+  <section class="hl-v2-glass">
+    <h2 class="hl-v2-section-title">把靈感變結果：兩款升級計畫</h2>
+    <p class="gps-upgrade-title hl-v2-text-muted">
+      抽牌會給你畫面與線索，<br>升級方案會陪你把這些線索，變成 30／90 天真的走得完的路線圖。
+    </p>
+
+    <div class="gps-plan-grid">
+      <div class="gps-plan">
+        <div class="gps-plan-ttl">30 天｜頻率躍升行動計劃</div>
+        <div class="gps-plan-price">NT$ <b>25,000</b></div>
+        <ul>
+          <li><b>初次深度諮詢 90 分鐘</b></li>
+          <li><b>每週追蹤 4 × 30 分鐘</b></li>
+          <li>LINE 即時支援｜個人化行動計劃｜成果評估報告</li>
+        </ul>
+        <div class="gps-plan-actions">
+          <a class="hl-v2-btn hl-v2-btn-primary" href="plan30.html">📅 看 30 天內容</a>
+          <a class="hl-v2-btn hl-v2-btn-secondary" href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener">
+            💬 LINE 私訊索取名額
+          </a>
+        </div>
+      </div>
+
+      <div class="gps-plan">
+        <div class="gps-plan-ttl">90 天｜豐盛之境藍圖計劃</div>
+        <div class="gps-plan-price">NT$ 20,000</div>
+        <ul>
+          <li>HOUR × LIGHT：聚焦／架構／放大／穩固</li>
+          <li>雙週追蹤 6 × 45 分鐘｜KPI 與里程碑追蹤</li>
+          <li>專屬藍圖手冊（PDF）＋ 90 天里程碑檢核</li>
+        </ul>
+        <div class="gps-plan-actions">
+          <a class="hl-v2-btn hl-v2-btn-primary" href="abundance.html">📜 了解 90 天計劃</a>
+          <a class="hl-v2-btn hl-v2-btn-secondary" href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener">
+            📲 立即洽詢
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 回首頁 -->
+  <footer class="hl-v2-footer">
+    <div class="hl-v2-footer-block">
+      <strong>馥靈之鑰 Hour Light｜內在 GPS 線上抽牌系統</strong><br>
+      本系統僅提供<strong>身心放鬆、情緒紓解、壓力管理、能量調頻與氣血循環調理</strong>等日常參考，<br>
+      不屬於任何醫療行為，也不等同心理相關專業服務。<br>
+      若有明顯或長期身心不適，請尋求合格醫療或心理相關專業協助。<br><br>
+      LINE 官方：<a href="https://lin.ee/vpbLhNjF" target="_blank">@hourlight</a><br>
+      © 2025 馥靈之鑰 Hour Light｜Hour Light Emotional Balance Studio, Taiwan
+    </div>
+  </footer>
 </div>
 
-<!-- 返回首頁 -->
-<a href="https://hourlight.github.io/" class="home-btn">🏠 返回首頁</a>
+<div class="gps-home-bottom">
+  <a href="https://hourlight.github.io/">🏠 返回首頁</a>
+</div>
 
-<!-- JS -->
+<!-- JS：沿用原本邏輯，只換成綁在 v2 的按鈕上 -->
 <script>
 let selectedCards = [];
+
+/* 綁定抽牌按鈕 */
+document.querySelectorAll('[data-gps-n]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const n = parseInt(btn.dataset.gpsN, 10);
+    if (!n) return;
+    drawCards(n);
+  });
+});
+
+/* 複製按鈕 */
+document.getElementById('copyBtn').addEventListener('click', copyResult);
 
 /* 產生 1~130 不重複亂數 */
 function drawCards(num) {
@@ -193,30 +354,54 @@ function drawCards(num) {
 function buildImg(n){
   const a = `https://github.com/HourLight/11/raw/main/LINE_ALBUM_2025.3.23_250323_${n}.jpg`;
   const b = `https://raw.githubusercontent.com/HourLight/11/main/LINE_ALBUM_2025.3.23_250323_${n}.jpg`;
-  return `<img src="${a}" onerror="if(this.dataset.alted!=='1'){this.dataset.alted='1';this.src='${b}'}" alt="Card Image">`;
+  return `<img src="${a}" data-alted="0" onerror="if(this.dataset.alted!=='1'){this.dataset.alted='1';this.src='${b}'}" alt="Card Image">`;
 }
 
 function updateResults() {
-  const resultDiv = document.getElementById('result');
-  resultDiv.innerHTML = selectedCards.map(c => {
+  const grid = document.getElementById('gpsResultGrid');
+  if (!selectedCards.length) {
+    grid.innerHTML = '<div class="gps-empty">先選擇張數，再按上方按鈕抽牌。</div>';
+    return;
+  }
+
+  grid.innerHTML = selectedCards.map(c => {
     const cardNumber = formatCardNumber(c);
     return `
-      <div class="card-container">
+      <div class="hl-v2-card-item gps-card">
         ${buildImg(c)}
-        <div class="card-number">編號：${cardNumber}</div>
+        <div class="gps-card-code">編號：${cardNumber}</div>
       </div>
     `;
   }).join('');
-  resultDiv.scrollIntoView({behavior:'smooth', block:'start'});
+
+  grid.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 function formatCardNumber(n) {
-  return n <= 22 ? 'A' + (n - 1).toString().padStart(2, '0') : (n - 22).toString().padStart(3, '0');
+  return n <= 22
+    ? 'A' + (n - 1).toString().padStart(2, '0')
+    : (n - 22).toString().padStart(3, '0');
 }
 
 function copyResult() {
-  if (!selectedCards.length) { alert("請先抽牌再複製！"); return; }
+  if (!selectedCards.length) {
+    alert("請先抽牌再複製！");
+    return;
+  }
   const txt = selectedCards.map(formatCardNumber).join(', ');
+  if (!navigator.clipboard) {
+    // 後備方案
+    const ta = document.createElement('textarea');
+    ta.value = txt;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    alert('已複製：' + txt);
+    return;
+  }
   navigator.clipboard.writeText(txt)
     .then(() => alert('已複製：' + txt))
     .catch(() => alert('複製失敗，請手動複製：' + txt));
