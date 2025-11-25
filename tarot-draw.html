@@ -4,325 +4,274 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>塔羅抽牌｜馥靈之鑰</title>
-<meta name="description" content="簡潔優雅的塔羅抽牌工具，支援正逆位，可選擇抽1/3/5/7/9/12張牌，一鍵複製結果。">
+<meta name="description" content="簡潔優雅的塔羅抽牌工具，支援正逆位，可選擇抽 1 / 3 / 5 / 7 / 9 / 12 張牌，一鍵複製結果。">
 <link rel="icon" href="favicon.ico" />
+
+<!-- 共用風格：金黑宇宙女神 v2 -->
+<link rel="stylesheet" href="hourlight-theme-v2.css" />
+
 <style>
-  :root{
-    --milk:#f9f5f0; --cocoa:#6b4f3e;
-    --rose:#cda86e; --rose-dark:#a88257;
-    --ink:#2a2a2a; --line:rgba(0,0,0,.10);
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{
-    background:url('https://github.com/HourLight/11/raw/main/background.jpg') center/cover fixed no-repeat;
-    font-family:"Noto Sans TC","PingFang TC","Arial",sans-serif;
-    color:var(--ink);
-    padding:20px;
-    min-height:100vh;
-  }
-  .container{
-    max-width:900px;
-    margin:0 auto;
-    background:rgba(255,255,255,.95);
-    backdrop-filter:blur(8px);
-    border-radius:20px;
-    padding:32px;
-    box-shadow:0 12px 40px rgba(0,0,0,.15);
-  }
-  h1{
-    text-align:center;
-    color:var(--cocoa);
-    font-size:clamp(1.5rem,4vw,2rem);
-    margin-bottom:8px;
-    font-weight:900;
-  }
-  .subtitle{
-    text-align:center;
-    color:#888;
-    font-size:0.9rem;
-    margin-bottom:24px;
-  }
+/* ====== 塔羅頁面專用微調，全部建立在 v2 之上 ====== */
 
-  /* 選擇張數 */
-  .count-selector{
-    display:flex;
-    justify-content:center;
-    gap:8px;
-    margin-bottom:20px;
-    flex-wrap:wrap;
-  }
-  .count-btn{
-    background:#fff;
-    border:2px solid var(--rose);
-    color:var(--cocoa);
-    padding:8px 16px;
-    border-radius:12px;
-    cursor:pointer;
-    font-weight:700;
-    transition:.25s;
-    font-size:0.9rem;
-  }
-  .count-btn:hover{
-    background:var(--rose);
-    color:#fff;
-    transform:translateY(-2px);
-  }
-  .count-btn.active{
-    background:linear-gradient(135deg,var(--rose),var(--rose-dark));
-    color:#fff;
-    border-color:var(--rose-dark);
-  }
+/* 外層容器：用 hl-v2-wrap + glass 當底 */
+.tarot-subtitle {
+  text-align:center;
+  margin-top:8px;
+  font-size:0.95rem;
+  opacity:0.82;
+}
 
-  /* 抽牌按鈕 */
-  .draw-btn{
-    display:block;
-    width:100%;
-    max-width:280px;
-    margin:0 auto 24px;
-    background:linear-gradient(135deg,var(--rose),var(--rose-dark));
-    color:#fff;
-    border:none;
-    padding:14px 24px;
-    border-radius:14px;
-    font-size:1.1rem;
-    font-weight:900;
-    cursor:pointer;
-    box-shadow:0 6px 18px rgba(205,168,110,.4);
-    transition:.25s;
-  }
-  .draw-btn:hover{
-    transform:translateY(-3px);
-    box-shadow:0 8px 24px rgba(205,168,110,.5);
-  }
-  .draw-btn:active{
-    transform:translateY(0);
-  }
+/* 張數選擇區 */
+.tarot-count-selector{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+  margin: 4px 0 16px;
+}
 
-  /* 卡片容器 */
-  .cards-container{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-    gap:16px;
-    margin-bottom:20px;
-    min-height:200px;
-  }
-  
-  /* 單張卡片 */
-  .card{
-    background:#fff;
-    border:2px solid var(--line);
-    border-radius:14px;
-    padding:20px 12px;
-    text-align:center;
-    box-shadow:0 4px 12px rgba(0,0,0,.08);
-    transition:.4s;
-    opacity:0;
-    transform:scale(0.8) rotateY(180deg);
-    animation:cardAppear 0.6s forwards;
-  }
-  @keyframes cardAppear{
-    to{opacity:1;transform:scale(1) rotateY(0deg)}
-  }
-  .card.reversed{
-    background:linear-gradient(135deg,#f5f5f5,#e8e8e8);
-  }
-  .card:hover{
-    transform:translateY(-4px) scale(1.02);
-    box-shadow:0 8px 20px rgba(0,0,0,.12);
-  }
+.tarot-count-btn{
+  border-radius:999px;
+  padding:7px 14px;
+  font-size:0.85rem;
+  font-weight:700;
+  cursor:pointer;
+  border:1.5px solid rgba(233,194,125,0.8);
+  background:rgba(8,6,18,0.7);
+  color:#fbead5;
+  transition:all .22s var(--hl-v2-ease);
+}
+.tarot-count-btn:hover{
+  background:linear-gradient(135deg,var(--hl-v2-gold),var(--hl-v2-gold-deep));
+  color:#1b1010;
+  transform:translateY(-1px);
+  box-shadow:0 6px 16px rgba(0,0,0,0.65);
+}
+.tarot-count-btn.active{
+  background:linear-gradient(135deg,var(--hl-v2-gold),var(--hl-v2-gold-deep));
+  color:#1b1010;
+  border-color:var(--hl-v2-gold-deep);
+  box-shadow:0 6px 18px rgba(0,0,0,0.7);
+}
 
-  /* 卡片圖示 */
-  .card-icon{
-    font-size:3rem;
-    margin-bottom:12px;
-    display:block;
-    transition:.3s;
-  }
-  .card.reversed .card-icon{
-    transform:rotate(180deg);
-  }
+/* 抽牌按鈕：用 hl-v2-btn 再微調寬度 */
+.tarot-draw-btn-wrap{
+  text-align:center;
+  margin-top:8px;
+}
+.tarot-draw-btn{
+  min-width:230px;
+  font-size:1rem;
+}
 
-  /* 卡片名稱 */
-  .card-name-zh{
-    font-size:1.1rem;
-    font-weight:800;
-    color:var(--cocoa);
-    margin-bottom:4px;
-  }
-  .card-name-en{
-    font-size:0.85rem;
-    color:#888;
-    margin-bottom:8px;
-  }
-  .card-position{
-    display:inline-block;
-    padding:4px 12px;
-    border-radius:999px;
-    font-size:0.75rem;
-    font-weight:700;
-  }
-  .card-position.upright{
-    background:rgba(76,175,80,.15);
-    color:#2e7d32;
-  }
-  .card-position.reversed{
-    background:rgba(156,39,176,.15);
-    color:#7b1fa2;
-  }
+/* 卡片格線：沿用 hl-v2-card-grid */
+.tarot-grid{
+  margin-top:14px;
+}
 
-  /* 複製按鈕 */
-  .copy-btn{
-    display:block;
-    width:100%;
-    max-width:280px;
-    margin:0 auto;
-    background:#fff;
-    border:2px solid var(--cocoa);
-    color:var(--cocoa);
-    padding:12px 20px;
-    border-radius:12px;
-    font-size:1rem;
-    font-weight:800;
-    cursor:pointer;
-    transition:.25s;
-  }
-  .copy-btn:hover{
-    background:var(--cocoa);
-    color:#fff;
-    transform:translateY(-2px);
-  }
-  .copy-btn.copied{
-    background:#4caf50;
-    border-color:#4caf50;
-    color:#fff;
-  }
+/* 單張塔羅卡：疊在 hl-v2-card 上 */
+.tarot-card{
+  text-align:center;
+  padding:16px 10px;
+  animation: hl-v2-card-in .55s ease-out backwards;
+}
+.tarot-card-icon{
+  font-size:2.2rem;
+  display:block;
+  margin-bottom:10px;
+}
+.tarot-card-zh{
+  font-size:1.02rem;
+  font-weight:800;
+  margin-bottom:2px;
+}
+.tarot-card-en{
+  font-size:0.8rem;
+  opacity:0.78;
+  margin-bottom:6px;
+}
+.tarot-card-pos{
+  display:inline-block;
+  padding:3px 10px;
+  border-radius:999px;
+  font-size:0.75rem;
+  font-weight:700;
+}
+.tarot-card-pos.upright{
+  background:rgba(76,175,80,.15);
+  color:#9ff9b2;
+  border:1px solid rgba(129,199,132,0.7);
+}
+.tarot-card-pos.reversed{
+  background:rgba(156,39,176,.15);
+  color:#f0b5ff;
+  border:1px solid rgba(186,104,200,0.7);
+}
+.tarot-card.reversed .tarot-card-icon{
+  transform:rotate(180deg);
+}
 
-  /* 空狀態 */
-  .empty-state{
-    text-align:center;
-    padding:40px 20px;
-    color:#aaa;
-    font-size:0.95rem;
-  }
+/* 空狀態 */
+.tarot-empty{
+  grid-column:1/-1;
+  text-align:center;
+  font-size:0.9rem;
+  opacity:0.78;
+  padding:22px 10px;
+}
 
-  /* 返回首頁 */
-  .back-home{
-    display:block;
-    text-align:center;
-    margin-top:24px;
-    color:var(--rose);
-    text-decoration:none;
-    font-weight:700;
-    transition:.25s;
-  }
-  .back-home:hover{
-    color:var(--rose-dark);
-    text-decoration:underline;
-  }
+/* 複製按鈕 */
+#tarotCopyBtn{
+  margin-top:14px;
+}
 
-  /* 響應式 */
-  @media(max-width:600px){
-    .cards-container{
-      grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
-      gap:12px;
-    }
-    .card{padding:16px 8px}
-    .card-icon{font-size:2.5rem}
-  }
+/* 返回首頁 */
+.tarot-back-home{
+  display:block;
+  margin-top:18px;
+  text-align:center;
+  font-size:0.9rem;
+  text-decoration:none;
+  color:#f7dca8;
+}
+.tarot-back-home:hover{
+  text-decoration:underline;
+}
 </style>
 </head>
-<body>
-  <div class="container">
-    <h1>🎴 塔羅抽牌</h1>
-    <p class="subtitle">🇹🇼 源自台灣｜馥靈之鑰</p>
 
-    <!-- 選擇張數 -->
-    <div class="count-selector">
-      <button class="count-btn" data-count="1">1張</button>
-      <button class="count-btn active" data-count="3">3張</button>
-      <button class="count-btn" data-count="5">5張</button>
-      <button class="count-btn" data-count="7">7張</button>
-      <button class="count-btn" data-count="9">9張</button>
-      <button class="count-btn" data-count="12">12張</button>
+<body class="hl-v2-cosmic">
+<div class="hl-v2-wrap">
+
+  <!-- HERO 區 -->
+  <section class="hl-v2-glass hl-v2-hero">
+    <h1 class="hl-v2-hero-title">馥靈之鑰｜塔羅抽牌</h1>
+    <p class="hl-v2-hero-sub">簡潔優雅塔羅工具 × 支援正逆位 × 一鍵複製抽牌結果</p>
+    <p class="tarot-subtitle">🇹🇼 源自台灣｜馥靈之鑰 Hour Light</p>
+    <div class="hl-v2-badges">
+      <span class="hl-v2-badge">22張大秘儀＋56張小秘儀</span>
+      <span class="hl-v2-badge">支援 1 / 3 / 5 / 7 / 9 / 12 張</span>
+      <span class="hl-v2-badge">正逆位自動標示</span>
     </div>
+  </section>
+
+  <!-- 抽牌控制區 -->
+  <section class="hl-v2-glass">
+    <h2 class="hl-v2-section-title" style="margin-top:4px;">選擇抽牌張數</h2>
+
+    <!-- 張數選擇 -->
+    <div class="tarot-count-selector" id="tarotCountSelector">
+      <button class="tarot-count-btn" data-tarot-count="1">1 張</button>
+      <button class="tarot-count-btn active" data-tarot-count="3">3 張</button>
+      <button class="tarot-count-btn" data-tarot-count="5">5 張</button>
+      <button class="tarot-count-btn" data-tarot-count="7">7 張</button>
+      <button class="tarot-count-btn" data-tarot-count="9">9 張</button>
+      <button class="tarot-count-btn" data-tarot-count="12">12 張</button>
+    </div>
+
+    <p class="hl-v2-text-center hl-v2-text-muted">
+      小提醒：抽牌前，先在心裡默念一次你的問題，<br>
+      想著「我要看到此刻最需要知道的畫面」，再按下抽牌。
+    </p>
 
     <!-- 抽牌按鈕 -->
-    <button class="draw-btn" onclick="drawCards()">🔮 開始抽牌</button>
+    <div class="tarot-draw-btn-wrap">
+      <button id="tarotDrawBtn" class="hl-v2-btn hl-v2-btn-primary tarot-draw-btn">
+        🔮 開始抽牌
+      </button>
+    </div>
+  </section>
 
-    <!-- 卡片容器 -->
-    <div class="cards-container" id="cardsContainer">
-      <div class="empty-state">選擇張數後，點擊「開始抽牌」</div>
+  <!-- 抽出來的牌 -->
+  <section class="hl-v2-glass">
+    <div id="tarotGrid" class="hl-v2-card-grid tarot-grid">
+      <div class="tarot-empty">選擇張數後，點擊「開始抽牌」，這裡會出現今日的塔羅陣列。</div>
     </div>
 
-    <!-- 複製按鈕 -->
-    <button class="copy-btn" id="copyBtn" onclick="copyResult()" style="display:none">
-      📋 一鍵複製結果
-    </button>
+    <div class="hl-v2-btn-row">
+      <button id="tarotCopyBtn" class="hl-v2-btn hl-v2-btn-secondary" style="display:none;">
+        📋 一鍵複製結果
+      </button>
+    </div>
 
-    <!-- 返回首頁 -->
-    <a href="index.html" class="back-home">🏠 返回首頁</a>
-  </div>
+    <a href="index.html" class="tarot-back-home">🏠 返回首頁</a>
+  </section>
+
+  <!-- Footer -->
+  <footer class="hl-v2-footer">
+    <div class="hl-v2-footer-block">
+      <strong>馥靈之鑰｜塔羅線上抽牌工具</strong><br>
+      本工具僅供<strong>身心放鬆、情緒紓解、壓力管理、能量調頻與氣血循環調理</strong>等日常參考使用，<br>
+      不屬於任何醫療行為，也不等同心理相關專業服務。<br>
+      若有明顯或長期身心不適，請尋求合格醫療或心理相關專業協助。<br><br>
+      LINE 官方：<a href="https://lin.ee/vpbLhNjF" target="_blank">@hourlight</a><br>
+      © 2025 馥靈之鑰 Hour Light｜Hour Light Emotional Balance Studio, Taiwan
+    </div>
+  </footer>
+</div>
 
 <script>
-// 塔羅牌資料（22張大阿爾克那）
+// ========= 塔羅資料：和你原本那版一樣，只是包進 v2 版頁面 =========
+
+// 22 張大阿爾克那
 const majorArcana = [
-  {zh:"愚者",en:"The Fool",icon:"🌟"},
-  {zh:"魔術師",en:"The Magician",icon:"🎩"},
-  {zh:"女祭司",en:"The High Priestess",icon:"🌙"},
-  {zh:"皇后",en:"The Empress",icon:"👑"},
-  {zh:"皇帝",en:"The Emperor",icon:"⚔️"},
-  {zh:"教皇",en:"The Hierophant",icon:"📿"},
-  {zh:"戀人",en:"The Lovers",icon:"💕"},
-  {zh:"戰車",en:"The Chariot",icon:"🏇"},
-  {zh:"力量",en:"Strength",icon:"🦁"},
-  {zh:"隱者",en:"The Hermit",icon:"🕯️"},
-  {zh:"命運之輪",en:"Wheel of Fortune",icon:"🎡"},
-  {zh:"正義",en:"Justice",icon:"⚖️"},
-  {zh:"倒吊人",en:"The Hanged Man",icon:"🔄"},
-  {zh:"死神",en:"Death",icon:"🌑"},
-  {zh:"節制",en:"Temperance",icon:"🍶"},
-  {zh:"惡魔",en:"The Devil",icon:"😈"},
-  {zh:"高塔",en:"The Tower",icon:"🗼"},
-  {zh:"星星",en:"The Star",icon:"⭐"},
-  {zh:"月亮",en:"The Moon",icon:"🌜"},
-  {zh:"太陽",en:"The Sun",icon:"☀️"},
-  {zh:"審判",en:"Judgement",icon:"📯"},
-  {zh:"世界",en:"The World",icon:"🌍"}
+  { zh:"愚者",   en:"The Fool",        icon:"🌟" },
+  { zh:"魔術師", en:"The Magician",   icon:"🎩" },
+  { zh:"女祭司", en:"The High Priestess", icon:"🌙" },
+  { zh:"皇后",   en:"The Empress",    icon:"👑" },
+  { zh:"皇帝",   en:"The Emperor",    icon:"⚔️" },
+  { zh:"教皇",   en:"The Hierophant", icon:"📿" },
+  { zh:"戀人",   en:"The Lovers",     icon:"💕" },
+  { zh:"戰車",   en:"The Chariot",    icon:"🏇" },
+  { zh:"力量",   en:"Strength",       icon:"🦁" },
+  { zh:"隱者",   en:"The Hermit",     icon:"🕯️" },
+  { zh:"命運之輪", en:"Wheel of Fortune", icon:"🎡" },
+  { zh:"正義",   en:"Justice",        icon:"⚖️" },
+  { zh:"倒吊人", en:"The Hanged Man", icon:"🔄" },
+  { zh:"死神",   en:"Death",          icon:"🌑" },
+  { zh:"節制",   en:"Temperance",     icon:"🍶" },
+  { zh:"惡魔",   en:"The Devil",      icon:"😈" },
+  { zh:"高塔",   en:"The Tower",      icon:"🗼" },
+  { zh:"星星",   en:"The Star",       icon:"⭐" },
+  { zh:"月亮",   en:"The Moon",       icon:"🌜" },
+  { zh:"太陽",   en:"The Sun",        icon:"☀️" },
+  { zh:"審判",   en:"Judgement",      icon:"📯" },
+  { zh:"世界",   en:"The World",      icon:"🌍" }
 ];
 
-// 小阿爾克那（56張）
+// 小阿爾克那四花色
 const suits = {
-  wands: {zh:"權杖",en:"Wands",icon:"🔥"},
-  cups: {zh:"聖杯",en:"Cups",icon:"💧"},
-  swords: {zh:"寶劍",en:"Swords",icon:"⚔️"},
-  pentacles: {zh:"錢幣",en:"Pentacles",icon:"💰"}
+  wands:      { zh:"權杖",  en:"Wands",      icon:"🔥" },
+  cups:       { zh:"聖杯",  en:"Cups",       icon:"💧" },
+  swords:     { zh:"寶劍",  en:"Swords",     icon:"⚔️" },
+  pentacles:  { zh:"錢幣",  en:"Pentacles",  icon:"💰" }
 };
 
 const ranks = [
-  {zh:"王牌",en:"Ace"},
-  {zh:"二",en:"Two"},
-  {zh:"三",en:"Three"},
-  {zh:"四",en:"Four"},
-  {zh:"五",en:"Five"},
-  {zh:"六",en:"Six"},
-  {zh:"七",en:"Seven"},
-  {zh:"八",en:"Eight"},
-  {zh:"九",en:"Nine"},
-  {zh:"十",en:"Ten"},
-  {zh:"侍者",en:"Page"},
-  {zh:"騎士",en:"Knight"},
-  {zh:"王后",en:"Queen"},
-  {zh:"國王",en:"King"}
+  { zh:"王牌", en:"Ace" },
+  { zh:"二",   en:"Two" },
+  { zh:"三",   en:"Three" },
+  { zh:"四",   en:"Four" },
+  { zh:"五",   en:"Five" },
+  { zh:"六",   en:"Six" },
+  { zh:"七",   en:"Seven" },
+  { zh:"八",   en:"Eight" },
+  { zh:"九",   en:"Nine" },
+  { zh:"十",   en:"Ten" },
+  { zh:"侍者", en:"Page" },
+  { zh:"騎士", en:"Knight" },
+  { zh:"王后", en:"Queen" },
+  { zh:"國王", en:"King" }
 ];
 
-// 生成完整78張塔羅牌
+// 組成完整 78 張塔羅牌
 const allCards = [...majorArcana];
-Object.entries(suits).forEach(([key,suit])=>{
-  ranks.forEach(rank=>{
+Object.values(suits).forEach(suit => {
+  ranks.forEach(rank => {
     allCards.push({
-      zh:`${suit.zh}${rank.zh}`,
-      en:`${rank.en} of ${suit.en}`,
-      icon:suit.icon
+      zh: `${suit.zh}${rank.zh}`,
+      en: `${rank.en} of ${suit.en}`,
+      icon: suit.icon
     });
   });
 });
@@ -330,76 +279,97 @@ Object.entries(suits).forEach(([key,suit])=>{
 let selectedCount = 3;
 let drawnCards = [];
 
-// 選擇張數
-document.querySelectorAll('.count-btn').forEach(btn=>{
-  btn.addEventListener('click',function(){
-    document.querySelectorAll('.count-btn').forEach(b=>b.classList.remove('active'));
-    this.classList.add('active');
-    selectedCount = parseInt(this.dataset.count);
+const countBtns   = document.querySelectorAll('.tarot-count-btn');
+const drawBtn     = document.getElementById('tarotDrawBtn');
+const gridEl      = document.getElementById('tarotGrid');
+const copyBtn     = document.getElementById('tarotCopyBtn');
+
+// 張數選擇
+countBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    countBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedCount = parseInt(btn.dataset.tarotCount, 10) || 3;
   });
 });
 
 // 抽牌
-function drawCards(){
-  const container = document.getElementById('cardsContainer');
-  const copyBtn = document.getElementById('copyBtn');
-  
+drawBtn.addEventListener('click', () => {
   // 洗牌
-  const shuffled = [...allCards].sort(()=>Math.random()-0.5);
-  drawnCards = shuffled.slice(0,selectedCount).map(card=>({
+  const shuffled = [...allCards].sort(() => Math.random() - 0.5);
+  drawnCards = shuffled.slice(0, selectedCount).map(card => ({
     ...card,
-    reversed: Math.random()>0.5
+    reversed: Math.random() > 0.5
   }));
 
-  // 清空容器
-  container.innerHTML = '';
+  // 清空
+  gridEl.innerHTML = '';
 
-  // 渲染卡片
-  drawnCards.forEach((card,index)=>{
-    const cardEl = document.createElement('div');
-    cardEl.className = 'card' + (card.reversed?' reversed':'');
-    cardEl.style.animationDelay = `${index*0.1}s`;
-    cardEl.innerHTML = `
-      <span class="card-icon">${card.icon}</span>
-      <div class="card-name-zh">${card.zh}</div>
-      <div class="card-name-en">${card.en}</div>
-      <span class="card-position ${card.reversed?'reversed':'upright'}">
-        ${card.reversed?'逆位':'正位'}
+  // 渲染
+  drawnCards.forEach((card, idx) => {
+    const cardDiv = document.createElement('div');
+    cardDiv.className = 'hl-v2-card tarot-card' + (card.reversed ? ' reversed' : '');
+    cardDiv.style.animationDelay = `${idx * 0.08}s`;
+
+    cardDiv.innerHTML = `
+      <span class="tarot-card-icon">${card.icon}</span>
+      <div class="tarot-card-zh">${card.zh}</div>
+      <div class="tarot-card-en">${card.en}</div>
+      <span class="tarot-card-pos ${card.reversed ? 'reversed' : 'upright'}">
+        ${card.reversed ? '逆位' : '正位'}
       </span>
     `;
-    container.appendChild(cardEl);
+    gridEl.appendChild(cardDiv);
   });
 
   // 顯示複製按鈕
-  copyBtn.style.display = 'block';
+  copyBtn.style.display = 'inline-block';
   copyBtn.textContent = '📋 一鍵複製結果';
-  copyBtn.classList.remove('copied');
-}
+  copyBtn.classList.remove('hl-v2-btn-primary');
+});
 
-// 複製結果
-function copyResult(){
+// 一鍵複製結果
+copyBtn.addEventListener('click', () => {
+  if (!drawnCards.length) return;
+
   const now = new Date();
-  const time = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  
-  let text = '🎴 塔羅抽牌結果\n━━━━━━━━━━━━━━\n';
-  drawnCards.forEach((card,i)=>{
-    text += `${i+1}. ${card.zh} (${card.en}) - ${card.reversed?'逆位':'正位'}\n`;
-  });
-  text += `━━━━━━━━━━━━━━\n抽牌時間：${time}\n🇹🇼 源自台灣｜馥靈之鑰`;
+  const yyyy = now.getFullYear();
+  const mm   = String(now.getMonth() + 1).padStart(2, '0');
+  const dd   = String(now.getDate()).padStart(2, '0');
+  const hh   = String(now.getHours()).padStart(2, '0');
+  const mi   = String(now.getMinutes()).padStart(2, '0');
 
-  // 複製到剪貼簿
-  navigator.clipboard.writeText(text).then(()=>{
-    const btn = document.getElementById('copyBtn');
-    btn.textContent = '✅ 已複製！';
-    btn.classList.add('copied');
-    setTimeout(()=>{
-      btn.textContent = '📋 一鍵複製結果';
-      btn.classList.remove('copied');
-    },2000);
-  }).catch(err=>{
-    alert('複製失敗，請手動複製：\n\n'+text);
+  let text = '🎴 塔羅抽牌結果\n━━━━━━━━━━━━━━\n';
+  drawnCards.forEach((card, i) => {
+    text += `${i + 1}. ${card.zh} (${card.en}) - ${card.reversed ? '逆位' : '正位'}\n`;
   });
-}
+  text += `━━━━━━━━━━━━━━\n抽牌時間：${yyyy}-${mm}-${dd} ${hh}:${mi}\n🇹🇼 源自台灣｜馥靈之鑰`;
+
+  if (!navigator.clipboard) {
+    // 後備方案
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  } else {
+    navigator.clipboard.writeText(text).catch(() => {
+      // 失敗就丟回 alert
+      alert('複製失敗，請手動複製：\n\n' + text);
+      return;
+    });
+  }
+
+  copyBtn.textContent = '✅ 已複製！';
+  copyBtn.classList.add('hl-v2-btn-primary');
+  setTimeout(() => {
+    copyBtn.textContent = '📋 一鍵複製結果';
+    copyBtn.classList.remove('hl-v2-btn-primary');
+  }, 2000);
+});
 </script>
 </body>
 </html>
