@@ -8,112 +8,154 @@
 <link rel="icon" href="favicon.ico" />
 <style>
   :root{
-    --milk:#f9f5f0; --cocoa:#6b4f3e;
-    --rose:#cda86e; --rose-dark:#a88257;
-    --ink:#2a2a2a; --line:rgba(0,0,0,.10);
+    --font-main:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+
+    --bg-deep:#05030a;
+    --bg-soft:#14101b;
+    --panel:#0f0a22;
+
+    --ink-main:#f9f0e5;
+    --ink-soft:#d9cbbf;
+    --ink-muted:#a8968a;
+
+    --gold:#e9c27d;
+    --gold-deep:#cda86e;
+
+    --line:rgba(255,255,255,.14);
+    --shadow-md:0 14px 36px rgba(0,0,0,.9);
+    --ease:.25s cubic-bezier(0.4,0,0.2,1);
   }
+
   *{box-sizing:border-box;margin:0;padding:0}
+
   body{
-    background:url('https://github.com/HourLight/11/raw/main/background.jpg') center/cover fixed no-repeat;
-    font-family:"Noto Sans TC","PingFang TC","Arial",sans-serif;
-    color:var(--ink);
-    padding:20px;
     min-height:100vh;
+    font-family:var(--font-main);
+    color:var(--ink-main);
+    padding:20px;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(233,194,125,0.22) 0, transparent 55%),
+      radial-gradient(circle at 85% 100%, rgba(94,72,183,0.32) 0, transparent 55%),
+      url('https://github.com/HourLight/11/raw/main/background.jpg') center/cover fixed no-repeat,
+      linear-gradient(180deg,var(--bg-deep) 0%,var(--bg-soft) 100%);
+    background-blend-mode:multiply,normal,soft-light,normal;
   }
+
+  body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background:
+      radial-gradient(circle at 50% 20%, rgba(255,255,255,0.12) 0, transparent 55%);
+    mix-blend-mode:screen;
+    z-index:0;
+  }
+
   .container{
     max-width:700px;
     margin:0 auto;
-    background:rgba(255,255,255,.95);
-    backdrop-filter:blur(8px);
+    background:var(--panel);
+    backdrop-filter:blur(18px) saturate(140%);
     border-radius:20px;
-    padding:40px 32px;
-    box-shadow:0 12px 40px rgba(0,0,0,.15);
+    padding:32px 24px 28px;
+    box-shadow:var(--shadow-md);
+    border:1px solid var(--line);
+    position:relative;
+    z-index:1;
   }
+
   h1{
     text-align:center;
-    color:var(--cocoa);
+    color:var(--gold);
     font-size:clamp(1.8rem,4vw,2.2rem);
-    margin-bottom:8px;
+    margin-bottom:6px;
     font-weight:900;
+    letter-spacing:.16em;
+    text-transform:uppercase;
   }
   .subtitle{
     text-align:center;
-    color:#888;
+    color:var(--ink-soft);
     font-size:0.9rem;
-    margin-bottom:32px;
+    margin-bottom:26px;
   }
 
   .input-section{
-    background:rgba(249,245,240,.6);
+    background:rgba(15,10,40,.9);
     border-radius:16px;
-    padding:24px;
-    margin-bottom:24px;
+    padding:20px 18px;
+    margin-bottom:20px;
+    border:1px solid rgba(255,255,255,0.15);
   }
   .input-label{
-    font-size:0.95rem;
+    font-size:0.92rem;
     font-weight:700;
-    color:var(--cocoa);
-    margin-bottom:12px;
+    color:var(--ink-main);
+    margin-bottom:10px;
     display:block;
   }
   .date-input{
     width:100%;
-    padding:14px 16px;
-    border:2px solid var(--line);
-    border-radius:12px;
+    padding:12px 14px;
+    border:1.8px solid rgba(255,255,255,0.2);
+    border-radius:10px;
     font-size:1rem;
     font-family:inherit;
-    transition:.25s;
-    background:#fff;
+    transition:var(--ease);
+    background:rgba(5,3,18,0.95);
+    color:var(--ink-main);
   }
   .date-input:focus{
     outline:none;
-    border-color:var(--rose);
-    box-shadow:0 0 0 3px rgba(205,168,110,.15);
+    border-color:var(--gold);
+    box-shadow:0 0 0 2px rgba(233,194,125,.45);
   }
 
   .calc-btn{
     display:block;
     width:100%;
-    background:linear-gradient(135deg,var(--rose),var(--rose-dark));
-    color:#fff;
+    background:linear-gradient(135deg,var(--gold),var(--gold-deep));
+    color:#20120a;
     border:none;
-    padding:16px 24px;
+    padding:14px 20px;
     border-radius:14px;
-    font-size:1.1rem;
+    font-size:1.02rem;
     font-weight:900;
     cursor:pointer;
-    box-shadow:0 6px 18px rgba(205,168,110,.4);
-    transition:.25s;
-    margin-top:16px;
+    box-shadow:0 10px 28px rgba(0,0,0,.9);
+    transition:var(--ease);
+    margin-top:14px;
+    letter-spacing:.06em;
   }
   .calc-btn:hover{
-    transform:translateY(-3px);
-    box-shadow:0 8px 24px rgba(205,168,110,.5);
+    transform:translateY(-2px);
+    box-shadow:0 14px 34px rgba(0,0,0,1);
   }
 
   .result-section{
     display:none;
-    margin-top:32px;
+    margin-top:26px;
   }
   .result-section.show{
     display:block;
     animation:fadeIn 0.5s;
   }
   @keyframes fadeIn{
-    from{opacity:0;transform:translateY(20px)}
+    from{opacity:0;transform:translateY(14px)}
     to{opacity:1;transform:translateY(0)}
   }
 
   .rainbow-card{
-    background:#fff;
+    background:rgba(10,7,30,0.96);
     border-radius:16px;
-    padding:32px 24px;
-    margin-bottom:24px;
+    padding:26px 20px;
+    margin-bottom:20px;
     text-align:center;
-    box-shadow:0 8px 24px rgba(0,0,0,.12);
+    box-shadow:0 10px 28px rgba(0,0,0,.9);
     position:relative;
     overflow:hidden;
+    border:1px solid rgba(255,255,255,0.14);
   }
   .rainbow-card::before{
     content:'';
@@ -121,112 +163,118 @@
     top:0;
     left:0;
     right:0;
-    height:6px;
+    height:5px;
     background:linear-gradient(90deg,#ff0000,#ff7f00,#ffff00,#00ff00,#0000ff,#4b0082,#9400d3);
   }
   .color-circle{
     width:120px;
     height:120px;
     border-radius:50%;
-    margin:0 auto 20px;
-    box-shadow:0 8px 24px rgba(0,0,0,.2);
+    margin:0 auto 18px;
+    box-shadow:0 10px 26px rgba(0,0,0,.85);
     display:flex;
     align-items:center;
     justify-content:center;
     font-size:3rem;
     font-weight:900;
     color:#fff;
-    text-shadow:0 2px 4px rgba(0,0,0,.3);
+    text-shadow:0 2px 4px rgba(0,0,0,.45);
   }
   .color-name{
-    font-size:1.5rem;
+    font-size:1.2rem;
     font-weight:900;
-    color:var(--cocoa);
-    margin-bottom:8px;
+    color:var(--gold);
+    margin-bottom:6px;
   }
   .color-desc{
-    font-size:1rem;
-    color:#666;
+    font-size:0.96rem;
+    color:var(--ink-soft);
     line-height:1.7;
-    margin-bottom:16px;
+    margin-bottom:12px;
   }
   .energy-tag{
     display:inline-block;
-    padding:6px 16px;
-    background:rgba(205,168,110,.15);
+    padding:5px 12px;
+    background:rgba(233,194,125,.08);
     border-radius:999px;
-    font-size:0.85rem;
+    font-size:0.78rem;
     font-weight:700;
-    color:var(--rose);
-    margin:4px;
+    color:var(--gold);
+    margin:3px;
+    border:1px solid rgba(233,194,125,0.4);
   }
 
   .info-section{
-    background:rgba(249,245,240,.6);
+    background:rgba(15,10,40,.9);
     border-radius:12px;
-    padding:20px;
-    margin-bottom:20px;
+    padding:18px 16px;
+    margin-bottom:16px;
+    border:1px solid rgba(255,255,255,0.14);
   }
   .info-title{
-    font-size:1rem;
+    font-size:0.96rem;
     font-weight:800;
-    color:var(--cocoa);
-    margin-bottom:12px;
+    color:var(--gold);
+    margin-bottom:8px;
   }
   .info-text{
-    font-size:0.95rem;
-    color:#666;
-    line-height:1.6;
+    font-size:0.9rem;
+    color:var(--ink-soft);
+    line-height:1.7;
   }
 
   .copy-btn{
     display:block;
     width:100%;
-    background:#fff;
-    border:2px solid var(--cocoa);
-    color:var(--cocoa);
-    padding:12px 20px;
+    background:transparent;
+    border:2px solid rgba(233,194,125,0.7);
+    color:var(--ink-main);
+    padding:11px 18px;
     border-radius:12px;
-    font-size:1rem;
+    font-size:0.95rem;
     font-weight:800;
     cursor:pointer;
-    transition:.25s;
+    transition:var(--ease);
+    margin-top:4px;
   }
   .copy-btn:hover{
-    background:var(--cocoa);
-    color:#fff;
+    background:rgba(233,194,125,0.12);
     transform:translateY(-2px);
+    box-shadow:0 8px 22px rgba(0,0,0,.85);
   }
   .copy-btn.copied{
     background:#4caf50;
     border-color:#4caf50;
     color:#fff;
+    box-shadow:0 8px 22px rgba(0,0,0,.9);
   }
 
   .back-home{
     display:block;
     text-align:center;
-    margin-top:24px;
-    color:var(--rose);
+    margin-top:22px;
+    color:var(--ink-soft);
     text-decoration:none;
     font-weight:700;
-    transition:.25s;
+    font-size:0.9rem;
+    transition:var(--ease);
   }
   .back-home:hover{
-    color:var(--rose-dark);
+    color:var(--gold);
     text-decoration:underline;
   }
 
   @media(max-width:600px){
-    .container{padding:28px 20px}
-    .color-circle{width:100px;height:100px;font-size:2.5rem}
+    body{padding:14px}
+    .container{padding:26px 18px}
+    .color-circle{width:100px;height:100px;font-size:2.4rem}
   }
 </style>
 </head>
 <body>
   <div class="container">
     <h1>🌈 彩虹數字計算器</h1>
-    <p class="subtitle">🇹🇼 源自台灣｜馥靈之鑰</p>
+    <p class="subtitle">🇹🇼 源自台灣｜馥靈之鑰｜以數字節奏讀你的能量色彩</p>
 
     <div class="input-section">
       <label class="input-label">請輸入你的出生日期</label>
@@ -248,90 +296,90 @@
       </div>
 
       <div class="info-section">
-        <div class="info-title">💫 給你的建議</div>
+        <div class="info-title">💫 給你的日常建議</div>
         <div class="info-text" id="adviceText">-</div>
       </div>
 
-      <button class="copy-btn" onclick="copyResult()">📋 一鍵複製結果</button>
+      <button class="copy-btn" onclick="copyResult(event)">📋 一鍵複製結果</button>
     </div>
 
     <a href="index.html" class="back-home">🏠 返回首頁</a>
   </div>
 
 <script>
-// 彩虹數字資料
+// 彩虹數字資料（已避開「療癒」等敏感詞）
 const rainbowData = {
   1: {
     color: '#FF0000',
     name: '紅色｜行動力',
-    desc: '你是熱情的開創者，充滿行動力和勇氣。紅色代表生命力、熱情與勇敢。',
-    energy: '你擁有強大的行動力和領導能力，天生不怕挑戰。你的能量像火焰一樣熾熱，能夠點燃周圍的人。當你專注在目標上時，沒有什麼能夠阻擋你前進。',
-    advice: '學會在行動前深呼吸，給自己一點思考的空間。你的熱情是禮物，但也要記得適時休息，避免燃燒殆盡。',
+    desc: '你是熱情的開創者，充滿行動力和勇氣。紅色代表生命力、主動與突破。',
+    energy: '你擁有強大的行動力和帶頭能力，天生不怕挑戰。你的能量像火焰一樣熾熱，能點燃周圍的人。當你專注在目標上時，沒有什麼能擋得住你。',
+    advice: '學會在行動前先深呼吸三次，給自己一點思考空間。你的熱情是禮物，但也要記得安排充電時間，避免把自己用到沒電。',
     tags: ['熱情','勇氣','行動力']
   },
   2: {
     color: '#FF7F00',
     name: '橙色｜創造力',
-    desc: '你是溫暖的創造者，充滿創意和喜悅。橙色代表創造力、喜悅與熱情。',
-    energy: '你擁有源源不絕的創意和表達欲，天生樂觀開朗。你的能量像陽光一樣溫暖，能夠療癒周圍的人。當你自由表達時，你就是最美的自己。',
-    advice: '相信你的創意，不要害怕與眾不同。你的獨特性就是你的超能力，勇敢地展現出來吧。',
-    tags: ['創造力','喜悅','表達']
+    desc: '你是溫暖的創造者，充滿創意和玩心。橙色代表創造力、喜悅與分享。',
+    energy: '你擁有源源不絕的點子和表達慾，天生樂觀開朗。你的能量像陽光一樣溫暖，和你相處的人通常會覺得比較放鬆。當你自由創作時，你就是最亮眼的自己。',
+    advice: '相信你的怪點子，不要急著自我否定。你的獨特風格就是你的價值。試著為你的創意排一點正式的時間，而不是永遠擠在空檔裡。',
+    tags: ['創造力','玩心','表達']
   },
   3: {
     color: '#FFFF00',
     name: '黃色｜智慧',
-    desc: '你是明亮的智者，充滿智慧和洞察力。黃色代表智慧、清晰與光明。',
-    energy: '你擁有清晰的思維和敏銳的洞察力，天生善於學習和分析。你的能量像陽光一樣明亮，能夠照亮真相。當你專注思考時，你能看見別人看不見的真理。',
-    advice: '不要過度分析，有時候直覺比邏輯更重要。學會放鬆你的大腦，讓智慧自然流動。',
+    desc: '你是明亮的思考者，充滿智慧和洞察力。黃色代表思考、清晰與分析。',
+    energy: '你擁有清楚的頭腦與敏銳的觀察力，天生善於學習與整理資訊。你的能量像燈塔一樣，能幫助大家看清方向。當你專心研究一件事時，常常能看得比別人更深。',
+    advice: '提醒自己：不是每件事都需要分析到完美。學習在「剛好夠用」的資訊下做決定，可以減少腦袋過勞，讓生活更輕鬆。',
     tags: ['智慧','清晰','洞察']
   },
   4: {
     color: '#00FF00',
-    name: '綠色｜療癒',
-    desc: '你是溫柔的療癒者，充滿愛心和平衡。綠色代表療癒、成長與和諧。',
-    energy: '你擁有療癒的能量和平衡的智慧，天生關懷他人。你的能量像大自然一樣滋養，能夠撫慰受傷的心靈。當你敞開心扉時，你就是最強大的療癒師。',
-    advice: '記得先照顧好自己，才能照顧別人。你的愛是無限的，但你的能量需要補充。學會說不，保護你的界限。',
-    tags: ['療癒','愛','平衡']
+    name: '綠色｜穩定與照顧',
+    desc: '你是溫柔的照顧者，重視安全感與平衡。綠色代表穩定、成長與互相支持。',
+    energy: '你擁有安撫情緒與維持平衡的能力，天生願意照顧他人。你的存在像一片樹蔭，讓靠近你的人覺得比較安心。當環境混亂時，你很適合當那個幫大家慢下來的人。',
+    advice: '記得先照顧好自己，再照顧別人。你的溫柔很珍貴，但你的體力與情緒也需要補充。練習說「我現在需要休息一下」，不是自私，是長久陪伴的關鍵。',
+    tags: ['穩定','照顧','平衡']
   },
   5: {
     color: '#0000FF',
     name: '藍色｜溝通',
-    desc: '你是真誠的溝通者，充滿表達力和真實。藍色代表溝通、真理與平靜。',
-    energy: '你擁有清晰的表達能力和真誠的心，天生善於溝通。你的能量像海洋一樣深邃，能夠傳遞真理。當你說出真心話時，你的話語充滿力量。',
-    advice: '勇敢說出你的真實感受，不要壓抑你的聲音。你的真誠是你最大的魅力，世界需要聽見你的聲音。',
-    tags: ['溝通','真實','表達']
+    desc: '你是真誠的溝通者，重視對話與理解。藍色代表表達、真實與傾聽。',
+    energy: '你擁有清晰的表達能力與敏感的耳朵，天生適合做橋樑。你的能量像一條安靜的河，讓情緒有地方流動。當你願意說出真實感受時，你的話語很有影響力。',
+    advice: '學習在舒服的界線內說真話，不需要逞強、也不必壓抑。你可以選擇你要說多少，而不是逼自己全盤托出。你的真誠，比完美更重要。',
+    tags: ['溝通','真實','傾聽']
   },
   6: {
     color: '#4B0082',
-    name: '靛色｜直覺',
-    desc: '你是敏銳的直覺者，充滿洞察力和靈性。靛色代表直覺、靈性與洞察。',
-    energy: '你擁有強大的直覺和靈性連結，天生能感知能量。你的能量像夜空一樣神秘，能夠看見隱藏的真相。當你信任直覺時，你永遠不會迷路。',
-    advice: '相信你的直覺，它永遠不會騙你。學會區分恐懼和直覺，前者讓你退縮，後者引導你前進。',
-    tags: ['直覺','靈性','洞察']
+    name: '靛色｜直覺與敏感度',
+    desc: '你是細膩的感受者，直覺敏銳、感受力強。靛色代表直覺、深度與感知力。',
+    energy: '你常常能提前感覺到氣氛的變化，也容易讀到別人的情緒。你的能量像深夜的天空，安靜卻承載很多訊息。當你願意相信自己內在的小聲音時，往往能避開不少繞路。',
+    advice: '練習分辨「擔心的腦補」和「真正的直覺」。給自己多一點安靜的時間，讓心慢慢沉澱，你會越來越清楚什麼才是真的需要在意的訊號。',
+    tags: ['直覺','感受力','細膩']
   },
   7: {
     color: '#9400D3',
-    name: '紫色｜靈性',
-    desc: '你是神聖的靈性者，充滿智慧和超越。紫色代表靈性、智慧與轉化。',
-    energy: '你擁有深刻的靈性智慧和轉化能力，天生連結更高的意識。你的能量像宇宙一樣浩瀚，能夠超越物質界限。當你靜心時，你能接收到宇宙的訊息。',
-    advice: '不要害怕你的與眾不同，你的靈性天賦是禮物。學會在物質與靈性之間找到平衡，你可以同時活在兩個世界。',
-    tags: ['靈性','智慧','轉化']
+    name: '紫色｜整合與洞見',
+    desc: '你是擅長看全局的人，喜歡思考人生的意義與方向。紫色代表整合、深度與轉化。',
+    energy: '你不滿足於表面答案，常常想理解「事情背後真正的原因」。你的能量像一座高處的觀景台，能同時看見很多層面。當你願意把想法說出來時，很容易給別人帶來新的視角。',
+    advice: '記得偶爾從「想很多」裡休息一下，讓身體做點簡單的事。你不需要一次想清楚所有問題，只要先處理眼前一小步就好。',
+    tags: ['洞見','整合','轉化']
   },
   8: {
     color: '#FFD700',
-    name: '金色｜豐盛',
-    desc: '你是豐盛的顯化者，充滿力量和成就。金色代表豐盛、力量與成功。',
-    energy: '你擁有強大的顯化能力和商業頭腦，天生能創造豐盛。你的能量像黃金一樣珍貴，能夠吸引財富和成功。當你相信自己時，你能創造奇蹟。',
-    advice: '記得豐盛不只是金錢，還包括愛、健康和喜悅。學會感恩你已經擁有的，宇宙會給你更多。',
-    tags: ['豐盛','力量','成功']
+    name: '金色｜豐盛與影響力',
+    desc: '你是具備影響力的實幹派，注重成果與實際。金色代表豐盛、承擔與成就。',
+    energy: '你對責任與成果有很高的要求，願意付出時間做出看得見的成績。你的能量像金色的太陽，能帶動整個團隊的節奏。當你對自己的價值有信心時，很容易吸引合作機會與資源。',
+    advice: '學會欣賞自己已經完成的，而不是只看「還不夠」。適時肯定自己的努力，是讓豐盛繼續流動的重要關鍵。',
+    tags: ['豐盛','實幹','影響力']
   },
   9: {
     color: '#FFFFFF',
-    name: '白色｜圓滿',
-    desc: '你是圓滿的大師，充滿智慧和包容。白色代表圓滿、純淨與完整。',
-    energy: '你擁有包容一切的智慧和無私的愛，天生能看見全貌。你的能量像光一樣純淨，能夠照亮所有黑暗。當你敞開心時，你就是愛本身。',
-    advice: '不要忘記照顧自己，你的大愛需要從自愛開始。學會放下不屬於你的責任，你已經做得夠好了。',
-    tags: ['圓滿','大愛','智慧']
+    name: '白色｜圓融與包容',
+    desc: '你是擅長包容與協調的人，能看見每個人的難處。白色代表圓融、完整與整體觀。',
+    energy: '你很容易站在別人的角度思考，因此常被當成調和者。你的能量像柔和的光，會默默照顧到很多細節。當你願意適度把注意力拉回自己，你會更有力氣去照顧重要的人。',
+    advice: '不要把全部的責任都扛在自己身上。有些事是你做得到，也有些事需要交還給對方。學會分清楚「我能負責的」和「不在我範圍內的」，會讓你輕鬆很多。',
+    tags: ['包容','協調','完整']
   }
 };
 
@@ -378,7 +426,7 @@ function calculate(){
   };
 }
 
-function copyResult(){
+function copyResult(evt){
   if(!window.currentResult) return;
   
   const r = window.currentResult;
@@ -397,7 +445,7 @@ function copyResult(){
 🇹🇼 源自台灣｜馥靈之鑰`;
 
   navigator.clipboard.writeText(text).then(()=>{
-    const btn = event.target;
+    const btn = evt.target;
     btn.textContent = '✅ 已複製！';
     btn.classList.add('copied');
     setTimeout(()=>{
