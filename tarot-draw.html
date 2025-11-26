@@ -7,140 +7,386 @@
 <meta name="description" content="簡潔優雅的塔羅抽牌工具，支援正逆位，可選擇抽 1 / 3 / 5 / 7 / 9 / 12 張牌，一鍵複製結果。">
 <link rel="icon" href="favicon.ico" />
 
-<!-- 共用風格：金黑宇宙女神 v2 -->
-<link rel="stylesheet" href="hourlight-theme-v2.css" />
-
 <style>
-/* ====== 塔羅頁面專用微調，全部建立在 v2 之上 ====== */
+/* ==============================
+   馥靈之鑰 Hour Light v2
+   黑金宇宙主題 - 塔羅抽牌頁
+   ============================== */
 
-/* 外層容器：用 hl-v2-wrap + glass 當底 */
+:root {
+  --hl-font-main: "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+
+  /* 黑金宇宙系 */
+  --hl-v2-bg-deep: #05030a;
+  --hl-v2-bg-soft: #14101b;
+  --hl-v2-bg-panel: rgba(18,13,28,0.96);
+  --hl-v2-ink-main: #f9f0e5;
+  --hl-v2-ink-soft: #e2d3c4;
+
+  --hl-v2-gold: #e9c27d;
+  --hl-v2-gold-deep: #cda86e;
+  --hl-v2-plum: #5c3a63;
+  --hl-v2-rose: #f0b5b3;
+
+  --hl-v2-border-soft: rgba(255,255,255,0.12);
+  --hl-v2-shadow-md: 0 10px 28px rgba(0,0,0,0.55);
+
+  --hl-v2-ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reset */
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth}
+
+/* ==============================
+   主題：黑金宇宙
+   ============================== */
+
+body {
+  min-height: 100vh;
+  font-family: var(--hl-font-main);
+  color: var(--hl-v2-ink-main);
+  line-height: 1.8;
+  padding: 24px 16px 48px;
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 20%, rgba(92,58,99,0.25) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 60% at 80% 80%, rgba(233,194,125,0.08) 0%, transparent 40%),
+    linear-gradient(180deg, var(--hl-v2-bg-deep) 0%, var(--hl-v2-bg-soft) 100%);
+  background-attachment: fixed;
+}
+
+/* 容器 */
+.hl-v2-wrap {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* 玻璃卡 */
+.hl-v2-glass {
+  border-radius: 20px;
+  padding: 26px 24px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(16px) saturate(140%);
+  background: var(--hl-v2-bg-panel);
+  border: 1px solid var(--hl-v2-border-soft);
+  box-shadow: var(--hl-v2-shadow-md);
+}
+
+/* HERO */
+.hl-v2-hero {
+  text-align: center;
+  padding: 28px 24px;
+}
+
+.hl-v2-hero-title {
+  margin: 0;
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  letter-spacing: .06em;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--hl-v2-gold), #fff8e7, var(--hl-v2-gold-deep));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 4px 20px rgba(233,194,125,0.25);
+}
+
+.hl-v2-hero-sub {
+  margin-top: 10px;
+  font-size: 0.98rem;
+  color: var(--hl-v2-ink-soft);
+}
+
 .tarot-subtitle {
-  text-align:center;
-  margin-top:8px;
-  font-size:0.95rem;
-  opacity:0.82;
+  text-align: center;
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: var(--hl-v2-gold);
+  opacity: 0.9;
 }
 
-/* 張數選擇區 */
-.tarot-count-selector{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:8px;
-  margin: 4px 0 16px;
+/* 徽章 */
+.hl-v2-badges {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
 }
 
-.tarot-count-btn{
-  border-radius:999px;
-  padding:7px 14px;
-  font-size:0.85rem;
-  font-weight:700;
-  cursor:pointer;
-  border:1.5px solid rgba(233,194,125,0.8);
-  background:rgba(8,6,18,0.7);
-  color:#fbead5;
-  transition:all .22s var(--hl-v2-ease);
-}
-.tarot-count-btn:hover{
-  background:linear-gradient(135deg,var(--hl-v2-gold),var(--hl-v2-gold-deep));
-  color:#1b1010;
-  transform:translateY(-1px);
-  box-shadow:0 6px 16px rgba(0,0,0,0.65);
-}
-.tarot-count-btn.active{
-  background:linear-gradient(135deg,var(--hl-v2-gold),var(--hl-v2-gold-deep));
-  color:#1b1010;
-  border-color:var(--hl-v2-gold-deep);
-  box-shadow:0 6px 18px rgba(0,0,0,0.7);
+.hl-v2-badge {
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  color: #1a1a1a;
+  background: linear-gradient(135deg, var(--hl-v2-gold), var(--hl-v2-gold-deep));
+  box-shadow: 0 3px 10px rgba(233,194,125,0.25);
+  font-weight: 700;
 }
 
-/* 抽牌按鈕：用 hl-v2-btn 再微調寬度 */
-.tarot-draw-btn-wrap{
-  text-align:center;
-  margin-top:8px;
-}
-.tarot-draw-btn{
-  min-width:230px;
-  font-size:1rem;
-}
-
-/* 卡片格線：沿用 hl-v2-card-grid */
-.tarot-grid{
-  margin-top:14px;
+/* 區塊標題 */
+.hl-v2-section-title {
+  text-align: center;
+  margin: 0 0 14px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--hl-v2-gold), #fff8e7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* 單張塔羅卡：疊在 hl-v2-card 上 */
-.tarot-card{
-  text-align:center;
-  padding:16px 10px;
-  animation: hl-v2-card-in .55s ease-out backwards;
+/* 按鈕 */
+.hl-v2-btn {
+  display: inline-block;
+  text-decoration: none;
+  font-family: var(--hl-font-main);
+  font-weight: 800;
+  font-size: 0.92rem;
+  padding: 12px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  border: none;
+  transition: all .25s var(--hl-v2-ease);
 }
-.tarot-card-icon{
-  font-size:2.2rem;
-  display:block;
-  margin-bottom:10px;
+
+.hl-v2-btn-primary {
+  background: linear-gradient(135deg, var(--hl-v2-gold), var(--hl-v2-gold-deep));
+  color: #1a1a1a;
+  box-shadow: 0 4px 14px rgba(233,194,125,0.3);
 }
-.tarot-card-zh{
-  font-size:1.02rem;
-  font-weight:800;
-  margin-bottom:2px;
+
+.hl-v2-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(233,194,125,0.45);
 }
-.tarot-card-en{
-  font-size:0.8rem;
-  opacity:0.78;
-  margin-bottom:6px;
+
+.hl-v2-btn-secondary {
+  background: rgba(255,255,255,0.08);
+  color: var(--hl-v2-ink-main);
+  border: 1px solid var(--hl-v2-border-soft);
 }
-.tarot-card-pos{
-  display:inline-block;
-  padding:3px 10px;
-  border-radius:999px;
-  font-size:0.75rem;
-  font-weight:700;
+
+.hl-v2-btn-secondary:hover {
+  background: rgba(255,255,255,0.14);
+  border-color: var(--hl-v2-gold);
 }
-.tarot-card-pos.upright{
-  background:rgba(76,175,80,.15);
-  color:#9ff9b2;
-  border:1px solid rgba(129,199,132,0.7);
+
+.hl-v2-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 14px;
 }
-.tarot-card-pos.reversed{
-  background:rgba(156,39,176,.15);
-  color:#f0b5ff;
-  border:1px solid rgba(186,104,200,0.7);
+
+/* 文字輔助 */
+.hl-v2-text-center { text-align: center; }
+.hl-v2-text-muted {
+  font-size: 0.88rem;
+  color: var(--hl-v2-ink-soft);
+  opacity: 0.85;
+  line-height: 1.7;
+  margin-bottom: 14px;
 }
-.tarot-card.reversed .tarot-card-icon{
-  transform:rotate(180deg);
+
+/* ==============================
+   塔羅頁面專用
+   ============================== */
+
+/* 張數選擇 */
+.tarot-count-selector {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.tarot-count-btn {
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid rgba(233,194,125,0.5);
+  background: rgba(8,6,18,0.7);
+  color: var(--hl-v2-ink-soft);
+  transition: all .22s var(--hl-v2-ease);
+}
+
+.tarot-count-btn:hover {
+  background: rgba(233,194,125,0.15);
+  border-color: var(--hl-v2-gold);
+  color: var(--hl-v2-ink-main);
+}
+
+.tarot-count-btn.active {
+  background: linear-gradient(135deg, var(--hl-v2-gold), var(--hl-v2-gold-deep));
+  color: #1a1a1a;
+  border-color: var(--hl-v2-gold-deep);
+  box-shadow: 0 4px 14px rgba(233,194,125,0.3);
+}
+
+/* 抽牌按鈕 */
+.tarot-draw-btn-wrap {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.tarot-draw-btn {
+  min-width: 220px;
+  font-size: 1rem;
+}
+
+/* 卡片網格 */
+.tarot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+
+/* 單張塔羅卡 */
+.tarot-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--hl-v2-border-soft);
+  border-radius: 14px;
+  padding: 18px 12px;
+  text-align: center;
+  transition: all .25s var(--hl-v2-ease);
+  animation: cardIn 0.5s ease-out backwards;
+}
+
+.tarot-card:hover {
+  border-color: var(--hl-v2-gold);
+  box-shadow: 0 6px 20px rgba(233,194,125,0.15);
+  transform: translateY(-3px);
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.tarot-card-icon {
+  font-size: 2.4rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.tarot-card-zh {
+  font-size: 1.02rem;
+  font-weight: 800;
+  color: var(--hl-v2-ink-main);
+  margin-bottom: 2px;
+}
+
+.tarot-card-en {
+  font-size: 0.78rem;
+  color: var(--hl-v2-ink-soft);
+  opacity: 0.8;
+  margin-bottom: 8px;
+}
+
+.tarot-card-pos {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.tarot-card-pos.upright {
+  background: rgba(76,175,80,0.15);
+  color: #9ff9b2;
+  border: 1px solid rgba(129,199,132,0.5);
+}
+
+.tarot-card-pos.reversed {
+  background: rgba(156,39,176,0.15);
+  color: #f0b5ff;
+  border: 1px solid rgba(186,104,200,0.5);
+}
+
+.tarot-card.reversed .tarot-card-icon {
+  transform: rotate(180deg);
 }
 
 /* 空狀態 */
-.tarot-empty{
-  grid-column:1/-1;
-  text-align:center;
-  font-size:0.9rem;
-  opacity:0.78;
-  padding:22px 10px;
-}
-
-/* 複製按鈕 */
-#tarotCopyBtn{
-  margin-top:14px;
+.tarot-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 0.92rem;
+  color: var(--hl-v2-ink-soft);
+  opacity: 0.75;
+  padding: 28px 16px;
 }
 
 /* 返回首頁 */
-.tarot-back-home{
-  display:block;
-  margin-top:18px;
-  text-align:center;
-  font-size:0.9rem;
-  text-decoration:none;
-  color:#f7dca8;
+.tarot-back-home {
+  display: block;
+  margin-top: 18px;
+  text-align: center;
+  font-size: 0.9rem;
+  text-decoration: none;
+  color: var(--hl-v2-gold);
 }
-.tarot-back-home:hover{
-  text-decoration:underline;
+
+.tarot-back-home:hover {
+  text-decoration: underline;
+}
+
+/* Footer */
+.hl-v2-footer {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.hl-v2-footer-block {
+  border-radius: 14px;
+  padding: 20px;
+  font-size: 0.82rem;
+  line-height: 1.85;
+  background: rgba(10,8,18,0.9);
+  color: var(--hl-v2-ink-soft);
+  border: 1px solid var(--hl-v2-border-soft);
+}
+
+.hl-v2-footer-block a {
+  color: var(--hl-v2-gold);
+  text-decoration: none;
+}
+
+.hl-v2-footer-block a:hover {
+  text-decoration: underline;
+}
+
+.hl-v2-footer-block strong {
+  color: var(--hl-v2-ink-main);
+}
+
+/* RWD */
+@media (max-width: 500px) {
+  .tarot-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .tarot-card {
+    padding: 14px 8px;
+  }
+  .tarot-card-icon {
+    font-size: 2rem;
+  }
 }
 </style>
 </head>
 
-<body class="hl-v2-cosmic">
+<body>
 <div class="hl-v2-wrap">
 
   <!-- HERO 區 -->
@@ -153,11 +399,16 @@
       <span class="hl-v2-badge">支援 1 / 3 / 5 / 7 / 9 / 12 張</span>
       <span class="hl-v2-badge">正逆位自動標示</span>
     </div>
+    <div class="hl-v2-btn-row" style="margin-top:16px;">
+      <a class="hl-v2-btn hl-v2-btn-secondary" href="index.html">🏠 返回首頁</a>
+      <a class="hl-v2-btn hl-v2-btn-secondary" href="draw-hl.html">🔮 馥靈之鑰抽牌</a>
+      <a class="hl-v2-btn hl-v2-btn-secondary" href="hourlight-sitemap.html">🗺️ 網站地圖</a>
+    </div>
   </section>
 
   <!-- 抽牌控制區 -->
   <section class="hl-v2-glass">
-    <h2 class="hl-v2-section-title" style="margin-top:4px;">選擇抽牌張數</h2>
+    <h2 class="hl-v2-section-title">選擇抽牌張數</h2>
 
     <!-- 張數選擇 -->
     <div class="tarot-count-selector" id="tarotCountSelector">
@@ -184,7 +435,7 @@
 
   <!-- 抽出來的牌 -->
   <section class="hl-v2-glass">
-    <div id="tarotGrid" class="hl-v2-card-grid tarot-grid">
+    <div id="tarotGrid" class="tarot-grid">
       <div class="tarot-empty">選擇張數後，點擊「開始抽牌」，這裡會出現今日的塔羅陣列。</div>
     </div>
 
@@ -200,18 +451,19 @@
   <!-- Footer -->
   <footer class="hl-v2-footer">
     <div class="hl-v2-footer-block">
-      <strong>馥靈之鑰｜塔羅線上抽牌工具</strong><br>
+      <strong>馥靈之鑰｜塔羅線上抽牌工具</strong><br><br>
       本工具僅供<strong>身心放鬆、情緒紓解、壓力管理、能量調頻與氣血循環調理</strong>等日常參考使用，<br>
-      不屬於任何醫療行為，也不等同心理相關專業服務。<br>
+      非醫療行為，亦不等同任何形式之心理專業服務。<br>
       若有明顯或長期身心不適，請尋求合格醫療或心理相關專業協助。<br><br>
-      LINE 官方：<a href="https://lin.ee/vpbLhNjF" target="_blank">@hourlight</a><br>
-      © 2025 馥靈之鑰 Hour Light｜Hour Light Emotional Balance Studio, Taiwan
+      LINE 官方：<a href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener">@hourlight</a>｜
+      Email：<a href="mailto:judyanee@gmail.com">judyanee@gmail.com</a><br><br>
+      © 2025 馥靈之鑰® Hour Light®｜Hour Light Emotional Balance Studio, Taiwan
     </div>
   </footer>
 </div>
 
 <script>
-// ========= 塔羅資料：和你原本那版一樣，只是包進 v2 版頁面 =========
+// ========= 塔羅資料 =========
 
 // 22 張大阿爾克那
 const majorArcana = [
@@ -308,7 +560,7 @@ drawBtn.addEventListener('click', () => {
   // 渲染
   drawnCards.forEach((card, idx) => {
     const cardDiv = document.createElement('div');
-    cardDiv.className = 'hl-v2-card tarot-card' + (card.reversed ? ' reversed' : '');
+    cardDiv.className = 'tarot-card' + (card.reversed ? ' reversed' : '');
     cardDiv.style.animationDelay = `${idx * 0.08}s`;
 
     cardDiv.innerHTML = `
@@ -326,6 +578,7 @@ drawBtn.addEventListener('click', () => {
   copyBtn.style.display = 'inline-block';
   copyBtn.textContent = '📋 一鍵複製結果';
   copyBtn.classList.remove('hl-v2-btn-primary');
+  copyBtn.classList.add('hl-v2-btn-secondary');
 });
 
 // 一鍵複製結果
@@ -343,10 +596,9 @@ copyBtn.addEventListener('click', () => {
   drawnCards.forEach((card, i) => {
     text += `${i + 1}. ${card.zh} (${card.en}) - ${card.reversed ? '逆位' : '正位'}\n`;
   });
-  text += `━━━━━━━━━━━━━━\n抽牌時間：${yyyy}-${mm}-${dd} ${hh}:${mi}\n🇹🇼 源自台灣｜馥靈之鑰`;
+  text += `━━━━━━━━━━━━━━\n抽牌時間：${yyyy}-${mm}-${dd} ${hh}:${mi}\n🇹🇼 源自台灣｜馥靈之鑰 Hour Light`;
 
   if (!navigator.clipboard) {
-    // 後備方案
     const ta = document.createElement('textarea');
     ta.value = text;
     ta.style.position = 'fixed';
@@ -357,17 +609,18 @@ copyBtn.addEventListener('click', () => {
     document.body.removeChild(ta);
   } else {
     navigator.clipboard.writeText(text).catch(() => {
-      // 失敗就丟回 alert
       alert('複製失敗，請手動複製：\n\n' + text);
       return;
     });
   }
 
   copyBtn.textContent = '✅ 已複製！';
+  copyBtn.classList.remove('hl-v2-btn-secondary');
   copyBtn.classList.add('hl-v2-btn-primary');
   setTimeout(() => {
     copyBtn.textContent = '📋 一鍵複製結果';
     copyBtn.classList.remove('hl-v2-btn-primary');
+    copyBtn.classList.add('hl-v2-btn-secondary');
   }, 2000);
 });
 </script>
