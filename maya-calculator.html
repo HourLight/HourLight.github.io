@@ -4,204 +4,262 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>瑪雅曆計算器｜馥靈之鑰</title>
-<meta name="description" content="找到你的瑪雅圖騰,解鎖你的宇宙印記。源自台灣,馥靈之鑰。">
+<meta name="description" content="找到你的瑪雅圖騰，解鎖你的宇宙印記。源自台灣，馥靈之鑰。">
 <link rel="icon" href="favicon.ico" />
 <style>
   :root{
-    --milk:#f9f5f0; --cocoa:#6b4f3e;
-    --rose:#cda86e; --rose-dark:#a88257;
-    --ink:#2a2a2a; --line:rgba(0,0,0,.10);
+    /* 黑金宇宙 × 柔和奶茶過渡 */
+    --bg-deep:#05030a;
+    --bg-soft:#14101b;
+    --panel:#0f0a18;
+    --panel-soft:rgba(18,13,28,0.94);
+
+    --milk:#f9f5f0;
+    --cocoa:#d9c7b2;
+    --cocoa-deep:#b39a80;
+
+    --rose:#e9c27d;
+    --rose-dark:#cda86e;
+
+    --ink-main:#f9f0e5;
+    --ink-soft:#e2d3c4;
+    --line:rgba(255,255,255,.12);
+
+    --font-main:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+    --font-display:"Noto Serif TC","Songti TC","PMingLiU",serif;
+
+    --ease:cubic-bezier(0.4, 0, 0.2, 1);
   }
+
   *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;}
+
   body{
-    background:url('https://github.com/HourLight/11/raw/main/background.jpg') center/cover fixed no-repeat;
-    font-family:"Noto Sans TC","PingFang TC","Arial",sans-serif;
-    color:var(--ink);
-    padding:20px;
     min-height:100vh;
+    font-family:var(--font-main);
+    color:var(--ink-main);
+    padding:20px 16px 40px;
+    background:
+      radial-gradient(ellipse 120% 80% at 15% 0%,rgba(92,58,99,0.38) 0%,transparent 55%),
+      radial-gradient(ellipse 90% 70% at 85% 100%,rgba(233,194,125,0.22) 0%,transparent 55%),
+      linear-gradient(180deg,var(--bg-deep) 0%,var(--bg-soft) 100%);
+    background-attachment:fixed;
   }
+
   .container{
-    max-width:700px;
+    max-width:760px;
     margin:0 auto;
-    background:rgba(255,255,255,.95);
-    backdrop-filter:blur(8px);
-    border-radius:20px;
-    padding:40px 32px;
-    box-shadow:0 12px 40px rgba(0,0,0,.15);
+    background:var(--panel-soft);
+    backdrop-filter:blur(18px) saturate(140%);
+    border-radius:22px;
+    padding:34px 26px 30px;
+    box-shadow:0 16px 40px rgba(0,0,0,.6);
+    border:1px solid var(--line);
   }
+
   h1{
     text-align:center;
-    color:var(--cocoa);
-    font-size:clamp(1.8rem,4vw,2.2rem);
+    font-family:var(--font-display);
+    color:var(--ink-main);
+    font-size:clamp(1.8rem,4vw,2.3rem);
     margin-bottom:8px;
-    font-weight:900;
+    font-weight:400;
+    letter-spacing:.25em;
+    text-indent:.25em;
+    background:linear-gradient(135deg,var(--rose),#fff9eb,var(--rose-dark));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+    text-shadow:0 4px 18px rgba(233,194,125,.25);
   }
   .subtitle{
     text-align:center;
-    color:#888;
+    color:var(--ink-soft);
     font-size:0.9rem;
-    margin-bottom:32px;
+    margin-bottom:30px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
   }
 
+  /* 輸入區 */
   .input-section{
-    background:rgba(249,245,240,.6);
-    border-radius:16px;
-    padding:24px;
+    background:rgba(18,13,28,.92);
+    border-radius:18px;
+    padding:22px 20px 24px;
     margin-bottom:24px;
+    border:1px solid var(--line);
   }
   .input-label{
     font-size:0.95rem;
     font-weight:700;
     color:var(--cocoa);
-    margin-bottom:12px;
+    margin-bottom:10px;
     display:block;
+    letter-spacing:.08em;
   }
   .date-input{
     width:100%;
-    padding:14px 16px;
-    border:2px solid var(--line);
+    padding:13px 16px;
+    border:1px solid var(--line);
     border-radius:12px;
     font-size:1rem;
     font-family:inherit;
-    transition:.25s;
-    background:#fff;
+    transition:.25s var(--ease);
+    background:rgba(8,6,16,.9);
+    color:var(--ink-main);
   }
+  .date-input::placeholder{color:rgba(255,255,255,.35);}
   .date-input:focus{
     outline:none;
     border-color:var(--rose);
-    box-shadow:0 0 0 3px rgba(205,168,110,.15);
+    box-shadow:0 0 0 2px rgba(233,194,125,.25);
   }
 
   .calc-btn{
     display:block;
     width:100%;
     background:linear-gradient(135deg,var(--rose),var(--rose-dark));
-    color:#fff;
+    color:#1a1a1a;
     border:none;
-    padding:16px 24px;
-    border-radius:14px;
-    font-size:1.1rem;
-    font-weight:900;
+    padding:15px 22px;
+    border-radius:999px;
+    font-size:1rem;
+    font-weight:800;
     cursor:pointer;
-    box-shadow:0 6px 18px rgba(205,168,110,.4);
-    transition:.25s;
-    margin-top:16px;
+    box-shadow:0 8px 22px rgba(233,194,125,.45);
+    transition:.25s var(--ease);
+    margin-top:14px;
+    letter-spacing:.12em;
+    text-indent:.12em;
   }
   .calc-btn:hover{
-    transform:translateY(-3px);
-    box-shadow:0 8px 24px rgba(205,168,110,.5);
+    transform:translateY(-2px);
+    box-shadow:0 10px 26px rgba(233,194,125,.6);
   }
 
   .result-section{
     display:none;
-    margin-top:32px;
+    margin-top:26px;
   }
   .result-section.show{
     display:block;
-    animation:fadeIn 0.5s;
+    animation:fadeIn 0.55s var(--ease);
   }
   @keyframes fadeIn{
-    from{opacity:0;transform:translateY(20px)}
+    from{opacity:0;transform:translateY(18px)}
     to{opacity:1;transform:translateY(0)}
   }
 
   .maya-card{
-    background:linear-gradient(135deg,rgba(205,168,110,.2),rgba(168,130,87,.15));
-    border:3px solid var(--rose);
-    border-radius:16px;
-    padding:32px 24px;
-    margin-bottom:24px;
+    background:radial-gradient(circle at 0% 0%,rgba(233,194,125,.15) 0%,transparent 55%),
+               radial-gradient(circle at 100% 100%,rgba(92,58,99,.25) 0%,transparent 60%),
+               linear-gradient(135deg,rgba(10,8,20,.96),rgba(20,14,32,.96));
+    border:1px solid rgba(233,194,125,.55);
+    border-radius:18px;
+    padding:26px 20px 24px;
+    margin-bottom:22px;
     text-align:center;
+    box-shadow:0 12px 32px rgba(0,0,0,.7);
   }
   .kin-number{
-    font-size:1rem;
-    color:#888;
-    margin-bottom:8px;
+    font-size:0.9rem;
+    color:var(--ink-soft);
+    margin-bottom:6px;
     font-weight:600;
+    letter-spacing:.2em;
+    text-transform:uppercase;
   }
   .totem-icon{
-    font-size:4rem;
-    margin:12px 0;
+    font-size:3.2rem;
+    margin:10px 0;
   }
   .totem-name{
-    font-size:1.8rem;
-    font-weight:900;
-    color:var(--cocoa);
-    margin-bottom:8px;
+    font-size:1.6rem;
+    font-weight:600;
+    color:var(--milk);
+    margin-bottom:6px;
+    font-family:var(--font-display);
+    letter-spacing:.08em;
   }
   .tone-name{
-    font-size:1.2rem;
+    font-size:1.1rem;
     color:var(--rose);
-    font-weight:700;
-    margin-bottom:16px;
+    font-weight:600;
+    margin-bottom:12px;
+    letter-spacing:.12em;
   }
   .totem-desc{
-    font-size:1rem;
-    color:#666;
-    line-height:1.7;
+    font-size:0.98rem;
+    color:var(--ink-soft);
+    line-height:1.8;
   }
 
   .info-grid{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-    gap:16px;
-    margin-bottom:24px;
+    gap:14px;
+    margin-bottom:22px;
   }
   .info-card{
-    background:#fff;
-    border:2px solid var(--line);
-    border-radius:12px;
-    padding:20px 16px;
+    background:rgba(10,8,20,.92);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:18px 14px;
     text-align:center;
   }
   .info-card-title{
-    font-size:0.85rem;
-    color:#888;
-    margin-bottom:8px;
+    font-size:0.82rem;
+    color:rgba(226,211,196,.85);
+    margin-bottom:6px;
     font-weight:600;
+    letter-spacing:.16em;
+    text-transform:uppercase;
   }
   .info-card-value{
-    font-size:1.1rem;
-    font-weight:800;
-    color:var(--cocoa);
+    font-size:1.05rem;
+    font-weight:700;
+    color:var(--milk);
   }
 
   .detail-section{
-    background:rgba(249,245,240,.6);
-    border-radius:12px;
-    padding:20px;
-    margin-bottom:20px;
+    background:rgba(18,13,28,.92);
+    border-radius:14px;
+    padding:18px 16px 18px;
+    margin-bottom:16px;
+    border:1px solid var(--line);
   }
   .detail-title{
-    font-size:1rem;
-    font-weight:800;
+    font-size:0.96rem;
+    font-weight:700;
     color:var(--cocoa);
-    margin-bottom:12px;
+    margin-bottom:8px;
+    letter-spacing:.08em;
   }
   .detail-text{
-    font-size:0.95rem;
-    color:#666;
-    line-height:1.6;
+    font-size:0.9rem;
+    color:var(--ink-soft);
+    line-height:1.8;
   }
 
   .copy-btn{
     display:block;
     width:100%;
-    background:#fff;
-    border:2px solid var(--cocoa);
+    background:transparent;
+    border:1px solid var(--cocoa);
     color:var(--cocoa);
-    padding:12px 20px;
-    border-radius:12px;
-    font-size:1rem;
-    font-weight:800;
+    padding:11px 18px;
+    border-radius:999px;
+    font-size:0.95rem;
+    font-weight:700;
     cursor:pointer;
-    transition:.25s;
-    margin-bottom:16px;
+    transition:.25s var(--ease);
+    margin:4px 0 18px;
+    letter-spacing:.08em;
   }
   .copy-btn:hover{
     background:var(--cocoa);
-    color:#fff;
-    transform:translateY(-2px);
+    color:#1a1a1a;
+    transform:translateY(-1px);
   }
   .copy-btn.copied{
     background:#4caf50;
@@ -211,67 +269,76 @@
 
   /* CTA區塊 */
   .cta-section{
-    background:linear-gradient(135deg,#f5e6d3,#e8c39e);
+    background:radial-gradient(circle at 0% 0%,rgba(233,194,125,.25) 0%,transparent 55%),
+               linear-gradient(135deg,#251725,#1a111f);
     border-radius:16px;
-    padding:32px 24px;
+    padding:24px 20px 26px;
     text-align:center;
-    margin:24px 0;
+    margin:22px 0 8px;
+    border:1px solid rgba(233,194,125,.5);
+    box-shadow:0 10px 30px rgba(0,0,0,.65);
   }
   .cta-section h3{
-    color:var(--cocoa);
-    font-size:1.4rem;
-    font-weight:900;
-    margin-bottom:12px;
+    color:var(--milk);
+    font-size:1.2rem;
+    font-weight:600;
+    margin-bottom:10px;
+    font-family:var(--font-display);
+    letter-spacing:.12em;
   }
   .cta-section p{
-    color:#5a4a3a;
-    font-size:0.95rem;
-    line-height:1.7;
-    margin-bottom:20px;
+    color:var(--ink-soft);
+    font-size:0.9rem;
+    line-height:1.8;
+    margin-bottom:18px;
   }
   .cta-btns{
     display:flex;
     flex-direction:column;
-    gap:12px;
+    gap:10px;
   }
   .cta-btn{
     display:block;
     text-decoration:none;
-    padding:14px 24px;
+    padding:12px 22px;
     border-radius:999px;
-    font-weight:900;
-    font-size:1rem;
-    transition:.25s;
+    font-weight:700;
+    font-size:0.95rem;
+    transition:.25s var(--ease);
     text-align:center;
+    letter-spacing:.08em;
   }
   .cta-btn.primary{
-    background:linear-gradient(135deg,var(--cocoa),#3a2a1f);
-    color:#fff;
-    border:2px solid rgba(255,255,255,.9);
+    background:linear-gradient(135deg,var(--rose),var(--rose-dark));
+    color:#1a1a1a;
+    border:1px solid rgba(255,255,255,.9);
+    box-shadow:0 8px 24px rgba(233,194,125,.55);
   }
   .cta-btn.primary:hover{
     transform:translateY(-2px);
-    box-shadow:0 6px 20px rgba(42,42,42,.4);
+    box-shadow:0 10px 30px rgba(233,194,125,.7);
   }
   .cta-btn.secondary{
-    background:#fff;
-    color:var(--cocoa);
-    border:2px solid var(--cocoa);
+    background:transparent;
+    color:var(--milk);
+    border:1px solid var(--cocoa);
   }
   .cta-btn.secondary:hover{
     background:var(--cocoa);
-    color:#fff;
+    color:#1a1a1a;
     transform:translateY(-2px);
   }
 
   .back-home{
     display:block;
     text-align:center;
-    margin-top:24px;
+    margin-top:22px;
     color:var(--rose);
     text-decoration:none;
     font-weight:700;
-    transition:.25s;
+    font-size:0.88rem;
+    letter-spacing:.08em;
+    transition:.25s var(--ease);
   }
   .back-home:hover{
     color:var(--rose-dark);
@@ -279,21 +346,21 @@
   }
 
   @media(max-width:600px){
-    .container{padding:28px 20px}
-    .totem-icon{font-size:3rem}
-    .totem-name{font-size:1.5rem}
+    .container{padding:26px 18px}
+    .totem-icon{font-size:2.6rem}
+    .totem-name{font-size:1.4rem}
   }
 </style>
 </head>
 <body>
   <div class="container">
-    <h1>🌀 瑪雅曆計算器</h1>
-    <p class="subtitle">🇹🇼 源自台灣｜馥靈之鑰</p>
+    <h1>瑪雅曆計算器</h1>
+    <p class="subtitle">源自台灣・馥靈之鑰</p>
 
     <div class="input-section">
       <label class="input-label">請輸入你的出生日期</label>
       <input type="date" class="date-input" id="birthDate" min="1900-01-01" max="2100-12-31">
-      <button class="calc-btn" onclick="calculate()">🔮 找到我的瑪雅印記</button>
+      <button class="calc-btn" onclick="calculate()">查詢我的瑪雅印記</button>
     </div>
 
     <div class="result-section" id="resultSection">
@@ -321,53 +388,53 @@
       </div>
 
       <div class="detail-section">
-        <div class="detail-title">✨ 你的能量特質</div>
+        <div class="detail-title">你的能量特質</div>
         <div class="detail-text" id="energyText">-</div>
       </div>
 
       <div class="detail-section">
-        <div class="detail-title">💫 給你的訊息</div>
+        <div class="detail-title">給你的小提醒</div>
         <div class="detail-text" id="messageText">-</div>
       </div>
 
-      <button class="copy-btn" onclick="copyResult()">📋 一鍵複製結果</button>
+      <button class="copy-btn" onclick="copyResult()" id="copyBtn">一鍵複製結果</button>
 
       <!-- CTA區塊 -->
       <div class="cta-section">
-        <h3>🌟 想要更深入的解讀?</h3>
-        <p>瑪雅曆只是開始。馥靈之鑰130張智慧牌卡,結合生命靈數、塔羅、芳療,為你提供完整的情緒導航。</p>
+        <h3>想把這個印記，放進妳的人生藍圖裡？</h3>
+        <p>瑪雅曆只是入口。馥靈之鑰整合了牌卡、數字、芳香與情緒節奏，讓這個印記不只是好玩，而是能用在妳接下來的選擇與行動裡。</p>
         <div class="cta-btns">
-          <a href="draw-hl.html" class="cta-btn primary">🔮 免費抽取馥靈之鑰牌卡</a>
-          <a href="consulting.html" class="cta-btn secondary">💫 預約一對一深度解讀</a>
+          <a href="draw-hl.html" class="cta-btn primary">免費抽取馥靈之鑰牌卡</a>
+          <a href="consulting.html" class="cta-btn secondary">預約一對一深度解讀</a>
         </div>
       </div>
     </div>
 
-    <a href="index-new.html" class="back-home">🏠 返回首頁</a>
+    <a href="index-new.html" class="back-home">返回首頁</a>
   </div>
 
 <script>
 const totems = [
-  {name:'紅龍',icon:'🐉',desc:'生命的源頭,滋養與誕生的能量',energy:'你擁有強大的滋養能量,天生是照顧者和創造者。你的存在本身就是一種祝福,能夠孕育新的可能性。',message:'相信你內在的創造力,你有能力誕生全新的自己。'},
-  {name:'白風',icon:'🌬️',desc:'靈性的呼吸,溝通與傳遞的能量',energy:'你是靈性的信使,天生善於溝通和傳遞訊息。你的話語充滿力量,能夠啟發他人。',message:'說出你的真實,讓你的聲音成為療癒的風。'},
-  {name:'藍夜',icon:'🌙',desc:'夢想的守護者,豐盛與直覺的能量',energy:'你擁有豐富的內在世界和強大的直覺,天生是夢想家。你的想像力能夠創造奇蹟。',message:'相信你的夢想,它們是宇宙給你的藍圖。'},
-  {name:'黃種子',icon:'🌱',desc:'潛能的覺醒,成長與開花的能量',energy:'你是潛能的種子,天生充滿成長的動力。你的每一步都在開花結果。',message:'耐心等待你的綻放時刻,你正在成為最美的自己。'},
-  {name:'紅蛇',icon:'🐍',desc:'生命力的流動,蛻變與重生的能量',energy:'你擁有強大的生命力和蛻變能力,天生能夠重生。你的每一次蛻皮都是進化。',message:'擁抱改變,每一次蛻變都讓你更接近真實的自己。'},
-  {name:'白世界橋',icon:'🌉',desc:'連結的橋樑,死亡與重生的能量',energy:'你是連結不同世界的橋樑,天生能夠放下和重生。你的存在幫助他人跨越。',message:'學會放下,每一次結束都是新的開始。'},
-  {name:'藍手',icon:'✋',desc:'療癒的雙手,完成與實現的能量',energy:'你擁有療癒的雙手和實現的能力,天生是療癒師和實踐家。你的行動充滿力量。',message:'相信你的雙手,它們能夠創造和療癒。'},
-  {name:'黃星星',icon:'⭐',desc:'藝術的美感,和諧與優雅的能量',energy:'你擁有藝術家的靈魂和美學的眼光,天生追求和諧與美。你的存在就是藝術。',message:'活出你的美,讓生命成為一件藝術品。'},
-  {name:'紅月',icon:'🌕',desc:'情感的流動,淨化與釋放的能量',energy:'你擁有深刻的情感和淨化的能力,天生能夠釋放和療癒。你的情感是禮物。',message:'允許情感流動,每一次釋放都是療癒。'},
-  {name:'白狗',icon:'🐕',desc:'忠誠的愛,無條件的愛與忠誠',energy:'你擁有純粹的愛和忠誠的心,天生是愛的化身。你的愛能夠療癒一切。',message:'愛你自己,就像你愛別人一樣無條件。'},
-  {name:'藍猴',icon:'🐵',desc:'遊戲的魔法,喜悅與創造的能量',energy:'你擁有玩心和魔法,天生充滿喜悅和創意。你的存在就是遊戲。',message:'不要太嚴肅,生命本身就是一場遊戲。'},
-  {name:'黃人',icon:'🧑',desc:'自由意志,智慧與選擇的能量',energy:'你擁有自由意志和智慧,天生是思考者和選擇者。你的選擇創造你的實相。',message:'記得你永遠有選擇,你的自由是你的力量。'},
-  {name:'紅天行者',icon:'🚶',desc:'探索的勇氣,空間與移動的能量',energy:'你是天生的探險家,充滿好奇心和移動的能量。你的旅程就是你的成長。',message:'勇敢探索,世界在等待你去發現。'},
-  {name:'白巫師',icon:'🧙',desc:'魔法的力量,無時間性與接收的能量',energy:'你擁有魔法般的力量和接收的能力,天生能夠超越時間。你是魔法師。',message:'相信魔法,你就是魔法本身。'},
-  {name:'藍鷹',icon:'🦅',desc:'遠見的視野,心靈與願景的能量',energy:'你擁有鷹的視野和遠見,天生能夠看見全貌。你的洞察力是禮物。',message:'從更高的視角看待生命,你會看見不同的風景。'},
-  {name:'黃戰士',icon:'⚔️',desc:'勇氣的力量,質問與無懼的能量',energy:'你是勇敢的戰士,天生無懼和質問。你的勇氣能夠突破一切限制。',message:'勇敢面對恐懼,你比你想像的更強大。'},
-  {name:'紅地球',icon:'🌍',desc:'導航的智慧,共時性與進化的能量',energy:'你擁有地球的智慧和導航的能力,天生能夠看見共時性。你是進化的引導者。',message:'相信宇宙的安排,一切都在完美的時間發生。'},
-  {name:'白鏡',icon:'🪞',desc:'映照的真實,無盡與秩序的能量',energy:'你是真實的鏡子,天生能夠映照真相。你的存在幫助他人看見自己。',message:'勇敢看見真實的自己,那裡有你的力量。'},
-  {name:'藍風暴',icon:'⛈️',desc:'轉化的力量,自我產生與催化的能量',energy:'你擁有風暴般的轉化力量,天生是催化劑。你的存在帶來改變。',message:'擁抱風暴,它會帶你到達新的彼岸。'},
-  {name:'黃太陽',icon:'☀️',desc:'啟蒙的光芒,普世之火與生命的能量',energy:'你是太陽般的存在,天生發光發熱。你的光芒能夠照亮他人。',message:'做你自己,你的光芒就是你的禮物。'}
+  {name:'紅龍',icon:'🐉',desc:'生命的源頭，滋養與誕生的能量。',energy:'你擁有強大的滋養能量，天生是照顧者和創造者。你的存在本身就是一種祝福，能孕育新的可能性。',message:'相信你內在的創造力，你有能力誕生全新的自己。'},
+  {name:'白風',icon:'🌬️',desc:'內在呼吸，溝通與傳遞的能量。',energy:'你是訊息的橋樑，天生善於溝通與表達。你的話語能帶來安定與清明。',message:'說出你的真實，讓你的聲音成為讓人安心的風。'},
+  {name:'藍夜',icon:'🌙',desc:'夢想的守護者，豐盛與直覺的能量。',energy:'你擁有豐富的內在世界與敏銳直覺，天生是夢想家。你的想像力能創造出意想不到的可能。',message:'相信你的夢與靈感，它們是宇宙給你的藍圖。'},
+  {name:'黃種子',icon:'🌱',desc:'潛能覺醒，成長與開花的能量。',energy:'你是潛能的種子，天生帶著成長的動力。你的每一步都在為未來的綻放鋪路。',message:'耐心照顧自己，你正在往更完整的自己靠近。'},
+  {name:'紅蛇',icon:'🐍',desc:'生命力流動，蛻變與重生的能量。',energy:'你擁有強勁的生命力與重生能力，天生懂得在低潮中轉身。你的每一次蛻皮，都是一次升級。',message:'擁抱改變，每一次蛻變都讓你更接近真實的自己。'},
+  {name:'白世界橋',icon:'🌉',desc:'連結橋樑，放下與更新的能量。',energy:'你是連結不同世界的橋樑，天生能在差異之間找到共通點。你的存在幫助他人跨越。',message:'練習放下，空出來的位置自然會迎來新的開始。'},
+  {name:'藍手',icon:'✋',desc:'實作的雙手，完成與實現的能量。',energy:'你擁有安撫人心的雙手與實現事物的能力，天生是實踐家與照顧者。你的行動充滿穩定的力量。',message:'相信你的雙手，它們能把想像變成具體，也能讓人心安。'},
+  {name:'黃星星',icon:'⭐',desc:'藝術美感，和諧與優雅的能量。',energy:'你擁有藝術家的靈魂與敏銳的美感，天生追求和諧與精緻。你的存在本身就是一種風景。',message:'活出你的美感標準，讓生活成為一件作品。'},
+  {name:'紅月',icon:'🌕',desc:'情感流動，淨化與釋放的能量。',energy:'你擁有深刻情感與整理能量的能力，天生適合陪伴釋放。你的敏感是一種天賦。',message:'允許情緒流動，每一次釋放都是一次調頻。'},
+  {name:'白狗',icon:'🐕',desc:'真心的愛，穩定與陪伴的能量。',energy:'你擁有純粹的真心與穩定的陪伴力，天生適合成為他人的支柱。你的溫度能軟化很多堅硬。',message:'記得把那份真心也留給自己，你值得同樣的在乎與溫柔。'},
+  {name:'藍猴',icon:'🐵',desc:'遊戲的魔法，喜悅與創造的能量。',energy:'你擁有玩心與創意，天生帶著調節氣氛的能力。你的幽默與靈感能讓空氣變輕。',message:'不要把人生過得太像考試，允許自己偶爾「玩一下」才有空間長出新點子。'},
+  {name:'黃人',icon:'🧑',desc:'自由意志，智慧與選擇的能量。',energy:'你擁有清晰的思考力與選擇力，天生是決策者與協調者。你的選擇會慢慢長成你的人生樣子。',message:'記得，你永遠有選擇權。不要把自己關在「只能這樣」裡。'},
+  {name:'紅天行者',icon:'🚶',desc:'探索勇氣，空間與移動的能量。',energy:'你是天生的探索者，對世界與內在都充滿好奇。你的路，不會只停在一個地方。',message:'敢走出去，答案多半不在原地，而在你願意踏出的那一步之後。'},
+  {name:'白巫師',icon:'🧙',desc:'專注的魔法，臨在與接收的能量。',energy:'你擁有專注與感應的能力，天生適合安靜地「聽見沒說出口的東西」。你的存在，讓空間變得比較有意識。',message:'當你把心收回來，很多答案會自己浮上來。安靜是一種力量。'},
+  {name:'藍鷹',icon:'🦅',desc:'遠見視野，心靈與願景的能量。',energy:'你擁有像鷹一樣的高度視角，天生能看見事情的全貌。你的洞察力對很多人來說都是關鍵提醒。',message:'不要只盯著眼前的一點，你看得見的，其實比你以為的更遠更廣。'},
+  {name:'黃戰士',icon:'⚔️',desc:'勇氣力量，質問與無懼的能量。',energy:'你是天生的提問者，敢於直視不舒服的地方。你的勇氣可以打開很多被卡住的局。',message:'繼續問對的問題，不是為了挑戰，而是為了更靠近真相。'},
+  {name:'紅地球',icon:'🌍',desc:'導航智慧，共時與進化的能量。',energy:'你擁有很強的方向感，對「時機」特別敏銳。很多事情在你身上會剛好對點。',message:'相信那些看似巧合的安排，那是宇宙在對你眨眼。'},
+  {name:'白鏡',icon:'🪞',desc:'映照真實，清晰與秩序的能量。',energy:'你像一面鏡子，天生會讓人看見自己真正的樣子。你的清晰，對很多人來說既誠實又重要。',message:'先允許自己誠實，世界才有機會對你誠實。'},
+  {name:'藍風暴',icon:'⛈️',desc:'轉化力量，催化與更新的能量。',energy:'你帶著強烈的變動能量，常常是改變的引爆點。雖然常被捲進風暴，但你其實也在重組格局。',message:'不是每一場風暴都要抵抗，有些是來幫你把舊的東西搬走。'},
+  {name:'黃太陽',icon:'☀️',desc:'啟蒙光芒，普照與生命的能量。',energy:'你天生帶光，走到哪裡都會被看見。你的溫度和存在感，對世界來說是一份禮物。',message:'不要刻意把自己調暗，世界需要你這樣的亮度。'}
 ];
 
 const tones = [
@@ -449,7 +516,7 @@ function calculateKIN(year, month, day){
 function calculate(){
   const dateInput = document.getElementById('birthDate').value;
   if(!dateInput){
-    alert('請先輸入你的出生日期!');
+    alert('請先輸入你的出生日期');
     return;
   }
 
@@ -495,35 +562,35 @@ function calculate(){
 
 function copyResult(){
   if(!window.currentResult) return;
-  
+  const btn = document.getElementById('copyBtn');
   const r = window.currentResult;
-  const text = `🌀 瑪雅曆計算結果
+  const text = 
+`瑪雅曆計算結果
 ━━━━━━━━━━━━━━
-出生日期:${r.date}
-KIN:${r.kin}
-圖騰:${r.totem}
-調性:${r.tone}
-波符:${r.wave}
-顏色:${r.color}
+出生日期：${r.date}
+KIN：${r.kin}
+圖騰：${r.totem}
+調性：${r.tone}
+波符：${r.wave}
+顏色：${r.color}
 
-核心特質:${r.desc}
+核心特質：${r.desc}
 
-能量特質:${r.energy}
+能量特質：${r.energy}
 
-給你的訊息:${r.message}
+給你的提醒：${r.message}
 ━━━━━━━━━━━━━━
-🇹🇼 源自台灣｜馥靈之鑰`;
+源自台灣｜馥靈之鑰`;
 
   navigator.clipboard.writeText(text).then(()=>{
-    const btn = event.target;
-    btn.textContent = '✅ 已複製!';
+    btn.textContent = '已複製';
     btn.classList.add('copied');
     setTimeout(()=>{
-      btn.textContent = '📋 一鍵複製結果';
+      btn.textContent = '一鍵複製結果';
       btn.classList.remove('copied');
     },2000);
   }).catch(()=>{
-    alert('複製失敗,請手動複製:\n\n'+text);
+    alert('複製失敗，請手動複製：\n\n'+text);
   });
 }
 </script>
