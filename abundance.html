@@ -7,108 +7,321 @@
 <link rel="icon" href="favicon.ico" />
 <style>
   :root{
-    --milk:#f9f5f0; --cocoa:#6b4f3e;
-    --rose:#cda86e; --rose-dark:#a88257;
-    --ink:#2a2a2a; --line:rgba(0,0,0,.08);
+    --hl-font-main:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+
+    --bg-deep:#05030a;
+    --bg-soft:#14101b;
+    --bg-panel:rgba(18,13,28,0.96);
+
+    --ink-main:#f9f5f0;
+    --ink-soft:#e2d7c3;
+
+    --gold:#e9c27d;
+    --gold-deep:#cda86e;
+    --cocoa:#6b4f3e;
+
+    --border-soft:rgba(255,255,255,.12);
+    --shadow-md:0 10px 28px rgba(0,0,0,.6);
+    --shadow-lg:0 18px 48px rgba(0,0,0,.85);
+    --ease:cubic-bezier(0.4,0,0.2,1);
   }
+
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
+
   body{
-    background:url('https://github.com/HourLight/11/raw/main/background.jpg') center/cover fixed no-repeat;
-    font-family:"Noto Sans TC","PingFang TC","Arial",sans-serif;
-    color:var(--ink);
+    min-height:100vh;
+    font-family:var(--hl-font-main);
+    color:var(--ink-main);
+    background:
+      radial-gradient(ellipse 120% 80% at 50% 20%, rgba(92,58,99,0.3) 0%, transparent 55%),
+      radial-gradient(ellipse 100% 60% at 85% 80%, rgba(205,168,110,0.16) 0%, transparent 45%),
+      url('https://github.com/HourLight/11/raw/main/background.jpg') center/cover fixed no-repeat,
+      linear-gradient(180deg,var(--bg-deep) 0%,var(--bg-soft) 100%);
+    background-blend-mode:multiply,normal,soft-light,normal;
   }
-  .wrap{max-width:1080px;margin:0 auto;padding:24px 16px 60px}
+
+  body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    background:radial-gradient(circle at 50% 25%, rgba(233,194,125,0.18) 0%, transparent 55%);
+    mix-blend-mode:screen;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .wrap{
+    max-width:1080px;
+    margin:0 auto;
+    padding:24px 16px 60px;
+    position:relative;
+    z-index:1;
+  }
+
   .glass{
-    background:rgba(255,255,255,.9);
-    -webkit-backdrop-filter:blur(6px) saturate(120%);
-    backdrop-filter:blur(6px) saturate(120%);
-    border:1px solid var(--line);
-    border-radius:16px;
-    box-shadow:0 8px 28px rgba(0,0,0,.18);
+    background:var(--bg-panel);
+    backdrop-filter:blur(14px) saturate(130%);
+    -webkit-backdrop-filter:blur(14px) saturate(130%);
+    border:1px solid var(--border-soft);
+    border-radius:18px;
+    box-shadow:var(--shadow-md);
     padding:24px;
     margin:14px auto;
   }
-  .hero{padding:28px 24px;text-align:center}
-  .hero h1{margin:0 0 8px;font-size:2rem;color:var(--cocoa);letter-spacing:.5px}
-  .hero p{margin:8px 0 0;color:var(--rose-dark);font-weight:700}
+
+  /* HERO */
+  .hero{
+    padding:28px 24px;
+    text-align:center;
+  }
+  .hero h1{
+    margin:0 0 8px;
+    font-size:clamp(1.9rem,4.6vw,2.4rem);
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    font-weight:900;
+    background:linear-gradient(135deg,var(--gold) 0%,#f7e4c8 50%,var(--gold-deep) 100%);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+    text-shadow:0 0 40px rgba(233,194,125,0.4);
+  }
+  .hero p{
+    margin:8px 0 0;
+    color:var(--gold-deep);
+    font-weight:700;
+    font-size:0.98rem;
+    letter-spacing:.08em;
+  }
   .lead{
-    text-align:center;line-height:1.9;font-size:17px;color:#4a3a2f;
-    max-width:880px;margin:12px auto 0
+    text-align:center;
+    line-height:1.9;
+    font-size:0.98rem;
+    color:var(--ink-soft);
+    max-width:880px;
+    margin:14px auto 0;
   }
+  .lead b{color:#ffe0a6;}
 
-  h2{margin:0 0 10px;color:var(--cocoa);text-align:center;font-size:1.4rem}
-  h3{margin:0 0 6px;color:#815c44;font-size:1.1rem;text-align:center}
-  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  @media(max-width:900px){.grid-2{grid-template-columns:1fr}}
-
-  ul{margin:10px auto 0;line-height:1.8;padding-left:20px}
-  li{margin:2px 0}
   .badge{
-    display:inline-block;border:1px solid var(--rose);
-    border-radius:999px;padding:6px 12px;margin:6px;
-    font-size:12px;background:linear-gradient(180deg,rgba(205,168,110,.18),rgba(205,168,110,.08));
-    color:#5b4636;font-weight:700
+    display:inline-block;
+    border:1px solid rgba(233,194,125,0.8);
+    border-radius:999px;
+    padding:6px 12px;
+    margin:6px 4px 0;
+    font-size:11px;
+    background:linear-gradient(180deg,rgba(233,194,125,.22),rgba(233,194,125,.06));
+    color:#fbead1;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    box-shadow:0 2px 10px rgba(0,0,0,.4);
   }
 
-  /* 時程條 */
-  .timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:8px}
-  @media(max-width:900px){.timeline{grid-template-columns:1fr 1fr}}
-  .tcard{
-    background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;
-    box-shadow:0 6px 18px rgba(0,0,0,.08)
+  h2{
+    margin:0 0 10px;
+    color:var(--gold);
+    text-align:center;
+    font-size:1.35rem;
+    letter-spacing:.08em;
   }
-  .tcard b{color:var(--rose-dark)}
+  h3{
+    margin:0 0 6px;
+    color:#f0d3b0;
+    font-size:1.05rem;
+    text-align:center;
+  }
+
+  .grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+  }
+  @media(max-width:900px){
+    .grid-2{grid-template-columns:1fr}
+  }
+
+  ul{
+    margin:10px auto 0;
+    line-height:1.8;
+    padding-left:20px;
+    font-size:0.94rem;
+    color:var(--ink-soft);
+  }
+  li{margin:2px 0}
+
+  /* 90 天節奏 */
+  .timeline{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin-top:10px;
+  }
+  @media(max-width:900px){
+    .timeline{grid-template-columns:1fr 1fr}
+  }
+  @media(max-width:640px){
+    .timeline{grid-template-columns:1fr}
+  }
+  .tcard{
+    background:rgba(10,7,25,0.95);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:14px;
+    padding:14px;
+    box-shadow:0 10px 26px rgba(0,0,0,.7);
+  }
+  .tcard b{
+    color:var(--gold-deep);
+    font-size:0.95rem;
+  }
+  .tcard ul{
+    padding-left:18px;
+    font-size:0.9rem;
+  }
 
   /* 價格卡 */
   .price{
-    display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:stretch
+    display:grid;
+    grid-template-columns:1.1fr .9fr;
+    gap:18px;
+    align-items:stretch;
   }
-  @media(max-width:900px){.price{grid-template-columns:1fr}}
+  @media(max-width:900px){
+    .price{grid-template-columns:1fr}
+  }
+
   .pcard{
-    background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;
-    box-shadow:0 8px 22px rgba(0,0,0,.12);text-align:center
+    background:rgba(10,7,25,0.96);
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:16px;
+    padding:18px;
+    box-shadow:0 12px 32px rgba(0,0,0,.85);
+    text-align:center;
   }
-  .pcard .num{font-size:28px;font-weight:900;color:var(--cocoa)}
-  .pcard .sub{color:#7a5d49;margin-top:4px}
-  .pcard ul{max-width:520px;text-align:left}
+  .pcard .num{
+    font-size:30px;
+    font-weight:900;
+    color:var(--gold);
+    letter-spacing:.06em;
+  }
+  .pcard .sub{
+    color:var(--ink-soft);
+    margin-top:4px;
+    font-size:0.95rem;
+  }
+  .pcard ul{
+    max-width:520px;
+    text-align:left;
+  }
 
   /* CTA */
   .cta{
-    display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:12px
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:center;
+    margin-top:14px;
   }
   .btn{
-    display:inline-flex;align-items:center;justify-content:center;gap:8px;
-    text-decoration:none;font-weight:900;border-radius:12px;padding:12px 18px;
-    border:1.5px solid var(--rose);
-    background:linear-gradient(135deg,var(--rose),var(--rose-dark));color:#fff;
-    box-shadow:0 8px 22px rgba(205,168,110,.28);transition:.25s
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    text-decoration:none;
+    font-weight:900;
+    border-radius:12px;
+    padding:11px 18px;
+    border:1.5px solid var(--gold-deep);
+    background:linear-gradient(135deg,var(--gold),var(--gold-deep));
+    color:#2b1a10;
+    box-shadow:0 10px 26px rgba(0,0,0,.75);
+    transition:.22s var(--ease);
+    font-size:0.95rem;
+    letter-spacing:.04em;
   }
-  .btn:hover{filter:brightness(1.05);transform:translateY(-2px)}
+  .btn:hover{
+    filter:brightness(1.05);
+    transform:translateY(-2px);
+    box-shadow:0 14px 34px rgba(0,0,0,.9);
+  }
   .btn.ghost{
-    background:#fff;color:var(--cocoa);border-color:#a88a73;box-shadow:none
+    background:transparent;
+    color:var(--ink-main);
+    border-color:rgba(255,255,255,0.4);
+    box-shadow:none;
+  }
+  .btn.ghost:hover{
+    background:rgba(255,255,255,0.07);
+    box-shadow:0 8px 22px rgba(0,0,0,.7);
   }
 
   /* 對照提示條 */
   .note{
-    text-align:center;font-size:14px;color:#6b4f3e;
-    background:rgba(255,255,255,.86);border:1px dashed #d7c2ae;border-radius:12px;
-    padding:10px;margin-top:10px
+    text-align:center;
+    font-size:13px;
+    color:var(--ink-soft);
+    background:rgba(10,7,25,.92);
+    border:1px dashed rgba(255,255,255,.24);
+    border-radius:12px;
+    padding:10px;
+    margin-top:10px;
+  }
+  .note a{
+    color:var(--gold);
+    text-decoration:underline;
+    font-weight:800;
+  }
+
+  /* FAQ */
+  .glass ul.faq{
+    padding-left:0;
+    list-style:none;
+  }
+  .glass ul.faq li{
+    margin:8px 0 10px;
+  }
+  .glass ul.faq b{
+    color:var(--gold-deep);
   }
 
   /* 頁尾 */
   .footer{
-    margin-top:22px;text-align:center
+    margin-top:22px;
+    text-align:center;
   }
   .footer .block{
-    background:#ffffff;
-    border:1px solid var(--line);border-radius:12px;padding:14px;
-    color:#4a3a2f;line-height:1.7;font-size:13px
+    background:rgba(10,7,25,0.96);
+    border:1px solid rgba(255,255,255,.16);
+    border-radius:14px;
+    padding:14px;
+    color:var(--ink-soft);
+    line-height:1.7;
+    font-size:12px;
+    box-shadow:0 10px 26px rgba(0,0,0,.8);
   }
+  .footer a{
+    color:var(--gold);
+    font-weight:700;
+    text-decoration:none;
+  }
+  .footer a:hover{text-decoration:underline;}
+
   .home-link{
-    display:inline-block;margin-top:10px;text-decoration:none;
-    color:#fff;background:linear-gradient(135deg,var(--rose),var(--rose-dark));
-    padding:10px 16px;border-radius:22px;font-weight:800;box-shadow:0 4px 12px rgba(0,0,0,.18)
+    display:inline-block;
+    margin-top:10px;
+    text-decoration:none;
+    color:#0b0504;
+    background:linear-gradient(135deg,var(--gold),var(--gold-deep));
+    padding:10px 16px;
+    border-radius:22px;
+    font-weight:800;
+    box-shadow:0 6px 18px rgba(0,0,0,.8);
+    font-size:0.9rem;
+  }
+  .home-link:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 26px rgba(0,0,0,.9);
   }
 </style>
 </head>
@@ -120,9 +333,9 @@
       <h1>《馥靈之鑰｜豐盛之境藍圖計畫》</h1>
       <p>Hour Light – Blueprint to the Realm of Abundance</p>
       <div class="lead">
-        有些人一生追尋「幸福」與「富足」，以為更拼命才配擁有。<br>
-        而你，將在 <b>90 天</b> 用一把屬於自己的鑰匙，走進<b>豐盛之境</b>。<br>
-        這不是課綱堆砌，而是一份<b>專屬藍圖</b>：對齊天賦與節奏，拆除限制程式，佈局可持續的現金流與事業格局。
+        很多人一生追著「幸福」與「富足」，以為再更拼命一點才配擁有。<br>
+        而你，會在 <b>90 天</b> 裡，用一把專屬於你的鑰匙，踩進<b>自己的豐盛之境</b>。<br>
+        這不是堆滿課綱的行事曆，而是一份<b>個人化藍圖</b>：對齊天賦與節奏，拆除限制程式，佈局可持續的現金流與事業格局。
       </div>
       <div style="margin-top:10px;">
         <span class="badge">HOUR × LIGHT 閉環</span>
@@ -138,27 +351,45 @@
         <div>
           <h2>這個計畫最適合……</h2>
           <ul>
-            <li>希望<b>重構事業與財富走向</b>的創業者</li>
-            <li>想建立<b>穩定、可複製的金流與系統</b>的美業/身心靈工作者</li>
-            <li>需要<b>長期且可落地</b>的專屬藍圖與陪跑</li>
-            <li>已經體驗過30天計劃，想要深化系統建置</li>
+            <li>希望<b>重構事業與財富走向</b>的創業者與自雇者</li>
+            <li>想建立<b>穩定、可複製金流與系統</b>的美業／能量／顧問工作者</li>
+            <li>需要<b>長期且可落地</b>的專屬藍圖與陪跑，不想再單次上課就結束</li>
+            <li>已經體驗過 30 天計劃，想要進入<b>系統建置與放大階段</b>的你</li>
           </ul>
         </div>
         <div>
           <h2>你將獲得</h2>
           <ul>
             <li><b>深度藍圖諮詢（約 120 分）</b><br>
-            <span style="font-size:14px;color:#666">對齊目標與節奏，定義本季關鍵指標</span></li>
+              <span style="font-size:14px;color:#c7b7a4">
+                對齊目標與節奏，盤點人／事／錢／時間，定義本季關鍵指標。
+              </span>
+            </li>
             <li><b>雙週一次策略會議（6 次 × 45 分）</b><br>
-            <span style="font-size:14px;color:#666">檢視數據、調整行動與話術、解決執行障礙</span></li>
-            <li><b>24小時 LINE 支援</b><br>
-            <span style="font-size:14px;color:#666">90天內有狀況可以立即對焦，不需要自己悶著撐</span></li>
+              <span style="font-size:14px;color:#c7b7a4">
+                檢視數據、調整行動與話術、處理執行卡關，避免一個人悶著硬撐。
+              </span>
+            </li>
+            <li><b>90 天 LINE 支援</b><br>
+              <span style="font-size:14px;color:#c7b7a4">
+                行動過程遇到臨時狀況，可以隨時對焦方向與節奏，而不是等到見面才說。
+              </span>
+            </li>
             <li><b>專屬藍圖手冊 PDF</b><br>
-            <span style="font-size:14px;color:#666">節奏地圖／里程碑／復盤欄／行動清單</span></li>
-            <li><b>商業思維培養</b><br>
-            <span style="font-size:14px;color:#666">產品梯度、定價策略、成交動線、會員運營</span></li>
+              <span style="font-size:14px;color:#c7b7a4">
+                節奏地圖／里程碑／復盤欄／行動清單，讓你看得見自己正在前進。
+              </span>
+            </li>
+            <li><b>商業思維與結構培養</b><br>
+              <span style="font-size:14px;color:#c7b7a4">
+                產品梯度、定價策略、成交動線、會員運營，從「個人」走向「系統」。
+              </span>
+            </li>
             <li><b>夥伴資源盤點</b><br>
-            <span style="font-size:14px;color:#666">連結可能的合作夥伴、供應商、異業聯盟</span></li>
+              <span style="font-size:14px;color:#c7b7a4">
+                一起檢視可連結的合作夥伴、供應商與異業聯盟，讓資源開始互相加乘。
+              </span>
+            </li>
           </ul>
         </div>
       </div>
@@ -174,7 +405,7 @@
             <li>現況盤點：人／事／錢／時間四象限</li>
             <li>高價值客群與產品位階初版</li>
             <li>卡點拆解與首輪微行動</li>
-            <li>設定90天核心目標（營收/客戶數/習慣）</li>
+            <li>設定 90 天核心目標（營收／客戶數／習慣）</li>
           </ul>
         </div>
         <div class="tcard">
@@ -190,9 +421,9 @@
           <b>W7–9｜放大 Flow</b>
           <ul>
             <li>內容矩陣與見證庫建立</li>
-            <li>轉換追蹤（表單／私訊／試算）</li>
-            <li>提客單、加購與升級動線</li>
-            <li>社群與LINE漏斗優化</li>
+            <li>轉換追蹤（表單／私訊／活動）</li>
+            <li>提客單、加購與升級動線設計</li>
+            <li>社群與 LINE 漏斗優化</li>
           </ul>
         </div>
         <div class="tcard">
@@ -207,7 +438,7 @@
       </div>
     </div>
 
-    <!-- 價格與名額（統一為 29,800） -->
+    <!-- 價格與名額（固定 29,800） -->
     <div class="glass">
       <div class="price">
         <div class="pcard">
@@ -216,10 +447,10 @@
           <ul>
             <li>✓ 深度藍圖諮詢（約 120 分）</li>
             <li>✓ 雙週策略會議 6 次 × 45 分（線上）</li>
-            <li>✓ 90天內 24小時 LINE 支援</li>
+            <li>✓ 90 天 LINE 對焦支援</li>
             <li>✓ 專屬藍圖手冊（PDF）與行動清單</li>
             <li>✓ 里程碑檢核與調整建議</li>
-            <li>✓ 商業思維培養、夥伴資源盤點</li>
+            <li>✓ 商業結構與資源盤點協作</li>
           </ul>
           <div class="cta">
             <a class="btn" href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener">💬 LINE 私訊申請名額</a>
@@ -231,17 +462,31 @@
           <h3 style="margin-bottom:8px;">為什麼是 90 天？</h3>
           <ul style="text-align:left">
             <li><b>足夠完成一輪閉環</b><br>
-            <span style="font-size:14px;color:#666">聚焦→架構→放大→穩固，建立可複製的系統</span></li>
-            <li><b>讓數據回饋成為習慣</b><br>
-            <span style="font-size:14px;color:#666">不是一次性活動，而是可持續的節奏管理</span></li>
-            <li><b>商業與內在狀態同步穩定</b><br>
-            <span style="font-size:14px;color:#666">避免三天曬網，真正做出長期改變</span></li>
-            <li><b>有時間建立團隊與系統</b><br>
-            <span style="font-size:14px;color:#666">30天只能快速驗證，90天可以真正建置</span></li>
+              <span style="font-size:14px;color:#c7b7a4">
+                聚焦 → 架構 → 放大 → 穩固，讓你真正走完一個完整循環，而不是半途而廢。
+              </span>
+            </li>
+            <li><b>讓數據回饋變成習慣</b><br>
+              <span style="font-size:14px;color:#c7b7a4">
+                不再只靠感覺，而是看得到每次調整帶來的變化，慢慢建立自己的儀表板。
+              </span>
+            </li>
+            <li><b>內在狀態與事業節奏同步穩定</b><br>
+              <span style="font-size:14px;color:#c7b7a4">
+                避免三天熱度、七天崩潰，用穩定節奏照顧情緒、體力與專注力。
+              </span>
+            </li>
+            <li><b>有時間搭建團隊與系統</b><br>
+              <span style="font-size:14px;color:#c7b7a4">
+                30 天適合強力試跑，90 天適合真正建制：流程、SOP、內容庫、見證庫。
+              </span>
+            </li>
           </ul>
           <div class="note">
-            需要「先點火、當月就要看到動能」的快速驗證？<br>
-            請選 <a href="plan30.html" style="font-weight:800;color:#6b4f3e;text-decoration:underline">《頻率躍升 30 天行動計劃》（NT$ 6,600）</a>
+            想先試試「先點火、當月就看得到動能」的版本？<br>
+            可以從
+            <a href="plan30.html">《頻率躍升 30 天行動計劃》（NT$ 6,600）</a>
+            開始，先跑完一輪，再評估是否進入 90 天藍圖。
           </div>
         </div>
       </div>
@@ -250,37 +495,37 @@
     <!-- FAQ / 保障敘明 -->
     <div class="glass">
       <h2>常見提問</h2>
-      <ul>
-        <li><b>這會不會很玄？</b><br>
-        不走神神秘秘。以感官科學＋節奏管理為主軸，全部可落地、可驗證、可追蹤數據。</li>
-        
-        <li><b>一定要會抽牌嗎？</b><br>
-        不用。抽牌只是對焦工具，核心在於行動與數據回饋。不會抽牌也能完整參與。</li>
-        
-        <li><b>跟一般課程差在哪？</b><br>
-        不是講義，而是你的<b>專屬藍圖</b>與<b>雙週復盤</b>。不是聽完就結束，而是陪你做完整90天。</li>
-        
-        <li><b>跟30天計劃有什麼差別？</b><br>
-        30天聚焦「快速突破」，90天聚焦「系統建置」。30天適合驗證，90天適合深化。</li>
-        
-        <li><b>可以中途取消嗎？</b><br>
-        開始後不接受中途退費，但可以調整目標和執行方式。我們會盡力陪你走完全程。</li>
-        
-        <li><b>90天後會怎樣？</b><br>
-        完成後你會有：一套可複製的系統、清晰的數據儀表板、下一季的行動藍圖。可選擇續約或獨立運作。</li>
+      <ul class="faq">
+        <li><b>Q：這會不會很玄？</b><br>
+          A：不走神神秘秘路線。我們用的是感官科學、情緒節奏與商業結構，搭配少量牌卡與數字作為「對焦工具」，所有東西都要能落地、能驗證、能追蹤。
+        </li>
+        <li><b>Q：一定要會抽牌嗎？</b><br>
+          A：不用。抽牌只是幫你把狀態說清楚的一個入口，核心還是行動計畫與數據復盤，不會抽牌也沒關係。
+        </li>
+        <li><b>Q：跟一般課程差在哪？</b><br>
+          A：不是一套大家都一樣的講義，而是<b>你的專屬藍圖＋雙週復盤</b>。不是聽完就散，而是陪你走完整個 90 天循環。
+        </li>
+        <li><b>Q：跟 30 天計劃有什麼差別？</b><br>
+          A：30 天聚焦在「強力啟動與突破」，適合先測試一個主題；90 天則是「系統建置與穩定放大」，適合已經準備好把自己的東西好好做大的人。
+        </li>
+        <li><b>Q：可以中途取消或轉讓嗎？</b><br>
+          A：開始後不接受中途退費或轉讓，但可以在過程中調整目標與執行策略，我會跟你一起把這 90 天走完、走好。
+        </li>
+        <li><b>Q：90 天結束之後會怎樣？</b><br>
+          A：你會擁有一套可複製的節奏、一份看得懂的藍圖，以及下一季行動的清單。你可以選擇獨立運作，或進入下一階段的深度合作。
+        </li>
       </ul>
     </div>
 
     <!-- 聯絡資訊 + 免責 -->
     <div class="footer">
       <div class="block">
-        📍 桃園市桃園區同安街 666 號 1樓（採預約制）<br>
-        📱 LINE：<a href="https://lin.ee/vpbLhNjF" style="color:#6b4f3e;font-weight:700">@hourlight</a> ｜ 
-        📧 Email：judyanee@gmail.com ｜ 
-        ☎️ 0905-723-595<br/>
-        <br>
-        ※ 本頁內容僅供<b>壓力管理、情緒紓解、能量調頻與日常指引</b>參考，非醫療行為。<br/>
-        © 馥靈之鑰 Hour Light｜台灣情緒調頻系統
+        📍 桃園市桃園區同安街 666 號 1 樓（採預約制）<br>
+        📱 LINE：<a href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener">@hourlight</a> ｜ 
+        📧 Email：<a href="mailto:judyanee@gmail.com">judyanee@gmail.com</a> ｜ 
+        ☎️ 0905-723-595<br><br>
+        ※ 本計畫與相關內容僅供<b>壓力管理、情緒紓解、情緒平衡、能量調頻與日常指引</b>之參考，<br>
+        非醫療行為，亦不等同任何形式之心理專業服務；如有身心健康相關疑慮，請務必尋求合格之醫療或心理專業人員協助。
       </div>
       <a class="home-link" href="index.html">🏠 返回首頁</a>
     </div>
