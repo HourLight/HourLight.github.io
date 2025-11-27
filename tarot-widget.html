@@ -1,187 +1,260 @@
 <!-- 
-  馥靈之鑰｜塔羅抽牌模組
+  馥靈之鑰｜塔羅抽牌模組 v2（黑金宇宙版）
   使用方法：將此檔案的內容複製到任何頁面的 <body> 中即可
+  
+  © 2025 馥靈之鑰® Hour Light®｜馥靈之鑰國際有限公司
 -->
 
 <style>
-  /* 塔羅抽牌模組樣式 */
+  /* 塔羅抽牌模組樣式 - 黑金宇宙版 */
   .tarot-widget{
-    background:rgba(255,255,255,.95);
-    backdrop-filter:blur(8px);
-    border-radius:18px;
-    padding:24px;
-    box-shadow:0 8px 24px rgba(0,0,0,.12);
-    margin:20px 0;
+    background: rgba(18,13,28,0.96);
+    backdrop-filter: blur(16px) saturate(140%);
+    border-radius: 20px;
+    padding: 26px 24px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.55);
+    border: 1px solid rgba(255,255,255,0.12);
+    margin: 20px 0;
   }
   .tarot-widget h3{
-    text-align:center;
-    color:#6b4f3e;
-    font-size:1.3rem;
-    margin-bottom:6px;
-    font-weight:800;
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: 900;
+    margin-bottom: 6px;
+    letter-spacing: 0.05em;
+    background: linear-gradient(135deg, #e9c27d, #fff8e7, #cda86e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
   .tarot-widget .widget-subtitle{
-    text-align:center;
-    color:#888;
-    font-size:0.85rem;
-    margin-bottom:18px;
+    text-align: center;
+    color: #e9c27d;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 20px;
   }
+  
+  /* 張數選擇器 */
   .tarot-count-selector{
-    display:flex;
-    justify-content:center;
-    gap:6px;
-    margin-bottom:16px;
-    flex-wrap:wrap;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
   }
   .tarot-count-btn{
-    background:#fff;
-    border:2px solid #cda86e;
-    color:#6b4f3e;
-    padding:6px 14px;
-    border-radius:10px;
-    cursor:pointer;
-    font-weight:700;
-    transition:.25s;
-    font-size:0.85rem;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #f9f0e5;
+    padding: 8px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.85rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .tarot-count-btn:hover{
-    background:#cda86e;
-    color:#fff;
-    transform:translateY(-2px);
+    background: rgba(233,194,125,0.15);
+    border-color: #e9c27d;
+    transform: translateY(-2px);
   }
   .tarot-count-btn.active{
-    background:linear-gradient(135deg,#cda86e,#a88257);
-    color:#fff;
-    border-color:#a88257;
+    background: linear-gradient(135deg, #e9c27d, #cda86e);
+    color: #1a1a1a;
+    border-color: #cda86e;
+    box-shadow: 0 4px 14px rgba(233,194,125,0.3);
   }
+  
+  /* 抽牌按鈕 */
   .tarot-draw-btn{
-    display:block;
-    width:100%;
-    max-width:220px;
-    margin:0 auto 18px;
-    background:linear-gradient(135deg,#cda86e,#a88257);
-    color:#fff;
-    border:none;
-    padding:12px 20px;
-    border-radius:12px;
-    font-size:1rem;
-    font-weight:800;
-    cursor:pointer;
-    box-shadow:0 4px 14px rgba(205,168,110,.3);
-    transition:.25s;
+    display: block;
+    width: 100%;
+    max-width: 240px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #e9c27d, #cda86e);
+    color: #1a1a1a;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 999px;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(233,194,125,0.3);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .tarot-draw-btn:hover{
-    transform:translateY(-2px);
-    box-shadow:0 6px 18px rgba(205,168,110,.4);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(233,194,125,0.45);
   }
+  
+  /* 卡片容器 */
   .tarot-cards-container{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
-    gap:12px;
-    margin-bottom:16px;
-    min-height:160px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+    min-height: 180px;
   }
+  
+  /* 卡片 */
   .tarot-card{
-    background:#fff;
-    border:2px solid rgba(0,0,0,.08);
-    border-radius:12px;
-    padding:14px 8px;
-    text-align:center;
-    box-shadow:0 3px 10px rgba(0,0,0,.06);
-    transition:.4s;
-    opacity:0;
-    transform:scale(0.8) rotateY(180deg);
-    animation:tarotCardAppear 0.5s forwards;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    padding: 16px 10px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    transform: scale(0.8) rotateY(180deg);
+    animation: tarotCardAppear 0.5s forwards;
   }
   @keyframes tarotCardAppear{
-    to{opacity:1;transform:scale(1) rotateY(0deg)}
+    to{
+      opacity: 1;
+      transform: scale(1) rotateY(0deg);
+    }
   }
   .tarot-card.reversed{
-    background:linear-gradient(135deg,#f5f5f5,#e8e8e8);
+    background: linear-gradient(135deg, rgba(92,58,99,0.3), rgba(92,58,99,0.15));
+    border-color: rgba(156,39,176,0.3);
   }
   .tarot-card:hover{
-    transform:translateY(-3px) scale(1.02);
-    box-shadow:0 6px 16px rgba(0,0,0,.1);
+    transform: translateY(-4px) scale(1.02);
+    border-color: #e9c27d;
+    box-shadow: 0 8px 20px rgba(233,194,125,0.2);
   }
+  
+  /* 卡片圖標 */
   .tarot-card-icon{
-    font-size:2.2rem;
-    margin-bottom:8px;
-    display:block;
-    transition:.3s;
+    font-size: 2.4rem;
+    margin-bottom: 10px;
+    display: block;
+    transition: transform 0.3s;
   }
   .tarot-card.reversed .tarot-card-icon{
-    transform:rotate(180deg);
+    transform: rotate(180deg);
   }
+  
+  /* 卡片名稱 */
   .tarot-card-name-zh{
-    font-size:0.95rem;
-    font-weight:800;
-    color:#6b4f3e;
-    margin-bottom:3px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #e9c27d;
+    margin-bottom: 4px;
   }
   .tarot-card-name-en{
-    font-size:0.7rem;
-    color:#999;
-    margin-bottom:6px;
+    font-size: 0.7rem;
+    color: #e2d3c4;
+    margin-bottom: 8px;
+    opacity: 0.8;
   }
+  
+  /* 正逆位標籤 */
   .tarot-card-position{
-    display:inline-block;
-    padding:3px 10px;
-    border-radius:999px;
-    font-size:0.7rem;
-    font-weight:700;
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
   }
   .tarot-card-position.upright{
-    background:rgba(76,175,80,.15);
-    color:#2e7d32;
+    background: rgba(76,175,80,0.2);
+    color: #81c784;
+    border: 1px solid rgba(76,175,80,0.3);
   }
   .tarot-card-position.reversed{
-    background:rgba(156,39,176,.15);
-    color:#7b1fa2;
+    background: rgba(156,39,176,0.2);
+    color: #ce93d8;
+    border: 1px solid rgba(156,39,176,0.3);
   }
+  
+  /* 複製按鈕 */
   .tarot-copy-btn{
-    display:block;
-    width:100%;
-    max-width:220px;
-    margin:0 auto;
-    background:#fff;
-    border:2px solid #6b4f3e;
-    color:#6b4f3e;
-    padding:10px 18px;
-    border-radius:10px;
-    font-size:0.9rem;
-    font-weight:800;
-    cursor:pointer;
-    transition:.25s;
+    display: block;
+    width: 100%;
+    max-width: 240px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #f9f0e5;
+    padding: 12px 20px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .tarot-copy-btn:hover{
-    background:#6b4f3e;
-    color:#fff;
-    transform:translateY(-2px);
+    background: rgba(255,255,255,0.12);
+    border-color: #e9c27d;
+    transform: translateY(-2px);
   }
   .tarot-copy-btn.copied{
-    background:#4caf50;
-    border-color:#4caf50;
-    color:#fff;
+    background: rgba(76,175,80,0.3);
+    border-color: #4caf50;
+    color: #81c784;
   }
+  
+  /* 空狀態 */
   .tarot-empty-state{
-    text-align:center;
-    padding:30px 16px;
-    color:#aaa;
-    font-size:0.9rem;
+    text-align: center;
+    padding: 36px 16px;
+    color: #e2d3c4;
+    font-size: 0.9rem;
+    opacity: 0.7;
   }
+  
+  /* LINE 按鈕 */
+  .tarot-line-btn{
+    display: block;
+    width: 100%;
+    max-width: 240px;
+    margin: 12px auto 0;
+    background: #06C755;
+    border: none;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    box-shadow: 0 4px 14px rgba(6,199,85,0.3);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .tarot-line-btn:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(6,199,85,0.45);
+  }
+  
+  /* RWD */
   @media(max-width:600px){
-    .tarot-cards-container{
-      grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
-      gap:10px;
+    .tarot-widget{
+      padding: 20px 16px;
     }
-    .tarot-card{padding:12px 6px}
-    .tarot-card-icon{font-size:2rem}
+    .tarot-cards-container{
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 10px;
+    }
+    .tarot-card{
+      padding: 12px 8px;
+    }
+    .tarot-card-icon{
+      font-size: 2rem;
+    }
+    .tarot-count-btn{
+      padding: 6px 12px;
+      font-size: 0.8rem;
+    }
   }
 </style>
 
 <div class="tarot-widget">
-  <h3>🎴 塔羅抽牌</h3>
-  <p class="widget-subtitle">🇹🇼 源自台灣｜馥靈之鑰</p>
+  <h3>🎴 馥靈之鑰｜塔羅抽牌</h3>
+  <p class="widget-subtitle">🇹🇼 源自台灣｜Hour Light®</p>
 
   <div class="tarot-count-selector">
     <button class="tarot-count-btn" data-count="1">1張</button>
@@ -201,19 +274,73 @@
   <button class="tarot-copy-btn" id="tarotCopyBtn" onclick="tarotCopyResult()" style="display:none">
     📋 一鍵複製結果
   </button>
+  
+  <a class="tarot-line-btn" href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener" id="tarotLineBtn" style="display:none">
+    💬 LINE 深度解讀
+  </a>
 </div>
 
 <script>
 (function(){
-  // 塔羅牌資料
-  const majorArcana=[{zh:"愚者",en:"The Fool",icon:"🌟"},{zh:"魔術師",en:"The Magician",icon:"🎩"},{zh:"女祭司",en:"The High Priestess",icon:"🌙"},{zh:"皇后",en:"The Empress",icon:"👑"},{zh:"皇帝",en:"The Emperor",icon:"⚔️"},{zh:"教皇",en:"The Hierophant",icon:"📿"},{zh:"戀人",en:"The Lovers",icon:"💕"},{zh:"戰車",en:"The Chariot",icon:"🏇"},{zh:"力量",en:"Strength",icon:"🦁"},{zh:"隱者",en:"The Hermit",icon:"🕯️"},{zh:"命運之輪",en:"Wheel of Fortune",icon:"🎡"},{zh:"正義",en:"Justice",icon:"⚖️"},{zh:"倒吊人",en:"The Hanged Man",icon:"🔄"},{zh:"死神",en:"Death",icon:"🌑"},{zh:"節制",en:"Temperance",icon:"🍶"},{zh:"惡魔",en:"The Devil",icon:"😈"},{zh:"高塔",en:"The Tower",icon:"🗼"},{zh:"星星",en:"The Star",icon:"⭐"},{zh:"月亮",en:"The Moon",icon:"🌜"},{zh:"太陽",en:"The Sun",icon:"☀️"},{zh:"審判",en:"Judgement",icon:"📯"},{zh:"世界",en:"The World",icon:"🌍"}];
-  const suits={wands:{zh:"權杖",en:"Wands",icon:"🔥"},cups:{zh:"聖杯",en:"Cups",icon:"💧"},swords:{zh:"寶劍",en:"Swords",icon:"⚔️"},pentacles:{zh:"錢幣",en:"Pentacles",icon:"💰"}};
-  const ranks=[{zh:"王牌",en:"Ace"},{zh:"二",en:"Two"},{zh:"三",en:"Three"},{zh:"四",en:"Four"},{zh:"五",en:"Five"},{zh:"六",en:"Six"},{zh:"七",en:"Seven"},{zh:"八",en:"Eight"},{zh:"九",en:"Nine"},{zh:"十",en:"Ten"},{zh:"侍者",en:"Page"},{zh:"騎士",en:"Knight"},{zh:"王后",en:"Queen"},{zh:"國王",en:"King"}];
+  // 塔羅牌資料（78張完整牌組）
+  const majorArcana=[
+    {zh:"愚者",en:"The Fool",icon:"🌟"},
+    {zh:"魔術師",en:"The Magician",icon:"🎩"},
+    {zh:"女祭司",en:"The High Priestess",icon:"🌙"},
+    {zh:"皇后",en:"The Empress",icon:"👑"},
+    {zh:"皇帝",en:"The Emperor",icon:"⚔️"},
+    {zh:"教皇",en:"The Hierophant",icon:"📿"},
+    {zh:"戀人",en:"The Lovers",icon:"💕"},
+    {zh:"戰車",en:"The Chariot",icon:"🏇"},
+    {zh:"力量",en:"Strength",icon:"🦁"},
+    {zh:"隱者",en:"The Hermit",icon:"🕯️"},
+    {zh:"命運之輪",en:"Wheel of Fortune",icon:"🎡"},
+    {zh:"正義",en:"Justice",icon:"⚖️"},
+    {zh:"倒吊人",en:"The Hanged Man",icon:"🔄"},
+    {zh:"死神",en:"Death",icon:"🌑"},
+    {zh:"節制",en:"Temperance",icon:"🍶"},
+    {zh:"惡魔",en:"The Devil",icon:"😈"},
+    {zh:"高塔",en:"The Tower",icon:"🗼"},
+    {zh:"星星",en:"The Star",icon:"⭐"},
+    {zh:"月亮",en:"The Moon",icon:"🌜"},
+    {zh:"太陽",en:"The Sun",icon:"☀️"},
+    {zh:"審判",en:"Judgement",icon:"📯"},
+    {zh:"世界",en:"The World",icon:"🌍"}
+  ];
   
+  const suits={
+    wands:{zh:"權杖",en:"Wands",icon:"🔥"},
+    cups:{zh:"聖杯",en:"Cups",icon:"💧"},
+    swords:{zh:"寶劍",en:"Swords",icon:"⚔️"},
+    pentacles:{zh:"錢幣",en:"Pentacles",icon:"💰"}
+  };
+  
+  const ranks=[
+    {zh:"王牌",en:"Ace"},
+    {zh:"二",en:"Two"},
+    {zh:"三",en:"Three"},
+    {zh:"四",en:"Four"},
+    {zh:"五",en:"Five"},
+    {zh:"六",en:"Six"},
+    {zh:"七",en:"Seven"},
+    {zh:"八",en:"Eight"},
+    {zh:"九",en:"Nine"},
+    {zh:"十",en:"Ten"},
+    {zh:"侍者",en:"Page"},
+    {zh:"騎士",en:"Knight"},
+    {zh:"王后",en:"Queen"},
+    {zh:"國王",en:"King"}
+  ];
+  
+  // 組合完整 78 張牌
   const allCards=[...majorArcana];
   Object.entries(suits).forEach(([key,suit])=>{
     ranks.forEach(rank=>{
-      allCards.push({zh:`${suit.zh}${rank.zh}`,en:`${rank.en} of ${suit.en}`,icon:suit.icon});
+      allCards.push({
+        zh:`${suit.zh}${rank.zh}`,
+        en:`${rank.en} of ${suit.en}`,
+        icon:suit.icon
+      });
     });
   });
 
@@ -229,16 +356,22 @@
     });
   });
 
-  // 抽牌
+  // 抽牌功能
   window.tarotDraw=function(){
     const container=document.getElementById('tarotCardsContainer');
     const copyBtn=document.getElementById('tarotCopyBtn');
+    const lineBtn=document.getElementById('tarotLineBtn');
     
+    // 洗牌並抽取指定張數
     const shuffled=[...allCards].sort(()=>Math.random()-0.5);
-    drawnCards=shuffled.slice(0,selectedCount).map(card=>({...card,reversed:Math.random()>0.5}));
+    drawnCards=shuffled.slice(0,selectedCount).map(card=>({
+      ...card,
+      reversed:Math.random()>0.5
+    }));
 
     container.innerHTML='';
 
+    // 渲染卡片
     drawnCards.forEach((card,index)=>{
       const cardEl=document.createElement('div');
       cardEl.className='tarot-card'+(card.reversed?' reversed':'');
@@ -254,9 +387,11 @@
       container.appendChild(cardEl);
     });
 
+    // 顯示複製和 LINE 按鈕
     copyBtn.style.display='block';
     copyBtn.textContent='📋 一鍵複製結果';
     copyBtn.classList.remove('copied');
+    lineBtn.style.display='block';
   };
 
   // 複製結果
@@ -264,11 +399,11 @@
     const now=new Date();
     const time=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     
-    let text='🎴 塔羅抽牌結果\n━━━━━━━━━━━━━━\n';
+    let text='🎴 馥靈之鑰｜塔羅抽牌結果\n━━━━━━━━━━━━━━━━\n';
     drawnCards.forEach((card,i)=>{
       text+=`${i+1}. ${card.zh} (${card.en}) - ${card.reversed?'逆位':'正位'}\n`;
     });
-    text+=`━━━━━━━━━━━━━━\n抽牌時間：${time}\n🇹🇼 源自台灣｜馥靈之鑰`;
+    text+=`━━━━━━━━━━━━━━━━\n抽牌時間：${time}\n🇹🇼 源自台灣｜馥靈之鑰 Hour Light®\nLINE：@hourlight`;
 
     navigator.clipboard.writeText(text).then(()=>{
       const btn=document.getElementById('tarotCopyBtn');
@@ -279,7 +414,26 @@
         btn.classList.remove('copied');
       },2000);
     }).catch(err=>{
-      alert('複製失敗，請手動複製：\n\n'+text);
+      // 備用方案：建立臨時文字框
+      const textarea=document.createElement('textarea');
+      textarea.value=text;
+      textarea.style.position='fixed';
+      textarea.style.opacity='0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try{
+        document.execCommand('copy');
+        const btn=document.getElementById('tarotCopyBtn');
+        btn.textContent='✅ 已複製！';
+        btn.classList.add('copied');
+        setTimeout(()=>{
+          btn.textContent='📋 一鍵複製結果';
+          btn.classList.remove('copied');
+        },2000);
+      }catch(e){
+        alert('複製失敗，請手動複製：\n\n'+text);
+      }
+      document.body.removeChild(textarea);
     });
   };
 })();
