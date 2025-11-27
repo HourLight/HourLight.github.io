@@ -3,326 +3,441 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>生命靈數計算器｜馥靈之鑰</title>
-<meta name="description" content="輸入你的生日，解鎖你的生命密碼。源自台灣，馥靈之鑰。">
+<title>生命靈數計算器｜馥靈之鑰 Hour Light</title>
+<meta name="description" content="輸入你的生日，解鎖你的生命密碼。源自台灣，馥靈之鑰 Hour Light。">
 <link rel="icon" href="favicon.ico" />
+
 <style>
-  :root{
-    --milk:#f9f5f0; --cocoa:#6b4f3e;
-    --rose:#cda86e; --rose-dark:#a88257;
-    --ink:#2a2a2a; --line:rgba(0,0,0,.10);
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{
-    background:url('https://github.com/HourLight/11/raw/main/background.jpg') center/cover fixed no-repeat;
-    font-family:"Noto Sans TC","PingFang TC","Arial",sans-serif;
-    color:var(--ink);
-    padding:20px;
-    min-height:100vh;
-  }
-  .container{
-    max-width:700px;
-    margin:0 auto;
-    background:rgba(255,255,255,.95);
-    backdrop-filter:blur(8px);
-    border-radius:20px;
-    padding:40px 32px;
-    box-shadow:0 12px 40px rgba(0,0,0,.15);
-  }
-  h1{
-    text-align:center;
-    color:var(--cocoa);
-    font-size:clamp(1.8rem,4vw,2.2rem);
-    margin-bottom:8px;
-    font-weight:900;
-  }
-  .subtitle{
-    text-align:center;
-    color:#888;
-    font-size:0.9rem;
-    margin-bottom:32px;
-  }
+/* ==============================
+   馥靈之鑰 Hour Light v2
+   黑金宇宙主題 - 生命靈數計算器
+   ============================== */
 
-  .input-section{
-    background:rgba(249,245,240,.6);
-    border-radius:16px;
-    padding:24px;
-    margin-bottom:24px;
-  }
-  .input-label{
-    font-size:0.95rem;
-    font-weight:700;
-    color:var(--cocoa);
-    margin-bottom:12px;
-    display:block;
-  }
-  .date-input{
-    width:100%;
-    padding:14px 16px;
-    border:2px solid var(--line);
-    border-radius:12px;
-    font-size:1rem;
-    font-family:inherit;
-    transition:.25s;
-    background:#fff;
-  }
-  .date-input:focus{
-    outline:none;
-    border-color:var(--rose);
-    box-shadow:0 0 0 3px rgba(205,168,110,.15);
-  }
+:root {
+  --hl-font-main: "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
 
-  .calc-btn{
-    display:block;
-    width:100%;
-    background:linear-gradient(135deg,var(--rose),var(--rose-dark));
-    color:#fff;
-    border:none;
-    padding:16px 24px;
-    border-radius:14px;
-    font-size:1.1rem;
-    font-weight:900;
-    cursor:pointer;
-    box-shadow:0 6px 18px rgba(205,168,110,.4);
-    transition:.25s;
-    margin-top:16px;
-  }
-  .calc-btn:hover{
-    transform:translateY(-3px);
-    box-shadow:0 8px 24px rgba(205,168,110,.5);
-  }
+  /* 黑金宇宙系 */
+  --hl-v2-bg-deep: #05030a;
+  --hl-v2-bg-soft: #14101b;
+  --hl-v2-bg-panel: rgba(18,13,28,0.96);
+  --hl-v2-ink-main: #f9f0e5;
+  --hl-v2-ink-soft: #e2d3c4;
 
-  .result-section{
-    display:none;
-    margin-top:32px;
-  }
-  .result-section.show{
-    display:block;
-    animation:fadeIn 0.5s;
-  }
-  @keyframes fadeIn{
-    from{opacity:0;transform:translateY(20px)}
-    to{opacity:1;transform:translateY(0)}
-  }
+  --hl-v2-gold: #e9c27d;
+  --hl-v2-gold-deep: #cda86e;
+  --hl-v2-plum: #5c3a63;
+  --hl-v2-rose: #f0b5b3;
 
-  .number-card{
-    background:linear-gradient(135deg,rgba(205,168,110,.15),rgba(168,130,87,.1));
-    border:2px solid var(--rose);
-    border-radius:16px;
-    padding:24px;
-    margin-bottom:20px;
-    text-align:center;
-  }
-  .number-title{
-    font-size:0.9rem;
-    color:#888;
-    margin-bottom:8px;
-    font-weight:600;
-  }
-  .number-value{
-    font-size:3rem;
-    font-weight:900;
-    color:var(--rose);
-    margin-bottom:12px;
-  }
-  .number-desc{
-    font-size:1rem;
-    color:var(--cocoa);
-    line-height:1.6;
-  }
+  --hl-v2-border-soft: rgba(255,255,255,0.12);
+  --hl-v2-shadow-md: 0 10px 28px rgba(0,0,0,0.55);
 
-  .info-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:16px;
-    margin-bottom:24px;
-  }
-  .info-card{
-    background:#fff;
-    border:2px solid var(--line);
-    border-radius:12px;
-    padding:20px;
-    text-align:center;
-  }
-  .info-card-title{
-    font-size:0.85rem;
-    color:#888;
-    margin-bottom:8px;
-    font-weight:600;
-  }
-  .info-card-value{
-    font-size:2rem;
-    font-weight:900;
-    color:var(--rose);
-  }
-  .info-card-label{
-    font-size:0.9rem;
-    color:var(--cocoa);
-    margin-top:4px;
-    font-weight:700;
-  }
+  --hl-v2-ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-  .copy-btn{
-    display:block;
-    width:100%;
-    background:#fff;
-    border:2px solid var(--cocoa);
-    color:var(--cocoa);
-    padding:12px 20px;
-    border-radius:12px;
-    font-size:1rem;
-    font-weight:800;
-    cursor:pointer;
-    transition:.25s;
-    margin-bottom:16px;
-  }
-  .copy-btn:hover{
-    background:var(--cocoa);
-    color:#fff;
-    transform:translateY(-2px);
-  }
-  .copy-btn.copied{
-    background:#4caf50;
-    border-color:#4caf50;
-    color:#fff;
-  }
+/* Reset */
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth}
 
-  .cta-section{
-    background:linear-gradient(135deg,#f5e6d3,#e8c39e);
-    border-radius:16px;
-    padding:32px 24px;
-    text-align:center;
-    margin:24px 0;
-  }
-  .cta-section h3{
-    color:var(--cocoa);
-    font-size:1.4rem;
-    font-weight:900;
-    margin-bottom:12px;
-  }
-  .cta-section p{
-    color:#5a4a3a;
-    font-size:0.95rem;
-    line-height:1.7;
-    margin-bottom:20px;
-  }
-  .cta-btns{
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-  }
-  .cta-btn{
-    display:block;
-    text-decoration:none;
-    padding:14px 24px;
-    border-radius:999px;
-    font-weight:900;
-    font-size:1rem;
-    transition:.25s;
-    text-align:center;
-  }
-  .cta-btn.primary{
-    background:linear-gradient(135deg,var(--cocoa),#3a2a1f);
-    color:#fff;
-    border:2px solid rgba(255,255,255,.9);
-  }
-  .cta-btn.primary:hover{
-    transform:translateY(-2px);
-    box-shadow:0 6px 20px rgba(42,42,42,.4);
-  }
-  .cta-btn.secondary{
-    background:#fff;
-    color:var(--cocoa);
-    border:2px solid var(--cocoa);
-  }
-  .cta-btn.secondary:hover{
-    background:var(--cocoa);
-    color:#fff;
-    transform:translateY(-2px);
-  }
+body {
+  min-height: 100vh;
+  font-family: var(--hl-font-main);
+  color: var(--hl-v2-ink-main);
+  line-height: 1.8;
+  padding: 24px 16px 48px;
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 20%, rgba(92,58,99,0.25) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 60% at 80% 80%, rgba(233,194,125,0.08) 0%, transparent 40%),
+    linear-gradient(180deg, var(--hl-v2-bg-deep) 0%, var(--hl-v2-bg-soft) 100%);
+  background-attachment: fixed;
+}
 
-  .note{
-    margin-top:4px;
-    font-size:0.78rem;
-    color:#999;
-    text-align:center;
-    line-height:1.6;
-  }
+/* 容器 */
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  background: var(--hl-v2-bg-panel);
+  backdrop-filter: blur(16px) saturate(140%);
+  border-radius: 20px;
+  padding: 40px 32px;
+  box-shadow: var(--hl-v2-shadow-md);
+  border: 1px solid var(--hl-v2-border-soft);
+}
 
-  .back-home{
-    display:block;
-    text-align:center;
-    margin-top:24px;
-    color:var(--rose);
-    text-decoration:none;
-    font-weight:700;
-    transition:.25s;
-  }
-  .back-home:hover{
-    color:var(--rose-dark);
-    text-decoration:underline;
-  }
+/* 標題 */
+h1 {
+  text-align: center;
+  font-size: clamp(1.6rem, 4vw, 2rem);
+  margin-bottom: 8px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  background: linear-gradient(135deg, var(--hl-v2-gold), #fff8e7, var(--hl-v2-gold-deep));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
-  @media(max-width:600px){
-    .container{padding:28px 20px}
-    .number-value{font-size:2.5rem}
+.subtitle {
+  text-align: center;
+  color: var(--hl-v2-gold);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 32px;
+}
+
+/* 輸入區塊 */
+.input-section {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--hl-v2-border-soft);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.input-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--hl-v2-gold);
+  margin-bottom: 12px;
+  display: block;
+}
+
+.date-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--hl-v2-border-soft);
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: all 0.25s var(--hl-v2-ease);
+  background: rgba(255,255,255,0.06);
+  color: var(--hl-v2-ink-main);
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: var(--hl-v2-gold);
+  box-shadow: 0 0 0 3px rgba(233,194,125,0.15);
+}
+
+/* 計算按鈕 */
+.calc-btn {
+  display: block;
+  width: 100%;
+  background: linear-gradient(135deg, var(--hl-v2-gold), var(--hl-v2-gold-deep));
+  color: #1a1a1a;
+  border: none;
+  padding: 16px 24px;
+  border-radius: 999px;
+  font-size: 1.1rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(233,194,125,0.3);
+  transition: all 0.25s var(--hl-v2-ease);
+  margin-top: 16px;
+}
+
+.calc-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(233,194,125,0.45);
+}
+
+/* 結果區塊 */
+.result-section {
+  display: none;
+  margin-top: 32px;
+}
+
+.result-section.show {
+  display: block;
+  animation: fadeIn 0.5s var(--hl-v2-ease);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 主數字卡片 */
+.number-card {
+  background: linear-gradient(135deg, rgba(233,194,125,0.15), rgba(233,194,125,0.05));
+  border: 2px solid var(--hl-v2-gold);
+  border-radius: 16px;
+  padding: 28px 24px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.number-title {
+  font-size: 0.9rem;
+  color: var(--hl-v2-ink-soft);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.number-value {
+  font-size: 3.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--hl-v2-gold), #fff8e7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+}
+
+.number-desc {
+  font-size: 1rem;
+  color: var(--hl-v2-ink-soft);
+  line-height: 1.7;
+}
+
+/* 資訊格線 */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+@media(max-width:600px) {
+  .info-grid {
+    grid-template-columns: 1fr;
   }
+}
+
+.info-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--hl-v2-border-soft);
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.25s var(--hl-v2-ease);
+}
+
+.info-card:hover {
+  border-color: var(--hl-v2-gold);
+  transform: translateY(-2px);
+}
+
+.info-card-title {
+  font-size: 0.82rem;
+  color: var(--hl-v2-ink-soft);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.info-card-value {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--hl-v2-gold);
+}
+
+.info-card-label {
+  font-size: 0.88rem;
+  color: var(--hl-v2-ink-main);
+  margin-top: 6px;
+  font-weight: 700;
+}
+
+/* 複製按鈕 */
+.copy-btn {
+  display: block;
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--hl-v2-border-soft);
+  color: var(--hl-v2-ink-main);
+  padding: 14px 20px;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.25s var(--hl-v2-ease);
+  margin-bottom: 20px;
+}
+
+.copy-btn:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: var(--hl-v2-gold);
+  transform: translateY(-2px);
+}
+
+.copy-btn.copied {
+  background: rgba(76,175,80,0.3);
+  border-color: #4caf50;
+  color: #81c784;
+}
+
+/* CTA 區塊 */
+.cta-section {
+  background: linear-gradient(135deg, rgba(92,58,99,0.3), rgba(233,194,125,0.1));
+  border: 1px solid var(--hl-v2-border-soft);
+  border-radius: 16px;
+  padding: 32px 24px;
+  text-align: center;
+  margin: 24px 0;
+}
+
+.cta-section h3 {
+  font-size: 1.3rem;
+  font-weight: 900;
+  margin-bottom: 12px;
+  color: var(--hl-v2-gold);
+}
+
+.cta-section p {
+  color: var(--hl-v2-ink-soft);
+  font-size: 0.92rem;
+  line-height: 1.75;
+  margin-bottom: 20px;
+}
+
+.cta-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cta-btn {
+  display: block;
+  text-decoration: none;
+  padding: 14px 24px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 0.95rem;
+  transition: all 0.25s var(--hl-v2-ease);
+  text-align: center;
+}
+
+.cta-btn.primary {
+  background: linear-gradient(135deg, var(--hl-v2-gold), var(--hl-v2-gold-deep));
+  color: #1a1a1a;
+  box-shadow: 0 4px 14px rgba(233,194,125,0.3);
+}
+
+.cta-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(233,194,125,0.45);
+}
+
+.cta-btn.line {
+  background: #06C755;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(6,199,85,0.3);
+}
+
+.cta-btn.line:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(6,199,85,0.45);
+}
+
+.cta-btn.secondary {
+  background: rgba(255,255,255,0.06);
+  color: var(--hl-v2-ink-main);
+  border: 1px solid var(--hl-v2-border-soft);
+}
+
+.cta-btn.secondary:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: var(--hl-v2-gold);
+  transform: translateY(-2px);
+}
+
+/* 注意事項 */
+.note {
+  margin-top: 8px;
+  font-size: 0.78rem;
+  color: var(--hl-v2-ink-soft);
+  text-align: center;
+  line-height: 1.7;
+  opacity: 0.8;
+}
+
+/* 返回首頁 */
+.back-home {
+  display: block;
+  text-align: center;
+  margin-top: 28px;
+  color: var(--hl-v2-gold);
+  text-decoration: none;
+  font-weight: 700;
+  transition: all 0.25s var(--hl-v2-ease);
+}
+
+.back-home:hover {
+  color: #fff8e7;
+  text-decoration: underline;
+}
+
+/* RWD */
+@media(max-width:600px) {
+  .container {
+    padding: 28px 20px;
+  }
+  .number-value {
+    font-size: 2.8rem;
+  }
+  .info-card-value {
+    font-size: 1.8rem;
+  }
+}
 </style>
 </head>
+
 <body>
-  <div class="container">
-    <h1>🔢 生命靈數計算器</h1>
-    <p class="subtitle">🇹🇼 源自台灣｜馥靈之鑰</p>
+<div class="container">
+  <h1>🔢 生命靈數計算器</h1>
+  <p class="subtitle">🇹🇼 源自台灣｜馥靈之鑰 Hour Light®</p>
 
-    <div class="input-section">
-      <label class="input-label">請輸入你的出生日期</label>
-      <input type="date" class="date-input" id="birthDate" max="2025-12-31">
-      <button class="calc-btn" onclick="calculate()">🔮 解鎖我的生命密碼</button>
-    </div>
-
-    <div class="result-section" id="resultSection">
-      <div class="number-card">
-        <div class="number-title">你的生命靈數</div>
-        <div class="number-value" id="lifePathNumber">-</div>
-        <div class="number-desc" id="lifePathDesc">-</div>
-      </div>
-
-      <div class="info-grid">
-        <div class="info-card">
-          <div class="info-card-title">天賦數</div>
-          <div class="info-card-value" id="talentNumber">-</div>
-          <div class="info-card-label" id="talentLabel">-</div>
-        </div>
-        <div class="info-card">
-          <div class="info-card-title">命運數</div>
-          <div class="info-card-value" id="destinyNumber">-</div>
-          <div class="info-card-label" id="destinyLabel">-</div>
-        </div>
-        <div class="info-card">
-          <div class="info-card-title">內在渴望數</div>
-          <div class="info-card-value" id="soulNumber">-</div>
-          <div class="info-card-label" id="soulLabel">-</div>
-        </div>
-      </div>
-
-      <button class="copy-btn" onclick="copyResult()">📋 一鍵複製結果</button>
-
-      <div class="cta-section">
-        <h3>📊 想看更完整的數字命盤？</h3>
-        <p>這只是基礎解析。完整的數字命盤包含三角星位、九宮格、五行平衡、能量連線，讓你用更有系統的方式認識自己，當成日常行動導航。</p>
-        <div class="cta-btns">
-          <a href="numerology-calculator.html" class="cta-btn primary">📊 完整數字命盤解析</a>
-          <a href="draw-hl.html" class="cta-btn secondary">🔮 抽取馥靈之鑰牌卡</a>
-        </div>
-      </div>
-
-      <p class="note">
-        本頁內容僅供自我覺察、情緒紓解與日常指引參考，<br>不具任何醫療或心理專業效力，如有身心健康疑慮請尋求合格專業協助。
-      </p>
-    </div>
-
-    <a href="index.html" class="back-home">🏠 返回首頁</a>
+  <div class="input-section">
+    <label class="input-label">請輸入你的出生日期</label>
+    <input type="date" class="date-input" id="birthDate" max="2025-12-31">
+    <button class="calc-btn" onclick="calculate()">🔮 解鎖我的生命密碼</button>
   </div>
+
+  <div class="result-section" id="resultSection">
+    <div class="number-card">
+      <div class="number-title">你的生命靈數</div>
+      <div class="number-value" id="lifePathNumber">-</div>
+      <div class="number-desc" id="lifePathDesc">-</div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-card-title">天賦數</div>
+        <div class="info-card-value" id="talentNumber">-</div>
+        <div class="info-card-label" id="talentLabel">-</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">命運數</div>
+        <div class="info-card-value" id="destinyNumber">-</div>
+        <div class="info-card-label" id="destinyLabel">-</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">內在渴望數</div>
+        <div class="info-card-value" id="soulNumber">-</div>
+        <div class="info-card-label" id="soulLabel">-</div>
+      </div>
+    </div>
+
+    <button class="copy-btn" onclick="copyResult()">📋 一鍵複製結果</button>
+
+    <div class="cta-section">
+      <h3>📊 想看更完整的數字命盤？</h3>
+      <p>這只是基礎解析。完整的數字命盤包含三角星位、九宮格、五行平衡、能量連線，讓你用更有系統的方式認識自己，當成日常行動導航。</p>
+      <div class="cta-btns">
+        <a href="numerology-calculator.html" class="cta-btn primary">📊 完整數字命盤解析</a>
+        <a href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener" class="cta-btn line">💬 LINE 深度解讀 @hourlight</a>
+        <a href="draw-hl.html" class="cta-btn secondary">🔮 抽取馥靈之鑰牌卡</a>
+      </div>
+    </div>
+
+    <p class="note">
+      本頁內容僅供自我覺察、情緒紓解與日常指引參考，<br>
+      非醫療行為，亦不等同任何形式之心理專業服務。如有身心健康疑慮請尋求合格專業協助。
+    </p>
+  </div>
+
+  <a href="index.html" class="back-home">🏠 返回首頁</a>
+</div>
 
 <script>
 const descriptions = {
@@ -382,30 +497,33 @@ const descriptions = {
   }
 };
 
-function reduceToSingle(num){
-  while(num>9 && num!==11 && num!==22 && num!==33){
-    num = String(num).split('').reduce((a,b)=>a+parseInt(b),0);
+function reduceToSingle(num) {
+  while(num > 9 && num !== 11 && num !== 22 && num !== 33) {
+    num = String(num).split('').reduce((a, b) => a + parseInt(b), 0);
   }
-  return num>9?num%9||9:num;
+  return num > 9 ? num % 9 || 9 : num;
 }
 
-function calculate(){
+function calculate() {
   const dateInput = document.getElementById('birthDate').value;
-  if(!dateInput){
+  if(!dateInput) {
     alert('請先輸入你的出生日期！');
     return;
   }
 
-  const [year,month,day] = dateInput.split('-').map(Number);
+  const [year, month, day] = dateInput.split('-').map(Number);
   
-  const allDigits = String(year)+String(month)+String(day);
-  const sum = allDigits.split('').reduce((a,b)=>a+parseInt(b),0);
+  // 計算生命靈數
+  const allDigits = String(year) + String(month) + String(day);
+  const sum = allDigits.split('').reduce((a, b) => a + parseInt(b), 0);
   const lifePathNum = reduceToSingle(sum);
 
+  // 計算其他數字
   const talentNum = reduceToSingle(day);
   const destinyNum = reduceToSingle(year);
   const soulNum = reduceToSingle(month);
 
+  // 更新 UI
   const data = descriptions[lifePathNum];
   document.getElementById('lifePathNumber').textContent = lifePathNum;
   document.getElementById('lifePathDesc').textContent = data.desc;
@@ -416,8 +534,10 @@ function calculate(){
   document.getElementById('soulNumber').textContent = soulNum;
   document.getElementById('soulLabel').textContent = descriptions[soulNum].soul;
 
+  // 顯示結果區塊
   document.getElementById('resultSection').classList.add('show');
 
+  // 儲存結果供複製使用
   window.currentResult = {
     date: dateInput,
     lifePath: lifePathNum,
@@ -428,12 +548,12 @@ function calculate(){
   };
 }
 
-function copyResult(){
+function copyResult() {
   if(!window.currentResult) return;
   
   const r = window.currentResult;
   const text = `🔢 生命靈數計算結果
-━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━
 出生日期：${r.date}
 生命靈數：${r.lifePath}
 天賦數：${r.talent}（${descriptions[r.talent].talent}）
@@ -441,19 +561,39 @@ function copyResult(){
 內在渴望數：${r.soul}（${descriptions[r.soul].soul}）
 
 核心特質：${r.desc}
-━━━━━━━━━━━━━━
-🇹🇼 源自台灣｜馥靈之鑰`;
+━━━━━━━━━━━━━━━━
+🇹🇼 源自台灣｜馥靈之鑰 Hour Light®
+LINE：@hourlight`;
 
-  navigator.clipboard.writeText(text).then(()=>{
+  navigator.clipboard.writeText(text).then(() => {
     const btn = event.target;
     btn.textContent = '✅ 已複製！';
     btn.classList.add('copied');
-    setTimeout(()=>{
+    setTimeout(() => {
       btn.textContent = '📋 一鍵複製結果';
       btn.classList.remove('copied');
-    },2000);
-  }).catch(()=>{
-    alert('複製失敗，請手動複製：\n\n'+text);
+    }, 2000);
+  }).catch(() => {
+    // 備用方案
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      const btn = event.target;
+      btn.textContent = '✅ 已複製！';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = '📋 一鍵複製結果';
+        btn.classList.remove('copied');
+      }, 2000);
+    } catch(e) {
+      alert('複製失敗，請手動複製：\n\n' + text);
+    }
+    document.body.removeChild(textarea);
   });
 }
 </script>
