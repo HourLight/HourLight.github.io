@@ -1,1122 +1,649 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>數字能量分析器｜身分證 × 手機號碼 × 五行磁場｜馥靈之鑰</title>
-<meta name="description" content="數字系統 - 分析身分證、手機號碼、五行流動、身心靈搭配。">
-<link rel="icon" href="favicon.ico" />
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
-<style>
-/* ==============================
-   馥靈之鑰 數字能量分析器
-   黑底星空主題 - 高質感設計
-   ============================== */
-
-:root {
-  --hl-font-main: "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
-
-  /* 星空系 */
-  --hl-v3-bg-deep: #0a0514;
-  --hl-v3-bg-soft: #1a1428;
-  --hl-v3-bg-panel: rgba(15,10,25,0.98);
-  --hl-v3-ink-main: #f5f0eb;
-  --hl-v3-ink-soft: #d4cac1;
-
-  /* 星光色系 */
-  --hl-v3-gold: #e9c27d;
-  --hl-v3-gold-deep: #cda86e;
-  --hl-v3-purple: #8b7fbf;
-  --hl-v3-cyan: #6dd5ed;
-  --hl-v3-rose: #f0b5b3;
-
-  --hl-v3-border-soft: rgba(255,255,255,0.08);
-  --hl-v3-shadow-md: 0 15px 40px rgba(0,0,0,0.7);
-  --hl-v3-glow: 0 0 20px rgba(233,194,125,0.2);
-
-  --hl-v3-ease: cubic-bezier(0.4, 0, 0.2, 1);
-
-  /* 五行色系 */
-  --element-metal: #e9c27d;
-  --element-water: #6dd5ed;
-  --element-wood: #7dd3a0;
-  --element-fire: #f0b5b3;
-  --element-earth: #d4a574;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-
-body {
-  min-height: 100vh;
-  font-family: var(--hl-font-main);
-  color: var(--hl-v3-ink-main);
-  line-height: 1.8;
-  padding: 24px 16px 48px;
-  background:
-    radial-gradient(circle at 20% 50%, rgba(139,127,191,0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(109,213,237,0.1) 0%, transparent 40%),
-    radial-gradient(circle at 50% 100%, rgba(233,194,125,0.08) 0%, transparent 60%),
-    linear-gradient(135deg, var(--hl-v3-bg-deep) 0%, var(--hl-v3-bg-soft) 100%);
-  background-attachment: fixed;
-  position: relative;
-  overflow-x: hidden;
-}
-
-/* 星空背景動畫 */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.15), rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 60px 70px, rgba(255,255,255,0.1), rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 50px 50px, rgba(255,255,255,0.2), rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.12), rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 90px 10px, rgba(255,255,255,0.14), rgba(0,0,0,0));
-  background-repeat: repeat;
-  background-size: 200px 200px;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.5;
-}
-
-.container {
-  position: relative;
-  z-index: 1;
-  max-width: 1000px;
-  margin: 0 auto;
-  background: var(--hl-v3-bg-panel);
-  backdrop-filter: blur(20px) saturate(150%);
-  border-radius: 24px;
-  padding: 48px 40px;
-  box-shadow: var(--hl-v3-shadow-md), var(--hl-v3-glow);
-  border: 1px solid var(--hl-v3-border-soft);
-}
-
-/* 標題 */
-h1 {
-  text-align: center;
-  font-size: clamp(2rem, 5vw, 2.8rem);
-  margin-bottom: 12px;
-  font-weight: 900;
-  background: linear-gradient(135deg, var(--hl-v3-gold), #fff8e7, var(--hl-v3-purple));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.5px;
-}
-
-.subtitle {
-  text-align: center;
-  color: var(--hl-v3-ink-soft);
-  font-size: 0.95rem;
-  margin-bottom: 40px;
-  line-height: 1.8;
-}
-
-/* 輸入區 */
-.input-section {
-  background: linear-gradient(135deg, rgba(139,127,191,0.08), rgba(109,213,237,0.06));
-  border: 1px solid var(--hl-v3-border-soft);
-  border-radius: 18px;
-  padding: 36px;
-  margin-bottom: 32px;
-  backdrop-filter: blur(10px);
-}
-
-.input-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  margin-bottom: 24px;
-}
-
-.input-row.full {
-  grid-template-columns: 1fr;
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.input-label {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--hl-v3-gold);
-  margin-bottom: 10px;
-  display: block;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.input-label .required {
-  color: var(--hl-v3-rose);
-  margin-left: 4px;
-}
-
-.input-field {
-  width: 100%;
-  padding: 14px 16px;
-  border: 1px solid var(--hl-v3-border-soft);
-  border-radius: 12px;
-  font-size: 1rem;
-  font-family: inherit;
-  transition: all 0.3s var(--hl-v3-ease);
-  background: rgba(255,255,255,0.04);
-  color: var(--hl-v3-ink-main);
-}
-
-.input-field:focus {
-  outline: none;
-  border-color: var(--hl-v3-gold);
-  box-shadow: 0 0 0 3px rgba(233,194,125,0.2), inset 0 0 0 1px rgba(233,194,125,0.1);
-  background: rgba(255,255,255,0.06);
-}
-
-.input-field::placeholder {
-  color: var(--hl-v3-ink-soft);
-  opacity: 0.5;
-}
-
-.input-field[type="date"] {
-  color-scheme: dark;
-}
-
-.input-hint {
-  font-size: 0.8rem;
-  color: var(--hl-v3-ink-soft);
-  margin-top: 8px;
-  opacity: 0.7;
-}
-
-/* 分析按鈕 */
-.analyze-btn {
-  display: block;
-  width: 100%;
-  background: linear-gradient(135deg, var(--hl-v3-gold), var(--hl-v3-gold-deep));
-  color: #0a0514;
-  border: none;
-  padding: 16px 24px;
-  border-radius: 14px;
-  font-size: 1.1rem;
-  font-weight: 900;
-  cursor: pointer;
-  box-shadow: 0 8px 24px rgba(233,194,125,0.35);
-  transition: all 0.3s var(--hl-v3-ease);
-  margin-top: 24px;
-  font-family: inherit;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.analyze-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(233,194,125,0.5);
-}
-
-.analyze-btn:active {
-  transform: translateY(-1px);
-}
-
-/* 結果區 */
-.result-section {
-  display: none;
-  animation: fadeIn 0.6s var(--hl-v3-ease);
-}
-
-.result-section.show {
-  display: block;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 卦象卡片 */
-.gua-card {
-  background: linear-gradient(135deg, rgba(233,194,125,0.1), rgba(139,127,191,0.08));
-  border: 1px solid var(--hl-v3-border-soft);
-  border-radius: 16px;
-  padding: 28px;
-  margin-bottom: 24px;
-  backdrop-filter: blur(10px);
-}
-
-.gua-title {
-  font-size: 1.3rem;
-  font-weight: 900;
-  color: var(--hl-v3-gold);
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--hl-v3-border-soft);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.gua-content {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-}
-
-.gua-item {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--hl-v3-border-soft);
-  border-radius: 12px;
-  padding: 16px;
-  text-align: center;
-  transition: all 0.3s var(--hl-v3-ease);
-}
-
-.gua-item:hover {
-  background: rgba(255,255,255,0.06);
-  border-color: var(--hl-v3-gold);
-  transform: translateY(-2px);
-}
-
-.gua-name {
-  font-size: 1.4rem;
-  font-weight: 900;
-  color: var(--hl-v3-gold);
-  margin-bottom: 8px;
-}
-
-.gua-element {
-  font-size: 0.85rem;
-  color: var(--hl-v3-ink-soft);
-  margin-bottom: 10px;
-  opacity: 0.8;
-}
-
-.gua-meaning {
-  font-size: 0.9rem;
-  color: var(--hl-v3-ink-soft);
-  line-height: 1.6;
-}
-
-/* 五行流動 */
-.five-elements-flow {
-  background: linear-gradient(135deg, rgba(109,213,237,0.1), rgba(125,211,160,0.08));
-  border: 1px solid var(--hl-v3-border-soft);
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 24px;
-  backdrop-filter: blur(10px);
-}
-
-.flow-title {
-  font-size: 1.1rem;
-  font-weight: 900;
-  color: var(--hl-v3-cyan);
-  margin-bottom: 16px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.flow-sequence {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-
-.flow-item {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--hl-v3-border-soft);
-  border-radius: 10px;
-  padding: 12px 16px;
-  font-weight: 700;
-  color: var(--hl-v3-ink-main);
-  min-width: 80px;
-  text-align: center;
-}
-
-.flow-arrow {
-  font-size: 1.4rem;
-  color: var(--hl-v3-cyan);
-  opacity: 0.7;
-}
-
-.flow-analysis {
-  font-size: 0.95rem;
-  color: var(--hl-v3-ink-soft);
-  line-height: 1.7;
-  padding: 12px 16px;
-  background: rgba(255,255,255,0.02);
-  border-left: 3px solid var(--hl-v3-cyan);
-  border-radius: 8px;
-}
-
-/* 相容性卡片 */
-.compatibility-card {
-  background: linear-gradient(135deg, rgba(240,181,179,0.1), rgba(139,127,191,0.08));
-  border: 1px solid var(--hl-v3-border-soft);
-  border-radius: 16px;
-  padding: 28px;
-  margin-bottom: 24px;
-  backdrop-filter: blur(10px);
-}
-
-.compatibility-title {
-  font-size: 1.3rem;
-  font-weight: 900;
-  color: var(--hl-v3-rose);
-  margin-bottom: 20px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.compatibility-score {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--hl-v3-border-soft);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 16px;
-}
-
-.score-label {
-  font-weight: 700;
-  color: var(--hl-v3-ink-soft);
-}
-
-.score-value {
-  font-size: 2rem;
-  font-weight: 900;
-  background: linear-gradient(135deg, var(--hl-v3-gold), var(--hl-v3-purple));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.compatibility-analysis {
-  font-size: 0.95rem;
-  color: var(--hl-v3-ink-soft);
-  line-height: 1.7;
-  padding: 16px;
-  background: rgba(255,255,255,0.02);
-  border-left: 3px solid var(--hl-v3-rose);
-  border-radius: 8px;
-}
-
-/* 解讀文本 */
-.interpretation {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--hl-v3-border-soft);
-  border-radius: 14px;
-  padding: 24px;
-  margin-bottom: 24px;
-  line-height: 1.8;
-  color: var(--hl-v3-ink-soft);
-}
-
-.interpretation-title {
-  font-weight: 900;
-  color: var(--hl-v3-gold);
-  margin-bottom: 12px;
-  font-size: 1.05rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.interpretation p {
-  margin-bottom: 12px;
-}
-
-.interpretation p:last-child {
-  margin-bottom: 0;
-}
-
-/* 圖表容器 */
-.chart-wrapper {
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 20px 0;
-}
-
-/* CTA 區 */
-.cta-section {
-  background: linear-gradient(135deg, var(--hl-v3-purple), rgba(139,127,191,0.8));
-  border: 1px solid var(--hl-v3-border-soft);
-  color: var(--hl-v3-ink-main);
-  border-radius: 16px;
-  padding: 36px;
-  text-align: center;
-  margin-top: 32px;
-}
-
-.cta-title {
-  font-size: 1.4rem;
-  font-weight: 900;
-  margin-bottom: 16px;
-  background: linear-gradient(135deg, var(--hl-v3-gold), #fff8e7);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.cta-btn {
-  display: inline-block;
-  padding: 14px 28px;
-  border-radius: 999px;
-  font-weight: 800;
-  text-decoration: none;
-  transition: all 0.3s var(--hl-v3-ease);
-  margin: 8px;
-  font-size: 0.95rem;
-  border: none;
-  cursor: pointer;
-}
-
-.cta-btn-primary {
-  background: linear-gradient(135deg, var(--hl-v3-gold), var(--hl-v3-gold-deep));
-  color: #0a0514;
-  box-shadow: 0 6px 20px rgba(233,194,125,0.3);
-}
-
-.cta-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(233,194,125,0.45);
-}
-
-/* 返回連結 */
-.back-section {
-  text-align: center;
-  margin-top: 32px;
-}
-
-.back-link {
-  display: inline-block;
-  background: linear-gradient(135deg, var(--hl-v3-gold), var(--hl-v3-gold-deep));
-  color: #0a0514;
-  font-weight: 800;
-  padding: 12px 24px;
-  border-radius: 999px;
-  text-decoration: none;
-  box-shadow: 0 4px 14px rgba(233,194,125,0.3);
-  transition: all 0.3s var(--hl-v3-ease);
-}
-
-.back-link:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(233,194,125,0.45);
-}
-
-/* 錯誤提示 */
-.error-message {
-  background: rgba(240,181,179,0.15);
-  border: 1px solid var(--hl-v3-rose);
-  border-radius: 12px;
-  padding: 16px;
-  color: var(--hl-v3-rose);
-  margin-bottom: 16px;
-  font-size: 0.95rem;
-}
-
-/* RWD */
-@media(max-width:768px) {
-  .container {
-    padding: 32px 24px;
-  }
-
-  .input-row {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .gua-content {
-    grid-template-columns: 1fr;
-  }
-
-  .flow-sequence {
-    gap: 8px;
-  }
-
-  .flow-item {
-    min-width: 60px;
-    font-size: 0.9rem;
-    padding: 10px 12px;
-  }
-
-  .compatibility-score {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .score-value {
-    font-size: 1.8rem;
-  }
-}
-
-@media(max-width:600px) {
-  .container {
-    padding: 24px 16px;
-    border-radius: 16px;
-  }
-
-  h1 {
-    font-size: 1.6rem;
-  }
-
-  .gua-item {
-    padding: 12px;
-  }
-
-  .gua-name {
-    font-size: 1.1rem;
-  }
-
-  .cta-section {
-    padding: 24px 16px;
-  }
-}
-</style>
-</head>
-
-<body>
-<div class="container">
-  <h1>✨ 數字能量分析器</h1>
-  <p class="subtitle">
-    數字系統｜身分證 × 手機號碼 × 五行流動分析
-  </p>
-
-  <!-- 輸入區 -->
-  <div class="input-section">
-    <div class="input-row">
-      <div class="input-group">
-        <label class="input-label">
-          身分證號碼<span class="required">*</span>
-        </label>
-        <input type="text" id="idInput" class="input-field" placeholder="例如：H224326529" maxlength="10">
-        <div class="input-hint">身分證號碼</div>
-      </div>
-      <div class="input-group">
-        <label class="input-label">
-          手機號碼<span class="required">*</span>
-        </label>
-        <input type="tel" id="phoneInput" class="input-field" placeholder="例如：0905723595 或 15601853595">
-        <div class="input-hint">手機</div>
-      </div>
-    </div>
-    <div class="input-row">
-      <div class="input-group">
-        <label class="input-label">
-          出生日期<span class="required">*</span>
-        </label>
-        <input type="date" id="birthInput" class="input-field" min="1900-01-01" max="2025-12-31">
-        <div class="input-hint">用於計算生命靈數和流年運勢</div>
-      </div>
-    </div>
-    <button class="analyze-btn" onclick="analyzeEnergy()">🔮 開始分析能量</button>
-  </div>
-
-  <!-- 結果區 -->
-  <div id="resultSection" class="result-section">
-    <!-- 身分證卦象 -->
-    <div class="gua-card">
-      <div class="gua-title">📋 身分證</div>
-      <div id="idGuaContainer"></div>
-    </div>
-
-    <!-- 本命卦解讀 -->
-    <div class="interpretation">
-      <div class="interpretation-title">🌟 本命解讀</div>
-      <div id="idGuaInterpretation"></div>
-    </div>
-
-    <!-- 手機號卦象 -->
-    <div class="gua-card">
-      <div class="gua-title">📱 手機號碼序列</div>
-      <div id="phoneGuaContainer"></div>
-    </div>
-
-    <!-- 五行流動 -->
-    <div class="five-elements-flow">
-      <div class="flow-title">🌊 五行流動分析</div>
-      <div id="flowContainer"></div>
-    </div>
-
-    <!-- 手機號解讀 -->
-    <div class="interpretation">
-      <div class="interpretation-title">📊 手機號解讀</div>
-      <div id="phoneGuaInterpretation"></div>
-    </div>
-
-    <!-- 相容性分析 -->
-    <div class="compatibility-card">
-      <div class="compatibility-title">💫 身分證與手機搭配分析</div>
-      <div id="compatibilityContainer"></div>
-    </div>
-
-    <!-- 搭配建議 -->
-    <div class="interpretation">
-      <div class="interpretation-title">✨ 能量調頻建議</div>
-      <div id="recommendationContainer"></div>
-    </div>
-
-    <!-- CTA -->
-    <div class="cta-section">
-      <div class="cta-title">想要更深入的能量調頻？</div>
-      <p style="color:var(--hl-v3-ink-soft);margin-bottom:16px;font-size:0.95rem;">
-        讓專業調頻師為你解讀更深層的數字訊息
-      </p>
-      <a href="https://lin.ee/vpbLhNjF" target="_blank" rel="noopener" class="cta-btn cta-btn-primary">💬 LINE @hourlight</a>
-    </div>
-  </div>
-
-  <div class="back-section">
-    <a href="index.html" class="back-link">🏠 返回首頁</a>
-  </div>
-</div>
-
-<script>
-// ========== 湛寂師父數字卦系統 ==========
-
-// 八卦對應表
-const GUA_MAP = {
-  1: {name: "乾", element: "金", meaning: "天、創造、領導、權力、光明"},
-  2: {name: "兌", element: "金", meaning: "喜悅、交談、少女、開放、溝通"},
-  3: {name: "離", element: "火", meaning: "光明、名聲、文明、聰慧、美麗"},
-  4: {name: "震", element: "木", meaning: "動力、變化、行動、雷電、成長"},
-  5: {name: "巽", element: "木", meaning: "風、順從、進入、柔和、流動"},
-  6: {name: "坎", element: "水", meaning: "水、聰慧、流動、深度、智慧"},
-  7: {name: "艮", element: "土", meaning: "山、停止、穩定、可靠、沉著"},
-  8: {name: "坤", element: "土", meaning: "地、包容、母親、穩定、厚重"}
-};
-
-// 五行相生相剋
-const FIVE_ELEMENTS_GENERATION = {
-  "金": "水", "水": "木", "木": "火", "火": "土", "土": "金"
-};
-
-const FIVE_ELEMENTS_RESTRAINT = {
-  "金": "木", "木": "土", "土": "水", "水": "火", "火": "金"
-};
-
-// 本命卦組合
-const MING_GUA_MAP = {
-  "坤坎": "地水師卦 - 智慧的領導者，穩定中帶有深度思考",
-  "坤艮": "地山謙卦 - 謙虛穩重，內斂而有力量",
-  "坤離": "地火明夷卦 - 光明中帶有沉著，聰慧而穩定",
-  "坤震": "地雷復卦 - 循環往復，生生不息的能量",
-  "坤巽": "地風升卦 - 穩中求進，循序漸進的成長",
-  "坤兌": "地澤臨卦 - 親和力強，包容而開放",
-  "坤坤": "坤為地卦 - 極度穩定，厚德載物",
-  "坤乾": "地天泰卦 - 陰陽和諧，事業順利",
-  "艮坎": "山水蒙卦 - 智慧啟蒙，穩定中求發展",
-  "艮艮": "艮為山卦 - 穩如磐石，堅定不移",
-  "艮離": "山火賁卦 - 文采斐然，內外兼修",
-  "艮震": "山雷頤卦 - 養護生命，內斂而有力",
-  "艮巽": "山風蛊卦 - 革新變化，穩中求新",
-  "艮兌": "山澤損卦 - 舍得之道，知足常樂",
-  "艮坤": "山地剝卦 - 循序漸進，厚積薄發",
-  "艮乾": "山天大畜卦 - 蓄勢待發，大器晚成",
-  "離坎": "火水未濟卦 - 相互補充，動靜結合",
-  "離艮": "火山旅卦 - 行動力強，見多識廣",
-  "離離": "離為火卦 - 光芒四射，聲名遠播",
-  "離震": "火雷噬嗑卦 - 決斷力強，行動迅速",
-  "離巽": "火風鼎卦 - 創新發展，事業騰飛",
-  "離兌": "火澤睽卦 - 獨特視角，創意十足",
-  "離坤": "火地晉卦 - 上升之勢，前景光明",
-  "離乾": "火天大有卦 - 豐收在即，財運亨通",
-  "震坎": "雷水解卦 - 化解困難，柳暗花明",
-  "震艮": "雷山小過卦 - 謹慎行動，細節決定成敗",
-  "震離": "雷火豐卦 - 事業高峰，成就非凡",
-  "震震": "震為雷卦 - 動力十足，行動力強",
-  "震巽": "雷風恆卦 - 持之以恆，長期發展",
-  "震兌": "雷澤歸妹卦 - 感情豐富，人緣旺盛",
-  "震坤": "雷地豫卦 - 樂觀積極，人生順遂",
-  "震乾": "雷天大壯卦 - 氣勢磅礴，勢不可擋",
-  "巽坎": "風水渙卦 - 流動發展，靈活變通",
-  "巽艮": "風山漸卦 - 循序漸進，穩步向前",
-  "巽離": "風火家人卦 - 家庭和睦，事業順利",
-  "巽震": "風雷益卦 - 互利共贏，共同成長",
-  "巽巽": "巽為風卦 - 柔和順暢，靈活多變",
-  "巽兌": "風澤中孚卦 - 誠信為本，信任深厚",
-  "巽坤": "風地觀卦 - 觀察入微，洞察先機",
-  "巽乾": "風天小畜卦 - 蓄勢待發，時機未到",
-  "兌坎": "澤水困卦 - 困中求變，柳暗花明",
-  "兌艮": "澤山咸卦 - 感應靈敏，人際和諧",
-  "兌離": "澤火革卦 - 革新變化，浴火重生",
-  "兌震": "澤雷隨卦 - 順應時勢，靈活應變",
-  "兌巽": "澤風大過卦 - 超越自我，突破極限",
-  "兌兌": "兌為澤卦 - 喜悅開放，人緣旺盛",
-  "兌坤": "澤地萃卦 - 聚集人氣，團結合作",
-  "兌乾": "澤天夬卦 - 決斷果敢，勢在必行",
-  "坎坎": "坎為水卦 - 智慧深邃，流動發展",
-  "坎艮": "水山蹇卦 - 困難重重，需要耐心",
-  "坎離": "水火既濟卦 - 陰陽平衡，事業成功",
-  "坎震": "水雷屯卦 - 初生之犢，前景光明",
-  "坎巽": "水風井卦 - 源源不斷，持續發展",
-  "坎兌": "水澤節卦 - 適度節制，長期穩定",
-  "坎坤": "水地比卦 - 親密合作，互相支持",
-  "坎乾": "水天需卦 - 耐心等待，時機成熟",
-  "乾坎": "天水訟卦 - 理性溝通，化解紛爭",
-  "乾艮": "天山遯卦 - 戰略退卻，蓄勢待發",
-  "乾離": "天火同人卦 - 志同道合，事業共進",
-  "乾震": "天雷無妄卦 - 順其自然，無為而治",
-  "乾巽": "天風姤卦 - 相遇相知，緣分天成",
-  "乾兌": "天澤履卦 - 踏實行動，步步為營",
-  "乾坤": "天地泰卦 - 陰陽和諧，事業順利",
-  "乾乾": "乾為天卦 - 領導力強，前景光明"
-};
-
-// 計算卦象
-function calculateGua(digits_str) {
-  // 處理零
-  if (digits_str.length < 3) return null;
-  
-  if (digits_str[2] === '0') return null; // 末位為0成空
-  
-  if (digits_str[0] === '0') {
-    digits_str = digits_str[1] + digits_str[1] + digits_str[2];
-  } else if (digits_str[1] === '0') {
-    digits_str = digits_str[0] + digits_str[0] + digits_str[2];
-  }
-  
-  // 判斷是否使用陰陽爻法
-  if (digits_str.length === 3) {
-    const d1 = parseInt(digits_str[0]);
-    const d2 = parseInt(digits_str[1]);
-    const d3 = parseInt(digits_str[2]);
-    
-    // 「奇-偶-偶」模式使用陰陽爻法
-    if ((d1 % 2 === 1) && (d2 % 2 === 0) && (d3 % 2 === 0)) {
-      const yao = [
-        d1 % 2 === 1 ? "陽" : "陰",
-        d2 % 2 === 1 ? "陽" : "陰",
-        d3 % 2 === 1 ? "陽" : "陰"
-      ];
-      const pattern = yao[1] + yao[0] + yao[2];
-      const patterns = {
-        "陽陽陽": 1, "陽陽陰": 4, "陽陰陽": 3, "陽陰陰": 5,
-        "陰陽陽": 2, "陰陽陰": 6, "陰陰陽": 7, "陰陰陰": 8
-      };
-      return patterns[pattern] || null;
-    }
-  }
-  
-  // 求和取餘法
-  const sum = digits_str.split('').reduce((a, b) => a + parseInt(b), 0);
-  const remainder = sum % 8;
-  return remainder === 0 ? 8 : remainder;
-}
-
-// 分析身分證
-function analyzeID(idNumber) {
-  const digits = idNumber.substring(1); // 去掉首字母
-  const groups = [digits.substring(0, 3), digits.substring(3, 6), digits.substring(6, 9)];
-  
-  const guaSequence = [];
-  const guaNames = [];
-  const elements = [];
-  
-  for (let group of groups) {
-    const guaNum = calculateGua(group);
-    if (guaNum) {
-      guaSequence.push(guaNum);
-      guaNames.push(GUA_MAP[guaNum].name);
-      elements.push(GUA_MAP[guaNum].element);
-    }
-  }
-  
-  // 本命卦 = 上卦(第3組) + 下卦(第2組)
-  let mingGua = null;
-  if (guaNames.length >= 2) {
-    mingGua = guaNames[2] + guaNames[1]; // 上卦 + 下卦
-  }
-  
-  return {
-    groups,
-    guaSequence,
-    guaNames,
-    elements,
-    mingGua,
-    mingGuaMeaning: MING_GUA_MAP[mingGua] || "特殊卦象組合"
-  };
-}
-
-// 分析手機號
-function analyzePhone(phoneNumber) {
-  const digits = phoneNumber.replace(/\D/g, '');
-  
-  // 如果是台灣手機(09開頭)，去掉首位0
-  let processedDigits = digits;
-  if (digits.startsWith('09')) {
-    processedDigits = digits.substring(1);
-  }
-  
-  // 從後面開始三位一組
-  const groups = [];
-  for (let i = processedDigits.length; i > 0; i -= 3) {
-    const start = Math.max(0, i - 3);
-    groups.unshift(processedDigits.substring(start, i));
-  }
-  
-  const guaSequence = [];
-  const guaNames = [];
-  const elements = [];
-  
-  for (let group of groups) {
-    if (group.length === 1) {
-      // 單個數字直接對應
-      const guaNum = parseInt(group);
-      if (guaNum >= 1 && guaNum <= 9) {
-        const mappedNum = guaNum === 9 ? 8 : guaNum;
-        guaSequence.push(mappedNum);
-        guaNames.push(GUA_MAP[mappedNum].name);
-        elements.push(GUA_MAP[mappedNum].element);
-      }
-    } else {
-      const guaNum = calculateGua(group);
-      if (guaNum) {
-        guaSequence.push(guaNum);
-        guaNames.push(GUA_MAP[guaNum].name);
-        elements.push(GUA_MAP[guaNum].element);
-      }
-    }
-  }
-  
-  return {
-    groups,
-    guaSequence,
-    guaNames,
-    elements
-  };
-}
-
-// 分析五行流動
-function analyzeFiveElements(elements) {
-  let analysis = "";
-  let score = 100;
-  
-  for (let i = 0; i < elements.length - 1; i++) {
-    const current = elements[i];
-    const next = elements[i + 1];
-    
-    if (FIVE_ELEMENTS_GENERATION[current] === next) {
-      analysis += `${current}生${next}，`;
-      score += 10;
-    } else if (FIVE_ELEMENTS_RESTRAINT[current] === next) {
-      analysis += `${current}克${next}，`;
-      score -= 15;
-    } else {
-      analysis += `${current}與${next}相隔，`;
-    }
-  }
-  
-  analysis = analysis.slice(0, -1);
-  
-  let flowAnalysis = "";
-  if (analysis.includes("克")) {
-    flowAnalysis = "⚠️ 五行中存在相剋，需要特別調頻和平衡。";
-  } else if (analysis.includes("生")) {
-    flowAnalysis = "✨ 五行相生流暢，能量流動順利，事業運勢良好。";
-  } else {
-    flowAnalysis = "🔄 五行相隔，需要通過調頻來增強能量連結。";
-  }
-  
-  return {
-    analysis,
-    flowAnalysis,
-    score: Math.max(0, Math.min(100, score))
-  };
-}
-
-// 分析相容性
-function analyzeCompatibility(idResult, phoneResult) {
-  let score = 100;
-  let analysis = "";
-  
-  // 檢查身分證下卦與手機號第一卦的相容性
-  if (idResult.guaNames.length >= 2 && phoneResult.guaNames.length >= 1) {
-    const idLowerElement = idResult.elements[1];
-    const phoneFirstElement = phoneResult.elements[0];
-    
-    if (FIVE_ELEMENTS_GENERATION[idLowerElement] === phoneFirstElement) {
-      score += 15;
-      analysis += `✨ 身分證下卦(${idResult.guaNames[1]}卦)的${idLowerElement}能量生手機號第一卦(${phoneResult.guaNames[0]}卦)的${phoneFirstElement}，相容性極佳。\n`;
-    } else if (FIVE_ELEMENTS_RESTRAINT[idLowerElement] === phoneFirstElement) {
-      score -= 20;
-      analysis += `⚠️ 身分證下卦(${idResult.guaNames[1]}卦)的${idLowerElement}能量克手機號第一卦(${phoneResult.guaNames[0]}卦)的${phoneFirstElement}，需要調頻。\n`;
-    }
-  }
-  
-  // 檢查整體五行平衡
-  const allElements = [...idResult.elements, ...phoneResult.elements];
-  const elementCount = {};
-  for (let elem of allElements) {
-    elementCount[elem] = (elementCount[elem] || 0) + 1;
-  }
-  
-  const maxCount = Math.max(...Object.values(elementCount));
-  if (maxCount > 3) {
-    score -= 10;
-    analysis += `⚠️ 某個五行過多，建議選擇其他號碼來平衡。\n`;
-  }
-  
-  score = Math.max(0, Math.min(100, score));
-  
-  return {
-    score,
-    analysis: analysis || "身分證與手機號的能量搭配平衡。"
-  };
-}
-
-// 主分析函數
-function analyzeEnergy() {
-  const idInput = document.getElementById('idInput').value.trim().toUpperCase();
-  const phoneInput = document.getElementById('phoneInput').value.trim();
-  const birthInput = document.getElementById('birthInput').value;
-  
-  // 驗證
-  if (!idInput || !/^[A-Z]\d{9}$/.test(idInput)) {
-    showError('請輸入正確的身分證號碼（1碼英文+9碼數字）');
-    return;
-  }
-  
-  if (!phoneInput || (!/^09\d{8}$/.test(phoneInput) && !/^1[5-9]\d{9}$/.test(phoneInput))) {
-    showError('請輸入正確的手機號碼（台灣09開頭或大陸15/18開頭）');
-    return;
-  }
-  
-  if (!birthInput) {
-    showError('請選擇出生日期');
-    return;
-  }
-  
-  // 分析
-  const idResult = analyzeID(idInput);
-  const phoneResult = analyzePhone(phoneInput);
-  const flowResult = analyzeFiveElements(phoneResult.elements);
-  const compatibilityResult = analyzeCompatibility(idResult, phoneResult);
-  
-  // 顯示結果
-  displayIDGua(idResult);
-  displayPhoneGua(phoneResult);
-  displayFlow(flowResult);
-  displayCompatibility(compatibilityResult, idResult, phoneResult);
-  displayRecommendation(compatibilityResult, flowResult);
-  
-  // 顯示結果區
-  document.getElementById('resultSection').classList.add('show');
-  document.getElementById('resultSection').scrollIntoView({behavior: 'smooth'});
-}
-
-function showError(message) {
-  alert(message);
-}
-
-function displayIDGua(idResult) {
-  let html = '<div class="gua-content">';
-  for (let i = 0; i < idResult.guaNames.length; i++) {
-    const guaNum = idResult.guaSequence[i];
-    const gua = GUA_MAP[guaNum];
-    html += `
-      <div class="gua-item">
-        <div class="gua-name">${gua.name}</div>
-        <div class="gua-element">${gua.element}五行</div>
-        <div class="gua-meaning">${gua.meaning}</div>
-      </div>
-    `;
-  }
-  html += '</div>';
-  document.getElementById('idGuaContainer').innerHTML = html;
-  
-  // 本命卦解讀
-  let interpretation = `<p><strong>本命卦：${idResult.mingGua}</strong></p>`;
-  interpretation += `<p>${idResult.mingGuaMeaning}</p>`;
-  interpretation += `<p>這個卦象代表了您與生俱來的命運特質和能量特徵。它影響著您的人生方向、性格傾向和主要運勢。通過了解本命卦，您可以更好地認識自己，發揮潛能。</p>`;
-  document.getElementById('idGuaInterpretation').innerHTML = interpretation;
-}
-
-function displayPhoneGua(phoneResult) {
-  let html = '<div class="gua-content">';
-  for (let i = 0; i < phoneResult.guaNames.length; i++) {
-    const guaNum = phoneResult.guaSequence[i];
-    const gua = GUA_MAP[guaNum];
-    html += `
-      <div class="gua-item">
-        <div class="gua-name">${gua.name}</div>
-        <div class="gua-element">${gua.element}五行</div>
-        <div class="gua-meaning">${gua.meaning}</div>
-      </div>
-    `;
-  }
-  html += '</div>';
-  document.getElementById('phoneGuaContainer').innerHTML = html;
-  
-  // 手機號解讀
-  let interpretation = `<p>您的手機號碼由 <strong>${phoneResult.guaNames.join(' → ')}</strong> 的卦象序列組成。</p>`;
-  interpretation += `<p>這個號碼的能量特徵是：<strong>${phoneResult.elements.join(' → ')}</strong> 的五行流動。手機號碼是您最常使用的數字磁場，它會持續影響您的能量頻率和運勢發展。</p>`;
-  document.getElementById('phoneGuaInterpretation').innerHTML = interpretation;
-}
-
-function displayFlow(flowResult) {
-  let html = `
-    <div class="flow-sequence">
-      ${flowResult.analysis.split('，').map((item, idx, arr) => {
-        const parts = item.split(/生|克|與|相隔/);
-        if (idx < arr.length - 1) {
-          return `
-            <div class="flow-item">${parts[0]}</div>
-            <div class="flow-arrow">→</div>
-            <div class="flow-item">${parts[1]}</div>
-            ${idx < arr.length - 2 ? '<div class="flow-arrow">→</div>' : ''}
-          `;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 數字遊戲人間</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        return '';
-      }).join('')}
-    </div>
-    <div class="flow-analysis">${flowResult.flowAnalysis}</div>
-  `;
-  document.getElementById('flowContainer').innerHTML = html;
-}
 
-function displayCompatibility(compatibilityResult, idResult, phoneResult) {
-  let html = `
-    <div class="compatibility-score">
-      <span class="score-label">身分證與手機搭配評分</span>
-      <span class="score-value">${compatibilityResult.score}</span>
-    </div>
-    <div class="compatibility-analysis">${compatibilityResult.analysis}</div>
-  `;
-  document.getElementById('compatibilityContainer').innerHTML = html;
-}
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
 
-function displayRecommendation(compatibilityResult, flowResult) {
-  let recommendation = "";
-  
-  if (compatibilityResult.score >= 80) {
-    recommendation = `<p><strong>✨ 完美搭配</strong></p><p>您的身分證與手機號碼的能量搭配非常和諧，建議繼續使用當前號碼。這個組合將幫助您發揮潛能，事業和人生運勢都會得到良好的支持。</p>`;
-  } else if (compatibilityResult.score >= 60) {
-    recommendation = `<p><strong>🌟 良好搭配</strong></p><p>身分證與手機號碼的能量搭配基本和諧，但還有改進的空間。您可以通過精油調香、冥想或其他能量調頻方式來增強整體的和諧度。</p>`;
-  } else {
-    recommendation = `<p><strong>🔄 建議調整</strong></p><p>當前的號碼組合中存在一些能量衝突。建議您考慮更換手機號碼，選擇與身分證本命卦更相容的號碼，以獲得更好的運勢支持。</p>`;
-  }
-  
-  recommendation += `<p><strong>💡 能量調頻建議</strong></p><p>無論您的搭配評分如何，都可以通過以下方式來增強和優化您的能量：</p><ul style="margin-left: 20px; margin-top: 10px;"><li>定期使用馥靈之鑰牌卡進行能量對焦</li><li>根據您的卦象特質選擇合適的精油調香</li><li>在重要決定前進行數字卦占卜</li><li>與調頻師進行深度的能量諮詢</li></ul>`;
-  
-  document.getElementById('recommendationContainer').innerHTML = recommendation;
-}
-</script>
+        body {
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0514 0%, #1a0033 50%, #0d0520 100%);
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* 星空背景 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.8; }
+        }
+
+        /* 主容器 */
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 900px;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 標題區域 */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            width: 100%;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #e9c27d 0%, #6dd5ed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+        }
+
+        .header .subtitle {
+            font-size: 1.3rem;
+            color: #b8a8d8;
+            font-weight: 300;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .header .tagline {
+            font-size: 0.95rem;
+            color: #8b7fbf;
+            font-style: italic;
+            font-weight: 300;
+        }
+
+        /* 內容區域 */
+        .content-wrapper {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        /* 輸入面板 */
+        .input-section {
+            width: 100%;
+        }
+
+        .input-section h2 {
+            font-size: 1.5rem;
+            color: #e9c27d;
+            margin-bottom: 30px;
+            font-weight: 500;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .form-container {
+            background: rgba(20, 10, 40, 0.6);
+            border: 1px solid rgba(233, 194, 125, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.95rem;
+            color: #b8a8d8;
+            margin-bottom: 10px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(233, 194, 125, 0.15);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+            font-family: 'Noto Sans TC', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: rgba(233, 194, 125, 0.5);
+            background: rgba(233, 194, 125, 0.05);
+            box-shadow: 0 0 15px rgba(233, 194, 125, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #e9c27d 0%, #d4a574 100%);
+            color: #0a0514;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(233, 194, 125, 0.3);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        /* 結果面板 */
+        .result-section {
+            width: 100%;
+        }
+
+        .result-section h2 {
+            font-size: 1.5rem;
+            color: #6dd5ed;
+            margin-bottom: 30px;
+            font-weight: 500;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .result-container {
+            background: rgba(20, 10, 40, 0.6);
+            border: 1px solid rgba(109, 213, 237, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-container.hidden {
+            display: none;
+        }
+
+        /* 加載動畫 */
+        .loading-state {
+            text-align: center;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(233, 194, 125, 0.2);
+            border-top: 3px solid #e9c27d;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1rem;
+            color: #b8a8d8;
+            letter-spacing: 0.5px;
+        }
+
+        /* 結果卡牌 */
+        .results-grid {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .results-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .results-grid::-webkit-scrollbar-track {
+            background: rgba(233, 194, 125, 0.1);
+            border-radius: 10px;
+        }
+
+        .results-grid::-webkit-scrollbar-thumb {
+            background: rgba(233, 194, 125, 0.3);
+            border-radius: 10px;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, rgba(139, 127, 191, 0.15), rgba(109, 213, 237, 0.15));
+            border: 1px solid rgba(233, 194, 125, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            border-color: rgba(233, 194, 125, 0.4);
+            box-shadow: 0 8px 25px rgba(233, 194, 125, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .card-emoji {
+            font-size: 1.8rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            color: #e9c27d;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .card-content {
+            color: #b8a8d8;
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .card-content p {
+            margin-bottom: 8px;
+        }
+
+        .card-highlight {
+            color: #e9c27d;
+            font-weight: 600;
+        }
+
+        .game-ref {
+            background: rgba(233, 194, 125, 0.08);
+            border-left: 3px solid #e9c27d;
+            padding: 12px 15px;
+            margin-top: 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #e9c27d;
+            font-style: italic;
+        }
+
+        /* 錯誤提示 */
+        .error-message {
+            background: rgba(255, 100, 100, 0.15);
+            border: 1px solid rgba(255, 100, 100, 0.4);
+            border-radius: 10px;
+            padding: 15px;
+            color: #ff9999;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        /* 響應式 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 20px;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .header .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .form-container,
+            .result-container {
+                padding: 30px;
+            }
+
+            .content-wrapper {
+                gap: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 星空背景 -->
+    <div class="stars" id="starsContainer"></div>
+
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 標題 -->
+        <div class="header">
+            <h1>數字遊戲人間</h1>
+            <p class="subtitle">🎮 發現您的遊戲角色</p>
+            <p class="tagline">「人生就像一場遊戲，而您就是主角」</p>
+        </div>
+
+        <!-- 內容區域 -->
+        <div class="content-wrapper">
+            <!-- 輸入區域 -->
+            <div class="input-section">
+                <h2>角色創建</h2>
+                <div class="form-container">
+                    <form id="adventureForm">
+                        <div class="error-message" id="errorMessage"></div>
+
+                        <div class="form-group">
+                            <label for="idNumber">身分證號碼</label>
+                            <input type="text" id="idNumber" placeholder="例如: H224326529" maxlength="10" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phoneNumber">手機號碼</label>
+                            <input type="text" id="phoneNumber" placeholder="例如: 0905723595" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="birthDate">出生日期</label>
+                            <input type="date" id="birthDate" required>
+                        </div>
+
+                        <button type="submit" class="btn-submit">🚀 進入遊戲</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 結果區域 -->
+            <div class="result-section">
+                <h2>遊戲檔案</h2>
+                <div class="result-container">
+                    <div class="loading-state" id="loadingState">
+                        <div class="spinner"></div>
+                        <p class="loading-text">正在載入您的遊戲角色...</p>
+                    </div>
+
+                    <div class="results-grid" id="resultsGrid" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 生成星空
+        function generateStars() {
+            const starsContainer = document.getElementById('starsContainer');
+            for (let i = 0; i < 80; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 2.5 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        generateStars();
+
+        // 遊戲參考
+        const gameReferences = {
+            1: { game: "超級瑪莉", ref: "就像馬莉吃了超級蘑菇，獲得了無敵的力量" },
+            2: { game: "動物森友會", ref: "就像島民一樣，溫柔而包容，有著獨特的魅力" },
+            3: { game: "天堂", ref: "就像火系法師，充滿熱情與爆發力" },
+            4: { game: "魔獸世界", ref: "就像戰士職業，穩定而可靠，是隊伍的中堅力量" },
+            5: { game: "第五人格", ref: "就像求生者，靈活多變，善於尋找逃脫之路" },
+            6: { game: "天堂", ref: "就像聖騎士，擁有深邃的智慧與洞察力" },
+            7: { game: "魔獸世界", ref: "就像聖騎士，堅守陣地，保護隊伍" },
+            8: { game: "動物森友會", ref: "就像島嶼本身，承載著所有居民的夢想與回憶" }
+        };
+
+        const hexagrams = {
+            1: { name: '初始者', emoji: '⚔️', desc: '領導力與創新' },
+            2: { name: '和諧者', emoji: '🤝', desc: '合作與平衡' },
+            3: { name: '創意者', emoji: '🔥', desc: '熱情與表達' },
+            4: { name: '建造者', emoji: '🌲', desc: '穩定與成長' },
+            5: { name: '流動者', emoji: '💨', desc: '靈活與變化' },
+            6: { name: '智慧者', emoji: '💧', desc: '深度與洞察' },
+            7: { name: '守護者', emoji: '⛰️', desc: '保護與穩定' },
+            8: { name: '承載者', emoji: '🌍', desc: '包容與承載' }
+        };
+
+        // 數字轉換
+        function handleZero(digitStr) {
+            if (!digitStr.includes('0')) return digitStr;
+            let digits = digitStr.split('');
+            for (let i = 0; i < digits.length; i++) {
+                if (digits[i] === '0') {
+                    if (i === 0 && digits.length > 1) {
+                        digits[i] = digits[1];
+                    } else if (i === 1 && digits.length > 1) {
+                        digits[i] = digits[0];
+                    } else if (i === digits.length - 1) {
+                        return 'VOID';
+                    }
+                }
+            }
+            return digits.join('');
+        }
+
+        // 計算卦象
+        function calculateHexagram(triad) {
+            triad = handleZero(triad);
+            if (triad === 'VOID') return { id: 0, name: '空白', emoji: '✨', desc: '待開發' };
+
+            const total = triad.split('').reduce((sum, d) => sum + parseInt(d), 0);
+            const result = total % 8 || 8;
+            return { id: result, ...hexagrams[result] };
+        }
+
+        // 計算生命數字
+        function calculateLifeNumber(date) {
+            const [year, month, day] = date.split('-').map(Number);
+            const sum = year + month + day;
+            let result = sum;
+            while (result >= 10 && ![11, 22, 33].includes(result)) {
+                result = String(result).split('').reduce((a, b) => a + parseInt(b), 0);
+            }
+            return result;
+        }
+
+        // 表單提交
+        document.getElementById('adventureForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const idNumber = document.getElementById('idNumber').value.toUpperCase();
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const birthDate = document.getElementById('birthDate').value;
+
+            if (!idNumber || !phoneNumber || !birthDate) {
+                showError('請填寫所有欄位');
+                return;
+            }
+
+            document.getElementById('loadingState').style.display = 'flex';
+            document.getElementById('resultsGrid').style.display = 'none';
+
+            setTimeout(() => {
+                try {
+                    const idDigits = idNumber.replace(/[^0-9]/g, '');
+                    const phoneDigits = phoneNumber.replace(/[^0-9]/g, '');
+
+                    const hex1 = calculateHexagram(idDigits.substring(0, 3));
+                    const hex2 = calculateHexagram(idDigits.substring(3, 6));
+                    const hex3 = calculateHexagram(idDigits.substring(6, 9));
+
+                    let cleanPhone = phoneDigits;
+                    if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
+
+                    const phoneGroups = [];
+                    let remaining = cleanPhone;
+                    while (remaining.length >= 3) {
+                        phoneGroups.unshift(remaining.slice(-3));
+                        remaining = remaining.slice(0, -3);
+                    }
+                    if (remaining) phoneGroups.unshift(remaining);
+
+                    const phoneHex = phoneGroups.map(g => calculateHexagram(g));
+                    const lifeNumber = calculateLifeNumber(birthDate);
+
+                    generateResults(hex1, hex2, hex3, phoneHex, lifeNumber);
+
+                    document.getElementById('loadingState').style.display = 'none';
+                    document.getElementById('resultsGrid').style.display = 'grid';
+                } catch (error) {
+                    showError('計算出錯，請檢查輸入');
+                }
+            }, 1200);
+        });
+
+        // 生成結果
+        function generateResults(hex1, hex2, hex3, phoneHex, lifeNum) {
+            const resultsGrid = document.getElementById('resultsGrid');
+            const ref1 = gameReferences[hex1.id];
+            const ref2 = gameReferences[hex2.id];
+            const ref3 = gameReferences[hex3.id];
+
+            resultsGrid.innerHTML = `
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="card-emoji">${hex1.emoji}</span>
+                        <span class="card-title">您的角色職業</span>
+                    </div>
+                    <div class="card-content">
+                        <p><span class="card-highlight">${hex1.name}</span> - ${hex1.desc}</p>
+                        <div class="game-ref">🎮 《${ref1.game}》：${ref1.ref}</div>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="card-emoji">${hex2.emoji}</span>
+                        <span class="card-title">您的核心天賦</span>
+                    </div>
+                    <div class="card-content">
+                        <p><span class="card-highlight">${hex2.name}</span> - ${hex2.desc}</p>
+                        <div class="game-ref">🎮 《${ref2.game}》：${ref2.ref}</div>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="card-emoji">${hex3.emoji}</span>
+                        <span class="card-title">您的隱藏天賦</span>
+                    </div>
+                    <div class="card-content">
+                        <p><span class="card-highlight">${hex3.name}</span> - ${hex3.desc}</p>
+                        <div class="game-ref">🎮 《${ref3.game}》：${ref3.ref}</div>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="card-emoji">📱</span>
+                        <span class="card-title">您的裝備配置</span>
+                    </div>
+                    <div class="card-content">
+                        <p>${phoneHex.map((h, i) => `${h.emoji} ${h.name}`).join(' → ')}</p>
+                        <div class="game-ref">🎮 《魔獸世界》：完美的副本隊伍配置</div>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="card-emoji">🎂</span>
+                        <span class="card-title">您的命運數字</span>
+                    </div>
+                    <div class="card-content">
+                        <p>命運數字：<span class="card-highlight">${lifeNum}</span></p>
+                        <div class="game-ref">🎮 《動物森友會》：代表您人生的主題與節奏</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 顯示錯誤
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('active');
+            setTimeout(() => {
+                errorDiv.classList.remove('active');
+            }, 3000);
+        }
+    </script>
 </body>
 </html>
+他使用的是什麼算法 - Manus
+解釋
