@@ -8,836 +8,745 @@
 <link rel="icon" href="https://hourlight.github.io/favicon.ico?v=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-  :root {
-    --primary: #f0d6b8;
-    --primary-dark: #f7f1e7;
-    --accent: #c8a98b;
-    --accent-warm: #e9c27d;
-    --bg: #0a070f;
-    --white: #ffffff;
-    --text-main: #f3ebe0;
-    --text-sub: #c8beb3;
-    --border: rgba(255, 255, 255, 0.08);
-  }
-
-  * { margin:0; padding:0; box-sizing:border-box; }
-
-  html {
-    scroll-behavior:smooth;
-    -webkit-font-smoothing:antialiased;
-  }
-
-  body {
-    font-family:'Noto Sans TC',sans-serif;
-    background: #08050d;
-    color:var(--text-main);
-    line-height:1.9;
-    font-weight:300;
-    letter-spacing:0.4px;
-    position:relative;
-    overflow-x:hidden;
-    min-height:100vh;
-  }
-
-  /* ====== 黑洞漩渦背景 ====== */
-  .cosmic-bg {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    overflow: hidden;
-  }
-
-  .blackhole {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 800px;
-    height: 800px;
-    border-radius: 50%;
-    background: 
-      radial-gradient(ellipse 40% 40% at 50% 50%, rgba(0,0,0,1) 0%, transparent 70%),
-      conic-gradient(from 0deg at 50% 50%, 
-        rgba(92,58,99,0.4) 0deg,
-        rgba(233,194,125,0.15) 60deg,
-        rgba(92,58,99,0.3) 120deg,
-        rgba(200,169,139,0.2) 180deg,
-        rgba(92,58,99,0.4) 240deg,
-        rgba(233,194,125,0.15) 300deg,
-        rgba(92,58,99,0.4) 360deg
-      );
-    filter: blur(60px);
-    animation: blackholeRotate 60s linear infinite;
-  }
-
-  .spiral-ring-1 {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 1200px;
-    height: 1200px;
-    border-radius: 50%;
-    background: conic-gradient(from 45deg at 50% 50%,
-      transparent 0deg,
-      rgba(233,194,125,0.12) 30deg,
-      transparent 60deg,
-      rgba(200,169,139,0.1) 90deg,
-      transparent 120deg,
-      rgba(233,194,125,0.08) 150deg,
-      transparent 180deg,
-      rgba(147,124,160,0.1) 210deg,
-      transparent 240deg,
-      rgba(233,194,125,0.12) 270deg,
-      transparent 300deg,
-      rgba(200,169,139,0.08) 330deg,
-      transparent 360deg
-    );
-    filter: blur(40px);
-    animation: blackholeRotate 80s linear infinite reverse;
-  }
-
-  .spiral-ring-2 {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 1600px;
-    height: 1600px;
-    border-radius: 50%;
-    background: conic-gradient(from 90deg at 50% 50%,
-      transparent 0deg,
-      rgba(92,58,99,0.15) 45deg,
-      transparent 90deg,
-      rgba(233,194,125,0.08) 135deg,
-      transparent 180deg,
-      rgba(92,58,99,0.12) 225deg,
-      transparent 270deg,
-      rgba(200,169,139,0.1) 315deg,
-      transparent 360deg
-    );
-    filter: blur(80px);
-    animation: blackholeRotate 120s linear infinite;
-  }
-
-  .outer-glow {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 2000px;
-    height: 2000px;
-    border-radius: 50%;
-    background: radial-gradient(ellipse at center,
-      transparent 30%,
-      rgba(92,58,99,0.08) 50%,
-      rgba(233,194,125,0.05) 70%,
-      transparent 100%
-    );
-    animation: breathe 15s ease-in-out infinite;
-  }
-
-  .stars {
-    position: absolute;
-    inset: 0;
-    background-image:
-      radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px),
-      radial-gradient(circle, rgba(240,214,184,0.6) 1px, transparent 1px),
-      radial-gradient(circle, rgba(200,169,139,0.5) 1px, transparent 1px);
-    background-size: 200px 200px, 300px 300px, 250px 250px;
-    background-position: 0 0, 50px 50px, 100px 25px;
-    opacity: 0.4;
-    animation: starDrift 200s linear infinite;
-  }
-
-  .top-fade {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 300px;
-    background: linear-gradient(to bottom, #08050d 0%, transparent 100%);
-  }
-
-  .bottom-fade {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 300px;
-    background: linear-gradient(to top, #08050d 0%, transparent 100%);
-  }
-
-  @keyframes blackholeRotate {
-    from { transform: translate(-50%, -50%) rotate(0deg); }
-    to { transform: translate(-50%, -50%) rotate(360deg); }
-  }
-
-  @keyframes breathe {
-    0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
-    50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.05); }
-  }
-
-  @keyframes starDrift {
-    from { transform: translate(0, 0); }
-    to { transform: translate(-100px, -100px); }
-  }
-
-  /* ====== 內容區 ====== */
-  .container{
-    max-width:1000px;
-    margin:0 auto;
-    padding:0 24px 40px;
-    position:relative;
-    z-index:1;
-  }
-
-  .panel{
-    background:rgba(10,7,14,0.85);
-    backdrop-filter:blur(30px);
-    padding:70px 50px 50px;
-    box-shadow:
-      0 0 120px rgba(0,0,0,0.8),
-      0 0 0 1px rgba(255,255,255,0.05),
-      inset 0 0 80px rgba(0,0,0,0.3);
-    border-radius:24px;
-    margin:40px 0;
-    position:relative;
-    overflow:hidden;
-  }
-
-  .panel::before{
-    content:'';
-    position:absolute;
-    top: -50%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 120%;
-    height: 100%;
-    background: radial-gradient(ellipse at 50% 0%, rgba(233,194,125,0.08) 0%, transparent 60%);
-    pointer-events:none;
-  }
-
-  .panel-inner{ position:relative; z-index:2; }
-
-  /* ====== Hero 區 ====== */
-  .hero{
-    text-align:center;
-    padding-bottom:50px;
-    border-bottom:1px solid var(--border);
-    margin-bottom:50px;
-  }
-  .hero-label{
-    font-size:0.8rem;
-    color:var(--text-sub);
-    letter-spacing:4px;
-    margin-bottom:14px;
-    text-transform:uppercase;
-  }
-  .hero-title{
-    font-family:'Noto Serif TC',serif;
-    font-size:clamp(2.1rem,5vw,2.8rem);
-    font-weight:400;
-    color:var(--primary-dark);
-    letter-spacing:3px;
-    margin-bottom:16px;
-  }
-  .hero-title .highlight{ color:var(--primary); }
-  .hero-desc{
-    font-size:0.95rem;
-    max-width:650px;
-    margin:0 auto 28px;
-    color:var(--text-main);
-    line-height:2;
-  }
+:root {
+  --font-main:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --font-serif:"Noto Serif TC",serif;
   
-  /* 主要 CTA */
-  .hero-cta-main{
-    display:inline-block;
-    padding:14px 40px;
-    border-radius:999px;
-    background:var(--primary);
-    color:#050208;
-    text-decoration:none;
-    letter-spacing:2px;
-    font-size:0.9rem;
-    font-weight:600;
-    border:1px solid var(--primary);
-    transition:all .3s ease;
-    margin-bottom:16px;
-  }
-  .hero-cta-main:hover{
-    background:var(--accent-warm);
-    border-color:var(--accent-warm);
-    transform:translateY(-2px);
-    box-shadow:0 8px 24px rgba(240,214,184,0.3);
-  }
-  
-  .hero-secondary-links{
-    display:flex;
-    justify-content:center;
-    gap:20px;
-    flex-wrap:wrap;
-    margin-top:8px;
-  }
-  .hero-secondary-links a{
-    font-size:0.82rem;
-    color:var(--text-sub);
-    text-decoration:none;
-    transition:color .3s ease;
-  }
-  .hero-secondary-links a:hover{
-    color:var(--primary);
-  }
-  
-  .hero-note{
-    margin-top:20px;
-    font-size:0.82rem;
-    color:var(--text-sub);
-  }
+  /* 米+金+深咖+白 配色 - 金色調亮 */
+  --bg-cream:#faf6f0;
+  --bg-white:#ffffff;
+  --gold:#d4a017;
+  --gold-bright:#f5d76e;
+  --gold-dark:#b8860b;
+  --gold-glow:rgba(212,160,23,0.5);
+  --brown:#4a3728;
+  --brown-light:#6b5344;
+  --brown-soft:#8b7355;
+  --text-dark:#3d2e1f;
+  --text-soft:#5c4a3a;
+  --text-muted:#8b7d6b;
+  --border:#e8dfd3;
+  --border-light:#f0e9df;
+  --shadow:0 4px 20px rgba(74,55,40,0.08);
+  --shadow-hover:0 8px 30px rgba(74,55,40,0.15);
+  --ease:.3s cubic-bezier(0.4,0,0.2,1);
+}
 
-  /* ====== Section 通用 ====== */
-  .section{
-    padding:46px 0;
-    border-top:1px solid var(--border);
-  }
-  .section-header{
-    text-align:center;
-    margin-bottom:30px;
-  }
-  .section-label{
-    font-size:0.78rem;
-    color:var(--accent);
-    letter-spacing:4px;
-    margin-bottom:12px;
-    text-transform:uppercase;
-  }
-  .section-title{
-    font-family:'Noto Serif TC',serif;
-    font-size:clamp(1.6rem,4vw,2.1rem);
-    font-weight:400;
-    color:var(--primary-dark);
-    margin-bottom:14px;
-    letter-spacing:2px;
-  }
-  .section-desc{
-    font-size:0.94rem;
-    color:var(--text-sub);
-    max-width:620px;
-    margin:0 auto;
-    line-height:2;
-  }
+* { margin:0; padding:0; box-sizing:border-box; }
 
-  /* ====== Grid ====== */
-  .grid-2, .grid-3{
-    display:grid;
-    gap:26px;
-    margin-top:24px;
-  }
-  .grid-2{
-    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-  }
-  .grid-3{
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  }
+html {
+  scroll-behavior:smooth;
+  -webkit-font-smoothing:antialiased;
+}
 
-  /* ====== Card ====== */
-  .card{
-    background:rgba(255,255,255,0.03);
-    border-radius:18px;
-    border:1px solid var(--border);
-    padding:28px 24px;
-    backdrop-filter:blur(16px);
-    transition:all .3s ease;
-  }
-  .card:hover{
-    transform:translateY(-4px);
-    box-shadow:0 18px 40px rgba(0,0,0,0.55);
-    border-color:rgba(240,214,184,0.75);
-    background:rgba(255,255,255,0.06);
-  }
-  .card-icon{
-    font-size:2rem;
-    margin-bottom:12px;
-  }
-  .card-title{
-    font-family:'Noto Serif TC',serif;
-    font-size:1.15rem;
-    color:var(--primary-dark);
-    margin-bottom:8px;
-  }
-  .card-sub{
-    font-size:0.85rem;
-    color:var(--accent);
-    margin-bottom:10px;
-  }
-  .card-text{
-    font-size:0.9rem;
-    color:var(--text-main);
-    line-height:1.9;
-  }
+body {
+  font-family: var(--font-main);
+  background: var(--bg-cream);
+  color: var(--text-dark);
+  line-height: 1.9;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  min-height: 100vh;
+}
 
-  /* ====== 課程卡片（特殊樣式）====== */
-  .course-card{
-    background:rgba(255,255,255,0.03);
-    border-radius:18px;
-    border:1px solid var(--border);
-    padding:32px 28px;
-    backdrop-filter:blur(16px);
-    transition:all .3s ease;
-    position:relative;
-    overflow:hidden;
-  }
-  .course-card::before{
-    content:'';
-    position:absolute;
-    top:0;
-    left:0;
-    right:0;
-    height:4px;
-    background:linear-gradient(90deg, var(--primary), var(--accent));
-  }
-  .course-card:hover{
-    transform:translateY(-4px);
-    box-shadow:0 18px 40px rgba(0,0,0,0.55);
-    border-color:rgba(240,214,184,0.75);
-  }
-  .course-card .badge{
-    display:inline-block;
-    font-size:0.72rem;
-    padding:4px 12px;
-    border-radius:999px;
-    background:rgba(240,214,184,0.15);
-    color:var(--primary);
-    font-weight:500;
-    margin-bottom:14px;
-    letter-spacing:1px;
-  }
-  .course-card .title{
-    font-family:'Noto Serif TC',serif;
-    font-size:1.25rem;
-    color:var(--primary-dark);
-    margin-bottom:8px;
-  }
-  .course-card .instructor{
-    font-size:0.85rem;
-    color:var(--accent);
-    margin-bottom:12px;
-  }
-  .course-card .desc{
-    font-size:0.9rem;
-    color:var(--text-main);
-    line-height:1.9;
-    margin-bottom:16px;
-  }
-  .course-card .highlights{
-    font-size:0.85rem;
-    color:var(--text-sub);
-    line-height:1.8;
-    margin-bottom:16px;
-  }
+/* ====== 內容區 ====== */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 24px 60px;
+}
 
-  /* ====== 免費工具（精簡版）====== */
-  .tools-row{
-    display:flex;
-    gap:16px;
-    justify-content:center;
-    flex-wrap:wrap;
-    margin-top:24px;
-  }
-  .tool-chip{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding:10px 20px;
-    border-radius:999px;
-    background:rgba(255,255,255,0.05);
-    border:1px solid var(--border);
-    color:var(--text-main);
-    text-decoration:none;
-    font-size:0.88rem;
-    transition:all .3s ease;
-  }
-  .tool-chip:hover{
-    background:rgba(240,214,184,0.1);
-    border-color:rgba(240,214,184,0.5);
-    color:var(--primary);
-  }
-  .tool-chip .icon{
-    font-size:1.1rem;
-  }
+/* ====== 卡片區塊 ====== */
+.card {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+  overflow: hidden;
+}
 
-  /* ====== 按鈕 ====== */
-  .btn{
-    display:inline-block;
-    padding:11px 28px;
-    border-radius:999px;
-    font-size:0.82rem;
-    letter-spacing:2px;
-    text-decoration:none;
-    transition:all .3s ease;
-    margin-top:10px;
-  }
-  .btn-primary{
-    background:var(--primary);
-    color:#050208;
-    border:1px solid var(--primary);
-    font-weight:600;
-  }
-  .btn-primary:hover{
-    background:transparent;
-    color:var(--primary);
-  }
-  .btn-secondary{
-    background:transparent;
-    color:var(--primary);
-    border:1px solid var(--primary);
-  }
-  .btn-secondary:hover{
-    background:var(--primary);
-    color:#050208;
-    font-weight:600;
-  }
-  .btn-ghost{
-    background:transparent;
-    color:var(--text-sub);
-    border:1px solid var(--border);
-  }
-  .btn-ghost:hover{
-    border-color:var(--primary);
-    color:var(--primary);
-  }
+.card-inner {
+  padding: 50px 40px;
+}
 
-  /* ====== 創辦人區塊 ====== */
-  .founder-section{
-    display:flex;
-    gap:36px;
-    align-items:center;
-    margin-top:24px;
-  }
-  .founder-photo{
-    flex-shrink:0;
-    width:140px;
-    height:140px;
-    border-radius:50%;
-    background:linear-gradient(135deg, rgba(240,214,184,0.3), rgba(200,169,139,0.2));
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:3rem;
-    border:2px solid rgba(240,214,184,0.3);
-  }
-  .founder-info{
-    flex:1;
-  }
-  .founder-name{
-    font-family:'Noto Serif TC',serif;
-    font-size:1.3rem;
-    color:var(--primary-dark);
-    margin-bottom:6px;
-  }
-  .founder-title{
-    font-size:0.85rem;
-    color:var(--accent);
-    margin-bottom:12px;
-  }
-  .founder-bio{
-    font-size:0.9rem;
-    color:var(--text-main);
-    line-height:1.9;
-  }
+/* ====== Hero 區 ====== */
+.hero {
+  text-align: center;
+  padding: 60px 40px 50px;
+  background: linear-gradient(180deg, var(--bg-white) 0%, var(--bg-cream) 100%);
+}
 
-  /* ====== Footer ====== */
-  .footer{
-    text-align:center;
-    color:var(--text-sub);
-    font-size:0.82rem;
-    line-height:2;
-    margin-top:10px;
-  }
-  .footer a{
-    color:var(--primary);
-    text-decoration:none;
-  }
-  .footer a:hover{
-    text-decoration:underline;
-  }
+.hero-label {
+  font-size: 0.78rem;
+  color: var(--gold-dark);
+  letter-spacing: 3px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
 
-  /* ====== 動畫 ====== */
-  .fade-in-up{
-    opacity:0;
-    transform:translateY(40px);
-    transition:opacity 1s cubic-bezier(0.4,0,0.2,1),
-               transform 1s cubic-bezier(0.4,0,0.2,1);
-  }
-  .fade-in-up.is-visible{
-    opacity:1;
-    transform:translateY(0);
-  }
-  .delay-1{transition-delay:0.15s;}
-  .delay-2{transition-delay:0.3s;}
-  .delay-3{transition-delay:0.45s;}
+.hero-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-weight: 500;
+  color: var(--brown);
+  letter-spacing: 3px;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
 
-  /* ====== RWD ====== */
-  @media(max-width:768px){
-    .panel{padding:50px 20px 40px; border-radius:18px;}
-    .hero{margin-bottom:40px;}
-    .btn{width:100%; max-width:260px;}
-    .founder-section{flex-direction:column; text-align:center;}
-    .founder-photo{margin:0 auto;}
-    .blackhole { width: 500px; height: 500px; }
-    .spiral-ring-1 { width: 800px; height: 800px; }
-    .spiral-ring-2 { width: 1000px; height: 1000px; }
-  }
+.hero-title .highlight {
+  color: var(--gold);
+}
+
+.hero-desc {
+  font-size: 1rem;
+  max-width: 600px;
+  margin: 0 auto 32px;
+  color: var(--text-soft);
+  line-height: 2;
+}
+
+/* 主要 CTA */
+.hero-cta-main {
+  display: inline-block;
+  padding: 16px 44px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 40%, var(--gold-dark) 100%);
+  color: #3d2814;
+  text-decoration: none;
+  letter-spacing: 2px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all .3s ease;
+  margin-bottom: 20px;
+  box-shadow: 
+    0 4px 15px var(--gold-glow),
+    inset 0 1px 0 rgba(255,255,255,0.4);
+  border: 1px solid var(--gold);
+}
+
+.hero-cta-main:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 25px var(--gold-glow),
+    0 0 20px rgba(245,215,110,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.5);
+}
+
+.hero-secondary-links {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.hero-secondary-links a {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color .3s ease;
+}
+
+.hero-secondary-links a:hover {
+  color: var(--gold-dark);
+}
+
+.hero-note {
+  margin-top: 24px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+/* ====== Section 通用 ====== */
+.section {
+  padding: 40px;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.section-label {
+  font-size: 0.72rem;
+  color: var(--gold-dark);
+  letter-spacing: 4px;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.section-title {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 4vw, 1.9rem);
+  font-weight: 500;
+  color: var(--brown);
+  margin-bottom: 14px;
+  letter-spacing: 2px;
+}
+
+.section-desc {
+  font-size: 0.95rem;
+  color: var(--text-soft);
+  max-width: 580px;
+  margin: 0 auto;
+  line-height: 2;
+}
+
+/* ====== Grid ====== */
+.grid-2, .grid-3 {
+  display: grid;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.grid-2 {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.grid-3 {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+/* ====== 小卡片 ====== */
+.item-card {
+  background: var(--bg-cream);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  padding: 28px 24px;
+  transition: all .3s ease;
+}
+
+.item-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover), 0 0 15px rgba(212,160,23,0.15);
+  border-color: var(--gold);
+}
+
+.item-card .icon {
+  font-size: 2rem;
+  margin-bottom: 14px;
+}
+
+.item-card .title {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  color: var(--brown);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.item-card .sub {
+  font-size: 0.85rem;
+  color: var(--gold-dark);
+  margin-bottom: 12px;
+}
+
+.item-card .text {
+  font-size: 0.9rem;
+  color: var(--text-soft);
+  line-height: 1.9;
+}
+
+/* ====== 課程卡片（特殊樣式）====== */
+.course-card {
+  background: var(--bg-cream);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  padding: 32px 28px;
+  transition: all .3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.course-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--gold-bright), var(--gold), var(--gold-dark));
+}
+
+.course-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover), 0 0 15px rgba(212,160,23,0.15);
+  border-color: var(--gold);
+}
+
+.course-card .badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(245,215,110,0.25), rgba(212,160,23,0.15));
+  color: var(--gold-dark);
+  font-weight: 600;
+  margin-bottom: 14px;
+  letter-spacing: 1px;
+  border: 1px solid rgba(212,160,23,0.3);
+}
+
+.course-card .title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  color: var(--brown);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.course-card .instructor {
+  font-size: 0.85rem;
+  color: var(--gold-dark);
+  margin-bottom: 14px;
+}
+
+.course-card .desc {
+  font-size: 0.9rem;
+  color: var(--text-soft);
+  line-height: 1.9;
+  margin-bottom: 16px;
+}
+
+.course-card .highlights {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.9;
+  margin-bottom: 18px;
+}
+
+/* ====== 免費工具 ====== */
+.tools-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.tool-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  text-decoration: none;
+  font-size: 0.88rem;
+  transition: all .3s ease;
+}
+
+.tool-chip:hover {
+  background: linear-gradient(180deg, rgba(245,215,110,0.15), rgba(212,160,23,0.08));
+  border-color: var(--gold);
+  color: var(--gold-dark);
+  box-shadow: 0 2px 8px rgba(212,160,23,0.2);
+}
+
+.tool-chip .icon {
+  font-size: 1.1rem;
+}
+
+/* ====== 按鈕 ====== */
+.btn {
+  display: inline-block;
+  padding: 12px 28px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  letter-spacing: 1px;
+  text-decoration: none;
+  transition: all .3s ease;
+  margin-top: 12px;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 40%, var(--gold-dark) 100%);
+  color: #3d2814;
+  box-shadow: 
+    0 3px 10px var(--gold-glow),
+    inset 0 1px 0 rgba(255,255,255,0.35);
+  border: 1px solid var(--gold);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 5px 18px var(--gold-glow),
+    0 0 15px rgba(245,215,110,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.4);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--brown);
+  border: 2px solid var(--gold);
+  box-shadow: 0 2px 8px rgba(212,160,23,0.15);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(180deg, rgba(245,215,110,0.2), rgba(212,160,23,0.1));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212,160,23,0.25);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.btn-ghost:hover {
+  border-color: var(--gold);
+  color: var(--gold-dark);
+}
+
+/* ====== 創辦人區塊 ====== */
+.founder-section {
+  display: flex;
+  gap: 36px;
+  align-items: center;
+  margin-top: 28px;
+}
+
+.founder-photo {
+  flex-shrink: 0;
+  width: 140px;
+  height: 180px;
+  border-radius: 70px;
+  overflow: hidden;
+  border: 3px solid var(--gold);
+  box-shadow: 0 4px 15px var(--gold-glow);
+}
+
+.founder-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.founder-info {
+  flex: 1;
+}
+
+.founder-name {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  color: var(--brown);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.founder-title {
+  font-size: 0.85rem;
+  color: var(--gold-dark);
+  margin-bottom: 14px;
+}
+
+.founder-bio {
+  font-size: 0.92rem;
+  color: var(--text-soft);
+  line-height: 2;
+}
+
+/* ====== Footer ====== */
+.footer {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 2;
+}
+
+.footer strong {
+  color: var(--brown);
+}
+
+.footer a {
+  color: var(--gold-dark);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* ====== 動畫 ====== */
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.fade-in-up.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ====== RWD ====== */
+@media(max-width:768px) {
+  .container { padding: 24px 16px 50px; }
+  .hero { padding: 40px 24px 36px; }
+  .card-inner { padding: 32px 20px; }
+  .section { padding: 32px 20px; }
+  .btn { width: 100%; max-width: 280px; text-align: center; }
+  .founder-section { flex-direction: column; text-align: center; }
+  .founder-photo { margin: 0 auto; }
+}
 </style>
 </head>
 <body>
 
-<!-- 黑洞漩渦背景 -->
-<div class="cosmic-bg">
-  <div class="outer-glow"></div>
-  <div class="spiral-ring-2"></div>
-  <div class="spiral-ring-1"></div>
-  <div class="blackhole"></div>
-  <div class="stars"></div>
-  <div class="top-fade"></div>
-  <div class="bottom-fade"></div>
-</div>
-
 <div class="container">
-  <div class="panel">
-    <div class="panel-inner">
 
-      <!-- ========== Hero ========== -->
-      <section class="hero fade-in-up">
-        <div class="hero-label">HOUR LIGHT · 感官科學 × 情緒商業系統</div>
-        <h1 class="hero-title">
-          調對<span class="highlight">頻率</span><br>活對<span class="highlight">人生</span>
-        </h1>
-        <p class="hero-desc">
-          妳有多久，沒有好好聽見自己了？<br>
-          這裡不教妳怎麼變成另一個人，而是幫妳找回本來就有的覺察力，<br>
-          讓妳的溫暖變成有界線、有價值、收得到錢的專業。
-        </p>
-        
-        <!-- 主要 CTA：只留一個最重要的 -->
-        <a href="https://lin.ee/vpbLhNjF" class="hero-cta-main" target="_blank" rel="noopener">💬 LINE 預約諮詢</a>
-        
-        <!-- 次要連結：低調呈現 -->
-        <div class="hero-secondary-links">
-          <a href="services.html">服務與定價</a>
-          <a href="#free-tools">免費工具</a>
-          <a href="#academy">學苑課程</a>
-          <a href="hourlight-sitemap.html">🗺️ 網站地圖</a>
-        </div>
-        
-        <p class="hero-note">34年美容產業 × 健康產業管理碩士 × NAHA 國際芳療師</p>
-      </section>
-
-      <!-- ========== 核心服務 ========== -->
-      <section class="section fade-in-up">
-        <div class="section-header">
-          <div class="section-label">CORE SERVICE</div>
-          <h2 class="section-title">一對一深度服務</h2>
-          <p class="section-desc">
-            從單次覺察，到持續陪跑，到事業命盤對齊。<br>
-            依照現在的位置，選一個「不會太勉強、但會讓妳往前」的起點。
-          </p>
-        </div>
-        <div class="grid-2">
-          <div class="card">
-            <div class="card-icon">🔮</div>
-            <div class="card-title">馥靈初探</div>
-            <div class="card-sub">NT$ 6,800 起｜創辦人親自服務</div>
-            <p class="card-text">
-              適合覺得自己卡在某個回圈、常常在同一個地方跌倒的妳。<br>
-              我們會一起把狀態分成「生理、情緒、關係、意識」四塊來看，幫妳長出新的選擇。
-            </p>
-            <a href="services.html" class="btn btn-primary">看完整服務</a>
-          </div>
-          <div class="card">
-            <div class="card-icon">🚀</div>
-            <div class="card-title">陪跑方案</div>
-            <div class="card-sub">30天 NT$ 6,600 起｜90天深度轉化</div>
-            <p class="card-text">
-              如果妳需要持續支持，不只是單次諮詢，<br>
-              陪跑方案會幫妳設計行動計劃、定期追蹤、持續校準，讓改變真正發生。
-            </p>
-            <a href="abundance.html" class="btn btn-secondary">了解陪跑方案</a>
-          </div>
-        </div>
-      </section>
-
-      <!-- ========== 未來美容學苑｜課程專區 ========== -->
-      <section id="academy" class="section fade-in-up">
-        <div class="section-header">
-          <div class="section-label">HOUR LIGHT ACADEMY</div>
-          <h2 class="section-title">未來美容學苑｜專業課程</h2>
-          <p class="section-desc">
-            不只學技術，更學會怎麼把專業變成收入。<br>
-            從情緒調頻到美甲技術，用系統化的方式讓妳的專業被看見、被需要、被付費。
-          </p>
-        </div>
-        
-        <div class="grid-2">
-          <!-- 馥靈調頻師課程 -->
-          <div class="course-card">
-            <span class="badge">情緒調頻｜認證課程</span>
-            <div class="title">馥靈調頻師培訓</div>
-            <div class="instructor">講師：王逸君（創辦人）</div>
-            <p class="desc">
-              三階課程設計，不逼妳變成另一個我，而是幫妳把原本的專業，疊上一套「情緒共振 × 收費系統」。
-            </p>
-            <div class="highlights">
-              ✓ 基礎班 1天｜NT$ 8,000-12,000<br>
-              ✓ 進階班 2天｜NT$ 18,000-25,000<br>
-              ✓ 導師班 3天｜NT$ 50,000-80,000
-            </div>
-            <a href="hour-training.html" class="btn btn-primary">看課程詳情</a>
-          </div>
-          
-          <!-- 美甲基礎課程 -->
-          <div class="course-card">
-            <span class="badge">美甲技術｜專業培訓</span>
-            <div class="title">美甲基礎課程</div>
-            <div class="instructor">講師：Maxine 蘋蘋｜十年從業・五年教學</div>
-            <p class="desc">
-              9成學生都是已從業的美甲師來增進技術。不靠廣告，400+學生全靠口碑。<br>
-              精準找出操作盲點，讓學習美甲的過程更輕易上手。
-            </p>
-            <div class="highlights">
-              ✓ 五天完整課程｜共15小時起<br>
-              ✓ 一對一 NT$ 37,000｜團班 NT$ 32,000<br>
-              ✓ 早鳥優惠最高折 NT$ 5,000
-            </div>
-            <a href="https://tranquil-strudel-62bab9.netlify.app" class="btn btn-primary" target="_blank" rel="noopener">看課程詳情</a>
-          </div>
-        </div>
-        
-        <div style="text-align:center; margin-top:24px;">
-          <a href="enterprise.html" class="btn btn-ghost">🏢 企業內訓 / 沙龍導入方案</a>
-        </div>
-      </section>
-
-      <!-- ========== 免費工具（精簡版）========== -->
-      <section id="free-tools" class="section fade-in-up">
-        <div class="section-header">
-          <div class="section-label">FREE EXPERIENCE</div>
-          <h2 class="section-title">先試試看，妳現在的頻率在哪裡</h2>
-          <p class="section-desc">
-            不用登入、不用留資料，只需要一點好奇心。
-          </p>
-        </div>
-        
-        <!-- 主打工具：抽牌 -->
-        <div class="grid-2" style="margin-bottom:20px;">
-          <div class="card" style="text-align:center;">
-            <div class="card-icon">🔮</div>
-            <div class="card-title">馥靈之鑰抽牌</div>
-            <p class="card-text">130張牌卡，用一張牌看見妳此刻的狀態。</p>
-            <a href="draw-hl.html" class="btn btn-primary">立即抽牌</a>
-          </div>
-          <div class="card" style="text-align:center;">
-            <div class="card-icon">🧭</div>
-            <div class="card-title">馥靈意識導航</div>
-            <p class="card-text">輸入生日，分析妳的意識頻率座標。</p>
-            <a href="numerology-calculator.html" class="btn btn-primary">開始分析</a>
-          </div>
-        </div>
-        
-        <!-- 更多工具：用 chip 形式呈現 -->
-        <div class="tools-row">
-          <a class="tool-chip" href="lifepath-calculator.html"><span class="icon">🔢</span>生命靈數</a>
-          <a class="tool-chip" href="rainbow-calculator.html"><span class="icon">🌈</span>彩虹色彩</a>
-          <a class="tool-chip" href="maya-calculator.html"><span class="icon">🌀</span>瑪雅曆</a>
-          <a class="tool-chip" href="tarot-draw.html"><span class="icon">🃏</span>塔羅抽牌</a>
-          <a class="tool-chip" href="hourlight-sitemap.html"><span class="icon">➕</span>更多工具</a>
-        </div>
-      </section>
-
-      <!-- ========== 品牌合作 ========== -->
-      <section class="section fade-in-up">
-        <div class="section-header">
-          <div class="section-label">COLLABORATION</div>
-          <h2 class="section-title">品牌聯名 × 企業合作</h2>
-          <p class="section-desc">
-            馥靈之鑰就像多啦A夢的百寶袋，可以跟任何產品結合。<br>
-            從品牌聯名到企業內訓，讓情緒陪伴成為你的獨門戰力。
-          </p>
-        </div>
-        <div class="grid-3">
-          <div class="card" style="text-align:center;">
-            <div class="card-icon">🎴</div>
-            <div class="card-title">品牌聯名</div>
-            <p class="card-text">卡牌×產品、包裝×體驗，打造差異化。</p>
-            <a href="brand.html" class="btn btn-secondary">了解更多</a>
-          </div>
-          <div class="card" style="text-align:center;">
-            <div class="card-icon">🏢</div>
-            <div class="card-title">企業方案</div>
-            <p class="card-text">EAP情緒健康、團隊調頻工作坊。</p>
-            <a href="enterprise.html" class="btn btn-secondary">了解更多</a>
-          </div>
-          <div class="card" style="text-align:center;">
-            <div class="card-icon">💼</div>
-            <div class="card-title">授權合作</div>
-            <p class="card-text">成為區域授權夥伴，一起推廣系統。</p>
-            <a href="services.html#authorization" class="btn btn-secondary">了解更多</a>
-          </div>
-        </div>
-      </section>
-
-      <!-- ========== 創辦人 ========== -->
-      <section class="section fade-in-up">
-        <div class="section-header">
-          <div class="section-label">FOUNDER</div>
-          <h2 class="section-title">關於創辦人</h2>
-        </div>
-        <div class="founder-section">
-          <div class="founder-photo">👤</div>
-          <div class="founder-info">
-            <div class="founder-name">王逸君 Ruby Wang</div>
-            <div class="founder-title">芳香能量調頻師｜健康產業管理碩士｜NAHA 國際芳療師</div>
-            <p class="founder-bio">
-              15歲進美容業，34年看著太多人：超會聽人說話、超會撐場面，卻常常收不到錢、被情緒綁架、累到懷疑人生。<br><br>
-              馥靈之鑰，是我用23年，從人生低谷、碩士研究、命盤系統、芳香能量裡，一點一滴熬成的系統。讓妳可以在短時間內，學會對頻、學會說清楚、學會安心收費。
-            </p>
-            <a href="founder.html" class="btn btn-secondary" style="margin-top:16px;">認識完整故事</a>
-          </div>
-        </div>
-      </section>
-
-      <!-- ========== 結尾 CTA ========== -->
-      <section class="section fade-in-up" style="border-bottom:none; text-align:center;">
-        <h2 class="section-title" style="margin-bottom:18px;">準備好找回自己了嗎？</h2>
-        <p class="section-desc" style="margin-bottom:24px;">
-          如果妳願意，我可以陪著妳，一邊整理，一邊行動，<br>
-          把妳的溫暖、妳的專業、妳的人生故事，變成養活自己的底氣。
-        </p>
-        <div>
-          <a href="https://lin.ee/vpbLhNjF" class="btn btn-primary" target="_blank" rel="noopener">💬 LINE 預約諮詢</a>
-          <a href="draw-hl.html" class="btn btn-secondary">先抽一張牌</a>
-        </div>
-      </section>
-
-      <!-- ========== Footer ========== -->
-      <div class="footer">
-        <strong>馥靈之鑰 Hour Light</strong>｜創辦人：王逸君<br>
-        芳香能量調頻師｜健康產業管理碩士｜NAHA 國際芳療師｜34 年美容產業經驗<br><br>
-        <a href="hourlight-sitemap.html">🗺️ 網站地圖</a>｜
-        <a href="privacy.html">隱私權政策</a>｜
-        <a href="terms.html">服務條款</a><br><br>
-        本頁內容僅供壓力管理、情緒紓解、能量調頻等日常指引參考，<br>
-        非醫療行為，亦不等同任何形式之心理專業服務。<br><br>
-        © 2025 馥靈之鑰國際有限公司 Hour Light International Co., Ltd.｜Hour Light™
+  <!-- ========== Hero ========== -->
+  <div class="card">
+    <section class="hero fade-in-up">
+      <div class="hero-label">HOUR LIGHT · 感官科學 × 情緒商業系統</div>
+      <h1 class="hero-title">
+        開啟<span class="highlight">內在導航</span><br>豐盛<span class="highlight">人生座標</span>
+      </h1>
+      <p class="hero-desc">
+        妳有多久，沒有好好聽見自己了？<br>
+        這裡不教妳怎麼變成另一個人，而是幫妳找回本來就有的覺察力，<br>
+        讓妳的溫暖變成有界線、有價值、收得到錢的專業。
+      </p>
+      
+      <!-- 主要 CTA -->
+      <a href="https://lin.ee/vpbLhNjF" class="hero-cta-main" target="_blank" rel="noopener">💬 LINE 預約諮詢</a>
+      
+      <!-- 次要連結 -->
+      <div class="hero-secondary-links">
+        <a href="services.html">服務與定價</a>
+        <a href="#free-tools">免費工具</a>
+        <a href="#academy">學苑課程</a>
+        <a href="hourlight-sitemap.html">🗺️ 網站地圖</a>
       </div>
-
-    </div>
+      
+      <p class="hero-note">34年美容產業 × 健康產業管理碩士 × NAHA 國際芳療師</p>
+    </section>
   </div>
+
+  <!-- ========== 核心服務 ========== -->
+  <div class="card">
+    <section class="section fade-in-up">
+      <div class="section-header">
+        <div class="section-label">CORE SERVICE</div>
+        <h2 class="section-title">一對一深度服務</h2>
+        <p class="section-desc">
+          從單次覺察，到持續陪跑，到事業命盤對齊。<br>
+          依照現在的位置，選一個「不會太勉強、但會讓妳往前」的起點。
+        </p>
+      </div>
+      <div class="grid-2">
+        <div class="item-card">
+          <div class="icon">🔮</div>
+          <div class="title">馥靈初探</div>
+          <div class="sub">NT$ 6,800 起｜創辦人親自服務</div>
+          <p class="text">
+            適合覺得自己卡在某個回圈、常常在同一個地方跌倒的妳。<br>
+            我們會一起把狀態分成「生理、情緒、關係、意識」四塊來看，幫妳長出新的選擇。
+          </p>
+          <a href="services.html" class="btn btn-primary">看完整服務</a>
+        </div>
+        <div class="item-card">
+          <div class="icon">🚀</div>
+          <div class="title">陪跑方案</div>
+          <div class="sub">30天 NT$ 6,600 起｜90天深度轉化</div>
+          <p class="text">
+            如果妳需要持續支持，不只是單次諮詢，<br>
+            陪跑方案會幫妳設計行動計劃、定期追蹤、持續校準，讓改變真正發生。
+          </p>
+          <a href="abundance.html" class="btn btn-secondary">了解陪跑方案</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ========== 未來美容學苑｜課程專區 ========== -->
+  <div class="card">
+    <section id="academy" class="section fade-in-up">
+      <div class="section-header">
+        <div class="section-label">HOUR LIGHT ACADEMY</div>
+        <h2 class="section-title">未來美容學苑｜專業課程</h2>
+        <p class="section-desc">
+          不只學技術，更學會怎麼把專業變成收入。<br>
+          從情緒調頻到美甲技術，用系統化的方式讓妳的專業被看見、被需要、被付費。
+        </p>
+      </div>
+      
+      <div class="grid-2">
+        <!-- 馥靈調頻師課程 -->
+        <div class="course-card">
+          <span class="badge">情緒調頻｜認證課程</span>
+          <div class="title">馥靈調頻師培訓</div>
+          <div class="instructor">講師：王逸君（創辦人）</div>
+          <p class="desc">
+            三階課程設計，不逼妳變成另一個我，而是幫妳把原本的專業，疊上一套「情緒共振 × 收費系統」。
+          </p>
+          <div class="highlights">
+            ✓ 基礎班 1天｜NT$ 8,000-12,000<br>
+            ✓ 進階班 2天｜NT$ 18,000-25,000<br>
+            ✓ 導師班 3天｜NT$ 50,000-80,000
+          </div>
+          <a href="hour-training.html" class="btn btn-primary">看課程詳情</a>
+        </div>
+        
+        <!-- 美甲基礎課程 -->
+        <div class="course-card">
+          <span class="badge">美甲技術｜專業培訓</span>
+          <div class="title">美甲基礎課程</div>
+          <div class="instructor">講師：Maxine 蘋蘋｜十年從業・五年教學</div>
+          <p class="desc">
+            9成學生都是已從業的美甲師來增進技術。不靠廣告，400+學生全靠口碑。<br>
+            精準找出操作盲點，讓學習美甲的過程更輕易上手。
+          </p>
+          <div class="highlights">
+            ✓ 五天完整課程｜共15小時起<br>
+            ✓ 一對一 NT$ 37,000｜團班 NT$ 32,000<br>
+            ✓ 早鳥優惠最高折 NT$ 5,000
+          </div>
+          <a href="https://tranquil-strudel-62bab9.netlify.app" class="btn btn-primary" target="_blank" rel="noopener">看課程詳情</a>
+        </div>
+      </div>
+      
+      <div style="text-align:center; margin-top:28px;">
+        <a href="enterprise.html" class="btn btn-ghost">🏢 企業內訓 / 沙龍導入方案</a>
+      </div>
+    </section>
+  </div>
+
+  <!-- ========== 免費工具 ========== -->
+  <div class="card">
+    <section id="free-tools" class="section fade-in-up">
+      <div class="section-header">
+        <div class="section-label">FREE EXPERIENCE</div>
+        <h2 class="section-title">先試試看，妳現在的頻率在哪裡</h2>
+        <p class="section-desc">
+          不用登入、不用留資料，只需要一點好奇心。
+        </p>
+      </div>
+      
+      <!-- 主打工具 -->
+      <div class="grid-2" style="margin-bottom:20px;">
+        <div class="item-card" style="text-align:center;">
+          <div class="icon">🔮</div>
+          <div class="title">馥靈之鑰抽牌</div>
+          <p class="text">130張牌卡，用一張牌看見妳此刻的狀態。</p>
+          <a href="draw-hl.html" class="btn btn-primary">立即抽牌</a>
+        </div>
+        <div class="item-card" style="text-align:center;">
+          <div class="icon">🧭</div>
+          <div class="title">馥靈意識導航</div>
+          <p class="text">輸入生日，分析妳的意識頻率座標。</p>
+          <a href="numerology-calculator.html" class="btn btn-primary">開始分析</a>
+        </div>
+      </div>
+      
+      <!-- 更多工具 -->
+      <div class="tools-row">
+        <a class="tool-chip" href="lifepath-calculator.html"><span class="icon">🔢</span>生命靈數</a>
+        <a class="tool-chip" href="rainbow-calculator.html"><span class="icon">🌈</span>彩虹色彩</a>
+        <a class="tool-chip" href="maya-calculator.html"><span class="icon">🌀</span>瑪雅曆</a>
+        <a class="tool-chip" href="tarot-draw.html"><span class="icon">🃏</span>塔羅抽牌</a>
+        <a class="tool-chip" href="hourlight-sitemap.html"><span class="icon">➕</span>更多工具</a>
+      </div>
+    </section>
+  </div>
+
+  <!-- ========== 品牌合作 ========== -->
+  <div class="card">
+    <section class="section fade-in-up">
+      <div class="section-header">
+        <div class="section-label">COLLABORATION</div>
+        <h2 class="section-title">品牌聯名 × 企業合作</h2>
+        <p class="section-desc">
+          馥靈之鑰就像多啦A夢的百寶袋，可以跟任何產品結合。<br>
+          從品牌聯名到企業內訓，讓情緒陪伴成為你的獨門戰力。
+        </p>
+      </div>
+      <div class="grid-3">
+        <div class="item-card" style="text-align:center;">
+          <div class="icon">🎴</div>
+          <div class="title">品牌聯名</div>
+          <p class="text">卡牌×產品、包裝×體驗，打造差異化。</p>
+          <a href="brand.html" class="btn btn-secondary">了解更多</a>
+        </div>
+        <div class="item-card" style="text-align:center;">
+          <div class="icon">🏢</div>
+          <div class="title">企業方案</div>
+          <p class="text">EAP情緒健康、團隊調頻工作坊。</p>
+          <a href="enterprise.html" class="btn btn-secondary">了解更多</a>
+        </div>
+        <div class="item-card" style="text-align:center;">
+          <div class="icon">💼</div>
+          <div class="title">授權合作</div>
+          <p class="text">成為區域授權夥伴，一起推廣系統。</p>
+          <a href="services.html#authorization" class="btn btn-secondary">了解更多</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ========== 創辦人 ========== -->
+  <div class="card">
+    <section class="section fade-in-up">
+      <div class="section-header">
+        <div class="section-label">FOUNDER</div>
+        <h2 class="section-title">關於創辦人</h2>
+      </div>
+      <div class="founder-section">
+        <div class="founder-photo"><img src="Ruby-1.png" alt="王逸君 Ruby Wang"></div>
+        <div class="founder-info">
+          <div class="founder-name">王逸君 Ruby Wang</div>
+          <div class="founder-title">芳香能量調頻師｜健康產業管理碩士｜NAHA 國際芳療師</div>
+          <p class="founder-bio">
+            15歲進美容業，34年看著太多人：超會聽人說話、超會撐場面，卻常常收不到錢、被情緒綁架、累到懷疑人生。<br><br>
+            馥靈之鑰，是我用23年，從人生低谷、碩士研究、命盤系統、芳香能量裡，一點一滴熬成的系統。讓妳可以在短時間內，學會對頻、學會說清楚、學會安心收費。
+          </p>
+          <a href="founder.html" class="btn btn-secondary" style="margin-top:18px;">認識完整故事</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ========== 結尾 CTA ========== -->
+  <div class="card">
+    <section class="section fade-in-up" style="text-align:center;">
+      <h2 class="section-title" style="margin-bottom:18px;">準備好找回自己了嗎？</h2>
+      <p class="section-desc" style="margin-bottom:28px;">
+        如果妳願意，我可以陪著妳，一邊整理，一邊行動，<br>
+        把妳的溫暖、妳的專業、妳的人生故事，變成養活自己的底氣。
+      </p>
+      <div>
+        <a href="https://lin.ee/vpbLhNjF" class="btn btn-primary" target="_blank" rel="noopener">💬 LINE 預約諮詢</a>
+        <a href="draw-hl.html" class="btn btn-secondary" style="margin-left:12px;">先抽一張牌</a>
+      </div>
+    </section>
+  </div>
+
+  <!-- ========== Footer ========== -->
+  <div class="footer">
+    <strong>馥靈之鑰 Hour Light</strong>｜創辦人：王逸君<br>
+    芳香能量調頻師｜健康產業管理碩士｜NAHA 國際芳療師｜34 年美容產業經驗<br><br>
+    <a href="hourlight-sitemap.html">🗺️ 網站地圖</a>｜
+    <a href="privacy.html">隱私權政策</a>｜
+    <a href="terms.html">服務條款</a><br><br>
+    本頁內容僅供壓力管理、情緒紓解、能量調頻等日常指引參考，<br>
+    非醫療行為，亦不等同任何形式之心理專業服務。<br><br>
+    © 2025 馥靈之鑰國際有限公司 Hour Light International Co., Ltd.｜Hour Light™
+  </div>
+
 </div>
 
 <script>
@@ -847,7 +756,7 @@ document.addEventListener('DOMContentLoaded', function() {
     entries.forEach(e => {
       if (e.isIntersecting) e.target.classList.add('is-visible');
     });
-  }, { threshold:0.1, rootMargin:'0px 0px -40px 0px' });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
   els.forEach(el => observer.observe(el));
 });
 </script>
