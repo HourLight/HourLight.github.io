@@ -173,13 +173,8 @@
             margin-top: 8px;
             max-width: 60px;
             justify-content: center;
-        }
-
-        .dot {
-            width: 10px;
-            height: 10px;
-            background: #d4a574;
-            border-radius: 50%;
+            color: #d4a574;
+            font-size: 0.8em;
         }
 
         .traits-grid {
@@ -275,24 +270,6 @@
                 grid-template-columns: 1fr;
             }
         }
-
-        .connection-line {
-            position: absolute;
-            background: rgba(212, 165, 116, 0.3);
-            height: 2px;
-            transform-origin: left center;
-        }
-
-        .line-label {
-            position: absolute;
-            background: #d4a574;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.85em;
-            font-weight: 600;
-            white-space: nowrap;
-        }
     </style>
 </head>
 <body>
@@ -354,380 +331,7 @@
         </div>
     </div>
 
-  <script type="module">
-        import { numerologyData, gridLines, masterNumbers } from './js/numerologyData.js';
-
-        // 輔助函數：將數字歸零到個位數 (例如 25 -> 7)
-        function reduceToSingle(num) {
-            if (num === 11 || num === 22 || num === 33) return num; // 卓越數不歸零
-            let sum = 0;
-            while (num > 0 || sum > 9) {
-                if (num === 0) {
-                    num = sum;
-                    sum = 0;
-                }
-                sum += num % 10;
-                num = Math.floor(num / 10);
-            }
-            return sum;
-        }
-
-        // 輔助函數：計算數字出現次數
-        function countDigits(dateString) {
-            const counts = {};
-            for (let i = 1; i <= 9; i++) {
-                counts[i] = 0;
-            }
-            for (const char of dateString) {
-                const digit = parseInt(char);
-                if (digit >= 1 && digit <= 9) {
-                    counts[digit]++;
-                }
-            }
-            return counts;
-        }
-
-        // 輔助函數：渲染九宮格
-        function renderGrid(counts) {
-            const gridMap = [3, 6, 9, 2, 5, 8, 1, 4, 7]; // 九宮格數字順序
-            const gridContainer = document.getElementById('gridContainer');
-            gridContainer.innerHTML = '';
-
-            gridMap.forEach(num => {
-                const count = counts[num];
-                const cell = document.createElement('div');
-                cell.className = 'grid-cell';
-                cell.innerHTML = \`<div class="grid-number">\${num}</div>\`;
-                if (count > 0) {
-                    const dotsContainer = document.createElement('div');
-                    dotsContainer.className = 'grid-dots';
-                    for (let i = 0; i < count; i++) {
-                        const dot = document.createElement('div');
-                        dot.className = 'dot';
-                        dotsContainer.appendChild(dot);
-                    }
-                    cell.appendChild(dotsContainer);
-                }
-                gridContainer.appendChild(cell);
-            });
-
-            // 渲染連線
-            const gridAnalysis = document.getElementById('gridAnalysis');
-            gridAnalysis.innerHTML = '<h3>連線分析 (天賦)</h3>';
-            let lineHtml = '';
-
-            gridLines.forEach(line => {
-                const hasLine = line.numbers.every(num => counts[num] > 0);
-                if (hasLine) {
-                    lineHtml += \`<div class="trait-card"><div class="trait-title">\${line.name} (\${line.numbers.join('-')})</div><div class="trait-content">\${line.meaning}</div></div>\`;
-                }
-            });
-
-            if (lineHtml) {
-                gridAnalysis.innerHTML += \`<div class="traits-grid">\${lineHtml}</div>\`;
-            } else {
-                gridAnalysis.innerHTML += '<p style="color: #8b7355;">目前沒有連線，代表您的天賦需要後天努力開發，潛力無限！</p>';
-            }
-        }
-
-        // 輔助函數：渲染三角星位圖
-        function renderTriangle(core, left, right) {
-            const triangleContainer = document.getElementById('triangleContainer');
-            triangleContainer.innerHTML = \`
-                <svg class="triangle-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-                    <!-- 三角形線條 -->
-                    <polygon points="50,5 5,95 95,95" style="fill:none;stroke:#d4a574;stroke-width:1.5" />
-                    
-                    <!-- 頂端核心數 -->
-                    <circle cx="50" cy="5" r="5" fill="#d4a574" />
-                    <text x="50" y="7" text-anchor="middle" fill="white" font-size="4" font-weight="bold">\${core}</text>
-                    <text x="50" y="15" text-anchor="middle" fill="#5d4e37" font-size="5" font-weight="bold">內在核心</text>
-
-                    <!-- 左三角數 -->
-                    <circle cx="5" cy="95" r="5" fill="#d4a574" />
-                    <text x="5" y="97" text-anchor="middle" fill="white" font-size="4" font-weight="bold">\${left}</text>
-                    <text x="5" y="85" text-anchor="start" fill="#5d4e37" font-size="5" font-weight="bold">情感面</text>
-
-                    <!-- 右三角數 -->
-                    <circle cx="95" cy="95" r="5" fill="#d4a574" />
-                    <text x="95" y="97" text-anchor="middle" fill="white" font-size="4" font-weight="bold">\${right}</text>
-                    <text x="95" y="85" text-anchor="end" fill="#5d4e37" font-size="5" font-weight="bold">行動面</text>
-                </svg>
-            \`;
-
-            const explanation = document.getElementById('triangleExplanation');
-            let coreExplanation = '';
-            if (masterNumbers[core]) {
-                coreExplanation = \`<p style="color: #d4a574; font-weight: bold;">恭喜您！您的內在核心數是卓越數 \${core} (\${masterNumbers[core].name})！</p><p>\${masterNumbers[core].meaning}</p>\`;
-            } else {
-                coreExplanation = \`<p>您的內在核心數是 <strong style="color: #d4a574;">\${core}</strong>，代表您的人生角色定位與發展使命。</p>\`;
-            }
-
-            explanation.innerHTML = \`
-                <h3>三角星位解讀</h3>
-                \${coreExplanation}
-                <p><strong>情感面 (\${left})</strong>：代表您在情感、人際關係中的潛在特質。</p>
-                <p><strong>行動面 (\${right})</strong>：代表您在事業、執行力上的展現方式。</p>
-            \`;
-        }
-
-        // 輔助函數：渲染數字特質
-        function renderTraits(numbers) {
-            const traitsGrid = document.getElementById('traitsGrid');
-            traitsGrid.innerHTML = '';
-
-            numbers.forEach(num => {
-                const data = numerologyData[num];
-                if (data) {
-                    const card = document.createElement('div');
-                    card.className = 'trait-card';
-                    card.innerHTML = \`
-                        <div class="trait-title">數字 \${num}：\${data.coreIdentity}</div>
-                        <p><span class="element-badge \${data.elementClass}">\${data.element}</span></p>
-                        <p class="trait-content"><strong>正面特質：</strong>\${data.positive}</p>
-                        <p class="trait-content"><strong>負面挑戰：</strong>\${data.negative}</p>
-                        <div class="oil-recommendation">
-                            <div class="oil-title">🌿 意念式芳療調頻建議</div>
-                            <p><strong>精油：</strong>\${data.oil}</p>
-                            <p><strong>調頻建議：</strong>\${data.advice}</p>
-                        </div>
-                    \`;
-                    traitsGrid.appendChild(card);
-                }
-            });
-        }
-
-        // 主要計算函數
-        window.calculateNumerology = function() {
-            const birthdateInput = document.getElementById('birthdate').value;
-            if (!birthdateInput) {
-                alert('請輸入您的出生日期！');
-                return;
-            }
-
-            const [year, month, day] = birthdateInput.split('-').map(Number);
-            const dateString = birthdateInput.replace(/-/g, '');
-
-            // 1. 計算三角星位圖 (根據用戶獨特邏輯)
-            // 左三角 (情感面) = 生日日期歸零
-            const leftSecond = reduceToSingle(day);
-            // 右三角 (行動面) = 年份後兩位數歸零
-            const yearLastTwo = year % 100;
-            const rightSecond = reduceToSingle(yearLastTwo);
-            // 頂端 (內在核心) = 左三角 + 右三角歸零
-            const core = reduceToSingle(leftSecond + rightSecond);
-
-            renderTriangle(core, leftSecond, rightSecond);
-
-            // 2. 計算生命九宮格
-            const counts = countDigits(dateString);
-            renderGrid(counts);
-
-            // 3. 渲染核心數字特質 (核心數、左三角、右三角)
-            const coreNumbers = [core];
-            if (!coreNumbers.includes(leftSecond)) coreNumbers.push(leftSecond);
-            if (!coreNumbers.includes(rightSecond)) coreNumbers.push(rightSecond);
-            renderTraits(coreNumbers);
-
-            // 顯示結果區塊
-            document.getElementById('inputSection').style.display = 'none';
-            document.getElementById('resultSection').style.display = 'block';
-        };
-
-        window.resetCalculator = function() {
-            document.getElementById('inputSection').style.display = 'block';
-            document.getElementById('resultSection').style.display = 'none';
-            document.getElementById('birthdate').value = '';
-            document.getElementById('name').value = '';
-        };
-    </script> type="module">
-        import { numerologyData, gridLines, masterNumbers } from './js/numerologyData.js';
-
-        // 輔助函數：將數字歸零到個位數 (例如 25 -> 7)
-        function reduceToSingle(num) {
-            if (num === 11 || num === 22 || num === 33) return num; // 卓越數不歸零
-            let sum = 0;
-            while (num > 0 || sum > 9) {
-                if (num === 0) {
-                    num = sum;
-                    sum = 0;
-                }
-                sum += num % 10;
-                num = Math.floor(num / 10);
-            }
-            return sum;
-        }
-
-        // 輔助函數：計算數字出現次數
-        function countDigits(dateString) {
-            const counts = {};
-            for (let i = 1; i <= 9; i++) {
-                counts[i] = 0;
-            }
-            for (const char of dateString) {
-                const digit = parseInt(char);
-                if (digit >= 1 && digit <= 9) {
-                    counts[digit]++;
-                }
-            }
-            return counts;
-        }
-
-        // 輔助函數：渲染九宮格
-        function renderGrid(counts) {
-            const gridMap = [3, 6, 9, 2, 5, 8, 1, 4, 7]; // 九宮格數字順序
-            const gridContainer = document.getElementById('gridContainer');
-            gridContainer.innerHTML = '';
-
-            gridMap.forEach(num => {
-                const count = counts[num];
-                const cell = document.createElement('div');
-                cell.className = 'grid-cell';
-                cell.innerHTML = \`<div class="grid-number">\${num}</div>\`;
-                if (count > 0) {
-                    const dotsContainer = document.createElement('div');
-                    dotsContainer.className = 'grid-dots';
-                    for (let i = 0; i < count; i++) {
-                        const dot = document.createElement('div');
-                        dot.className = 'dot';
-                        dotsContainer.appendChild(dot);
-                    }
-                    cell.appendChild(dotsContainer);
-                }
-                gridContainer.appendChild(cell);
-            });
-
-            // 渲染連線
-            const gridAnalysis = document.getElementById('gridAnalysis');
-            gridAnalysis.innerHTML = '<h3>連線分析 (天賦)</h3>';
-            let lineHtml = '';
-
-            gridLines.forEach(line => {
-                const hasLine = line.numbers.every(num => counts[num] > 0);
-                if (hasLine) {
-                    lineHtml += \`<div class="trait-card"><div class="trait-title">\${line.name} (\${line.numbers.join('-')})</div><div class="trait-content">\${line.meaning}</div></div>\`;
-                }
-            });
-
-            if (lineHtml) {
-                gridAnalysis.innerHTML += \`<div class="traits-grid">\${lineHtml}</div>\`;
-            } else {
-                gridAnalysis.innerHTML += '<p style="color: #8b7355;">目前沒有連線，代表您的天賦需要後天努力開發，潛力無限！</p>';
-            }
-        }
-
-        // 輔助函數：渲染三角星位圖
-        function renderTriangle(core, left, right) {
-            const triangleContainer = document.getElementById('triangleContainer');
-            triangleContainer.innerHTML = \`
-                <svg class="triangle-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-                    <!-- 三角形線條 -->
-                    <polygon points="50,5 5,95 95,95" style="fill:none;stroke:#d4a574;stroke-width:1.5" />
-                    
-                    <!-- 頂端核心數 -->
-                    <circle cx="50" cy="5" r="5" fill="#d4a574" />
-                    <text x="50" y="7" text-anchor="middle" fill="white" font-size="4" font-weight="bold">\${core}</text>
-                    <text x="50" y="15" text-anchor="middle" fill="#5d4e37" font-size="5" font-weight="bold">內在核心</text>
-
-                    <!-- 左三角數 -->
-                    <circle cx="5" cy="95" r="5" fill="#d4a574" />
-                    <text x="5" y="97" text-anchor="middle" fill="white" font-size="4" font-weight="bold">\${left}</text>
-                    <text x="5" y="85" text-anchor="start" fill="#5d4e37" font-size="5" font-weight="bold">情感面</text>
-
-                    <!-- 右三角數 -->
-                    <circle cx="95" cy="95" r="5" fill="#d4a574" />
-                    <text x="95" y="97" text-anchor="middle" fill="white" font-size="4" font-weight="bold">\${right}</text>
-                    <text x="95" y="85" text-anchor="end" fill="#5d4e37" font-size="5" font-weight="bold">行動面</text>
-                </svg>
-            \`;
-
-            const explanation = document.getElementById('triangleExplanation');
-            let coreExplanation = '';
-            if (masterNumbers[core]) {
-                coreExplanation = \`<p style="color: #d4a574; font-weight: bold;">恭喜您！您的內在核心數是卓越數 \${core} (\${masterNumbers[core].name})！</p><p>\${masterNumbers[core].meaning}</p>\`;
-            } else {
-                coreExplanation = \`<p>您的內在核心數是 <strong style="color: #d4a574;">\${core}</strong>，代表您的人生角色定位與發展使命。</p>\`;
-            }
-
-            explanation.innerHTML = \`
-                <h3>三角星位解讀</h3>
-                \${coreExplanation}
-                <p><strong>情感面 (\${left})</strong>：代表您在情感、人際關係中的潛在特質。</p>
-                <p><strong>行動面 (\${right})</strong>：代表您在事業、執行力上的展現方式。</p>
-            \`;
-        }
-
-        // 輔助函數：渲染數字特質
-        function renderTraits(numbers) {
-            const traitsGrid = document.getElementById('traitsGrid');
-            traitsGrid.innerHTML = '';
-
-            numbers.forEach(num => {
-                const data = numerologyData[num];
-                if (data) {
-                    const card = document.createElement('div');
-                    card.className = 'trait-card';
-                    card.innerHTML = \`
-                        <div class="trait-title">數字 \${num}：\${data.coreIdentity}</div>
-                        <p><span class="element-badge \${data.elementClass}">\${data.element}</span></p>
-                        <p class="trait-content"><strong>正面特質：</strong>\${data.positive}</p>
-                        <p class="trait-content"><strong>負面挑戰：</strong>\${data.negative}</p>
-                        <div class="oil-recommendation">
-                            <div class="oil-title">🌿 意念式芳療調頻建議</div>
-                            <p><strong>精油：</strong>\${data.oil}</p>
-                            <p><strong>調頻建議：</strong>\${data.advice}</p>
-                        </div>
-                    \`;
-                    traitsGrid.appendChild(card);
-                }
-            });
-        }
-
-        // 主要計算函數
-        window.calculateNumerology = function() {
-            const birthdateInput = document.getElementById('birthdate').value;
-            if (!birthdateInput) {
-                alert('請輸入您的出生日期！');
-                return;
-            }
-
-            const [year, month, day] = birthdateInput.split('-').map(Number);
-            const dateString = birthdateInput.replace(/-/g, '');
-
-            // 1. 計算三角星位圖 (根據用戶獨特邏輯)
-            // 左三角 (情感面) = 生日日期歸零
-            const leftSecond = reduceToSingle(day);
-            // 右三角 (行動面) = 年份後兩位數歸零
-            const yearLastTwo = year % 100;
-            const rightSecond = reduceToSingle(yearLastTwo);
-            // 頂端 (內在核心) = 左三角 + 右三角歸零
-            const core = reduceToSingle(leftSecond + rightSecond);
-
-            renderTriangle(core, leftSecond, rightSecond);
-
-            // 2. 計算生命九宮格
-            const counts = countDigits(dateString);
-            renderGrid(counts);
-
-            // 3. 渲染核心數字特質 (核心數、左三角、右三角)
-            const coreNumbers = [core];
-            if (!coreNumbers.includes(leftSecond)) coreNumbers.push(leftSecond);
-            if (!coreNumbers.includes(rightSecond)) coreNumbers.push(rightSecond);
-            renderTraits(coreNumbers);
-
-            // 顯示結果區塊
-            document.getElementById('inputSection').style.display = 'none';
-            document.getElementById('resultSection').style.display = 'block';
-        };
-
-        window.resetCalculator = function() {
-            document.getElementById('inputSection').style.display = 'block';
-            document.getElementById('resultSection').style.display = 'none';
-            document.getElementById('birthdate').value = '';
-            document.getElementById('name').value = '';
-        };
-    </script> type="module">
-        import { numerologyData, gridLines, masterNumbers } from './js/numerologyData.js';
+    <script>
         const numberTraits = {
             1: {
                 element: '小木',
@@ -820,15 +424,15 @@
             // 計算基礎數字
             const birthDayDigits = day.toString().split('').map(Number);
             const birthDaySum = birthDayDigits.reduce((a, b) => a + b, 0);
-            const dayNum = reduceToSingle(birthDaySum); // 生日數各位數相加
+            const dayNum = reduceToSingle(birthDaySum);
             const monthNum = reduceToSingle(month);
             const yearFront = reduceToSingle(Math.floor(year / 100));
             const yearBack = year >= 2000 && year % 100 === 0 ? 5 : reduceToSingle(year % 100);
 
             // 計算三角數字
-            const leftSecond = dayNum; // 左二 = 生日數本身
-            const rightSecond = reduceToSingle(yearFront + yearBack); // 右二 = 年前 + 年後
-            const core = reduceToSingle(leftSecond + rightSecond); // 內核 = 左二 + 右二
+            const leftSecond = dayNum;
+            const rightSecond = reduceToSingle(yearFront + yearBack);
+            const core = reduceToSingle(leftSecond + rightSecond);
 
             // 計算九宮格
             const gridData = calculateGrid(year, month, day);
@@ -930,10 +534,10 @@
                     </div>
                 </div>
                 <div class="trait-card" style="margin-top: 15px;">
-                    <div class="trait-title">💫 左三角（${leftSecond}）× 右三角（${rightSecond}）</div>
+                    <div class="trait-title">💫 左三角（${left2}）× 右三角（${right2}）</div>
                     <div class="trait-content">
-                        <strong>左三角（${leftSecond}）</strong>：由生日數主導，代表您的內在情感與直覺面。<br>
-                        <strong>右三角（${rightSecond}）</strong>：由年份主導，代表您的外在行動與理性面。<br>
+                        <strong>左三角（${left2}）</strong>：由生日數主導，代表您的內在情感與直覺面。<br>
+                        <strong>右三角（${right2}）</strong>：由年份主導，代表您的外在行動與理性面。<br>
                         兩者結合形成您獨特的人格特質。
                     </div>
                 </div>
