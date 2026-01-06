@@ -419,22 +419,20 @@
 
         // 輸入表單
         // Google Sheets 記錄功能
-        const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzriz6R5fJLSTg1-yBvagc-epUS64hPUQBOOSK95-Xt51gzPOjahG9YXnmQuCN7sIUAyw/exec';
+        const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzlPM5yIuAlrQKbYa01bysqxYo3woLAfp1Tc0Ebk8-W4_3KiUfipUx9Li-10YTw2voIVA/exec';
         
         const logToSheet = (data) => {
             try {
-                fetch(SHEET_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        birthday: `${data.year}-${data.month}-${data.day}`,
-                        lunarMonth: data.lunarMonth,
-                        lunarDay: data.lunarDay,
-                        hour: data.hourId || '未填',
-                        source: window.location.pathname.split('/').pop() || 'index'
-                    })
+                const params = new URLSearchParams({
+                    birthday: `${data.year}-${data.month}-${data.day}`,
+                    lunarMonth: data.lunarMonth || '',
+                    lunarDay: data.lunarDay || '',
+                    hour: data.hourId || '未填',
+                    source: window.location.pathname.split('/').pop() || 'index'
                 });
+                // 用圖片請求的方式發送，最穩定
+                const img = new Image();
+                img.src = SHEET_URL + '?' + params.toString();
             } catch (e) {
                 console.log('記錄失敗', e);
             }
