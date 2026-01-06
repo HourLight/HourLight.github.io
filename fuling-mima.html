@@ -418,6 +418,28 @@
         };
 
         // 輸入表單
+        // Google Sheets 記錄功能
+        const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzriz6R5fJLSTg1-yBvagc-epUS64hPUQBOOSK95-Xt51gzPOjahG9YXnmQuCN7sIUAyw/exec';
+        
+        const logToSheet = (data) => {
+            try {
+                fetch(SHEET_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        birthday: `${data.year}-${data.month}-${data.day}`,
+                        lunarMonth: data.lunarMonth,
+                        lunarDay: data.lunarDay,
+                        hour: data.hourId || '未填',
+                        source: window.location.pathname.split('/').pop() || 'index'
+                    })
+                });
+            } catch (e) {
+                console.log('記錄失敗', e);
+            }
+        };
+
         const InputForm = ({ onCalculate, title, showName = false, nameLabel = '姓名' }) => {
             const [formData, setFormData] = useState({
                 name: '', year: '', month: '1', day: '1', lunarMonth: '', lunarDay: '', hourId: ''
@@ -429,6 +451,8 @@
                     alert('請填寫完整資料');
                     return;
                 }
+                // 記錄到 Google Sheets
+                logToSheet(formData);
                 onCalculate(formData);
             };
 
