@@ -119,20 +119,26 @@
            ============================================ */
 
         const HOURS = [
-            { id: 'zi', name: '子時 (23:00-01:00)', value: 1 },
-            { id: 'chou', name: '丑時 (01:00-03:00)', value: 2 },
-            { id: 'yin', name: '寅時 (03:00-05:00)', value: 3 },
-            { id: 'mao', name: '卯時 (05:00-07:00)', value: 4 },
-            { id: 'chen', name: '辰時 (07:00-09:00)', value: 5 },
-            { id: 'si', name: '巳時 (09:00-11:00)', value: 6 },
-            { id: 'wu', name: '午時 (11:00-13:00)', value: 7 },
-            { id: 'wei', name: '未時 (13:00-15:00)', value: 8 },
-            { id: 'shen', name: '申時 (15:00-17:00)', value: 9 },
-            { id: 'you', name: '酉時 (17:00-19:00)', value: 1 },
-            { id: 'xu', name: '戌時 (19:00-21:00)', value: 2 },
-            { id: 'hai', name: '亥時 (21:00-23:00)', value: 3 },
-            { id: 'unknown', name: '時辰不詳', value: 0 }
+            { id: 'zi', name: '子時 (23:00-01:00)', num: 1 },
+            { id: 'chou', name: '丑時 (01:00-03:00)', num: 2 },
+            { id: 'yin', name: '寅時 (03:00-05:00)', num: 3 },
+            { id: 'mao', name: '卯時 (05:00-07:00)', num: 4 },
+            { id: 'chen', name: '辰時 (07:00-09:00)', num: 5 },
+            { id: 'si', name: '巳時 (09:00-11:00)', num: 6 },
+            { id: 'wu', name: '午時 (11:00-13:00)', num: 7 },
+            { id: 'wei', name: '未時 (13:00-15:00)', num: 8 },
+            { id: 'shen', name: '申時 (15:00-17:00)', num: 9 },
+            { id: 'you', name: '酉時 (17:00-19:00)', num: 1 },
+            { id: 'xu', name: '戌時 (19:00-21:00)', num: 2 },
+            { id: 'hai', name: '亥時 (21:00-23:00)', num: 3 },
+            { id: 'unknown', name: '時辰不詳', num: 0 }
         ];
+        
+        // 根據id取得時辰數字
+        const getHourNum = (hourId) => {
+            const hour = HOURS.find(h => h.id === hourId);
+            return hour ? hour.num : 0;
+        };
 
         const NUMBER_DATA = {
             1: { title: '領航者', essence: '獨立、開創、領導', light: '獨立開創、敢做決定', dark: '孤獨控制、不願求助', work: '開創者', workDesc: '「讓我來帶」', oils: ['雪松', '岩蘭草', '黑胡椒'] },
@@ -230,12 +236,13 @@
         };
 
         const calculateHourLight = (data) => {
-            const { year, month, day, lunarMonth, lunarDay, hourValue } = data;
+            const { year, month, day, lunarMonth, lunarDay, hourId } = data;
+            const hourValue = getHourNum(hourId);
             
             const hNum = reduceNumber(parseInt(lunarMonth) + parseInt(lunarDay), true);
             const oNumRaw = String(year) + String(month).padStart(2, '0') + String(day).padStart(2, '0');
             const oNum = reduceNumber(oNumRaw.split('').reduce((a, b) => parseInt(a) + parseInt(b), 0), true);
-            const uNum = parseInt(hourValue) || 0;
+            const uNum = hourValue || 0;
             const rNum = uNum ? reduceNumber(hNum + oNum + uNum, true) : reduceNumber(hNum + oNum, true);
 
             const lNum = parseInt(lunarMonth) > 9 ? reduceNumber(parseInt(lunarMonth)) : parseInt(lunarMonth);
@@ -265,7 +272,7 @@
             });
 
             return {
-                inputData: { year, month, day, lunarMonth, lunarDay, hourValue },
+                inputData: { year, month, day, lunarMonth, lunarDay, hourId, hourValue },
                 hour: { h: hNum, o: oNum, u: uNum, r: rNum },
                 light: { l: lNum, i: iNum || 5, g: gNum, h: hEnergyNum, t: tNum },
                 palaces,
@@ -405,7 +412,7 @@
         // 輸入表單
         const InputForm = ({ onCalculate, title, showName = false, nameLabel = '姓名' }) => {
             const [formData, setFormData] = useState({
-                name: '', year: '', month: '1', day: '1', lunarMonth: '', lunarDay: '', hourValue: ''
+                name: '', year: '', month: '1', day: '1', lunarMonth: '', lunarDay: '', hourId: ''
             });
 
             const handleSubmit = (e) => {
@@ -458,10 +465,10 @@
                                 })}
                             </select>
                         </div>
-                        <select className="w-full p-3 border rounded-lg bg-white/80 text-gray-800" value={formData.hourValue}
-                            onChange={e => setFormData({...formData, hourValue: e.target.value})}>
+                        <select className="w-full p-3 border rounded-lg bg-white/80 text-gray-800" value={formData.hourId}
+                            onChange={e => setFormData({...formData, hourId: e.target.value})}>
                             <option value="">時辰（選填）</option>
-                            {HOURS.map(h => <option key={h.id} value={h.value}>{h.name}</option>)}
+                            {HOURS.map(h => <option key={h.id} value={h.id}>{h.name}</option>)}
                         </select>
                         <button type="submit" className="w-full gold-btn py-3 rounded-lg">開始計算</button>
                     </form>
