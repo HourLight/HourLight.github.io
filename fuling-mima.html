@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>馥靈秘碼 Hour Light v7.0 - 生命數字解碼系統</title>
+    <title>馥靈秘碼 Hour Light v7.1 - 生命數字解碼系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -102,6 +102,22 @@
         .score-bar { height: 8px; border-radius: 4px; overflow: hidden; }
         .score-fill { height: 100%; transition: width 0.8s ease-out; }
 
+        .master-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        .day-mode .master-badge { background: linear-gradient(135deg, #D4AF37, #F5E6A3); color: #4A3728; }
+        .night-mode .master-badge { background: linear-gradient(135deg, #9F5FDB, #E066FF); color: #1A1A2E; }
+        
+        @keyframes glow {
+            from { box-shadow: 0 0 5px rgba(212, 175, 55, 0.5); }
+            to { box-shadow: 0 0 15px rgba(212, 175, 55, 0.8); }
+        }
+
         @media (max-width: 768px) {
             .tab-btn { font-size: 0.75rem; padding: 0.5rem; }
         }
@@ -139,6 +155,7 @@
             return hour ? hour.num : 0;
         };
 
+        // ⭐ 數字資料庫（新增大師數11、22、33）
         const NUMBER_DATA = {
             1: { title: '領航者', essence: '獨立、開創、領導', light: '獨立開創、敢做決定', dark: '孤獨控制、不願求助', work: '開創者', workDesc: '「讓我來帶」', oils: ['雪松', '岩蘭草', '黑胡椒'],
                  intimacy: { type: '征服者', trait: '主導型、喜歡帶領', healthy: '自信的表達慾望，能給予也能接受', shadow: '只顧自己的滿足，把性當成征服', tip: '讓他感覺被需要，適時讓他主導' } },
@@ -157,7 +174,60 @@
             8: { title: '掌權者', essence: '權力、豐盛、影響力', light: '領導力強、聚集資源', dark: '控制貪婪、工作狂', work: '掌控者', workDesc: '「讓我來管」', oils: ['沒藥', '檀香', '雪松'],
                  intimacy: { type: '掌控者', trait: '強烈的能量和耐力、喜歡掌控或被徹底掌控', healthy: '強大的性能量，能給予強烈的體驗', shadow: '用性來展現權力，控制慾過強', tip: '可以適度讓他掌控，強度要夠' } },
             9: { title: '智者', essence: '慈悲、智慧、完成', light: '慈悲大愛、服務人類', dark: '過度理想、脫離現實', work: '服務者', workDesc: '「讓我來幫」', oils: ['乳香', '花梨木', '廣藿香'],
-                 intimacy: { type: '奉獻者', trait: '追求身心靈合一、重視意義和連結', healthy: '超越肉體的靈性體驗，深度連結', shadow: '覺得「性太低層次」而疏離', tip: '強調靈性連結的意義，別讓他覺得「只是肉體」' } }
+                 intimacy: { type: '奉獻者', trait: '追求身心靈合一、重視意義和連結', healthy: '超越肉體的靈性體驗，深度連結', shadow: '覺得「性太低層次」而疏離', tip: '強調靈性連結的意義，別讓他覺得「只是肉體」' } },
+            // ⭐ 大師數
+            11: { 
+                title: '靈性直覺者', 
+                essence: '直覺、靈性、啟發', 
+                light: '極強直覺力、靈性通道', 
+                dark: '過度敏感、焦慮不安', 
+                work: '啟發者', 
+                workDesc: '「讓我來感應」', 
+                oils: ['乳香', '檀香', '薰衣草'],
+                isMaster: true,
+                masterMission: '把靈性訊息轉化為實際行動',
+                intimacy: { type: '靈性連結者', trait: '需要深度靈性連結、極度敏感', healthy: '身心靈完全合一的神聖體驗', shadow: '太敏感而無法放鬆享受', tip: '創造神聖的空間和氛圍' }
+            },
+            22: { 
+                title: '大師建造者', 
+                essence: '願景、建設、實現', 
+                light: '把夢想落地、建立系統', 
+                dark: '過度工作、壓力極大', 
+                work: '系統建造者', 
+                workDesc: '「讓我來建構」', 
+                oils: ['雪松', '檀香', '沒藥'],
+                isMaster: true,
+                masterMission: '不只建造物質世界，也建造靈性橋樑',
+                intimacy: { type: '深度建造者', trait: '追求長期穩定、深度承諾', healthy: '建立深厚的親密基礎', shadow: '太專注事業忽略親密', tip: '讓他知道親密關係也是重要的人生建設' }
+            },
+            33: { 
+                title: '大師療癒者', 
+                essence: '療癒、慈悲、服務', 
+                light: '無條件的愛、療癒他人', 
+                dark: '犧牲過度、無法設限', 
+                work: '療癒導師', 
+                workDesc: '「讓我來療癒」', 
+                oils: ['玫瑰', '乳香', '花梨木'],
+                isMaster: true,
+                masterMission: '在服務他人的同時，也要照顧好自己',
+                intimacy: { type: '療癒者', trait: '給予無條件的愛和接納', healthy: '讓對方感受到被完全接納', shadow: '只付出不接受', tip: '允許自己也被愛、被照顧' }
+            }
+        };
+
+        // 取得數字資料（處理大師數）
+        const getNumData = (num) => {
+            if (NUMBER_DATA[num]) return NUMBER_DATA[num];
+            // 如果沒有直接匹配，化簡後查詢
+            const reduced = reduceToSingle(num);
+            return NUMBER_DATA[reduced] || NUMBER_DATA[1];
+        };
+
+        // 化簡到個位數（不保留大師數）
+        const reduceToSingle = (num) => {
+            while (num > 9) {
+                num = String(num).split('').reduce((a, b) => parseInt(a) + parseInt(b), 0);
+            }
+            return num;
         };
 
         const PALACE_DATA = {
@@ -185,7 +255,10 @@
             6: { keyword: '責任', theme: '照顧收成', advice: '家庭責任、收穫付出', palace: '6宮（信任殿）' },
             7: { keyword: '沉澱', theme: '內在探索', advice: '反思學習、獨處充電', palace: '7宮（心門宮）' },
             8: { keyword: '收穫', theme: '豐盛成就', advice: '事業成功、財務豐收', palace: '8宮（明辨廳）' },
-            9: { keyword: '結束', theme: '完成釋放', advice: '放下舊有、準備新循環', palace: '9宮（卸載苑）' }
+            9: { keyword: '結束', theme: '完成釋放', advice: '放下舊有、準備新循環', palace: '9宮（卸載苑）' },
+            11: { keyword: '靈性覺醒', theme: '直覺開啟', advice: '信任直覺、靈性成長', palace: '11宮（敞開閣）' },
+            22: { keyword: '大師建造', theme: '願景落地', advice: '建立長遠系統、實現宏大夢想', palace: '全宮位' },
+            33: { keyword: '大師療癒', theme: '無條件的愛', advice: '療癒自己與他人、服務眾生', palace: '全宮位' }
         };
 
         // 大運主題
@@ -227,57 +300,117 @@
             6: { independence: 3, obedience: 4, teamwork: 5, stress: 3, stability: 4 },
             7: { independence: 5, obedience: 3, teamwork: 2, stress: 4, stability: 4 },
             8: { independence: 5, obedience: 3, teamwork: 3, stress: 5, stability: 4 },
-            9: { independence: 4, obedience: 3, teamwork: 4, stress: 3, stability: 4 }
+            9: { independence: 4, obedience: 3, teamwork: 4, stress: 3, stability: 4 },
+            11: { independence: 4, obedience: 3, teamwork: 3, stress: 3, stability: 3 },
+            22: { independence: 5, obedience: 3, teamwork: 4, stress: 5, stability: 5 },
+            33: { independence: 4, obedience: 4, teamwork: 5, stress: 3, stability: 4 }
         };
 
         /* ============================================
-           計算邏輯
+           計算邏輯（⭐ 大師數保留規則）
            ============================================ */
         
-        const reduceNumber = (num, keepMaster = false) => {
-            if (keepMaster && (num === 11 || num === 22 || num === 33)) return num;
+        // ⭐ 核心化簡函數：預設保留大師數11、22、33
+        const reduceNumber = (num) => {
+            // 如果已經是大師數，直接保留
+            if (num === 11 || num === 22 || num === 33) return num;
+            
             while (num > 9) {
                 num = String(num).split('').reduce((a, b) => parseInt(a) + parseInt(b), 0);
-                if (keepMaster && (num === 11 || num === 22 || num === 33)) return num;
+                // 化簡過程中出現大師數，停止化簡
+                if (num === 11 || num === 22 || num === 33) return num;
             }
             return num;
+        };
+
+        // 判斷是否為大師數
+        const isMasterNumber = (num) => num === 11 || num === 22 || num === 33;
+
+        // 取得顯示用的基礎數字（用於查表）
+        const getBaseNum = (num) => {
+            if (NUMBER_DATA[num]) return num;
+            return reduceToSingle(num);
         };
 
         const calculateHourLight = (data) => {
             const { year, month, day, lunarMonth, lunarDay, hourId } = data;
             const hourValue = getHourNum(hourId);
             
-            const hNum = reduceNumber(parseInt(lunarMonth) + parseInt(lunarDay), true);
+            // ⭐ H數：保留大師數
+            const hNum = reduceNumber(parseInt(lunarMonth) + parseInt(lunarDay));
+            
+            // ⭐ O數：保留大師數
             const oNumRaw = String(year) + String(month).padStart(2, '0') + String(day).padStart(2, '0');
-            const oNum = reduceNumber(oNumRaw.split('').reduce((a, b) => parseInt(a) + parseInt(b), 0), true);
+            const oNum = reduceNumber(oNumRaw.split('').reduce((a, b) => parseInt(a) + parseInt(b), 0));
+            
+            // U數：時辰數（1-9）
             const uNum = hourValue || 0;
-            const rNum = uNum ? reduceNumber(hNum + oNum + uNum, true) : reduceNumber(hNum + oNum, true);
+            
+            // ⭐ R數：保留大師數
+            const rNum = uNum ? reduceNumber(hNum + oNum + uNum) : reduceNumber(hNum + oNum);
 
+            // L.I.G.H.T. 五能量
             const lNum = parseInt(lunarMonth) > 9 ? reduceNumber(parseInt(lunarMonth)) : parseInt(lunarMonth);
             const iNum = uNum;
             const gNum = reduceNumber(String(year).split('').reduce((a, b) => parseInt(a) + parseInt(b), 0));
             const hEnergyNum = parseInt(lunarDay) > 9 ? reduceNumber(parseInt(lunarDay)) : parseInt(lunarDay);
             const tNum = reduceNumber(lNum + (iNum || 5) + gNum + hEnergyNum);
 
+            // 12宮計算
             const yearStr = String(year);
             const lastTwo = parseInt(yearStr.slice(-2));
             const p2Num = reduceNumber(Math.floor(lastTwo / 10) + (lastTwo % 10));
-            const p3Num = parseInt(month) > 9 ? reduceNumber(parseInt(month)) : parseInt(month);
-            const p4Num = parseInt(day) > 9 ? reduceNumber(parseInt(day)) : parseInt(day);
+            const p3Num = parseInt(month) === 11 ? 11 : (parseInt(month) > 9 ? reduceNumber(parseInt(month)) : parseInt(month));
+            const p4Num = parseInt(day) === 11 || parseInt(day) === 22 ? parseInt(day) : (parseInt(day) > 9 ? reduceNumber(parseInt(day)) : parseInt(day));
+            const p5Num = parseInt(lunarMonth) === 11 ? 11 : lNum;
+            const p6Num = parseInt(lunarDay) === 11 || parseInt(lunarDay) === 22 ? parseInt(lunarDay) : hEnergyNum;
             const p9Num = parseInt(yearStr.charAt(yearStr.length - 3)) || 9;
 
             const palaces = {
-                1: reduceNumber(hNum), 2: p2Num, 3: p3Num, 4: p4Num,
-                5: lNum, 6: hEnergyNum, 7: reduceNumber(oNum), 8: gNum,
-                9: p9Num, 10: uNum || 5, 11: tNum, 12: reduceNumber(rNum)
+                1: getBaseNum(hNum), 
+                2: p2Num, 
+                3: p3Num, 
+                4: p4Num,
+                5: p5Num, 
+                6: p6Num, 
+                7: getBaseNum(oNum), 
+                8: gNum,
+                9: p9Num, 
+                10: uNum || 5, 
+                11: tNum, 
+                12: getBaseNum(rNum)
             };
 
+            // 數字統計（包含大師數）
             const numberCount = {};
             for (let i = 1; i <= 9; i++) numberCount[i] = 0;
-            Object.values(palaces).forEach(num => {
-                const r = num > 9 ? reduceNumber(num) : num;
-                if (r >= 1 && r <= 9) numberCount[r]++;
+            numberCount[11] = 0;
+            numberCount[22] = 0;
+            numberCount[33] = 0;
+            
+            // 統計H.O.U.R.中的大師數
+            [hNum, oNum, rNum].forEach(num => {
+                if (isMasterNumber(num)) {
+                    numberCount[num]++;
+                } else {
+                    const r = num > 9 ? reduceToSingle(num) : num;
+                    if (r >= 1 && r <= 9) numberCount[r]++;
+                }
             });
+            
+            // 統計12宮
+            Object.values(palaces).forEach(num => {
+                if (isMasterNumber(num)) {
+                    numberCount[num]++;
+                } else {
+                    const r = num > 9 ? reduceToSingle(num) : num;
+                    if (r >= 1 && r <= 9) numberCount[r]++;
+                }
+            });
+
+            // 檢測是否擁有大師數
+            const hasMasterNumbers = isMasterNumber(hNum) || isMasterNumber(oNum) || isMasterNumber(rNum);
+            const masterNumbersList = [hNum, oNum, rNum].filter(isMasterNumber);
 
             return {
                 inputData: { year, month, day, lunarMonth, lunarDay, hourId, hourValue },
@@ -286,29 +419,33 @@
                 palaces,
                 analysis: {
                     numberCount,
-                    missingNumbers: Object.entries(numberCount).filter(([_, c]) => c === 0).map(([n]) => parseInt(n)),
-                    excessNumbers: Object.entries(numberCount).filter(([_, c]) => c >= 3).map(([n]) => parseInt(n))
+                    missingNumbers: Object.entries(numberCount).filter(([n, c]) => c === 0 && parseInt(n) <= 9).map(([n]) => parseInt(n)),
+                    excessNumbers: Object.entries(numberCount).filter(([_, c]) => c >= 3).map(([n]) => parseInt(n)),
+                    hasMasterNumbers,
+                    masterNumbersList
                 }
             };
         };
 
-        // 計算流年
+        // 計算流年（保留大師數）
         const calculateYearFortune = (rNum, year) => {
             const universeYear = reduceNumber(String(year).split('').reduce((a, b) => parseInt(a) + parseInt(b), 0));
-            const personalYear = reduceNumber(reduceNumber(rNum) + universeYear);
-            return { universeYear, personalYear, ...YEAR_THEMES[personalYear] };
+            const personalYear = reduceNumber(getBaseNum(rNum) + universeYear);
+            const yearData = YEAR_THEMES[personalYear] || YEAR_THEMES[reduceToSingle(personalYear)];
+            return { universeYear, personalYear, ...yearData };
         };
 
-        // 計算大運
+        // 計算大運（保留大師數）
         const calculateLifeFortunes = (rNum, birthYear) => {
             const currentYear = new Date().getFullYear();
             const age = currentYear - birthYear;
             const fortunes = [];
+            const baseR = getBaseNum(rNum);
             
             for (let i = 1; i <= 8; i++) {
                 const startAge = (i - 1) * 10 + 1;
                 const endAge = i === 8 ? '∞' : i * 10;
-                const fortuneNum = reduceNumber(reduceNumber(rNum) + i, true);
+                const fortuneNum = reduceNumber(baseR + i);
                 const isCurrent = age >= startAge && (i === 8 || age <= i * 10);
                 
                 fortunes.push({
@@ -318,8 +455,9 @@
                     endYear: i === 8 ? '∞' : birthYear + i * 10 - 1,
                     num: fortuneNum,
                     theme: FORTUNE_THEMES[i],
-                    numMeaning: NUMBER_DATA[fortuneNum > 9 ? reduceNumber(fortuneNum) : fortuneNum]?.title || '',
-                    isCurrent
+                    numMeaning: getNumData(fortuneNum)?.title || '',
+                    isCurrent,
+                    isMaster: isMasterNumber(fortuneNum)
                 });
             }
             return fortunes;
@@ -333,12 +471,14 @@
             let scores = { total: 0, details: [] };
             
             // O數吸引力 (20分)
-            const oDiff = Math.abs(reduceNumber(hourA.o) - reduceNumber(hourB.o));
+            const oBaseA = getBaseNum(hourA.o), oBaseB = getBaseNum(hourB.o);
+            const oDiff = Math.abs(oBaseA - oBaseB);
             const oScore = oDiff === 0 ? 20 : oDiff <= 2 ? 15 : oDiff <= 4 ? 10 : 5;
             scores.details.push({ name: 'O數吸引力', score: oScore, max: 20, desc: oDiff === 0 ? '完美共鳴' : oDiff <= 2 ? '自然來電' : '需要時間' });
             
             // H數契合度 (20分)
-            const hDiff = Math.abs(reduceNumber(hourA.h) - reduceNumber(hourB.h));
+            const hBaseA = getBaseNum(hourA.h), hBaseB = getBaseNum(hourB.h);
+            const hDiff = Math.abs(hBaseA - hBaseB);
             const hScore = hDiff === 0 ? 20 : hDiff <= 2 ? 15 : hDiff <= 4 ? 10 : 5;
             scores.details.push({ name: 'H數契合度', score: hScore, max: 20, desc: hDiff === 0 ? '靈魂相通' : hDiff <= 2 ? '容易懂對方' : '需要多溝通' });
             
@@ -348,22 +488,22 @@
             scores.details.push({ name: '7宮愛的語言', score: p7Score, max: 20, desc: p7Diff === 0 ? '愛的語言相同' : p7Diff <= 2 ? '大致契合' : '需要學習對方的愛' });
             
             // R數方向一致 (15分)
-            const rDiff = Math.abs(reduceNumber(hourA.r) - reduceNumber(hourB.r));
+            const rBaseA = getBaseNum(hourA.r), rBaseB = getBaseNum(hourB.r);
+            const rDiff = Math.abs(rBaseA - rBaseB);
             const rScore = rDiff === 0 ? 15 : rDiff <= 2 ? 12 : rDiff <= 4 ? 8 : 4;
             scores.details.push({ name: 'R數人生方向', score: rScore, max: 15, desc: rDiff === 0 ? '同路人' : rDiff <= 2 ? '方向接近' : '各有路線' });
             
             // 互補加分 (15分)
             let compScore = 0;
-            const numA = reduceNumber(hourA.o), numB = reduceNumber(hourB.o);
             COMPLEMENTARY_PAIRS.forEach(({ pair }) => {
-                if ((pair[0] === numA && pair[1] === numB) || (pair[0] === numB && pair[1] === numA)) compScore = 15;
+                if ((pair[0] === oBaseA && pair[1] === oBaseB) || (pair[0] === oBaseB && pair[1] === oBaseA)) compScore = 15;
             });
             scores.details.push({ name: '互補加分', score: compScore, max: 15, desc: compScore > 0 ? '天生互補組合' : '需要主動配合' });
             
             // 張力扣分 (10分基礎)
             let tensionScore = 10;
             TENSION_PAIRS.forEach(({ pair }) => {
-                if ((pair[0] === numA && pair[1] === numB) || (pair[0] === numB && pair[1] === numA)) tensionScore = 3;
+                if ((pair[0] === oBaseA && pair[1] === oBaseB) || (pair[0] === oBaseB && pair[1] === oBaseA)) tensionScore = 3;
             });
             scores.details.push({ name: '張力處理', score: tensionScore, max: 10, desc: tensionScore < 10 ? '有張力需化解' : '張力不大' });
             
@@ -382,6 +522,13 @@
         /* ============================================
            UI 元件
            ============================================ */
+
+        // 大師數徽章
+        const MasterBadge = ({ num }) => {
+            if (!isMasterNumber(num)) return null;
+            const labels = { 11: '✨ 直覺大師', 22: '🏛️ 建造大師', 33: '💕 療癒大師' };
+            return <span className="master-badge ml-2">{labels[num]}</span>;
+        };
 
         // 雷達圖
         const RadarChart = ({ data, isNight }) => {
@@ -518,7 +665,10 @@
                                     {f.isCurrent && <span className="text-xs px-2 py-1 rounded-full bg-green-500 text-white mb-2 inline-block">當前大運</span>}
                                     <div className="text-sm opacity-60">第{f.period}大運・{f.ageRange}</div>
                                     <div className="text-sm opacity-50">{f.startYear}-{f.endYear}年</div>
-                                    <div className="text-3xl font-bold gold-text my-2">{f.num}</div>
+                                    <div className="text-3xl font-bold gold-text my-2">
+                                        {f.num}
+                                        {f.isMaster && <MasterBadge num={f.num} />}
+                                    </div>
                                     <div className="font-bold">{f.theme}</div>
                                     <div className="text-sm opacity-70">{f.numMeaning}能量</div>
                                 </div>
@@ -539,9 +689,10 @@
 
         // HR報告
         const HRReport = ({ result, isNight }) => {
-            const oNum = reduceNumber(result.hour.o);
-            const numData = NUMBER_DATA[oNum];
-            const ratings = WORK_RATINGS[oNum];
+            const oNum = result.hour.o;
+            const oBase = getBaseNum(oNum);
+            const numData = getNumData(oNum);
+            const ratings = WORK_RATINGS[oBase] || WORK_RATINGS[oNum];
             
             const ratingLabels = {
                 independence: '獨立性', obedience: '服從性', teamwork: '團隊合作', stress: '抗壓性', stability: '穩定性'
@@ -550,9 +701,18 @@
             return (
                 <div className="space-y-6 fade-in">
                     <div className="card p-6 text-center">
-                        <div className="text-6xl font-bold gold-text">{oNum}</div>
+                        <div className="text-6xl font-bold gold-text">
+                            {oNum}
+                            {isMasterNumber(oNum) && <MasterBadge num={oNum} />}
+                        </div>
                         <div className="text-2xl font-bold mt-2 serif">{numData.work}</div>
                         <div className="text-lg opacity-70">{numData.workDesc}</div>
+                        {numData.isMaster && (
+                            <div className="mt-3 p-3 rounded-lg bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800">
+                                <p className="text-sm font-bold">✨ 大師數特質</p>
+                                <p className="text-xs mt-1">{numData.masterMission}</p>
+                            </div>
+                        )}
                     </div>
 
                     <div className="card p-6">
@@ -579,14 +739,14 @@
                         <div className={`card p-4 ${isNight ? 'bg-green-900/30' : 'bg-green-50'}`}>
                             <h4 className="font-bold text-green-600 mb-2">✅ 適合的工作</h4>
                             <ul className="text-sm space-y-1 opacity-80">
-                                <li>► {oNum <= 3 ? '領導、創意、表達型工作' : oNum <= 6 ? '執行、服務、照顧型工作' : '分析、策略、管理型工作'}</li>
+                                <li>► {oBase <= 3 ? '領導、創意、表達型工作' : oBase <= 6 ? '執行、服務、照顧型工作' : '分析、策略、管理型工作'}</li>
                                 <li>► {numData.light}</li>
                             </ul>
                         </div>
                         <div className={`card p-4 ${isNight ? 'bg-red-900/30' : 'bg-red-50'}`}>
                             <h4 className="font-bold text-red-600 mb-2">❌ 不適合的工作</h4>
                             <ul className="text-sm space-y-1 opacity-80">
-                                <li>► {oNum <= 3 ? '需要高度服從的工作' : oNum <= 6 ? '高壓變化快的工作' : '大量社交應酬的工作'}</li>
+                                <li>► {oBase <= 3 ? '需要高度服從的工作' : oBase <= 6 ? '高壓變化快的工作' : '大量社交應酬的工作'}</li>
                                 <li>► 容易觸發：{numData.dark}</li>
                             </ul>
                         </div>
@@ -595,15 +755,15 @@
                     <div className="card p-6">
                         <h4 className="font-bold mb-3">💡 管理建議</h4>
                         <ul className="text-sm space-y-2 opacity-80">
-                            <li>► {oNum === 1 ? '給予自主權和決策空間' : oNum === 2 ? '提供情感支持和團隊歸屬感' : oNum === 3 ? '鼓勵創意表達，定期給予讚美' : oNum === 4 ? '建立明確的流程和結構' : oNum === 5 ? '給予彈性和新挑戰' : oNum === 6 ? '讓他感覺被需要和被重視' : oNum === 7 ? '給予獨處空間，不要微管理' : oNum === 8 ? '明確的KPI和升遷路徑' : '連結工作與更大的意義'}</li>
-                            <li>► 核心需求：{NUMBER_DATA[reduceNumber(result.hour.h)]?.essence}</li>
+                            <li>► {oBase === 1 ? '給予自主權和決策空間' : oBase === 2 ? '提供情感支持和團隊歸屬感' : oBase === 3 ? '鼓勵創意表達，定期給予讚美' : oBase === 4 ? '建立明確的流程和結構' : oBase === 5 ? '給予彈性和新挑戰' : oBase === 6 ? '讓他感覺被需要和被重視' : oBase === 7 ? '給予獨處空間，不要微管理' : oBase === 8 ? '明確的KPI和升遷路徑' : '連結工作與更大的意義'}</li>
+                            <li>► 核心需求：{getNumData(result.hour.h)?.essence}</li>
                         </ul>
                     </div>
 
                     <div className="card p-6">
                         <h4 className="font-bold mb-3">⚠️ 風險預警</h4>
                         <p className="text-sm opacity-80">{numData.dark}</p>
-                        <p className="text-sm mt-2 opacity-60">建議搭配：{oNum <= 3 ? '2、4、6號' : oNum <= 6 ? '1、3、7號' : '2、3、6號'}型員工互補</p>
+                        <p className="text-sm mt-2 opacity-60">建議搭配：{oBase <= 3 ? '2、4、6號' : oBase <= 6 ? '1、3、7號' : '2、3、6號'}型員工互補</p>
                     </div>
                 </div>
             );
@@ -616,7 +776,14 @@
                     {[{ label: 'A方', r: resultA }, { label: 'B方', r: resultB }].map(({ label, r }) => (
                         <div key={label} className="card p-4 text-center">
                             <div className="text-sm opacity-60">{label}</div>
-                            <div className="text-2xl font-bold gold-text">H{r.hour.h} O{r.hour.o} R{r.hour.r}</div>
+                            <div className="text-2xl font-bold gold-text">
+                                H{r.hour.h} O{r.hour.o} R{r.hour.r}
+                            </div>
+                            {r.analysis.hasMasterNumbers && (
+                                <div className="mt-2">
+                                    {r.analysis.masterNumbersList.map(n => <MasterBadge key={n} num={n} />)}
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -658,8 +825,8 @@
                 <div className="card p-6">
                     <h4 className="font-bold mb-3">💡 相處建議</h4>
                     <div className="text-sm space-y-2 opacity-80">
-                        <p>► A方（O數{reduceNumber(resultA.hour.o)}）的溝通風格：{NUMBER_DATA[reduceNumber(resultA.hour.o)]?.essence}</p>
-                        <p>► B方（O數{reduceNumber(resultB.hour.o)}）的溝通風格：{NUMBER_DATA[reduceNumber(resultB.hour.o)]?.essence}</p>
+                        <p>► A方（O數{resultA.hour.o}）的溝通風格：{getNumData(resultA.hour.o)?.essence}</p>
+                        <p>► B方（O數{resultB.hour.o}）的溝通風格：{getNumData(resultB.hour.o)?.essence}</p>
                         <p className="mt-3 italic opacity-70">💕 愛的秘訣：理解對方7宮的愛的語言，A方渴望{PALACE_DATA[7].theme.replace('我渴望', '')}，B方也渴望{PALACE_DATA[7].theme.replace('我渴望', '')}</p>
                     </div>
                 </div>
@@ -688,6 +855,23 @@
 
             return (
                 <div className="space-y-8 fade-in">
+                    {/* ⭐ 大師數提示 */}
+                    {analysis.hasMasterNumbers && (
+                        <section className={`card p-6 text-center ${isNight ? 'bg-gradient-to-r from-purple-900/50 to-pink-900/50' : 'bg-gradient-to-r from-amber-100 to-yellow-100'}`}>
+                            <div className="text-4xl mb-3">✨</div>
+                            <h3 className="text-2xl font-bold gold-text serif mb-2">你擁有大師數！</h3>
+                            <p className="opacity-80 mb-3">這代表你背負著特殊的靈性使命，但也面臨更大的挑戰。</p>
+                            <div className="flex justify-center gap-3">
+                                {analysis.masterNumbersList.map(n => (
+                                    <div key={n} className="px-4 py-2 rounded-lg bg-white/20">
+                                        <span className="text-2xl font-bold gold-text">{n}</span>
+                                        <span className="ml-2">{getNumData(n)?.title}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
                     {/* H.O.U.R. */}
                     <section>
                         <h3 className="text-2xl font-bold gold-text mb-4 pl-4 border-l-4 border-current serif">🔑 H.O.U.R. 四主數</h3>
@@ -697,13 +881,19 @@
                                 { k: 'o', l: 'O 識數', s: '外在呈現' },
                                 { k: 'u', l: 'U 解數', s: '隱藏潛能' },
                                 { k: 'r', l: 'R 行數', s: '人生使命' }
-                            ].map(item => (
-                                <div key={item.k} className={`card p-5 text-center ${item.k === 'r' ? (isNight ? 'ring-2 ring-purple-500' : 'ring-2 ring-amber-400') : ''}`}>
-                                    <div className="text-xs opacity-60">{item.l}</div>
-                                    <div className="text-5xl font-bold gold-text my-2">{hour[item.k] || '—'}</div>
-                                    <div className="text-xs opacity-50">{item.s}</div>
-                                </div>
-                            ))}
+                            ].map(item => {
+                                const val = hour[item.k];
+                                const isMaster = isMasterNumber(val);
+                                return (
+                                    <div key={item.k} className={`card p-5 text-center ${item.k === 'r' ? (isNight ? 'ring-2 ring-purple-500' : 'ring-2 ring-amber-400') : ''} ${isMaster ? 'bg-gradient-to-br from-amber-50 to-yellow-50' : ''}`}>
+                                        <div className="text-xs opacity-60">{item.l}</div>
+                                        <div className="text-5xl font-bold gold-text my-2">{val || '—'}</div>
+                                        {isMaster && <MasterBadge num={val} />}
+                                        <div className="text-xs opacity-50 mt-1">{item.s}</div>
+                                        <div className="text-xs mt-1 font-medium">{getNumData(val)?.title || ''}</div>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </section>
 
@@ -793,8 +983,8 @@
                             <div className="flex items-center gap-3 mb-4">
                                 <span className="text-4xl font-bold gold-text">{hour.o}</span>
                                 <div>
-                                    <div className="text-xl font-bold">{NUMBER_DATA[hour.o]?.intimacy?.type || '—'}</div>
-                                    <div className="text-sm opacity-70">{NUMBER_DATA[hour.o]?.intimacy?.trait || '—'}</div>
+                                    <div className="text-xl font-bold">{getNumData(hour.o)?.intimacy?.type || '—'}</div>
+                                    <div className="text-sm opacity-70">{getNumData(hour.o)?.intimacy?.trait || '—'}</div>
                                 </div>
                             </div>
                             <p className="text-sm opacity-60 mb-4">點擊上方「💋 親密指南」查看完整親密關係分析</p>
@@ -806,8 +996,8 @@
                             <div className="flex items-center gap-3 mb-4">
                                 <span className="text-4xl font-bold gold-text">{hour.o}</span>
                                 <div>
-                                    <div className="text-xl font-bold">{NUMBER_DATA[hour.o]?.work || '—'}</div>
-                                    <div className="text-sm opacity-70">{NUMBER_DATA[hour.o]?.workDesc || '—'}</div>
+                                    <div className="text-xl font-bold">{getNumData(hour.o)?.work || '—'}</div>
+                                    <div className="text-sm opacity-70">{getNumData(hour.o)?.workDesc || '—'}</div>
                                 </div>
                             </div>
                             <p className="text-sm opacity-60 mb-4">點擊上方「💼 HR識人」查看完整工作風格報告</p>
@@ -817,15 +1007,16 @@
                     {/* 複製完整報告 */}
                     <div className="text-center">
                         <button onClick={() => {
-                            const numData = NUMBER_DATA[hour.o];
+                            const numData = getNumData(hour.o);
+                            const masterNote = analysis.hasMasterNumbers ? `\n\n═══ 大師數 ═══\n你擁有大師數：${analysis.masterNumbersList.join('、')}\n這代表你背負著特殊的靈性使命！` : '';
                             const text = `【馥靈秘碼報告】
 
 ═══ H.O.U.R. 四大數字 ═══
-H數（療癒）：${hour.h} — ${NUMBER_DATA[hour.h]?.title || ''}
-O數（核心）：${hour.o} — ${NUMBER_DATA[hour.o]?.title || ''}
-U數（潛能）：${hour.u} — ${NUMBER_DATA[hour.u]?.title || ''}
-R數（方向）：${hour.r} — ${NUMBER_DATA[hour.r]?.title || ''}
-
+H數（療癒）：${hour.h} — ${getNumData(hour.h)?.title || ''}${isMasterNumber(hour.h) ? ' ✨大師數' : ''}
+O數（核心）：${hour.o} — ${getNumData(hour.o)?.title || ''}${isMasterNumber(hour.o) ? ' ✨大師數' : ''}
+U數（潛能）：${hour.u} — ${getNumData(hour.u)?.title || ''}
+R數（方向）：${hour.r} — ${getNumData(hour.r)?.title || ''}${isMasterNumber(hour.r) ? ' ✨大師數' : ''}
+${masterNote}
 ═══ L.I.G.H.T. 五大能量 ═══
 L 愛之力：${light.l}
 I 直覺力：${light.i}
@@ -844,7 +1035,7 @@ ${Object.entries(PALACE_DATA).map(([id, data]) =>
 陰暗面：${numData?.dark || ''}
 推薦精油：${numData?.oils?.join('、') || ''}
 
-—— 馥靈秘碼 Hour Light ——
+—— 馥靈秘碼 Hour Light v7.1 ——
 hourlight.github.io`;
                             navigator.clipboard.writeText(text);
                             alert('完整報告已複製！');
@@ -881,7 +1072,10 @@ hourlight.github.io`;
 
                     <div className={`card p-8 text-center ${isNight ? 'bg-gradient-to-br from-purple-900/50 to-pink-900/30' : 'bg-gradient-to-br from-amber-50 to-orange-50'}`}>
                         <div className="text-sm opacity-60">{selectedYear}年 流年數</div>
-                        <div className="text-7xl font-bold gold-text my-4">{fortune.personalYear}</div>
+                        <div className="text-7xl font-bold gold-text my-4">
+                            {fortune.personalYear}
+                            {isMasterNumber(fortune.personalYear) && <MasterBadge num={fortune.personalYear} />}
+                        </div>
                         <div className="text-3xl font-bold serif">{fortune.keyword}年</div>
                         <div className="text-lg mt-2 opacity-80">{fortune.theme}</div>
                     </div>
@@ -897,7 +1091,7 @@ hourlight.github.io`;
                         <p className="text-lg">{fortune.advice}</p>
                         <div className="mt-4 p-4 rounded-lg bg-gray-100 dark:bg-gray-800">
                             <p className="text-sm opacity-70">
-                                🌿 調頻精油：{PALACE_DATA[fortune.personalYear]?.oils?.join('、') || NUMBER_DATA[fortune.personalYear]?.oils?.join('、')}
+                                🌿 調頻精油：{PALACE_DATA[fortune.personalYear]?.oils?.join('、') || getNumData(fortune.personalYear)?.oils?.join('、')}
                             </p>
                         </div>
                     </div>
@@ -907,7 +1101,7 @@ hourlight.github.io`;
                         <div className="text-sm opacity-70 space-y-1">
                             <p>► 你的R數（使命數）= {result.hour.r}</p>
                             <p>► {selectedYear}年宇宙年數 = {String(selectedYear).split('').join('+')} = {fortune.universeYear}</p>
-                            <p>► 個人流年 = R數 + 宇宙年數 = {reduceNumber(result.hour.r)} + {fortune.universeYear} = {fortune.personalYear}</p>
+                            <p>► 個人流年 = R數 + 宇宙年數 = {getBaseNum(result.hour.r)} + {fortune.universeYear} = {fortune.personalYear}</p>
                         </div>
                     </div>
                 </div>
@@ -935,6 +1129,9 @@ hourlight.github.io`;
                         </p>
                         <p className="text-sm opacity-70 mt-2">
                             你的R數是 {result.hour.r}，所以每個大運的能量會以此為基礎展開。
+                        </p>
+                        <p className="text-sm opacity-70 mt-2">
+                            ✨ 若大運數為11、22、33，代表該階段有特殊的靈性課題。
                         </p>
                     </div>
                 </div>
@@ -973,6 +1170,11 @@ hourlight.github.io`;
                                 <div className="card p-4 text-center">
                                     <div className="text-sm opacity-60">已使用你的命盤</div>
                                     <div className="text-2xl font-bold gold-text mt-2">H{resultA.hour.h} O{resultA.hour.o} R{resultA.hour.r}</div>
+                                    {resultA.analysis.hasMasterNumbers && (
+                                        <div className="mt-2">
+                                            {resultA.analysis.masterNumbersList.map(n => <MasterBadge key={n} num={n} />)}
+                                        </div>
+                                    )}
                                     <button onClick={() => setResultA(null)} className="text-xs mt-2 opacity-50 hover:opacity-100">重新輸入</button>
                                 </div>
                             ) : (
@@ -988,6 +1190,11 @@ hourlight.github.io`;
                             {resultB ? (
                                 <div className="card p-4 text-center">
                                     <div className="text-2xl font-bold gold-text">H{resultB.hour.h} O{resultB.hour.o} R{resultB.hour.r}</div>
+                                    {resultB.analysis.hasMasterNumbers && (
+                                        <div className="mt-2">
+                                            {resultB.analysis.masterNumbersList.map(n => <MasterBadge key={n} num={n} />)}
+                                        </div>
+                                    )}
                                     <button onClick={() => { setResultB(null); setAnalysis(null); }} className="text-xs mt-2 opacity-50 hover:opacity-100">重新輸入</button>
                                 </div>
                             ) : (
@@ -1039,7 +1246,7 @@ hourlight.github.io`;
 
             const IntimacyReport = ({ data }) => {
                 const { hour } = data;
-                const numData = NUMBER_DATA[hour.o];
+                const numData = getNumData(hour.o);
                 const intimacy = numData?.intimacy;
 
                 if (!intimacy) return null;
@@ -1051,6 +1258,7 @@ hourlight.github.io`;
                             <div className="text-6xl mb-4">💋</div>
                             <h3 className="text-3xl font-bold gold-text serif mb-2">親密關係指南</h3>
                             <p className="opacity-70">根據 O數（{hour.o}）解讀你的親密特質</p>
+                            {isMasterNumber(hour.o) && <MasterBadge num={hour.o} />}
                         </div>
 
                         {/* 親密類型 */}
@@ -1208,7 +1416,7 @@ hourlight.github.io`;
                             <div className="flex justify-between items-center mb-3">
                                 <div>
                                     <h1 className="text-2xl font-bold gold-text tracking-widest serif">馥靈秘碼</h1>
-                                    <p className="text-[10px] opacity-50">Hour Light 生命數字解碼系統 v7.0</p>
+                                    <p className="text-[10px] opacity-50">Hour Light 生命數字解碼系統 v7.1</p>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {result && (
@@ -1302,7 +1510,7 @@ hourlight.github.io`;
                     </button>
 
                     <footer className="text-center py-8 opacity-40 text-xs">
-                        <p>© 2026 馥靈秘碼 Hour Light v7.0</p>
+                        <p>© 2026 馥靈秘碼 Hour Light v7.1</p>
                         <p>創始人：王逸君 ・ hourlight.github.io</p>
                     </footer>
                 </div>
