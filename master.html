@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>馥靈秘碼 Hour Light v7.3 - 大師全息戰略版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #D4AF37;
+            --gold-light: #F5E6A3;
+            --cream: #FDF8E8;
+            --brown: #4A3728;
+            --night-bg: #1A1A2E;
+            --night-card: #16213E;
+            --purple: #9F5FDB;
+        }
+        
+        body { font-family: 'Noto Sans TC', sans-serif; }
+        .serif { font-family: 'Noto Serif TC', serif; }
+        
+        body.day-mode {
+            background: linear-gradient(135deg, #FDF8E8 0%, #F5E6A3 50%, #FDF8E8 100%);
+            color: #4A3728;
+        }
+        
+        body.night-mode {
+            background: linear-gradient(135deg, #1A1A2E 0%, #16213E 50%, #0F0F23 100%);
+            color: #E0D4FC;
+        }
+        
+        .gold-text { color: var(--gold); }
+        .night-mode .gold-text { color: #FFD700; text-shadow: 0 0 15px rgba(255,215,0,0.3); }
+
+        .gold-btn {
+            background: linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%);
+            color: #2D1B0E;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            transition: all 0.3s;
+        }
+        .gold-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4); }
+        .night-mode .gold-btn {
+            background: linear-gradient(135deg, #6B2C91 0%, #9F5FDB 50%, #6B2C91 100%);
+            color: #fff;
+        }
+
+        .card {
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            transition: all 0.3s;
+        }
+        .day-mode .card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 4px 20px rgba(139, 115, 85, 0.1);
+        }
+        .night-mode .card {
+            background: rgba(22, 33, 62, 0.9);
+            border: 1px solid rgba(159, 95, 219, 0.3);
+        }
+
+        .tab-btn { transition: all 0.3s; border-bottom: 3px solid transparent; }
+        .tab-btn.active { border-bottom-color: var(--gold); }
+        .night-mode .tab-btn.active { border-bottom-color: var(--purple); }
+
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            transform: translateX(-50%);
+        }
+        .day-mode .timeline-line { background: linear-gradient(to bottom, #D4AF37, #8B7355); }
+        .night-mode .timeline-line { background: linear-gradient(to bottom, #9F5FDB, #4A2C7C); }
+
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 100;
+        }
+        .modal-content { max-height: 90vh; overflow-y: auto; }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath fill='%23D4AF37' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            appearance: none;
+        }
+
+        .score-bar { height: 8px; border-radius: 4px; overflow: hidden; }
+        .score-fill { height: 100%; transition: width 0.8s ease-out; }
+
+        .master-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        .day-mode .master-badge { background: linear-gradient(135deg, #D4AF37, #F5E6A3); color: #4A3728; }
+        .night-mode .master-badge { background: linear-gradient(135deg, #9F5FDB, #E066FF); color: #1A1A2E; }
+        
+        @keyframes glow {
+            from { box-shadow: 0 0 5px rgba(212, 175, 55, 0.5); }
+            to { box-shadow: 0 0 15px rgba(212, 175, 55, 0.8); }
+        }
+
+        @media (max-width: 768px) {
+            .tab-btn { font-size: 0.75rem; padding: 0.5rem; }
+        }
+    </style>
+</head>
+<body class="day-mode">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo } = React;
+
+        /* ============================================
+           v7.3 終極整合資料庫 (全方位深度版)
+           ============================================ */
+
+        const HOURS = [
+            { id: 'zi', name: '子時 (23:00-01:00)', num: 1 }, { id: 'chou', name: '丑時 (01:00-03:00)', num: 2 },
+            { id: 'yin', name: '寅時 (03:00-05:00)', num: 3 }, { id: 'mao', name: '卯時 (05:00-07:00)', num: 4 },
+            { id: 'chen', name: '辰時 (07:00-09:00)', num: 5 }, { id: 'si', name: '巳時 (09:00-11:00)', num: 6 },
+            { id: 'wu', name: '午時 (11:00-13:00)', num: 7 }, { id: 'wei', name: '未時 (13:00-15:00)', num: 8 },
+            { id: 'shen', name: '申時 (15:00-17:00)', num: 9 }, { id: 'you', name: '酉時 (17:00-19:00)', num: 1 },
+            { id: 'xu', name: '戌時 (19:00-21:00)', num: 11 }, { id: 'hai', name: '亥時 (21:00-23:00)', num: 3 },
+            { id: 'unknown', name: '時辰不詳', num: 0 }
+        ];
+        const getHourNum = (id) => HOURS.find(h => h.id === id)?.num || 0;
+
+        // ⭐ 數字全息資料庫 (包含HR、基礎、健康、金錢)
+        const MASTER_DATA = {
+            1: {
+                title: '領航者', slogan: '我創造，故我在',
+                essence: '獨立、開創、領導',
+                traits: ['絕對的領導力', '無中生有的創造', '不願低頭的自尊'],
+                lesson: '學習「依賴」與「柔軟」。真正的強者，是敢於示弱的人。',
+                wealth: '開創型財運。適合創業或業務，正財為主，不適合投機。錢是賺出來的，不是存出來的。',
+                health: '頭部、心臟、血壓。容易因壓力過大導致偏頭痛或肩頸僵硬。',
+                hr: {
+                    archetype: '開創先鋒', slogan: '破局者', strengths: ['決策果斷', '抗壓性強', '目標導向'], weaknesses: ['獨斷獨行', '忽略細節', '缺乏耐心'],
+                    management: '給予目標與舞台，勿微觀管理。', radar: [5, 5, 2, 3, 2]
+                },
+                intimacy: { type: '征服者', healthy: '自信表達，能給予也能接受', shadow: '只顧自己滿足，控制慾強', tip: '適時讓他主導，滿足他的英雄主義。' }
+            },
+            2: {
+                title: '調和者', slogan: '我感受，故我在',
+                essence: '連結、細膩、依賴',
+                traits: ['天生的外交官', '情緒的接收器', '細節的守護者'],
+                lesson: '學習「劃清界線」。不要為了和諧而犧牲自己，你的感受同樣重要。',
+                wealth: '合作型財運。適合合夥、仲介、服務業。錢是靠「人脈」連結來的。',
+                health: '消化系統、淋巴、情緒病。容易因過度敏感導致腸胃不適或內分泌失調。',
+                hr: {
+                    archetype: '整合軍師', slogan: '超級膠水', strengths: ['細膩敏感', '強大協作', '察言觀色'], weaknesses: ['決策猶豫', '情緒內耗', '依賴性強'],
+                    management: '給予安全感與歸屬感，私下表揚。', radar: [2, 4, 5, 4, 3]
+                },
+                intimacy: { type: '連結者', healthy: '身心合一，極強感受力', shadow: '討好對方，用性換愛', tip: '情感比技巧重要，事後擁抱是關鍵。' }
+            },
+            3: {
+                title: '創造者', slogan: '我表達，故我在',
+                essence: '創意、樂觀、任性',
+                traits: ['長不大的孩子', '行走的點子庫', '快樂的傳染源'],
+                lesson: '學習「專注」與「深入」。不要只停留在表面的快樂，去觸碰深層的情感。',
+                wealth: '才華型財運。靠口才、創意、表演賺錢。容易衝動消費，需強制儲蓄。',
+                health: '喉嚨、呼吸道、皮膚。容易因表達受阻而喉嚨痛，或壓力大導致過敏。',
+                hr: {
+                    archetype: '創意燃燒者', slogan: '氣氛擔當', strengths: ['創意無限', '表達力佳', '適應力強'], weaknesses: ['虎頭蛇尾', '缺乏紀律', '情緒化'],
+                    management: '給予舞台與掌聲，包容其小任性。', radar: [4, 3, 5, 2, 3]
+                },
+                intimacy: { type: '表演者', healthy: '充滿創意與樂趣', shadow: '太在意表現，忽略真實連結', tip: '保持新鮮感，讚美他的魅力。' }
+            },
+            4: {
+                title: '建造者', slogan: '我建設，故我在',
+                essence: '穩定、秩序、安全',
+                traits: ['最堅實的依靠', '規則的守護者', '細節的執行者'],
+                lesson: '學習「彈性」與「冒險」。安全感是自己給的，不是靠外在環境。',
+                wealth: '累積型財運。適合房產、儲蓄、傳統產業。錢是一磚一瓦疊出來的，不信一夜致富。',
+                health: '骨骼、牙齒、關節。容易因過度僵化導致腰痠背痛或關節問題。',
+                hr: {
+                    archetype: '結構守門員', slogan: '系統建造者', strengths: ['邏輯嚴謹', '執行力強', '忠誠度高'], weaknesses: ['不知變通', '抗拒改變', '過於嚴肅'],
+                    management: '給予明確規則與SOP，避免朝令夕改。', radar: [2, 5, 2, 5, 4]
+                },
+                intimacy: { type: '穩定者', healthy: '持久可靠，深厚信任', shadow: '太制式化，流於例行公事', tip: '建立固定的儀式感，不要太多驚喜。' }
+            },
+            5: {
+                title: '變革者', slogan: '我探索，故我在',
+                essence: '自由、變化、感官',
+                traits: ['抓不住的風', '感官的冒險家', '打破規則的人'],
+                lesson: '學習「承諾」與「扎根」。真正的自由，是在限制中找到自由。',
+                wealth: '機會型財運。適合貿易、業務、投資。錢來得快去得也快，像過路財神。',
+                health: '神經系統、肺部。容易因過度刺激導致神經衰弱或失眠。',
+                hr: {
+                    archetype: '自由特種兵', slogan: '冒險家', strengths: ['危機處理', '談判銷售', '快速學習'], weaknesses: ['不受控', '容易厭倦', '承諾跳票'],
+                    management: '給予彈性與挑戰，以結果為導向。', radar: [4, 4, 5, 1, 5]
+                },
+                intimacy: { type: '冒險者', healthy: '開放好奇，實驗精神', shadow: '逃避承諾，成癮傾向', tip: '保持變化，一起探索新事物。' }
+            },
+            6: {
+                title: '照顧者', slogan: '我愛，故我在',
+                essence: '責任、完美、奉獻',
+                traits: ['愛的供應站', '完美的追求者', '受傷的療癒師'],
+                lesson: '學習「放手」與「愛自己」。你不需要拯救全世界，先拯救你自己。',
+                wealth: '服務型財運。適合醫療、教育、美業。錢是伴隨愛與服務而來的回報。',
+                health: '心臟、生殖系統、肩頸。容易因過度承擔責任導致肩膀沉重。',
+                hr: {
+                    archetype: '完美守護者', slogan: '責任擔當', strengths: ['責任感強', '解決問題', '高品質要求'], weaknesses: ['過度承擔', '道德綁架', '完美主義'],
+                    management: '肯定其付出，引導其適度放手。', radar: [3, 4, 4, 4, 3]
+                },
+                intimacy: { type: '照顧者', healthy: '溫暖體貼，細膩去愛', shadow: '只顧對方，忽略自己', tip: '主動照顧他，讓他感覺被愛。' }
+            },
+            7: {
+                title: '探索者', slogan: '我思考，故我在',
+                essence: '真理、孤獨、質疑',
+                traits: ['孤獨的智者', '真理的挖掘機', '懷疑論者'],
+                lesson: '學習「信任」與「開放」。打開心門，讓光進來，孤獨不是唯一的答案。',
+                wealth: '專業型財運。靠知識、技術、顧問賺錢。不屑賺快錢，重視智慧財產。',
+                health: '腦神經、腿部、精神壓力。容易因想太多導致神經緊繃或失眠。',
+                hr: {
+                    archetype: '戰略分析師', slogan: '冷靜智囊', strengths: ['深度分析', '邏輯推理', '直覺敏銳'], weaknesses: ['人際疏離', '多疑猜忌', '分析癱瘓'],
+                    management: '尊重專業與隱私，給予獨處空間。', radar: [3, 3, 2, 4, 5]
+                },
+                intimacy: { type: '探索者', healthy: '身心靈合一的深度體驗', shadow: '大腦運作，身體解離', tip: '心靈連結是前提，給他時間暖機。' }
+            },
+            8: {
+                title: '掌權者', slogan: '我掌控，故我在',
+                essence: '權力、豐盛、因果',
+                traits: ['天生的老闆', '資源的整合者', '霸氣的實踐家'],
+                lesson: '學習「誠實」與「放下」。誠實面對自己的脆弱，放下對控制的執著。',
+                wealth: '企業型財運。適合創業、金融、投資。天生對錢敏銳，能操作大資金。',
+                health: '消化系統、肝臟。容易因應酬或壓力過大導致過勞。',
+                hr: {
+                    archetype: '權力執行官', slogan: '商業操盤手', strengths: ['資源整合', '宏觀視野', '目標達成'], weaknesses: ['控制狂', '功利主義', '忽略人性'],
+                    management: '談利益與ROI，給予權力與頭銜。', radar: [5, 5, 3, 3, 5]
+                },
+                intimacy: { type: '掌控者', healthy: '強大性能量，極致體驗', shadow: '用性展現權力，控制慾強', tip: '適度讓他掌控，強度要夠。' }
+            },
+            9: {
+                title: '智者', slogan: '我奉獻，故我在',
+                essence: '慈悲、大愛、放下',
+                traits: ['夢想的實踐家', '博愛的人道主義者', '隨緣的隱士'],
+                lesson: '學習「落地」與「專注」。夢想要有根，愛人要有界線。',
+                wealth: '聲望型財運。靠名聲、公益、娛樂賺錢。錢是隨緣而來，越不強求越多。',
+                health: '全身系統。容易受環境能量影響，需要定期淨化排毒。',
+                hr: {
+                    archetype: '願景導師', slogan: '精神領袖', strengths: ['包容力強', '跨界思考', '遠見規劃'], weaknesses: ['不切實際', '情緒勒索', '執行力弱'],
+                    management: '談願景與意義，連結社會價值。', radar: [4, 2, 5, 3, 4]
+                },
+                intimacy: { type: '奉獻者', healthy: '靈性連結，超越肉體', shadow: '覺得性太低層次而疏離', tip: '強調靈性意義，創造神聖氛圍。' }
+            },
+            11: {
+                title: '靈性直覺者', slogan: '我是通道', essence: '直覺、靈性、啟發', isMaster: true,
+                traits: ['宇宙的訊息接收器', '極度敏感的靈魂', '雙倍的開創力'],
+                lesson: '學習「接地」。把接收到的高維訊息，轉化為地球能用的語言。',
+                wealth: '靈性財運。靠直覺投資或從事身心靈產業。',
+                health: '神經系統極度敏感。需要大量睡眠與獨處。',
+                hr: { archetype: '靈性先知', slogan: '直覺通道', strengths: ['超強直覺', '啟發人心'], weaknesses: ['神經質', '情緒崩潰'], management: '保護高敏感特質。', radar: [5, 3, 5, 2, 5] },
+                intimacy: { type: '靈性連結者', healthy: '神聖體驗', shadow: '過度敏感無法放鬆', tip: '創造極度安全與神聖的空間。' }
+            },
+            22: {
+                title: '大師建造者', slogan: '我是基石', essence: '願景、實踐、系統', isMaster: true,
+                traits: ['將夢想落地的巨人', '雙倍的執行力', '承擔大任的領袖'],
+                lesson: '學習「平衡」。在巨大的壓力與平凡的生活中找到平衡點。',
+                wealth: '巨富型財運。適合跨國企業、大型基建。',
+                health: '容易過勞死。肩頸背部承受極大壓力。',
+                hr: { archetype: '築夢巨人', slogan: '總工程師', strengths: ['超大格局', '務實執行'], weaknesses: ['壓力過勞', '獨裁'], management: '給予超大型專案。', radar: [5, 5, 3, 5, 5] },
+                intimacy: { type: '深度建造者', healthy: '建立帝國般的承諾', shadow: '工作狂忽略伴侶', tip: '讓他知道親密關係也是重要建設。' }
+            },
+            33: {
+                title: '大師療癒者', slogan: '我是愛', essence: '慈悲、療癒、犧牲', isMaster: true,
+                traits: ['行走的人間菩薩', '雙倍的責任與愛', '極致的利他主義'],
+                lesson: '學習「不執著」。愛是流動的，不要因為愛而產生執著與痛苦。',
+                wealth: '福報型財運。透過幫助他人獲得巨大的財富回流。',
+                health: '心臟負荷大。容易因過度承擔他人痛苦而生病。',
+                hr: { archetype: '大愛療癒師', slogan: '超級導師', strengths: ['極致利他', '凝聚團隊'], weaknesses: ['烈士情結', '毫無界線'], management: '強制休息，避免過勞。', radar: [3, 4, 5, 4, 3] },
+                intimacy: { type: '療癒者', healthy: '無條件接納', shadow: '犧牲自己換取愛', tip: '教他學會接受愛。' }
+            }
+        };
+
+        const PALACE_DATA = {
+            1: { name: '勇氣殿', meridian: '膽經', theme: '我敢不敢做自己？', oils: ['薑', '黑胡椒', '杜松'] },
+            2: { name: '力量廳', meridian: '肝經', theme: '我的力量卡在哪？', oils: ['佛手柑', '薄荷', '洋甘菊'] },
+            3: { name: '告別苑', meridian: '肺經', theme: '我放不下什麼？', oils: ['絲柏', '乳香', '尤加利'] },
+            4: { name: '淨化室', meridian: '大腸經', theme: '我該丟掉什麼？', oils: ['檸檬', '葡萄柚', '茶樹'] },
+            5: { name: '消化閣', meridian: '胃經', theme: '我消化不了什麼？', oils: ['甜橙', '薑', '豆蔻'] },
+            6: { name: '信任殿', meridian: '脾經', theme: '我想太多什麼？', oils: ['檀香', '岩蘭草', '鼠尾草'] },
+            7: { name: '心門宮', meridian: '心經', theme: '我渴望什麼愛？', oils: ['玫瑰', '茉莉', '依蘭'] },
+            8: { name: '明辨廳', meridian: '小腸經', theme: '我分不清什麼？', oils: ['迷迭香', '羅勒', '薄荷'] },
+            9: { name: '卸載苑', meridian: '膀胱經', theme: '我扛著什麼？', oils: ['薰衣草', '馬鬱蘭', '苦橙葉'] },
+            10: { name: '志氣殿', meridian: '腎經', theme: '我害怕什麼？', oils: ['雪松', '檀香', '沒藥'] },
+            11: { name: '敞開閣', meridian: '心包經', theme: '我在保護什麼？', oils: ['玫瑰草', '橙花', '廣藿香'] },
+            12: { name: '平衡室', meridian: '三焦經', theme: '我哪裡不平衡？', oils: ['天竺葵', '乳香', '花梨木'] }
+        };
+
+        const YEAR_STRATEGY = {
+            1: { keyword: '播種', action: '啟動新計畫、勇敢冒險、獨立作業', caution: '猶豫不決、依賴他人', okr: '設定未來9年大目標' },
+            2: { keyword: '連結', action: '建立合作、耐心等待、細節優化', caution: '衝動決策、單打獨鬥', okr: '擴展核心人脈圈' },
+            3: { keyword: '綻放', action: '社交公關、創意發表、展現自我', caution: '情緒失控、虎頭蛇尾', okr: '提升個人品牌能見度' },
+            4: { keyword: '扎根', action: '建立制度、財務規劃、學習進修', caution: '投機取巧、頻繁變動', okr: '建構穩定被動收入系統' },
+            5: { keyword: '轉折', action: '跨界嘗試、行銷推廣、適應變化', caution: '過度承諾、沈迷玩樂', okr: '開拓全新市場或技能' },
+            6: { keyword: '承擔', action: '服務客戶、照顧家庭、解決問題', caution: '挑剔完美、抱怨犧牲', okr: '優化客戶/家庭滿意度' },
+            7: { keyword: '內省', action: '獨處思考、專業深造、策略佈局', caution: '強行外求、盲目社交', okr: '取得專業認證或深度洞察' },
+            8: { keyword: '豐收', action: '商業談判、資源整合、結果導向', caution: '貪婪控制、違法邊緣', okr: '營收與資產最大化' },
+            9: { keyword: '斷捨離', action: '清理舊物、結束關係、身心排毒', caution: '執著過去、開啟新局', okr: '完成未竟事務，清空歸零' },
+            11: { keyword: '覺醒', action: '跟隨直覺、靈性學習', caution: '神經緊張', okr: '靈性層次躍升' },
+            22: { keyword: '築夢', action: '落實大願景', caution: '壓力崩潰', okr: '完成不可能的任務' },
+            33: { keyword: '奉獻', action: '療癒眾生', caution: '自我犧牲', okr: '成為他人的光' }
+        };
+
+        /* ============================================
+           核心計算邏輯 (保持穩定不變)
+           ============================================ */
+        
+        const reduceToSingle = (num) => {
+            while (num > 9) num = String(num).split('').reduce((a, b) => parseInt(a) + parseInt(b), 0);
+            return num;
+        };
+        const reduceNumber = (num) => {
+            if (num === 11 || num === 22 || num === 33) return num;
+            while (num > 9) {
+                num = String(num).split('').reduce((a, b) => parseInt(a) + parseInt(b), 0);
+                if (num === 11 || num === 22 || num === 33) return num;
+            }
+            return num;
+        };
+        const isMasterNumber = (num) => [11, 22, 33].includes(num);
+        const getBaseNum = (num) => MASTER_DATA[num] ? num : reduceToSingle(num);
+        const getData = (num) => MASTER_DATA[num] || MASTER_DATA[reduceToSingle(num)] || MASTER_DATA[1];
+
+        const calculateHourLight = (data) => {
+            const { year, month, day, lunarMonth, lunarDay, hourId } = data;
+            const hourValue = getHourNum(hourId);
+            
+            const hNum = reduceNumber(parseInt(lunarMonth) + parseInt(lunarDay));
+            const oNumRaw = String(year) + String(month).padStart(2, '0') + String(day).padStart(2, '0');
+            const oNum = reduceNumber(oNumRaw.split('').reduce((a, b) => parseInt(a) + parseInt(b), 0));
+            const uNum = hourValue || 0;
+            const rNum = uNum ? reduceNumber(hNum + oNum + uNum) : reduceNumber(hNum + oNum);
+
+            // Light 計算
+            const lNum = parseInt(lunarMonth) > 9 ? reduceNumber(parseInt(lunarMonth)) : parseInt(lunarMonth);
+            const gNum = reduceNumber(String(year).split('').reduce((a, b) => parseInt(a) + parseInt(b), 0));
+            const hEnergyNum = parseInt(lunarDay) > 9 ? reduceNumber(parseInt(lunarDay)) : parseInt(lunarDay);
+            const tNum = reduceNumber(lNum + (uNum || 5) + gNum + hEnergyNum);
+
+            // 12宮計算 (簡化邏輯供顯示)
+            const yearStr = String(year);
+            const lastTwo = parseInt(yearStr.slice(-2));
+            const p2Num = reduceNumber(Math.floor(lastTwo / 10) + (lastTwo % 10));
+            const palaces = {
+                1: getBaseNum(hNum), 2: p2Num, 3: parseInt(month), 4: parseInt(day) > 9 ? reduceNumber(parseInt(day)) : parseInt(day),
+                5: lNum, 6: hEnergyNum, 7: getBaseNum(oNum), 8: gNum,
+                9: parseInt(yearStr.charAt(yearStr.length - 3)) || 9, 10: uNum || 5, 11: tNum, 12: getBaseNum(rNum)
+            };
+
+            return {
+                inputData: { ...data, hourValue },
+                hour: { h: hNum, o: oNum, u: uNum, r: rNum },
+                light: { l: lNum, i: uNum || 5, g: gNum, h: hEnergyNum, t: tNum },
+                palaces,
+                hasMaster: [hNum, oNum, rNum].some(isMasterNumber)
+            };
+        };
+
+        const calculateYearFortune = (rNum, year) => {
+            const universeYear = reduceNumber(String(year).split('').reduce((a, b) => parseInt(a) + parseInt(b), 0));
+            const personalYear = reduceNumber(getBaseNum(rNum) + universeYear);
+            const data = YEAR_STRATEGY[personalYear] || YEAR_STRATEGY[reduceToSingle(personalYear)];
+            return { universeYear, personalYear, ...data };
+        };
+
+        /* ============================================
+           UI 元件 (全面升級版)
+           ============================================ */
+
+        const MasterBadge = ({ num }) => {
+            if (!isMasterNumber(num)) return null;
+            const labels = { 11: '✨ 直覺大師', 22: '🏛️ 建造大師', 33: '💕 療癒大師' };
+            return <span className="master-badge ml-2">{labels[num]}</span>;
+        };
+
+        const RadarChart = ({ data, labels, isNight, title }) => {
+            const chartRef = useRef(null);
+            const chartInstance = useRef(null);
+            useEffect(() => {
+                if (!chartRef.current) return;
+                if (chartInstance.current) chartInstance.current.destroy();
+                const ctx = chartRef.current.getContext('2d');
+                const color = isNight ? 'rgba(159, 95, 219, ' : 'rgba(212, 175, 55, ';
+                chartInstance.current = new Chart(ctx, {
+                    type: 'radar',
+                    data: { labels, datasets: [{ label: title, data, backgroundColor: color + '0.25)', borderColor: color + '1)', pointBackgroundColor: color + '1)', borderWidth: 2, pointRadius: 4 }] },
+                    options: { scales: { r: { suggestedMin: 0, suggestedMax: 5, ticks: { display: false } } }, plugins: { legend: { display: false } }, maintainAspectRatio: false }
+                });
+            }, [data, labels, isNight]);
+            return <div className="w-full h-64"><canvas ref={chartRef} /></div>;
+        };
+
+        const InputForm = ({ onCalculate, title }) => {
+            const [formData, setFormData] = useState({ name: '', year: '', month: '1', day: '1', lunarMonth: '', lunarDay: '', hourId: '' });
+            return (
+                <div className="card p-6 fade-in">
+                    {title && <h3 className="text-xl font-bold gold-text mb-4 serif">{title}</h3>}
+                    <div className="space-y-4">
+                        <input type="text" placeholder="姓名（選填）" className="w-full p-3 border rounded-lg bg-white/80 text-gray-800" value={formData.name} onChange={e=>setFormData({...formData, name:e.target.value})} />
+                        <div className="grid grid-cols-3 gap-2">
+                            <input type="number" placeholder="西元年" className="p-3 border rounded-lg bg-white/80 text-gray-800" value={formData.year} onChange={e=>setFormData({...formData, year:e.target.value})} />
+                            <select className="p-3 border rounded-lg bg-white/80 text-gray-800" value={formData.month} onChange={e=>setFormData({...formData, month:e.target.value})}>{Array.from({length:12},(_,i)=><option key={i+1} value={i+1}>{i+1}月</option>)}</select>
+                            <select className="p-3 border rounded-lg bg-white/80 text-gray-800" value={formData.day} onChange={e=>setFormData({...formData, day:e.target.value})}>{Array.from({length:31},(_,i)=><option key={i+1} value={i+1}>{i+1}日</option>)}</select>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            <select className="p-3 border rounded-lg bg-white/80 text-gray-800" value={formData.lunarMonth} onChange={e=>setFormData({...formData, lunarMonth:e.target.value})}><option value="">農曆月</option>{Array.from({length:12},(_,i)=><option key={i+1} value={i+1}>{i+1}月</option>)}</select>
+                            <select className="p-3 border rounded-lg bg-white/80 text-gray-800" value={formData.lunarDay} onChange={e=>setFormData({...formData, lunarDay:e.target.value})}><option value="">農曆日</option>{Array.from({length:30},(_,i)=><option key={i+1} value={i+1}>{i+1}日</option>)}</select>
+                        </div>
+                        <select className="w-full p-3 border rounded-lg bg-white/80 text-gray-800" value={formData.hourId} onChange={e=>setFormData({...formData, hourId:e.target.value})}><option value="">時辰（選填）</option>{HOURS.map(h=><option key={h.id} value={h.id}>{h.name}</option>)}</select>
+                        <button onClick={()=>formData.year&&formData.lunarMonth&&formData.lunarDay?onCalculate(formData):alert('請填寫完整資料')} className="w-full gold-btn py-3 rounded-lg">開始解碼</button>
+                    </div>
+                </div>
+            );
+        };
+
+        /* ============================================
+           頁面視圖 (深度版)
+           ============================================ */
+        
+        // 基礎盤深度版 (靈魂使用說明書)
+        const BasicDeepPage = ({ result, isNight }) => {
+            const { hour, palaces } = result;
+            const mainNum = hour.o; // 以O數為外顯核心
+            const coreData = getData(hour.h); // H數為靈魂本質
+            const outerData = getData(hour.o); // O數為外在展現
+
+            return (
+                <div className="space-y-8 fade-in">
+                    <div className={`card p-8 text-center relative overflow-hidden ${isNight ? 'bg-gradient-to-r from-purple-900/50 to-indigo-900/50' : 'bg-gradient-to-r from-amber-50 to-orange-50'}`}>
+                        <div className="relative z-10">
+                            <div className="inline-block px-3 py-1 rounded-full bg-amber-500 text-white text-xs mb-2 tracking-widest">SOUL BLUEPRINT</div>
+                            <h2 className="text-4xl font-bold gold-text serif mb-2">靈魂使用說明書</h2>
+                            <p className="opacity-70 mb-6">H{hour.h} . O{hour.o} . U{hour.u} . R{hour.r}</p>
+                            <div className="grid grid-cols-2 gap-4 text-left bg-white/10 p-6 rounded-xl backdrop-blur-sm">
+                                <div>
+                                    <div className="text-xs opacity-50 mb-1">靈魂本質 (H{hour.h})</div>
+                                    <div className="font-bold text-lg">{coreData.title}</div>
+                                    <div className="text-sm opacity-80">{coreData.slogan}</div>
+                                </div>
+                                <div>
+                                    <div className="text-xs opacity-50 mb-1">外在展現 (O{hour.o})</div>
+                                    <div className="font-bold text-lg">{outerData.title}</div>
+                                    <div className="text-sm opacity-80">{outerData.slogan}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="card p-6 border-l-4 border-amber-500">
+                            <h3 className="text-xl font-bold gold-text mb-4 serif">🎓 人生課題 (Soul Lesson)</h3>
+                            <p className="text-lg font-bold mb-2">{coreData.lesson}</p>
+                            <p className="opacity-70 text-sm">這是你靈魂選擇來地球體驗的必修課，遇到困難時，請回頭看看這句話。</p>
+                        </div>
+                        <div className="card p-6 border-l-4 border-green-500">
+                            <h3 className="text-xl font-bold text-green-600 mb-4 serif">💰 金錢觀與財運 (Wealth)</h3>
+                            <p className="text-md leading-relaxed">{coreData.wealth}</p>
+                        </div>
+                        <div className="card p-6 border-l-4 border-red-500">
+                            <h3 className="text-xl font-bold text-red-500 mb-4 serif">❤️‍🩹 健康弱點 (Health)</h3>
+                            <p className="text-md leading-relaxed">{coreData.health}</p>
+                            <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg text-sm">
+                                🌿 調頻精油：{coreData.hr.oils?.join('、') || '薰衣草、乳香'}
+                            </div>
+                        </div>
+                        <div className="card p-6 border-l-4 border-purple-500">
+                            <h3 className="text-xl font-bold text-purple-500 mb-4 serif">🏰 12宮位能量分佈</h3>
+                            <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                                {Object.entries(palaces).map(([id, num]) => (
+                                    <div key={id} className="p-2 bg-gray-100 dark:bg-gray-800 rounded">
+                                        <div className="opacity-50">{id}宮</div>
+                                        <div className="font-bold text-lg gold-text">{num}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // HR 戰略版 (保留原本 v7.2 的強大功能)
+        const HRDeepPage = ({ result, isNight }) => {
+            const { h, o, u, r } = result.hour;
+            const hrData = getData(o).hr;
+            const consistency = getBaseNum(o) === getBaseNum(u) ? "表裡如一，穩定性高。" : `內外拉扯，外顯${o}但內在${u}，需給予心理補償。`;
+
+            const copyReport = () => {
+                const text = `【馥靈秘碼 v7.3 企業戰略報告】\n姓名：${result.inputData.name}\n代碼：H${h}.O${o}.U${u}.R${r}\n原型：${hrData.archetype}\n\n【戰力分析】\n優勢：${hrData.strengths.join('、')}\n風險：${hrData.weaknesses.join('、')}\n\n【管理手冊】\n激勵：${hrData.management}\n交叉分析：${consistency}`;
+                navigator.clipboard.writeText(text); alert('獵頭報告已複製！');
+            };
+
+            return (
+                <div className="space-y-8 fade-in">
+                     <div className={`card p-8 text-center relative overflow-hidden ${isNight ? 'bg-gradient-to-r from-blue-900/50 to-indigo-900/50' : 'bg-gradient-to-r from-slate-100 to-gray-100'}`}>
+                        <div className="relative z-10"><div className="inline-block px-3 py-1 rounded-full bg-blue-500 text-white text-xs mb-2 tracking-widest">HR INTELLIGENCE</div><h2 className="text-4xl font-bold gold-text serif mb-2">{hrData.archetype}</h2><p className="text-lg opacity-80 italic font-serif">「{hrData.slogan}」</p></div>
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="space-y-6">
+                            <div className="card p-6"><h4 className="font-bold border-l-4 border-blue-500 pl-3 mb-4">📊 五維戰力圖</h4><RadarChart data={hrData.radar} labels={['開創', '執行', '溝通', '穩定', '謀略']} isNight={isNight} title="職場戰力" /></div>
+                            <div className="card p-6"><h4 className="font-bold border-l-4 border-green-500 pl-3 mb-4">✅ 優勢</h4><div className="flex flex-wrap gap-2">{hrData.strengths.map(s=><span key={s} className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm">✓ {s}</span>)}</div></div>
+                        </div>
+                        <div className="space-y-6">
+                            <div className="card p-6 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 border-l-4 border-gold"><h3 className="text-xl font-bold gold-text mb-4 serif">📖 管理手冊</h3><p className="text-sm leading-relaxed mb-4">{hrData.management}</p><div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded text-sm text-yellow-800 dark:text-yellow-200">💡 交叉洞察：{consistency}</div></div>
+                            <button onClick={copyReport} className="w-full py-4 rounded-xl gold-btn text-lg shadow-lg">📋 複製專業獵頭報告</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // 流年戰略版
+        const YearDeepPage = ({ result, isNight }) => {
+            const [year, setYear] = useState(new Date().getFullYear());
+            if(!result) return <div className="text-center p-10 opacity-50">請先解碼</div>;
+            const fortune = calculateYearFortune(result.hour.r, year);
+
+            return (
+                <div className="max-w-2xl mx-auto space-y-6 fade-in">
+                    <div className="card p-6 flex justify-center gap-4">{[year-1, year, year+1].map(y=><button key={y} onClick={()=>setYear(y)} className={`px-4 py-2 rounded ${year===y?'gold-btn':'bg-gray-200 text-gray-700'}`}>{y}</button>)}</div>
+                    <div className={`card p-8 text-center ${isNight ? 'bg-gradient-to-br from-purple-900/50 to-pink-900/30' : 'bg-gradient-to-br from-amber-50 to-orange-50'}`}>
+                        <div className="text-sm opacity-60">{year} 年度戰略</div>
+                        <div className="text-7xl font-bold gold-text my-4">{fortune.personalYear}</div>
+                        <div className="text-3xl font-bold serif">{fortune.keyword}年</div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="card p-6 border-t-4 border-green-500">
+                            <h4 className="font-bold text-green-600 mb-2">✅ 行動指南 (Do's)</h4>
+                            <p>{fortune.action}</p>
+                        </div>
+                        <div className="card p-6 border-t-4 border-red-500">
+                            <h4 className="font-bold text-red-600 mb-2">🚫 避雷區 (Don'ts)</h4>
+                            <p>{fortune.caution}</p>
+                        </div>
+                    </div>
+                    <div className="card p-6 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500">
+                        <h4 className="font-bold text-blue-600 mb-2">🎯 年度戰略 OKR</h4>
+                        <p className="font-bold text-lg">{fortune.okr}</p>
+                        <p className="text-sm opacity-70 mt-2">請圍繞此目標設定你的年度計畫，這是一年中最順流的方向。</p>
+                    </div>
+                </div>
+            );
+        };
+
+        // 合盤化學反應版
+        const CompatDeepPage = ({ result, isNight }) => {
+            const [resultB, setResultB] = useState(null);
+            
+            const analyzeChemistry = (rA, rB) => {
+                const oA = getBaseNum(rA.hour.o), oB = getBaseNum(rB.hour.o);
+                const diff = Math.abs(oA - oB);
+                let title, desc, color;
+                if(diff === 0) { title = "靈魂鏡像"; desc = "你們像照鏡子，極度懂對方，但也容易互看不順眼缺點。"; color = "text-purple-500"; }
+                else if(diff % 2 === 0) { title = "強強聯手"; desc = "性質相似（如同為單數或雙數），容易達成共識，但缺乏火花。"; color = "text-blue-500"; }
+                else { title = "致命吸引"; desc = "完全不同的物種，張力極強，要嘛天雷勾動地火，要嘛水火不容。"; color = "text-red-500"; }
+                return { title, desc, color, score: 100 - (diff * 10) + (diff===0?10:0) }; // 簡易算法
+            };
+
+            const chemistry = result && resultB ? analyzeChemistry(result, resultB) : null;
+
+            return (
+                <div className="max-w-4xl mx-auto space-y-6 fade-in">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><div className="text-center mb-2 gold-text">A方 (你)</div>{result ? <div className="card p-4 text-center text-xl font-bold">H{result.hour.h} O{result.hour.o}</div> : <div className="text-center opacity-50">請先解碼</div>}</div>
+                        <div><div className="text-center mb-2 gold-text">B方 (對方)</div>{resultB ? <div className="card p-4 text-center text-xl font-bold">H{resultB.hour.h} O{resultB.hour.o}<br/><button onClick={()=>setResultB(null)} className="text-xs opacity-50 mt-2">重設</button></div> : <InputForm title="輸入B方資料" onCalculate={(d)=>setResultB(calculateHourLight(d))} />}</div>
+                    </div>
+                    {chemistry && (
+                        <div className="card p-8 text-center animate-pulse-slow">
+                            <h3 className="text-2xl font-bold mb-2">🧪 關係化學反應</h3>
+                            <div className={`text-5xl font-bold ${chemistry.color} my-4 serif`}>{chemistry.title}</div>
+                            <p className="text-lg opacity-80">{chemistry.desc}</p>
+                            <div className="mt-6 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg text-left">
+                                <h4 className="font-bold mb-2">💡 相處攻略</h4>
+                                <p className="text-sm">A方({result.hour.o}) 需要：{getData(result.hour.o).intimacy.healthy}</p>
+                                <p className="text-sm mt-1">B方({resultB.hour.o}) 需要：{getData(resultB.hour.o).intimacy.healthy}</p>
+                                <p className="text-sm mt-3 text-gold italic">秘訣：{getData(resultB.hour.o).intimacy.tip} (這是搞定B方的關鍵)</p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // 親密指南 (深夜限定)
+        const IntimacyDeepPage = ({ result }) => {
+            const data = getData(result.hour.o).intimacy;
+            return (
+                <div className="max-w-2xl mx-auto space-y-6 fade-in">
+                    <div className="card p-8 text-center bg-gradient-to-br from-pink-900/30 to-purple-900/50">
+                        <div className="text-6xl mb-4">💋</div>
+                        <h3 className="text-3xl font-bold gold-text serif mb-2">深夜親密指南</h3>
+                        <p className="opacity-70">O數 {result.hour.o} 的愛慾原廠設定</p>
+                    </div>
+                    <div className="card p-6"><h4 className="font-bold text-pink-500 mb-2">原型：{data.type}</h4><p>{data.healthy}</p></div>
+                    <div className="card p-6"><h4 className="font-bold text-red-500 mb-2">陰影：失衡狀態</h4><p>{data.shadow}</p></div>
+                    <div className="card p-6 bg-yellow-900/20 border-l-4 border-yellow-500"><h4 className="font-bold text-yellow-500 mb-2">💡 給伴侶的作弊條</h4><p>{data.tip}</p></div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [result, setResult] = useState(null);
+            const [isNight, setIsNight] = useState(false);
+            const [activeTab, setActiveTab] = useState('basic');
+            const [showAgeConfirm, setShowAgeConfirm] = useState(false);
+
+            useEffect(() => { document.body.className = isNight ? 'night-mode' : 'day-mode'; }, [isNight]);
+            const handleNightToggle = () => { if (!isNight) setShowAgeConfirm(true); else setIsNight(false); };
+
+            const tabs = [
+                { id: 'basic', label: '🔮 靈魂藍圖' },
+                { id: 'year', label: '🗓️ 年度戰略' },
+                { id: 'compat', label: '🧪 關係化學' },
+                { id: 'hr', label: '💼 HR 識人' },
+                { id: 'intimacy', label: '💋 親密指南', hidden: !isNight }
+            ];
+
+            return (
+                <div className="min-h-screen pb-20">
+                    {showAgeConfirm && <div className="modal-overlay"><div className="card modal-content max-w-md w-full mx-4 p-8 text-center"><h3 className="text-2xl font-bold gold-text mb-4 serif">深夜模式</h3><p className="mb-6 opacity-80">進入親密指南領域，需年滿18歲。</p><div className="flex gap-4 justify-center"><button onClick={()=>setShowAgeConfirm(false)} className="px-6 py-2 bg-gray-200 text-gray-800 rounded">未滿</button><button onClick={()=>{setIsNight(true);setShowAgeConfirm(false)}} className="gold-btn px-6 py-2 rounded">進入</button></div></div></div>}
+                    
+                    <header className={`backdrop-blur-md shadow-sm sticky top-0 z-50 ${isNight ? 'bg-gray-900/90' : 'bg-white/90'}`}>
+                        <div className="container mx-auto px-4 py-3">
+                            <div className="flex justify-between items-center mb-3">
+                                <div><h1 className="text-2xl font-bold gold-text tracking-widest serif">馥靈秘碼</h1><p className="text-[10px] opacity-50">v7.3 大師全息戰略版</p></div>
+                                <div className="flex gap-2">{result && <button onClick={()=>setResult(null)} className="text-xs px-3">重新解碼</button>}<button onClick={handleNightToggle} className="gold-btn px-3 py-1 rounded-full text-xs">{isNight ? '🌙' : '☀️'}</button></div>
+                            </div>
+                            <div className="flex gap-1 overflow-x-auto pb-1">{tabs.filter(t=>!t.hidden).map(t=><button key={t.id} onClick={()=>setActiveTab(t.id)} className={`tab-btn px-3 py-2 text-sm whitespace-nowrap ${activeTab===t.id?'active font-bold':'opacity-60'}`}>{t.label}</button>)}</div>
+                        </div>
+                    </header>
+
+                    <main className="container mx-auto px-4 py-8">
+                        {!result ? (
+                            <div className="max-w-xl mx-auto text-center">
+                                <h2 className="text-3xl font-bold gold-text serif mb-4">輸入生日，解鎖人生攻略</h2>
+                                <p className="opacity-60 mb-8">結合 東方時辰 × 西方靈數 × 現代戰略</p>
+                                <InputForm title="輸入資料" onCalculate={(d)=>setResult(calculateHourLight(d))} />
+                            </div>
+                        ) : (
+                            <>
+                                {activeTab === 'basic' && <BasicDeepPage result={result} isNight={isNight} />}
+                                {activeTab === 'year' && <YearDeepPage result={result} isNight={isNight} />}
+                                {activeTab === 'hr' && <HRDeepPage result={result} isNight={isNight} />}
+                                {activeTab === 'compat' && <CompatDeepPage result={result} isNight={isNight} />}
+                                {activeTab === 'intimacy' && <IntimacyDeepPage result={result} isNight={isNight} />}
+                            </>
+                        )}
+                    </main>
+                    <footer className="text-center py-8 opacity-40 text-xs"><p>© 2026 馥靈秘碼 Hour Light v7.3</p><p>創始人：王逸君</p></footer>
+                </div>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
