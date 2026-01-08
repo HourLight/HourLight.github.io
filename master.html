@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>馥靈秘碼 Hour Light v8.0 - 生命數字解碼系統</title>
+    <title>馥靈秘碼 Hour Light v8.1 - 生命數字解碼系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -72,17 +72,6 @@
         .fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        .timeline-line {
-            position: absolute;
-            left: 50%;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            transform: translateX(-50%);
-        }
-        .day-mode .timeline-line { background: linear-gradient(to bottom, #D4AF37, #8B7355); }
-        .night-mode .timeline-line { background: linear-gradient(to bottom, #9F5FDB, #4A2C7C); }
-
         .modal-overlay {
             position: fixed; inset: 0;
             background: rgba(0,0,0,0.7);
@@ -127,6 +116,65 @@
             max-height: 2000px;
         }
 
+        /* 五行能量條樣式 */
+        .element-bar {
+            height: 24px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        .element-fill {
+            height: 100%;
+            transition: width 0.8s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .element-wood { background: linear-gradient(90deg, #2D5016, #4A7C23); }
+        .element-fire { background: linear-gradient(90deg, #C41E3A, #FF6B6B); }
+        .element-earth { background: linear-gradient(90deg, #8B6914, #D4A017); }
+        .element-metal { background: linear-gradient(90deg, #71797E, #C0C0C0); }
+        .element-water { background: linear-gradient(90deg, #1E3A5F, #4A90D9); }
+
+        /* CTA 閃爍效果 */
+        .cta-pulse {
+            animation: ctaPulse 2s ease-in-out infinite;
+        }
+        @keyframes ctaPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+        }
+        .night-mode .cta-pulse {
+            animation: ctaPulseNight 2s ease-in-out infinite;
+        }
+        @keyframes ctaPulseNight {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(159, 95, 219, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(159, 95, 219, 0); }
+        }
+
+        /* 鎖住內容樣式 */
+        .locked-content {
+            position: relative;
+            overflow: hidden;
+        }
+        .locked-content::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(transparent, rgba(255,255,255,0.95));
+            pointer-events: none;
+        }
+        .night-mode .locked-content::after {
+            background: linear-gradient(transparent, rgba(22,33,62,0.95));
+        }
+
         @media (max-width: 768px) {
             .tab-btn { font-size: 0.75rem; padding: 0.5rem; }
         }
@@ -140,7 +188,6 @@
 
         /* ============================================
            ⭐ 時辰對照表（正確版：直接對應12宮位）
-           子時=1, 丑時=2, ..., 戌時=11（大師數）, 亥時=12→3
            ============================================ */
 
         const HOURS = [
@@ -160,6 +207,47 @@
         ];
         
         const getHourData = (hourId) => HOURS.find(h => h.id === hourId) || HOURS[12];
+
+        /* ============================================
+           ⭐ 五行對照表
+           ============================================ */
+        const ELEMENT_DATA = {
+            1: { name: '小木', icon: '🌱', element: 'wood', trait: '萌芽・向上' },
+            2: { name: '小水', icon: '💧', element: 'water', trait: '流動・滋潤' },
+            3: { name: '小火', icon: '🔥', element: 'fire', trait: '點燃・閃耀' },
+            4: { name: '小金', icon: '⚜️', element: 'metal', trait: '凝聚・堅固' },
+            5: { name: '中央土', icon: '🌏', element: 'earth', trait: '轉化・包容' },
+            6: { name: '大金', icon: '⚜️', element: 'metal', trait: '成熟・收斂' },
+            7: { name: '大水', icon: '🌊', element: 'water', trait: '深沉・智慧' },
+            8: { name: '大火', icon: '🔥', element: 'fire', trait: '權威・力量' },
+            9: { name: '大木', icon: '🌳', element: 'wood', trait: '茂盛・庇護' },
+            11: { name: '雙水', icon: '💧💧', element: 'water', trait: '靈泉・直覺', count: 2 },
+            22: { name: '雙土', icon: '🌏🌏', element: 'earth', trait: '磐石・建造', count: 2 },
+            33: { name: '雙火', icon: '🔥🔥', element: 'fire', trait: '聖焰・療癒', count: 2 }
+        };
+
+        const ELEMENT_COLORS = {
+            wood: { bg: 'bg-green-100', text: 'text-green-700', bar: 'element-wood', label: '木' },
+            fire: { bg: 'bg-red-100', text: 'text-red-700', bar: 'element-fire', label: '火' },
+            earth: { bg: 'bg-yellow-100', text: 'text-yellow-700', bar: 'element-earth', label: '土' },
+            metal: { bg: 'bg-gray-100', text: 'text-gray-700', bar: 'element-metal', label: '金' },
+            water: { bg: 'bg-blue-100', text: 'text-blue-700', bar: 'element-water', label: '水' }
+        };
+
+        /* ============================================
+           ⭐ 心理學對照表（簡化版，銷售漏斗用）
+           ============================================ */
+        const PSYCHOLOGY_DATA = {
+            1: { defense: '否認', pattern: '「我不需要別人」', shadow: '害怕軟弱', unlock: '學會求助' },
+            2: { defense: '退化', pattern: '遇壓力時變得依賴', shadow: '害怕被拋棄', unlock: '建立自我' },
+            3: { defense: '轉移', pattern: '把情緒轉到其他事上', shadow: '害怕不夠特別', unlock: '面對深層感受' },
+            4: { defense: '理智化', pattern: '用邏輯逃避感受', shadow: '害怕失控', unlock: '接納情緒' },
+            5: { defense: '逃避', pattern: '直接離開不舒服的情境', shadow: '害怕被束縛', unlock: '練習停留' },
+            6: { defense: '反向形成', pattern: '過度付出來掩飾需要被愛', shadow: '害怕不被需要', unlock: '接受幫助' },
+            7: { defense: '隔離', pattern: '切斷情緒，只留思考', shadow: '害怕被看穿', unlock: '信任他人' },
+            8: { defense: '投射', pattern: '把控制欲投射到別人身上', shadow: '害怕失去權力', unlock: '放下掌控' },
+            9: { defense: '壓抑', pattern: '把需求藏起來，假裝沒事', shadow: '害怕不夠完美', unlock: '表達真實需求' }
+        };
 
         /* ============================================
            ⭐ 完整數字資料庫（馥靈秘碼六維度解讀）
@@ -348,6 +436,19 @@
             if (NUMBER_DATA[num]) return NUMBER_DATA[num];
             const reduced = reduceToSingle(num);
             return NUMBER_DATA[reduced] || NUMBER_DATA[1];
+        };
+
+        // 取得五行資料
+        const getElementData = (num) => {
+            if (ELEMENT_DATA[num]) return ELEMENT_DATA[num];
+            const reduced = reduceToSingle(num);
+            return ELEMENT_DATA[reduced] || ELEMENT_DATA[1];
+        };
+
+        // 取得心理學資料
+        const getPsychData = (num) => {
+            const base = reduceToSingle(num);
+            return PSYCHOLOGY_DATA[base] || PSYCHOLOGY_DATA[1];
         };
 
         /* ============================================
@@ -548,23 +649,44 @@
             return reduceToSingle(num);
         };
 
+        // ⭐ 計算五行統計
+        const calculateElements = (hourData) => {
+            const { h, o, u, r } = hourData;
+            const elements = { wood: 0, fire: 0, earth: 0, metal: 0, water: 0 };
+            
+            [h, o, u, r].forEach(num => {
+                if (!num) return;
+                const elemData = getElementData(num);
+                if (elemData) {
+                    const count = elemData.count || 1;
+                    elements[elemData.element] += count;
+                }
+            });
+            
+            const total = Object.values(elements).reduce((a, b) => a + b, 0);
+            const dominant = Object.entries(elements).filter(([_, v]) => v >= 2).map(([k]) => k);
+            const missing = Object.entries(elements).filter(([_, v]) => v === 0).map(([k]) => k);
+            
+            return { elements, total, dominant, missing };
+        };
+
         // ⭐ 主計算函數
         const calculateHourLight = (data) => {
             const { year, month, day, lunarMonth, lunarDay, hourId } = data;
             const hourData = getHourData(hourId);
-            const hourValue = hourData.num; // 直接使用宮位數字（1-12）
+            const hourValue = hourData.num;
             
-            // ⭐ U數處理：保留11（戌時大師數）
+            // U數處理：保留11（戌時大師數）
             let uNum = 0;
             if (hourValue > 0) {
                 if (hourValue === 11) {
-                    uNum = 11; // 戌時直接保留大師數11
+                    uNum = 11;
                 } else if (hourValue === 10) {
-                    uNum = 1; // 酉時 10→1
+                    uNum = 1;
                 } else if (hourValue === 12) {
-                    uNum = 3; // 亥時 12→3
+                    uNum = 3;
                 } else {
-                    uNum = hourValue; // 其他時辰直接使用
+                    uNum = hourValue;
                 }
             }
             
@@ -580,7 +702,7 @@
 
             // L.I.G.H.T. 五能量
             const lNum = parseInt(lunarMonth) > 9 ? reduceNumber(parseInt(lunarMonth)) : parseInt(lunarMonth);
-            const iNum = uNum || 5; // 時辰不詳時預設5
+            const iNum = uNum || 5;
             const gNum = reduceNumber(String(year).split('').reduce((a, b) => parseInt(a) + parseInt(b), 0));
             const hEnergyNum = parseInt(lunarDay) > 9 ? reduceNumber(parseInt(lunarDay)) : parseInt(lunarDay);
             const tNum = reduceNumber(lNum + iNum + gNum + hEnergyNum);
@@ -636,6 +758,9 @@
             const hasMasterNumbers = isMasterNumber(hNum) || isMasterNumber(oNum) || isMasterNumber(rNum) || isMasterNumber(uNum);
             const masterNumbersList = [hNum, oNum, uNum, rNum].filter(isMasterNumber);
 
+            // ⭐ 五行能量分析
+            const elementAnalysis = calculateElements({ h: hNum, o: oNum, u: uNum, r: rNum });
+
             return {
                 inputData: { year, month, day, lunarMonth, lunarDay, hourId, hourValue, hourData },
                 hour: { h: hNum, o: oNum, u: uNum, r: rNum },
@@ -643,6 +768,7 @@
                 palaces,
                 bridges: { ho: bridgeHO, ou: bridgeOU, ur: bridgeUR },
                 balanceNum,
+                elementAnalysis,
                 analysis: {
                     numberCount,
                     missingNumbers: Object.entries(numberCount).filter(([n, c]) => c === 0 && parseInt(n) <= 9).map(([n]) => parseInt(n)),
@@ -703,7 +829,7 @@
                     lunarMonth: data.lunarMonth || '',
                     lunarDay: data.lunarDay || '',
                     hour: data.hourId || '未填',
-                    source: 'hourlight-v8'
+                    source: 'hourlight-v8.1'
                 });
                 const img = new Image();
                 img.src = SHEET_URL + '?' + params.toString();
@@ -721,6 +847,143 @@
             if (!isMasterNumber(num)) return null;
             const labels = { 11: '✨ 直覺大師', 22: '🏛️ 建造大師', 33: '💕 療癒大師' };
             return <span className="master-badge ml-2">{labels[num]}</span>;
+        };
+
+        // ⭐ CTA 按鈕元件
+        const CTAButton = ({ text, subtext, onClick, isNight, pulse = true }) => (
+            <div className={`card p-4 text-center ${pulse ? 'cta-pulse' : ''} cursor-pointer hover:scale-[1.02] transition`}
+                style={{ background: isNight ? 'linear-gradient(135deg, #4A2C7C 0%, #6B2C91 100%)' : 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 100%)' }}
+                onClick={onClick}>
+                <div className={`text-lg font-bold ${isNight ? 'text-white' : 'text-amber-900'}`}>{text}</div>
+                {subtext && <div className={`text-sm mt-1 ${isNight ? 'text-purple-200' : 'text-amber-700'}`}>{subtext}</div>}
+            </div>
+        );
+
+        // ⭐ 五行能量條元件
+        const ElementBar = ({ element, count, total, isNight }) => {
+            const colors = ELEMENT_COLORS[element];
+            const percentage = total > 0 ? (count / total) * 100 : 0;
+            const status = count === 0 ? 'missing' : count >= 2 ? 'dominant' : 'normal';
+            
+            return (
+                <div className="mb-2">
+                    <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm font-bold">{colors.label}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded ${
+                            status === 'missing' ? 'bg-red-100 text-red-600' :
+                            status === 'dominant' ? 'bg-green-100 text-green-600' :
+                            'bg-gray-100 text-gray-600'
+                        }`}>
+                            {count}個 {status === 'missing' ? '⚠️空缺' : status === 'dominant' ? '✨強勢' : ''}
+                        </span>
+                    </div>
+                    <div className={`element-bar ${isNight ? 'bg-gray-700' : 'bg-gray-200'}`}>
+                        <div className={`element-fill ${colors.bar}`} style={{ width: `${Math.max(percentage, 5)}%` }}>
+                            {count > 0 && count}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ⭐ 五行分析卡片
+        const ElementAnalysisCard = ({ elementAnalysis, isNight, onCTAClick }) => {
+            const { elements, dominant, missing } = elementAnalysis;
+            
+            const elementOils = {
+                wood: { oils: '絲柏、杜松、茶樹', practice: '練習主動出擊、表達自我' },
+                fire: { oils: '甜橙、葡萄柚、薑', practice: '練習熱情表達、社交互動' },
+                earth: { oils: '廣藿香、岩蘭草、安息香', practice: '練習腳踏實地、建立穩定' },
+                metal: { oils: '尤加利、薄荷、白千層', practice: '練習設立界線、清晰表達' },
+                water: { oils: '薰衣草、洋甘菊、檀香', practice: '練習感受情緒、接納流動' }
+            };
+            
+            return (
+                <div className="card p-6">
+                    <h4 className="font-bold gold-text text-lg mb-4 flex items-center gap-2">
+                        🌿 五行能量分析
+                        <span className="text-xs opacity-50 font-normal">（H.O.U.R.四主數）</span>
+                    </h4>
+                    
+                    {/* 五行長條圖 */}
+                    <div className="mb-4">
+                        {['wood', 'fire', 'earth', 'metal', 'water'].map(elem => (
+                            <ElementBar 
+                                key={elem} 
+                                element={elem} 
+                                count={elements[elem]} 
+                                total={Object.values(elements).reduce((a,b) => a+b, 0)}
+                                isNight={isNight}
+                            />
+                        ))}
+                    </div>
+                    
+                    {/* 空缺五行警示 */}
+                    {missing.length > 0 && (
+                        <div className={`p-4 rounded-lg mb-4 ${isNight ? 'bg-red-900/30' : 'bg-red-50'}`}>
+                            <div className="font-bold text-red-500 mb-2">⚠️ 空缺能量警示</div>
+                            <div className="space-y-2">
+                                {missing.map(elem => (
+                                    <div key={elem} className="text-sm">
+                                        <span className="font-bold">{ELEMENT_COLORS[elem].label}能量空缺</span>
+                                        <span className="opacity-70 ml-2">→ {elementOils[elem].practice}</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="text-xs opacity-50 mt-2">推薦精油：{missing.map(e => elementOils[e].oils).join('、')}</div>
+                        </div>
+                    )}
+                    
+                    {/* 強勢五行 */}
+                    {dominant.length > 0 && (
+                        <div className={`p-3 rounded-lg mb-4 ${isNight ? 'bg-green-900/30' : 'bg-green-50'}`}>
+                            <div className="text-sm">
+                                <span className="font-bold text-green-600">✨ 強勢能量：</span>
+                                {dominant.map(e => ELEMENT_COLORS[e].label).join('、')}
+                                <span className="opacity-70 ml-2">— 這是你的天賦能量</span>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {/* CTA */}
+                    <div className={`p-4 rounded-lg text-center ${isNight ? 'bg-purple-900/30' : 'bg-amber-50'} border-2 border-dashed ${isNight ? 'border-purple-500' : 'border-amber-400'}`}>
+                        <div className="text-sm opacity-70 mb-2">想知道如何補足空缺能量？</div>
+                        <button onClick={onCTAClick} className="gold-btn px-6 py-2 rounded-lg text-sm">
+                            🔮 取得個人化精油處方
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        // ⭐ 心理學提示卡片（銷售漏斗版）
+        const PsychologyHintCard = ({ num, label, isNight, onCTAClick }) => {
+            const psych = getPsychData(num);
+            if (!psych) return null;
+            
+            return (
+                <div className={`p-3 rounded-lg ${isNight ? 'bg-purple-900/20' : 'bg-purple-50'} border ${isNight ? 'border-purple-700' : 'border-purple-200'}`}>
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs opacity-60">{label}數的心理模式</span>
+                        <span className="text-xs px-2 py-0.5 rounded bg-purple-200 text-purple-700">🧠 佛洛伊德</span>
+                    </div>
+                    <div className="font-bold text-purple-600 mb-1">防衛機制：{psych.defense}</div>
+                    <div className="text-sm opacity-70 mb-2">「{psych.pattern}」</div>
+                    
+                    {/* 鎖住的內容預覽 */}
+                    <div className="locked-content relative">
+                        <div className="text-xs opacity-50">
+                            <div>深層恐懼：{psych.shadow}</div>
+                            <div className="blur-sm">解鎖方向：{psych.unlock}</div>
+                            <div className="blur-sm">認知扭曲模式：...</div>
+                        </div>
+                    </div>
+                    
+                    <button onClick={onCTAClick} className="w-full mt-2 text-xs text-purple-600 hover:text-purple-800 font-bold">
+                        🔓 解鎖完整心理分析 →
+                    </button>
+                </div>
+            );
         };
 
         // 雷達圖
@@ -826,10 +1089,11 @@
             );
         };
 
-        // 數字深度解讀卡片
-        const NumberDeepCard = ({ num, label, subLabel, isNight, showFull = false }) => {
+        // ⭐ 數字深度解讀卡片（含五行＋心理學提示）
+        const NumberDeepCard = ({ num, label, subLabel, isNight, showFull = false, onCTAClick }) => {
             const [isOpen, setIsOpen] = useState(false);
             const data = getNumData(num);
+            const elemData = getElementData(num);
             if (!data) return null;
 
             return (
@@ -844,13 +1108,22 @@
                             {isMasterNumber(num) && <MasterBadge num={num} />}
                         </div>
                     </div>
+                    
+                    {/* 五行標籤 */}
+                    {elemData && (
+                        <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs mb-2 ${ELEMENT_COLORS[elemData.element].bg} ${ELEMENT_COLORS[elemData.element].text}`}>
+                            <span>{elemData.icon}</span>
+                            <span>{elemData.name}</span>
+                        </div>
+                    )}
+                    
                     <div className="text-lg font-bold mb-1">{data.title}</div>
                     <div className="text-sm opacity-70 mb-2">{data.essence}</div>
                     
                     {showFull && (
                         <>
                             <button onClick={() => setIsOpen(!isOpen)} className="text-xs gold-text hover:underline">
-                                {isOpen ? '收合 ▲' : '展開深度解讀 ▼'}
+                                {isOpen ? '收合 ▲' : '展開解讀 ▼'}
                             </button>
                             <div className={`detail-panel ${isOpen ? 'open' : ''}`}>
                                 <div className="mt-3 pt-3 border-t border-current/10 space-y-3 text-sm">
@@ -866,6 +1139,10 @@
                                         <span className="font-bold gold-text">🎯 靈魂功課：</span>
                                         <span className="opacity-80">{data.soulLesson}</span>
                                     </div>
+                                    
+                                    {/* 心理學提示 */}
+                                    <PsychologyHintCard num={num} label={label} isNight={isNight} onCTAClick={onCTAClick} />
+                                    
                                     <div className={`p-3 rounded-lg ${isNight ? 'bg-purple-900/30' : 'bg-amber-50'}`}>
                                         <div className="font-bold mb-1">💎 馥靈獨創解讀</div>
                                         <p className="opacity-80 italic">{data.uniqueReading}</p>
@@ -911,7 +1188,7 @@
                             <div className="opacity-70">
                                 <div className="font-bold mb-1">卡住的人會：</div>
                                 <ul className="list-disc list-inside">
-                                    {palace.stuckPattern.map((p, i) => <li key={i}>{p}</li>)}
+                                    {palace.stuckPattern.slice(0, 2).map((p, i) => <li key={i}>{p}</li>)}
                                 </ul>
                             </div>
                             <div>
@@ -929,7 +1206,7 @@
            ============================================ */
 
         // 基礎命盤頁
-        const BasicPage = ({ result, setResult, isNight }) => {
+        const BasicPage = ({ result, setResult, isNight, onShowConsult }) => {
             if (!result) {
                 return (
                     <div className="max-w-xl mx-auto">
@@ -938,11 +1215,17 @@
                             <p className="text-sm mt-2 opacity-60">輸入出生資料，找到你的生命密碼</p>
                         </div>
                         <InputForm onCalculate={(data) => setResult(calculateHourLight(data))} />
+                        
+                        {/* 免費說明 */}
+                        <div className="text-center mt-6 text-sm opacity-60">
+                            <p>✨ 免費取得基礎命盤分析</p>
+                            <p>📊 包含H.O.U.R.四主數＋五行能量＋12宮位</p>
+                        </div>
                     </div>
                 );
             }
 
-            const { hour, light, palaces, bridges, balanceNum, analysis, inputData } = result;
+            const { hour, light, palaces, bridges, balanceNum, analysis, inputData, elementAnalysis } = result;
 
             return (
                 <div className="space-y-8 fade-in">
@@ -967,22 +1250,16 @@
                     <section>
                         <h3 className="text-2xl font-bold gold-text mb-4 pl-4 border-l-4 border-current serif">🔑 H.O.U.R. 四主數</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <NumberDeepCard num={hour.h} label="H 癒數" subLabel="內在需求・農曆月日" isNight={isNight} showFull={true} />
-                            <NumberDeepCard num={hour.o} label="O 識數" subLabel="外在呈現・西曆全加" isNight={isNight} showFull={true} />
-                            <NumberDeepCard num={hour.u} label="U 解數" subLabel="隱藏潛能・時辰" isNight={isNight} showFull={true} />
-                            <NumberDeepCard num={hour.r} label="R 行數" subLabel="人生使命・H+O+U" isNight={isNight} showFull={true} />
+                            <NumberDeepCard num={hour.h} label="H 癒數" subLabel="內在需求・農曆月日" isNight={isNight} showFull={true} onCTAClick={onShowConsult} />
+                            <NumberDeepCard num={hour.o} label="O 識數" subLabel="外在呈現・西曆全加" isNight={isNight} showFull={true} onCTAClick={onShowConsult} />
+                            <NumberDeepCard num={hour.u} label="U 解數" subLabel="隱藏潛能・時辰" isNight={isNight} showFull={true} onCTAClick={onShowConsult} />
+                            <NumberDeepCard num={hour.r} label="R 行數" subLabel="人生使命・H+O+U" isNight={isNight} showFull={true} onCTAClick={onShowConsult} />
                         </div>
-                        
-                        {/* 計算過程說明 */}
-                        <div className="card p-4 mt-4 text-sm opacity-70">
-                            <div className="font-bold mb-2">📊 計算過程</div>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                                <div>H = 農曆{inputData.lunarMonth}月+{inputData.lunarDay}日 = {hour.h}</div>
-                                <div>O = {inputData.year}/{inputData.month}/{inputData.day} = {hour.o}</div>
-                                <div>U = {inputData.hourData?.name?.split(' ')[0] || '—'} = {hour.u || '—'}</div>
-                                <div>R = {hour.h}+{hour.o}+{hour.u || 0} = {hour.r}</div>
-                            </div>
-                        </div>
+                    </section>
+
+                    {/* ⭐ 五行能量分析（新增） */}
+                    <section>
+                        <ElementAnalysisCard elementAnalysis={elementAnalysis} isNight={isNight} onCTAClick={onShowConsult} />
                     </section>
 
                     {/* 橋樑數與平衡數 */}
@@ -1010,7 +1287,17 @@
                                 <div className="text-xs opacity-60">危機調整</div>
                             </div>
                         </div>
-                        <p className="text-xs opacity-50 mt-3">橋樑數揭示如何調和兩個數字之間的張力。平衡數是危機時最需要啟動的能量。</p>
+                        
+                        {/* 橋樑數CTA */}
+                        {bridges.ho > 3 && (
+                            <div className={`mt-4 p-3 rounded-lg text-center ${isNight ? 'bg-orange-900/30' : 'bg-orange-50'}`}>
+                                <div className="text-sm text-orange-600 font-bold">⚠️ 你的H-O橋樑數較高（{bridges.ho}）</div>
+                                <div className="text-xs opacity-70 mt-1">內在需求與外在表現有落差，容易感到疲累</div>
+                                <button onClick={onShowConsult} className="text-xs text-orange-600 font-bold mt-2 hover:underline">
+                                    了解如何整合內外能量 →
+                                </button>
+                            </div>
+                        )}
                     </section>
 
                     {/* L.I.G.H.T. 五能量 */}
@@ -1060,13 +1347,18 @@
                                 <div className={`card p-6 ${isNight ? 'bg-red-900/20' : 'bg-red-50'}`}>
                                     <h4 className="font-bold text-red-600 mb-3">⚠️ 空缺數字 — 需要學習的課題</h4>
                                     <div className="space-y-2">
-                                        {analysis.missingNumbers.map(n => (
+                                        {analysis.missingNumbers.slice(0, 3).map(n => (
                                             <div key={n} className="flex items-center gap-2">
                                                 <span className="text-2xl font-bold text-red-500">{n}</span>
                                                 <span className="text-sm">{NUMBER_DATA[n]?.title} — {NUMBER_DATA[n]?.essence}</span>
                                             </div>
                                         ))}
                                     </div>
+                                    {analysis.missingNumbers.length > 3 && (
+                                        <button onClick={onShowConsult} className="text-xs text-red-600 font-bold mt-3 hover:underline">
+                                            查看完整空缺數字分析（{analysis.missingNumbers.length}個）→
+                                        </button>
+                                    )}
                                 </div>
                             )}
                             {analysis.excessNumbers.length > 0 && (
@@ -1094,55 +1386,37 @@
                                 <PalaceDeepCard key={id} palaceId={parseInt(id)} palaceNum={palaces[id]} isNight={isNight} />
                             ))}
                         </div>
+                        
+                        {/* 12宮位 CTA */}
+                        <div className={`card p-6 mt-4 text-center ${isNight ? 'bg-gradient-to-r from-purple-900/50 to-pink-900/30' : 'bg-gradient-to-r from-amber-50 to-yellow-50'}`}>
+                            <div className="text-lg font-bold gold-text mb-2">🔮 想要12宮位完整深度解讀？</div>
+                            <p className="text-sm opacity-70 mb-3">包含每宮3000字解析、靈魂提問、行動方案、精油處方</p>
+                            <button onClick={onShowConsult} className="gold-btn px-8 py-3 rounded-lg">
+                                取得完整12宮報告書
+                            </button>
+                        </div>
                     </section>
 
-                    {/* 複製報告 */}
+                    {/* 複製報告（簡化版） */}
                     <div className="text-center">
                         <button onClick={() => {
-                            const masterNote = analysis.hasMasterNumbers ? `\n\n═══ 大師數 ═══\n你擁有大師數：${analysis.masterNumbersList.join('、')}\n這代表你背負著特殊的靈性使命！` : '';
-                            const text = `【馥靈秘碼完整報告】
+                            const text = `【馥靈秘碼基礎報告】
 
-═══ H.O.U.R. 四主數 ═══
-H數（癒數）：${hour.h} — ${getNumData(hour.h)?.title}${isMasterNumber(hour.h) ? ' ✨大師數' : ''}
-  內在需求：${getNumData(hour.h)?.essence}
-  
-O數（識數）：${hour.o} — ${getNumData(hour.o)?.title}${isMasterNumber(hour.o) ? ' ✨大師數' : ''}
-  外在呈現：${getNumData(hour.o)?.essence}
-  
-U數（解數）：${hour.u || '—'} — ${hour.u ? getNumData(hour.u)?.title : '時辰不詳'}${isMasterNumber(hour.u) ? ' ✨大師數' : ''}
-  隱藏潛能：${hour.u ? getNumData(hour.u)?.essence : '—'}
-  
-R數（行數）：${hour.r} — ${getNumData(hour.r)?.title}${isMasterNumber(hour.r) ? ' ✨大師數' : ''}
-  人生使命：${getNumData(hour.r)?.essence}
-${masterNote}
+H數：${hour.h}（${getNumData(hour.h)?.title}）
+O數：${hour.o}（${getNumData(hour.o)?.title}）
+U數：${hour.u || '—'}（${hour.u ? getNumData(hour.u)?.title : '時辰不詳'}）
+R數：${hour.r}（${getNumData(hour.r)?.title}）
 
-═══ 橋樑數與平衡數 ═══
-H-O橋樑：${bridges.ho}（內外整合）
-O-U橋樑：${bridges.ou || '—'}（顯潛連結）
-U-R橋樑：${bridges.ur || '—'}（潛能實現）
-平衡數：${balanceNum}（危機時啟動）
+五行能量：
+木${elementAnalysis.elements.wood} 火${elementAnalysis.elements.fire} 土${elementAnalysis.elements.earth} 金${elementAnalysis.elements.metal} 水${elementAnalysis.elements.water}
+${elementAnalysis.missing.length > 0 ? '空缺：' + elementAnalysis.missing.map(e => ELEMENT_COLORS[e].label).join('、') : '五行平衡'}
 
-═══ L.I.G.H.T. 五能量 ═══
-L 愛之力：${light.l}
-I 直覺力：${light.i}
-G 根基力：${light.g}
-H 和諧力：${light.h}
-T 蛻變力：${light.t}
-
-═══ 12宮位 ═══
-${Object.entries(PALACE_DATA).map(([id, data]) => 
-    `${id}宮 ${data.name}（${data.meridian}）：${palaces[id]}\n  → ${data.theme}`
-).join('\n')}
-
-═══ 空缺數字（需學習的課題）═══
-${analysis.missingNumbers.length > 0 ? analysis.missingNumbers.map(n => `${n} ${NUMBER_DATA[n]?.title}`).join('、') : '無'}
-
-—— 馥靈秘碼 Hour Light v8.0 ——
-創始人：王逸君 ・ hourlight.github.io`;
+—— 馥靈秘碼 Hour Light v8.1 ——
+🔮 完整解讀請洽：https://line.me/ti/p/~judyanee`;
                             navigator.clipboard.writeText(text);
-                            alert('完整報告已複製！');
+                            alert('基礎報告已複製！');
                         }} className="gold-btn px-8 py-3 rounded-lg text-lg">
-                            📋 複製完整報告
+                            📋 複製基礎報告
                         </button>
                     </div>
                 </div>
@@ -1150,7 +1424,7 @@ ${analysis.missingNumbers.length > 0 ? analysis.missingNumbers.map(n => `${n} ${
         };
 
         // 流年頁
-        const YearFortunePage = ({ result, isNight }) => {
+        const YearFortunePage = ({ result, isNight, onShowConsult }) => {
             const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
             const currentYear = new Date().getFullYear();
             
@@ -1209,21 +1483,21 @@ ${analysis.missingNumbers.length > 0 ? analysis.missingNumbers.map(n => `${n} ${
                             </p>
                         </div>
                     </div>
-
-                    <div className="card p-6">
-                        <h4 className="font-bold mb-3">📊 計算過程</h4>
-                        <div className="text-sm opacity-70 space-y-1">
-                            <p>► 你的R數（使命數）= {result.hour.r}</p>
-                            <p>► {selectedYear}年宇宙年數 = {String(selectedYear).split('').join('+')} = {fortune.universeYear}</p>
-                            <p>► 個人流年 = R數基礎 + 宇宙年數 = {getBaseNum(result.hour.r)} + {fortune.universeYear} = {fortune.personalYear}</p>
-                        </div>
+                    
+                    {/* 流年 CTA */}
+                    <div className={`card p-6 text-center ${isNight ? 'bg-gradient-to-r from-purple-900/50 to-pink-900/30' : 'bg-gradient-to-r from-amber-50 to-yellow-50'}`}>
+                        <div className="text-lg font-bold gold-text mb-2">🔮 想知道{selectedYear}年每月運勢？</div>
+                        <p className="text-sm opacity-70 mb-3">包含12個月詳細預測、關鍵時間點、行動建議</p>
+                        <button onClick={onShowConsult} className="gold-btn px-8 py-3 rounded-lg">
+                            取得{selectedYear}年度完整報告
+                        </button>
                     </div>
                 </div>
             );
         };
 
         // 大運頁
-        const LifeFortunePage = ({ result, isNight }) => {
+        const LifeFortunePage = ({ result, isNight, onShowConsult }) => {
             if (!result) return <div className="text-center py-20 opacity-60">請先在「基礎命盤」計算你的數據</div>;
 
             const fortunes = calculateLifeFortunes(result.hour.r, parseInt(result.inputData.year));
@@ -1255,9 +1529,6 @@ ${analysis.missingNumbers.length > 0 ? analysis.missingNumbers.map(n => `${n} ${
                                             </div>
                                             <div className="text-sm opacity-60 mb-2">{f.ageRange}（{f.startYear}-{f.endYear}年）</div>
                                             <p className="text-sm opacity-80">{f.desc}</p>
-                                            <p className="text-sm mt-2">
-                                                <span className="font-bold">能量特質：</span>{numData?.essence}
-                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -1265,66 +1536,29 @@ ${analysis.missingNumbers.length > 0 ? analysis.missingNumbers.map(n => `${n} ${
                         })}
                     </div>
                     
-                    <div className="card p-6 mt-8">
-                        <h4 className="font-bold mb-3">📊 計算說明</h4>
-                        <p className="text-sm opacity-70">
-                            大運公式：R數（{result.hour.r}）+ 第N大運 = 該大運主數
-                        </p>
-                        <p className="text-sm opacity-70 mt-2">
-                            若大運數為11、22、33，代表該階段有特殊的靈性課題與使命。
-                        </p>
+                    {/* 大運 CTA */}
+                    <div className={`card p-6 mt-8 text-center ${isNight ? 'bg-gradient-to-r from-purple-900/50 to-pink-900/30' : 'bg-gradient-to-r from-amber-50 to-yellow-50'}`}>
+                        <div className="text-lg font-bold gold-text mb-2">🔮 想要大運深度解析？</div>
+                        <p className="text-sm opacity-70 mb-3">包含每個大運的挑戰、機會、健康提醒、財運分析</p>
+                        <button onClick={onShowConsult} className="gold-btn px-8 py-3 rounded-lg">
+                            取得大運完整報告
+                        </button>
                     </div>
                 </div>
             );
         };
 
-        // HR識人頁
-        const HRPage = ({ result, isNight }) => {
+        // HR識人頁（簡化版）
+        const HRPage = ({ result, isNight, onShowConsult }) => {
             const [hrResult, setHrResult] = useState(null);
 
             const HRReport = ({ data }) => {
-                const { hour, bridges, analysis } = data;
-                const hData = getNumData(hour.h);
+                const { hour, analysis } = data;
                 const oData = getNumData(hour.o);
-                const uData = hour.u ? getNumData(hour.u) : null;
-                const rData = getNumData(hour.r);
                 const workData = oData?.work;
                 
-                const ratingLabels = { independence: '獨立性', teamwork: '團隊合作', stress: '抗壓性', creativity: '創造力', stability: '穩定性' };
-                const getRatings = (num) => {
-                    const base = getBaseNum(num);
-                    const ratings = {
-                        1: { independence: 5, teamwork: 2, stress: 4, creativity: 4, stability: 3 },
-                        2: { independence: 2, teamwork: 5, stress: 3, creativity: 3, stability: 4 },
-                        3: { independence: 3, teamwork: 4, stress: 3, creativity: 5, stability: 2 },
-                        4: { independence: 3, teamwork: 4, stress: 4, creativity: 2, stability: 5 },
-                        5: { independence: 4, teamwork: 3, stress: 4, creativity: 4, stability: 2 },
-                        6: { independence: 3, teamwork: 5, stress: 3, creativity: 3, stability: 4 },
-                        7: { independence: 5, teamwork: 2, stress: 4, creativity: 4, stability: 4 },
-                        8: { independence: 5, teamwork: 3, stress: 5, creativity: 3, stability: 4 },
-                        9: { independence: 4, teamwork: 4, stress: 3, creativity: 4, stability: 3 }
-                    };
-                    return ratings[base] || ratings[1];
-                };
-                const ratings = getRatings(hour.o);
-                
-                // HR專用資料
-                const hrData = {
-                    1: { bestRoles: ['創業者', '部門主管', '專案負責人', '業務開發'], worstRoles: ['行政助理', '需高度配合的職位'], manageTip: '給予自主權，不要微管理，用目標管理', motivate: '挑戰性任務、獨立完成的成就感', warning: '可能搶功、不易接受批評' },
-                    2: { bestRoles: ['HR', '客服', '秘書助理', '團隊協調'], worstRoles: ['高壓業務', '獨斷決策的主管'], manageTip: '給予情感支持和團隊歸屬感，公開肯定', motivate: '團隊和諧、被需要的感覺', warning: '可能過度承擔、隱藏真實想法' },
-                    3: { bestRoles: ['行銷企劃', '設計師', '講師培訓', '內容創作'], worstRoles: ['會計', '品管', '高度重複工作'], manageTip: '給予表達舞台，定期讚美，用截止日期逼完成', motivate: '讚美、新鮮感、被看見的機會', warning: '可能過度承諾、逃避困難對話' },
-                    4: { bestRoles: ['專案經理', '品管', '財務', '行政主管'], worstRoles: ['需高度創意', '快速變化環境'], manageTip: '建立明確流程結構，變動時提前溝通', motivate: '穩定、明確規則、被信任', warning: '可能抗拒變化、過度堅持己見' },
-                    5: { bestRoles: ['業務開發', '新創公司', '危機處理', '自由工作者'], worstRoles: ['固定重複工作', '長期耕耘職位'], manageTip: '給予彈性和新挑戰，不要太多規則', motivate: '自由、新挑戰、變化', warning: '可能突然離職、承諾可靠度較低' },
-                    6: { bestRoles: ['HR', '護理照護', '教育訓練', '團隊主管'], worstRoles: ['高度競爭環境', '冷酷決策職位'], manageTip: '讓他感覺被需要和被重視', motivate: '被需要、團隊和諧、幫助他人', warning: '可能過度介入、控制他人' },
-                    7: { bestRoles: ['研究員', '分析師', '顧問', '策略規劃'], worstRoles: ['大量社交職位', '快速決策環境'], manageTip: '給予獨處空間，尊重專業判斷', motivate: '專業成長、被尊重專業', warning: '可能過度分析、與團隊脫節' },
-                    8: { bestRoles: ['高階主管', '業務主管', '創業家'], worstRoles: ['需服從的職位', '無決策權角色'], manageTip: '給予明確KPI和升遷路徑', motivate: '權力、成就、掌控感', warning: '可能越權、團隊衝突、過度工作' },
-                    9: { bestRoles: ['非營利組織', '教育培訓', '顧問導師'], worstRoles: ['純追求利潤環境', '冷血競爭職場'], manageTip: '連結工作與更大意義', motivate: '意義感、幫助他人', warning: '可能過度犧牲、不切實際' }
-                };
-                const hr = hrData[getBaseNum(hour.o)] || hrData[1];
-
                 return (
                     <div className="space-y-6 fade-in">
-                        {/* 核心識人卡 */}
                         <div className="card p-6 text-center">
                             <div className="text-6xl font-bold gold-text">{hour.o}{isMasterNumber(hour.o) && <MasterBadge num={hour.o} />}</div>
                             <div className="text-2xl font-bold mt-2 serif">{workData?.type}</div>
@@ -1332,66 +1566,6 @@ ${analysis.missingNumbers.length > 0 ? analysis.missingNumbers.map(n => `${n} ${
                             <div className="text-sm opacity-50 mt-2">{workData?.style}</div>
                         </div>
 
-                        {/* H.O.U.R. 四維分析 */}
-                        <div className="card p-6">
-                            <h4 className="font-bold gold-text text-lg mb-4">🔑 H.O.U.R. 四維人才分析</h4>
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className={`p-3 rounded-lg ${isNight ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
-                                    <div className="flex justify-between items-center"><span className="text-xs opacity-60">H數（內在需求）</span><span className="text-xl font-bold gold-text">{hour.h}</span></div>
-                                    <p className="text-sm mt-1">{hData?.essence}</p>
-                                    <p className="text-xs opacity-50">面試看不到，但決定他留下或離開</p>
-                                </div>
-                                <div className={`p-3 rounded-lg ${isNight ? 'bg-green-900/30' : 'bg-green-50'}`}>
-                                    <div className="flex justify-between items-center"><span className="text-xs opacity-60">O數（外在表現）</span><span className="text-xl font-bold gold-text">{hour.o}</span></div>
-                                    <p className="text-sm mt-1">{oData?.light}</p>
-                                    <p className="text-xs opacity-50">面試時你會看到的樣子</p>
-                                </div>
-                                <div className={`p-3 rounded-lg ${isNight ? 'bg-purple-900/30' : 'bg-purple-50'}`}>
-                                    <div className="flex justify-between items-center"><span className="text-xs opacity-60">U數（隱藏潛能）</span><span className="text-xl font-bold gold-text">{hour.u || '—'}{hour.u && isMasterNumber(hour.u) && <MasterBadge num={hour.u} />}</span></div>
-                                    <p className="text-sm mt-1">{uData?.essence || '需深入了解'}</p>
-                                    <p className="text-xs opacity-50">長期培養後會展現</p>
-                                </div>
-                                <div className={`p-3 rounded-lg ${isNight ? 'bg-amber-900/30' : 'bg-amber-50'}`}>
-                                    <div className="flex justify-between items-center"><span className="text-xs opacity-60">R數（人生方向）</span><span className="text-xl font-bold gold-text">{hour.r}</span></div>
-                                    <p className="text-sm mt-1">{rData?.essence}</p>
-                                    <p className="text-xs opacity-50">決定長期發展和職涯規劃</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 橋樑數分析 */}
-                        <div className="card p-6">
-                            <h4 className="font-bold gold-text text-lg mb-3">🌉 內外整合度</h4>
-                            <div className="grid grid-cols-3 gap-3 text-center">
-                                <div><div className="text-2xl font-bold gold-text">{bridges.ho}</div><div className="text-xs opacity-60">H-O橋樑</div><div className="text-xs">{bridges.ho <= 2 ? '✓ 內外一致' : bridges.ho <= 4 ? '需調適' : '⚠️ 落差大'}</div></div>
-                                <div><div className="text-2xl font-bold gold-text">{bridges.ou || '—'}</div><div className="text-xs opacity-60">O-U橋樑</div><div className="text-xs">{!bridges.ou ? '—' : bridges.ou <= 2 ? '潛能易發揮' : '需培養'}</div></div>
-                                <div><div className="text-2xl font-bold gold-text">{bridges.ur || '—'}</div><div className="text-xs opacity-60">U-R橋樑</div><div className="text-xs">{!bridges.ur ? '—' : bridges.ur <= 2 ? '方向明確' : '需引導'}</div></div>
-                            </div>
-                        </div>
-
-                        {/* 五維評估 */}
-                        <div className="card p-6">
-                            <h4 className="font-bold mb-4">📊 工作特質五維評估</h4>
-                            <div className="space-y-3">
-                                {Object.entries(ratings).map(([key, value]) => (
-                                    <div key={key}>
-                                        <div className="flex justify-between text-sm mb-1"><span>{ratingLabels[key]}</span><span>{'★'.repeat(value)}{'☆'.repeat(5-value)}</span></div>
-                                        <div className="score-bar bg-gray-200"><div className="score-fill" style={{ width: `${value * 20}%`, background: isNight ? 'linear-gradient(90deg, #6B2C91, #9F5FDB)' : 'linear-gradient(90deg, #D4AF37, #F5E6A3)' }}></div></div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* 職位適配 */}
-                        <div className="card p-6">
-                            <h4 className="font-bold gold-text text-lg mb-3">💼 職位適配度</h4>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div><h5 className="font-bold text-green-600 mb-2">👍 適合</h5><ul className="text-sm space-y-1 opacity-80">{hr.bestRoles.map((r, i) => <li key={i}>► {r}</li>)}</ul></div>
-                                <div><h5 className="font-bold text-red-600 mb-2">👎 不適合</h5><ul className="text-sm space-y-1 opacity-80">{hr.worstRoles.map((r, i) => <li key={i}>► {r}</li>)}</ul></div>
-                            </div>
-                        </div>
-
-                        {/* 優勢與盲點 */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className={`card p-4 ${isNight ? 'bg-green-900/30' : 'bg-green-50'}`}>
                                 <h4 className="font-bold text-green-600 mb-2">✅ 核心優勢</h4>
@@ -1402,31 +1576,14 @@ ${analysis.missingNumbers.length > 0 ? analysis.missingNumbers.map(n => `${n} ${
                                 <p className="text-sm opacity-80">{oData?.dark}</p>
                             </div>
                         </div>
-
-                        {/* 管理建議 */}
-                        <div className="card p-6">
-                            <h4 className="font-bold gold-text text-lg mb-3">💡 管理建議</h4>
-                            <div className="space-y-3 text-sm">
-                                <div className={`p-3 rounded-lg ${isNight ? 'bg-blue-900/20' : 'bg-blue-50'}`}><span className="font-bold">如何管理：</span> {hr.manageTip}</div>
-                                <div className={`p-3 rounded-lg ${isNight ? 'bg-green-900/20' : 'bg-green-50'}`}><span className="font-bold">如何激勵：</span> {hr.motivate}</div>
-                                <div className={`p-3 rounded-lg ${isNight ? 'bg-red-900/20' : 'bg-red-50'}`}><span className="font-bold">風險預警：</span> {hr.warning}</div>
-                            </div>
-                        </div>
-
-                        {/* 空缺數字 */}
-                        {analysis.missingNumbers.length > 0 && (
-                            <div className="card p-6">
-                                <h4 className="font-bold gold-text text-lg mb-3">🔍 可能盲點（空缺數字）</h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {analysis.missingNumbers.map(n => <span key={n} className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm">{n} {getNumData(n)?.title}</span>)}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* 馥靈獨創 */}
-                        <div className={`card p-6 ${isNight ? 'bg-gradient-to-br from-purple-900/30 to-pink-900/20' : 'bg-gradient-to-br from-amber-50 to-yellow-50'}`}>
-                            <h4 className="font-bold gold-text text-lg mb-3">💎 馥靈獨創洞察</h4>
-                            <p className="opacity-80 italic">{oData?.uniqueReading}</p>
+                        
+                        {/* HR CTA */}
+                        <div className={`card p-6 text-center ${isNight ? 'bg-gradient-to-r from-purple-900/50 to-pink-900/30' : 'bg-gradient-to-r from-amber-50 to-yellow-50'}`}>
+                            <div className="text-lg font-bold gold-text mb-2">🔮 想要完整HR人才報告？</div>
+                            <p className="text-sm opacity-70 mb-3">包含職能矩陣、管理建議、團隊配對、面試指南</p>
+                            <button onClick={onShowConsult} className="gold-btn px-8 py-3 rounded-lg">
+                                取得專業HR報告
+                            </button>
                         </div>
                     </div>
                 );
@@ -1435,7 +1592,7 @@ ${analysis.missingNumbers.length > 0 ? analysis.missingNumbers.map(n => `${n} ${
             return (
                 <div className="max-w-2xl mx-auto fade-in">
                     <div className="text-center mb-6">
-                        <h2 className="text-3xl font-bold gold-text serif">💼 HR快速識人報告</h2>
+                        <h2 className="text-3xl font-bold gold-text serif">💼 HR快速識人</h2>
                         <p className="text-sm mt-2 opacity-60">基於馥靈秘碼H.O.U.R.系統的人才評估</p>
                     </div>
 
@@ -1460,81 +1617,23 @@ ${analysis.missingNumbers.length > 0 ? analysis.missingNumbers.map(n => `${n} ${
             );
         };
 
-        // 親密關係頁（深夜模式）
-        const IntimacyPage = ({ result, isNight }) => {
+        // 親密關係頁（深夜模式，簡化版）
+        const IntimacyPage = ({ result, isNight, onShowConsult }) => {
             const [intimacyResult, setIntimacyResult] = useState(null);
 
             const IntimacyReport = ({ data }) => {
-                const { hour, palaces } = data;
+                const { hour } = data;
                 const oData = getNumData(hour.o);
                 const intimacy = oData?.intimacy;
-                const palace7 = palaces[7];
-                const palace10 = palaces[10];
-                const palace11 = palaces[11];
                 
-                // 完整的7宮/10宮/11宮資料
-                const love7Data = {
-                    1: { desire: '被尊重、有空間', issue: '難以敞開脆弱', tip: '給他獨立空間，不要黏太緊，尊重他的決定' },
-                    2: { desire: '被陪伴、被理解', issue: '過度依賴', tip: '多陪伴多傾聽，前戲要夠長，事後要抱著他' },
-                    3: { desire: '有趣、有變化', issue: '難以深入', tip: '保持新鮮感，讚美他有魅力，換地方換姿勢' },
-                    4: { desire: '穩定、安全', issue: '可能太無聊', tip: '固定的親密儀式，熟悉的環境，不要突然來' },
-                    5: { desire: '自由、刺激', issue: '害怕承諾', tip: '一起冒險嘗試新事物，不要綁太緊' },
-                    6: { desire: '被照顧、被需要', issue: '過度付出', tip: '讓他照顧你，但也主動照顧他的身體' },
-                    7: { desire: '深度、被懂', issue: '難以信任', tip: '先有深度對話才有深度親密，給他時間' },
-                    8: { desire: '權力平衡', issue: '控制議題', tip: '建立對等關係，可以玩權力遊戲但要有信任' },
-                    9: { desire: '靈魂連結', issue: '太理想化', tip: '連結更高的意義，接受肉體也是神聖的' }
-                };
-                const fear10Data = {
-                    1: { fear: '害怕失去控制', inBed: '必須掌控一切，無法放鬆享受', heal: '練習交出控制權，讓自己被照顧' },
-                    2: { fear: '害怕被拋棄', inBed: '用性來綁住對方，過度討好', heal: '相信自己值得被愛，不需要交換' },
-                    3: { fear: '害怕不夠有魅力', inBed: '過度表演，太在意評價', heal: '相信真實比表演更吸引人' },
-                    4: { fear: '害怕失去安全感', inBed: '只在熟悉環境才行，很難放開', heal: '相信變化中也有穩定' },
-                    5: { fear: '害怕被束縛', inBed: '逃避親密，一完事就想跑', heal: '相信承諾也是一種自由' },
-                    6: { fear: '害怕不被需要', inBed: '只顧對方，忽略自己的愉悅', heal: '你的價值不只是付出' },
-                    7: { fear: '害怕被看穿', inBed: '身體疏離，活在腦袋裡', heal: '相信被理解是安全的' },
-                    8: { fear: '害怕失去權力', inBed: '需要控制或被徹底控制', heal: '放下控制會得到更多' },
-                    9: { fear: '害怕不夠完美', inBed: '逃避肉體，只活在精神層面', heal: '不完美也值得被愛' }
-                };
-                const open11Data = {
-                    1: { way: '需要自己決定才敞開', learn: '讓對方也有主導權' },
-                    2: { way: '對方先敞開才敢敞開', learn: '練習主動一點' },
-                    3: { way: '用言語和笑來敞開', learn: '也用身體直接表達' },
-                    4: { way: '需要時間和信任才敞開', learn: '偶爾可以快一點' },
-                    5: { way: '容易敞開但不深入', learn: '試著停留久一點' },
-                    6: { way: '為了對方而敞開', learn: '為了自己的愉悅也敞開' },
-                    7: { way: '心先開身體才開', learn: '有時候身體可以先' },
-                    8: { way: '在掌控感中敞開', learn: '試著放下掌控' },
-                    9: { way: '有意義才敞開', learn: '純粹的愉悅也可以' }
-                };
-                const turnOnOff = {
-                    1: { on: ['讓他主導', '表達崇拜', '征服的感覺', '適度挑戰'], off: ['批評表現', '搶主導權', '被動攻擊'] },
-                    2: { on: ['長前戲', '眼神交流', '說「我愛你」', '事後擁抱'], off: ['太快進入', '冷漠疏離', '完事就走'] },
-                    3: { on: ['言語調情', '讚美外表', '角色扮演', '新地點'], off: ['一成不變', '批評外貌', '太嚴肅'] },
-                    4: { on: ['固定儀式', '熟悉環境', '慢慢來', '安全感'], off: ['太多驚喜', '倉促', '陌生環境'] },
-                    5: { on: ['新嘗試', '不同地點', '臨時起意', '冒險感'], off: ['一成不變', '太多規則', '被束縛'] },
-                    6: { on: ['讓他照顧你', '表達需要他', '感謝', '溫馨氛圍'], off: ['拒絕他的付出', '批評照顧方式'] },
-                    7: { on: ['深度對話', '心靈連結', '慢慢探索', '被理解'], off: ['膚淺互動', '太快進入身體', '被催促'] },
-                    8: { on: ['權力遊戲', '強度', '掌控或臣服', '被崇拜'], off: ['軟弱', '沒有強度', '被忽視'] },
-                    9: { on: ['靈性連結', '儀式感', '神聖感', '深度意義'], off: ['純粹肉體', '太粗俗', '沒有意義'] }
-                };
-                const base = getBaseNum(hour.o);
-                const turnOn = turnOnOff[base]?.on || [];
-                const turnOff = turnOnOff[base]?.off || [];
-                const love7 = love7Data[palace7] || love7Data[1];
-                const fear10 = fear10Data[palace10] || fear10Data[1];
-                const open11 = open11Data[palace11] || open11Data[1];
-
                 return (
                     <div className="space-y-6 fade-in">
-                        {/* 性感標題 */}
                         <div className="card p-8 text-center bg-gradient-to-br from-pink-900/40 to-purple-900/50">
                             <div className="text-6xl mb-4">🔥</div>
-                            <h3 className="text-3xl font-bold gold-text serif mb-2">親密關係深度指南</h3>
+                            <h3 className="text-3xl font-bold gold-text serif mb-2">親密關係指南</h3>
                             <p className="opacity-70">你的慾望、恐懼、與敞開方式</p>
-                            {isMasterNumber(hour.o) && <MasterBadge num={hour.o} />}
                         </div>
 
-                        {/* 性能量類型 */}
                         <div className="card p-6">
                             <div className="flex items-center gap-4 mb-4">
                                 <span className="text-6xl font-bold gold-text">{hour.o}</span>
@@ -1545,19 +1644,6 @@ ${analysis.missingNumbers.length > 0 ? analysis.missingNumbers.map(n => `${n} ${
                             </div>
                         </div>
 
-                        {/* 開機 vs 關機 */}
-                        <div className="grid md:grid-cols-2 gap-4">
-                            <div className="card p-5 bg-gradient-to-br from-green-900/30 to-emerald-900/20">
-                                <h4 className="font-bold text-green-400 text-lg mb-3">✨ 開機按鈕</h4>
-                                <ul className="space-y-2">{turnOn.map((t, i) => <li key={i} className="flex items-center gap-2"><span className="text-green-400">►</span> {t}</li>)}</ul>
-                            </div>
-                            <div className="card p-5 bg-gradient-to-br from-red-900/30 to-rose-900/20">
-                                <h4 className="font-bold text-red-400 text-lg mb-3">❌ 關機按鈕</h4>
-                                <ul className="space-y-2">{turnOff.map((t, i) => <li key={i} className="flex items-center gap-2"><span className="text-red-400">►</span> {t}</li>)}</ul>
-                            </div>
-                        </div>
-
-                        {/* 健康 vs 失衡 */}
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="card p-5 bg-gradient-to-br from-green-900/30 to-emerald-900/20">
                                 <h4 className="font-bold text-green-400 text-lg mb-3">💕 健康狀態</h4>
@@ -1569,80 +1655,18 @@ ${analysis.missingNumbers.length > 0 ? analysis.missingNumbers.map(n => `${n} ${
                             </div>
                         </div>
 
-                        {/* 7宮：渴望的愛 */}
-                        <div className="card p-6">
-                            <h4 className="font-bold gold-text text-lg mb-3">💕 7宮・你渴望什麼愛？</h4>
-                            <div className="flex items-center gap-3 mb-3">
-                                <span className="text-4xl font-bold gold-text">{palace7}</span>
-                                <div>
-                                    <div className="font-bold text-lg">渴望：{love7.desire}</div>
-                                    <div className="text-sm opacity-70">潛在課題：{love7.issue}</div>
-                                </div>
-                            </div>
-                            <div className={`p-3 rounded-lg ${isNight ? 'bg-pink-900/30' : 'bg-pink-50'}`}>
-                                <span className="font-bold text-pink-500">💡 伴侶攻略：</span> {love7.tip}
-                            </div>
-                        </div>
-
-                        {/* 10宮：深層恐懼 */}
-                        <div className="card p-6">
-                            <h4 className="font-bold gold-text text-lg mb-3">😰 10宮・你對性的深層恐懼</h4>
-                            <div className="flex items-center gap-3 mb-3">
-                                <span className="text-4xl font-bold gold-text">{palace10}</span>
-                                <div>
-                                    <div className="font-bold text-lg text-red-400">{fear10.fear}</div>
-                                    <div className="text-sm opacity-70">在床上可能：{fear10.inBed}</div>
-                                </div>
-                            </div>
-                            <div className={`p-3 rounded-lg ${isNight ? 'bg-purple-900/30' : 'bg-purple-50'}`}>
-                                <span className="font-bold text-purple-500">🔮 療癒方向：</span> {fear10.heal}
-                            </div>
-                        </div>
-
-                        {/* 11宮：敞開方式 */}
-                        <div className="card p-6">
-                            <h4 className="font-bold gold-text text-lg mb-3">💝 11宮・你如何敞開身體？</h4>
-                            <div className="flex items-center gap-3 mb-3">
-                                <span className="text-4xl font-bold gold-text">{palace11}</span>
-                                <div>
-                                    <div className="font-bold text-lg">{open11.way}</div>
-                                    <div className="text-sm opacity-70">需要練習：{open11.learn}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 伴侶需要知道的 */}
                         <div className="card p-6 bg-gradient-to-br from-amber-900/30 to-orange-900/20">
                             <h4 className="font-bold text-amber-400 text-lg mb-3">💡 伴侶需要知道的</h4>
                             <p className="text-lg">{intimacy?.tip}</p>
                         </div>
-
-                        {/* 調頻精油 */}
-                        <div className="card p-6">
-                            <h4 className="font-bold gold-text text-lg mb-3">🌹 親密調頻精油處方</h4>
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className={`p-3 rounded-lg ${isNight ? 'bg-pink-900/20' : 'bg-pink-50'}`}>
-                                    <p className="font-bold text-pink-500 text-sm mb-1">想增加親密感</p>
-                                    <p className="text-xs">玫瑰2滴 + 依蘭3滴 + 檀香2滴</p>
-                                </div>
-                                <div className={`p-3 rounded-lg ${isNight ? 'bg-orange-900/20' : 'bg-orange-50'}`}>
-                                    <p className="font-bold text-orange-500 text-sm mb-1">想提升性能量</p>
-                                    <p className="text-xs">薑2滴 + 黑胡椒2滴 + 依蘭3滴</p>
-                                </div>
-                                <div className={`p-3 rounded-lg ${isNight ? 'bg-purple-900/20' : 'bg-purple-50'}`}>
-                                    <p className="font-bold text-purple-500 text-sm mb-1">想釋放壓抑</p>
-                                    <p className="text-xs">佛手柑3滴 + 苦橙葉2滴 + 茉莉2滴</p>
-                                </div>
-                                <div className={`p-3 rounded-lg ${isNight ? 'bg-blue-900/20' : 'bg-blue-50'}`}>
-                                    <p className="font-bold text-blue-500 text-sm mb-1">想療癒創傷</p>
-                                    <p className="text-xs">乳香3滴 + 玫瑰2滴 + 岩蘭草2滴</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 結語 */}
-                        <div className="card p-6 text-center opacity-80">
-                            <p className="italic">「你的身體不是敵人，是靈魂的載體。<br/>性不是骯髒的，是生命力的展現。<br/>當你能不帶羞恥地感受愉悅，<br/>不帶恐懼地敞開身體，<br/>那一刻，你才真正活著。」</p>
+                        
+                        {/* 親密關係 CTA */}
+                        <div className={`card p-6 text-center bg-gradient-to-r from-pink-900/50 to-purple-900/30`}>
+                            <div className="text-lg font-bold gold-text mb-2">🔮 想要完整親密關係指南？</div>
+                            <p className="text-sm opacity-70 mb-3">包含7宮愛的渴望、10宮深層恐懼、11宮敞開方式、精油處方</p>
+                            <button onClick={onShowConsult} className="gold-btn px-8 py-3 rounded-lg">
+                                取得完整親密指南
+                            </button>
                         </div>
                     </div>
                 );
@@ -1675,8 +1699,8 @@ ${analysis.missingNumbers.length > 0 ? analysis.missingNumbers.map(n => `${n} ${
             );
         };
 
-        // 合盤頁（簡化版，保持原有功能）
-        const CompatibilityPage = ({ result, isNight }) => {
+        // 合盤頁（簡化版）
+        const CompatibilityPage = ({ result, isNight, onShowConsult }) => {
             const [resultA, setResultA] = useState(result);
             const [resultB, setResultB] = useState(null);
 
@@ -1762,24 +1786,14 @@ ${analysis.missingNumbers.length > 0 ? analysis.missingNumbers.map(n => `${n} ${
                                     <div className="text-sm opacity-60">/ 80 分</div>
                                     <div className="text-2xl font-bold mt-2 serif">{analysis.level}</div>
                                 </div>
-                                <div className="card p-6">
-                                    <h4 className="font-bold mb-4">📊 詳細評分</h4>
-                                    <div className="space-y-3">
-                                        {analysis.details.map((d, i) => (
-                                            <div key={i}>
-                                                <div className="flex justify-between text-sm mb-1">
-                                                    <span>{d.name}</span>
-                                                    <span className="opacity-60">{d.score}/{d.max}</span>
-                                                </div>
-                                                <div className="score-bar bg-gray-200">
-                                                    <div className="score-fill" style={{
-                                                        width: `${(d.score / d.max) * 100}%`,
-                                                        background: d.score / d.max >= 0.7 ? 'linear-gradient(90deg, #22C55E, #4ADE80)' : 'linear-gradient(90deg, #EAB308, #FDE047)'
-                                                    }}></div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                
+                                {/* 合盤 CTA */}
+                                <div className={`card p-6 text-center ${isNight ? 'bg-gradient-to-r from-purple-900/50 to-pink-900/30' : 'bg-gradient-to-r from-amber-50 to-yellow-50'}`}>
+                                    <div className="text-lg font-bold gold-text mb-2">🔮 想要完整合盤分析？</div>
+                                    <p className="text-sm opacity-70 mb-3">包含12宮位對比、衝突化解建議、相處秘訣</p>
+                                    <button onClick={onShowConsult} className="gold-btn px-8 py-3 rounded-lg">
+                                        取得完整合盤報告
+                                    </button>
                                 </div>
                             </div>
                         );
@@ -1844,12 +1858,40 @@ ${analysis.missingNumbers.length > 0 ? analysis.missingNumbers.map(n => `${n} ${
                         </div>
                     )}
 
+                    {/* 諮詢彈窗 */}
+                    {showConsultModal && (
+                        <div className="modal-overlay" onClick={() => setShowConsultModal(false)}>
+                            <div className="card modal-content max-w-md w-full mx-4 p-8 text-center" onClick={e => e.stopPropagation()}>
+                                <div className="text-5xl mb-4">🔮</div>
+                                <h3 className="text-2xl font-bold gold-text mb-4 serif">深度解讀諮詢</h3>
+                                <p className="mb-4 opacity-80">
+                                    完整報告＆一對一深度解讀為付費服務，<br/>由創辦人王逸君親自為您解析命盤密碼。
+                                </p>
+                                <div className={`p-4 rounded-lg mb-4 ${isNight ? 'bg-purple-900/30' : 'bg-amber-50'}`}>
+                                    <div className="text-sm font-bold mb-2">📦 付費服務內容</div>
+                                    <ul className="text-xs text-left space-y-1 opacity-80">
+                                        <li>► 完整12宮位深度報告（12,000字+）</li>
+                                        <li>► 個人化精油處方＋行動方案</li>
+                                        <li>► 心理學深度分析（防衛機制、認知扭曲）</li>
+                                        <li>► 1對1語音/視訊諮詢</li>
+                                    </ul>
+                                </div>
+                                <div className="flex gap-3 justify-center">
+                                    <button onClick={() => setShowConsultModal(false)} className="px-6 py-3 rounded-lg bg-gray-200 text-gray-700 font-bold">稍後再說</button>
+                                    <a href="https://line.me/ti/p/~judyanee" target="_blank" rel="noopener noreferrer" className="gold-btn px-6 py-3 rounded-lg font-bold">
+                                        加入 LINE 諮詢
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <header className={`backdrop-blur-md shadow-sm sticky top-0 z-50 ${isNight ? 'bg-gray-900/90' : 'bg-white/90'}`}>
                         <div className="container mx-auto px-4 py-3">
                             <div className="flex justify-between items-center mb-3">
                                 <div>
                                     <h1 className="text-2xl font-bold gold-text tracking-widest serif">馥靈秘碼</h1>
-                                    <p className="text-[10px] opacity-50">Hour Light 生命數字解碼系統 v8.0</p>
+                                    <p className="text-[10px] opacity-50">Hour Light 生命數字解碼系統 v8.1</p>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {result && (
@@ -1873,51 +1915,33 @@ ${analysis.missingNumbers.length > 0 ? analysis.missingNumbers.map(n => `${n} ${
                     </header>
 
                     <main className="container mx-auto px-4 py-8">
-                        {activeTab === 'basic' && <BasicPage result={result} setResult={setResult} isNight={isNight} />}
-                        {activeTab === 'year' && <YearFortunePage result={result} isNight={isNight} />}
-                        {activeTab === 'fortune' && <LifeFortunePage result={result} isNight={isNight} />}
-                        {activeTab === 'compat' && <CompatibilityPage result={result} isNight={isNight} />}
-                        {activeTab === 'hr' && (isNight ? <IntimacyPage result={result} isNight={isNight} /> : <HRPage result={result} isNight={isNight} />)}
+                        {activeTab === 'basic' && <BasicPage result={result} setResult={setResult} isNight={isNight} onShowConsult={() => setShowConsultModal(true)} />}
+                        {activeTab === 'year' && <YearFortunePage result={result} isNight={isNight} onShowConsult={() => setShowConsultModal(true)} />}
+                        {activeTab === 'fortune' && <LifeFortunePage result={result} isNight={isNight} onShowConsult={() => setShowConsultModal(true)} />}
+                        {activeTab === 'compat' && <CompatibilityPage result={result} isNight={isNight} onShowConsult={() => setShowConsultModal(true)} />}
+                        {activeTab === 'hr' && (isNight ? <IntimacyPage result={result} isNight={isNight} onShowConsult={() => setShowConsultModal(true)} /> : <HRPage result={result} isNight={isNight} onShowConsult={() => setShowConsultModal(true)} />)}
                     </main>
 
-                    {/* 諮詢按鈕 */}
+                    {/* 浮動諮詢按鈕 */}
                     <button onClick={() => setShowConsultModal(true)} className="fixed bottom-6 right-6 z-50 group">
                         <div className="relative">
                             <div className={`absolute bottom-full right-0 mb-3 w-48 p-3 rounded-xl shadow-lg 
                                 transform transition-all duration-300 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0
                                 ${isNight ? 'bg-purple-900 text-purple-100' : 'bg-white text-gray-800'}`}>
                                 <p className="text-sm font-bold mb-1">🔮 想要更深入的解讀？</p>
-                                <p className="text-xs opacity-80">1對1專屬諮詢</p>
+                                <p className="text-xs opacity-80">完整報告＋1對1諮詢</p>
                             </div>
-                            <div className={`flex items-center gap-2 px-5 py-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105
+                            <div className={`flex items-center gap-2 px-5 py-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 cta-pulse
                                 ${isNight ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'bg-gradient-to-r from-amber-400 to-yellow-500 text-amber-900'}`}>
                                 <span className="font-bold text-sm">預約諮詢</span>
                             </div>
                         </div>
                     </button>
 
-                    {/* 諮詢彈窗 */}
-                    {showConsultModal && (
-                        <div className="modal-overlay" onClick={() => setShowConsultModal(false)}>
-                            <div className="card modal-content max-w-md w-full mx-4 p-8 text-center" onClick={e => e.stopPropagation()}>
-                                <div className="text-5xl mb-4">🔮</div>
-                                <h3 className="text-2xl font-bold gold-text mb-4 serif">深度解讀諮詢</h3>
-                                <p className="mb-4 opacity-80">
-                                    一對一深度解讀為專業付費服務，<br/>由創辦人親自為您解析命盤密碼。
-                                </p>
-                                <div className="flex gap-3 justify-center">
-                                    <button onClick={() => setShowConsultModal(false)} className="px-6 py-3 rounded-lg bg-gray-200 text-gray-700 font-bold">稍後再說</button>
-                                    <a href="https://line.me/ti/p/~judyanee" target="_blank" rel="noopener noreferrer" className="gold-btn px-6 py-3 rounded-lg font-bold">
-                                        加入 LINE 諮詢
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
                     <footer className="text-center py-8 opacity-40 text-xs">
-                        <p>© 2026 馥靈秘碼 Hour Light v8.0</p>
+                        <p>© 2026 馥靈秘碼 Hour Light v8.1</p>
                         <p>創始人：王逸君 ・ hourlight.github.io</p>
+                        <p className="mt-2">LINE ID: judyanee</p>
                     </footer>
                 </div>
             );
