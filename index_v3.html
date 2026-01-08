@@ -1,934 +1,1455 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<meta name="description" content="馥靈之鑰｜在九紫離火運的時代，用130張牌卡升級你的內在操作系統。這不是算命，是量子物理遇上古老智慧的實踐指南。">
-<title>馥靈之鑰｜你的內在操作系統，該升級了</title>
-<link rel="icon" href="favicon.ico" />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<style>
-  /* ===== 色彩系統 ===== */
-  :root {
-    --color-milk: #f9f5f0;
-    --color-cocoa: #4b392d;
-    --color-rose: #cda86e;
-    --color-rose-dark: #a88257;
-    --color-ink: #2a2a2a;
-    --color-veil: rgba(255, 255, 255, .88);
-    --color-shadow: rgba(0, 0, 0, .18);
-    --color-highlight: #e8c39e;
-    --color-quantum: #7c4dff;
-    --color-fire: #ff6b35;
-    
-    /* 間距系統 */
-    --space-xs: 8px;
-    --space-sm: 12px;
-    --space-md: 16px;
-    --space-lg: 22px;
-    --space-xl: 28px;
-    
-    /* 圓角系統 */
-    --radius-sm: 12px;
-    --radius-md: 14px;
-    --radius-lg: 16px;
-    --radius-full: 999px;
-    
-    /* 過渡時間 */
-    --transition-fast: 0.2s;
-    --transition-normal: 0.25s;
-    --transition-slow: 0.35s;
-  }
-
-  /* ===== 基礎重置 ===== */
-  *, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  html {
-    scroll-behavior: smooth;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  html, body {
-    height: 100%;
-  }
-
-  body {
-    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Arial", sans-serif;
-    color: var(--color-ink);
-    background: #000;
-    overflow-x: hidden;
-    line-height: 1.6;
-  }
-
-  body.loaded {
-    background: url('https://raw.githubusercontent.com/HourLight/11/main/background.jpg') center/cover fixed no-repeat;
-  }
-
-  /* ===== 進場畫面 ===== */
-  .splash {
-    position: fixed;
-    inset: 0;
-    background: url('P0001.png') center/cover no-repeat;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    transition: opacity 1.1s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .splash.fade-out {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .enter-btn {
-    position: absolute;
-    bottom: 64px;
-    padding: 12px 24px;
-    border-radius: var(--radius-full);
-    color: #fff;
-    background: rgba(0, 0, 0, .4);
-    font-weight: 800;
-    font-size: 1.05rem;
-    letter-spacing: 1px;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, .5);
-    cursor: pointer;
-    border: 2px solid rgba(255, 255, 255, .3);
-    transition: all var(--transition-normal);
-    animation: gentle-pulse 2.5s ease-in-out infinite;
-  }
-
-  .enter-btn:hover {
-    background: rgba(0, 0, 0, .6);
-    border-color: rgba(255, 255, 255, .5);
-    transform: translateY(-2px);
-  }
-
-  @keyframes gentle-pulse {
-    0%, 100% { opacity: 0.75; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.02); }
-  }
-
-  /* ===== 主要內容容器 ===== */
-  .main {
-    display: none;
-    min-height: 100vh;
-    padding: var(--space-xl) var(--space-md) 60px;
-    animation: fadeInUp 0.6s ease-out;
-  }
-
-  .main.show {
-    display: block;
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .wrap {
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
-  /* ===== 玻璃擬態卡片 ===== */
-  .glass {
-    background: var(--color-veil);
-    backdrop-filter: blur(8px) saturate(120%);
-    -webkit-backdrop-filter: blur(8px) saturate(120%);
-    border: 1px solid rgba(0, 0, 0, .06);
-    border-radius: var(--radius-lg);
-    box-shadow: 0 8px 32px var(--color-shadow);
-    padding: var(--space-lg);
-    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
-  }
-
-  /* ===== 世界觀震撼開場 ===== */
-  .worldview-hero {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    border-radius: var(--radius-lg);
-    padding: 40px 28px;
-    margin-bottom: 24px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 12px 40px rgba(15, 52, 96, .6);
-  }
-
-  .worldview-hero::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="10" cy="20" r="1" fill="white" opacity="0.8"/><circle cx="90" cy="80" r="1.5" fill="white" opacity="0.6"/><circle cx="50" cy="50" r="0.8" fill="white" opacity="0.7"/><circle cx="70" cy="30" r="1.2" fill="white" opacity="0.5"/><circle cx="30" cy="70" r="1" fill="white" opacity="0.9"/><circle cx="85" cy="15" r="0.6" fill="white" opacity="0.7"/><circle cx="15" cy="85" r="1.3" fill="white" opacity="0.6"/></svg>') repeat;
-    animation: stars-move 60s linear infinite;
-    opacity: 0.4;
-  }
-
-  @keyframes stars-move {
-    from { background-position: 0 0; }
-    to { background-position: 100px 100px; }
-  }
-
-  .worldview-hero > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  .worldview-label {
-    display: inline-block;
-    background: linear-gradient(135deg, var(--color-quantum), var(--color-fire));
-    color: #fff;
-    padding: 6px 14px;
-    border-radius: var(--radius-full);
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 1.2px;
-    margin-bottom: 14px;
-    box-shadow: 0 4px 12px rgba(124, 77, 255, .3);
-    text-transform: uppercase;
-  }
-
-  .worldview-hero h2 {
-    color: #fff;
-    font-size: clamp(1.4rem, 4.5vw, 2.2rem);
-    font-weight: 900;
-    line-height: 1.3;
-    margin-bottom: 16px;
-    text-shadow: 0 2px 12px rgba(0, 0, 0, .5);
-  }
-
-  .worldview-hero h2 .highlight {
-    color: var(--color-fire);
-    text-decoration: underline;
-    text-decoration-color: var(--color-quantum);
-    text-decoration-thickness: 3px;
-    text-underline-offset: 4px;
-  }
-
-  .worldview-hero p {
-    color: rgba(255, 255, 255, .92);
-    font-size: clamp(0.95rem, 2.2vw, 1.08rem);
-    line-height: 1.75;
-    margin-bottom: 12px;
-    font-weight: 500;
-  }
-
-  .worldview-hero p strong {
-    color: #fff;
-    font-weight: 800;
-  }
-
-  .worldview-cta {
-    display: inline-block;
-    background: linear-gradient(135deg, var(--color-fire), #e63946);
-    color: #fff;
-    font-weight: 900;
-    font-size: 1.05rem;
-    padding: 12px 28px;
-    border-radius: var(--radius-full);
-    text-decoration: none;
-    box-shadow: 0 6px 20px rgba(255, 107, 53, .4);
-    transition: all var(--transition-normal);
-    border: 2px solid rgba(255, 255, 255, .3);
-    margin-top: 8px;
-  }
-
-  .worldview-cta:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 8px 30px rgba(255, 107, 53, .6);
-  }
-
-  /* ===== 免費抽牌 CTA ===== */
-  .free-draw-hero {
-    background: linear-gradient(135deg, #f5e6d3 0%, #e8c39e 30%, #d4a574 70%, #c69661 100%);
-    border-radius: var(--radius-lg);
-    padding: 32px 24px;
-    text-align: center;
-    box-shadow: 0 12px 40px rgba(212, 165, 116, .4);
-    margin-bottom: 20px;
-    position: relative;
-    overflow: hidden;
-    animation: gentle-glow 3s ease-in-out infinite;
-  }
-
-  @keyframes gentle-glow {
-    0%, 100% { box-shadow: 0 12px 40px rgba(212, 165, 116, .4); }
-    50% { box-shadow: 0 12px 50px rgba(212, 165, 116, .6); }
-  }
-
-  .free-draw-hero::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="30" r="2" fill="white" opacity="0.5"/><circle cx="80" cy="70" r="1.5" fill="white" opacity="0.6"/><circle cx="50" cy="50" r="1" fill="white" opacity="0.5"/><circle cx="70" cy="20" r="2" fill="white" opacity="0.4"/><circle cx="40" cy="80" r="1.5" fill="%23fff4e6" opacity="0.7"/></svg>') repeat;
-    animation: sparkle 20s linear infinite;
-    opacity: 0.7;
-  }
-
-  @keyframes sparkle {
-    from { background-position: 0 0; }
-    to { background-position: 100px 100px; }
-  }
-
-  .free-draw-hero > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  .free-draw-hero .label {
-    display: inline-block;
-    background: rgba(255, 255, 255, .95);
-    color: #b8935f;
-    padding: 6px 16px;
-    border-radius: var(--radius-full);
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
-    box-shadow: 0 3px 12px rgba(75, 57, 45, .15);
-  }
-
-  .free-draw-hero h2 {
-    color: var(--color-cocoa);
-    font-size: clamp(1.3rem, 4vw, 1.75rem);
-    font-weight: 900;
-    margin: 8px 0;
-    text-shadow: 0 2px 8px rgba(255, 255, 255, .5);
-  }
-
-  .free-draw-hero p {
-    color: #5a4a3a;
-    font-size: clamp(0.9rem, 2.2vw, 1rem);
-    margin: 8px 0 20px;
-    line-height: 1.6;
-    font-weight: 500;
-  }
-
-  .free-draw-btn {
-    display: inline-block;
-    background: linear-gradient(135deg, var(--color-cocoa) 0%, #3a2a1f 100%);
-    color: #fff;
-    font-weight: 900;
-    font-size: 1.15rem;
-    padding: 14px 32px;
-    border-radius: var(--radius-full);
-    text-decoration: none;
-    box-shadow: 0 6px 20px rgba(42, 42, 42, .3);
-    transition: all var(--transition-normal);
-    border: 3px solid rgba(255, 255, 255, .8);
-  }
-
-  .free-draw-btn:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 8px 30px rgba(42, 42, 42, .4);
-    background: linear-gradient(135deg, #3a2a1f 0%, var(--color-cocoa) 100%);
-  }
-
-  /* ===== 英雄區 ===== */
-  .hero {
-    display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: var(--space-md);
-    align-items: stretch;
-  }
-
-  @media (max-width: 980px) {
-    .hero {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .brand {
-    text-align: center;
-    background: #fff;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .brand::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(205, 168, 110, 0.08) 0%, transparent 70%);
-    animation: rotate-gradient 20s linear infinite;
-  }
-
-  @keyframes rotate-gradient {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  .brand > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  .brand h1 {
-    margin: 4px 0 8px;
-    font-size: clamp(1.5rem, 4vw, 2.1rem);
-    color: var(--color-cocoa);
-    letter-spacing: 0.5px;
-    font-weight: 900;
-  }
-
-  .brand .tagline {
-    margin: 6px 0 12px;
-    color: var(--color-rose-dark);
-    font-weight: 700;
-    font-size: clamp(0.9rem, 2vw, 1rem);
-  }
-
-  .brand .essence {
-    color: #555;
-    font-weight: 500;
-    font-size: clamp(0.85rem, 1.8vw, 0.92rem);
-    line-height: 1.7;
-    padding: 0 12px;
-    margin-top: 10px;
-  }
-
-  /* ===== 雙軌系統 ===== */
-  .split {
-    display: grid;
-    gap: var(--space-md);
-    grid-template-rows: auto auto;
-  }
-
-  .track {
-    border-radius: var(--radius-md);
-    padding: 18px;
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, .06);
-    box-shadow: 0 6px 24px rgba(0, 0, 0, .12);
-    transition: all var(--transition-normal);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .track::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, transparent 0%, rgba(205, 168, 110, 0.05) 100%);
-    opacity: 0;
-    transition: opacity var(--transition-normal);
-  }
-
-  .track:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, .16);
-  }
-
-  .track:hover::before {
-    opacity: 1;
-  }
-
-  .track > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  .track h3 {
-    margin: 0 0 10px;
-    color: var(--color-cocoa);
-    font-size: clamp(1.05rem, 2.5vw, 1.22rem);
-    font-weight: 800;
-  }
-
-  /* ===== 標籤徽章 ===== */
-  .badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-xs);
-    margin: 10px 0 12px;
-  }
-
-  .badge {
-    font-size: 12px;
-    color: #fff;
-    padding: 6px 12px;
-    border-radius: var(--radius-full);
-    background: linear-gradient(135deg, var(--color-rose), var(--color-rose-dark));
-    box-shadow: inset 0 0 8px rgba(255, 255, 255, .3);
-    font-weight: 600;
-    transition: transform var(--transition-fast);
-  }
-
-  .badge:hover {
-    transform: scale(1.05);
-  }
-
-  /* ===== 按鈕系統 ===== */
-  .btns {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .btn {
-    display: inline-block;
-    text-decoration: none;
-    font-weight: 800;
-    padding: 10px 16px;
-    border-radius: 24px;
-    transition: all var(--transition-normal);
-    font-size: 0.9rem;
-    cursor: pointer;
-    border: none;
-    text-align: center;
-  }
-
-  .btn.primary {
-    color: #fff;
-    background: linear-gradient(135deg, var(--color-rose), var(--color-rose-dark));
-    box-shadow: 0 4px 12px rgba(205, 168, 110, .3);
-  }
-
-  .btn.primary:hover {
-    filter: brightness(1.08);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(205, 168, 110, .4);
-  }
-
-  .btn.secondary {
-    color: var(--color-cocoa);
-    background: #fff;
-    border: 2px solid var(--color-cocoa);
-  }
-
-  .btn.secondary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
-    background: var(--color-milk);
-  }
-
-  /* ===== 夥伴計畫 CTA ===== */
-  .partner-cta {
-    padding: 56px 20px;
-    border-top: 1px solid rgba(0, 0, 0, .06);
-    border-bottom: 1px solid rgba(0, 0, 0, .06);
-    background: rgba(255, 255, 255, .92);
-    margin-top: var(--space-md);
-    border-radius: var(--radius-lg);
-  }
-
-  .partner-cta-content {
-    max-width: 1100px;
-    margin: 0 auto;
-    text-align: center;
-  }
-
-  .partner-cta .label {
-    font-size: 13px;
-    letter-spacing: 0.15em;
-    opacity: 0.7;
-    text-transform: uppercase;
-    font-weight: 600;
-  }
-
-  .partner-cta h2 {
-    font-size: clamp(1.5rem, 4vw, 28px);
-    line-height: 1.3;
-    margin: 12px 0 8px;
-    color: var(--color-cocoa);
-    font-weight: 900;
-  }
-
-  .partner-cta p {
-    font-size: clamp(0.9rem, 2vw, 16px);
-    opacity: 0.9;
-    margin: 0;
-    color: #555;
-  }
-
-  .partner-cta .btns {
-    justify-content: center;
-    margin-top: 20px;
-  }
-
-  /* ===== 快速入口網格 ===== */
-  .grid {
-    margin-top: 18px;
-    display: grid;
-    gap: 14px;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  }
-
-  @media (max-width: 640px) {
-    .grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .tile {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    text-decoration: none;
-    padding: 18px;
-    border-radius: var(--radius-md);
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, .06);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, .12);
-    transition: all var(--transition-normal);
-    color: var(--color-cocoa);
-    min-height: 120px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .tile::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, transparent 0%, rgba(205, 168, 110, 0.08) 100%);
-    opacity: 0;
-    transition: opacity var(--transition-normal);
-  }
-
-  .tile:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 28px rgba(0, 0, 0, .18);
-  }
-
-  .tile:hover::before {
-    opacity: 1;
-  }
-
-  .tile > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  .tile .t1 {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--color-cocoa);
-  }
-
-  .tile .t2 {
-    font-size: 0.9rem;
-    color: #666;
-    line-height: 1.5;
-  }
-
-  /* ===== 雙欄區 ===== */
-  .two {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-md);
-    margin-top: var(--space-md);
-  }
-
-  @media (max-width: 768px) {
-    .two {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .two h3 {
-    margin: 0 0 14px;
-    color: var(--color-cocoa);
-    font-size: 1.25rem;
-    font-weight: 800;
-  }
-
-  /* ===== Footer ===== */
-  .footer {
-    margin-top: var(--space-xl);
-    text-align: center;
-    font-size: 0.9rem;
-    line-height: 1.8;
-    color: #555;
-  }
-
-  .footer strong {
-    color: var(--color-cocoa);
-  }
-
-  .footer a {
-    color: var(--color-rose-dark);
-    text-decoration: none;
-    font-weight: 600;
-    transition: color var(--transition-fast);
-  }
-
-  .footer a:hover {
-    color: var(--color-cocoa);
-    text-decoration: underline;
-  }
-
-  .fbtns {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 16px;
-  }
-
-  .fbtn {
-    display: inline-block;
-    padding: 8px 16px;
-    background: rgba(255, 255, 255, .6);
-    border-radius: var(--radius-full);
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--color-cocoa);
-    text-decoration: none;
-    transition: all var(--transition-fast);
-    border: 1px solid rgba(0, 0, 0, .08);
-  }
-
-  .fbtn:hover {
-    background: #fff;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
-  }
-
-  /* ===== 響應式微調 ===== */
-  @media (max-width: 640px) {
-    .btns {
-      flex-direction: column;
-    }
-    
-    .btn {
-      width: 100%;
-    }
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>馥靈之鑰 Hour Light</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Noto Serif TC', serif;
+            min-height: 100vh;
+            color: #D4A84B;
+            overflow-x: hidden;
+            background: #000;
+        }
+
+        /* 星空背景 */
+        .starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%);
+            overflow: hidden;
+        }
+        .stars {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+                radial-gradient(2px 2px at 160px 120px, rgba(200,170,80,0.6), transparent),
+                radial-gradient(1px 1px at 230px 80px, #fff, transparent),
+                radial-gradient(2px 2px at 300px 150px, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1px 1px at 50px 160px, #fff, transparent),
+                radial-gradient(2px 2px at 120px 200px, rgba(200,170,80,0.5), transparent),
+                radial-gradient(1px 1px at 200px 250px, #fff, transparent),
+                radial-gradient(2px 2px at 280px 220px, rgba(255,255,255,0.6), transparent);
+            background-size: 350px 350px;
+            animation: starsFlow 60s linear infinite, twinkle 8s ease-in-out infinite;
+        }
+        .stars2 {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                radial-gradient(1px 1px at 50px 100px, #fff, transparent),
+                radial-gradient(2px 2px at 150px 50px, rgba(200,170,80,0.4), transparent),
+                radial-gradient(1px 1px at 250px 180px, #fff, transparent),
+                radial-gradient(1px 1px at 100px 280px, rgba(255,255,255,0.5), transparent),
+                radial-gradient(2px 2px at 320px 100px, #fff, transparent);
+            background-size: 400px 400px;
+            animation: starsFlow2 80s linear infinite, twinkle 12s ease-in-out infinite reverse;
+        }
+        .stars3 {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(3px 3px at 100px 150px, rgba(200,170,80,0.8), transparent),
+                radial-gradient(2px 2px at 250px 100px, rgba(255,255,255,0.9), transparent),
+                radial-gradient(3px 3px at 180px 280px, rgba(255,200,100,0.6), transparent),
+                radial-gradient(2px 2px at 320px 200px, #fff, transparent);
+            background-size: 500px 500px;
+            animation: twinkleBright 4s ease-in-out infinite, starsFlow3 100s linear infinite;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        @keyframes twinkleBright {
+            0%, 100% { opacity: 0.3; }
+            25% { opacity: 1; }
+            50% { opacity: 0.5; }
+            75% { opacity: 0.9; }
+        }
+        @keyframes starsFlow {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-350px, -350px); }
+        }
+        @keyframes starsFlow2 {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-400px, -200px); }
+        }
+        @keyframes starsFlow3 {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(-250px, -250px) rotate(10deg); }
+        }
+
+        /* 流動光點 */
+        .shooting-stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .shooting-star {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(-45deg, rgba(200,170,80,0.9), rgba(255,255,255,0.6), transparent);
+            opacity: 0;
+            animation: shoot ease-in-out infinite;
+        }
+        .shooting-star.left {
+            background: linear-gradient(45deg, rgba(200,170,80,0.9), rgba(255,255,255,0.6), transparent);
+            animation-name: shootLeft;
+        }
+        .shooting-star:nth-child(1) { top: 5%; left: 10%; width: 80px; animation-delay: 0s; animation-duration: 12s; }
+        .shooting-star:nth-child(2) { top: 8%; left: 55%; width: 60px; animation-delay: 8s; animation-duration: 15s; }
+        .shooting-star:nth-child(3) { top: 12%; left: 70%; width: 90px; animation-delay: 16s; animation-duration: 13s; }
+        .shooting-star:nth-child(4) { top: 15%; left: 75%; width: 70px; animation-delay: 24s; animation-duration: 14s; }
+        .shooting-star:nth-child(5) { top: 18%; left: 45%; width: 85px; animation-delay: 32s; animation-duration: 12s; }
+        .shooting-star:nth-child(6) { top: 22%; left: 85%; width: 65px; animation-delay: 40s; animation-duration: 15s; }
+        .shooting-star:nth-child(7) { top: 25%; left: 60%; width: 75px; animation-delay: 48s; animation-duration: 13s; }
+        .shooting-star:nth-child(8) { top: 28%; left: 85%; width: 55px; animation-delay: 56s; animation-duration: 14s; }
+        .shooting-star:nth-child(9) { top: 32%; left: 25%; width: 95px; animation-delay: 64s; animation-duration: 12s; }
+        .shooting-star:nth-child(10) { top: 35%; left: 90%; width: 60px; animation-delay: 72s; animation-duration: 15s; }
+        .shooting-star:nth-child(11) { top: 38%; left: 5%; width: 80px; animation-delay: 80s; animation-duration: 13s; }
+        .shooting-star:nth-child(12) { top: 42%; left: 70%; width: 70px; animation-delay: 88s; animation-duration: 14s; }
+        .shooting-star:nth-child(13) { top: 45%; left: 35%; width: 85px; animation-delay: 96s; animation-duration: 12s; }
+        .shooting-star:nth-child(14) { top: 48%; left: 80%; width: 65px; animation-delay: 104s; animation-duration: 15s; }
+        .shooting-star:nth-child(15) { top: 52%; left: 20%; width: 90px; animation-delay: 112s; animation-duration: 13s; }
+        .shooting-star:nth-child(16) { top: 55%; left: 95%; width: 75px; animation-delay: 120s; animation-duration: 14s; }
+        .shooting-star:nth-child(17) { top: 58%; left: 40%; width: 55px; animation-delay: 128s; animation-duration: 12s; }
+        .shooting-star:nth-child(18) { top: 62%; left: 75%; width: 80px; animation-delay: 136s; animation-duration: 15s; }
+        .shooting-star:nth-child(19) { top: 65%; left: 55%; width: 70px; animation-delay: 144s; animation-duration: 13s; }
+        .shooting-star:nth-child(20) { top: 68%; left: 25%; width: 85px; animation-delay: 152s; animation-duration: 14s; }
+        @keyframes shoot {
+            0% { 
+                transform: rotate(45deg) translate(0, 0); 
+                opacity: 0; 
+            }
+            2% { opacity: 1; }
+            8% { 
+                transform: rotate(45deg) translate(250px, 0); 
+                opacity: 0; 
+            }
+            100% { opacity: 0; }
+        }
+        @keyframes shootLeft {
+            0% { 
+                transform: rotate(135deg) translate(0, 0); 
+                opacity: 0; 
+            }
+            2% { opacity: 1; }
+            8% { 
+                transform: rotate(135deg) translate(250px, 0); 
+                opacity: 0; 
+            }
+            100% { opacity: 0; }
+        }
+
+        /* 柔和光暈脈動 */
+        .glow-orbs {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        .glow-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(40px);
+            animation: glowPulse 8s ease-in-out infinite;
+        }
+        .glow-orb:nth-child(1) {
+            width: 200px;
+            height: 200px;
+            background: rgba(200, 170, 80, 0.08);
+            top: 10%;
+            right: 10%;
+            animation-delay: 0s;
+        }
+        .glow-orb:nth-child(2) {
+            width: 150px;
+            height: 150px;
+            background: rgba(200, 180, 255, 0.06);
+            bottom: 20%;
+            left: 5%;
+            animation-delay: 3s;
+        }
+        .glow-orb:nth-child(3) {
+            width: 180px;
+            height: 180px;
+            background: rgba(255, 200, 150, 0.05);
+            top: 50%;
+            left: 50%;
+            animation-delay: 5s;
+        }
+        @keyframes glowPulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.3); opacity: 0.8; }
+        }
+
+        /* 隱約城堡框架 */
+        .castle-silhouette {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 500px;
+            height: 70%;
+            opacity: 0.06;
+            pointer-events: none;
+        }
+        .castle-silhouette svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 宇宙光暈 */
+        .nebula {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 80%, rgba(75, 0, 130, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(25, 25, 112, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(139, 69, 19, 0.05) 0%, transparent 60%);
+        }
+
+        .container { max-width: 100%; min-height: 100vh; position: relative; z-index: 1; }
+
+        /* 主頁面 */
+        .main-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 25px;
+        }
+
+        .logo-section { text-align: center; margin-bottom: 35px; }
+        .logo-text {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #C9A227;
+            text-shadow: 
+                0 0 15px rgba(200, 170, 80, 0.6),
+                0 0 30px rgba(255, 200, 50, 0.4),
+                0 0 50px rgba(255, 180, 0, 0.2);
+            letter-spacing: 10px;
+            margin-bottom: 8px;
+        }
+        .logo-english {
+            font-size: 1rem;
+            color: #D4A84B;
+            letter-spacing: 6px;
+            opacity: 0.9;
+        }
+        .logo-tagline {
+            font-size: 0.85rem;
+            color: #DAA520;
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+            max-width: 380px;
+            width: 100%;
+            margin-bottom: 35px;
+        }
+        .menu-btn {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(200, 170, 80, 0.5);
+            border-radius: 15px;
+            padding: 28px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            backdrop-filter: blur(5px);
+        }
+        .menu-btn:hover, .menu-btn:active {
+            background: rgba(200, 170, 80, 0.1);
+            border-color: #D4A84B;
+            transform: translateY(-3px);
+            box-shadow: 
+                0 0 15px rgba(200, 170, 80, 0.4),
+                0 8px 25px rgba(0, 0, 0, 0.5);
+        }
+        .menu-icon { font-size: 2rem; }
+        .menu-title { 
+            font-size: 1.05rem; 
+            color: #D4A84B; 
+            text-shadow: 0 0 10px rgba(200, 170, 80, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .aroma-info {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(200, 170, 80, 0.3);
+            border-radius: 12px;
+            padding: 18px 28px;
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+        .aroma-label { font-size: 0.8rem; color: #DAA520; margin-bottom: 6px; letter-spacing: 2px; }
+        .aroma-name { font-size: 1.15rem; color: #D4A84B; margin-bottom: 5px; text-shadow: 0 0 8px rgba(200, 170, 80, 0.4); }
+        .aroma-blend { font-size: 0.75rem; color: #B8860B; }
+
+        .founder-bottom {
+            margin-top: 25px;
+            text-align: center;
+            opacity: 0.85;
+        }
+        .founder-bottom-label {
+            font-size: 0.7rem;
+            color: #8B7355;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+        .founder-bottom-name {
+            font-size: 0.95rem;
+            color: #C9A227;
+            letter-spacing: 3px;
+            margin-bottom: 3px;
+        }
+        .founder-bottom-desc {
+            font-size: 0.7rem;
+            color: #8B7355;
+        }
+
+        /* 子頁面通用 */
+        .sub-page {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 25px;
+            padding-bottom: 50px;
+        }
+        .sub-page.active { display: flex; }
+        .back-btn {
+            position: fixed;
+            top: 18px;
+            left: 18px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(200, 170, 80, 0.5);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: #D4A84B;
+            transition: all 0.3s ease;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+        .back-btn:hover { 
+            background: rgba(200, 170, 80, 0.15); 
+            box-shadow: 0 0 15px rgba(200, 170, 80, 0.3);
+        }
+        .sub-logo {
+            margin-top: 55px;
+            font-size: 1.1rem;
+            color: #C9A227;
+            letter-spacing: 3px;
+            cursor: pointer;
+            text-shadow: 0 0 10px rgba(200, 170, 80, 0.4);
+            transition: all 0.3s ease;
+        }
+        .sub-logo:hover {
+            color: #D4A84B;
+            text-shadow: 0 0 15px rgba(200, 170, 80, 0.6);
+        }
+        .page-title { 
+            font-size: 1.7rem; 
+            color: #D4A84B; 
+            margin: 10px 0 25px; 
+            text-align: center;
+            text-shadow: 0 0 15px rgba(200, 170, 80, 0.5);
+            letter-spacing: 3px;
+        }
+
+        /* 音頻頁面 */
+        .music-page .playlist-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            width: 100%;
+            max-width: 350px;
+            margin-bottom: 20px;
+        }
+        .playlist-item {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(200, 170, 80, 0.3);
+            border-radius: 12px;
+            padding: 15px 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            backdrop-filter: blur(5px);
+        }
+        .playlist-item:hover, .playlist-item:active {
+            background: rgba(200, 170, 80, 0.1);
+            border-color: #C9A227;
+            transform: translateX(5px);
+        }
+        .playlist-item.active {
+            border-color: #D4A84B;
+            background: rgba(200, 170, 80, 0.15);
+            box-shadow: 0 0 15px rgba(200, 170, 80, 0.2);
+        }
+        .playlist-icon { font-size: 1.5rem; }
+        .playlist-name { 
+            font-size: 0.95rem; 
+            color: #C9A227; 
+            margin-bottom: 2px;
+        }
+        .playlist-desc { 
+            font-size: 0.75rem; 
+            color: #8B7355; 
+        }
+        .music-page .playlist-container {
+            width: 100%;
+            max-width: 680px;
+            aspect-ratio: 16/9;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(200, 170, 80, 0.3);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 15px;
+        }
+        .music-page iframe { width: 100%; height: 100%; }
+        .music-hint { margin-top: 18px; color: #DAA520; font-size: 0.85rem; text-align: center; }
+        .music-hint a { color: #D4A84B; text-decoration: none; }
+        .music-hint a:hover { text-shadow: 0 0 10px rgba(200, 170, 80, 0.5); }
+
+        /* 牌卡頁面 */
+        .card-page { justify-content: center; padding-top: 70px; }
+        .card-instruction { 
+            text-align: center; 
+            margin-bottom: 28px; 
+            color: #DAA520; 
+            font-size: 0.95rem; 
+            line-height: 2;
+            letter-spacing: 1px;
+        }
+        .card-container { perspective: 1000px; width: 250px; height: 375px; margin-bottom: 28px; }
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s ease;
+            cursor: pointer;
+        }
+        .card.flipped { transform: rotateY(180deg); }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #D4A84B;
+            box-shadow: 
+                0 0 20px rgba(200, 170, 80, 0.3),
+                0 15px 40px rgba(0, 0, 0, 0.6);
+        }
+        .card-back {
+            background: linear-gradient(145deg, #0a0a1a 0%, #000 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+        }
+        .card-back-logo { 
+            font-size: 1.2rem; 
+            color: #D4A84B; 
+            text-align: center; 
+            text-shadow: 0 0 10px rgba(200, 170, 80, 0.5);
+            letter-spacing: 2px;
+        }
+        .card-back-symbol { 
+            font-size: 3.5rem; 
+            text-shadow: 0 0 30px rgba(200, 170, 80, 0.6);
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        .card-front { transform: rotateY(180deg); background: #000; }
+        .card-front img { width: 100%; height: 100%; object-fit: cover; }
+
+        .draw-btn {
+            background: transparent;
+            color: #D4A84B;
+            border: 2px solid #D4A84B;
+            border-radius: 30px;
+            padding: 14px 45px;
+            font-size: 1.1rem;
+            font-family: 'Noto Serif TC', serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(200, 170, 80, 0.5);
+        }
+        .draw-btn:hover { 
+            background: rgba(200, 170, 80, 0.15);
+            box-shadow: 0 0 25px rgba(200, 170, 80, 0.4);
+        }
+        .card-result {
+            margin-top: 25px;
+            text-align: center;
+            max-width: 320px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .card-result.show { opacity: 1; }
+        .card-name { 
+            font-size: 1.25rem; 
+            color: #D4A84B; 
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(200, 170, 80, 0.5);
+            letter-spacing: 2px;
+        }
+        .card-message { color: #DAA520; font-size: 0.95rem; line-height: 1.8; }
+
+        /* 秘碼頁面 */
+        .code-page { justify-content: flex-start; padding-top: 75px; }
+        .code-intro {
+            text-align: center;
+            max-width: 350px;
+            margin-bottom: 20px;
+            color: #B8860B;
+            font-size: 0.85rem;
+            line-height: 1.7;
+        }
+        .code-form {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(200, 170, 80, 0.3);
+            border-radius: 18px;
+            padding: 22px 20px;
+            width: 100%;
+            max-width: 340px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(5px);
+        }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; color: #C9A227; margin-bottom: 8px; font-size: 0.85rem; letter-spacing: 1px; }
+        .form-row { display: flex; gap: 8px; }
+        .form-input, .form-select {
+            flex: 1;
+            min-width: 0;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(200, 170, 80, 0.3);
+            border-radius: 8px;
+            padding: 10px 8px;
+            color: #D4A84B;
+            font-size: 0.9rem;
+            font-family: 'Noto Serif TC', serif;
+            text-align: center;
+        }
+        .form-input::placeholder { color: rgba(200, 170, 80, 0.4); font-size: 0.85rem; }
+        .form-input:focus, .form-select:focus { 
+            outline: none; 
+            border-color: #D4A84B;
+            box-shadow: 0 0 10px rgba(200, 170, 80, 0.2);
+        }
+        .form-select { 
+            font-size: 0.8rem; 
+            padding: 10px 5px;
+            text-align: left;
+        }
+        .form-select option { background: #0a0a1a; color: #D4A84B; }
+        .calculate-btn {
+            width: 100%;
+            background: transparent;
+            color: #D4A84B;
+            border: 2px solid #D4A84B;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 1.05rem;
+            font-family: 'Noto Serif TC', serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-top: 8px;
+        }
+        .calculate-btn:hover { 
+            background: rgba(200, 170, 80, 0.15);
+            box-shadow: 0 0 20px rgba(200, 170, 80, 0.3);
+        }
+
+        .result-container { display: none; width: 100%; max-width: 360px; }
+        .result-container.show { display: block; }
+        .result-card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(200, 170, 80, 0.4);
+            border-radius: 18px;
+            padding: 22px;
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+        .result-title { 
+            font-size: 1.1rem; 
+            color: #DAA520; 
+            margin-bottom: 18px;
+            letter-spacing: 2px;
+        }
+        .hour-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+        .hour-item { 
+            background: rgba(0, 0, 0, 0.5); 
+            border-radius: 12px; 
+            padding: 12px 6px;
+            border: 1px solid rgba(200, 170, 80, 0.2);
+        }
+        .hour-letter { font-size: 1.2rem; color: #D4A84B; font-weight: 700; }
+        .hour-number { 
+            font-size: 1.8rem; 
+            color: #D4A84B; 
+            margin: 4px 0; 
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(200, 170, 80, 0.5);
+        }
+        .hour-name { font-size: 0.7rem; color: #B8860B; }
+        .result-detail { text-align: left; margin-top: 18px; }
+        .detail-item { 
+            margin-bottom: 14px; 
+            padding: 12px; 
+            background: rgba(0,0,0,0.4); 
+            border-radius: 10px;
+            border-left: 3px solid #D4A84B;
+        }
+        .detail-label { font-size: 0.85rem; color: #DAA520; margin-bottom: 5px; }
+        .detail-text { font-size: 0.9rem; color: #D4A84B; line-height: 1.6; }
+
+        /* 城堡頁面 */
+        .castle-page { padding-top: 70px; }
+        .castle-section {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(200, 170, 80, 0.3);
+            border-radius: 15px;
+            padding: 22px;
+            margin-bottom: 18px;
+            max-width: 380px;
+            width: 100%;
+            backdrop-filter: blur(5px);
+        }
+        .castle-title { 
+            font-size: 1.1rem; 
+            color: #D4A84B; 
+            margin-bottom: 12px; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px;
+            text-shadow: 0 0 10px rgba(200, 170, 80, 0.4);
+        }
+        .castle-text { font-size: 0.88rem; color: #DAA520; line-height: 1.8; }
+        .castle-quote {
+            font-size: 1rem;
+            color: #D4A84B;
+            text-align: center;
+            padding: 15px;
+            border-left: 3px solid #D4A84B;
+            margin: 15px 0;
+            background: rgba(200, 170, 80, 0.05);
+            border-radius: 0 10px 10px 0;
+        }
+        .hour-explain { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px; }
+        .hour-box { 
+            background: rgba(0,0,0,0.4); 
+            border-radius: 10px; 
+            padding: 12px; 
+            text-align: center;
+            border: 1px solid rgba(200, 170, 80, 0.2);
+        }
+        .hour-box-letter { font-size: 1.3rem; color: #D4A84B; font-weight: 700; }
+        .hour-box-name { font-size: 0.8rem; color: #DAA520; margin-top: 3px; }
+        .hour-box-desc { font-size: 0.72rem; color: #B8860B; margin-top: 4px; }
+
+        .founder-card {
+            text-align: center;
+            padding: 25px;
+        }
+        .founder-card-name {
+            font-size: 1.3rem;
+            color: #D4A84B;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(200, 170, 80, 0.5);
+            letter-spacing: 3px;
+        }
+        .founder-card-desc {
+            font-size: 0.85rem;
+            color: #DAA520;
+            line-height: 1.8;
+        }
+        .founder-contact {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: #B8860B;
+        }
+
+        /* 創始人頁面 */
+        .founder-page { padding-top: 70px; }
+        .founder-hero {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .founder-hero-name {
+            font-size: 2rem;
+            color: #C9A227;
+            text-shadow: 0 0 15px rgba(200, 170, 80, 0.5);
+            letter-spacing: 5px;
+            margin-bottom: 8px;
+        }
+        .founder-hero-title {
+            font-size: 0.9rem;
+            color: #B8860B;
+            letter-spacing: 2px;
+        }
+        .founder-section {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(200, 170, 80, 0.25);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            max-width: 380px;
+            width: 100%;
+            backdrop-filter: blur(5px);
+        }
+        .founder-section-title {
+            font-size: 0.9rem;
+            color: #C9A227;
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+            border-bottom: 1px solid rgba(200, 170, 80, 0.2);
+            padding-bottom: 8px;
+        }
+        .founder-section-text {
+            font-size: 0.85rem;
+            color: #DAA520;
+            line-height: 1.9;
+        }
+        .founder-section-quote {
+            font-size: 0.9rem;
+            color: #C9A227;
+            line-height: 2;
+            text-align: center;
+            font-style: italic;
+        }
+        .founder-contact-section {
+            text-align: center;
+        }
+        .founder-contact-section .founder-section-text {
+            line-height: 2.2;
+        }
+
+        @media (max-width: 400px) {
+            .logo-text { font-size: 2.3rem; letter-spacing: 6px; }
+            .menu-grid { gap: 12px; }
+            .menu-btn { padding: 22px 10px; }
+            .card-container { width: 220px; height: 330px; }
+        }
+    </style>
 </head>
 <body>
-
-<!-- 進站大圖 -->
-<div class="splash" id="splash" onclick="enterSite()" role="button" tabindex="0" aria-label="點擊進入網站">
-  <div class="enter-btn">✨ 點擊開始旅程 ✨</div>
-</div>
-
-<!-- 主內容 -->
-<main class="main" id="main">
-  <div class="wrap">
-
-    <!-- 世界觀震撼開場 -->
-    <div class="worldview-hero">
-      <div class="worldview-label">🔬 2025諾貝爾物理獎 × 九紫離火運</div>
-      <h2>你知道嗎？<span class="highlight">你的「觀察」，正在創造你的現實</span></h2>
-      <p>這不是心靈雞湯，是<strong>量子物理</strong>。2025年諾貝爾物理獎已經證明：意念，是一種物理力量。</p>
-      <p>從2024到2043年，地球進入「九紫離火運」——整個世界的頻率升級了。就像手機從4G升到5G，不是手機壞了，是整個基礎建設變了。</p>
-      <p><strong>你的內在操作系統，該升級了。</strong></p>
-      <a href="#" class="worldview-cta">🔑 了解馥靈之鑰系統</a>
+    <div class="starfield">
+        <div class="nebula"></div>
+        <div class="stars"></div>
+        <div class="stars2"></div>
+        <div class="stars3"></div>
+        <div class="shooting-stars">
+            <div class="shooting-star"></div>
+            <div class="shooting-star"></div>
+            <div class="shooting-star left"></div>
+            <div class="shooting-star"></div>
+            <div class="shooting-star"></div>
+            <div class="shooting-star left"></div>
+            <div class="shooting-star"></div>
+            <div class="shooting-star left"></div>
+            <div class="shooting-star"></div>
+            <div class="shooting-star left"></div>
+            <div class="shooting-star"></div>
+            <div class="shooting-star"></div>
+            <div class="shooting-star"></div>
+            <div class="shooting-star left"></div>
+            <div class="shooting-star"></div>
+            <div class="shooting-star left"></div>
+            <div class="shooting-star"></div>
+            <div class="shooting-star left"></div>
+            <div class="shooting-star"></div>
+            <div class="shooting-star"></div>
+        </div>
+        <div class="glow-orbs">
+            <div class="glow-orb"></div>
+            <div class="glow-orb"></div>
+            <div class="glow-orb"></div>
+        </div>
+        <div class="castle-silhouette">
+            <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMax meet">
+                <!-- 主城牆 -->
+                <path d="M50 500 L50 280 L30 280 L30 250 L50 250 L50 220 L70 220 L70 250 L90 250 L90 280 L70 280 L70 300 L130 300 L130 200 L110 200 L110 170 L130 170 L130 140 L150 140 L150 170 L170 170 L170 200 L150 200 L150 300 L180 300 L180 150 L160 150 L160 100 L180 100 L180 50 L200 30 L220 50 L220 100 L240 100 L240 150 L220 150 L220 300 L250 300 L250 200 L230 200 L230 170 L250 170 L250 140 L270 140 L270 170 L290 170 L290 200 L270 200 L270 300 L330 300 L330 280 L310 280 L310 250 L330 250 L330 220 L350 220 L350 250 L370 250 L370 280 L350 280 L350 500" 
+                      fill="none" 
+                      stroke="rgba(180,150,100,0.8)" 
+                      stroke-width="1.5"/>
+                <!-- 中央大門 -->
+                <path d="M170 500 L170 380 Q200 350 230 380 L230 500" 
+                      fill="none" 
+                      stroke="rgba(180,150,100,0.8)" 
+                      stroke-width="1.5"/>
+                <!-- 左窗 -->
+                <rect x="80" y="350" width="30" height="45" rx="15" ry="15" 
+                      fill="none" 
+                      stroke="rgba(180,150,100,0.6)" 
+                      stroke-width="1"/>
+                <!-- 右窗 -->
+                <rect x="290" y="350" width="30" height="45" rx="15" ry="15" 
+                      fill="none" 
+                      stroke="rgba(180,150,100,0.6)" 
+                      stroke-width="1"/>
+                <!-- 中塔窗 -->
+                <rect x="185" y="180" width="30" height="40" rx="15" ry="15" 
+                      fill="none" 
+                      stroke="rgba(180,150,100,0.6)" 
+                      stroke-width="1"/>
+                <!-- 左塔窗 -->
+                <rect x="125" y="230" width="20" height="30" rx="10" ry="10" 
+                      fill="none" 
+                      stroke="rgba(180,150,100,0.5)" 
+                      stroke-width="1"/>
+                <!-- 右塔窗 -->
+                <rect x="255" y="230" width="20" height="30" rx="10" ry="10" 
+                      fill="none" 
+                      stroke="rgba(180,150,100,0.5)" 
+                      stroke-width="1"/>
+            </svg>
+        </div>
     </div>
 
-    <!-- 免費抽牌 Hero -->
-    <div class="free-draw-hero">
-      <div class="label">🎁 完全免費</div>
-      <h2>先抽一張牌，驗證一下宇宙有沒有在聽</h2>
-      <p>不用會員、不用登入，就當做一場量子糾纏的迷你實驗</p>
-      <a href="draw-hl.html" class="free-draw-btn">🔮 立即免費抽牌</a>
+    <div class="container">
+        <!-- 主頁面 -->
+        <div class="main-page" id="mainPage">
+            <div class="logo-section">
+                <div class="logo-text" onclick="showPage('mainPage')" style="cursor: pointer;">馥靈之鑰</div>
+                <div class="logo-english">HOUR LIGHT</div>
+                <div class="logo-tagline">每個人心裡都有一座城堡<br>拿回鑰匙，成為自己的主人</div>
+            </div>
+
+            <div class="menu-grid">
+                <div class="menu-btn" onclick="showPage('musicPage')">
+                    <div class="menu-icon">🎵</div>
+                    <div class="menu-title">頻率共振</div>
+                </div>
+                <div class="menu-btn" onclick="showPage('cardPage')">
+                    <div class="menu-icon">🔑</div>
+                    <div class="menu-title">智慧指引</div>
+                </div>
+                <div class="menu-btn" onclick="showPage('codePage')">
+                    <div class="menu-icon">🔮</div>
+                    <div class="menu-title">馥靈秘碼</div>
+                </div>
+                <div class="menu-btn" onclick="showPage('castlePage')">
+                    <div class="menu-icon">🏰</div>
+                    <div class="menu-title">內在城堡</div>
+                </div>
+            </div>
+
+            <div class="aroma-info">
+                <div class="aroma-label">✧ 今日空間調頻 ✧</div>
+                <div class="aroma-name">靜心複方</div>
+                <div class="aroma-blend">雪松 ・ 快樂鼠尾草 ・ 苦橙葉 ・ 廣藿香</div>
+            </div>
+
+            <div class="founder-bottom" onclick="showPage('founderPage')" style="cursor: pointer;">
+                <div class="founder-bottom-label">⟡ 認識創始人 ⟡</div>
+                <div class="founder-bottom-name">王逸君</div>
+                <div class="founder-bottom-desc">34年美業 ・ 健康產業管理碩士 ・ NAHA國際芳療師</div>
+            </div>
+        </div>
+
+        <!-- 音頻頁面 -->
+        <div class="sub-page music-page" id="musicPage">
+            <button class="back-btn" onclick="showPage('mainPage')">←</button>
+            <div class="sub-logo" onclick="showPage('mainPage')">馥靈之鑰</div>
+            <h1 class="page-title">頻率共振</h1>
+            
+            <div class="playlist-grid">
+                <div class="playlist-item" onclick="playPlaylist('PLbFa8iaFi2vzWXjsG69B0lIdNqYgpNrNb')">
+                    <div class="playlist-icon">⚡️</div>
+                    <div class="playlist-name">能量場大掃除</div>
+                    <div class="playlist-desc">Energy Field Deep Clean</div>
+                </div>
+                <div class="playlist-item" onclick="playPlaylist('PLbFa8iaFi2vxE7dHbx_4aF_cj6hWgIe9Z')">
+                    <div class="playlist-icon">🎧</div>
+                    <div class="playlist-name">靈性覺察與能量共振</div>
+                    <div class="playlist-desc">馥靈之鑰音樂頻率</div>
+                </div>
+                <div class="playlist-item" onclick="playPlaylist('PLbFa8iaFi2vyPhsYMnF6TQGK0dlWmBgLe')">
+                    <div class="playlist-icon">🎧</div>
+                    <div class="playlist-name">馥靈輕盈能量</div>
+                    <div class="playlist-desc">身心平衡瘦身音樂頻率</div>
+                </div>
+                <div class="playlist-item" onclick="playPlaylist('PLbFa8iaFi2vz8HYsAl68l-sIybcYCq-8Y')">
+                    <div class="playlist-icon">🔮</div>
+                    <div class="playlist-name">生命靈數×頻率魔法</div>
+                    <div class="playlist-desc">Numerology Frequency Magic</div>
+                </div>
+                <div class="playlist-item" onclick="playPlaylist('PLbFa8iaFi2vw0JfHv8Nyi_IY9R4IvB3bF')">
+                    <div class="playlist-icon">✨</div>
+                    <div class="playlist-name">馥光流轉</div>
+                    <div class="playlist-desc">聽見內在的頻率之鑰</div>
+                </div>
+            </div>
+
+            <div class="playlist-container" id="playlistContainer" style="display: none;">
+                <iframe id="youtubePlayer"
+                    src="" 
+                    title="馥靈之鑰"
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+            <p class="music-hint">選擇一個頻率，讓音樂帶領你回到內在的寧靜</p>
+            <p class="music-hint"><a href="https://www.youtube.com/@judyanee" target="_blank">→ 訂閱頻道 @judyanee</a></p>
+        </div>
+
+        <!-- 牌卡頁面 -->
+        <div class="sub-page card-page" id="cardPage">
+            <button class="back-btn" onclick="showPage('mainPage')">←</button>
+            <div class="sub-logo" onclick="showPage('mainPage')">馥靈之鑰</div>
+            <h1 class="page-title">智慧指引</h1>
+            <p class="card-instruction">
+                閉上眼睛，深呼吸三次<br>
+                在心中默念你的問題<br>
+                當你準備好，輕觸下方
+            </p>
+            <div class="card-container">
+                <div class="card" id="oracleCard" onclick="flipCard()">
+                    <div class="card-face card-back">
+                        <div class="card-back-symbol">🔑</div>
+                        <div class="card-back-logo">馥靈之鑰<br>Hour Light</div>
+                    </div>
+                    <div class="card-face card-front">
+                        <img id="cardImage" src="" alt="牌卡">
+                    </div>
+                </div>
+            </div>
+            <button class="draw-btn" onclick="drawCard()">接收訊息</button>
+            <div class="card-result" id="cardResult">
+                <div class="card-name" id="cardName"></div>
+                <div class="card-message" id="cardMessage"></div>
+            </div>
+        </div>
+
+        <!-- 秘碼頁面 -->
+        <div class="sub-page code-page" id="codePage">
+            <button class="back-btn" onclick="showPage('mainPage')">←</button>
+            <div class="sub-logo" onclick="showPage('mainPage')">馥靈之鑰</div>
+            <h1 class="page-title">馥靈秘碼</h1>
+            <div class="code-intro">
+                生命藍圖不是判決書，是藏寶圖<br>
+                我們不預測命運，我們定位座標
+            </div>
+            <div class="code-form">
+                <div class="form-group">
+                    <label class="form-label">西曆生日</label>
+                    <div class="form-row">
+                        <input type="number" class="form-input" id="solarYear" placeholder="年" min="1900" max="2030">
+                        <input type="number" class="form-input" id="solarMonth" placeholder="月" min="1" max="12">
+                        <input type="number" class="form-input" id="solarDay" placeholder="日" min="1" max="31">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">農曆生日</label>
+                    <div class="form-row">
+                        <input type="number" class="form-input" id="lunarMonth" placeholder="月" min="1" max="12">
+                        <input type="number" class="form-input" id="lunarDay" placeholder="日" min="1" max="30">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">出生時辰</label>
+                    <select class="form-select" id="birthHour">
+                        <option value="">請選擇時辰</option>
+                        <option value="1">子時 (23-01)</option>
+                        <option value="2">丑時 (01-03)</option>
+                        <option value="3">寅時 (03-05)</option>
+                        <option value="4">卯時 (05-07)</option>
+                        <option value="5">辰時 (07-09)</option>
+                        <option value="6">巳時 (09-11)</option>
+                        <option value="7">午時 (11-13)</option>
+                        <option value="8">未時 (13-15)</option>
+                        <option value="9">申時 (15-17)</option>
+                        <option value="10">酉時 (17-19)</option>
+                        <option value="11">戌時 (19-21)</option>
+                        <option value="12">亥時 (21-23)</option>
+                    </select>
+                </div>
+                <button class="calculate-btn" onclick="calculateCode()">定位我的座標</button>
+            </div>
+            <div class="result-container" id="resultContainer">
+                <div class="result-card">
+                    <div class="result-title">你的 H.O.U.R. 座標</div>
+                    <div class="hour-grid">
+                        <div class="hour-item"><div class="hour-letter">H</div><div class="hour-number" id="hNumber">-</div><div class="hour-name">癒數</div></div>
+                        <div class="hour-item"><div class="hour-letter">O</div><div class="hour-number" id="oNumber">-</div><div class="hour-name">識數</div></div>
+                        <div class="hour-item"><div class="hour-letter">U</div><div class="hour-number" id="uNumber">-</div><div class="hour-name">解數</div></div>
+                        <div class="hour-item"><div class="hour-letter">R</div><div class="hour-number" id="rNumber">-</div><div class="hour-name">行數</div></div>
+                    </div>
+                    <div class="result-detail" id="resultDetail"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 城堡頁面 -->
+        <div class="sub-page castle-page" id="castlePage">
+            <button class="back-btn" onclick="showPage('mainPage')">←</button>
+            <div class="sub-logo" onclick="showPage('mainPage')">馥靈之鑰</div>
+            <h1 class="page-title">內在城堡</h1>
+            
+            <div class="castle-section">
+                <div class="castle-quote">
+                    「生命藍圖不是判決書，是藏寶圖。」
+                </div>
+                <div class="castle-text">
+                    每個人的內在都有一座城堡，12個房間對應12種情緒。找到卡住的房間，用對應的鑰匙解鎖它，讓能量流動，讓生命綻放。<br><br>
+                    這是情緒頻率調整。<br>
+                    這是理解現在，而非預測未來。<br>
+                    這是賦能工具，讓你成為自己的主人。
+                </div>
+            </div>
+
+            <div class="castle-section">
+                <div class="castle-title">🔑 H.O.U.R. 四階段</div>
+                <div class="castle-text">人生調頻的四個步驟</div>
+                <div class="hour-explain">
+                    <div class="hour-box">
+                        <div class="hour-box-letter">H</div>
+                        <div class="hour-box-name">Heal 身心校準</div>
+                        <div class="hour-box-desc">看見卡點，舒緩情緒</div>
+                    </div>
+                    <div class="hour-box">
+                        <div class="hour-box-letter">O</div>
+                        <div class="hour-box-name">Own 智慧辨識</div>
+                        <div class="hour-box-desc">認識自己，定位座標</div>
+                    </div>
+                    <div class="hour-box">
+                        <div class="hour-box-letter">U</div>
+                        <div class="hour-box-name">Unlock 潛能解鎖</div>
+                        <div class="hour-box-desc">解鎖封印，釋放力量</div>
+                    </div>
+                    <div class="hour-box">
+                        <div class="hour-box-letter">R</div>
+                        <div class="hour-box-name">Rise 行動進化</div>
+                        <div class="hour-box-desc">落地執行，持續進化</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="castle-section">
+                <div class="castle-title">🃏 130張智慧牌卡</div>
+                <div class="castle-text">
+                    <strong>22張核心原型卡</strong>：映射生命旅程的重大轉折<br>
+                    <strong>90張單方精油卡</strong>：對應具體身心狀態<br>
+                    <strong>5張基底油卡</strong>：承載與修復的基礎能量<br>
+                    <strong>13張複方精油卡</strong>：綜合調理的能量配方<br><br>
+                    「22張看見你是誰，108張告訴你怎麼走。」
+                </div>
+            </div>
+
+            <div class="castle-section founder-card">
+                <div class="founder-card-name">王逸君</div>
+                <div class="founder-card-desc">
+                    馥靈之鑰 創始人<br>
+                    34年美業經驗・健康產業管理碩士<br>
+                    NAHA國際芳療師・情緒頻率調整師
+                </div>
+                <div class="founder-contact">
+                    hourlight.github.io<br>
+                    judyanee@gmail.com
+                </div>
+            </div>
+        </div>
+
+        <!-- 創始人介紹頁面 -->
+        <div class="sub-page founder-page" id="founderPage">
+            <button class="back-btn" onclick="showPage('mainPage')">←</button>
+            <div class="sub-logo" onclick="showPage('mainPage')">馥靈之鑰</div>
+            <h1 class="page-title">創始人</h1>
+
+            <div class="founder-hero">
+                <div class="founder-hero-name">王逸君</div>
+                <div class="founder-hero-title">馥靈之鑰 Hour Light 創始人</div>
+            </div>
+
+            <div class="founder-section">
+                <div class="founder-section-title">緣起</div>
+                <div class="founder-section-text">
+                    大學時期，班導邱秀娟老師的一句鼓勵，成為生命的轉捩點。<br><br>
+                    在老師的支持下，我繼續深造，進入研究所。邱老師不僅擔任我的指導教授，更引領我走入「美容愉悅感與身體意象」的研究領域。<br><br>
+                    那段日子裡，我發現｜原來身體會記憶情緒，原來觸覺能傳遞溫度，原來一個人對自己身體的感受，深深影響著他的自我價值。<br><br>
+                    畢業後，我沒有離開這條路。34年的美業經驗，加上這份學術的滋養，最終孕育出「馥靈之鑰」｜一套結合芳香、情緒與身體意象的頻率調整系統。
+                </div>
+            </div>
+
+            <div class="founder-section">
+                <div class="founder-section-title">感謝恩師</div>
+                <div class="founder-section-text">
+                    <strong>邱秀娟 老師</strong><br><br>
+                    謝謝您當年的那句「妳可以的」，讓一個在美容業打拼的女孩，有勇氣走進學術殿堂。<br><br>
+                    謝謝您的指導，讓我看見身體與心靈的連結，找到畢生志業的方向。<br><br>
+                    馥靈之鑰的誕生，有您播下的種子。
+                </div>
+            </div>
+
+            <div class="founder-section">
+                <div class="founder-section-title">專業背景</div>
+                <div class="founder-section-text">
+                    ▸ 美容產業 34 年實務經驗<br>
+                    ▸ 健康產業管理碩士<br>
+                    ▸ 碩士論文：美容愉悅感與身體意象相關研究<br>
+                    ▸ NAHA 國際芳療師認證<br>
+                    ▸ 情緒頻率調整系統研發者<br>
+                    ▸ 130張智慧牌卡創作者
+                </div>
+            </div>
+
+            <div class="founder-section">
+                <div class="founder-section-title">核心信念</div>
+                <div class="founder-section-quote">
+                    「每個人心裡都有一座城堡，<br>
+                    有些房間你常住，有些房間你遺忘了，<br>
+                    有些房間你不敢進去。<br><br>
+                    馥靈之鑰，<br>
+                    幫你拿回每一扇門的鑰匙，<br>
+                    成為自己城堡的主人。」
+                </div>
+            </div>
+
+            <div class="founder-section founder-contact-section">
+                <div class="founder-section-title">聯繫方式</div>
+                <div class="founder-section-text">
+                    官網：hourlight.github.io<br>
+                    信箱：judyanee@gmail.com<br>
+                    社群：@judyanee
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- 英雄區：左品牌＋右雙軌 -->
-    <section class="hero">
-      <div class="glass brand">
-        <h1>馥靈之鑰｜你的內在GPS</h1>
-        <p class="tagline">雙主軌：<strong>內在GPS</strong> × <strong>HOUR × LIGHT 顧問系統</strong></p>
-        <p class="essence">就像Google Maps會告訴你「左轉還是右轉」，馥靈之鑰用130張牌卡當你的情緒GPS。不是算命，是微調。把卡住的念頭，翻譯成可以動的行動。</p>
-      </div>
-
-      <div class="split">
-        <!-- A：內在GPS -->
-        <article class="track">
-          <h3>🔮 內在GPS系統｜130張牌卡</h3>
-          <div class="badges">
-            <span class="badge">情緒對焦</span>
-            <span class="badge">日常微調</span>
-            <span class="badge">頻率校準</span>
-            <span class="badge">行動指引</span>
-          </div>
-          <div class="btns">
-            <a class="btn primary" href="draw-hl.html">線上抽牌（免費）</a>
-            <a class="btn secondary" href="plan30.html">30天躍升計劃</a>
-            <a class="btn secondary" href="abundance.html">90天豐盛藍圖</a>
-          </div>
-        </article>
-
-        <!-- B：顧問線 -->
-        <article class="track">
-          <h3>🏭 HOUR × LIGHT｜美業顧問</h3>
-          <div class="badges">
-            <span class="badge">情緒勞動變現</span>
-            <span class="badge">高價策略</span>
-            <span class="badge">三級授權</span>
-            <span class="badge">快速複製</span>
-          </div>
-          <div class="btns">
-            <a class="btn primary" href="enterprise.html">企業/連鎖導入</a>
-            <a class="btn secondary" href="consulting.html">轉型顧問服務</a>
-            <a class="btn secondary" href="monetization.html">變現策略</a>
-            <a class="btn secondary" href="https://www.facebook.com/SUFUYASPA/" target="_blank" rel="noopener">未來美容學苑</a>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- 夥伴計畫 CTA 區塊 -->
-    <section class="partner-cta glass">
-      <div class="partner-cta-content">
-        <div class="label">共創夥伴計畫</div>
-        <h2>把你的溫柔與專業，變成穩定的現金流</h2>
-        <p>年收入50-200萬｜完整培訓與工具｜三級授權體系｜彈性工作節奏</p>
-        <div class="btns">
-          <a href="partners.html" class="btn secondary" style="border-color:#111; color:#111;">了解夥伴計畫</a>
-          <a href="trial.html" class="btn primary">免費體驗/說明會</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- 快速入口 -->
-    <section class="grid">
-      <a class="tile" href="https://hour-light-beauty-dui5l3h.gamma.site/" target="_blank" rel="noopener">
-        <span class="t1">💖 嗨執甲概念美學美容部</span>
-        <span class="t2">逸君老師親自服務 × 美學 × 頻率能量</span>
-      </a>
-      <a class="tile" href="https://fuling-zhi-yao-therapy-9ttxqcq.gamma.site/" target="_blank" rel="noopener">
-        <span class="t1">🌿 芳療創業全能班</span>
-        <span class="t2">國際認證 × 創業藍圖 × 全年陪跑</span>
-      </a>
-      <a class="tile" href="https://hourlight.github.io/hourlight/" target="_blank" rel="noopener">
-        <span class="t1">✨ 美業顧問</span>
-        <span class="t2">品牌 × 課程 × 營運藍圖</span>
-      </a>
-      <a class="tile" href="pet-energy.html">
-        <span class="t1">🐾 寵物能量牌卡</span>
-        <span class="t2">同步呼吸 × 陪伴連結</span>
-      </a>
-      <a class="tile" href="nail-mentor.html">
-        <span class="t1">💅 能量美甲師資</span>
-        <span class="t2">講師 × 培訓 × SOP</span>
-      </a>
-      <a class="tile" href="11/">
-        <span class="t1">✨ 共創夥伴招募中</span>
-        <span class="t2">全球首創情緒商業系統 × 50%利潤共享池</span>
-      </a>
-      <a class="tile" href="partners.html">
-        <span class="t1">🤝 夥伴計畫</span>
-        <span class="t2">三層級授權 × 收益共享</span>
-      </a>
-      <a class="tile" href="cases.html">
-        <span class="t1">🏆 成功案例</span>
-        <span class="t2">數據 × 見證 × 可複製做法</span>
-      </a>
-      <a class="tile" href="pricing.html">
-        <span class="t1">💳 定價方案</span>
-        <span class="t2">個人8,000起 × 夥伴授權</span>
-      </a>
-      <a class="tile" href="trial.html">
-        <span class="t1">🎟 免費體驗</span>
-        <span class="t2">線上抽牌 × 15分鐘諮詢</span>
-      </a>
-    </section>
-
-    <!-- 雙欄：品牌與方法論 -->
-    <section class="two">
-      <div class="glass">
-        <h3>📖 認識品牌</h3>
-        <div class="btns">
-          <a class="btn secondary" href="founder.html">創始人</a>
-          <a class="btn secondary" href="brand-story.html">品牌故事</a>
-          <a class="btn secondary" href="brand-vision.html">品牌願景</a>
-          <a class="btn secondary" href="brand-intro.html">品牌介紹</a>
-          <a class="btn secondary" href="brand-origin.html">品牌起源</a>
-        </div>
-      </div>
-      <div class="glass">
-        <h3>🧭 方法論與系統</h3>
-        <div class="btns">
-          <a class="btn secondary" href="hourlight-core.html">HOUR核心理念</a>
-          <a class="btn secondary" href="hourlight-system.html">系統總覽</a>
-          <a class="btn secondary" href="hour-ideology.html">內訓理念</a>
-          <a class="btn secondary" href="hourlight-hour.html">HOUR四步節奏</a>
-          <a class="btn secondary" href="hourlight-energy-focus.html">族群解析</a>
-          <a class="btn secondary" href="gps-system.html">內在GPS系統版</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer glass">
-      <strong>桃園市桃園區同安街666號</strong>（採預約制）<br/>
-      LINE：<a href="https://line.me/ti/p/judyanee" target="_blank" rel="noopener">judyanee</a> ｜ 
-      Email：<a href="mailto:judyanee@gmail.com">judyanee@gmail.com</a> ｜ 
-      <a href="tel:+886905723595">0905-723-595</a><br/>
-      <small>※ 本網站內容僅供壓力管理、情緒紓解、能量調頻與日常指引參考，非醫療行為。</small><br/>
-      <small>© 2025 馥靈之鑰 Hour Light｜你的內在操作系統升級手冊</small>
-      <div class="fbtns">
-        <a class="fbtn" href="index.html">🏠 返回首頁</a>
-        <a class="fbtn" href="monetization.html">💰 變現策略</a>
-        <a class="fbtn" href="privacy.html">🔒 隱私權政策</a>
-        <a class="fbtn" href="terms.html">📜 服務條款</a>
-      </div>
-    </footer>
-
-  </div>
-</main>
-
-<script>
-  // 進站功能
-  function enterSite() {
-    const splash = document.getElementById('splash');
-    const main = document.getElementById('main');
-    
-    splash.classList.add('fade-out');
-    
-    setTimeout(() => {
-      splash.style.display = 'none';
-      main.classList.add('show');
-      document.body.classList.add('loaded');
-      window.scrollTo({ top: 0, behavior: 'instant' });
-    }, 900);
-  }
-
-  // 鍵盤無障礙支援
-  document.getElementById('splash').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      enterSite();
-    }
-  });
-
-  // 平滑滾動到錨點
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      const targetId = this.getAttribute('href');
-      if (targetId !== '#' && targetId.length > 1) {
-        const target = document.querySelector(targetId);
-        if (target) {
-          e.preventDefault();
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    <script>
+        // ============ 頁面切換 ============
+        function showPage(pageId) {
+            document.querySelectorAll('.main-page, .sub-page').forEach(page => {
+                page.classList.remove('active');
+                if (page.classList.contains('main-page')) page.style.display = 'none';
+            });
+            const targetPage = document.getElementById(pageId);
+            if (pageId === 'mainPage') targetPage.style.display = 'flex';
+            else targetPage.classList.add('active');
+            if (pageId === 'cardPage') resetCard();
+            window.scrollTo(0, 0);
         }
-      }
-    });
-  });
+        document.getElementById('mainPage').style.display = 'flex';
 
-  // 效能優化：延遲載入非關鍵資源
-  if ('requestIdleCallback' in window) {
-    requestIdleCallback(() => {
-      // 可在此處載入非關鍵的第三方腳本
-    });
-  }
-</script>
+        // ============ 播放清單功能 ============
+        function playPlaylist(playlistId) {
+            const container = document.getElementById('playlistContainer');
+            const player = document.getElementById('youtubePlayer');
+            player.src = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1`;
+            container.style.display = 'block';
+            
+            // 標記選中的播放清單
+            document.querySelectorAll('.playlist-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            // 滾動到播放器
+            setTimeout(() => {
+                container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+
+        // ============ 130張牌卡資料庫 ============
+        const cardData = {
+            'A00': { name: '神聖啟程', msg: '你一直在等時機，但時機早就等你先跨一步。' },
+            'A01': { name: '魔法顯化', msg: '你是現實的創造者，現在，就讓宇宙見證你的魔法吧。' },
+            'A02': { name: '靈性覺醒', msg: '你的直覺正在向你說話，現在是時候靜下來傾聽了。' },
+            'A03': { name: '豐盛女神', msg: '你值得被滋養，也有能力滋養你所愛的一切。' },
+            'A04': { name: '王者權威', msg: '別再渾渾噩噩，你才是自己人生的統治者。' },
+            'A05': { name: '神聖智慧', msg: '真正的智慧不是你學到什麼，是你願意傳遞什麼。' },
+            'A06': { name: '靈魂契約', msg: '真正的愛不是找到對的人，是成為對的自己。' },
+            'A07': { name: '勝利前行', msg: '當你駕馭內心的力量，世界就會主動讓路。' },
+            'A08': { name: '內在力量', msg: '真正的力量不是壓制，是溫柔地與恐懼共處。' },
+            'A09': { name: '深度探索', msg: '答案從來不在外面，它一直在你安靜下來的那個地方。' },
+            'A10': { name: '命運轉輪', msg: '輪子永遠在轉，重點是你站在哪個位置。' },
+            'A11': { name: '因果平衡', msg: '宇宙是公平的，你的行動與選擇，決定了未來的回應。' },
+            'A12': { name: '視界重塑', msg: '有時候，你需要放下掌控，才能看到真正的答案。' },
+            'A13': { name: '新生蛻變', msg: '真正的終結，是為了讓新生發生。' },
+            'A14': { name: '靈魂平衡', msg: '當你找到內在的平衡，外在世界將自然調和。' },
+            'A15': { name: '破除執念', msg: '你真的被束縛了，還是只是害怕選擇自由？' },
+            'A16': { name: '重生轉化', msg: '舊有的崩毀，是為了讓你擁有真正穩固的基礎。' },
+            'A17': { name: '星辰希望', msg: '在最深的黑暗裡，星光總是不滅的希望。' },
+            'A18': { name: '月光洞見', msg: '當月亮升起，你能看清現實，還是迷失於幻象？' },
+            'A19': { name: '陽光豐收', msg: '你值得被陽光照耀，你值得豐盛。' },
+            'A20': { name: '靈性覺知', msg: '你的內在正在被召喚，你準備好迎接你的使命了嗎？' },
+            'A21': { name: '圓滿世界', msg: '你已走完一個重要旅程，也即將展開更高維度的冒險。' },
+            '001': { name: '古巴香脂', msg: '穩定承載，整合能量。讓自己成為容器，接住生命給你的一切。' },
+            '002': { name: '綠薄荷', msg: '清新啟動，思緒清明。是時候讓頭腦清醒，看見新的可能。' },
+            '003': { name: '黑胡椒', msg: '點燃意志，突破停滯。你的內在之火正在等待被點燃。' },
+            '004': { name: '綠花白千層', msg: '淨化清理，呼吸暢通。放下阻塞，讓能量自由流動。' },
+            '005': { name: '羅勒', msg: '決斷清晰，認知破迷。相信你的判斷，果斷前行。' },
+            '006': { name: '檸檬', msg: '清除負能，提升活力。讓陽光的能量洗滌你的身心。' },
+            '007': { name: '冬青', msg: '壓力釋放，解除束縛。是時候卸下那些不屬於你的重量。' },
+            '008': { name: '牛至', msg: '強效淨化，斷開妥協。不再委屈自己，設立清晰界線。' },
+            '009': { name: '沉香醇百里香', msg: '溫和淨化，安全感建立。在溫柔中重建內在的堡壘。' },
+            '010': { name: '聖羅勒', msg: '靈性淨化，神聖連結。通往更高智慧的通道正在開啟。' },
+            '011': { name: '夏香草', msg: '業力清理，放下過去。舊的故事已經結束，新的篇章正在展開。' },
+            '012': { name: '羅馬洋甘菊', msg: '溫柔安撫，內在和平。像被母親擁抱一樣，讓自己被溫柔包圍。' },
+            '013': { name: '胡椒薄荷', msg: '清醒提振，能量刷新。一口清涼的空氣，讓你重新出發。' },
+            '014': { name: '葡萄柚', msg: '樂觀提振，自信建立。相信自己值得擁有美好的一切。' },
+            '015': { name: '茶樹', msg: '能量淨化，強化界線。保護自己的能量場，不被外界干擾。' },
+            '016': { name: '薑黃', msg: '深層轉化，穩定推進。改變正在發生，保持耐心與信心。' },
+            '017': { name: '肉豆蔻', msg: '能量重啟，熱情點燃。找回那個對生命充滿熱情的自己。' },
+            '018': { name: '沒藥', msg: '靈性淨化，傷口修復。古老的智慧正在撫平你的創傷。' },
+            '019': { name: '甜馬鬱蘭', msg: '心靈安撫，肌肉放鬆。讓緊繃的身心都鬆開來。' },
+            '020': { name: '鼠尾草', msg: '淨化清理，智慧啟發。清除迷霧，讓智慧之光照亮前路。' },
+            '021': { name: '歐芹葉', msg: '排毒淨化，循環促進。讓一切不再需要的都流走。' },
+            '022': { name: '玫瑰草', msg: '情緒安撫，能量補平。在動盪中找到內在的平靜。' },
+            '023': { name: '藍艾菊', msg: '情緒轉化，潛能釋放。壓抑已久的力量正在甦醒。' },
+            '024': { name: '歐洲赤松', msg: '呼吸暢通，活力恢復。深深吸一口氣，感受生命的力量。' },
+            '025': { name: '丁香花苞', msg: '強效殺菌，疼痛舒緩。面對痛苦，然後讓它過去。' },
+            '026': { name: '雅麗菊', msg: '內在轉換，穩定定錨。在變動中保持內心的定力。' },
+            '027': { name: '岩蘭草', msg: '穩定扎根，能量防護。把根深深扎入大地，無懼風雨。' },
+            '028': { name: '檸檬草', msg: '能量淨化，空間清理。清掃內外的雜亂，讓一切煥然一新。' },
+            '029': { name: '廣藿香', msg: '紮根穩定，物質顯化。把夢想落實到現實的土壤中。' },
+            '030': { name: '甜茴香', msg: '消化支持，情緒疏通。消化生命中的酸甜苦辣。' },
+            '031': { name: '茉莉', msg: '陽性能量，領袖氣場。你有能力引領自己和他人走向光明。' },
+            '032': { name: '冷杉', msg: '穩定結構，堅韌耐性。像大樹一樣，在風雨中屹立不搖。' },
+            '033': { name: '黑雲杉', msg: '內在力量，深層釋放。從最深處汲取力量，面對一切。' },
+            '034': { name: '香草', msg: '安心感，自我接納。你已經夠好了，不需要再證明什麼。' },
+            '035': { name: '印度檀香木', msg: '靜心，靈性啟發。在寧靜中與更高的自己相遇。' },
+            '036': { name: '西洋蓍草', msg: '靈性保護，能量修復。宇宙正在保護你，無需恐懼。' },
+            '037': { name: '苦橙葉', msg: '情緒安撫，內心平靜。讓狂風暴雨都平息下來。' },
+            '038': { name: '馬鞭草', msg: '穩頻啟動，內在聚焦。專注在真正重要的事情上。' },
+            '039': { name: '天竺葵', msg: '情感紓解，心輪美感。讓愛在心中重新流動。' },
+            '040': { name: '芹菜籽', msg: '深層淨化，能量調理。從根本處清理，讓能量重新流動。' },
+            '041': { name: '杜松漿果', msg: '能量防護，靈性淨化。清除一切不屬於你的能量。' },
+            '042': { name: '香蜂草', msg: '高頻調頻，情緒明淨。提升頻率，與更高的振動共鳴。' },
+            '043': { name: '藍膠尤加利', msg: '釋放壓力，清理干擾。深呼吸，讓壓力隨著呼吸離開。' },
+            '044': { name: '迷迭香', msg: '智慧啟動，思維清晰。喚醒沉睡的記憶與智慧。' },
+            '045': { name: '芳樟', msg: '深層放鬆，心輪穩定。在安全中敞開心扉。' },
+            '046': { name: '阿米香樹', msg: '內在智慧，穩定能量。相信你內在的指引。' },
+            '047': { name: '蘇剛達', msg: '身心平衡，壓力釋放。在動與靜之間找到平衡。' },
+            '048': { name: '快樂鼠尾草', msg: '靈感釋放，直覺覺醒。讓創意和靈感自由流動。' },
+            '049': { name: '山雞椒', msg: '能量清理，視野清晰。撥開迷霧，看見真相。' },
+            '050': { name: '佛手柑', msg: '快樂預備，情緒提升。快樂已經在路上了。' },
+            '051': { name: '辣椒', msg: '能量激發，熱情點燃。點燃內心的火焰，勇往直前。' },
+            '052': { name: '麥盧卡', msg: '深層釋放，能量重整。讓傷口在愛中合起。' },
+            '053': { name: '乳香', msg: '靈性覺醒，內在權威。連結你的高我，找回內在的王者。' },
+            '054': { name: '真正薰衣草', msg: '深度放鬆，情緒釋放。讓所有的緊張都融化。' },
+            '055': { name: '玫瑰', msg: '無條件的愛，心靈滋養。你值得被深深地愛著。' },
+            '056': { name: '永久花', msg: '創傷修復，深層紓解。時間會撫平一切，而撫平從此刻開始。' },
+            '057': { name: '甜橙', msg: '喜悅回歸，童心重啟。找回那個單純快樂的自己。' },
+            '058': { name: '胡荽', msg: '思維解綁，智慧啟動。突破舊有的思維模式。' },
+            '059': { name: '依蘭依蘭', msg: '自愛釋放，情感和諧。學會愛自己，才能真正愛別人。' },
+            '060': { name: '絲柏', msg: '轉變之風，釋放執著。該放手的就放手吧。' },
+            '061': { name: '雪松', msg: '保護結界，穩定根基。你是安全的，你被保護著。' },
+            '062': { name: '花梨木', msg: '無條件的愛，溫柔撫慰。讓愛的力量撫平一切。' },
+            '063': { name: '萊姆', msg: '清新覺醒，行動提振。新的一天，新的開始。' },
+            '064': { name: '檜木', msg: '靜心穩定，能量防護。在寧靜中找到力量。' },
+            '065': { name: '薑', msg: '動能受阻，突破困境。溫暖你的身心，重新啟動。' },
+            '066': { name: '粉紅胡椒', msg: '直覺洞察，敏銳觀察。相信你的第六感。' },
+            '067': { name: '岩玫瑰', msg: '內在覺醒，神聖防護。你的內在正在覺醒。' },
+            '068': { name: '肉桂', msg: '行動落地，財富對焦。把想法變成行動，把行動變成成果。' },
+            '069': { name: '聖木', msg: '靈性轉場，能場淨化。清理空間，迎接新的能量。' },
+            '070': { name: '桂花', msg: '喜悅綻放，幸福轉頻。幸福就在身邊，等你發現。' },
+            '071': { name: '德國洋甘菊', msg: '情緒柔頻，內在靜心。在溫柔中找到平靜。' },
+            '072': { name: '聖約翰草', msg: '光頻擴展，情緒提振。讓光照進黑暗的角落。' },
+            '073': { name: '百里酚百里香', msg: '意志強化，行動突破。堅定你的意志，勇敢前行。' },
+            '074': { name: '穗甘松', msg: '內在穩頻，深度靜心。在最深的寧靜中與自己相遇。' },
+            '075': { name: '歐白芷根', msg: '主權重整，能場突破。拿回屬於你的力量。' },
+            '076': { name: '當歸', msg: '主權滋養，氣場回補。補充流失的能量，找回完整的自己。' },
+            '077': { name: '川芎', msg: '氣血流動，突破僵局。讓一切再次流動起來。' },
+            '078': { name: '羅文莎葉', msg: '氣場清理，神經釋壓。放鬆你的神經，釋放你的壓力。' },
+            '079': { name: '癒創木', msg: '穩定心靈，氣場修補。修復受損的能量場。' },
+            '080': { name: '白松香', msg: '能量清理，防護強化。建立堅固的能量防護罩。' },
+            '081': { name: '銀松', msg: '穩定根基，能量守護。深深扎根，穩穩站立。' },
+            '082': { name: '胡荽籽', msg: '內在平衡，直覺啟動。在平衡中啟動你的直覺。' },
+            '083': { name: '樺樹', msg: '淨化排毒，關節修復。清除積累的毒素，恢復靈活。' },
+            '084': { name: '藏茴香', msg: '消化整合，能量疏通。整合所有的經驗，化為養分。' },
+            '085': { name: '桉油樟', msg: '能量清理，思緒穿透。穿透迷霧，看見真相。' },
+            '086': { name: '荳蔻', msg: '消化整合，能量提振。把所有經歷轉化為力量。' },
+            '087': { name: '白千層', msg: '智慧覺醒，能量淨化。在淨化中覺醒智慧。' },
+            '088': { name: '薄荷', msg: '清醒思維，專注行動。保持清醒，專注當下。' },
+            '089': { name: '歐白芷籽', msg: '神聖指引，內在覺醒。你正在被神聖的力量指引。' },
+            '090': { name: '檸檬尤加利', msg: '思緒清明，能量淨化。清理思緒，看見方向。' },
+            '091': { name: '荷荷芭油', msg: '滋養承載，穩定基礎。成為自己最穩固的容器。' },
+            '092': { name: '甜杏仁油', msg: '溫柔滲透，深層滋養。讓愛慢慢滲透到每個細胞。' },
+            '093': { name: '葡萄籽油', msg: '輕盈流動，快速吸收。讓能量輕盈地流動。' },
+            '094': { name: '椰子油', msg: '保護屏障，能量封存。保護你珍貴的能量。' },
+            '095': { name: '摩洛哥堅果油', msg: '修復再生，極致滋養。在最深層的滋養中重生。' },
+            '096': { name: '豐盛複方', msg: '接收的通道正在開啟，讓豐盛流向你。' },
+            '097': { name: '釋放複方', msg: '放下不再需要的，為新的騰出空間。' },
+            '098': { name: '防護複方', msg: '建立能量結界，保護你的神聖空間。' },
+            '099': { name: '勇氣複方', msg: '喚醒內在的勇士，無懼向前。' },
+            '100': { name: '平靜複方', msg: '在風暴中心找到寧靜的錨點。' },
+            '101': { name: '專注複方', msg: '收攏散亂的心神，聚焦於當下。' },
+            '102': { name: '喜悅複方', msg: '重新點燃生命的火花與熱情。' },
+            '103': { name: '紓解複方', msg: '讓時間與愛撫平所有的傷痕。' },
+            '104': { name: '連結複方', msg: '敞開心輪，與世界重新建立連結。' },
+            '105': { name: '轉化複方', msg: '在火焰中重生，成為更好的自己。' },
+            '106': { name: '直覺複方', msg: '信任你的內在指引，它從不欺騙你。' },
+            '107': { name: '紮根複方', msg: '深深扎入大地，穩穩站在此刻。' },
+            '108': { name: '圓滿複方', msg: '一切都是最好的安排。' }
+        };
+
+        // ============ 牌卡功能 ============
+        let currentCard = null;
+        let isFlipped = false;
+
+        function getRandomCard() {
+            const rand = Math.random();
+            if (rand < 0.25) {
+                const num = Math.floor(Math.random() * 22);
+                return 'A' + num.toString().padStart(2, '0');
+            } else {
+                const num = Math.floor(Math.random() * 108) + 1;
+                return num.toString().padStart(3, '0');
+            }
+        }
+
+        function drawCard() {
+            if (isFlipped) { resetCard(); return; }
+            currentCard = getRandomCard();
+            document.getElementById('cardImage').src = `https://hourlight.github.io/${currentCard}.png`;
+            const data = cardData[currentCard];
+            if (data) {
+                document.getElementById('cardName').textContent = data.name;
+                document.getElementById('cardMessage').textContent = data.msg;
+            }
+            setTimeout(() => flipCard(), 300);
+        }
+
+        function flipCard() {
+            if (!currentCard) return;
+            document.getElementById('oracleCard').classList.toggle('flipped');
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                document.getElementById('cardResult').classList.add('show');
+                document.querySelector('.draw-btn').textContent = '再接收一次';
+            }
+        }
+
+        function resetCard() {
+            document.getElementById('oracleCard').classList.remove('flipped');
+            isFlipped = false;
+            currentCard = null;
+            document.getElementById('cardResult').classList.remove('show');
+            document.querySelector('.draw-btn').textContent = '接收訊息';
+        }
+
+        // ============ 秘碼計算 ============
+        const numberMeanings = {
+            1: { title: '開創領航者', h: '渴望獨立自主，需要被認可的空間', o: '展現自信果斷，具有領袖魅力', u: '透過獨立行動來解鎖潛能，需要自己做主的空間', r: '成為開創者，帶領他人走向新方向' },
+            2: { title: '敏感協調者', h: '渴望和諧連結，需要被理解與陪伴', o: '展現溫柔體貼，善於傾聽與支持', u: '透過合作與連結來解鎖潛能，在關係中找到力量', r: '成為橋樑，促進人與人之間的連結' },
+            3: { title: '創意表達者', h: '渴望自由表達，需要被看見與欣賞', o: '展現活潑開朗，充滿創意與魅力', u: '透過創意表達來解鎖潛能，讓天賦自由流動', r: '成為藝術家，用創造力影響世界' },
+            4: { title: '穩定建造者', h: '渴望安全穩定，需要紮實的根基', o: '展現務實可靠，值得信賴與依靠', u: '透過建立結構來解鎖潛能，一步一腳印累積', r: '成為建築師，創造穩固的基礎與結構' },
+            5: { title: '自由探索者', h: '渴望自由冒險，需要廣闘的空間', o: '展現多才多藝，適應力極強', u: '透過探索變化來解鎖潛能，在冒險中成長', r: '成為探險家，帶來改變與突破' },
+            6: { title: '愛與照顧者', h: '渴望被愛與愛人，需要歸屬感', o: '展現溫暖關懷，具有責任感', u: '透過付出與照顧來解鎖潛能，在愛中找到力量', r: '成為滋養者，用愛滋養生命' },
+            7: { title: '智慧探求者', h: '渴望真理智慧，需要獨處與沉澱', o: '展現深思熟慮，具有洞察力', u: '透過內省與研究來解鎖潛能，在靜默中獲得答案', r: '成為智者，探索生命的奧秘' },
+            8: { title: '力量掌握者', h: '渴望成就認可，需要掌控感', o: '展現企圖心強，具有執行力', u: '透過承擔責任來解鎖潛能，在挑戰中壯大', r: '成為領袖，創造豐盛與成功' },
+            9: { title: '慈悲完成者', h: '渴望意義價值，需要被需要', o: '展現博愛寬容，具有使命感', u: '透過服務他人來解鎖潛能，在給予中圓滿', r: '成為導師，服務人類的進化' },
+            11: { title: '靈性啟發者', h: '渴望靈性連結，對能量極度敏感', o: '展現直覺敏銳，具有啟發性', u: '透過靈性修煉來解鎖潛能，成為光的管道', r: '成為光的管道，喚醒他人的覺知' },
+            22: { title: '大師建造者', h: '渴望宏大願景，承載特殊使命', o: '展現遠見卓識，能實現宏大夢想', u: '透過建構系統來解鎖潛能，創造影響世代的架構', r: '成為架構師，建造影響世代的系統' },
+            33: { title: '大師紓解者', h: '渴望無條件的愛與紓解能量', o: '展現深層慈悲，具有紓解天賦', u: '透過無條件的愛來解鎖潛能，轉化苦痛為祝福', r: '成為紓解大師，轉化人類的苦痛' }
+        };
+
+        function reduceNumber(num) {
+            if (num === 11 || num === 22 || num === 33) return num;
+            while (num > 9) {
+                num = String(num).split('').reduce((a, b) => parseInt(a) + parseInt(b), 0);
+                if (num === 11 || num === 22 || num === 33) return num;
+            }
+            return num;
+        }
+
+        function calculateCode() {
+            const solarYear = document.getElementById('solarYear').value;
+            const solarMonth = document.getElementById('solarMonth').value;
+            const solarDay = document.getElementById('solarDay').value;
+            const lunarMonth = document.getElementById('lunarMonth').value;
+            const lunarDay = document.getElementById('lunarDay').value;
+            const birthHour = document.getElementById('birthHour').value;
+
+            if (!solarYear || !solarMonth || !solarDay || !lunarMonth || !lunarDay || !birthHour) {
+                alert('請填寫完整的生日資訊'); return;
+            }
+
+            const H = reduceNumber(parseInt(lunarMonth) + parseInt(lunarDay));
+            const oRaw = String(solarYear).split('').concat(String(solarMonth).split(''), String(solarDay).split('')).reduce((a, b) => parseInt(a) + parseInt(b), 0);
+            const O = reduceNumber(oRaw);
+            
+            // U數：時辰數，11是大師數要保留，10和12要歸約
+            let hourNum = parseInt(birthHour);
+            let U;
+            if (hourNum === 11) {
+                U = 11; // 戌時，大師數保留
+            } else if (hourNum === 10) {
+                U = 1; // 酉時 10→1
+            } else if (hourNum === 12) {
+                U = 3; // 亥時 12→3
+            } else {
+                U = hourNum;
+            }
+            
+            // R數：H+O+U 的歸約
+            let rRaw = H + O + U;
+            const R = reduceNumber(rRaw);
+
+            document.getElementById('hNumber').textContent = H;
+            document.getElementById('oNumber').textContent = O;
+            document.getElementById('uNumber').textContent = U;
+            document.getElementById('rNumber').textContent = R;
+
+            const hData = numberMeanings[H] || numberMeanings[reduceNumber(H)];
+            const oData = numberMeanings[O] || numberMeanings[reduceNumber(O)];
+            const uData = numberMeanings[U] || numberMeanings[reduceNumber(U)];
+            const rData = numberMeanings[R] || numberMeanings[reduceNumber(R)];
+
+            let detailHTML = '';
+            if (hData) detailHTML += `<div class="detail-item"><div class="detail-label">H 癒數 ${H}｜${hData.title}</div><div class="detail-text">${hData.h}</div></div>`;
+            if (oData) detailHTML += `<div class="detail-item"><div class="detail-label">O 識數 ${O}｜${oData.title}</div><div class="detail-text">${oData.o}</div></div>`;
+            if (uData) detailHTML += `<div class="detail-item"><div class="detail-label">U 解數 ${U}｜${uData.title}</div><div class="detail-text">${uData.u || uData.h}</div></div>`;
+            if (rData) detailHTML += `<div class="detail-item"><div class="detail-label">R 行數 ${R}｜${rData.title}</div><div class="detail-text">${rData.r}</div></div>`;
+
+            document.getElementById('resultDetail').innerHTML = detailHTML;
+            document.getElementById('resultContainer').classList.add('show');
+        }
+    </script>
 </body>
 </html>
