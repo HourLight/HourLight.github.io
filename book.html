@@ -2,28 +2,20 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>搶先試讀｜氣味記得我走過的路</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>著作｜馥靈之鑰 Hour Light</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --gold: #D4A84B;
-            --gold-light: #E9C27D;
-            --gold-dark: #8B7355;
-            --bg-dark: #0a0a12;
-            --text-muted: #9a8b7a;
-        }
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: 'Noto Serif TC', serif;
-            background: var(--bg-dark);
-            color: #e8dcc8;
-            line-height: 2;
             min-height: 100vh;
+            color: #D4A84B;
+            overflow-x: hidden;
+            background: #000;
         }
 
         /* 星空背景 */
@@ -46,7 +38,10 @@
                 radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
                 radial-gradient(1px 1px at 90px 40px, #fff, transparent),
                 radial-gradient(2px 2px at 160px 120px, rgba(200,170,80,0.6), transparent),
-                radial-gradient(1px 1px at 230px 80px, #fff, transparent);
+                radial-gradient(1px 1px at 230px 80px, #fff, transparent),
+                radial-gradient(2px 2px at 300px 150px, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1px 1px at 50px 160px, #fff, transparent),
+                radial-gradient(2px 2px at 120px 200px, rgba(200,170,80,0.5), transparent);
             background-size: 350px 350px;
             animation: twinkle 8s ease-in-out infinite;
         }
@@ -55,573 +50,384 @@
             50% { opacity: 1; }
         }
 
-        /* 頂部導航 */
-        .top-nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            padding: 15px 20px;
-            background: rgba(10, 10, 18, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(200, 170, 80, 0.2);
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .nav-brand {
-            font-size: 0.9rem;
-            color: var(--gold);
-            letter-spacing: 2px;
-            text-decoration: none;
-        }
-        .nav-cta {
-            background: linear-gradient(135deg, var(--gold) 0%, #B8860B 100%);
-            color: #1a1a2e;
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        .nav-cta:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(200, 170, 80, 0.4);
+        .container {
+            max-width: 100%;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+            padding: 25px;
+            padding-bottom: 80px;
         }
 
-        /* 封面區 */
-        .hero {
-            min-height: 100vh;
+        /* 返回按鈕 */
+        .back-btn {
+            position: fixed;
+            top: 18px;
+            left: 18px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(200, 170, 80, 0.5);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
+            font-size: 1.4rem;
+            color: #D4A84B;
+            transition: all 0.3s ease;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            text-decoration: none;
+        }
+        .back-btn:hover { 
+            background: rgba(200, 170, 80, 0.15); 
+            box-shadow: 0 0 15px rgba(200, 170, 80, 0.3);
+        }
+
+        /* 背景音樂控制按鈕 */
+        .music-toggle {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(200, 170, 80, 0.5);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            font-size: 1.4rem;
+            color: #D4A84B;
+            transition: all 0.3s ease;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+        .music-toggle:hover {
+            background: rgba(200, 170, 80, 0.15);
+            box-shadow: 0 0 15px rgba(200, 170, 80, 0.3);
+        }
+        .music-toggle.playing {
+            border-color: #D4A84B;
+            box-shadow: 0 0 10px rgba(200, 170, 80, 0.4);
+        }
+
+        /* 頁首 */
+        .header {
             text-align: center;
-            padding: 80px 25px 60px;
-            position: relative;
-        }
-        .hero::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 150px;
-            background: linear-gradient(to top, var(--bg-dark), transparent);
-            pointer-events: none;
-        }
-        .book-badge {
-            font-size: 0.75rem;
-            color: var(--gold);
-            letter-spacing: 3px;
-            margin-bottom: 20px;
-            padding: 8px 20px;
-            border: 1px solid rgba(200, 170, 80, 0.4);
-            border-radius: 20px;
-            animation: pulse 3s ease-in-out infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 0.8; }
-            50% { opacity: 1; box-shadow: 0 0 15px rgba(200, 170, 80, 0.3); }
-        }
-        .book-title {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: var(--gold-light);
-            letter-spacing: 5px;
-            margin-bottom: 15px;
-            text-shadow: 0 0 30px rgba(200, 170, 80, 0.4);
-        }
-        .book-subtitle {
-            font-size: 1rem;
-            color: var(--text-muted);
-            margin-bottom: 30px;
-            letter-spacing: 2px;
-        }
-        .book-author {
-            font-size: 0.9rem;
-            color: var(--gold-dark);
+            padding-top: 60px;
             margin-bottom: 40px;
         }
-        .scroll-hint {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: var(--gold-dark);
-            font-size: 0.8rem;
-            animation: bounce 2s ease-in-out infinite;
-            z-index: 10;
-        }
-        .scroll-hint span {
-            display: block;
-            margin-top: 8px;
-            font-size: 1.5rem;
-        }
-        @keyframes bounce {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(10px); }
-        }
-
-        /* 試讀內容區 */
-        .reading-section {
-            max-width: 680px;
-            margin: 0 auto;
-            padding: 40px 25px 80px;
-        }
-
-        /* 章節樣式 */
-        .chapter {
-            margin-bottom: 80px;
-            position: relative;
-        }
-        .chapter-label {
-            font-size: 0.75rem;
-            color: var(--gold);
-            letter-spacing: 3px;
-            margin-bottom: 10px;
-            opacity: 0.8;
-        }
-        .chapter-title {
-            font-size: 1.4rem;
-            color: var(--gold-light);
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(200, 170, 80, 0.2);
-        }
-        .chapter-content {
-            font-size: 1.05rem;
-            line-height: 2.2;
-            color: #d8cbb8;
-        }
-        .chapter-content p {
-            margin-bottom: 1.5em;
-            text-align: justify;
-        }
-        .chapter-content .highlight {
-            color: var(--gold-light);
-            font-weight: 600;
-        }
-        .chapter-content .whisper {
-            color: var(--text-muted);
-            font-style: italic;
-        }
-
-        /* 淡出懸念效果 */
-        .fade-out-section {
-            position: relative;
-            margin-top: 40px;
-        }
-        .fade-out-section::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 200px;
-            background: linear-gradient(to top, var(--bg-dark) 30%, transparent 100%);
-            pointer-events: none;
-        }
-        .fade-out-content {
-            padding-bottom: 60px;
-        }
-
-        /* 懸念中斷點 */
-        .cliffhanger {
-            text-align: center;
-            padding: 60px 20px;
-            position: relative;
-            z-index: 10;
-        }
-        .cliffhanger-dots {
-            font-size: 2rem;
-            color: var(--gold);
-            letter-spacing: 15px;
-            margin-bottom: 30px;
-            animation: dotPulse 2s ease-in-out infinite;
-        }
-        @keyframes dotPulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-        .cliffhanger-text {
+        .header-logo {
             font-size: 1.1rem;
-            color: var(--gold-light);
-            margin-bottom: 15px;
-            font-style: italic;
+            color: #C9A227;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(200, 170, 80, 0.4);
+            margin-bottom: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
         }
-        .cliffhanger-hint {
+        .header-logo:hover {
+            color: #D4A84B;
+            text-shadow: 0 0 15px rgba(200, 170, 80, 0.6);
+        }
+        .page-title {
+            font-size: 1.8rem;
+            color: #D4A84B;
+            text-shadow: 0 0 15px rgba(200, 170, 80, 0.5);
+            letter-spacing: 5px;
+        }
+        .page-subtitle {
             font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 30px;
+            color: #8B7355;
+            margin-top: 8px;
+            letter-spacing: 2px;
         }
 
-        /* 繼續閱讀按鈕 */
-        .continue-btn {
-            display: inline-block;
-            background: transparent;
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            padding: 12px 35px;
+        /* 書籍卡片 */
+        .books-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .book-card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(200, 170, 80, 0.3);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        .book-card:hover {
+            border-color: rgba(200, 170, 80, 0.6);
+            box-shadow: 0 0 30px rgba(200, 170, 80, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .book-cover {
+            width: 100%;
+            aspect-ratio: 3/4;
+            background: linear-gradient(135deg, rgba(200, 170, 80, 0.1) 0%, rgba(0,0,0,0.3) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .book-cover-placeholder {
+            text-align: center;
+            padding: 30px;
+        }
+        .book-cover-placeholder .icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+        .book-cover-placeholder .title {
+            font-size: 1.3rem;
+            color: #C9A227;
+            line-height: 1.6;
+            text-shadow: 0 0 10px rgba(200, 170, 80, 0.4);
+        }
+
+        .book-info {
+            padding: 25px;
+        }
+        .book-title {
+            font-size: 1.2rem;
+            color: #D4A84B;
+            margin-bottom: 8px;
+            text-shadow: 0 0 8px rgba(200, 170, 80, 0.3);
+        }
+        .book-desc {
+            font-size: 0.85rem;
+            color: #9a8b7a;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .book-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .book-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
             border-radius: 25px;
             font-size: 0.9rem;
             text-decoration: none;
             transition: all 0.3s ease;
             cursor: pointer;
-            margin-bottom: 10px;
         }
-        .continue-btn:hover {
-            background: rgba(200, 170, 80, 0.15);
-            box-shadow: 0 0 20px rgba(200, 170, 80, 0.3);
-            transform: translateY(-2px);
+        .book-btn.primary {
+            background: linear-gradient(135deg, #D4A84B 0%, #B8860B 100%);
+            color: #1a1a2e;
+            font-weight: 600;
+            border: none;
+        }
+        .book-btn.primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(200, 170, 80, 0.5);
+        }
+        .book-btn.secondary {
+            background: transparent;
+            border: 1px solid rgba(200, 170, 80, 0.5);
+            color: #D4A84B;
+        }
+        .book-btn.secondary:hover {
+            background: rgba(200, 170, 80, 0.1);
+            border-color: #D4A84B;
+        }
+        .book-btn.preview {
+            background: rgba(200, 170, 80, 0.1);
+            border: 1px solid rgba(200, 170, 80, 0.3);
+            color: #C9A227;
+        }
+        .book-btn.preview:hover {
+            background: rgba(200, 170, 80, 0.2);
+            border-color: #C9A227;
+        }
+
+        .book-tag {
+            display: inline-block;
+            background: rgba(200, 170, 80, 0.2);
+            color: #D4A84B;
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
         }
 
         /* 分隔線 */
         .divider {
             text-align: center;
-            margin: 60px 0;
-            color: var(--gold-dark);
-            font-size: 1.5rem;
-            letter-spacing: 20px;
+            margin: 40px 0;
+            color: #8B7355;
+            font-size: 1.2rem;
+            letter-spacing: 15px;
         }
 
-        /* 最終 CTA 區 */
-        .final-cta {
-            background: rgba(200, 170, 80, 0.05);
+        /* 作者區塊 */
+        .author-section {
+            max-width: 400px;
+            margin: 40px auto 0;
+            text-align: center;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(200, 170, 80, 0.2);
-            border-radius: 20px;
-            padding: 50px 30px;
-            text-align: center;
-            margin: 60px 0;
+            border-radius: 15px;
         }
-        .final-cta-title {
-            font-size: 1.3rem;
-            color: var(--gold-light);
-            margin-bottom: 15px;
+        .author-label {
+            font-size: 0.75rem;
+            color: #8B7355;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
         }
-        .final-cta-desc {
-            font-size: 0.95rem;
-            color: var(--text-muted);
-            margin-bottom: 30px;
-            line-height: 1.8;
-        }
-        .buy-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            align-items: center;
-        }
-        .buy-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: linear-gradient(135deg, var(--gold) 0%, #B8860B 100%);
-            color: #1a1a2e;
-            padding: 14px 30px;
-            border-radius: 25px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            min-width: 220px;
-            justify-content: center;
-        }
-        .buy-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 25px rgba(200, 170, 80, 0.5);
-        }
-        .buy-btn.secondary {
-            background: transparent;
-            border: 1px solid var(--gold);
-            color: var(--gold);
-        }
-        .buy-btn.secondary:hover {
-            background: rgba(200, 170, 80, 0.1);
-        }
-
-        /* 頁尾 */
-        .footer {
-            text-align: center;
-            padding: 40px 20px;
-            border-top: 1px solid rgba(200, 170, 80, 0.1);
-            margin-top: 60px;
-        }
-        .footer-brand {
-            font-size: 1rem;
-            color: var(--gold);
+        .author-name {
+            font-size: 1.1rem;
+            color: #C9A227;
             letter-spacing: 3px;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
-        .footer-text {
+        .author-title {
             font-size: 0.8rem;
-            color: var(--gold-dark);
+            color: #9a8b7a;
         }
-        .footer-link {
-            color: var(--gold);
+        .author-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #D4A84B;
             text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+        .author-link:hover {
+            text-shadow: 0 0 10px rgba(200, 170, 80, 0.5);
         }
 
         /* 響應式 */
-        @media (max-width: 480px) {
-            .book-title { font-size: 1.8rem; letter-spacing: 3px; }
-            .chapter-title { font-size: 1.2rem; }
-            .chapter-content { font-size: 1rem; }
+        @media (min-width: 600px) {
+            .books-grid {
+                max-width: 500px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 背景音樂 -->
+    <audio id="bgMusic" loop>
+        <source src="https://hourlight.github.io/432Hz.mp3" type="audio/mpeg">
+    </audio>
+    <button class="music-toggle" id="musicToggle" onclick="toggleBgMusic()">🔇</button>
+
     <div class="starfield">
         <div class="stars"></div>
     </div>
 
-    <!-- 頂部導航 -->
-    <nav class="top-nav">
-        <a href="index.html" class="nav-brand">馥靈之鑰</a>
-        <a href="https://www.pubu.com.tw/ebook/640604" target="_blank" class="nav-cta">立即購書 📚</a>
-    </nav>
+    <a href="index.html" class="back-btn">←</a>
 
-    <!-- 封面區 -->
-    <section class="hero">
-        <div class="book-badge">✧ 搶先試讀 ✧</div>
-        <h1 class="book-title">氣味記得我走過的路</h1>
-        <p class="book-subtitle">一本用生命寫成的頻率手札</p>
-        <p class="book-author">王逸君 著</p>
-        <div class="scroll-hint">
-            向下滑動開始閱讀
-            <span>↓</span>
+    <div class="container">
+        <header class="header">
+            <a href="index.html" class="header-logo">馥靈之鑰</a>
+            <h1 class="page-title">著 作</h1>
+            <p class="page-subtitle">用生命寫成的頻率手札</p>
+        </header>
+
+        <div class="books-grid">
+            <!-- 第一本書：氣味記得我走過的路 -->
+            <article class="book-card">
+                <div class="book-cover">
+                    <!-- 封面圖片（等上傳後替換） -->
+                    <div class="book-cover-placeholder">
+                        <div class="icon">📖</div>
+                        <div class="title">氣味記得<br>我走過的路</div>
+                    </div>
+                    <!-- <img src="low.jpg" alt="氣味記得我走過的路"> -->
+                </div>
+                <div class="book-info">
+                    <span class="book-tag">✧ 2025 新書 ✧</span>
+                    <h2 class="book-title">氣味記得我走過的路</h2>
+                    <p class="book-desc">
+                        從童年的玉蘭花香，到北投巷弄的硫磺味<br>
+                        從婚姻的混亂，到重新找回自己的頻率<br>
+                        這不只是一本書，是用三十年人生換來的氣味地圖
+                    </p>
+                    <div class="book-actions">
+                        <a href="book-preview.html" class="book-btn preview">✨ 搶先試讀</a>
+                        <a href="https://www.pubu.com.tw/ebook/640604" target="_blank" class="book-btn primary">📖 Pubu 購書</a>
+                        <a href="https://www.amazon.com/dp/B0GDMWNNTK" target="_blank" class="book-btn secondary">📱 Amazon Kindle</a>
+                    </div>
+                </div>
+            </article>
+
+            <div class="divider">✧ ✧ ✧</div>
+
+            <!-- 第二本書：藏在農曆生日裡的秘碼 -->
+            <article class="book-card">
+                <div class="book-cover">
+                    <!-- 封面圖片（等上傳後替換） -->
+                    <div class="book-cover-placeholder">
+                        <div class="icon">🔮</div>
+                        <div class="title">藏在農曆生日裡<br>的秘碼</div>
+                    </div>
+                    <!-- <img src="fu.jpg" alt="藏在農曆生日裡的秘碼"> -->
+                </div>
+                <div class="book-info">
+                    <span class="book-tag">✧ 即將上市 ✧</span>
+                    <h2 class="book-title">藏在農曆生日裡的秘碼</h2>
+                    <p class="book-desc">
+                        馥靈秘碼・H.O.U.R.生命數字全解析<br>
+                        結合經絡、情緒與數字的調頻地圖<br>
+                        找到你城堡裡上鎖的房間，拿回每一把鑰匙
+                    </p>
+                    <div class="book-actions">
+                        <a href="fuling-preview.html" class="book-btn preview">✨ 搶先試讀</a>
+                        <a href="https://www.pubu.com.tw/ebook/640604" target="_blank" class="book-btn primary">📖 Pubu 購書</a>
+                        <a href="https://www.amazon.com/dp/B0GDMWNNTK" target="_blank" class="book-btn secondary">📱 Amazon Kindle</a>
+                    </div>
+                </div>
+            </article>
         </div>
-    </section>
 
-    <!-- 試讀內容 -->
-    <main class="reading-section">
-
-        <!-- 前言 -->
-        <article class="chapter">
-            <div class="chapter-label">前 言</div>
-            <h2 class="chapter-title">給正在撐著的你</h2>
-            <div class="chapter-content">
-                <p>有一種累，不會寫在臉上。<br>
-                有一種痛，就算說出口，也不知道該交給誰。</p>
-                
-                <p>你坐在深夜的房間裡，滑著手機，卻什麼都沒真正看進去。<br>
-                不想睡，也不想哭，更不想被問怎麼了。<br>
-                不是因為你沒事，而是你早就知道，有些話說出來，也不一定會有答案。</p>
-                
-                <p>我懂。<br>
-                因為我也曾經這樣撐著，<br>
-                <span class="highlight">撐到幾乎忘了，原來自己也可以停一下。</span></p>
-                
-                <p>我從一個在棋聲和茶香裡長大的孩子，<br>
-                走到家門被敲響，媽媽低聲教我怎麼從窗戶離開。<br>
-                從水餃的味道、玉蘭花的香氣，<br>
-                走到北投巷子裡的硫磺味，<br>
-                走到討債的聲音、麻將的煙味，<br>
-                再走進婚姻裡那些說不出口的混亂，<br>
-                改名字，失去方向，孩子被帶走。</p>
-
-                <p>我還是笑著說沒事，<br>
-                但其實心裡早就知道，自己已經快撐不下去了。</p>
-
-                <p class="whisper">後來我才發現，<br>
-                記住我走過每一步的，<br>
-                不是日記，<br>
-                是氣味。</p>
-            </div>
-        </article>
-
-        <div class="divider">✧ ✧ ✧</div>
-
-        <!-- 第一章片段 -->
-        <article class="chapter">
-            <div class="chapter-label">第一章</div>
-            <h2 class="chapter-title">桃園的童年，世界是溫暖的</h2>
-            <div class="chapter-content">
-                <p>如果你問我，什麼是家。<br>
-                我想到的不是什麼理論，也不是空間有多大，<br>
-                而是一種氣味。</p>
-
-                <p>玉蘭花淡淡的清香，<br>
-                棋社裡泡茶時慢慢散開的味道，<br>
-                還有媽媽包水餃時，手上沾著麵粉的溫度。</p>
-
-                <p>那時候的我，只要聞到這些味道，就會知道，<br>
-                <span class="highlight">我在一個安全的地方。</span></p>
-
-                <p>阿公每天都會幫我推鞦韆。<br>
-                推完之後，他就會騎腳踏車去他開的棋社。<br>
-                棋社在華國戲院一樓。<br>
-                一杯三十塊的茶，老人們可以坐上一整天。<br>
-                泡茶、下棋、聊天，也會順口罵幾句政府。</p>
-
-                <p>我就在那樣的空間裡長大。<br>
-                坐在一旁喝茶，聽棋子一顆一顆落下的聲音。<br>
-                清楚、有節奏，不急不慢。<br>
-                那聲音讓我知道，事情是有順序的，世界是有規律的。</p>
-
-                <p>阿公常對我說，下棋不能急，急了就會輸。<br>
-                那時候我不懂什麼策略，也不懂輸贏。<br>
-                我只知道，在那些聲音裡，我是安心的。</p>
-            </div>
-
-            <div class="fade-out-section">
-                <div class="fade-out-content">
-                    <div class="chapter-content">
-                        <p>那時候的世界，很單純。<br>
-                        有聲音，也有氣味。<br>
-                        而我還不知道，<br>
-                        這些味道，會在後來的日子裡，<br>
-                        成為我一輩子辨認安全與不安的方式。</p>
-
-                        <p>我以為，家的味道不會變。<br>
-                        也以為，只要味道沒變，<br>
-                        人就不會走散。</p>
-
-                        <p class="whisper">我不知道，氣味其實是會改變的。<br>
-                        而且有時候，是在你還來不及準備的時候。</p>
-
-                        <p><span class="highlight">那一天，門被用力敲響。</span><br>
-                        不是平常的敲門聲，<br>
-                        是帶著重量的聲音。<br>
-                        媽媽的臉一下子變白。<br>
-                        我躲在角落，什麼都不敢問。</p>
-
-                        <p>那一刻，<br>
-                        我突然聞不到玉蘭花的味道了。</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cliffhanger">
-                <div class="cliffhanger-dots">⋯</div>
-                <p class="cliffhanger-text">「空氣變得很靜。靜到好像連呼吸，都顯得太大聲。」</p>
-                <p class="cliffhanger-hint">門外站著誰？那天晚上發生了什麼事？</p>
-                <a href="#chapter2" class="continue-btn" onclick="showChapter2()">繼續閱讀 ↓</a>
-            </div>
-        </article>
-
-        <div class="divider">✧ ✧ ✧</div>
-
-        <!-- 第二章片段（初始隱藏） -->
-        <article class="chapter" id="chapter2" style="display: none;">
-            <div class="chapter-label">第二章</div>
-            <h2 class="chapter-title">門被敲破的那天，世界開始教我怎麼活命</h2>
-            <div class="chapter-content">
-                <p>有些改變，不是誰開口說的，<br>
-                也不是什麼大事突然發生。<br>
-                而是聲音先來。</p>
-
-                <p>門被敲響。<br>
-                不是平常的敲門，是帶著重量的聲音。<br>
-                一下一下，落在門板上，也落在空氣裡。<br>
-                像是有人站在門外，用盡力氣，要把什麼討回來。</p>
-
-                <p>那天我還很小，<br>
-                大概是大班，或剛上一年級。<br>
-                「欠債」這兩個字，我連怎麼寫都不知道。<br>
-                <span class="highlight">但身體先懂了。</span><br>
-                這不是遊戲，也不是誰在開玩笑。<br>
-                這是危險。</p>
-
-                <p>媽媽的臉色，在一秒鐘內變了。<br>
-                她沒有多說什麼，只是把我推到牆角，<br>
-                低下頭，壓著聲音對我說，<br>
-                <span class="highlight">如果真的闖進來，就從閣樓的小窗戶離開。<br>
-                不要出聲，躲好，等姨媽來。</span></p>
-            </div>
-
-            <div class="fade-out-section">
-                <div class="fade-out-content">
-                    <div class="chapter-content">
-                        <p>門被砸得很用力，<br>
-                        聲音一下一下落在屋子裡。<br>
-                        奶奶走過去開門，腳步很重。<br>
-                        她手裡握著菜刀，我站在後面，看得很清楚。</p>
-
-                        <p>門一打開，空氣像是被抽走了一樣。<br>
-                        她的聲音很低，卻很穩。<br>
-                        她說，<span class="highlight">我們真的沒有錢了，只有命一條。<br>
-                        如果要，就拿去。</span></p>
-
-                        <p>那一瞬間，世界變得很安靜。<br>
-                        安靜到連呼吸，都變得很明顯。</p>
-
-                        <p class="whisper">幾天後的一個夜裡，<br>
-                        媽媽坐在床邊，沒有看我。<br>
-                        她的語氣很平，<br>
-                        平得像是在說明天會不會下雨⋯⋯</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cliffhanger">
-                <div class="cliffhanger-dots">⋯</div>
-                <p class="cliffhanger-text">「她不是在嚇我，也不是在安慰我。她只是在把話說清楚。」</p>
-                <p class="cliffhanger-hint">那個夜晚，媽媽說了什麼？<br>那些聞不到玉蘭花的日子，後來怎麼了？</p>
-            </div>
-        </article>
-
-        <!-- 最終 CTA -->
-        <section class="final-cta">
-            <h3 class="final-cta-title">✧ 完整故事，等你來讀 ✧</h3>
-            <p class="final-cta-desc">
-                從童年的玉蘭花香，到北投巷弄的硫磺味<br>
-                從婚姻的混亂，到重新找回自己的頻率<br>
-                <br>
-                這不只是一本書<br>
-                是用三十年人生換來的氣味地圖
-            </p>
-            <div class="buy-buttons">
-                <a href="https://www.pubu.com.tw/ebook/640604" target="_blank" class="buy-btn">
-                    📖 Pubu 電子書
-                </a>
-                <a href="https://www.amazon.com/dp/B0GDMWNNTK" target="_blank" class="buy-btn secondary">
-                    📱 Amazon Kindle
-                </a>
-            </div>
+        <!-- 作者區塊 -->
+        <section class="author-section">
+            <div class="author-label">◇ 作者 ◇</div>
+            <div class="author-name">王逸君</div>
+            <div class="author-title">馥靈之鑰 Hour Light 創始人</div>
+            <a href="founder.html" class="author-link">→ 認識創始人</a>
         </section>
-
-        <!-- 頁尾 -->
-        <footer class="footer">
-            <div class="footer-brand">馥靈之鑰 HOUR LIGHT</div>
-            <p class="footer-text">
-                <a href="index.html" class="footer-link">← 返回首頁</a>
-            </p>
-        </footer>
-    </main>
+    </div>
 
     <script>
-        function showChapter2() {
-            document.getElementById('chapter2').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('chapter2').scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start' 
-                });
-            }, 100);
+        // 背景音樂控制
+        const bgMusic = document.getElementById('bgMusic');
+        const musicToggle = document.getElementById('musicToggle');
+        let isPlaying = false;
+
+        function toggleBgMusic() {
+            if (isPlaying) {
+                bgMusic.pause();
+                musicToggle.textContent = '🔇';
+                musicToggle.classList.remove('playing');
+            } else {
+                bgMusic.play();
+                musicToggle.textContent = '🎵';
+                musicToggle.classList.add('playing');
+            }
+            isPlaying = !isPlaying;
         }
-
-        // 滾動時顯示效果
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, { threshold: 0.1 });
-
-        document.querySelectorAll('.chapter').forEach(chapter => {
-            chapter.style.opacity = '0';
-            chapter.style.transform = 'translateY(30px)';
-            chapter.style.transition = 'all 0.8s ease';
-            observer.observe(chapter);
-        });
-
-        // 第一個章節直接顯示
-        document.querySelector('.chapter').style.opacity = '1';
-        document.querySelector('.chapter').style.transform = 'translateY(0)';
     </script>
 </body>
 </html>
