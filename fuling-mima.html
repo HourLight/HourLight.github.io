@@ -51,9 +51,25 @@
         .fire-text { background: linear-gradient(45deg, #ff6b6b, #feca57, #ff9ff3, #ff6b6b); background-size: 300% 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: fireGlow 3s ease infinite; }
         @keyframes fireGlow { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
         @media (max-width: 768px) { .tab-btn { font-size: 0.75rem; padding: 0.5rem; } }
+   /* 背景音樂控制按鈕 */
+.music-toggle {
+  position: fixed; top: 18px; right: 70px;
+  background: rgba(255, 255, 255, 0.9); border: 1px solid var(--gold);
+  border-radius: 50%; width: 44px; height: 44px; cursor: pointer;
+  font-size: 1.3rem; color: var(--gold);
+  transition: all 0.3s; z-index: 9500; backdrop-filter: blur(10px);
+}
+.music-toggle:hover { background: rgba(212, 175, 55, 0.15); box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); }
+.music-toggle.playing { border-color: var(--gold); box-shadow: 0 0 12px rgba(212, 175, 55, 0.5); }
+.night-mode .music-toggle { background: rgba(22, 33, 62, 0.9); border-color: var(--purple); color: var(--purple); }
+.night-mode .music-toggle:hover { box-shadow: 0 0 15px rgba(159, 95, 219, 0.4); }
+.night-mode .music-toggle.playing { box-shadow: 0 0 12px rgba(159, 95, 219, 0.5); }
     </style>
 </head>
 <body class="day-mode">
+    <!-- 背景音樂控制 -->
+<audio id="bgMusic" loop><source src="https://hourlight.github.io/432Hz.mp3" type="audio/mpeg"></audio>
+<button class="music-toggle" id="musicToggle" onclick="toggleBgMusic()">🔇</button>
     <div id="root"></div>
     <script type="text/babel">
         const { useState, useEffect, useRef, useMemo } = React;
@@ -592,6 +608,23 @@
         };
 
         ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-    </script>
+</script>
+<script>
+function toggleBgMusic() {
+  const audio = document.getElementById('bgMusic');
+  const btn = document.getElementById('musicToggle');
+  if (audio.paused) {
+    audio.volume = 0.3;
+    audio.play();
+    btn.textContent = '🔊';
+    btn.classList.add('playing');
+  } else {
+    audio.pause();
+    btn.textContent = '🔇';
+    btn.classList.remove('playing');
+  }
+}
+</script>
+   
 </body>
 </html>
