@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>試讀｜藏在農曆生日裡的秘碼｜馥靈之鑰</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Noto Serif TC', serif;
+            background: #0a0a12;
+            color: #e8e0d0;
+            line-height: 1.9;
+            overflow-x: hidden;
+        }
+
+        /* 星空背景 */
+        .starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%);
+            overflow: hidden;
+        }
+        .stars {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+                radial-gradient(2px 2px at 160px 120px, rgba(200,170,80,0.6), transparent),
+                radial-gradient(1px 1px at 230px 80px, #fff, transparent),
+                radial-gradient(2px 2px at 300px 150px, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1px 1px at 50px 160px, #fff, transparent),
+                radial-gradient(2px 2px at 120px 200px, rgba(200,170,80,0.5), transparent);
+            background-size: 350px 350px;
+            animation: twinkle 8s ease-in-out infinite;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* 頂部導航 */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 15px 25px;
+            background: rgba(10, 10, 18, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(212, 168, 75, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-brand {
+            color: #D4A84B;
+            text-decoration: none;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+        .nav-brand:hover {
+            text-shadow: 0 0 15px rgba(212, 168, 75, 0.6);
+        }
+        .nav-cta {
+            background: linear-gradient(135deg, #D4A84B 0%, #B8860B 100%);
+            color: #1a1a2e;
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .nav-cta:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(212, 168, 75, 0.5);
+        }
+
+        /* 背景音樂按鈕 */
+        .music-toggle {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(200, 170, 80, 0.5);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #D4A84B;
+            transition: all 0.3s ease;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+        .music-toggle:hover {
+            background: rgba(200, 170, 80, 0.15);
+            box-shadow: 0 0 15px rgba(200, 170, 80, 0.3);
+        }
+        .music-toggle.playing {
+            border-color: #D4A84B;
+            box-shadow: 0 0 10px rgba(200, 170, 80, 0.4);
+        }
+
+        /* Hero 區塊 */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 100px 25px 60px;
+            position: relative;
+        }
+        .hero-tag {
+            display: inline-block;
+            background: rgba(212, 168, 75, 0.15);
+            border: 1px solid rgba(212, 168, 75, 0.4);
+            color: #D4A84B;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+        .hero-title {
+            font-size: 2.2rem;
+            color: #D4A84B;
+            text-shadow: 0 0 30px rgba(212, 168, 75, 0.4);
+            margin-bottom: 15px;
+            letter-spacing: 5px;
+            line-height: 1.4;
+        }
+        .hero-subtitle {
+            font-size: 1rem;
+            color: #9a8b7a;
+            margin-bottom: 30px;
+            letter-spacing: 3px;
+        }
+        .hero-author {
+            font-size: 0.9rem;
+            color: #B8860B;
+            margin-bottom: 50px;
+        }
+        .scroll-hint {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #8B7355;
+            font-size: 0.8rem;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+
+        /* 內容區塊 */
+        .content {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 25px 80px;
+        }
+
+        /* 章節標題 */
+        .chapter-header {
+            text-align: center;
+            padding: 60px 0 40px;
+            border-top: 1px solid rgba(212, 168, 75, 0.2);
+        }
+        .chapter-label {
+            font-size: 0.8rem;
+            color: #8B7355;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+        .chapter-title {
+            font-size: 1.5rem;
+            color: #D4A84B;
+            text-shadow: 0 0 20px rgba(212, 168, 75, 0.3);
+            letter-spacing: 3px;
+        }
+        .chapter-subtitle {
+            font-size: 0.9rem;
+            color: #9a8b7a;
+            margin-top: 10px;
+        }
+
+        /* 段落樣式 */
+        .prose {
+            font-size: 1.05rem;
+            color: #d4ccc0;
+            line-height: 2.1;
+            margin-bottom: 35px;
+        }
+        .prose p {
+            margin-bottom: 25px;
+            text-align: justify;
+        }
+
+        /* 引言區塊 */
+        .quote-block {
+            background: rgba(212, 168, 75, 0.08);
+            border-left: 3px solid #D4A84B;
+            padding: 25px 30px;
+            margin: 40px 0;
+            border-radius: 0 15px 15px 0;
+        }
+        .quote-block p {
+            color: #D4A84B;
+            font-size: 1.1rem;
+            line-height: 2;
+            margin: 0;
+        }
+
+        /* 強調文字 */
+        .highlight {
+            color: #D4A84B;
+            font-weight: 500;
+        }
+
+        /* 分隔符號 */
+        .divider {
+            text-align: center;
+            color: #8B7355;
+            font-size: 1.2rem;
+            letter-spacing: 15px;
+            margin: 50px 0;
+        }
+
+        /* 懸念區塊 */
+        .cliffhanger {
+            position: relative;
+            margin-top: 60px;
+        }
+        .fade-out {
+            position: relative;
+        }
+        .fade-out::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 150px;
+            background: linear-gradient(to bottom, transparent, #0a0a12);
+            pointer-events: none;
+        }
+        .suspense-box {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(212, 168, 75, 0.3);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            margin-top: -50px;
+            position: relative;
+            z-index: 10;
+        }
+        .suspense-question {
+            font-size: 1.1rem;
+            color: #D4A84B;
+            margin-bottom: 25px;
+            line-height: 1.8;
+        }
+        .continue-btn {
+            display: inline-block;
+            background: transparent;
+            border: 1px solid #D4A84B;
+            color: #D4A84B;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .continue-btn:hover {
+            background: rgba(212, 168, 75, 0.1);
+            box-shadow: 0 0 20px rgba(212, 168, 75, 0.3);
+        }
+
+        /* 隱藏的第二部分 */
+        .hidden-content {
+            display: none;
+            animation: fadeIn 0.8s ease;
+        }
+        .hidden-content.show {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 12宮位預覽 */
+        .palace-preview {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 40px 0;
+        }
+        .palace-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(212, 168, 75, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+        .palace-num {
+            font-size: 1.3rem;
+            color: #D4A84B;
+            margin-bottom: 5px;
+        }
+        .palace-name {
+            font-size: 0.85rem;
+            color: #B8860B;
+            margin-bottom: 3px;
+        }
+        .palace-key {
+            font-size: 0.75rem;
+            color: #8B7355;
+        }
+
+        /* 最終 CTA */
+        .final-cta {
+            background: linear-gradient(135deg, rgba(212, 168, 75, 0.15) 0%, rgba(0,0,0,0.4) 100%);
+            border: 1px solid rgba(212, 168, 75, 0.4);
+            border-radius: 25px;
+            padding: 50px 30px;
+            text-align: center;
+            margin-top: 60px;
+        }
+        .final-cta-title {
+            font-size: 1.3rem;
+            color: #D4A84B;
+            margin-bottom: 15px;
+        }
+        .final-cta-text {
+            font-size: 0.95rem;
+            color: #9a8b7a;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+        .cta-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 280px;
+            margin: 0 auto;
+        }
+        .cta-btn {
+            display: block;
+            padding: 14px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .cta-btn.primary {
+            background: linear-gradient(135deg, #D4A84B 0%, #B8860B 100%);
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+        .cta-btn.primary:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 25px rgba(212, 168, 75, 0.5);
+        }
+        .cta-btn.secondary {
+            background: transparent;
+            border: 1px solid rgba(212, 168, 75, 0.5);
+            color: #D4A84B;
+        }
+        .cta-btn.secondary:hover {
+            background: rgba(212, 168, 75, 0.1);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 25px;
+            border-top: 1px solid rgba(212, 168, 75, 0.15);
+            margin-top: 60px;
+        }
+        .footer-link {
+            color: #8B7355;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+        .footer-link:hover {
+            color: #D4A84B;
+        }
+
+        /* 響應式 */
+        @media (max-width: 500px) {
+            .hero-title { font-size: 1.8rem; }
+            .chapter-title { font-size: 1.3rem; }
+            .palace-preview { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景音樂 -->
+    <audio id="bgMusic" loop>
+        <source src="https://hourlight.github.io/432Hz.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="starfield">
+        <div class="stars"></div>
+    </div>
+
+    <!-- 頂部導航 -->
+    <nav class="top-nav">
+        <a href="index.html" class="nav-brand">馥靈之鑰</a>
+        <a href="#final-cta" class="nav-cta">購買完整版</a>
+    </nav>
+
+    <!-- 音樂按鈕 -->
+    <button class="music-toggle" id="musicToggle" onclick="toggleBgMusic()">🔇</button>
+
+    <!-- Hero -->
+    <section class="hero">
+        <span class="hero-tag">✧ 即將上市 ✧</span>
+        <h1 class="hero-title">藏在農曆生日裡的<br>秘碼</h1>
+        <p class="hero-subtitle">馥靈秘碼・H.O.U.R.生命數字全解析</p>
+        <p class="hero-author">王逸君 著</p>
+        <div class="scroll-hint">↓ 開始試讀</div>
+    </section>
+
+    <!-- 內容區 -->
+    <main class="content">
+        
+        <!-- 前言 -->
+        <div class="chapter-header">
+            <div class="chapter-label">前 言</div>
+            <h2 class="chapter-title">命盤不是判決書，是藏寶圖</h2>
+        </div>
+
+        <div class="prose">
+            <p>我接觸生命靈數很多年了。</p>
+            
+            <p>1號人獨立、3號人愛表達、7號人愛思考⋯⋯這些我都會算，也覺得有道理。</p>
+            
+            <p>但每次算完，心裡總有一個聲音：</p>
+        </div>
+
+        <div class="quote-block">
+            <p>「然後呢？」</p>
+        </div>
+
+        <div class="prose">
+            <p>知道自己是幾號人，然後呢？對號入座完，然後呢？覺得「好準」之後，然後呢？</p>
+            
+            <p>好像少了什麼。</p>
+        </div>
+
+        <div class="divider">～～</div>
+
+        <div class="prose">
+            <p><span class="highlight">我在美容業聽了34年的心事。</span></p>
+            
+            <p>這34年裡，我幫上萬個女人做過臉。</p>
+            
+            <p>你以為她們來是為了保養皮膚？</p>
+            
+            <p>不，她們來是為了「說話」。</p>
+            
+            <p>躺在美容床上的那一個小時，是她們唯一可以放鬆的時間。老公的事、孩子的事、婆婆的事、工作的事⋯⋯全部倒出來。</p>
+            
+            <p>我一邊幫她們按摩，一邊聽她們講。</p>
+            
+            <p>聽了34年，我發現一件事：</p>
+        </div>
+
+        <div class="quote-block">
+            <p>每個人卡住的地方，都有規律。</p>
+        </div>
+
+        <div class="prose">
+            <p>有些人永遠在感情裡打轉，換了對象還是同樣的劇情。</p>
+            <p>有些人永遠覺得錢不夠用，明明收入不差卻總是焦慮。</p>
+            <p>有些人永遠在照顧別人，累到快死了還是停不下來。</p>
+            <p>有些人永遠不敢表達自己，心裡的話憋成內傷。</p>
+            
+            <p>她們不是不努力，她們是<span class="highlight">「不知道自己卡在哪裡」</span>。</p>
+            
+            <p>更準確地說，她們不知道「為什麼」自己會卡在那裡。</p>
+        </div>
+
+        <div class="divider">～～</div>
+
+        <!-- 第一個懸念點 -->
+        <div class="cliffhanger" id="cliffhanger1">
+            <div class="fade-out">
+                <div class="prose">
+                    <p><span class="highlight">我自己也卡過。</span></p>
+                    
+                    <p>說這些，不是站在高處指點別人。</p>
+                    
+                    <p>我自己卡了14年。</p>
+                    
+                    <p>2002年到2016年，整整14年。</p>
+                    
+                    <p>離婚、負債、單親媽媽、把黃金賣光、保險解光⋯⋯</p>
+                </div>
+            </div>
+            
+            <div class="suspense-box">
+                <p class="suspense-question">那14年，她每天睜開眼睛就在想什麼？<br>又是什麼把她從谷底拉回來？</p>
+                <button class="continue-btn" onclick="showContent('part2')">繼續閱讀 →</button>
+            </div>
+        </div>
+
+        <!-- 隱藏的第二部分 -->
+        <div class="hidden-content" id="part2">
+            
+            <div class="prose">
+                <p>為了讓兩個女兒吃飽，我什麼都做過。</p>
+                
+                <p>那14年，我每天睜開眼睛就在想：「今天的錢從哪裡來？」</p>
+                
+                <p>好幾次，我想過「算了」。</p>
+                
+                <p><span class="highlight">每一次，都是女兒把我拉回來。</span></p>
+                
+                <p>那時候，我也去算命。</p>
+                
+                <p>算命師說：「妳這個命，就是勞碌命，認命吧。」</p>
+                
+                <p>我不甘心。</p>
+                
+                <p>憑什麼我就要認命？憑什麼我的人生就只能這樣？</p>
+                
+                <p>如果命理只能告訴我「你就是這樣」，那學它幹嘛？</p>
+            </div>
+
+            <div class="divider">～～</div>
+
+            <div class="prose">
+                <p>從那時候起，我開始研究各種系統。</p>
+                
+                <p>紫微斗數、八字、西洋占星、人類圖、生命靈數、瑪雅曆法、姓名學、塔羅⋯⋯</p>
+                
+                <p>不是因為好玩，是因為我想知道：<span class="highlight">到底是哪裡出了問題？</span></p>
+                
+                <p>我發現，這些系統各有各的角度，但都在說同一件事——</p>
+            </div>
+
+            <div class="quote-block">
+                <p>你不是「什麼都不能改變」，<br>你是「不知道從哪裡開始改」。</p>
+            </div>
+
+            <div class="prose">
+                <p>傳統命理的問題在於，它告訴你「你是什麼命」，然後就沒了。</p>
+                
+                <p>它像是給你一張判決書：「你就是這樣，接受吧。」</p>
+                
+                <p>但我不要判決書。</p>
+                
+                <p><span class="highlight">我要的是藏寶圖。</span></p>
+            </div>
+
+            <!-- 第二章 -->
+            <div class="chapter-header">
+                <div class="chapter-label">第二章</div>
+                <h2 class="chapter-title">你不是一個數字，你是一座城堡</h2>
+            </div>
+
+            <div class="prose">
+                <p>在發展馥靈秘碼的過程中，我一直在想：怎麼讓這套系統不只是「算命工具」，而是「調頻地圖」？</p>
+                
+                <p>後來，我找到了一個隱喻：<span class="highlight">城堡</span>。</p>
+                
+                <p>想像你的內在是一座城堡。</p>
+                
+                <p>這座城堡裡有很多房間——有些房間你每天都住，很熟悉；有些房間你很少進去，有點陌生；還有些房間，門是鎖著的，你根本不知道裡面有什麼。</p>
+                
+                <p>每個房間，代表你生命中的一個面向。</p>
+                
+                <p>有的房間放著你的「安全感」，有的房間放著你的「創造力」，有的房間放著你的「親密關係」，有的房間放著你的「憤怒」，有的房間放著你的「恐懼」⋯⋯</p>
+                
+                <p>這些房間不是好或壞，它們都是你的一部分。</p>
+                
+                <p>問題是：<span class="highlight">你有沒有每個房間的鑰匙？</span></p>
+            </div>
+
+            <div class="divider">～～</div>
+
+            <!-- 第二個懸念點 -->
+            <div class="cliffhanger" id="cliffhanger2">
+                <div class="fade-out">
+                    <div class="prose">
+                        <p><span class="highlight">那些上鎖的房間</span></p>
+                        
+                        <p>為什麼有些房間會上鎖？</p>
+                        
+                        <p>因為曾經進去過，受傷了。</p>
+                        
+                        <p>小時候表達自己的想法，被大人罵「小孩子懂什麼」，於是你鎖上了「表達」那個房間。</p>
+                        
+                        <p>曾經信任一個人，結果被背叛，於是你鎖上了「信任」那個房間。</p>
+                        
+                        <p>曾經放聲大哭，被嘲笑「哭什麼哭」，於是你鎖上了「悲傷」那個房間⋯⋯</p>
+                    </div>
+                </div>
+                
+                <div class="suspense-box">
+                    <p class="suspense-question">你的城堡裡，有幾個房間是上鎖的？<br>馥靈秘碼的12宮位系統，將為你一一解開⋯⋯</p>
+                    <button class="continue-btn" onclick="showContent('part3')">揭開12個房間 →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 隱藏的第三部分：12宮位預覽 -->
+        <div class="hidden-content" id="part3">
+            
+            <div class="prose">
+                <p>在馥靈秘碼的系統裡，你的內在城堡有<span class="highlight">12個房間</span>。</p>
+                
+                <p>為什麼是12個？因為中醫有12條經絡，每條經絡對應一種情緒功能。</p>
+                
+                <p>這不是我發明的，這是老祖宗幾千年的智慧。《黃帝內經》早就說過：怒傷肝、喜傷心、思傷脾、悲傷肺、恐傷腎。</p>
+                
+                <p><span class="highlight">情緒和身體從來就不是分開的。</span></p>
+            </div>
+
+            <div class="palace-preview">
+                <div class="palace-card">
+                    <div class="palace-num">第1宮</div>
+                    <div class="palace-name">勇氣殿｜膽經</div>
+                    <div class="palace-key">決斷・勇氣・開始</div>
+                </div>
+                <div class="palace-card">
+                    <div class="palace-num">第2宮</div>
+                    <div class="palace-name">創造廳｜肝經</div>
+                    <div class="palace-key">創造・規劃・情緒流動</div>
+                </div>
+                <div class="palace-card">
+                    <div class="palace-num">第3宮</div>
+                    <div class="palace-name">呼吸室｜肺經</div>
+                    <div class="palace-key">呼吸・放下・悲傷</div>
+                </div>
+                <div class="palace-card">
+                    <div class="palace-num">第4宮</div>
+                    <div class="palace-name">淨化間｜大腸經</div>
+                    <div class="palace-key">放手・清理・排除</div>
+                </div>
+                <div class="palace-card">
+                    <div class="palace-num">第5宮</div>
+                    <div class="palace-name">轉化堂｜胃經</div>
+                    <div class="palace-key">接納・消化・轉化</div>
+                </div>
+                <div class="palace-card">
+                    <div class="palace-num">第6宮</div>
+                    <div class="palace-name">滋養苑｜脾經</div>
+                    <div class="palace-key">滋養・照顧・信任</div>
+                </div>
+                <div class="palace-card">
+                    <div class="palace-num">第7宮</div>
+                    <div class="palace-name">心悅軒｜心經</div>
+                    <div class="palace-key">喜悅・連結・愛</div>
+                </div>
+                <div class="palace-card">
+                    <div class="palace-num">第8宮</div>
+                    <div class="palace-name">明辨閣｜小腸經</div>
+                    <div class="palace-key">分辨・判斷・選擇</div>
+                </div>
+            </div>
+
+            <div class="prose" style="text-align: center; color: #8B7355;">
+                ⋯⋯還有第9-12宮，等你在書中探索⋯⋯
+            </div>
+
+            <!-- 最終 CTA -->
+            <div class="final-cta" id="final-cta">
+                <h3 class="final-cta-title">✧ 拿回你城堡的鑰匙 ✧</h3>
+                <p class="final-cta-text">
+                    這不只是一本命理書<br>
+                    這是一張調頻地圖<br>
+                    帶你找到卡住的房間，用對應的鑰匙解開它
+                </p>
+                <div class="cta-buttons">
+                    <a href="https://www.pubu.com.tw/ebook/640604" target="_blank" class="cta-btn primary">📖 Pubu 購書</a>
+                    <a href="https://www.amazon.com/dp/B0GDMWNNTK" target="_blank" class="cta-btn secondary">📱 Amazon Kindle</a>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <a href="books.html" class="footer-link">← 返回著作頁</a>
+            </footer>
+        </div>
+
+    </main>
+
+    <script>
+        // 背景音樂控制
+        const bgMusic = document.getElementById('bgMusic');
+        const musicToggle = document.getElementById('musicToggle');
+        let isPlaying = false;
+
+        function toggleBgMusic() {
+            if (isPlaying) {
+                bgMusic.pause();
+                musicToggle.textContent = '🔇';
+                musicToggle.classList.remove('playing');
+            } else {
+                bgMusic.play();
+                musicToggle.textContent = '🎵';
+                musicToggle.classList.add('playing');
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // 顯示隱藏內容
+        function showContent(partId) {
+            const part = document.getElementById(partId);
+            part.classList.add('show');
+            
+            // 隱藏觸發按鈕的懸念區塊
+            if (partId === 'part2') {
+                document.querySelector('#cliffhanger1 .suspense-box').style.display = 'none';
+                document.querySelector('#cliffhanger1 .fade-out::after')?.remove();
+            }
+            if (partId === 'part3') {
+                document.querySelector('#cliffhanger2 .suspense-box').style.display = 'none';
+            }
+            
+            // 滾動到新內容
+            setTimeout(() => {
+                part.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+    </script>
+</body>
+</html>
