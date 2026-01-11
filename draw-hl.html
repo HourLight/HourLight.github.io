@@ -1180,28 +1180,67 @@ function renderCards(showExplain) {
   
   // 12/15/21張牌陣架構
   const layouts = {
-12: [
-      { label: "啟程｜自我覺察", indices: [0,1,2] },
-      { label: "扎根｜根源探索", indices: [3,4,5] },
-      { label: "試煉｜關係映照", indices: [6,7,8] },
-      { label: "歸返｜使命整合", indices: [9,10,11] }
-    ],
-    15: [
-      { label: "天賦｜與生俱來的禮物", indices: [0,1,2] },
-      { label: "潛能｜尚未開發的寶藏", indices: [3,4,5] },
-      { label: "根源｜卡住的源頭", indices: [6,7,8] },
-      { label: "解方｜突破的鑰匙", indices: [9,10,11] },
-      { label: "進化｜蛻變的方向", indices: [12,13,14] }
-    ],
-    21: [
-      { label: "H｜身心校準", indices: [0,1,2] },
-      { label: "O｜智慧辨識", indices: [3,4,5] },
-      { label: "U｜潛能解鎖", indices: [6,7,8] },
-      { label: "R｜行動進化", indices: [9,10,11] },
-      { label: "L｜覺醒之光", indices: [12,13,14] },
-      { label: "I｜內在整合", indices: [15,16,17] },
-      { label: "T｜轉化蛻變", indices: [18,19,20] }
-    ]
+const SPREAD_GROUPS = {
+  // ✅ 12張：12門定位校準
+  12: [
+    { label: "第1門｜起點定位｜1宮×英雄①×子時(膽)", indices: [0] },
+    { label: "第2門｜價值召喚｜2宮×英雄②×丑時(肝)", indices: [1] },
+    { label: "第3門｜保護機制｜3宮×英雄③×寅時(肺)", indices: [2] },
+    { label: "第4門｜支援系統｜4宮×英雄④×卯時(大腸)", indices: [3] },
+    { label: "第5門｜跨越門檻｜5宮×英雄⑤×辰時(胃)", indices: [4] },
+    { label: "第6門｜試煉導航｜6宮×英雄⑥×巳時(脾)", indices: [5] },
+    { label: "第7門｜關係鏡像｜7宮×英雄⑦×午時(心)", indices: [6] },
+    { label: "第8門｜核心考驗｜8宮×英雄⑧×未時(小腸)", indices: [7] },
+    { label: "第9門｜獎賞線索｜9宮×英雄⑨×申時(膀胱)", indices: [8] },
+    { label: "第10門｜回程策略｜10宮×英雄⑩×酉時(腎)", indices: [9] },
+    { label: "第11門｜重生升級｜11宮×英雄⑪×戌時(心包)", indices: [10] },
+    { label: "第12門｜帶回寶物｜12宮×英雄⑫×亥時(三焦)", indices: [11] }
+  ],
+
+  // ✅ 15張：天賦尋根解方
+  15: [
+    { label: "A1｜天賦線索｜我做什麼最不費力？", indices: [0] },
+    { label: "A2｜天賦證據｜別人最常稱讚我什麼？", indices: [1] },
+    { label: "A3｜天賦邊界｜我不該再硬撐什麼？", indices: [2] },
+    { label: "B1｜潛能方向｜我還能長出哪個版本？", indices: [3] },
+    { label: "B2｜潛能資源｜我手上其實有什麼籌碼？", indices: [4] },
+    { label: "B3｜潛能加速｜哪個動作最能放大成果？", indices: [5] },
+    { label: "C1｜根源入口｜這題最早從哪裡開始？", indices: [6] },
+    { label: "C2｜根源歸因｜主要在我？在關係？在環境？", indices: [7] },
+    { label: "C3｜根源真相｜我一直不想承認的是什麼？", indices: [8] },
+    { label: "D1｜卡點信念｜我腦內最吵的那句話是？", indices: [9] },
+    { label: "D2｜卡點習慣｜我反覆踩雷的模式是？", indices: [10] },
+    { label: "D3｜卡點代價｜我為了安全付出了什麼？", indices: [11] },
+    { label: "E1｜解方策略｜方向要怎麼轉才順？", indices: [12] },
+    { label: "E2｜解方行動｜接下來48小時做哪一步？", indices: [13] },
+    { label: "E3｜解方支援｜我需要補哪個資源或邊界？", indices: [14] }
+  ],
+
+  // ✅ 21張：H.O.U.R.L.I.T. 完整調頻
+  21: [
+    { label: "H1｜身體訊號｜身體現在在喊什麼？", indices: [0] },
+    { label: "H2｜情緒溫度｜情緒卡在哪個頻率？", indices: [1] },
+    { label: "H3｜能量狀態｜我的電量還剩多少？", indices: [2] },
+    { label: "O1｜事實核對｜發生的事實是什麼？", indices: [3] },
+    { label: "O2｜詮釋拆解｜我加了什麼故事在上面？", indices: [4] },
+    { label: "O3｜盲點照見｜我沒看到的角度是？", indices: [5] },
+    { label: "U1｜天賦確認｜這件事能用到我哪個強項？", indices: [6] },
+    { label: "U2｜潛能召喚｜我還沒拿出來的底牌是？", indices: [7] },
+    { label: "U3｜能力缺口｜我需要補哪塊拼圖？", indices: [8] },
+    { label: "R1｜行動優先｜最該先動的一步是？", indices: [9] },
+    { label: "R2｜行動阻力｜什麼會讓我拖延？", indices: [10] },
+    { label: "R3｜行動助力｜誰或什麼能推我一把？", indices: [11] },
+    { label: "L1｜覺察光點｜這件事在教我什麼？", indices: [12] },
+    { label: "L2｜覺醒時刻｜我什麼時候突然懂了？", indices: [13] },
+    { label: "L3｜光的方向｜我要往哪個方向走？", indices: [14] },
+    { label: "I1｜內在衝突｜我心裡哪兩個聲音在吵架？", indices: [15] },
+    { label: "I2｜整合資源｜我內在有什麼可以和解？", indices: [16] },
+    { label: "I3｜整合宣言｜整合後我是誰？", indices: [17] },
+    { label: "T1｜蛻變契機｜這次要蛻掉什麼舊皮？", indices: [18] },
+    { label: "T2｜蛻變代價｜我願意為此放下什麼？", indices: [19] },
+    { label: "T3｜蛻變願景｜蛻變後的我長什麼樣？", indices: [20] }
+  ]
+};
 
   if (layouts[n]) {
     layouts[n].forEach(group => {
