@@ -430,6 +430,13 @@ body.hl-v2-cosmic {
     <span class="hl-float-text">LINE 諮詢</span>
   </a>
 
+  </div> <!-- hl-v2-wrap 結束 -->
+
+  <a href="https://line.me/R/ti/p/~judyanee" target="_blank" rel="noopener" class="hl-float-btn">
+    <span class="hl-float-icon">💬</span>
+    <span class="hl-float-text">LINE 諮詢</span>
+  </a>
+
   <div id="confirmModal" class="hl-v2-modal-overlay">
     <div class="hl-v2-modal-content">
       <div class="hl-v2-modal-header">
@@ -446,345 +453,297 @@ body.hl-v2-cosmic {
       </div>
     </div>
   </div>
-<!-- 在 </body> 前面 -->
 
-// 你原本的抽牌邏輯...
-// 這裡可以直接用 cardData，因為上面已經載入了
-</script>
+  <!-- ✅ 如果你有 cardData.js 就用這行；沒有就先用下一行 fallback -->
+  <!-- <script src="cardData.js"></script> -->
+  <script>window.cardData = window.cardData || {};</script>
+
   <script>
-// ========== 背景音樂控制 ==========
-function toggleBgMusic() {
-  const audio = document.getElementById('bgMusic');
-  const btn = document.getElementById('musicToggle');
-  if (audio.paused) {
-    audio.volume = 0.3;
-    audio.play();
-    btn.textContent = '🔊';
-    btn.classList.add('playing');
-  } else {
-    audio.pause();
-    btn.textContent = '🔇';
-    btn.classList.remove('playing');
+  // ========== 背景音樂控制 ==========
+  function toggleBgMusic() {
+    const audio = document.getElementById('bgMusic');
+    const btn = document.getElementById('musicToggle');
+    if (audio.paused) {
+      audio.volume = 0.3;
+      audio.play();
+      btn.textContent = '🔊';
+      btn.classList.add('playing');
+    } else {
+      audio.pause();
+      btn.textContent = '🔇';
+      btn.classList.remove('playing');
+    }
   }
-}
 
-// ========== 牌卡檔案清單 ==========
-const allFiles = [
-  "A00.png","A01.png","A02.png","A03.png","A04.png","A05.png","A06.png","A07.png","A08.png","A09.png","A10.png",
-  "A11.png","A12.png","A13.png","A14.png","A15.png","A16.png","A17.png","A18.png","A19.png","A20.png","A21.png",
-  "001.png","002.png","003.png","004.png","005.png","006.png","007.png","008.png","009.png","010.png",
-  "011.png","012.png","013.png","014.png","015.png","016.png","017.png","018.png","019.png","020.png",
-  "021.png","022.png","023.png","024.png","025.png","026.png","027.png","028.png","029.png","030.png",
-  "031.png","032.png","033.png","034.png","035.png","036.png","037.png","038.png","039.png","040.png",
-  "041.png","042.png","043.png","044.png","045.png","046.png","047.png","048.png","049.png","050.png",
-  "051.png","052.png","053.png","054.png","055.png","056.png","057.png","058.png","059.png","060.png",
-  "061.png","062.png","063.png","064.png","065.png","066.png","067.png","068.png","069.png","070.png",
-  "071.png","072.png","073.png","074.png","075.png","076.png","077.png","078.png","079.png","080.png",
-  "081.png","082.png","083.png","084.png","085.png","086.png","087.png","088.png","089.png","090.png",
-  "091.png","092.png","093.png","094.png","095.png","096.png","097.png","098.png","099.png","100.png",
-  "101.png","102.png","103.png","104.png","105.png","106.png","107.png","108.png"
-];
+  // ========== 牌卡檔案清單 ==========
+  const allFiles = [
+    "A00.png","A01.png","A02.png","A03.png","A04.png","A05.png","A06.png","A07.png","A08.png","A09.png","A10.png",
+    "A11.png","A12.png","A13.png","A14.png","A15.png","A16.png","A17.png","A18.png","A19.png","A20.png","A21.png",
+    "001.png","002.png","003.png","004.png","005.png","006.png","007.png","008.png","009.png","010.png",
+    "011.png","012.png","013.png","014.png","015.png","016.png","017.png","018.png","019.png","020.png",
+    "021.png","022.png","023.png","024.png","025.png","026.png","027.png","028.png","029.png","030.png",
+    "031.png","032.png","033.png","034.png","035.png","036.png","037.png","038.png","039.png","040.png",
+    "041.png","042.png","043.png","044.png","045.png","046.png","047.png","048.png","049.png","050.png",
+    "051.png","052.png","053.png","054.png","055.png","056.png","057.png","058.png","059.png","060.png",
+    "061.png","062.png","063.png","064.png","065.png","066.png","067.png","068.png","069.png","070.png",
+    "071.png","072.png","073.png","074.png","075.png","076.png","077.png","078.png","079.png","080.png",
+    "081.png","082.png","083.png","084.png","085.png","086.png","087.png","088.png","089.png","090.png",
+    "091.png","092.png","093.png","094.png","095.png","096.png","097.png","098.png","099.png","100.png",
+    "101.png","102.png","103.png","104.png","105.png","106.png","107.png","108.png"
+  ];
 
-// ========== 抽牌邏輯 ==========
-let selected = [];
-let userQuestion = '';
-const grid = document.getElementById('grid');
-const copyBtn = document.getElementById('copyBtn');
-const shareBtn = document.getElementById('shareBtn');
-const clearBtn = document.getElementById('clearBtn');
-const guideHint = document.getElementById('guideHint');
-const modal = document.getElementById('confirmModal');
-const modalQuestion = document.getElementById('modalQuestion');
-const modalConfirm = document.getElementById('modalConfirm');
-const modalCancel = document.getElementById('modalCancel');
+  // ========== 抽牌邏輯 ==========
+  let selected = [];
+  let userQuestion = '';
 
-let pendingN = 0;
-document.querySelectorAll('.hl-v2-mode-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    pendingN = parseInt(btn.dataset.n, 10);
-    modalQuestion.value = '';
-    modal.classList.add('show');
+  const grid = document.getElementById('grid');
+  const copyBtn = document.getElementById('copyBtn');
+  const shareBtn = document.getElementById('shareBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const guideHint = document.getElementById('guideHint');
+
+  const modal = document.getElementById('confirmModal');
+  const modalQuestion = document.getElementById('modalQuestion');
+  const modalConfirm = document.getElementById('modalConfirm');
+  const modalCancel = document.getElementById('modalCancel');
+
+  let pendingN = 0;
+
+  document.querySelectorAll('.hl-v2-mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      pendingN = parseInt(btn.dataset.n, 10);
+      modalQuestion.value = '';
+      modal.classList.add('show');
+    });
   });
-});
 
-modalCancel.addEventListener('click', () => modal.classList.remove('show'));
-modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('show'); });
+  modalCancel.addEventListener('click', () => modal.classList.remove('show'));
+  modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('show'); });
 
-modalConfirm.addEventListener('click', () => {
-  userQuestion = modalQuestion.value.trim();
-  modal.classList.remove('show');
-  drawCards(pendingN);
-});
+  modalConfirm.addEventListener('click', () => {
+    userQuestion = modalQuestion.value.trim();
+    modal.classList.remove('show');
+    drawCards(pendingN);
+  });
 
-function drawCards(n) {
-  const pool = [...Array(allFiles.length).keys()];
-  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
-  selected = pool.slice(0, n);
-  renderCards(n <= 3);
-  copyBtn.disabled = false;
-  shareBtn.disabled = false;
-  updateURL(selected.map(i => allFiles[i].replace('.png', '')).join(','));
-}
+  function drawCards(n) {
+    const pool = [...Array(allFiles.length).keys()];
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    selected = pool.slice(0, n);
+    renderCards(n <= 3);
 
-function renderCards(showExplain) {
-  grid.innerHTML = '';
-  const n = selected.length;
-  
-  const layouts = {
-    1: [{ label: "✨ 今日訊息", indices: [0] }],
-    3: [
-      { label: "①現況｜現在是什麼狀態？", indices: [0] },
-      { label: "②核心｜真正的重點是？", indices: [1] },
-      { label: "③指引｜下一步怎麼走？", indices: [2] }
-    ],
-    7: [
-      { label: "①現況｜事情現在長什麼樣？", indices: [0] },
-      { label: "②表層｜我以為的問題是？", indices: [1] },
-      { label: "③底層｜真正的議題是？", indices: [2] },
-      { label: "④盲點｜我沒看見什麼？", indices: [3] },
-      { label: "⑤資源｜我手上有什麼牌？", indices: [4] },
-      { label: "⑥行動｜現在該做什麼？", indices: [5] },
-      { label: "⑦訊息｜高我想對我說？", indices: [6] }
-    ],
-    12: [
-      { label: "第1門｜起點定位", indices: [0] },
-      { label: "第2門｜價值召喚", indices: [1] },
-      { label: "第3門｜保護機制", indices: [2] },
-      { label: "第4門｜支援系統", indices: [3] },
-      { label: "第5門｜跨越門檻", indices: [4] },
-      { label: "第6門｜試煉導航", indices: [5] },
-      { label: "第7門｜關係鏡像", indices: [6] },
-      { label: "第8門｜核心考驗", indices: [7] },
-      { label: "第9門｜獎賞線索", indices: [8] },
-      { label: "第10門｜回程策略", indices: [9] },
-      { label: "第11門｜重生升級", indices: [10] },
-      { label: "第12門｜帶回寶物", indices: [11] }
-    ],
-    15: [
-      { label: "A1｜天賦線索", indices: [0] },
-      { label: "A2｜天賦證據", indices: [1] },
-      { label: "A3｜天賦邊界", indices: [2] },
-      { label: "B1｜潛能方向", indices: [3] },
-      { label: "B2｜潛能資源", indices: [4] },
-      { label: "B3｜潛能加速", indices: [5] },
-      { label: "C1｜根源入口", indices: [6] },
-      { label: "C2｜根源歸因", indices: [7] },
-      { label: "C3｜根源真相", indices: [8] },
-      { label: "D1｜卡點信念", indices: [9] },
-      { label: "D2｜卡點習慣", indices: [10] },
-      { label: "D3｜卡點代價", indices: [11] },
-      { label: "E1｜解方策略", indices: [12] },
-      { label: "E2｜解方行動", indices: [13] },
-      { label: "E3｜解方支援", indices: [14] }
-    ],
-    21: [
-      { label: "H1｜身體訊號", indices: [0] },
-      { label: "H2｜情緒溫度", indices: [1] },
-      { label: "H3｜能量狀態", indices: [2] },
-      { label: "O1｜事實核對", indices: [3] },
-      { label: "O2｜詮釋拆解", indices: [4] },
-      { label: "O3｜盲點照見", indices: [5] },
-      { label: "U1｜天賦確認", indices: [6] },
-      { label: "U2｜潛能召喚", indices: [7] },
-      { label: "U3｜能力缺口", indices: [8] },
-      { label: "R1｜行動優先", indices: [9] },
-      { label: "R2｜行動阻力", indices: [10] },
-      { label: "R3｜行動助力", indices: [11] },
-      { label: "L1｜覺察光點", indices: [12] },
-      { label: "L2｜覺醒時刻", indices: [13] },
-      { label: "L3｜光的方向", indices: [14] },
-      { label: "I1｜內在衝突", indices: [15] },
-      { label: "I2｜整合資源", indices: [16] },
-      { label: "I3｜整合宣言", indices: [17] },
-      { label: "T1｜蛻變契機", indices: [18] },
-      { label: "T2｜蛻變代價", indices: [19] },
-      { label: "T3｜蛻變願景", indices: [20] }
-    ]
-  };
-
-  if (layouts[n]) {
-    layouts[n].forEach(group => {
-      const groupDiv = document.createElement('div');
-      groupDiv.style.cssText = 'width:100%;margin:16px 0 8px;';
-      const groupTitle = document.createElement('h4');
-      groupTitle.style.cssText = 'color:var(--hl-v2-gold);font-size:1rem;font-weight:800;text-align:center;margin-bottom:12px;';
-      groupTitle.textContent = group.label;
-      groupDiv.appendChild(groupTitle);
-      const cardRow = document.createElement('div');
-      cardRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:18px;justify-content:center;';
-      group.indices.forEach(idx => {
-        if (idx < selected.length) cardRow.appendChild(createCardEl(selected[idx], false));
-      });
-      groupDiv.appendChild(cardRow);
-      grid.appendChild(groupDiv);
-    });
-  } else {
-    const cardRow = document.createElement('div');
-    cardRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:18px;justify-content:center;';
-    selected.forEach((idx, i) => {
-      cardRow.appendChild(createCardEl(idx, false));
-    });
-    grid.appendChild(cardRow);
-  }
-  
-  // 1~3張：顯示深度解讀
-  if (n <= 3) {
-    selected.forEach((idx, cardIndex) => {
-      const file = allFiles[idx];
-      const code = file.replace('.png', '');
-      const info = cardData[code] || {};
-      const cardName = info.name || info.title || '';
-      
-      const readingDiv = document.createElement('div');
-      readingDiv.className = 'hl-bestie-reading';
-      
-      const senseText = info.sense || info['覺察'] || '';
-      const actionText = info.action || info['行動指引'] || '';
-      readingDiv.innerHTML = `
-        <div class="hl-bestie-header">
-          <span class="hl-bestie-icon">✨</span>
-          <div>
-            <div class="hl-bestie-title">${code} ${cardName}</div>
-            <div class="hl-bestie-subtitle">覺察與行動</div>
-          </div>
-        </div>
-        <div class="hl-bestie-content">
-          <div class="hl-bestie-opener">${senseText}</div>
-          ${actionText ? `<div class="hl-bestie-closer"><div class="hl-bestie-closer-label">✨ 行動指引</div><div class="hl-bestie-closer-text">${actionText}</div></div>` : ''}
-        </div>
-      `;
-      grid.appendChild(readingDiv);
-    });
-    
-    // 引流區塊
-    const suggestOptions = [
-      {n: 12, name: 'HOUR 三層解析', desc: '身心、關係、財富、天命四大主軸'},
-      {n: 15, name: '生命藍圖', desc: '更深層的內在訊息'},
-      {n: 21, name: 'HOUR×LIGHT 完整矩陣', desc: '全方位深度解讀'}
-    ];
-    const suggest = suggestOptions[Math.floor(Math.random() * 3)];
-    const ctaDiv = document.createElement('div');
-    ctaDiv.className = 'hl-bestie-cta';
-    ctaDiv.innerHTML = `
-      <div class="hl-bestie-cta-text">
-        💭 ${n === 1 ? '這張牌點出了你現在的狀態' : '這 ' + n + ' 張牌揭示了你目前的能量狀態'}，但故事還沒說完...<br>
-        想看見更完整的訊息？試試 <strong>${suggest.n} 張「${suggest.name}」</strong><br>
-        <span style="font-size:13px;opacity:0.85;">${suggest.desc}</span>
-      </div>
-      <a href="https://line.me/R/ti/p/~judyanee" target="_blank" rel="noopener" class="hl-bestie-cta-btn">
-        💬 預約馥靈覺察師深度解讀
-      </a>
-    `;
-    grid.appendChild(ctaDiv);
-  }
-}
-
-function createCardEl(idx, showExplain) {
-  const file = allFiles[idx];
-  const code = file.replace('.png', '');
-  const info = cardData[code] || {};
-  const wrap = document.createElement('div');
-  wrap.className = 'hl-v2-card-item';
-  wrap.style.animationDelay = `${idx * 0.06}s`;
-  const cardName = info.name || info.title || '';
-  wrap.innerHTML = `<img class="hl-v2-card-thumb" src="${file}" alt="${code}" loading="lazy"><div class="hl-v2-card-cap">${code}${cardName ? ' ' + cardName : ''}</div>`;
-  return wrap;
-}
-
-// ========== 複製結果 ==========
-copyBtn.addEventListener('click', () => {
-  const n = selected.length;
-  const layouts = {
-    1: ["✨ 今日訊息"],
-    3: ["①現況", "②核心", "③指引"],
-    7: ["①現況", "②表層", "③底層", "④盲點", "⑤資源", "⑥行動", "⑦訊息"],
-    12: ["第1門｜起點定位", "第2門｜價值召喚", "第3門｜保護機制", "第4門｜支援系統", "第5門｜跨越門檻", "第6門｜試煉導航", "第7門｜關係鏡像", "第8門｜核心考驗", "第9門｜獎賞線索", "第10門｜回程策略", "第11門｜重生升級", "第12門｜帶回寶物"],
-    15: ["A1｜天賦線索", "A2｜天賦證據", "A3｜天賦邊界", "B1｜潛能方向", "B2｜潛能資源", "B3｜潛能加速", "C1｜根源入口", "C2｜根源歸因", "C3｜根源真相", "D1｜卡點信念", "D2｜卡點習慣", "D3｜卡點代價", "E1｜解方策略", "E2｜解方行動", "E3｜解方支援"],
-    21: ["H1｜身體訊號", "H2｜情緒溫度", "H3｜能量狀態", "O1｜事實核對", "O2｜詮釋拆解", "O3｜盲點照見", "U1｜天賦確認", "U2｜潛能召喚", "U3｜能力缺口", "R1｜行動優先", "R2｜行動阻力", "R3｜行動助力", "L1｜覺察光點", "L2｜覺醒時刻", "L3｜光的方向", "I1｜內在衝突", "I2｜整合資源", "I3｜整合宣言", "T1｜蛻變契機", "T2｜蛻變代價", "T3｜蛻變願景"]
-  };
-  
-  let txt = `【馥靈之鑰｜內在GPS 抽牌結果】\n`;
-  txt += `抽牌張數：${n} 張\n`;
-  if (userQuestion && userQuestion.trim()) {
-    txt += `提問：${userQuestion}\n`;
-  }
-  txt += `\n`;
-  
-  if (layouts[n]) {
-    layouts[n].forEach((label, i) => {
-      if (i < selected.length) {
-        const code = allFiles[selected[i]].replace('.png','');
-        const info = cardData[code] || {};
-        txt += `▸ ${label}\n`;
-        txt += `  ${code} ${info.title || ''}\n`;
-        if (info['覺察']) {
-          txt += `  💭 ${info['覺察'].substring(0, 80)}...\n`;
-        }
-        txt += `\n`;
-      }
-    });
-  } else {
-    selected.forEach((idx, i) => {
-      const code = allFiles[idx].replace('.png','');
-      const info = cardData[code] || {};
-      txt += `${i+1}. ${code}${info.title ? ' ' + info.title : ''}\n`;
-    });
-  }
-  txt += `\n💫 想了解牌卡的深層訊息？\n預約馥靈覺察師為您完整解讀 👉 https://line.me/R/ti/p/~judyanee`;
-  navigator.clipboard.writeText(txt).then(() => showToast('已複製！可貼到 LINE 預約解讀'));
-});
-
-// ========== 產生連結 ==========
-shareBtn.addEventListener('click', () => {
-  const url = new URL(location.href);
-  url.searchParams.set('pick', selected.map(i => allFiles[i].replace('.png','')).join(','));
-  navigator.clipboard.writeText(url.toString()).then(() => showToast('連結已複製！'));
-});
-
-// ========== 清除 ==========
-clearBtn.addEventListener('click', () => {
-  selected = [];
-  userQuestion = '';
-  grid.innerHTML = '';
-  copyBtn.disabled = true;
-  shareBtn.disabled = true;
-  updateURL(null);
-  guideHint.innerHTML = '💫 抽牌後會顯示卡圖與卡號<br><strong>1張免費</strong>顯示完整深度解讀，<strong>3張以上請複製結果預約解讀</strong>';
-});
-
-// ========== Toast通知 ==========
-function showToast(msg) {
-  const toast = document.createElement('div');
-  toast.className = 'hl-v2-toast';
-  toast.textContent = msg;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 1800);
-}
-
-// ========== URL更新 ==========
-function updateURL(pickStr) {
-  const url = new URL(location.href);
-  if (pickStr) url.searchParams.set('pick', pickStr);
-  else url.searchParams.delete('pick');
-  history.replaceState(null, '', url);
-}
-
-// ========== 從URL還原 ==========
-function restoreFromURL() {
-  const url = new URL(location.href);
-  const pick = (url.searchParams.get('pick') || '').trim();
-  if (!pick) return;
-  const codes = pick.split(',').map(s => s.trim()).filter(Boolean);
-  const codeToIdx = new Map(allFiles.map((f, i) => [f.replace('.png', ''), i]));
-  const idxs = codes.map(c => codeToIdx.get(c)).filter(n => Number.isInteger(n));
-  if (idxs.length) {
-    selected = idxs;
-    renderCards(idxs.length <= 3);
     copyBtn.disabled = false;
     shareBtn.disabled = false;
+
+    updateURL(selected.map(i => allFiles[i].replace('.png', '')).join(','));
   }
-}
-restoreFromURL();
+
+  function renderCards(showExplain) {
+    grid.innerHTML = '';
+    const n = selected.length;
+
+    const layouts = {
+      1: [{ label: "✨ 今日訊息", indices: [0] }],
+      3: [
+        { label: "①現況｜現在是什麼狀態？", indices: [0] },
+        { label: "②核心｜真正的重點是？", indices: [1] },
+        { label: "③指引｜下一步怎麼走？", indices: [2] }
+      ],
+      7: [
+        { label: "①現況｜事情現在長什麼樣？", indices: [0] },
+        { label: "②表層｜我以為的問題是？", indices: [1] },
+        { label: "③底層｜真正的議題是？", indices: [2] },
+        { label: "④盲點｜我沒看見什麼？", indices: [3] },
+        { label: "⑤資源｜我手上有什麼牌？", indices: [4] },
+        { label: "⑥行動｜現在該做什麼？", indices: [5] },
+        { label: "⑦訊息｜高我想對我說？", indices: [6] }
+      ],
+      12: [
+        { label: "第1門｜起點定位", indices: [0] },
+        { label: "第2門｜價值召喚", indices: [1] },
+        { label: "第3門｜保護機制", indices: [2] },
+        { label: "第4門｜支援系統", indices: [3] },
+        { label: "第5門｜跨越門檻", indices: [4] },
+        { label: "第6門｜試煉導航", indices: [5] },
+        { label: "第7門｜關係鏡像", indices: [6] },
+        { label: "第8門｜核心考驗", indices: [7] },
+        { label: "第9門｜獎賞線索", indices: [8] },
+        { label: "第10門｜回程策略", indices: [9] },
+        { label: "第11門｜重生升級", indices: [10] },
+        { label: "第12門｜帶回寶物", indices: [11] }
+      ],
+      15: [
+        { label: "A1｜天賦線索", indices: [0] },
+        { label: "A2｜天賦證據", indices: [1] },
+        { label: "A3｜天賦邊界", indices: [2] },
+        { label: "B1｜潛能方向", indices: [3] },
+        { label: "B2｜潛能資源", indices: [4] },
+        { label: "B3｜潛能加速", indices: [5] },
+        { label: "C1｜根源入口", indices: [6] },
+        { label: "C2｜根源歸因", indices: [7] },
+        { label: "C3｜根源真相", indices: [8] },
+        { label: "D1｜卡點信念", indices: [9] },
+        { label: "D2｜卡點習慣", indices: [10] },
+        { label: "D3｜卡點代價", indices: [11] },
+        { label: "E1｜解方策略", indices: [12] },
+        { label: "E2｜解方行動", indices: [13] },
+        { label: "E3｜解方支援", indices: [14] }
+      ],
+      21: [
+        { label: "H1｜身體訊號", indices: [0] },
+        { label: "H2｜情緒溫度", indices: [1] },
+        { label: "H3｜能量狀態", indices: [2] },
+        { label: "O1｜事實核對", indices: [3] },
+        { label: "O2｜詮釋拆解", indices: [4] },
+        { label: "O3｜盲點照見", indices: [5] },
+        { label: "U1｜天賦確認", indices: [6] },
+        { label: "U2｜潛能召喚", indices: [7] },
+        { label: "U3｜能力缺口", indices: [8] },
+        { label: "R1｜行動優先", indices: [9] },
+        { label: "R2｜行動阻力", indices: [10] },
+        { label: "R3｜行動助力", indices: [11] },
+        { label: "L1｜覺察光點", indices: [12] },
+        { label: "L2｜覺醒時刻", indices: [13] },
+        { label: "L3｜光的方向", indices: [14] },
+        { label: "I1｜內在衝突", indices: [15] },
+        { label: "I2｜整合資源", indices: [16] },
+        { label: "I3｜整合宣言", indices: [17] },
+        { label: "T1｜蛻變契機", indices: [18] },
+        { label: "T2｜蛻變代價", indices: [19] },
+        { label: "T3｜蛻變願景", indices: [20] }
+      ]
+    };
+
+    if (layouts[n]) {
+      layouts[n].forEach(group => {
+        const groupDiv = document.createElement('div');
+        groupDiv.style.cssText = 'width:100%;margin:16px 0 8px;';
+        const groupTitle = document.createElement('h4');
+        groupTitle.style.cssText = 'color:var(--hl-v2-gold);font-size:1rem;font-weight:800;text-align:center;margin-bottom:12px;';
+        groupTitle.textContent = group.label;
+        groupDiv.appendChild(groupTitle);
+
+        const cardRow = document.createElement('div');
+        cardRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:18px;justify-content:center;';
+        group.indices.forEach(idx => {
+          if (idx < selected.length) cardRow.appendChild(createCardEl(selected[idx]));
+        });
+        groupDiv.appendChild(cardRow);
+        grid.appendChild(groupDiv);
+      });
+    } else {
+      const cardRow = document.createElement('div');
+      cardRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:18px;justify-content:center;';
+      selected.forEach((idx) => cardRow.appendChild(createCardEl(idx)));
+      grid.appendChild(cardRow);
+    }
+
+    if (n <= 3) {
+      selected.forEach((idx) => {
+        const code = allFiles[idx].replace('.png', '');
+        const info = (window.cardData && window.cardData[code]) ? window.cardData[code] : {};
+        const cardName = info.name || info.title || '';
+
+        const readingDiv = document.createElement('div');
+        readingDiv.className = 'hl-bestie-reading';
+
+        const senseText = info.sense || info['覺察'] || '';
+        const actionText = info.action || info['行動指引'] || '';
+
+        readingDiv.innerHTML = `
+          <div class="hl-bestie-header">
+            <span class="hl-bestie-icon">✨</span>
+            <div>
+              <div class="hl-bestie-title">${code} ${cardName}</div>
+              <div class="hl-bestie-subtitle">覺察與行動</div>
+            </div>
+          </div>
+          <div class="hl-bestie-content">
+            ${senseText ? `<div class="hl-bestie-opener">${senseText}</div>` : `<div class="hl-bestie-body">（此頁尚未載入 cardData，先顯示抽牌結果）</div>`}
+            ${actionText ? `<div class="hl-bestie-closer"><div class="hl-bestie-closer-label">✨ 行動指引</div><div class="hl-bestie-closer-text">${actionText}</div></div>` : ''}
+          </div>
+        `;
+        grid.appendChild(readingDiv);
+      });
+    }
+  }
+
+  function createCardEl(idx) {
+    const file = allFiles[idx];
+    const code = file.replace('.png', '');
+    const info = (window.cardData && window.cardData[code]) ? window.cardData[code] : {};
+    const cardName = info.name || info.title || '';
+
+    const wrap = document.createElement('div');
+    wrap.className = 'hl-v2-card-item';
+    wrap.style.animationDelay = `${idx * 0.06}s`;
+    wrap.innerHTML = `
+      <img class="hl-v2-card-thumb" src="${file}" alt="${code}" loading="lazy">
+      <div class="hl-v2-card-cap">${code}${cardName ? ' ' + cardName : ''}</div>
+    `;
+    return wrap;
+  }
+
+  copyBtn.addEventListener('click', () => {
+    const n = selected.length;
+    let txt = `【馥靈之鑰｜內在GPS 抽牌結果】\n抽牌張數：${n} 張\n`;
+    if (userQuestion) txt += `提問：${userQuestion}\n`;
+    txt += `\n${selected.map((i, k) => `${k+1}. ${allFiles[i].replace('.png','')}`).join('\n')}`;
+    txt += `\n\n💫 想了解牌卡的深層訊息？\n預約馥靈覺察師為您完整解讀 👉 https://line.me/R/ti/p/~judyanee`;
+    navigator.clipboard.writeText(txt).then(() => showToast('已複製！可貼到 LINE 預約解讀'));
+  });
+
+  shareBtn.addEventListener('click', () => {
+    const url = new URL(location.href);
+    url.searchParams.set('pick', selected.map(i => allFiles[i].replace('.png','')).join(','));
+    navigator.clipboard.writeText(url.toString()).then(() => showToast('連結已複製！'));
+  });
+
+  clearBtn.addEventListener('click', () => {
+    selected = [];
+    userQuestion = '';
+    grid.innerHTML = '';
+    copyBtn.disabled = true;
+    shareBtn.disabled = true;
+    updateURL(null);
+    guideHint.innerHTML = '💫 抽牌後會顯示卡圖與卡號<br><strong>1張免費</strong>顯示完整深度解讀，<strong>3張以上請複製結果預約解讀</strong>';
+  });
+
+  function showToast(msg) {
+    const toast = document.createElement('div');
+    toast.className = 'hl-v2-toast';
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 1800);
+  }
+
+  function updateURL(pickStr) {
+    const url = new URL(location.href);
+    if (pickStr) url.searchParams.set('pick', pickStr);
+    else url.searchParams.delete('pick');
+    history.replaceState(null, '', url);
+  }
+
+  function restoreFromURL() {
+    const url = new URL(location.href);
+    const pick = (url.searchParams.get('pick') || '').trim();
+    if (!pick) return;
+
+    const codes = pick.split(',').map(s => s.trim()).filter(Boolean);
+    const codeToIdx = new Map(allFiles.map((f, i) => [f.replace('.png', ''), i]));
+    const idxs = codes.map(c => codeToIdx.get(c)).filter(n => Number.isInteger(n));
+
+    if (idxs.length) {
+      selected = idxs;
+      renderCards(idxs.length <= 3);
+      copyBtn.disabled = false;
+      shareBtn.disabled = false;
+    }
+  }
+  restoreFromURL();
   </script>
 </body>
 </html>
