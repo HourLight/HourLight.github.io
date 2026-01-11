@@ -1179,7 +1179,6 @@ function renderCards(showExplain) {
   const n = selected.length;
   
   // 12/15/21張牌陣架構
-  const layouts = {
 const layouts = {
   1: [
       { label: "✨ 今日訊息", indices: [0] }
@@ -1401,24 +1400,21 @@ if (layouts[n]) {
       if (i < selected.length) {
         const code = allFiles[selected[i]].replace('.png','');
         const info = cardData[code] || {};
-        txt += `▸ ${label}\n  ${code}${info.title ? ' ' + info.title : ''}\n\n`;
+        txt += `▸ ${label}\n`;
+        txt += `  ${code} ${info.title || ''}\n`;
+        if (info['覺察']) {
+          txt += `  💭 ${info['覺察'].substring(0, 80)}...\n`;
+        }
+        txt += `\n`;
       }
     });
-  } else {
+} else {
     selected.forEach((idx, i) => {
       const code = allFiles[idx].replace('.png','');
       const info = cardData[code] || {};
       txt += `${i+1}. ${code}${info.title ? ' ' + info.title : ''}\n`;
     });
   }
-        if (idx < selected.length) {
-          const code = allFiles[selected[idx]].replace('.png','');
-          const info = cardData[code] || {};
-          txt += `  ${code}${info.name ? ' ' + info.name : ''}\n`;
-        }
-      }
-      txt += `\n`;
-    });
   txt += `\n💫 想了解牌卡的深層訊息？\n預約馥靈覺察師為您完整解讀 👉 https://line.me/R/ti/p/~judyanee`;
   navigator.clipboard.writeText(txt).then(() => showToast('已複製！可貼到 LINE 預約解讀'));
 });
@@ -1439,6 +1435,9 @@ clearBtn.addEventListener('click', () => {
   shareBtn.disabled = true;
   updateURL(null);
   guideHint.innerHTML = '💫 抽牌後會顯示卡圖與卡號<br><strong>1張免費</strong>顯示完整深度解讀，<strong>3張以上請複製結果預約解讀</strong>';
+  // 複製時加入牌義摘要
+  });
+}
 });
 
 // Toast通知
