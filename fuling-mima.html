@@ -9,6 +9,7 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root { --gold: #D4AF37; --gold-light: #F5E6A3; --cream: #FDF8E8; --brown: #4A3728; --night-bg: #1A1A2E; --night-card: #16213E; --purple: #9F5FDB; }
@@ -91,65 +92,21 @@
         ];
         const getHourData = (hourId) => HOURS.find(h => h.id === hourId) || HOURS[12];
 
-        const LUNAR_YEAR_DATA = {
-            1940: [6, 0b010010110110, 2, 8], 1941: [0, 0b010010101110, 1, 27], 1942: [0, 0b101001010110, 2, 15],
-            1943: [0, 0b110100100110, 2, 5], 1944: [4, 0b110110010010, 1, 25], 1945: [0, 0b110101010100, 2, 13],
-            1946: [0, 0b101101011010, 2, 2], 1947: [2, 0b010101101100, 1, 22], 1948: [0, 0b100101101110, 2, 10],
-            1949: [7, 0b010010101110, 1, 29], 1950: [0, 0b110001010110, 2, 17], 1951: [0, 0b110100100110, 2, 6],
-            1952: [5, 0b101100101010, 1, 27], 1953: [0, 0b101101010100, 2, 14], 1954: [0, 0b101101011010, 2, 3],
-            1955: [3, 0b010101011100, 1, 24], 1956: [0, 0b100101011110, 2, 12], 1957: [8, 0b010010011110, 1, 31],
-            1958: [0, 0b110010010110, 2, 18], 1959: [0, 0b110101001010, 2, 8], 1960: [6, 0b110110100100, 1, 28],
-            1961: [0, 0b101101101010, 2, 15], 1962: [0, 0b010101101100, 2, 5], 1963: [4, 0b100101011100, 1, 25],
-            1964: [0, 0b101001011110, 2, 13], 1965: [0, 0b101001001110, 2, 2], 1966: [3, 0b110100100110, 1, 21],
-            1967: [0, 0b110101010100, 2, 9], 1968: [7, 0b101101010100, 1, 30], 1969: [0, 0b101101011010, 2, 17],
-            1970: [0, 0b010101101100, 2, 6], 1971: [5, 0b100100101110, 1, 27], 1972: [0, 0b110010010110, 2, 15],
-            1973: [0, 0b110101001010, 2, 3], 1974: [4, 0b110110100100, 1, 23], 1975: [0, 0b101011010100, 2, 11],
-            1976: [8, 0b010101101100, 1, 31], 1977: [0, 0b100101011010, 2, 18], 1978: [0, 0b101001011100, 2, 7],
-            1979: [6, 0b110100101010, 1, 28], 1980: [0, 0b110101010100, 2, 16], 1981: [0, 0b110101101010, 2, 5],
-            1982: [4, 0b010101101100, 1, 25], 1983: [0, 0b101010101110, 2, 13], 1984: [10, 0b100101001110, 2, 2],
-            1985: [0, 0b110010100110, 2, 20], 1986: [0, 0b110101010010, 2, 9], 1987: [6, 0b110101101010, 1, 29],
-            1988: [0, 0b010101101100, 2, 17], 1989: [0, 0b101010101110, 2, 6], 1990: [5, 0b010100101110, 1, 27],
-            1991: [0, 0b101100100110, 2, 15], 1992: [0, 0b110101010010, 2, 4], 1993: [3, 0b110101101010, 1, 23],
-            1994: [0, 0b010101011100, 2, 10], 1995: [8, 0b100101011010, 1, 31], 1996: [0, 0b110010011010, 2, 19],
-            1997: [0, 0b110101001010, 2, 7], 1998: [5, 0b110110100100, 1, 28], 1999: [0, 0b101011010100, 2, 16],
-            2000: [0, 0b101011011010, 2, 5], 2001: [4, 0b010101011100, 1, 24], 2002: [0, 0b101001011110, 2, 12],
-            2003: [0, 0b101000101110, 2, 1], 2004: [2, 0b110100100110, 1, 22], 2005: [0, 0b110101010100, 2, 9],
-            2006: [7, 0b101101010100, 1, 29], 2007: [0, 0b010101101100, 2, 18], 2008: [0, 0b100101101110, 2, 7],
-            2009: [5, 0b010010101110, 1, 26], 2010: [0, 0b101001010110, 2, 14], 2011: [0, 0b110100101010, 2, 3],
-            2012: [4, 0b110101010100, 1, 23], 2013: [0, 0b101101011010, 2, 10], 2014: [9, 0b010101011010, 1, 31],
-            2015: [0, 0b100101011100, 2, 19], 2016: [0, 0b110010101100, 2, 8], 2017: [6, 0b101010010110, 1, 28],
-            2018: [0, 0b110101001010, 2, 16], 2019: [0, 0b110110100100, 2, 5], 2020: [4, 0b101011010100, 1, 25],
-            2021: [0, 0b101011011010, 2, 12], 2022: [0, 0b010101011100, 2, 1], 2023: [2, 0b100101011010, 1, 22],
-            2024: [0, 0b110010011010, 2, 10], 2025: [6, 0b101010010110, 1, 29], 2026: [0, 0b110101001010, 2, 17],
-            2027: [0, 0b110110100100, 2, 6], 2028: [5, 0b101011010010, 1, 26], 2029: [0, 0b101011101010, 2, 13],
-            2030: [0, 0b010101101100, 2, 3]
-        };
-
-        const solarToLunar = (year, month, day) => {
-            const yearData = LUNAR_YEAR_DATA[year];
-            if (!yearData) return { lunarMonth: 0, lunarDay: 0, isApprox: true };
-            const [leapMonth, monthInfo, newYearMonth, newYearDay] = yearData;
-            const newYearDate = new Date(year, newYearMonth - 1, newYearDay);
-            const targetDate = new Date(year, month - 1, day);
-            let daysDiff = Math.floor((targetDate - newYearDate) / 86400000);
-            if (daysDiff < 0) {
-                const prevYearData = LUNAR_YEAR_DATA[year - 1];
-                if (prevYearData) return { lunarMonth: 12, lunarDay: Math.max(1, 30 + daysDiff), isApprox: false };
-                return { lunarMonth: 12, lunarDay: 15, isApprox: true };
+const solarToLunar = (year, month, day) => {
+            try {
+                const solar = Solar.fromYmd(year, month, day);
+                const lunar = solar.getLunar();
+                const lunarMonth = lunar.getMonth();
+                return {
+                    lunarMonth: Math.abs(lunarMonth),
+                    lunarDay: lunar.getDay(),
+                    isLeapMonth: lunarMonth < 0,
+                    isApprox: false
+                };
+            } catch (e) {
+                console.error('農曆轉換失敗', e);
+                return { lunarMonth: 0, lunarDay: 0, isApprox: true };
             }
-            let lunarMonth = 1, remainingDays = daysDiff;
-            for (let m = 1; m <= 12; m++) {
-                const isBigMonth = (monthInfo >> (12 - m)) & 1;
-                const monthDays = isBigMonth ? 30 : 29;
-                if (remainingDays < monthDays) { lunarMonth = m; break; }
-                remainingDays -= monthDays;
-                if (leapMonth > 0 && m === leapMonth) {
-                    if (remainingDays < 29) { lunarMonth = m; break; }
-                    remainingDays -= 29;
-                }
-                if (m === 12) lunarMonth = 12;
-            }
-            return { lunarMonth: Math.max(1, Math.min(12, lunarMonth)), lunarDay: Math.max(1, Math.min(30, remainingDays + 1)), isApprox: false };
         };
 
         const NUMBER_DATA = {
