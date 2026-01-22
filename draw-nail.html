@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>馥靈之鑰｜美甲專屬能量卡抽牌</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <style>
+    :root {
+      --bg: #05030a;
+      --card-bg: rgba(8, 6, 20, 0.95);
+      --border-gold: rgba(233, 194, 125, 0.5);
+      --text-main: #f5f2ff;
+      --text-muted: #c5c0e0;
+      --accent-gold: #e9c27d;
+      --accent-gold-soft: #cda86e;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.75);
+      --radius-card: 18px;
+      --transition-fast: 0.22s ease-out;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(44, 33, 73, 0.6) 0, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(18, 60, 87, 0.4) 0, transparent 50%),
+        var(--bg);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .page-wrapper {
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .card-shell {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-radius: var(--radius-card);
+      border: 1px solid var(--border-gold);
+      box-shadow: var(--shadow-soft);
+      padding: 28px 22px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(233, 194, 125, 0.08) 0, transparent 60%);
+      pointer-events: none;
+    }
+
+    .card-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: var(--accent-gold);
+      letter-spacing: 0.12em;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      line-height: 1.8;
+    }
+
+    .label-box {
+      display: inline-block;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-main);
+      background: rgba(0, 0, 0, 0.5);
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      margin-bottom: 14px;
+    }
+
+    #cardCount {
+      font-size: 1rem;
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      margin-top: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      color: var(--text-main);
+      outline: none;
+      cursor: pointer;
+    }
+
+    #cardCount:focus {
+      border-color: var(--accent-gold-soft);
+      box-shadow: 0 0 0 2px rgba(233, 194, 125, 0.3);
+    }
+
+    button,
+    .link-button {
+      background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-soft));
+      color: #1a1208;
+      border: none;
+      padding: 12px 24px;
+      cursor: pointer;
+      font-size: 1rem;
+      border-radius: 999px;
+      margin-top: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+      transition: all var(--transition-fast);
+      text-decoration: none;
+      display: inline-block;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    button:hover,
+    .link-button:hover {
+      background: linear-gradient(135deg, #f1d49f, #e1a86d);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
+    }
+
+    img {
+      max-width: 280px;
+      height: auto;
+      border-radius: 16px;
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.7);
+      margin-top: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .card-name {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-top: 12px;
+      color: var(--accent-gold);
+      background: rgba(0, 0, 0, 0.6);
+      padding: 8px 16px;
+      border-radius: 999px;
+      display: inline-block;
+      border: 1px solid rgba(233, 194, 125, 0.4);
+    }
+
+    .info-box {
+      margin-top: 24px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 20px 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-main);
+      font-size: 0.92rem;
+      line-height: 1.8;
+    }
+
+    .info-box strong {
+      color: var(--accent-gold);
+    }
+
+    .footer-link {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .legal-note {
+      margin-top: 14px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    @media (max-width: 768px) {
+      .card-shell {
+        padding: 24px 16px 20px;
+      }
+      img {
+        max-width: 100%;
+      }
+      button,
+      .link-button {
+        width: 100%;
+        max-width: 280px;
+        padding: 12px 0;
+      }
+    }
+  </style>
+
+    <meta name="description" content="美甲專屬能量卡抽牌｜為美甲師設計的能量指引工具，提升服務品質與客戶體驗。">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hourlight.github.io/draw-nail.html">
+    <meta property="og:title" content="馥靈之鑰｜美甲專屬能量卡抽牌">
+    <meta property="og:description" content="美甲專屬能量卡抽牌｜為美甲師設計的能量指引工具，提升服務品質與客戶體驗。">
+    <meta property="og:image" content="https://hourlight.github.io/og-image.jpg">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:site_name" content="馥靈之鑰 Hour Light">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="馥靈之鑰｜美甲專屬能量卡抽牌">
+    <meta name="twitter:description" content="美甲專屬能量卡抽牌｜為美甲師設計的能量指引工具，提升服務品質與客戶體驗。">
+    <meta name="twitter:image" content="https://hourlight.github.io/og-image.jpg">
+
+    
+    <link rel="canonical" href="https://hourlight.github.io/draw-nail.html">
+    <meta name="keywords" content="美甲能量抽牌, 美甲師牌卡">
+    <!-- Schema.org 結構化資料 -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": "https://hourlight.github.io/#organization",
+  "name": "馥靈之鑰國際有限公司",
+  "alternateName": [
+    "Hour Light International Co., Ltd.",
+    "馥靈之鑰",
+    "Hour Light"
+  ],
+  "url": "https://hourlight.github.io",
+  "logo": {
+    "@type": "ImageObject",
+    "url": "https://hourlight.github.io/logo.svg",
+    "width": "200",
+    "height": "200"
+  },
+  "image": "https://hourlight.github.io/og-image.jpg",
+  "description": "馥靈之鑰 Hour Light｜感官科學 × 情緒商業系統。34年美業經驗，結合芳香療法與能量調頻，協助你調對頻率，活對人生。",
+  "foundingDate": "2024",
+  "founder": {
+    "@type": "Person",
+    "@id": "https://hourlight.github.io/#founder",
+    "name": "王逸君",
+    "alternateName": "Ruby Wang"
+  },
+  "sameAs": [
+    "https://www.youtube.com/@hourlight",
+    "https://www.facebook.com/hourlight",
+    "https://www.instagram.com/hourlight",
+    "https://lin.ee/vpbLhNjF"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer service",
+    "url": "https://lin.ee/vpbLhNjF",
+    "availableLanguage": [
+      "zh-TW",
+      "zh-CN"
+    ]
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "Taiwan"
+  },
+  "knowsAbout": [
+    "芳香療法",
+    "能量調頻",
+    "情緒管理",
+    "美容美業",
+    "生命靈數",
+    "塔羅牌"
+  ]
+}
+    </script>
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="card-shell">
+      <div class="card-content">
+        <h1>💅 馥靈之鑰｜美甲專屬能量卡 💅</h1>
+        <p class="subtitle">
+          給指尖一組專屬頻率，用小小一張牌，<br>
+          對焦你此刻的狀態與適合的美甲風格。
+        </p>
+
+        <div id="cardArea">
+          <div class="label-box">選擇你要抽幾張牌：</div>
+          <br />
+          <select id="cardCount">
+            <option value="1">1 張牌｜快速對頻</option>
+            <option value="3">3 張牌｜過去・現在・未來</option>
+            <option value="5">5 張牌｜深度導航</option>
+            <option value="9">9 張牌｜人生藍圖 × 宇宙訊息掃描</option>
+          </select>
+          <br />
+          <button onclick="drawCards()">點我抽牌</button>
+        </div>
+      </div>
+    </div>
+
+    
+  </div>
+
+  <script>
+    function formatCardNumber(card) {
+      // A00~A21 (大牌 22 張) + 001~108 (小牌 108 張)
+      return card <= 22
+        ? 'A' + (card - 1).toString().padStart(2, '0')
+        : (card - 22).toString().padStart(3, '0');
+    }
+    
+    function getCardImagePath(card) {
+      // 使用整理過的本地圖片
+      return formatCardNumber(card) + '.png';
+    }
+
+    function drawCards() {
+      alert("請先深呼吸三次，心裡默默對自己說：『我想看見現在最適合調整的方向。』準備好再點確認抽牌。");
+
+      let count = parseInt(document.getElementById("cardCount").value);
+      let totalCards = 130;
+      let cards = [];
+      let output = "";
+
+      for (let i = 0; i < count; i++) {
+        let card = Math.floor(Math.random() * totalCards) + 1;
+        let cardNumber = formatCardNumber(card);
+        let cardImage = `${getCardImagePath(card)}`;
+
+        cards.push(cardNumber);
+
+        output += `
+          <img loading="lazy" src="${cardImage}" alt="馥靈之鑰美甲能量卡 ${cardNumber}">
+          <div class="card-name">✨ 美甲能量卡 ✨<br>(編號：${cardNumber})</div><br>
+        `;
+      }
+
+      output += `
+        <button onclick="copyAllCardNumbers()">📋 複製牌卡編號</button><br>
+        <div class="info-box">
+          <p><strong>想把這組頻率變成專屬美甲設計嗎？</strong><br>
+          歡迎私訊了解你的當下狀態、適合的色彩與圖騰，<br>
+          一起為你打造既好看、又照顧情緒節奏的能量美甲。</p>
+          <a href="https://lin.ee/ySxUkJK" target="_blank" class="link-button">💬 點我私訊了解詳情</a>
+        </div>
+        <button onclick="location.reload()">🔄 重新抽牌</button>
+      `;
+
+      document.getElementById("cardArea").innerHTML = output;
+      window.cardCodes = cards;
+    }
+
+    function copyAllCardNumbers() {
+      let text = window.cardCodes.join(", ");
+      navigator.clipboard.writeText(text).then(() => {
+        alert("牌卡編號「" + text + "」已複製，可以貼給設計師或記在筆記裡。");
+      }, () => {
+        alert("複製沒有成功，請改用手動複製這一段編號：" + text);
+      });
+    }
+  </script>
+
+<!-- ========== 馥靈之鑰版權聲明 Footer ========== -->
+<footer style="margin-top:30px; padding:30px 20px; text-align:center; background:rgba(5,3,10,0.95); border-top:1px solid rgba(233,194,125,0.3);">
+  <div style="max-width:700px; margin:0 auto;">
+    <div style="color:#e9c27d; font-size:1rem; font-weight:600; margin-bottom:6px;">馥靈之鑰 Hour Light</div>
+    <div style="color:#988b7b; font-size:0.8rem; margin-bottom:14px;">
+      創辦人：王逸君｜芳香能量調頻師｜美業 34 年資深講師
+    </div>
+    <div style="margin:12px 0;">
+      <a href="index.html" style="color:#c4b7a6; margin:0 8px; font-size:0.8rem; text-decoration:none;">首頁</a>
+      <a href="hourlight-sitemap.html" style="color:#c4b7a6; margin:0 8px; font-size:0.8rem; text-decoration:none;">🗺️ 網站地圖</a>
+      <a href="draw-hl.html" style="color:#c4b7a6; margin:0 8px; font-size:0.8rem; text-decoration:none;">🎴 更多抽牌</a>
+      <a href="https://lin.ee/vpbLhNjF" target="_blank" style="color:#c4b7a6; margin:0 8px; font-size:0.8rem; text-decoration:none;">💬 LINE 諮詢</a>
+    </div>
+    <div style="margin-top:16px; padding:12px; background:rgba(0,0,0,0.4); border-radius:8px; border:1px solid rgba(233,194,125,0.15);">
+      <p style="color:#988b7b; font-size:0.72rem; line-height:1.6; margin:0;">
+        ⚠️ 本工具僅供情緒紓解、能量調頻與日常指引參考，非醫療行為，亦不等同任何形式之心理專業服務。<br>
+        如有身心健康相關疑慮，請諮詢合格之醫療專業人員。
+      </p>
+    </div>
+    <div style="margin-top:14px; color:#988b7b; font-size:0.68rem;">
+      © 2026 馥靈之鑰國際有限公司｜馥靈之鑰™、Hour Light™ 為本公司商標（申請中）
+    </div>
+  </div>
+</footer>
+<!-- ========== Footer End ========== -->
+
+</body>
+</html>
