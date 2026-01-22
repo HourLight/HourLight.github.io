@@ -347,10 +347,16 @@
     '6IiH5oyR5oiwIn1dfQ=='
   ].join('');
   
-  // 解碼函數
+  // 解碼函數（修正 UTF-8 編碼問題）
   const _dec = function(s) {
     try {
-      return JSON.parse(atob(s));
+      const binaryString = atob(s);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const decoded = new TextDecoder('utf-8').decode(bytes);
+      return JSON.parse(decoded);
     } catch(e) {
       return null;
     }

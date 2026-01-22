@@ -2443,16 +2443,22 @@
     '55WM5rKS5pyJ5bSp5aGM44CCIiAKfQp9'
   ];
   
-  // 解碼函數
+  // 解碼函數（修正 UTF-8 編碼問題）
   function _decode() {
     if (_c) return _c;
     try {
       const raw = _d.join('');
-      const decoded = atob(raw);
+      // 正確處理 UTF-8 編碼的 Base64 資料
+      const binaryString = atob(raw);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const decoded = new TextDecoder('utf-8').decode(bytes);
       _c = JSON.parse(decoded);
       return _c;
     } catch(e) {
-      console.error('資料載入失敗');
+      console.error('資料載入失敗', e);
       return {};
     }
   }
