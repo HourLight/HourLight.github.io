@@ -254,17 +254,17 @@
   };
 
   // === 安全存取 API ===
+  // 驗證 token（移到閉包層級，避免 Object.freeze 影響）
+  let _token = null;
+  
   const HLCore = {
     // 版本
     version: '2.0.0',
     
-    // 驗證 token（防止未授權存取）
-    _token: null,
-    
     // 初始化
     init: function(token) {
       if (token === _k) {
-        this._token = _v;
+        _token = _v;
         return true;
       }
       console.warn('HLCore: 無效的存取金鑰');
@@ -273,7 +273,7 @@
     
     // 取得數字數據
     getNumberData: function(num) {
-      if (!this._token) return null;
+      if (!_token) return null;
       const data = _ND[num];
       if (!data) return null;
       
@@ -297,7 +297,7 @@
     
     // 取得宮位數據
     getPalaceData: function(palace) {
-      if (!this._token) return null;
+      if (!_token) return null;
       const data = _PD[palace];
       if (!data) return null;
       
@@ -316,7 +316,7 @@
     
     // 取得流年主題
     getYearTheme: function(num) {
-      if (!this._token) return null;
+      if (!_token) return null;
       const data = _YT[num];
       if (!data) return null;
       
@@ -331,7 +331,7 @@
     
     // 取得大運主題
     getFortuneTheme: function(period) {
-      if (!this._token) return null;
+      if (!_token) return null;
       const data = _FT[period];
       if (!data) return null;
       
@@ -344,7 +344,7 @@
     
     // 批量取得
     getAllNumbers: function() {
-      if (!this._token) return null;
+      if (!_token) return null;
       const result = {};
       Object.keys(_ND).forEach(k => {
         result[k] = this.getNumberData(parseInt(k));
@@ -353,7 +353,7 @@
     },
     
     getAllPalaces: function() {
-      if (!this._token) return null;
+      if (!_token) return null;
       const result = {};
       Object.keys(_PD).forEach(k => {
         result[k] = this.getPalaceData(parseInt(k));

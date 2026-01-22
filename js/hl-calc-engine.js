@@ -306,14 +306,16 @@
   };
   
   // === 公開 API ===
+  // _ready 移到閉包層級，避免 Object.freeze 影響
+  let _ready = false;
+  
   const HLCalc = {
     version: '2.0.0',
-    _ready: false,
     
     // 初始化
     init: function(key) {
       if (key === _KEY) {
-        this._ready = true;
+        _ready = true;
         _initialized = true;
         return true;
       }
@@ -323,28 +325,28 @@
     
     // 工具函數
     isMasterNumber: function(n) {
-      return this._ready ? _isMN(n) : null;
+      return _ready ? _isMN(n) : null;
     },
     
     reduceNumber: function(n) {
-      return this._ready ? _rN(n) : null;
+      return _ready ? _rN(n) : null;
     },
     
     reduceToSingle: function(n) {
-      return this._ready ? _rTS(n) : null;
+      return _ready ? _rTS(n) : null;
     },
     
     getBaseNum: function(n) {
-      return this._ready ? _gBN(n) : null;
+      return _ready ? _gBN(n) : null;
     },
     
     getHourData: function(id) {
-      return this._ready ? _gHD(id) : null;
+      return _ready ? _gHD(id) : null;
     },
     
     // 完整命盤計算
     calculateFullChart: function(data) {
-      if (!this._ready) return null;
+      if (!_ready) return null;
       
       // H.O.U.R. 計算
       const hour = _calcHOUR(data);
@@ -377,17 +379,17 @@
     
     // 流年計算
     calculateYearFortune: function(rNum, year) {
-      return this._ready ? _calcYearFortune(rNum, year) : null;
+      return _ready ? _calcYearFortune(rNum, year) : null;
     },
     
     // 大運計算
     calculateLifeFortunes: function(rNum, birthYear) {
-      return this._ready ? _calcLifeFortunes(rNum, birthYear) : null;
+      return _ready ? _calcLifeFortunes(rNum, birthYear) : null;
     },
     
     // 合盤計算
     calculateCompatibility: function(person1, person2) {
-      return this._ready ? _calcCompatibility(person1, person2) : null;
+      return _ready ? _calcCompatibility(person1, person2) : null;
     }
   };
   
