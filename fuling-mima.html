@@ -16,13 +16,17 @@
     <script src="js/hl-system.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #D4AF37; --gold-light: #F5E6A3; --cream: #FDF8E8; --brown: #4A3728; --night-bg: #1A1A2E; --night-card: #16213E; --purple: #9F5FDB; }
+        :root { --gold: #B8860B; --gold-dark: #996515; --gold-light: #F5E6A3; --cream: #FDF8E8; --brown: #4A3728; --night-bg: #1A1A2E; --night-card: #16213E; --purple: #9F5FDB; }
         body { font-family: 'Noto Sans TC', sans-serif; }
         .serif { font-family: 'Noto Serif TC', serif; }
         body.day-mode { background: linear-gradient(135deg, #FDF8E8 0%, #F5E6A3 50%, #FDF8E8 100%); color: #4A3728; }
         body.night-mode { background: linear-gradient(135deg, #1A1A2E 0%, #16213E 50%, #0F0F23 100%); color: #E0D4FC; }
-        .gold-text { color: var(--gold); }
+        .gold-text { color: var(--gold-dark); font-weight: 600; }
         .night-mode .gold-text { color: #FFD700; text-shadow: 0 0 15px rgba(255,215,0,0.3); }
+        /* 提高輔助文字對比度 */
+        .opacity-50 { opacity: 0.7 !important; }
+        .opacity-60 { opacity: 0.8 !important; }
+        .opacity-40 { opacity: 0.65 !important; }
         .gold-btn { background: linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%); color: #2D1B0E; font-weight: 600; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); transition: all 0.3s; }
         .gold-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4); }
         .night-mode .gold-btn { background: linear-gradient(135deg, #6B2C91 0%, #9F5FDB 50%, #6B2C91 100%); color: #fff; }
@@ -768,32 +772,32 @@
                     <section className="grid grid-cols-1 lg:grid-cols-2 gap-6"><div><h3 className="text-2xl font-bold gold-text mb-4 pl-4 border-l-4 border-current serif">✨ L.I.G.H.T. 五能量</h3><div className="card p-6"><div className="aspect-square max-w-xs mx-auto"><RadarChart data={light} isNight={isNight} /></div></div></div><div className="space-y-2">{[{ k: 'l', n: 'L 愛之力', d: '自我接納、給予與接受愛的能力' }, { k: 'i', n: 'I 直覺力', d: '內在智慧、第六感' }, { k: 'g', n: 'G 根基力', d: '安全感、穩定、紮根' }, { k: 'h', n: 'H 和諧力', d: '關係、連結、共振' }, { k: 't', n: 'T 蛻變力', d: '轉化、成長、破繭' }].map(item => { const v = light[item.k]; const level = v <= 3 ? 'weak' : v <= 6 ? 'medium' : 'strong'; return (<div key={item.k} className={'card p-3 ' + (level === 'weak' ? (isNight ? 'bg-red-900/30' : 'bg-red-50') : level === 'medium' ? (isNight ? 'bg-yellow-900/30' : 'bg-yellow-50') : (isNight ? 'bg-green-900/30' : 'bg-green-50'))}><div className="flex justify-between items-center"><div><span className="font-bold">{item.n}</span><div className="text-xs opacity-60">{item.d}</div></div><div className="flex items-center gap-2"><span className="text-2xl font-bold gold-text">{v}</span><span className={'text-xs px-2 py-1 rounded ' + (level === 'weak' ? 'bg-red-200 text-red-700' : level === 'medium' ? 'bg-yellow-200 text-yellow-700' : 'bg-green-200 text-green-700')}>{level === 'weak' ? '需培養' : level === 'medium' ? '中等' : '天賦'}</span></div></div></div>); })}</div></section>
                     {(analysis.missingNumbers.length > 0 || analysis.excessNumbers.length > 0) && (<section className="grid grid-cols-1 md:grid-cols-2 gap-4">{analysis.missingNumbers.length > 0 && (<div className={'card p-6 ' + (isNight ? 'bg-red-900/20' : 'bg-red-50')}><h4 className="font-bold text-red-600 mb-3">⚠️ 空缺數字 — 需要學習的課題</h4><div className="space-y-2">{analysis.missingNumbers.map(n => <div key={n} className="flex items-center gap-2"><span className="text-2xl font-bold text-red-500">{n}</span><span className="text-sm">{getNumData(n)?.title} — {getNumData(n)?.essence}</span></div>)}</div></div>)}{analysis.excessNumbers.length > 0 && (<div className={'card p-6 ' + (isNight ? 'bg-amber-900/20' : 'bg-amber-50')}><h4 className="font-bold text-amber-600 mb-3">⚡ 重複數字 — 強化的能量</h4><div className="space-y-2">{analysis.excessNumbers.map(n => <div key={n} className="flex items-center gap-2"><span className="text-2xl font-bold text-amber-500">{n}</span><span className="text-sm">{getNumData(n)?.title} — 能量強但要注意過度</span></div>)}</div></div>)}</section>)}
                     <TransformBridge isNight={isNight} onDrawCard={onDrawCard} />
-                    <section><h3 className="text-2xl font-bold gold-text mb-4 pl-4 border-l-4 border-current serif">🏰 12宮位・內在城堡</h3><p className="text-sm opacity-60 mb-4">點擊任一宮位卡片可展開詳細解讀</p><div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">{[1,2,3,4,5,6,7,8,9,10,11,12].map(id => <PalaceDeepCard key={id} palaceId={id} palaceNum={palaces[id]} isNight={isNight} />)}</div></section>
-                    <div className="text-center"><button onClick={() => { const palaceNames = {1:'勇氣殿',2:'力量廳',3:'告別苑',4:'淨化室',5:'消化閣',6:'信任殿',7:'心門宮',8:'明辨廳',9:'卸載苑',10:'志氣殿',11:'敞開閣',12:'平衡室'}; const p12 = [1,2,3,4,5,6,7,8,9,10,11,12].map(id => id + '宮 ' + palaceNames[id] + '：' + palaces[id] + (isMasterNumber(palaces[id]) ? '✨' : '')).join('\n'); const text = '【馥靈秘碼完整報告】\n\n═══ H.O.U.R. 四主數 ═══\nH數：' + hour.h + ' — ' + getNumData(hour.h)?.title + '\nO數：' + hour.o + ' — ' + getNumData(hour.o)?.title + '\nU數：' + (hour.u || '—') + (hour.u ? ' — ' + getNumData(hour.u)?.title : '') + '\nR數：' + hour.r + ' — ' + getNumData(hour.r)?.title + '\n\n═══ L.I.G.H.T. 五能量 ═══\nL愛之力：' + light.l + ' | I直覺力：' + light.i + ' | G根基力：' + light.g + '\nH和諧力：' + light.h + ' | T蛻變力：' + light.t + '\n\n═══ 🏰 12宮位 ═══\n' + p12 + '\n\n🔑 想要更深的轉化？LINE: judyanee\n—— 馥靈秘碼 v8.3 ——'; navigator.clipboard.writeText(text); alert('完整報告已複製！（含12宮位）'); }} className="gold-btn px-8 py-3 rounded-lg text-lg">📋 複製完整報告</button></div>
+                    <section><h3 className="text-2xl font-bold gold-text mb-4 pl-4 border-l-4 border-current serif">🏰 12宮位・內在城堡</h3><p className="text-sm mb-4" style={{color:'#6B5B4F'}}>點擊任一宮位卡片可展開詳細解讀</p><div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">{[1,2,3,4,5,6,7,8,9,10,11,12].map(id => <PalaceDeepCard key={id} palaceId={id} palaceNum={palaces[id]} isNight={isNight} />)}</div></section>
+                    <div className="text-center space-y-4"><div><button onClick={() => { const palaceNames = {1:'勇氣殿',2:'力量廳',3:'告別苑',4:'淨化室',5:'消化閣',6:'信任殿',7:'心門宮',8:'明辨廳',9:'卸載苑',10:'志氣殿',11:'敞開閣',12:'平衡室'}; const p12 = [1,2,3,4,5,6,7,8,9,10,11,12].map(id => id + '宮 ' + palaceNames[id] + '：' + palaces[id] + (isMasterNumber(palaces[id]) ? '✨' : '')).join('\n'); const text = '【馥靈秘碼完整報告】\n\n═══ H.O.U.R. 四主數 ═══\nH數：' + hour.h + ' — ' + getNumData(hour.h)?.title + '\nO數：' + hour.o + ' — ' + getNumData(hour.o)?.title + '\nU數：' + (hour.u || '—') + (hour.u ? ' — ' + getNumData(hour.u)?.title : '') + '\nR數：' + hour.r + ' — ' + getNumData(hour.r)?.title + '\n\n═══ L.I.G.H.T. 五能量 ═══\nL愛之力：' + light.l + ' | I直覺力：' + light.i + ' | G根基力：' + light.g + '\nH和諧力：' + light.h + ' | T蛻變力：' + light.t + '\n\n═══ 🏰 12宮位 ═══\n' + p12 + '\n\n📖 想更深入了解？\n《藏在農曆生日裡的秘碼》：https://www.pubu.com.tw/ebook/645548\n\n🔑 想要更深的轉化？LINE: judyanee\n—— 馥靈秘碼 v8.3 ——'; navigator.clipboard.writeText(text); alert('完整報告已複製！（含12宮位）'); }} className="gold-btn px-8 py-3 rounded-lg text-lg">📋 複製完整報告</button></div><div className="flex justify-center gap-3 flex-wrap"><a href="https://www.pubu.com.tw/ebook/645548" target="_blank" rel="noopener" className="inline-flex items-center px-5 py-2 rounded-lg bg-gradient-to-r from-amber-600 to-orange-500 text-white font-bold hover:from-amber-700 hover:to-orange-600 transition-all shadow-lg">📖 購買完整解讀書籍</a><a href="Fulingpreview.html" className="inline-flex items-center px-5 py-2 rounded-lg border-2 border-amber-600 font-bold hover:bg-amber-50 transition-all" style={{color:'#996515'}}>✨ 免費試讀</a></div></div>
                     
                     {/* Email 訂閱區塊 */}
-                    <section className="card p-8 mt-8 text-center" style={{background: 'linear-gradient(135deg, rgba(233,194,125,0.15) 0%, rgba(156,110,219,0.1) 100%)', border: '1px solid rgba(233,194,125,0.4)'}}>
+                    <section className="card p-8 mt-8 text-center" style={{background: 'linear-gradient(135deg, rgba(233,194,125,0.2) 0%, rgba(156,110,219,0.15) 100%)', border: '2px solid rgba(184,134,11,0.5)'}}>
                         <div className="text-4xl mb-4">✨</div>
                         <h3 className="text-2xl font-bold gold-text serif mb-3">想知道宇宙怎麼設定你的？</h3>
-                        <p className="opacity-70 mb-4">留下 Email，解鎖你的《專屬能量說明書》</p>
+                        <p className="mb-4 font-medium" style={{color:'#6B5B4F'}}>留下 Email，解鎖你的《專屬能量說明書》</p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6 text-sm">
-                            <div className="p-3 rounded-lg" style={{background: 'rgba(233,194,125,0.1)'}}>
+                            <div className="p-3 rounded-lg" style={{background: 'rgba(233,194,125,0.2)'}}>
                                 <div className="text-lg mb-1">🔮</div>
                                 <div className="font-bold gold-text">你的出廠設定</div>
-                                <div className="text-xs opacity-60">H.O.U.R. 四主數解密</div>
+                                <div className="text-xs" style={{color:'#7A6A5E'}}>H.O.U.R. 四主數解密</div>
                             </div>
-                            <div className="p-3 rounded-lg" style={{background: 'rgba(233,194,125,0.1)'}}>
+                            <div className="p-3 rounded-lg" style={{background: 'rgba(233,194,125,0.2)'}}>
                                 <div className="text-lg mb-1">🌿</div>
                                 <div className="font-bold gold-text">你的能量補給</div>
-                                <div className="text-xs opacity-60">專屬精油配方</div>
+                                <div className="text-xs" style={{color:'#7A6A5E'}}>專屬精油配方</div>
                             </div>
-                            <div className="p-3 rounded-lg" style={{background: 'rgba(233,194,125,0.1)'}}>
+                            <div className="p-3 rounded-lg" style={{background: 'rgba(233,194,125,0.2)'}}>
                                 <div className="text-lg mb-1">💡</div>
                                 <div className="font-bold gold-text">你的升級攻略</div>
-                                <div className="text-xs opacity-60">光明面 vs 陰影面</div>
+                                <div className="text-xs" style={{color:'#7A6A5E'}}>光明面 vs 陰影面</div>
                             </div>
                         </div>
-                        <div className="max-w-md mx-auto" style={{background: 'rgba(255,255,255,0.03)', borderRadius: '12px', padding: '16px', border: '1px solid rgba(233,194,125,0.2)'}}>
+                        <div className="max-w-md mx-auto" style={{background: 'rgba(255,255,255,0.5)', borderRadius: '12px', padding: '16px', border: '1px solid rgba(184,134,11,0.3)'}}>
                             <iframe 
                                 src="https://docs.google.com/forms/d/e/1FAIpQLScT_4myUCTbqNo-DiTa_v5cjmXAYrEtE__09eXJfs-V0lM_Eg/viewform?embedded=true" 
                                 width="100%" 
@@ -802,7 +806,7 @@
                                 style={{border: 'none', maxWidth: '400px'}}
                             >載入中…</iframe>
                         </div>
-                        <p className="text-xs opacity-40 mt-4">📩 說明書會在 1 分鐘內送達｜放心，我們不會把你的信箱賣掉 😉</p>
+                        <p className="text-sm mt-4" style={{color:'#6B5B4F'}}>📩 說明書會在 1 分鐘內送達｜放心，我們不會把你的信箱賣掉 😉</p>
                     </section>
                 </div>
             );
@@ -918,7 +922,8 @@
                     <div className="card p-6"><h4 className="font-bold gold-text text-lg mb-4">📊 詳細評分</h4><div className="space-y-4">{analysis.details.map((d, i) => (<div key={i}><div className="flex justify-between text-sm mb-1"><span>{d.name}</span><span className="opacity-60">{d.score}/{d.max}</span></div><div className="score-bar bg-gray-200"><div className="score-fill" style={{ width: `${(d.score / d.max) * 100}%`, background: d.score / d.max >= 0.7 ? 'linear-gradient(90deg, #22C55E, #4ADE80)' : 'linear-gradient(90deg, #EAB308, #FDE047)' }}></div></div><div className="text-xs opacity-60 mt-1">{d.desc}</div></div>))}</div></div>
                     <div className="grid grid-cols-2 gap-4"><div className="card p-4"><h5 className="font-bold text-green-500 mb-2">✨ A方帶給B方</h5><p className="text-sm">{getNumData(resultA.hour.o)?.light}</p></div><div className="card p-4"><h5 className="font-bold text-blue-500 mb-2">✨ B方帶給A方</h5><p className="text-sm">{getNumData(resultB.hour.o)?.light}</p></div></div>
                     <div className="card p-6"><h4 className="font-bold gold-text text-lg mb-3">💡 相處建議</h4><p>A方（{getNumData(resultA.hour.o)?.title}）需要：{getNumData(resultA.hour.h)?.essence}</p><p className="mt-2">B方（{getNumData(resultB.hour.o)?.title}）需要：{getNumData(resultB.hour.h)?.essence}</p></div>
-                    <div className="text-center"><button onClick={() => { setResultA(null); setResultB(null); }} className="gold-btn px-6 py-2 rounded-lg">重新測試</button></div>
+                    <div className="text-center space-y-3"><button onClick={() => { setResultA(null); setResultB(null); }} className="gold-btn px-6 py-2 rounded-lg">重新測試</button><button onClick={() => { const text = '【馥靈秘碼・關係合盤分析】\n\n═══ 雙方數據 ═══\nA方：H' + resultA.hour.h + ' O' + resultA.hour.o + ' R' + resultA.hour.r + '\nB方：H' + resultB.hour.h + ' O' + resultB.hour.o + ' R' + resultB.hour.r + '\n\n═══ 契合度 ═══\n總分：' + analysis.total + '/80\n等級：' + analysis.level + '\n\n═══ 相處建議 ═══\nA方（' + getNumData(resultA.hour.o)?.title + '）需要：' + getNumData(resultA.hour.h)?.essence + '\nB方（' + getNumData(resultB.hour.o)?.title + '）需要：' + getNumData(resultB.hour.h)?.essence + '\n\n🔮 想深入了解？購書連結：\nhttps://www.pubu.com.tw/ebook/645548\n\n—— 馥靈秘碼 v8.3 ——'; navigator.clipboard.writeText(text); alert('合盤報告已複製！'); }} className="ml-2 px-6 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 transition-all">📋 複製報告</button></div>
+                    <div className="card p-4 mt-4 text-center bg-gradient-to-r from-amber-50 to-orange-50"><p className="font-bold text-lg" style={{color:'#996515'}}>📖 想更深入了解你們的能量？</p><p className="text-sm mt-1" style={{color:'#7A6A5E'}}>《藏在農曆生日裡的秘碼》完整解析 H.O.U.R. 系統</p><a href="https://www.pubu.com.tw/ebook/645548" target="_blank" rel="noopener" className="inline-block mt-3 gold-btn px-6 py-2 rounded-lg">立即購書 →</a></div>
                 </div>
             );
         };
