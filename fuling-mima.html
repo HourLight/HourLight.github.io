@@ -42,9 +42,12 @@
         select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath fill='%23D4AF37' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; appearance: none; }
         .score-bar { height: 8px; border-radius: 4px; overflow: hidden; }
         .score-fill { height: 100%; transition: width 0.8s ease-out; }
-        .master-badge { display: inline-block; padding: 4px 10px; border-radius: 14px; font-size: 11px; font-weight: 600; letter-spacing: 0.3px; vertical-align: middle; margin-left: 6px; white-space: nowrap; }
-        .day-mode .master-badge { background: linear-gradient(135deg, #8B5A2B, #6B4423); color: #FFF8E7; box-shadow: 0 2px 8px rgba(139, 90, 43, 0.4); }
-        .night-mode .master-badge { background: linear-gradient(135deg, #7B2D9E, #9F5FDB); color: #FFF8E7; box-shadow: 0 2px 8px rgba(159, 95, 219, 0.5); }
+        /* 大師數美化樣式 */
+        .master-star { display: inline; font-size: 0.5em; vertical-align: super; margin-left: 2px; animation: twinkle 2s ease-in-out infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.2); } }
+        .master-num { position: relative; }
+        .master-num::after { content: ''; position: absolute; inset: -4px; background: radial-gradient(circle, rgba(233,194,125,0.3) 0%, transparent 70%); border-radius: 50%; z-index: -1; animation: glow-pulse 3s ease-in-out infinite; }
+        @keyframes glow-pulse { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.1); } }
         @keyframes glow { from { box-shadow: 0 0 5px rgba(212, 175, 55, 0.5); } to { box-shadow: 0 0 15px rgba(212, 175, 55, 0.8); } }
         .detail-panel { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
         .detail-panel.open { max-height: 2000px; }
@@ -627,7 +630,7 @@
         // ========================================
         // UI 元件
         // ========================================
-        const MasterBadge = ({ num }) => { if (!isMasterNumber(num)) return null; const labels = { 11: '✨ 直覺大師', 22: '🏛️ 建造大師', 33: '💕 療癒大師' }; return <span className="master-badge ml-2">{labels[num]}</span>; };
+        const MasterBadge = ({ num }) => { if (!isMasterNumber(num)) return null; return <span className="master-star">✦</span>; };
 
         const RadarChart = ({ data, isNight, labels, title }) => {
             const chartRef = useRef(null);
