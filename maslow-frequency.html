@@ -1256,36 +1256,55 @@ function calculateFrequency() {
         }
     });
     
-    // ===== 重新設計的正規化邏輯 =====
-    // 目標分佈：
-    // - 一般人（隨機抽牌）：150-350 分
-    // - 覺醒期（有意識成長者）：351-550 分
-    // - 高頻區（穩定修練者）：551-750 分
-    // - 顯化期（極少數）：751-1000 分
+    // ===== 重新設計的正規化邏輯 v2 =====
+    // 目標分佈（更嚴格）：
+    // - 一般人（隨機抽牌）：200-400 分
+    // - 覺醒期（有意識成長者）：401-550 分
+    // - 高頻區（穩定修練者）：551-700 分
+    // - 大師期（極少數）：701-1000 分
     
     const rawTotal = scores.P + scores.S + scores.B + scores.E + scores.A;
     
-    // 計算「理論滿分」：如果每張牌都拿到該層最高分
-    // 但實際上不可能，所以我們用「合理期望值」作為基準
-    // 合理期望值 = 張數 × 平均每張牌的期望貢獻（約 120 分，考慮權重後）
+    // 計算「理論滿分」的比例
+    // 每張牌如果都拿到對應層級的「滿分」，平均約 200 分
+    // 但考慮到大秘儀的邊界擴散和位序權重，實際會更高
     const cardCount = cards.length;
-    const avgWeightedContribution = 120; // 調低期望值
-    const reasonableMax = cardCount * avgWeightedContribution * 1.5; // 留一些空間
     
-    // 用 S 曲線（sigmoid）讓分數分佈更自然
-    // 低分區壓縮、中間拉開、高分區收斂
-    let rawRatio = rawTotal / reasonableMax;
-    rawRatio = Math.min(rawRatio, 1.5); // 封頂
+    // 計算加權後的理論最大值
+    let theoreticalMax = 0;
+    cards.forEach((card, index) => {
+        const w = (spreadType !== 'custom' && WEIGHTS[spreadType]) 
+            ? (WEIGHTS[spreadType][index] || WEIGHTS[spreadType][WEIGHTS[spreadType].length - 1]) 
+            : 1.0;
+        // 假設每張牌都拿到最高層級（A層 250分）的滿分
+        theoreticalMax += 250 * w;
+    });
     
-    // Sigmoid 轉換：讓中間段更有區分度
-    // 公式：1 / (1 + e^(-k*(x-0.5)))，k 控制斜率
-    const k = 4; // 斜率係數
-    const sigmoidInput = (rawRatio - 0.5) * k;
-    const sigmoidOutput = 1 / (1 + Math.exp(-sigmoidInput));
+    // 原始分數佔理論最大值的比例
+    let rawRatio = rawTotal / theoreticalMax;
     
-    // 映射到 100-900 區間（保留極端值空間）
-    let normalizedTotal = Math.round(100 + sigmoidOutput * 800);
-    normalizedTotal = Math.max(100, Math.min(1000, normalizedTotal));
+    // 使用調整過的映射函數
+    // 不用 Sigmoid，改用分段線性映射，更直觀
+    let normalizedTotal;
+    
+    if (rawRatio <= 0.25) {
+        // 0-25% → 100-300 分（基礎期）
+        normalizedTotal = 100 + (rawRatio / 0.25) * 200;
+    } else if (rawRatio <= 0.45) {
+        // 25-45% → 300-450 分（覺醒期）
+        normalizedTotal = 300 + ((rawRatio - 0.25) / 0.20) * 150;
+    } else if (rawRatio <= 0.65) {
+        // 45-65% → 450-600 分（高頻期）
+        normalizedTotal = 450 + ((rawRatio - 0.45) / 0.20) * 150;
+    } else if (rawRatio <= 0.85) {
+        // 65-85% → 600-750 分（高頻期上段）
+        normalizedTotal = 600 + ((rawRatio - 0.65) / 0.20) * 150;
+    } else {
+        // 85%+ → 750-1000 分（大師期，極難）
+        normalizedTotal = 750 + ((rawRatio - 0.85) / 0.15) * 250;
+    }
+    
+    normalizedTotal = Math.max(100, Math.min(1000, Math.round(normalizedTotal)));
     
     // 計算各層顯示分數
     const scaleFactor = normalizedTotal / rawTotal;
