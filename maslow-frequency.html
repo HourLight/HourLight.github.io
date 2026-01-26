@@ -854,13 +854,15 @@
                     <!-- 進度條 -->
                     <div class="mf-progress-section">
                         <div class="mf-progress-labels">
-                            <span>基礎建構期</span>
-                            <span>覺醒擴張期</span>
-                            <span>高頻顯化期</span>
+                            <span>基礎期</span>
+                            <span>覺醒期</span>
+                            <span>高頻期</span>
+                            <span>大師期</span>
                         </div>
                         <div class="mf-progress-bar">
                             <div id="progressFill" class="mf-progress-fill"></div>
                             <div class="mf-progress-markers">
+                                <div class="mf-progress-marker"></div>
                                 <div class="mf-progress-marker"></div>
                                 <div class="mf-progress-marker"></div>
                                 <div class="mf-progress-marker"></div>
@@ -1051,7 +1053,7 @@ const INTERPRETATIONS = {
         }
     },
     mid: {
-        range: [351, 650],
+        range: [351, 550],
         badge: '🦋 覺醒擴張期',
         text: '你正站在轉變的門檻上。基本需求已經站穩，內心開始渴望「被看見」和「有意義」。這是一個美好但容易焦躁的階段——你知道自己可以更好，但還不太確定方向。別急，這份「不確定」本身就是成長的證據。',
         steps: {
@@ -1062,14 +1064,25 @@ const INTERPRETATIONS = {
         }
     },
     high: {
-        range: [651, 1000],
+        range: [551, 750],
         badge: '✨ 高頻顯化期',
-        text: '你的能量已經進入「創造者模式」。自我實現的比重很高，代表你清楚知道自己是誰、想要什麼。這個階段的課題不再是「我能得到什麼」，而是「我能給出什麼」。你已經準備好成為別人的燈塔了。',
+        text: '你的能量已經進入「創造者模式」。自我實現的比重明顯提升，代表你越來越清楚自己是誰、想要什麼。這個階段的課題是「整合」——如何讓內在的覺知與外在的行動一致，而不是只在腦袋裡打轉。',
         steps: {
-            H: '用冥想或靜心練習保持高頻狀態，推薦搭配檀香、玫瑰或茉莉精油',
+            H: '用冥想或靜心練習保持穩定狀態，推薦搭配檀香、乳香或雪松精油',
             O: '覺察自己的「能量邊界」：哪些人事物會拉低你的頻率？如何優雅地設限？',
-            U: '你的下一步是「傳承」。思考如何將你的經驗轉化為可以幫助他人的形式',
-            R: '每月設定一個「影響力目標」：帶領多少人一起成長、創造多少正向漣漪'
+            U: '開始思考「傳承」：你的經驗如何能幫助到正在走你走過的路的人？',
+            R: '每月設定一個具體的「影響力目標」：帶領、分享、創造正向漣漪'
+        }
+    },
+    master: {
+        range: [751, 1000],
+        badge: '👑 大師顯化期',
+        text: '這是非常稀有的頻率狀態。你不只是在「做」，而是在「成為」。你的存在本身就是一種影響力，不需要刻意證明什麼。這個階段的課題是「放下執著」——包括對高頻狀態本身的執著。真正的自由，是不再需要任何標籤來定義自己。',
+        steps: {
+            H: '練習「無為」：允許自己什麼都不做，只是存在。這對你反而是最難的功課',
+            O: '覺察：你是否開始對「維持高頻」產生壓力？那本身就是一種執念',
+            U: '你的下一步可能不是「更高」，而是「更深」——往內在的寧靜走',
+            R: '選擇一個你真正想要的方式去服務，不是因為「應該」，而是因為「想要」'
         }
     }
 };
@@ -1243,10 +1256,36 @@ function calculateFrequency() {
         }
     });
     
-    // 正規化到 1000 分制
+    // ===== 重新設計的正規化邏輯 =====
+    // 目標分佈：
+    // - 一般人（隨機抽牌）：150-350 分
+    // - 覺醒期（有意識成長者）：351-550 分
+    // - 高頻區（穩定修練者）：551-750 分
+    // - 顯化期（極少數）：751-1000 分
+    
     const rawTotal = scores.P + scores.S + scores.B + scores.E + scores.A;
-    let normalizedTotal = (rawTotal / (totalMaxPossible * 0.75)) * 1000;
-    normalizedTotal = Math.min(1000, Math.round(normalizedTotal));
+    
+    // 計算「理論滿分」：如果每張牌都拿到該層最高分
+    // 但實際上不可能，所以我們用「合理期望值」作為基準
+    // 合理期望值 = 張數 × 平均每張牌的期望貢獻（約 120 分，考慮權重後）
+    const cardCount = cards.length;
+    const avgWeightedContribution = 120; // 調低期望值
+    const reasonableMax = cardCount * avgWeightedContribution * 1.5; // 留一些空間
+    
+    // 用 S 曲線（sigmoid）讓分數分佈更自然
+    // 低分區壓縮、中間拉開、高分區收斂
+    let rawRatio = rawTotal / reasonableMax;
+    rawRatio = Math.min(rawRatio, 1.5); // 封頂
+    
+    // Sigmoid 轉換：讓中間段更有區分度
+    // 公式：1 / (1 + e^(-k*(x-0.5)))，k 控制斜率
+    const k = 4; // 斜率係數
+    const sigmoidInput = (rawRatio - 0.5) * k;
+    const sigmoidOutput = 1 / (1 + Math.exp(-sigmoidInput));
+    
+    // 映射到 100-900 區間（保留極端值空間）
+    let normalizedTotal = Math.round(100 + sigmoidOutput * 800);
+    normalizedTotal = Math.max(100, Math.min(1000, normalizedTotal));
     
     // 計算各層顯示分數
     const scaleFactor = normalizedTotal / rawTotal;
@@ -1296,10 +1335,12 @@ function displayResults(scores, total) {
     let interpretation;
     if (total <= 350) {
         interpretation = INTERPRETATIONS.low;
-    } else if (total <= 650) {
+    } else if (total <= 550) {
         interpretation = INTERPRETATIONS.mid;
-    } else {
+    } else if (total <= 750) {
         interpretation = INTERPRETATIONS.high;
+    } else {
+        interpretation = INTERPRETATIONS.master;
     }
     
     // 更新解讀內容
