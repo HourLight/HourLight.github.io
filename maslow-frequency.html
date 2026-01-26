@@ -783,7 +783,10 @@
             
             <!-- 左側：輸入區 -->
             <div class="mf-input-card">
-                <h2 class="mf-section-title">輸入你的牌卡</h2>
+                <h2 class="mf-section-title">貼上你的抽牌結果</h2>
+                <p style="font-size: 0.85rem; color: #c4b7a6; margin-bottom: 20px;">
+                    還沒抽牌？先去 <a href="draw-hl.html" style="color: var(--hl-gold); text-decoration: underline;">內在GPS抽牌</a> 抽 7/12/15/21 張牌
+                </p>
                 
                 <!-- 牌陣選擇 -->
                 <div class="mf-spread-selector">
@@ -799,11 +802,11 @@
                 
                 <!-- 牌號輸入 -->
                 <div class="mf-input-area">
-                    <label class="mf-label">輸入牌卡編號</label>
+                    <label class="mf-label">輸入牌卡資料</label>
                     <textarea id="cardInput" class="mf-textarea" 
-                        placeholder="請輸入 7 張牌號&#10;大秘儀：A00 ~ A21&#10;精油卡：001 ~ 108&#10;&#10;例如：A07, 049, 099, 013..."></textarea>
+                        placeholder="方法一：直接貼上抽牌結果&#10;方法二：輸入牌號（如：A14, 028, A17...）&#10;&#10;系統會自動識別 7 張牌的位序權重"></textarea>
                     <p class="mf-input-hint">
-                        <span>大秘儀 A00-A21</span> ・ <span>精油卡 001-108</span>
+                        直接貼上抽牌結果，或手動輸入牌號
                     </p>
                 </div>
                 
@@ -814,9 +817,9 @@
                 
                 <!-- 說明區 -->
                 <div class="mf-info-box">
-                    <p class="mf-info-title">💡 位序權重說明</p>
+                    <p class="mf-info-title">💡 使用方式</p>
                     <p class="mf-info-text">
-                        系統會根據牌陣位置自動調整權重。越後面的牌代表「結果/靈魂訊息」，分數佔比會自動加重，更能反映你真實的能量動向。
+                        從「內在GPS抽牌」複製結果後，直接貼到上方即可！系統會自動識別牌號與張數，並依據牌陣位置給予不同權重。越後面的牌（建議/靈魂訊息位）佔比越重。
                     </p>
                 </div>
             </div>
@@ -1079,11 +1082,11 @@ function updatePlaceholder() {
     const type = document.getElementById('spreadType').value;
     const textarea = document.getElementById('cardInput');
     const placeholders = {
-        7: '請輸入 7 張牌號\n大秘儀：A00 ~ A21\n精油卡：001 ~ 108\n\n例如：A07, 049, 099, 013...',
-        12: '請輸入 12 張牌號（流年掃描）\n大秘儀：A00 ~ A21\n精油卡：001 ~ 108',
-        15: '請輸入 15 張牌號（深層探索）\n大秘儀：A00 ~ A21\n精油卡：001 ~ 108',
-        21: '請輸入 21 張牌號（英雄旅程）\n大秘儀：A00 ~ A21\n精油卡：001 ~ 108',
-        custom: '請輸入任意數量牌號\n大秘儀：A00 ~ A21\n精油卡：001 ~ 108'
+        7: '方法一：直接貼上抽牌結果\n方法二：輸入牌號（如：A14, 028, A17...）\n\n系統會自動識別 7 張牌的位序權重',
+        12: '方法一：直接貼上抽牌結果\n方法二：輸入牌號（如：A14, 028, A17...）\n\n系統會自動識別 12 張牌的位序權重',
+        15: '方法一：直接貼上抽牌結果\n方法二：輸入牌號（如：A14, 028, A17...）\n\n系統會自動識別 15 張牌的位序權重',
+        21: '方法一：直接貼上抽牌結果\n方法二：輸入牌號（如：A14, 028, A17...）\n\n系統會自動識別 21 張牌的位序權重',
+        custom: '方法一：直接貼上抽牌結果\n方法二：輸入牌號（如：A14, 028, A17...）\n\n自訂數量使用均等權重'
     };
     textarea.placeholder = placeholders[type] || placeholders.custom;
 }
@@ -1133,17 +1136,68 @@ function getNeighborLevels(level) {
 // ===== 主計算函數 =====
 function calculateFrequency() {
     const inputStr = document.getElementById('cardInput').value;
-    const rawTokens = inputStr.split(/[\s,，、]+/);
-    const cards = rawTokens.map(t => parseCard(t)).filter(c => c !== null);
+    
+    // 智能解析：支援多種輸入格式
+    // 格式1：簡單列表 "A14, 028, A17, 084"
+    // 格式2：完整抽牌結果（從抽牌工具複製）
+    
+    let cards = [];
+    
+    // 檢查是否是完整抽牌結果格式（包含「抽牌張數」或特定標記）
+    if (inputStr.includes('抽牌結果') || inputStr.includes('▸') || inputStr.includes('💭')) {
+        // 完整抽牌結果格式：從每行提取牌號
+        // 格式範例：「  A14 內在平衡」或「  028 檸檬草」
+        const lines = inputStr.split('\n');
+        
+        for (const line of lines) {
+            // 匹配大秘儀：A + 數字（A0, A1, A01, A14, A21 等）
+            const arcanaMatch = line.match(/\bA(\d{1,2})\b/i);
+            if (arcanaMatch) {
+                const num = parseInt(arcanaMatch[1]);
+                if (num >= 0 && num <= 21) {
+                    cards.push({ type: 'arcana', val: num, raw: 'A' + num });
+                }
+                continue;
+            }
+            
+            // 匹配精油卡：獨立的三位數字（001-108）
+            // 但要排除「15 張」這種抽牌張數描述
+            const aromaMatch = line.match(/^\s*(\d{2,3})\s+[\u4e00-\u9fff]/);
+            if (aromaMatch) {
+                const num = parseInt(aromaMatch[1]);
+                if (num >= 1 && num <= 108) {
+                    cards.push({ type: 'aroma', val: num, raw: String(num).padStart(3, '0') });
+                }
+            }
+        }
+    } else {
+        // 簡單列表格式
+        const rawTokens = inputStr.split(/[\s,，、\n]+/);
+        cards = rawTokens.map(t => parseCard(t)).filter(c => c !== null);
+    }
     
     if (cards.length === 0) {
-        alert('請至少輸入一張有效的牌卡編號！\n\n大秘儀：A00 ~ A21\n精油卡：001 ~ 108');
+        alert('請輸入有效的牌卡資料！\n\n支援兩種格式：\n1. 直接貼上抽牌結果\n2. 輸入牌號列表（如：A14, 028, A17...）');
         return;
     }
     
-    // 取得權重陣列
+    // 自動偵測牌陣張數
     const spreadType = document.getElementById('spreadType').value;
-    let weights = WEIGHTS[spreadType] || new Array(cards.length).fill(1.0);
+    let detectedSpread = spreadType;
+    
+    if (spreadType === 'custom' || 
+        (spreadType === '7' && cards.length !== 7) ||
+        (spreadType === '12' && cards.length !== 12) ||
+        (spreadType === '15' && cards.length !== 15) ||
+        (spreadType === '21' && cards.length !== 21)) {
+        // 自動偵測最接近的牌陣
+        if (cards.length <= 7) detectedSpread = '7';
+        else if (cards.length <= 12) detectedSpread = '12';
+        else if (cards.length <= 15) detectedSpread = '15';
+        else detectedSpread = '21';
+    }
+    
+    let weights = WEIGHTS[detectedSpread] || new Array(cards.length).fill(1.0);
     
     // 初始化分數
     let scores = { P: 0, S: 0, B: 0, E: 0, A: 0 };
