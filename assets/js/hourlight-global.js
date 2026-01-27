@@ -83,7 +83,7 @@
       audioElement = document.createElement('audio');
       audioElement.id = 'bgMusic';
       audioElement.loop = true;
-      audioElement.src = 'https://hourlight.github.io/11/background-music.mp3'; // 替換為實際路徑
+      audioElement.src = 'https://hourlightkey.com/432Hz.mp3'; // 替換為實際路徑
       document.body.appendChild(audioElement);
     }
     

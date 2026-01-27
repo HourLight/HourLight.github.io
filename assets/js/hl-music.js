@@ -8,7 +8,7 @@
   'use strict';
   
   // 音樂檔案 URL
-  const MUSIC_URL = 'https://hourlight.github.io/432Hz.mp3';
+  const MUSIC_URL = 'https://hourlightkey.com/432Hz.mp3';
   
   // 預設音量（0-1）
   const DEFAULT_VOLUME = 0.3;
