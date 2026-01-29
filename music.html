@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>馥靈之鑰｜能量音樂 ✧ Hour Light Music</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<meta name="description" content="馥靈之鑰能量音樂｜15首原創療癒音樂，陪你在每個需要被托住的時刻。">
+<meta name="robots" content="noindex, nofollow">
+
+<style>
+:root {
+  --hl-bg: #030208;
+  --hl-bg-soft: #0a0614;
+  --hl-gold: #e9c27d;
+  --hl-gold-light: #fbe6c2;
+  --hl-gold-deep: #cda86e;
+  --hl-ink: #f7efe1;
+  --hl-ink-soft: #c4b7a6;
+  --hl-ink-muted: #7a7068;
+  --hl-border: rgba(233, 194, 125, 0.3);
+  --hl-glow: rgba(233, 194, 125, 0.25);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Serif TC', serif;
+  min-height: 100vh;
+  background: var(--hl-bg);
+  color: var(--hl-ink);
+  overflow-x: hidden;
+}
+
+/* ========== 星空背景 ========== */
+.cosmos {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: -1;
+  background: 
+    radial-gradient(ellipse at 30% 20%, rgba(92, 58, 128, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(139, 90, 43, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at center, var(--hl-bg-soft) 0%, var(--hl-bg) 100%);
+}
+
+.stars {
+  position: absolute;
+  width: 200%; height: 200%;
+  background-image: 
+    radial-gradient(2px 2px at 50px 80px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(2px 2px at 150px 150px, var(--hl-gold), transparent),
+    radial-gradient(1.5px 1.5px at 280px 60px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(2px 2px at 380px 200px, rgba(255,255,255,0.5), transparent);
+  background-size: 450px 350px;
+  animation: drift 180s linear infinite;
+}
+
+@keyframes drift {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-450px, -350px); }
+}
+
+/* ========== 主容器 ========== */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========== 頂部標題 ========== */
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: var(--hl-gold);
+  letter-spacing: 8px;
+  margin-bottom: 8px;
+  text-shadow: 0 0 30px var(--hl-glow);
+}
+
+.header .subtitle {
+  font-size: 0.85rem;
+  color: var(--hl-ink-muted);
+  letter-spacing: 2px;
+}
+
+.back-link {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  color: var(--hl-gold);
+  text-decoration: none;
+  font-size: 0.9rem;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.back-link:hover {
+  opacity: 1;
+}
+
+/* ========== 播放器區域 ========== */
+.player-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* 當前歌曲資訊 */
+.now-playing {
+  text-align: center;
+  padding: 30px;
+  background: rgba(233, 194, 125, 0.03);
+  border: 1px solid var(--hl-border);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.song-number {
+  font-size: 0.8rem;
+  color: var(--hl-ink-muted);
+  letter-spacing: 3px;
+  margin-bottom: 10px;
+}
+
+.song-title {
+  font-size: 1.6rem;
+  color: var(--hl-gold);
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-shadow: 0 0 20px var(--hl-glow);
+}
+
+.song-style {
+  font-size: 0.8rem;
+  color: var(--hl-ink-soft);
+  letter-spacing: 1px;
+}
+
+/* 視覺化動畫 */
+.visualizer {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 4px;
+  height: 40px;
+  margin: 20px 0;
+}
+
+.visualizer .bar {
+  width: 4px;
+  background: linear-gradient(to top, var(--hl-gold-deep), var(--hl-gold-light));
+  border-radius: 2px;
+  transition: height 0.1s ease;
+}
+
+.visualizer.playing .bar {
+  animation: wave 0.5s ease-in-out infinite;
+}
+
+.visualizer .bar:nth-child(1) { animation-delay: 0s; }
+.visualizer .bar:nth-child(2) { animation-delay: 0.1s; }
+.visualizer .bar:nth-child(3) { animation-delay: 0.2s; }
+.visualizer .bar:nth-child(4) { animation-delay: 0.15s; }
+.visualizer .bar:nth-child(5) { animation-delay: 0.05s; }
+.visualizer .bar:nth-child(6) { animation-delay: 0.25s; }
+.visualizer .bar:nth-child(7) { animation-delay: 0.1s; }
+
+@keyframes wave {
+  0%, 100% { height: 10px; }
+  50% { height: 35px; }
+}
+
+/* 進度條 */
+.progress-container {
+  margin: 15px 0;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(233, 194, 125, 0.2);
+  border-radius: 3px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--hl-gold-deep), var(--hl-gold));
+  border-radius: 3px;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+.time-display {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--hl-ink-muted);
+  margin-top: 8px;
+}
+
+/* 控制按鈕 */
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.control-btn {
+  background: none;
+  border: none;
+  color: var(--hl-gold);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  opacity: 0.8;
+}
+
+.control-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.control-btn.play-btn {
+  font-size: 2.5rem;
+  background: rgba(233, 194, 125, 0.1);
+  border: 2px solid var(--hl-gold);
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-btn.play-btn:hover {
+  background: rgba(233, 194, 125, 0.2);
+  box-shadow: 0 0 30px var(--hl-glow);
+}
+
+.control-btn.active {
+  color: var(--hl-gold-light);
+  background: rgba(233, 194, 125, 0.15);
+}
+
+/* 音量控制 */
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.volume-slider {
+  width: 100px;
+  height: 4px;
+  -webkit-appearance: none;
+  background: rgba(233, 194, 125, 0.3);
+  border-radius: 2px;
+  outline: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--hl-gold);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* ========== 歌詞區域 ========== */
+.lyrics-section {
+  background: rgba(5, 3, 10, 0.6);
+  border: 1px solid var(--hl-border);
+  border-radius: 16px;
+  padding: 25px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.lyrics-section::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lyrics-section::-webkit-scrollbar-track {
+  background: rgba(233, 194, 125, 0.1);
+  border-radius: 3px;
+}
+
+.lyrics-section::-webkit-scrollbar-thumb {
+  background: var(--hl-gold-deep);
+  border-radius: 3px;
+}
+
+.lyrics-title {
+  font-size: 0.85rem;
+  color: var(--hl-gold);
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.lyrics-content {
+  font-size: 0.95rem;
+  color: var(--hl-ink-soft);
+  line-height: 2;
+  text-align: center;
+  white-space: pre-line;
+}
+
+.lyrics-content .section-tag {
+  color: var(--hl-ink-muted);
+  font-size: 0.8rem;
+  margin: 15px 0 5px;
+}
+
+/* ========== 曲目列表 ========== */
+.playlist-section {
+  margin-top: 20px;
+}
+
+.playlist-title {
+  font-size: 0.85rem;
+  color: var(--hl-gold);
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.playlist {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.playlist-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  background: rgba(5, 3, 10, 0.5);
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.playlist-item:hover {
+  background: rgba(233, 194, 125, 0.05);
+  border-color: var(--hl-border);
+}
+
+.playlist-item.active {
+  background: rgba(233, 194, 125, 0.1);
+  border-color: var(--hl-gold);
+}
+
+.playlist-item .track-num {
+  font-size: 0.75rem;
+  color: var(--hl-ink-muted);
+  width: 24px;
+}
+
+.playlist-item .track-name {
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--hl-ink);
+}
+
+.playlist-item.active .track-name {
+  color: var(--hl-gold);
+}
+
+.playlist-item .track-playing {
+  font-size: 0.8rem;
+  opacity: 0;
+}
+
+.playlist-item.active.playing .track-playing {
+  opacity: 1;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ========== 展會模式按鈕 ========== */
+.expo-mode {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  background: rgba(5, 3, 10, 0.8);
+  border: 1px solid var(--hl-border);
+  border-radius: 999px;
+  color: var(--hl-gold);
+  font-size: 0.85rem;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.expo-mode:hover {
+  background: rgba(233, 194, 125, 0.1);
+}
+
+.expo-mode.active {
+  background: var(--hl-gold);
+  color: var(--hl-bg);
+}
+
+/* ========== 響應式 ========== */
+@media (max-width: 600px) {
+  .container {
+    padding: 20px 15px;
+  }
+  
+  .header h1 {
+    font-size: 1.4rem;
+    letter-spacing: 4px;
+  }
+  
+  .song-title {
+    font-size: 1.3rem;
+  }
+  
+  .playlist {
+    grid-template-columns: 1fr;
+  }
+  
+  .lyrics-section {
+    max-height: 200px;
+  }
+  
+  .control-btn.play-btn {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="cosmos">
+  <div class="stars"></div>
+</div>
+
+<a href="111.html" class="back-link">← 返回展會</a>
+
+<div class="container">
+  <!-- 頂部標題 -->
+  <header class="header">
+    <h1>馥靈之鑰 ✧ 能量音樂</h1>
+    <p class="subtitle">HOUR LIGHT MUSIC COLLECTION</p>
+  </header>
+
+  <div class="player-section">
+    <!-- 當前播放 -->
+    <div class="now-playing">
+      <div class="song-number">TRACK <span id="trackNum">01</span> / 15</div>
+      <div class="song-title" id="songTitle">人間的煙火</div>
+      <div class="song-style" id="songStyle">folk, indie folk</div>
+      
+      <!-- 視覺化 -->
+      <div class="visualizer" id="visualizer">
+        <div class="bar" style="height: 15px;"></div>
+        <div class="bar" style="height: 25px;"></div>
+        <div class="bar" style="height: 20px;"></div>
+        <div class="bar" style="height: 30px;"></div>
+        <div class="bar" style="height: 18px;"></div>
+        <div class="bar" style="height: 28px;"></div>
+        <div class="bar" style="height: 22px;"></div>
+      </div>
+      
+      <!-- 進度條 -->
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="time-display">
+          <span id="currentTime">0:00</span>
+          <span id="duration">0:00</span>
+        </div>
+      </div>
+      
+      <!-- 控制按鈕 -->
+      <div class="controls">
+        <button class="control-btn" id="shuffleBtn" title="隨機播放">🔀</button>
+        <button class="control-btn" id="prevBtn" title="上一首">⏮️</button>
+        <button class="control-btn play-btn" id="playBtn" title="播放/暫停">▶️</button>
+        <button class="control-btn" id="nextBtn" title="下一首">⏭️</button>
+        <button class="control-btn" id="repeatBtn" title="循環模式">🔁</button>
+      </div>
+      
+      <!-- 音量 -->
+      <div class="volume-control">
+        <span>🔈</span>
+        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="50">
+        <span>🔊</span>
+      </div>
+    </div>
+
+    <!-- 歌詞 -->
+    <div class="lyrics-section">
+      <div class="lyrics-title">✦ 歌詞 LYRICS ✦</div>
+      <div class="lyrics-content" id="lyricsContent">
+        載入中...
+      </div>
+    </div>
+
+    <!-- 曲目列表 -->
+    <div class="playlist-section">
+      <div class="playlist-title">✦ 曲目列表 PLAYLIST ✦</div>
+      <div class="playlist" id="playlist"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 展會模式按鈕 -->
+<button class="expo-mode" id="expoMode">🎪 展會模式</button>
+
+<!-- 音頻元素 -->
+<audio id="audioPlayer"></audio>
+
+<script>
+// ========== 歌曲資料 ==========
+const songs = [
+  {
+    id: 1,
+    title: "人間的煙火",
+    style: "folk, indie folk",
+    file: "music/01-人間的煙火.mp3",
+    lyrics: `[Verse 1]
+廟口的燈籠
+紅得像心跳
+風吹一下
+影子晃過你眉梢
+小吃攤的蒸氣
+暖得像擁抱
+塑膠板的桌上
+兩碗湯麵在冒泡
+
+[Chorus]
+基隆的夜
+煙火與煙火
+都是人間
+咳嗽聲 叫賣聲 夾在笑裡面
+你抬頭說
+只要這樣過
+拜的是平安
+吃的也是平安
+
+[Verse 2]
+神明在樓上
+聽著廟埕的熱鬧
+樓下排隊的人
+手裡都捏著煩惱
+香灰落在肩頭
+像點點小訊號
+誰不是求個心安
+再繼續往前跑
+
+[Bridge]
+你說人生啊
+就像這攤滷味攤
+想要什麼自己夾
+苦的甜的都算盤
+我笑著幫你多夾一串
+說別怕走散
+這條路口有我們
+有熱湯 有桌碗`
+  },
+  {
+    id: 2,
+    title: "五蘊皆空",
+    style: "ambient, meditative",
+    file: "music/02-五蘊皆空.mp3",
+    lyrics: `[Verse]
+我以為宿命纏身 直到溪水低語
+像大地擁抱夜空 靜靜映出真句
+原來我不被形裡束縛 塵世如微明燈
+情緒轉瞬如雲去 滄海也風平浪靜
+
+[Bridge]
+色即是空 空即是色
+彼此掌心無分逆與合
+受想行識如塵消散
+知曉之後 無需黯然
+
+[Chorus]
+揭諦 揭諦 波羅揭諦
+波羅僧揭諦 菩提薩婆訶
+在當下找到自己 起伏都不驚訝
+每顆星星的秘密 如覺悟的繁花
+
+[Verse 2]
+我感覺呼吸裡藏著流動的生命
+每顆心跳都私語 平靜卻不孤寂
+當執念脫離我手 心中曾未荒涼
+就像一場雨停後 綠洲無聲發光`
+  },
+  {
+    id: 3,
+    title: "今天就這樣吧",
+    style: "pop, chill pop",
+    file: "music/03-今天就這樣吧.mp3",
+    lyrics: `[Verse 1]
+週三下午三點半
+會議剛散
+PPT關上
+腦袋跟著斷線
+
+螢幕一封封信
+標題排成隊
+滑鼠動很慢
+心早就不在線
+
+[Pre-Chorus]
+指尖停在鍵盤上
+好像在回覆誰
+其實只是發呆
+讓眼神去旅行
+
+[Chorus]
+假裝在看 email
+其實在放空
+今天就這樣吧
+明天再說
+世界不會因為我耍廢
+就毀滅
+就先讓心閒一點
+一點也不過分
+
+[Verse 2]
+窗外有一隻鴿子
+停在冷氣外機
+牠也在發呆
+跟我一樣沒戲
+
+我們對看了一下
+達成某種默契
+你不飛 我不回
+誰都別戳破它
+
+[Bridge]
+咖啡杯邊緣
+還有一圈溫熱
+心裡那條線
+鬆開一點點
+
+如果世界真那麼脆弱
+早就崩潰幾千遍
+我多偷這五分鐘
+它還是照樣在轉圈`
+  },
+  {
+    id: 4,
+    title: "六感鮮師之歌",
+    style: "pop",
+    file: "music/04-六感鮮師之歌.mp3",
+    lyrics: `[Verse 1]
+我們不教你
+什麼叫「標準答案」
+我們只陪你
+把「為什麼」問到天亮
+我們不給你
+一成不變的模板
+只放一桌剪刀和膠水
+說：「來，亂剪也算勇敢」
+
+[Pre-Chorus]
+用眼睛去看
+別人說「普通」的地方
+用耳朵去聽
+安靜背後的風向
+用雙手去做
+課本沒有的形狀
+用心去量
+成績表不敢寫的收藏
+
+[Chorus]
+六感鮮師
+不是老師 是陪你玩的人
+一起在迷路的地圖上畫圈
+畫到世界變得很單純
+六感鮮師
+在你的故事裡說「然後呢？」的人
+相信你跌倒也在排練
+相信你 原來就很好看
+
+[Bridge]
+來吧 打開感官
+讓藝術慢慢貼近你
+畫一朵心事的雲
+塗滿你現在的表情
+讓故事用力抱你
+把那些刺藏回過去
+讓基隆的雨
+洗掉誰說你「不可以」`
+  },
+  {
+    id: 5,
+    title: "石中喚魂",
+    style: "contemporary classical, electronic, soul",
+    file: "music/05-石中喚魂.mp3",
+    lyrics: `[Verse 1]
+指尖沾著粉塵
+描過你沉睡的眉
+一刀　一線
+我在石中找心跳
+呼吸貼近輪廓
+額上的冷光微顫
+像等一聲允許
+讓你走出礦山
+
+[Chorus]
+你是我從寂靜裡雕出的光
+從粗糙裡捧出的臉龐
+我把歲月一層一層剝開
+只為聽見你第一次的回答
+啊　我的創傷　我的信仰
+愛在你睜眼那刻投降
+
+[Verse 2]
+夜深　錘聲變得很輕
+害怕驚醒誰的夢境
+我問這塊石頭
+「是我造你　還是你等我？」
+掌心裂開紋路
+像你的掌紋倒映
+我們互相完成
+誰也無法先命名
+
+[Bridge]
+如果我停下
+你會再次沈入黑暗嗎
+還是你已學會
+自己往光裡走？
+讓我做最後一刀
+也是第一個擁抱
+在你軀殼的陰影裡
+刻上我的心跳`
+  },
+  {
+    id: 6,
+    title: "同樣的風景,新的眼睛",
+    style: "pop, healing",
+    file: "music/06-同樣的風景新的眼睛.mp3",
+    lyrics: `[Verse 1]
+窗外又是同一場雨
+一樣的路 一樣的聲音
+昨天的我只看到灰
+今天慢慢看見細膩的美
+
+握緊的手掌學不會放
+心裡的劇本一遍在上演
+「為什麼又是我」
+這一句卡在喉嚨太久
+
+[Chorus]
+同樣的風景 換一雙眼睛
+傷口原來 是打開的門徑
+困住我的 只是一種說明
+視角一轉 就多了一條路可以回應
+同樣的故事 不同的相信
+跌倒原來 也算一份說明
+不必再逃避 不必再證明
+看見的方式 就是我的自由感應
+
+[Bridge]
+不是世界突然變好
+是我學會鬆開眉梢
+同樣的問號
+現在看起來像禮物在敲門 又輕又巧
+
+一步退後 看全景
+一度窒息 變成安靜
+原來改變的
+一直都可以是 我選擇的眼睛`
+  },
+  {
+    id: 7,
+    title: "宇宙在琴弦上呼吸",
+    style: "classical crossover",
+    file: "music/07-宇宙在琴弦上呼吸.mp3",
+    lyrics: `[Intro]
+指尖輕觸
+一條線抖動
+像遠方星雲
+突然回信
+
+[Verse 1]
+木頭的心
+藏著誰的寂靜
+細細的弓
+劃開夜的背影
+顫動一寸一寸傳遞
+那些說不出口的風景
+
+[Chorus]
+讓小提琴替我說話
+把沒有字的心事拉長
+一根弦 一顆星
+震盪出看不見的光
+讓宇宙貼在耳邊回答
+在每一次迴盪之間
+原來沉默
+也在唱
+
+[Verse 2]
+額頭的溫度
+靠在冷冷的琴頸
+呼吸變成
+懸在半空的迴音
+誰在聽 誰回應
+原來自己也被安靜抱緊
+
+[Bridge]
+一拉 再拉
+線頭穿過黑暗
+一抖 再抖
+心臟跟著共鳴
+這不是語言
+卻比語言更清醒
+像星塵悄悄落在掌心`
+  },
+  {
+    id: 8,
+    title: "門裏門外",
+    style: "indie pop, romantic, dreamy",
+    file: "music/08-門裏門外.mp3",
+    lyrics: `這扇門
+我站在這邊看了很久
+不知道要怎麼開
+也不知道要不要開
+
+門那邊的你
+沒有形體 看不見
+但我知道你在
+因為我感覺得到 暖暖的
+
+我想說點什麼
+結果變成 喃喃喃喃
+有點丟臉
+但你好像覺得很可愛
+
+匆匆的相遇
+沒有預告 沒有準備
+促促的靠近
+心跳有點快
+
+然後就 一拍即合了
+什麼意思
+就是很合的意思
+像拼圖找到另一塊
+
+化成細雨落在心上
+綿綿的 癢癢的
+像有人在彈我的心弦
+叮叮咚咚
+
+我假裝沒事
+自己撥弄著
+自己哼著歌
+假裝不是因為你
+
+門裡門外
+我搞不清楚了
+你在哪邊
+我就想去哪邊
+
+嘿嘿`
+  },
+  {
+    id: 9,
+    title: "門檻之間",
+    style: "pop, orchestral, ballad",
+    file: "music/09-門檻之間.mp3",
+    lyrics: `[Intro]
+雨停在紅綠燈邊
+柏油路亮得像一面天
+倒映著樓群的雲
+還有我碎掉的臉
+
+[Verse 1]
+一隻腳在人行道
+另一隻踩進銀河的潮
+城市霓虹排成問號
+問我敢不敢偏離軌道
+手機震動在手心
+現實的字一行一行逼近
+抬頭卻看到星雲
+貼在玻璃窗像舊電影
+
+[Pre-Chorus]
+這一條線
+像粉筆畫在心裡面
+跨過之前
+誰還記得昨天
+
+[Chorus]
+站在門檻之間
+半邊雨聲半邊是星旋
+一隻手抓緊平凡的語言
+一隻手推開無邊
+如果我向前一步
+會不會整個世界換了顏
+讓我帶著傷痕和不安
+跌進宇宙的懷裡再重生一遍`
+  },
+  {
+    id: 10,
+    title: "雨落在我的名字上",
+    style: "pop, orchestral, soul",
+    file: "music/10-雨落在我的名字上.mp3",
+    lyrics: `[Verse 1]
+基隆的雨
+落在畫布上
+每一滴都是顏料
+也是沒說完的話
+
+畢馬龍站在門框旁
+盯著那雙還沒眨眼的瞳孔
+他說再等一下
+她就會走下來 擁抱風
+
+[Pre-Chorus]
+我站在鏡子前
+霧氣蓋住一半臉
+指尖畫出一條線
+像打開一道門
+
+六種感官張開
+像六扇窗
+讓雨進來
+讓光進來 讓愛進來
+
+[Chorus]
+在基隆的雨裡
+我慢慢睜開眼睛
+我不再是石頭
+心開始學著呼吸
+
+在基隆的雨裡
+我聽見自己的回音
+每一滴都在說
+「原來我可以 重新定義自己」`
+  },
+  {
+    id: 11,
+    title: "雨落在畫布上",
+    style: "pop, soul, orchestral",
+    file: "music/11-雨落在畫布上.mp3",
+    lyrics: `[Verse 1]
+基隆的雨
+落在畫布上
+一滴一滴砸進
+還沒說完的地方
+畢馬龍守著
+那張沉默的臉龐
+等她睜眼
+等她開口歌唱
+
+我對著鏡子
+看陌生又熟悉的形狀
+問自己還在嗎
+還敢不敢去想像
+
+[Chorus]
+讓雨進來 讓光進來
+讓愛走進來 擁抱這座海港
+我不再是石頭
+我開始呼吸
+在基隆的雨裡
+我找到我自己
+拼貼的人生
+是不完美的完美
+每一道裂縫
+都盛著新的光線
+
+[Bridge]
+我沿著濕漉漉的斜坡往上走
+雨滴打在臉上
+像有人輕輕拍我肩頭
+「你不是石頭
+你只是忘了會心動」
+
+回到身體 回到感受
+回到真實的我
+在這座雨城抬頭
+看自己慢慢成為傳說`
+  },
+  {
+    id: 12,
+    title: "家",
+    style: "slow, warm folk pop",
+    file: "music/12-家.mp3",
+    lyrics: `【第一段｜童謠】
+我家門前有小河
+後面有山波
+山波上面野花多
+野花紅似火
+
+小河裡有白鵝
+鵝兒戲綠波
+戲弄綠波鵝兒快樂
+昂首唱清歌
+
+【第二段｜成年的感觸】
+長大以後走了好遠
+路上學會沉默
+世界教我怎麼選擇
+卻沒教怎麼安坐
+
+有時在人群之中
+心卻慢慢退後
+只想找一個位置
+讓呼吸回到最初的節奏
+
+【第三段】
+於是我點起一盞微光
+不為照亮誰
+只是提醒自己
+方向其實一直都在
+
+不是答案，不是承諾
+只是一把小小的鑰
+在每次迷路的時候
+輕輕把我帶回來
+
+【尾聲】
+原來走得再遠
+心也記得那條河
+當世界太吵的時候
+我知道要往哪裡走`
+  },
+  {
+    id: 13,
+    title: "都是人間",
+    style: "folk",
+    file: "music/13-都是人間.mp3",
+    lyrics: `[Verse 1]
+廟口那排老店
+油紙上滲出光
+你排隊 我占位
+塑膠椅貼著腿 有點燙
+
+紅龜粿排成一座山
+阿嬤手指還沾著粉
+她說 吃飽才有力氣擔心
+說完 又塞一塊進紙袋裡
+
+[Chorus]
+廟口的燈籠 紅得像心跳
+在你的眼眶裡 一圈一圈晃
+小吃攤的蒸氣 暖得像擁抱
+把一身的委屈 燙成鹹鹹的湯
+神明在樓上 人們在樓下
+拜的是平安 吃的也是平安
+基隆的夜 煙火與煙火
+都是人間
+
+[Bridge]
+雨快來 還沒下
+攤篷邊緣掛著一整排夜色
+你忽然說 想留在這
+當一盞小燈 替路人看路
+
+我說 那我當那一碗麵
+讓你忙到忘記心碎
+抬頭看見那排紅光
+才想到自己也值得被安慰`
+  },
+  {
+    id: 14,
+    title: "普通裡的勇敢",
+    style: "folk, pop, ballad",
+    file: "music/14-普通裡的勇敢.mp3",
+    lyrics: `[Verse 1]
+你說你的故事 很普通
+普通的童年
+放學回家 看著電視
+功課寫在
+油漬的餐桌邊
+
+普通的爭吵 廚房裡
+大人的語氣
+你拿著碗 低著頭
+假裝沒聽見
+卻背下每一句決心
+
+[Pre-Chorus]
+誰來記得
+你那些 沒哭出來的委屈
+誰會看見
+你房門關起來以後的自己
+
+[Chorus]
+你說你的故事很普通
+普通到 連你都忘了心痛
+可我聽見了 在普通裡翻湧
+那些撐過去的夜晚
+那些不睡的心跳 在顫動
+普通的你
+有不普通的勇敢 在胸口
+
+[Bridge]
+也許沒有誰替你鼓掌
+也許沒人了解你的逞強
+但你一路走到這裡
+每一道路標 都寫著倔強
+
+讓我替那個 小時候的你鼓掌
+替每一個 想放棄卻撐住的晚上
+就站在這一刻 把名字喊響
+你從來都
+不是背景裡的那個模樣`
+  },
+  {
+    id: 15,
+    title: "邊界的舞步",
+    style: "art pop, dance, electronic",
+    file: "music/15-邊界的舞步.mp3",
+    lyrics: `[Verse 1]
+一步踏在門檻
+腳尖懸在兩個世界之間
+牆上的影子拉長
+說不清屬於哪一邊
+
+[Pre-Chorus]
+你問我要去哪裡
+我笑著繞著邊線前進
+一半在這裡呼吸
+一半在還沒開始的黎明
+
+[Chorus]
+我在邊界的舞步
+不過去 也不回頭
+在臨界的自由裡旋轉
+誰說一定要選擇一個宇宙
+我在門檻上起跳
+離空氣 只差一點點
+在兩個世界的縫隙裡發光
+就這樣跳 介於之間
+
+[Bridge]
+閉上眼
+哪一邊比較像自己
+張開手
+風把界線推得更遠一點
+此刻我
+不是這裡 不是那裡
+只是身體在發亮
+在過渡之中成為回應`
+  }
+];
+
+// ========== 播放器邏輯 ==========
+let currentIndex = 0;
+let isPlaying = false;
+let isShuffled = false;
+let repeatMode = 0; // 0: no repeat, 1: repeat all, 2: repeat one
+let isExpoMode = false;
+
+const audio = document.getElementById('audioPlayer');
+const playBtn = document.getElementById('playBtn');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const shuffleBtn = document.getElementById('shuffleBtn');
+const repeatBtn = document.getElementById('repeatBtn');
+const volumeSlider = document.getElementById('volumeSlider');
+const progressBar = document.getElementById('progressBar');
+const progressFill = document.getElementById('progressFill');
+const currentTimeEl = document.getElementById('currentTime');
+const durationEl = document.getElementById('duration');
+const visualizer = document.getElementById('visualizer');
+const expoModeBtn = document.getElementById('expoMode');
+
+// 初始化播放列表
+function initPlaylist() {
+  const playlist = document.getElementById('playlist');
+  playlist.innerHTML = '';
+  
+  songs.forEach((song, index) => {
+    const item = document.createElement('div');
+    item.className = 'playlist-item' + (index === currentIndex ? ' active' : '');
+    item.innerHTML = `
+      <span class="track-num">${String(index + 1).padStart(2, '0')}</span>
+      <span class="track-name">${song.title}</span>
+      <span class="track-playing">♪</span>
+    `;
+    item.addEventListener('click', () => playSong(index));
+    playlist.appendChild(item);
+  });
+}
+
+// 載入歌曲
+function loadSong(index) {
+  const song = songs[index];
+  audio.src = song.file;
+  
+  document.getElementById('trackNum').textContent = String(index + 1).padStart(2, '0');
+  document.getElementById('songTitle').textContent = song.title;
+  document.getElementById('songStyle').textContent = song.style;
+  document.getElementById('lyricsContent').textContent = song.lyrics;
+  
+  // 更新播放列表 active 狀態
+  document.querySelectorAll('.playlist-item').forEach((item, i) => {
+    item.classList.toggle('active', i === index);
+    item.classList.toggle('playing', i === index && isPlaying);
+  });
+}
+
+// 播放歌曲
+function playSong(index) {
+  currentIndex = index;
+  loadSong(index);
+  audio.play();
+  isPlaying = true;
+  updatePlayButton();
+}
+
+// 更新播放按鈕
+function updatePlayButton() {
+  playBtn.textContent = isPlaying ? '⏸️' : '▶️';
+  visualizer.classList.toggle('playing', isPlaying);
+  
+  document.querySelectorAll('.playlist-item').forEach((item, i) => {
+    item.classList.toggle('playing', i === currentIndex && isPlaying);
+  });
+}
+
+// 播放/暫停
+playBtn.addEventListener('click', () => {
+  if (isPlaying) {
+    audio.pause();
+  } else {
+    audio.play();
+  }
+  isPlaying = !isPlaying;
+  updatePlayButton();
+});
+
+// 上一首
+prevBtn.addEventListener('click', () => {
+  currentIndex = (currentIndex - 1 + songs.length) % songs.length;
+  playSong(currentIndex);
+});
+
+// 下一首
+nextBtn.addEventListener('click', () => {
+  playNext();
+});
+
+function playNext() {
+  if (repeatMode === 2) {
+    // 單曲循環
+    audio.currentTime = 0;
+    audio.play();
+  } else if (isShuffled) {
+    currentIndex = Math.floor(Math.random() * songs.length);
+    playSong(currentIndex);
+  } else {
+    currentIndex = (currentIndex + 1) % songs.length;
+    playSong(currentIndex);
+  }
+}
+
+// 隨機播放
+shuffleBtn.addEventListener('click', () => {
+  isShuffled = !isShuffled;
+  shuffleBtn.classList.toggle('active', isShuffled);
+});
+
+// 循環模式
+repeatBtn.addEventListener('click', () => {
+  repeatMode = (repeatMode + 1) % 3;
+  repeatBtn.textContent = repeatMode === 2 ? '🔂' : '🔁';
+  repeatBtn.classList.toggle('active', repeatMode > 0);
+});
+
+// 音量
+volumeSlider.addEventListener('input', (e) => {
+  audio.volume = e.target.value / 100;
+});
+
+// 進度條
+progressBar.addEventListener('click', (e) => {
+  const rect = progressBar.getBoundingClientRect();
+  const percent = (e.clientX - rect.left) / rect.width;
+  audio.currentTime = percent * audio.duration;
+});
+
+// 更新進度
+audio.addEventListener('timeupdate', () => {
+  if (audio.duration) {
+    const percent = (audio.currentTime / audio.duration) * 100;
+    progressFill.style.width = percent + '%';
+    currentTimeEl.textContent = formatTime(audio.currentTime);
+  }
+});
+
+// 載入完成
+audio.addEventListener('loadedmetadata', () => {
+  durationEl.textContent = formatTime(audio.duration);
+});
+
+// 播放結束
+audio.addEventListener('ended', () => {
+  if (repeatMode === 2) {
+    audio.currentTime = 0;
+    audio.play();
+  } else {
+    playNext();
+  }
+});
+
+// 格式化時間
+function formatTime(seconds) {
+  const min = Math.floor(seconds / 60);
+  const sec = Math.floor(seconds % 60);
+  return `${min}:${sec.toString().padStart(2, '0')}`;
+}
+
+// 展會模式
+expoModeBtn.addEventListener('click', () => {
+  isExpoMode = !isExpoMode;
+  expoModeBtn.classList.toggle('active', isExpoMode);
+  expoModeBtn.textContent = isExpoMode ? '🎪 展會模式 ON' : '🎪 展會模式';
+  
+  if (isExpoMode) {
+    // 開始自動播放
+    repeatMode = 1; // 全部循環
+    repeatBtn.classList.add('active');
+    if (!isPlaying) {
+      playSong(0);
+    }
+  }
+});
+
+// 初始化
+initPlaylist();
+loadSong(0);
+audio.volume = 0.5;
+</script>
+
+</body>
+</html>
