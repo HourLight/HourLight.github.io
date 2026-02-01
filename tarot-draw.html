@@ -409,6 +409,43 @@ body {
     font-size: 2rem;
   }
 }
+
+/* 提問輸入框 */
+.tarot-question-wrap {
+  margin: 16px 0;
+}
+.tarot-question-label {
+  display: block;
+  text-align: center;
+  color: var(--hl-v2-gold);
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+}
+.tarot-question-input {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  display: block;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(233,194,125,0.5);
+  background: rgba(10,6,24,0.8);
+  color: var(--hl-v2-ink-main);
+  font-size: 1rem;
+  font-family: var(--hl-font-main);
+  resize: vertical;
+  min-height: 60px;
+  line-height: 1.6;
+}
+.tarot-question-input::placeholder {
+  color: rgba(255,255,255,0.4);
+}
+.tarot-question-input:focus {
+  outline: none;
+  border-color: var(--hl-v2-gold);
+  box-shadow: 0 0 16px rgba(233,194,125,0.3);
+}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -659,9 +696,15 @@ function toggleHLMusic(){
     </div>
 
     <p class="hl-v2-text-center hl-v2-text-muted">
-      小提醒：抽牌前，先在心裡默念一次你的問題，<br>
+      小提醒：抽牌前，先寫下或在心裡默念你的問題，<br>
       想著「我要看到此刻最需要知道的畫面」，再按下抽牌。
     </p>
+
+    <!-- 提問輸入框 -->
+    <div class="tarot-question-wrap">
+      <label class="tarot-question-label">✨ 寫下你的問題（選填）</label>
+      <textarea id="tarotQuestion" class="tarot-question-input" placeholder="例如：我該如何面對目前的工作挑戰？"></textarea>
+    </div>
 
     <!-- 抽牌按鈕 -->
     <div class="tarot-draw-btn-wrap">
@@ -754,11 +797,13 @@ Object.values(suits).forEach(suit => {
 
 let selectedCount = 3;
 let drawnCards = [];
+let userQuestion = '';
 
-const countBtns   = document.querySelectorAll('.tarot-count-btn');
-const drawBtn     = document.getElementById('tarotDrawBtn');
-const gridEl      = document.getElementById('tarotGrid');
-const copyBtn     = document.getElementById('tarotCopyBtn');
+const countBtns    = document.querySelectorAll('.tarot-count-btn');
+const drawBtn      = document.getElementById('tarotDrawBtn');
+const gridEl       = document.getElementById('tarotGrid');
+const copyBtn      = document.getElementById('tarotCopyBtn');
+const questionInput = document.getElementById('tarotQuestion');
 
 // 張數選擇
 countBtns.forEach(btn => {
@@ -771,6 +816,9 @@ countBtns.forEach(btn => {
 
 // 抽牌
 drawBtn.addEventListener('click', () => {
+  // 讀取問題
+  userQuestion = questionInput.value.trim();
+
   // 洗牌
   const shuffled = [...allCards].sort(() => Math.random() - 0.5);
   drawnCards = shuffled.slice(0, selectedCount).map(card => ({
@@ -817,6 +865,9 @@ copyBtn.addEventListener('click', () => {
   const mi   = String(now.getMinutes()).padStart(2, '0');
 
   let text = '🎴 塔羅抽牌結果\n━━━━━━━━━━━━━━\n';
+  if (userQuestion) {
+    text += `❓ 提問：${userQuestion}\n━━━━━━━━━━━━━━\n`;
+  }
   drawnCards.forEach((card, i) => {
     text += `${i + 1}. ${card.zh} (${card.en}) - ${card.reversed ? '逆位' : '正位'}\n`;
   });
