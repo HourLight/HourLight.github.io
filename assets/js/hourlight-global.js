@@ -83,11 +83,16 @@
       audioElement = document.createElement('audio');
       audioElement.id = 'bgMusic';
       audioElement.loop = true;
-      audioElement.src = 'https://hourlightkey.com/432Hz.mp3'; // 替換為實際路徑
+      audioElement.src = 'https://hourlightkey.com/432Hz.mp3';
       document.body.appendChild(audioElement);
     }
     
-    // 綁定切換事件
+    // 移除可能的 inline onclick 避免雙重觸發
+    if (musicToggle.hasAttribute('onclick')) {
+      musicToggle.removeAttribute('onclick');
+    }
+    
+    // 統一由 addEventListener 綁定
     musicToggle.addEventListener('click', function() {
       toggleBgMusic();
     });

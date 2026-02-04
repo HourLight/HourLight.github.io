@@ -1,100 +1,171 @@
 /* ============================================
    馥靈之鑰 Hour Light
-   背景音樂控制模組 v1.0
-   432Hz 療癒音樂
+   背景音樂控制模組 v2.0
+   三首宇宙氛圍原創音樂・依頁面自動切換
    ============================================ */
 
 (function() {
   'use strict';
-  
-  // 音樂檔案 URL
-  const MUSIC_URL = 'https://hourlightkey.com/432Hz.mp3';
-  
-  // 預設音量（0-1）
-  const DEFAULT_VOLUME = 0.3;
-  
-  // 等待 DOM 載入完成
+
+  /* ---- 音樂檔案對照表 ---- */
+  var BASE = 'https://hourlightkey.com/music/';
+  var TRACKS = {
+    cosmos:   BASE + '70bpm.mp3',   // 宇宙搖籃：溫暖 pad + 鋼琴，官網主旋律
+    stardust: BASE + '65bpm.mp3',   // 星河漫步：有旋律線，互動工具陪伴
+    thekey:   BASE + '60bpm.mp3'    // 鑰匙的召喚：品牌辨識度最高，敘事感
+  };
+
+  /* ---- 頁面→音軌分配 ---- */
+  var PAGE_MAP = {
+    // 鑰匙的召喚（故事・深度・品牌核心）
+    'yichun':            'thekey',
+    'founder':           'thekey',
+    'brand-story':       'thekey',
+    'brand':             'thekey',
+    'worldview':         'thekey',
+    'hourlight-system':  'thekey',
+    'hourlight-core':    'thekey',
+    'hourlight-hour':    'thekey',
+    'hour-ideology':     'thekey',
+    'book':              'thekey',
+    'Bookpreview':       'thekey',
+    'Fulingpreview':     'thekey',
+    'AIpreview':         'thekey',
+    'music':             'thekey',
+    'gps':               'thekey',
+    'gps-system':        'thekey',
+
+    // 星河漫步（互動工具・計算器・抽牌）
+    'fuling-mima':           'stardust',
+    'draw-hl':               'stardust',
+    'draw-light':            'stardust',
+    'draw-spa':              'stardust',
+    'draw-nail':             'stardust',
+    'draw-body':             'stardust',
+    'tarot':                 'stardust',
+    'tarot-draw':            'stardust',
+    'tarot-widget':          'stardust',
+    'lifepath-calculator':   'stardust',
+    'numerology-calculator': 'stardust',
+    'rainbow-calculator':    'stardust',
+    'maya-calculator':       'stardust',
+    'quantum-numerology':    'stardust',
+    'rainbow-bridge':        'stardust',
+    'digital-energy-analyzer': 'stardust',
+    'scent-navigator':       'stardust',
+    'maslow-frequency':      'stardust'
+  };
+  // 其餘所有頁面 → cosmos（宇宙搖籃）
+
+  /* ---- 設定 ---- */
+  var DEFAULT_VOLUME = 0.25;
+  var FADE_MS = 2000;
+
+  /* ---- 判斷當前頁面 ---- */
+  function getPageKey() {
+    var path = window.location.pathname;
+    var file = path.split('/').pop().replace('.html', '');
+    if (!file || file === '') file = 'index';
+    return file;
+  }
+
+  function getTrackUrl() {
+    var key = getPageKey();
+    var track = PAGE_MAP[key] || 'cosmos';
+    return TRACKS[track];
+  }
+
+  /* ---- 初始化 ---- */
   document.addEventListener('DOMContentLoaded', function() {
     initBgMusic();
   });
-  
+
   function initBgMusic() {
-    // 檢查是否已經存在（避免重複初始化）
     if (document.getElementById('hlBgMusic')) return;
-    
-    // 建立 audio 元素
-    const audio = document.createElement('audio');
+
+    var audio = document.createElement('audio');
     audio.id = 'hlBgMusic';
     audio.loop = true;
-    audio.volume = DEFAULT_VOLUME;
-    audio.innerHTML = '<source src="' + MUSIC_URL + '" type="audio/mpeg">';
+    audio.volume = 0;
+    audio.preload = 'none';
+    audio.src = getTrackUrl();
     document.body.appendChild(audio);
-    
-    // 建立控制按鈕
-    const btn = document.createElement('button');
+
+    var btn = document.createElement('button');
     btn.id = 'hlMusicToggle';
     btn.className = 'hl-music-toggle';
     btn.setAttribute('aria-label', '背景音樂開關');
-    btn.setAttribute('title', '點擊播放 432Hz 療癒音樂');
-    btn.textContent = '🔇';
+    btn.setAttribute('title', '點擊播放宇宙氛圍音樂');
+    btn.innerHTML = '<span class="hl-music-icon">♪</span>';
     btn.onclick = toggleMusic;
     document.body.appendChild(btn);
-    
-    // 從 localStorage 恢復播放狀態
+
     restorePlayState(audio, btn);
   }
-  
+
+  /* ---- 淡入 ---- */
+  function fadeIn(audio) {
+    audio.volume = 0;
+    var target = DEFAULT_VOLUME;
+    var step = target / (FADE_MS / 50);
+    var timer = setInterval(function() {
+      var v = audio.volume + step;
+      if (v >= target) { audio.volume = target; clearInterval(timer); }
+      else { audio.volume = v; }
+    }, 50);
+  }
+
+  /* ---- 淡出 ---- */
+  function fadeOut(audio, cb) {
+    var step = audio.volume / (800 / 50);
+    var timer = setInterval(function() {
+      var v = audio.volume - step;
+      if (v <= 0.01) { audio.volume = 0; clearInterval(timer); if (cb) cb(); }
+      else { audio.volume = v; }
+    }, 50);
+  }
+
+  /* ---- 播放/暫停 ---- */
   function toggleMusic() {
-    const audio = document.getElementById('hlBgMusic');
-    const btn = document.getElementById('hlMusicToggle');
-    
+    var audio = document.getElementById('hlBgMusic');
+    var btn = document.getElementById('hlMusicToggle');
     if (!audio || !btn) return;
-    
+
     if (audio.paused) {
-      // 播放
       audio.play().then(function() {
-        btn.textContent = '🔊';
+        fadeIn(audio);
+        btn.innerHTML = '<span class="hl-music-icon playing-icon">♪</span>';
         btn.classList.add('playing');
         btn.setAttribute('title', '點擊暫停音樂');
-        // 記住播放狀態
-        try {
-          localStorage.setItem('hlMusicPlaying', 'true');
-        } catch(e) {}
+        try { localStorage.setItem('hlMusicPlaying', 'true'); } catch(e) {}
       }).catch(function(err) {
-        console.log('音樂播放需要使用者互動:', err);
+        console.log('播放需要使用者互動:', err);
       });
     } else {
-      // 暫停
-      audio.pause();
-      btn.textContent = '🔇';
+      fadeOut(audio, function() { audio.pause(); });
+      btn.innerHTML = '<span class="hl-music-icon">♪</span>';
       btn.classList.remove('playing');
-      btn.setAttribute('title', '點擊播放 432Hz 療癒音樂');
-      // 記住暫停狀態
-      try {
-        localStorage.setItem('hlMusicPlaying', 'false');
-      } catch(e) {}
+      btn.setAttribute('title', '點擊播放宇宙氛圍音樂');
+      try { localStorage.setItem('hlMusicPlaying', 'false'); } catch(e) {}
     }
   }
-  
+
+  /* ---- 恢復狀態 ---- */
   function restorePlayState(audio, btn) {
     try {
-      const wasPlaying = localStorage.getItem('hlMusicPlaying');
-      if (wasPlaying === 'true') {
-        // 嘗試自動播放（可能被瀏覽器阻擋）
+      if (localStorage.getItem('hlMusicPlaying') === 'true') {
         audio.play().then(function() {
-          btn.textContent = '🔊';
+          fadeIn(audio);
+          btn.innerHTML = '<span class="hl-music-icon playing-icon">♪</span>';
           btn.classList.add('playing');
           btn.setAttribute('title', '點擊暫停音樂');
         }).catch(function() {
-          // 自動播放被阻擋，保持靜音狀態
-          btn.textContent = '🔇';
+          btn.innerHTML = '<span class="hl-music-icon">♪</span>';
           btn.classList.remove('playing');
         });
       }
     } catch(e) {}
   }
-  
-  // 暴露全域函數供 onclick 使用
+
   window.hlToggleMusic = toggleMusic;
-  
 })();
