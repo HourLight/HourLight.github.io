@@ -396,10 +396,11 @@
     
     // 初始化保護模組
     function initProtectedSystem() {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             if (typeof HLSystem === 'undefined') {
-                console.error('保護模組未載入');
-                reject('保護模組未載入');
+                console.warn('保護模組未載入，使用本地備用模式');
+                loadFallbackData();
+                resolve(false);
                 return;
             }
             
@@ -412,8 +413,9 @@
                     systemReady = true;
                     resolve(true);
                 } else {
-                    console.error('系統初始化失敗', status);
-                    reject('系統初始化失敗');
+                    console.warn('系統初始化未完成，使用本地備用模式', status);
+                    loadFallbackData();
+                    resolve(false);
                 }
             });
         });
@@ -517,15 +519,49 @@
         return readings[num] || '';
     }
     
+    // 本地備用數據（保護模組無法載入時使用）
+    function loadFallbackData() {
+        const fallbackNumbers = {
+            1: { title: '領航者', essence: '獨立・創新・開創', meridian: '腎經・膽經', emotionSpectrum: '恐懼 ↔ 勇氣', light: '領導力、獨立自主', dark: '孤僻、控制慾', health: '頭部、腎臟', oils: '尤加利、迷迭香', soulLesson: '學會合作', isMaster: false },
+            2: { title: '調和者', essence: '敏感・合作・溝通', meridian: '心經・心包經', emotionSpectrum: '孤獨 ↔ 連結', light: '同理心、外交手腕', dark: '過度依賴、優柔寡斷', health: '心臟、血液循環', oils: '天竺葵、玫瑰', soulLesson: '學會獨立', isMaster: false },
+            3: { title: '表達者', essence: '創意・行動・表達', meridian: '肝經・膽經', emotionSpectrum: '壓抑 ↔ 表達', light: '創造力、樂觀', dark: '急躁、虎頭蛇尾', health: '肝臟、消化系統', oils: '甜橙、葡萄柚', soulLesson: '學會完成', isMaster: false },
+            4: { title: '建築師', essence: '穩定・務實・秩序', meridian: '肺經・大腸經', emotionSpectrum: '僵化 ↔ 彈性', light: '組織力、可靠', dark: '固執、抗拒改變', health: '肺部、皮膚', oils: '絲柏、雪松', soulLesson: '學會放手', isMaster: false },
+            5: { title: '自由者', essence: '冒險・變化・自由', meridian: '胃經・脾經', emotionSpectrum: '焦慮 ↔ 自在', light: '適應力、多才多藝', dark: '散漫、逃避承諾', health: '脾胃、中樞神經', oils: '薄荷、薑', soulLesson: '學會深耕', isMaster: false },
+            6: { title: '照顧者', essence: '責任・愛・家庭', meridian: '脾經・心經', emotionSpectrum: '控制 ↔ 信任', light: '無條件的愛、責任感', dark: '過度犧牲、控制', health: '肩膀、心臟', oils: '玫瑰、依蘭依蘭', soulLesson: '學會接受', isMaster: false },
+            7: { title: '探索者', essence: '智慧・分析・內省', meridian: '腎經・膀胱經', emotionSpectrum: '懷疑 ↔ 信任', light: '洞察力、研究精神', dark: '過度分析、疏離', health: '腎臟、神經系統', oils: '乳香、檀香', soulLesson: '學會信任', isMaster: false },
+            8: { title: '掌權者', essence: '力量・豐盛・成就', meridian: '肝經・胃經', emotionSpectrum: '匱乏 ↔ 豐盛', light: '領導力、商業才能', dark: '功利主義、工作狂', health: '肝膽、肌肉系統', oils: '岩蘭草、廣藿香', soulLesson: '學會服務', isMaster: false },
+            9: { title: '智者', essence: '大愛・智慧・完成', meridian: '心經・三焦經', emotionSpectrum: '執著 ↔ 放下', light: '慈悲、全局觀', dark: '理想主義、不切實際', health: '心臟、免疫系統', oils: '薰衣草、檜木', soulLesson: '學會落地', isMaster: false },
+            11: { title: '啟示者', essence: '直覺・靈感・啟發', isMaster: true, masterMission: '用直覺啟發他人' },
+            22: { title: '建造大師', essence: '願景・實踐・宏圖', isMaster: true, masterMission: '把願景落地為現實' },
+            33: { title: '覺察大師', essence: '覺察・服務・愛', isMaster: true, masterMission: '用愛服務全世界' }
+        };
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33].forEach(function(num) {
+            NUMBER_DATA[num] = Object.assign({}, fallbackNumbers[num], {
+                uniqueReading: getUniqueReading(num),
+                work: '', intimacy: ''
+            });
+        });
+        
+        const palaceNames = { 1:'命宮', 2:'財帛宮', 3:'兄弟宮', 4:'田宅宮', 5:'男女宮', 6:'奴僕宮', 7:'夫妻宮', 8:'疾厄宮', 9:'遷移宮', 10:'官祿宮', 11:'福德宮', 12:'相貌宮' };
+        for (let i = 1; i <= 12; i++) {
+            PALACE_DATA[i] = { name: palaceNames[i] || ('宮位' + i), theme: '', meridian: '', time: '', darkEmotion: '', lightEmotion: '', stuckPattern: '', soulQuestions: [], oils: '' };
+        }
+        
+        window.NUMBER_DATA = NUMBER_DATA;
+        window.PALACE_DATA = PALACE_DATA;
+        window.YEAR_THEMES = YEAR_THEMES;
+        window.FORTUNE_THEMES = FORTUNE_THEMES;
+        console.log('✓ 本地備用數據載入完成');
+    }
+    
     // 啟動系統
     initProtectedSystem()
-        .then(function() {
-            // 隱藏載入畫面
+        .then(function(isProtected) {
+            // 不管保護模組是否載入，都隱藏載入畫面
             document.getElementById('loadingScreen').style.display = 'none';
-        })
-        .catch(function(err) {
-            console.error('系統啟動失敗:', err);
-            document.getElementById('loadingScreen').innerHTML = '<p class="text-red-500">系統載入失敗，請重新整理頁面</p>';
+            if (!isProtected) {
+                console.log('ℹ 以備用模式運行，核心解讀功能正常');
+            }
         });
     </script>
     
@@ -594,6 +630,67 @@
         const reduceToSingle = (num) => { while (num > 9) num = String(num).split('').reduce((a, b) => parseInt(a) + parseInt(b), 0); return num; };
         const reduceNumber = (num) => { if (isMasterNumber(num)) return num; while (num > 9) { num = String(num).split('').reduce((a, b) => parseInt(a) + parseInt(b), 0); if (isMasterNumber(num)) return num; } return num; };
         const getBaseNum = (num) => (window.NUMBER_DATA && window.NUMBER_DATA[num]) ? num : reduceToSingle(num);
+
+        // ========================================
+        // 生命數字三角形計算（陽曆）— 僅用於複製報告
+        // ========================================
+        const calculateTriangle = (year, month, day) => {
+            const r = (n) => { while (n > 9) n = String(n).split('').reduce((a, b) => parseInt(a) + parseInt(b), 0); return n; };
+            const dd = String(day).padStart(2, '0');
+            const mm = String(month).padStart(2, '0');
+            const yyyy = String(year).padStart(4, '0');
+            const tI = r(parseInt(dd[0]) + parseInt(dd[1]));
+            const tJ = r(parseInt(mm[0]) + parseInt(mm[1]));
+            const tK = r(parseInt(yyyy[0]) + parseInt(yyyy[1]));
+            const tL = r(parseInt(yyyy[2]) + parseInt(yyyy[3]));
+            const tM = r(tI + tJ);
+            const tN = r(tK + tL);
+            const tO = r(tM + tN);
+            const tT = r(tI + tM);
+            const tS = r(tJ + tM);
+            const tU = r(tT + tS);
+            const tV = r(tK + tN);
+            const tW = r(tL + tN);
+            const tX = r(tV + tW);
+            const tP = r(tM + tO);
+            const tQ = r(tN + tO);
+            const tR = r(tP + tQ);
+            const sub = r(tI + tL + tO);
+            const outer = r(tU + tR + tX);
+            return { I: tI, J: tJ, K: tK, L: tL, M: tM, N: tN, O: tO, T: tT, S: tS, U: tU, V: tV, W: tW, X: tX, P: tP, Q: tQ, R: tR, sub, outer };
+        };
+
+        const buildTriangleText = (inputData) => {
+            const t = calculateTriangle(inputData.year, inputData.month, inputData.day);
+            const g = (n) => getNumData(n)?.title || n;
+            const e = (n) => getNumData(n)?.essence || '';
+            return '\n\n═══ 🔺 生命數字三角形（陽曆） ═══' +
+                '\n陽曆出生日期：' + inputData.year + '/' + String(inputData.month).padStart(2,'0') + '/' + String(inputData.day).padStart(2,'0') +
+                '\n\n★ 命數（主性格）：' + t.O + ' —「' + g(t.O) + '」' +
+                '\n  → 主宰近乎60%的行為模式' +
+                '\n  → ' + e(t.O) +
+                '\n\n★ 星位密碼（三角形三頂點，能量最強）' +
+                '\n  命數 O：' + t.O + '（' + g(t.O) + '）' +
+                '\n  日數 I：' + t.I + '（' + g(t.I) + '）' +
+                '\n  年尾 L：' + t.L + '（' + g(t.L) + '）' +
+                '\n\n▷ 三角形（內）' +
+                '\n  日數 I：' + t.I + '（' + g(t.I) + '）' +
+                '\n  月數 J：' + t.J + '（' + g(t.J) + '）' +
+                '\n  年頭 K：' + t.K + '（' + g(t.K) + '）' +
+                '\n  年尾 L：' + t.L + '（' + g(t.L) + '）' +
+                '\n  父系 M = I+J：' + t.M + '（' + g(t.M) + '）→ 父親基因代表' +
+                '\n  母系 N = K+L：' + t.N + '（' + g(t.N) + '）→ 母親基因代表' +
+                '\n\n▷ 三角形（外）' +
+                '\n  工作・朋友（21-40歲）：S(' + t.S + ') T(' + t.T + ') U(' + t.U + ')' +
+                '\n  下屬・兒女（41-60歲）：P(' + t.P + ') Q(' + t.Q + ') R(' + t.R + ')' +
+                '\n  晚年・家庭（61歲以後）：V(' + t.V + ') W(' + t.W + ') X(' + t.X + ')' +
+                '\n\n▷ 特殊密碼' +
+                '\n  潛意識 (I+L+O)：' + t.sub + '（' + g(t.sub) + '）→ 主宰大部分的舉動' +
+                '\n  外心密碼 (U+R+X)：' + t.outer + '（' + g(t.outer) + '）' +
+                '\n\n▷ 七魄・妊娠期' +
+                '\n  喜(I)：' + t.I + ' | 怒(J)：' + t.J + ' | 哀(K)：' + t.K + ' | 懼(L)：' + t.L +
+                '\n  愛(M)：' + t.M + ' | 欲(N)：' + t.N + ' | 惡(O)：' + t.O;
+        };
 
         const calculateHourLight = (data) => {
             // 優先使用保護模組的計算引擎
@@ -812,7 +909,7 @@
                     {(analysis.missingNumbers.length > 0 || analysis.excessNumbers.length > 0) && (<section className="grid grid-cols-1 md:grid-cols-2 gap-4">{analysis.missingNumbers.length > 0 && (<div className={'card p-6 ' + (isNight ? 'bg-red-900/20' : 'bg-red-50')}><h4 className="font-bold text-red-600 mb-3">⚠️ 空缺數字 — 需要學習的課題</h4><div className="space-y-2">{analysis.missingNumbers.map(n => <div key={n} className="flex items-center gap-2"><span className="text-2xl font-bold text-red-500">{n}</span><span className="text-sm">{getNumData(n)?.title} — {getNumData(n)?.essence}</span></div>)}</div></div>)}{analysis.excessNumbers.length > 0 && (<div className={'card p-6 ' + (isNight ? 'bg-amber-900/20' : 'bg-amber-50')}><h4 className="font-bold text-amber-600 mb-3">⚡ 重複數字 — 強化的能量</h4><div className="space-y-2">{analysis.excessNumbers.map(n => <div key={n} className="flex items-center gap-2"><span className="text-2xl font-bold text-amber-500">{n}</span><span className="text-sm">{getNumData(n)?.title} — 能量強但要注意過度</span></div>)}</div></div>)}</section>)}
                     <TransformBridge isNight={isNight} onDrawCard={onDrawCard} />
                     <section><h3 className="text-2xl font-bold gold-text mb-4 pl-4 border-l-4 border-current serif">🏰 12宮位・內在城堡</h3><p className="text-sm mb-4" style={{color:'#6B5B4F'}}>點擊任一宮位卡片可展開詳細解讀</p><div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">{[1,2,3,4,5,6,7,8,9,10,11,12].map(id => <PalaceDeepCard key={id} palaceId={id} palaceNum={palaces[id]} isNight={isNight} />)}</div></section>
-                    <div className="text-center space-y-4"><div><button onClick={() => { const palaceNames = {1:'勇氣殿',2:'力量廳',3:'告別苑',4:'淨化室',5:'消化閣',6:'信任殿',7:'心門宮',8:'明辨廳',9:'卸載苑',10:'志氣殿',11:'敞開閣',12:'平衡室'}; const p12 = [1,2,3,4,5,6,7,8,9,10,11,12].map(id => id + '宮 ' + palaceNames[id] + '：' + palaces[id] + (isMasterNumber(palaces[id]) ? '✨' : '')).join('\n'); const text = '【馥靈秘碼完整報告】\n\n═══ H.O.U.R. 四主數 ═══\nH數：' + hour.h + ' — ' + getNumData(hour.h)?.title + '\nO數：' + hour.o + ' — ' + getNumData(hour.o)?.title + '\nU數：' + (hour.u || '—') + (hour.u ? ' — ' + getNumData(hour.u)?.title : '') + '\nR數：' + hour.r + ' — ' + getNumData(hour.r)?.title + '\n\n═══ L.I.G.H.T. 五能量 ═══\nL愛之力：' + light.l + ' | I直覺力：' + light.i + ' | G根基力：' + light.g + '\nH和諧力：' + light.h + ' | T蛻變力：' + light.t + '\n\n═══ 🏰 12宮位 ═══\n' + p12 + '\n\n📖 想更深入了解？\n《藏在農曆生日裡的秘碼》：https://www.pubu.com.tw/ebook/645548\n\n🔑 想要更深的轉化？LINE: judyanee\n✧ 馥靈秘碼 v8.3 ✧'; navigator.clipboard.writeText(text); alert('完整報告已複製！（含12宮位）'); }} className="gold-btn px-8 py-3 rounded-lg text-lg">📋 複製完整報告</button></div><div className="flex justify-center gap-3 flex-wrap"><a href="https://www.pubu.com.tw/ebook/645548" target="_blank" rel="noopener" className="inline-flex items-center px-5 py-2 rounded-lg bg-gradient-to-r from-amber-600 to-orange-500 text-white font-bold hover:from-amber-700 hover:to-orange-600 transition-all shadow-lg">📖 購買完整解讀書籍</a><a href="Fulingpreview.html" className="inline-flex items-center px-5 py-2 rounded-lg border-2 border-amber-600 font-bold hover:bg-amber-50 transition-all" style={{color:'#996515'}}>✨ 免費試讀</a></div></div>
+                    <div className="text-center space-y-4"><div><button onClick={() => { const palaceNames = {1:'勇氣殿',2:'力量廳',3:'告別苑',4:'淨化室',5:'消化閣',6:'信任殿',7:'心門宮',8:'明辨廳',9:'卸載苑',10:'志氣殿',11:'敞開閣',12:'平衡室'}; const p12 = [1,2,3,4,5,6,7,8,9,10,11,12].map(id => id + '宮 ' + palaceNames[id] + '：' + palaces[id] + (isMasterNumber(palaces[id]) ? '✨' : '')).join('\n'); const triSection = buildTriangleText(inputData); const text = '【馥靈秘碼完整報告】\n\n═══ H.O.U.R. 四主數 ═══\nH數：' + hour.h + ' — ' + getNumData(hour.h)?.title + '\nO數：' + hour.o + ' — ' + getNumData(hour.o)?.title + '\nU數：' + (hour.u || '—') + (hour.u ? ' — ' + getNumData(hour.u)?.title : '') + '\nR數：' + hour.r + ' — ' + getNumData(hour.r)?.title + '\n\n═══ L.I.G.H.T. 五能量 ═══\nL愛之力：' + light.l + ' | I直覺力：' + light.i + ' | G根基力：' + light.g + '\nH和諧力：' + light.h + ' | T蛻變力：' + light.t + '\n\n═══ 🏰 12宮位 ═══\n' + p12 + triSection + '\n\n📖 想更深入了解？\n《藏在農曆生日裡的秘碼》：https://www.pubu.com.tw/ebook/645548\n\n🔑 想要更深的轉化？LINE: judyanee\n✧ 馥靈秘碼 v8.3 ✧'; navigator.clipboard.writeText(text); alert('完整報告已複製！（含12宮位）'); }} className="gold-btn px-8 py-3 rounded-lg text-lg">📋 複製完整報告</button></div><div className="flex justify-center gap-3 flex-wrap"><a href="https://www.pubu.com.tw/ebook/645548" target="_blank" rel="noopener" className="inline-flex items-center px-5 py-2 rounded-lg bg-gradient-to-r from-amber-600 to-orange-500 text-white font-bold hover:from-amber-700 hover:to-orange-600 transition-all shadow-lg">📖 購買完整解讀書籍</a><a href="Fulingpreview.html" className="inline-flex items-center px-5 py-2 rounded-lg border-2 border-amber-600 font-bold hover:bg-amber-50 transition-all" style={{color:'#996515'}}>✨ 免費試讀</a></div></div>
                     
                     {/* Email 訂閱區塊 */}
                     <section className="card p-8 mt-8 text-center" style={{background: 'linear-gradient(135deg, rgba(233,194,125,0.2) 0%, rgba(156,110,219,0.15) 100%)', border: '2px solid rgba(184,134,11,0.5)'}}>
