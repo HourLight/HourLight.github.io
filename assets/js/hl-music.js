@@ -8,7 +8,7 @@
   'use strict';
 
   /* ---- 音樂檔案對照表 ---- */
-  var BASE = 'https://hourlightkey.com/';
+  var BASE = 'https://hourlightkey.com/music/';
   var TRACKS = {
     cosmos:   BASE + '70bpm.mp3',   // 宇宙搖籃：溫暖 pad + 鋼琴，官網主旋律
     stardust: BASE + '65bpm.mp3',   // 星河漫步：有旋律線，互動工具陪伴
