@@ -35,6 +35,8 @@
       // 深度覺醒
       awakening: 'MTIsODAw',        
       awakeningPromo: 'OSw4MDA=',   
+      // 馥靈深潛
+      deepDive: 'MTgsODAw',         
       // 初次體驗
       trial: 'Niw4MDA=',            
       // 優惠方案

@@ -74,7 +74,7 @@
         // 這裡只放最基本的展示用資料
         // 完整解讀內容存放於加密的外部檔案
         { id: 1, name: '王者權威', type: 'spiritual', number: 1 },
-        { id: 2, name: '靈魂契約', type: 'spiritual', number: 2 },
+        { id: 2, name: '天命契約', type: 'spiritual', number: 2 },
         { id: 3, name: '創意火焰', type: 'spiritual', number: 3 },
         { id: 4, name: '穩固根基', type: 'spiritual', number: 4 },
         { id: 5, name: '自由之風', type: 'spiritual', number: 5 },
@@ -162,7 +162,7 @@
       return filtered[index];
     },
     
-    // 三牌陣（過去-現在-未來）
+    // 三鑰盤（過去-現在-未來）
     drawThreeCardSpread: function() {
       if (!this.isReady()) return null;
       const cards = this.drawMultipleCards(3);
