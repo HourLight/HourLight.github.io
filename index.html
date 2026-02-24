@@ -822,6 +822,10 @@ body {
   transform: translateY(0);
 }
 
+/* JS 未載入的安全備案 */
+noscript ~ .container .fade-in-up,
+.fade-in-up.is-visible { opacity: 1; transform: translateY(0); }
+
 /* ====== RWD ====== */
 @media(max-width:768px) {
   .container { padding: 24px 16px 50px; }
@@ -1514,13 +1518,19 @@ body {
 
   <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const els = document.querySelectorAll('.fade-in-up');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) e.target.classList.add('is-visible');
-    });
-  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-  els.forEach(el => observer.observe(el));
+  var els = document.querySelectorAll('.fade-in-up');
+  if ('IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) e.target.classList.add('is-visible');
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function(el) { observer.observe(el); });
+  }
+  /* 安全防護：1.5 秒後強制顯示所有區塊，避免文字卡在透明 */
+  setTimeout(function() {
+    els.forEach(function(el) { el.classList.add('is-visible'); });
+  }, 1500);
 });
 </script>
 
