@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-BXP7K53QG6');
+</script>
+<!-- Facebook Pixel -->
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1333106288588347');
+  fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"
+/></noscript>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>馥靈之鑰｜實體牌卡記錄</title>
+  <meta name="description" content="馥靈之鑰實體牌卡記錄工具｜手動輸入抽出的牌卡編號，自動產生完整鑰盤結果，可複製貼上給覺察師進行深度解讀。" />
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="assets/css/hourlight-global.css">
+  <link rel="stylesheet" href="assets/css/hl-cosmos.css">
+  <link rel="stylesheet" href="assets/css/hl-footer-lite.css">
+<style>
+  :root {
+    --dm-bg: #05030a;
+    --dm-card: rgba(10,6,24,0.92);
+    --dm-border: rgba(233,194,125,0.35);
+    --dm-gold: #e9c27d;
+    --dm-gold-deep: #cda86e;
+    --dm-ink: #f7efe1;
+    --dm-ink-soft: #c4b7a6;
+    --dm-ink-muted: #988b7b;
+    --dm-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    min-height: 100vh;
+    font-family: "Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+    color: var(--dm-ink);
+    line-height: 1.8;
+    padding: 24px 16px 72px;
+    background:
+      radial-gradient(circle at 10% 0%, rgba(233,194,125,0.12) 0, transparent 55%),
+      radial-gradient(circle at 80% 100%, rgba(132,112,255,0.15) 0, transparent 55%),
+      var(--dm-bg);
+  }
+
+  .dm-wrap { max-width: 720px; margin: 0 auto; }
+
+  .dm-glass {
+    border-radius: 20px;
+    padding: 28px 24px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(18px) saturate(150%);
+    background: radial-gradient(circle at top left, rgba(233,194,125,0.12), transparent 55%), var(--dm-card);
+    border: 1px solid var(--dm-border);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(233,194,125,0.1);
+  }
+
+  /* 標題區 */
+  .dm-hero { text-align: center; padding: 20px 0 10px; }
+  .dm-hero-title {
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    background: linear-gradient(135deg, #fbe6c2, #e9c27d 40%, #cda86e 80%, #fff9ea);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .dm-hero-sub {
+    margin-top: 8px;
+    font-size: 0.92rem;
+    color: var(--dm-ink-soft);
+    letter-spacing: 0.04em;
+  }
+  .dm-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--dm-ink-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+    transition: color 0.2s;
+  }
+  .dm-back:hover { color: var(--dm-gold); }
+
+  /* 步驟標籤 */
+  .dm-step-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--dm-gold);
+    letter-spacing: 0.03em;
+  }
+  .dm-step-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--dm-gold), var(--dm-gold-deep));
+    color: #1a0e05;
+    font-size: 0.85rem;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* 問題輸入 */
+  .dm-question {
+    width: 100%;
+    min-height: 80px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--dm-border);
+    background: rgba(255,255,255,0.05);
+    color: var(--dm-ink);
+    font-size: 1rem;
+    font-family: inherit;
+    line-height: 1.7;
+    resize: vertical;
+    transition: border-color 0.3s;
+  }
+  .dm-question::placeholder { color: rgba(255,255,255,0.3); }
+  .dm-question:focus { outline: none; border-color: var(--dm-gold); }
+
+  /* 牌陣選擇 */
+  .dm-spread-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+  }
+  .dm-spread-btn {
+    padding: 12px 6px;
+    border-radius: 12px;
+    border: 1px solid var(--dm-border);
+    background: rgba(255,255,255,0.04);
+    color: var(--dm-ink-soft);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.25s var(--dm-ease);
+    line-height: 1.4;
+  }
+  .dm-spread-btn:hover { border-color: var(--dm-gold); color: var(--dm-gold); }
+  .dm-spread-btn.active {
+    background: linear-gradient(135deg, rgba(233,194,125,0.25), rgba(205,168,110,0.15));
+    border-color: var(--dm-gold);
+    color: var(--dm-gold);
+    box-shadow: 0 0 16px rgba(233,194,125,0.2);
+  }
+  .dm-spread-btn .num { display: block; font-size: 1.5rem; font-weight: 900; }
+
+  /* 牌卡輸入列 */
+  .dm-card-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .dm-card-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(233,194,125,0.15);
+    background: rgba(255,255,255,0.03);
+    transition: all 0.3s;
+    animation: fadeSlideIn 0.35s var(--dm-ease) both;
+  }
+  .dm-card-row:focus-within {
+    border-color: var(--dm-gold);
+    background: rgba(233,194,125,0.06);
+  }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .dm-card-pos {
+    flex-shrink: 0;
+    min-width: 120px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--dm-gold);
+    line-height: 1.4;
+  }
+  @media (max-width: 480px) {
+    .dm-card-pos { min-width: 80px; font-size: 0.75rem; }
+    .dm-card-row { flex-wrap: wrap; gap: 8px; }
+  }
+
+  .dm-card-input-wrap { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; }
+
+  .dm-card-input {
+    width: 80px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(0,0,0,0.3);
+    color: var(--dm-ink);
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: "SF Mono","Fira Code",monospace;
+    text-align: center;
+    letter-spacing: 0.1em;
+    transition: border-color 0.3s;
+  }
+  .dm-card-input::placeholder { color: rgba(255,255,255,0.2); font-weight: 400; font-size: 0.8rem; }
+  .dm-card-input:focus { outline: none; border-color: var(--dm-gold); }
+  .dm-card-input.valid { border-color: #4caf50; }
+  .dm-card-input.invalid { border-color: #f44336; }
+
+  .dm-card-name {
+    font-size: 0.88rem;
+    color: var(--dm-ink-soft);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    transition: opacity 0.3s;
+  }
+
+  .dm-card-thumb {
+    width: 42px;
+    height: 42px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid rgba(233,194,125,0.2);
+    display: none;
+  }
+  .dm-card-thumb.show { display: block; }
+
+  /* 結果區 */
+  .dm-result-area { margin-top: 8px; }
+  .dm-result-box {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(233,194,125,0.2);
+    border-radius: 14px;
+    padding: 20px;
+    font-size: 0.9rem;
+    line-height: 1.9;
+    color: var(--dm-ink-soft);
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  /* 按鈕 */
+  .dm-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .dm-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.25s var(--dm-ease);
+    text-decoration: none;
+  }
+  .dm-btn-gold {
+    background: linear-gradient(135deg, var(--dm-gold), var(--dm-gold-deep));
+    color: #1a0e05;
+  }
+  .dm-btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(233,194,125,0.3); }
+  .dm-btn-gold:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .dm-btn-ghost {
+    background: transparent;
+    color: var(--dm-ink-soft);
+    border: 1px solid var(--dm-border);
+  }
+  .dm-btn-ghost:hover { border-color: var(--dm-gold); color: var(--dm-gold); }
+
+  .dm-btn-line {
+    background: #06c755;
+    color: #fff;
+  }
+  .dm-btn-line:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(6,199,85,0.3); }
+
+  /* Toast */
+  .dm-toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(233,194,125,0.95);
+    color: #1a0e05;
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s var(--dm-ease);
+    z-index: 9999;
+  }
+  .dm-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* 提示 */
+  .dm-hint {
+    font-size: 0.82rem;
+    color: var(--dm-ink-muted);
+    line-height: 1.7;
+    margin-top: 8px;
+  }
+
+  .dm-divider {
+    border: none;
+    border-top: 1px solid rgba(233,194,125,0.12);
+    margin: 20px 0;
+  }
+
+  /* 完成統計 */
+  .dm-fill-status {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--dm-ink-muted);
+    margin-top: 12px;
+  }
+  .dm-fill-status .done { color: #4caf50; font-weight: 700; }
+  .dm-fill-status .total { color: var(--dm-gold); font-weight: 700; }
+
+  /* 提問範例小膠囊 */
+  .dm-tip {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(233,194,125,0.2);
+    background: rgba(233,194,125,0.06);
+    color: var(--dm-ink-soft);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .dm-tip:hover, .dm-tip:active {
+    border-color: var(--dm-gold);
+    color: var(--dm-gold);
+    background: rgba(233,194,125,0.12);
+  }
+
+  /* 牌陣場景小字 */
+  .dm-spread-scene {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: var(--dm-ink-muted);
+    margin-top: 4px;
+    line-height: 1.3;
+  }
+</style>
+</head>
+
+<body>
+<!-- 星空背景 -->
+<div class="hl-cosmos">
+  <div class="hl-stars-layer hl-stars-1"></div>
+  <div class="hl-stars-layer hl-stars-2"></div>
+  <div class="hl-stars-layer hl-stars-3"></div>
+  <div class="hl-meteors"><div class="hl-meteor"></div><div class="hl-meteor"></div><div class="hl-meteor"></div></div>
+  <div class="hl-aura hl-aura-1"></div>
+  <div class="hl-aura hl-aura-2"></div>
+</div>
+
+<div class="dm-toast" id="toast"></div>
+
+<div class="dm-wrap">
+
+  <!-- 標題 -->
+  <div class="dm-glass dm-hero">
+    <a href="draw-hl.html" class="dm-back">← 回到線上抽牌</a>
+    <h1 class="dm-hero-title">實體牌卡記錄</h1>
+    <p class="dm-hero-sub">手動輸入抽出的牌卡編號<br>自動產生完整鑰盤結果</p>
+  </div>
+
+  <!-- Step 1：寫下問題 -->
+  <div class="dm-glass" id="step1">
+    <div class="dm-step-label"><span class="dm-step-num">1</span> 寫下你的問題</div>
+    <textarea class="dm-question" id="questionInput" placeholder="例如：我現在最需要知道什麼？&#10;（選填，但寫下來覺察師更好幫你解讀）"></textarea>
+    <p class="dm-hint">💡 問題填寫得越清楚越好，更能看到事情的全貌，也能得到更貼切的回覆</p>
+    <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;" id="questionTips">
+      <span class="dm-tip">我最近卡卡的，是哪裡出了問題？</span>
+      <span class="dm-tip">這段關係，我該繼續嗎？</span>
+      <span class="dm-tip">我的財務狀況，下一步怎麼走？</span>
+      <span class="dm-tip">我現在最需要知道什麼？</span>
+      <span class="dm-tip">工作要不要換？</span>
+    </div>
+  </div>
+
+  <!-- Step 2：選擇牌陣 -->
+  <div class="dm-glass" id="step2">
+    <div class="dm-step-label"><span class="dm-step-num">2</span> 選擇鑰盤（牌陣）</div>
+    <div class="dm-spread-grid" id="spreadGrid">
+      <button class="dm-spread-btn" data-n="1"><span class="num">1</span>今日一語<span class="dm-spread-scene">試試看 / 快速決策</span></button>
+      <button class="dm-spread-btn" data-n="3"><span class="num">3</span>三層覺察<span class="dm-spread-scene">感情 / 選擇題</span></button>
+      <button class="dm-spread-btn" data-n="5"><span class="num">5</span>五力巡房<span class="dm-spread-scene">整體狀態快照</span></button>
+      <button class="dm-spread-btn" data-n="7"><span class="num">7</span>七層探索<span class="dm-spread-scene">深入單一議題</span></button>
+      <button class="dm-spread-btn" data-n="9"><span class="num">9</span>洛書九宮<span class="dm-spread-scene">全面看清一件事</span></button>
+      <button class="dm-spread-btn" data-n="12"><span class="num">12</span>十二宮<span class="dm-spread-scene">年度規劃 / 全觀</span></button>
+      <button class="dm-spread-btn" data-n="15"><span class="num">15</span>天賦根源<span class="dm-spread-scene">天賦探索 / 深層</span></button>
+      <button class="dm-spread-btn" data-n="21"><span class="num">21</span>完整矩陣<span class="dm-spread-scene">人生全盤校準</span></button>
+    </div>
+    <p class="dm-hint">選好鑰盤後，下方會出現對應的牌位輸入欄</p>
+  </div>
+
+  <!-- Step 3：輸入牌卡 -->
+  <div class="dm-glass" id="step3" style="display:none;">
+    <div class="dm-step-label"><span class="dm-step-num">3</span> 填入抽出的牌卡編號</div>
+    <p class="dm-hint" style="margin-bottom:14px;">
+      覺察指引牌（原型卡）：A00 ~ A21<br>
+      單方精油牌：001 ~ 090<br>
+      基底油牌：091 ~ 095<br>
+      複方精油牌：096 ~ 108
+    </p>
+    <div class="dm-card-list" id="cardList"></div>
+    <div class="dm-fill-status" id="fillStatus"></div>
+  </div>
+
+  <!-- Step 4：結果預覽 + 複製 -->
+  <div class="dm-glass" id="step4" style="display:none;">
+    <div class="dm-step-label"><span class="dm-step-num">4</span> 鑰盤結果</div>
+    <div class="dm-result-area">
+      <div class="dm-result-box" id="resultBox"></div>
+    </div>
+    <div class="dm-actions">
+      <button class="dm-btn dm-btn-gold" id="copyBtn">📋 複製結果</button>
+      <a href="https://lin.ee/OQDB5t6" target="_blank" rel="noopener" class="dm-btn dm-btn-line">💬 LINE 傳給覺察師</a>
+    </div>
+  </div>
+
+  <!-- 重新開始 -->
+  <div class="dm-actions" id="resetArea" style="display:none;">
+    <button class="dm-btn dm-btn-ghost" id="resetBtn">🔄 重新開始</button>
+    <a href="draw-hl.html" class="dm-btn dm-btn-ghost">🔮 改用線上抽牌</a>
+  </div>
+
+</div>
+
+<!-- 載入牌卡資料 -->
+<script src="js/cardData-protected.js"></script>
+
+<script>
+// ========== 牌位名稱 ==========
+var layouts = {
+  1: ["✨ 今日一語"],
+  3: ["①浮出水面", "②水面之下", "③那把鑰匙"],
+  5: ["L｜自我疼惜狀態", "I｜內在智慧在說什麼", "G｜安全感根基", "H｜關係平衡狀態", "T｜正在經歷的突破"],
+  7: ["①全景掃描", "②表層故事", "③暗流湧動", "④視線之外", "⑤手中王牌", "⑥啟動指令", "⑦深處密語"],
+  9: ["H｜身體在說什麼", "O｜關係照妖鏡", "U｜跟錢的真實關係", "R｜來這一趟的目的", "L｜最深處的根源", "I｜不敢面對的信念", "G｜重複上演的模式", "H*｜假裝沒看見的", "T｜這一切的禮物"],
+  12: ["第1門｜你站在哪裡", "第2門｜什麼在召喚你", "第3門｜你在保護什麼", "第4門｜誰在撐著你", "第5門｜不敢跨的那一步", "第6門｜考驗在教你什麼", "第7門｜關係映照出的你", "第8門｜最深的那道坎", "第9門｜獎賞在哪裡等你", "第10門｜帶著什麼回來", "第11門｜脫胎換骨的契機", "第12門｜你拿到的寶物"],
+  15: ["A1｜天生就會的事", "A2｜天賦的證據", "A3｜天賦的邊界", "B1｜還沒啟動的潛能", "B2｜潛能的養分", "B3｜加速啟動的捷徑", "C1｜一切的起點", "C2｜根源歸因", "C3｜一直迴避的真相", "D1｜卡住你的信念", "D2｜不自覺的習慣", "D3｜正在付出的代價", "E1｜破局策略", "E2｜現在就能做的", "E3｜需要的支援力量"],
+  21: ["H×L｜身心根源", "H×I｜身心信念", "H×G｜身心行為", "H×H｜身心覺察", "H×T｜身心禮物", "O×L｜關係根源", "O×I｜關係信念", "O×G｜關係行為", "O×H｜關係覺察", "O×T｜關係禮物", "U×L｜財富根源", "U×I｜財富信念", "U×G｜財富行為", "U×H｜財富覺察", "U×T｜財富禮物", "R×L｜天命根源", "R×I｜天命信念", "R×G｜天命行為", "R×H｜天命覺察", "R×T｜天命禮物", "✦｜核心訊息"]
+};
+
+// ========== 有效卡號清單 ==========
+var validCodes = [];
+// A00-A21
+for (var i = 0; i <= 21; i++) validCodes.push('A' + String(i).padStart(2, '0'));
+// 001-108
+for (var i = 1; i <= 108; i++) validCodes.push(String(i).padStart(3, '0'));
+
+var currentN = 0;
+var cardInputs = [];
+
+// ========== DOM ==========
+var spreadGrid = document.getElementById('spreadGrid');
+var cardList = document.getElementById('cardList');
+var step3 = document.getElementById('step3');
+var step4 = document.getElementById('step4');
+var resetArea = document.getElementById('resetArea');
+var resultBox = document.getElementById('resultBox');
+var fillStatus = document.getElementById('fillStatus');
+var copyBtn = document.getElementById('copyBtn');
+var questionInput = document.getElementById('questionInput');
+
+// ========== 選擇牌陣 ==========
+spreadGrid.addEventListener('click', function(e) {
+  var btn = e.target.closest('.dm-spread-btn');
+  if (!btn) return;
+
+  // 切換 active
+  var allBtns = spreadGrid.querySelectorAll('.dm-spread-btn');
+  allBtns.forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+
+  currentN = parseInt(btn.dataset.n);
+  buildCardInputs(currentN);
+  step3.style.display = 'block';
+  step4.style.display = 'none';
+  resetArea.style.display = 'flex';
+
+  // 滾動到 Step 3
+  setTimeout(function() {
+    step3.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 200);
+});
+
+// ========== 建立輸入欄 ==========
+function buildCardInputs(n) {
+  cardList.innerHTML = '';
+  cardInputs = [];
+  var labels = layouts[n] || [];
+
+  for (var i = 0; i < n; i++) {
+    var row = document.createElement('div');
+    row.className = 'dm-card-row';
+    row.style.animationDelay = (i * 0.06) + 's';
+
+    var posLabel = labels[i] || ('第 ' + (i + 1) + ' 張');
+
+    row.innerHTML =
+      '<div class="dm-card-pos">' + posLabel + '</div>' +
+      '<div class="dm-card-input-wrap">' +
+        '<input class="dm-card-input" type="text" placeholder="卡號" maxlength="3" data-idx="' + i + '" autocomplete="off" inputmode="text">' +
+        '<img class="dm-card-thumb" src="" alt="">' +
+        '<span class="dm-card-name"></span>' +
+      '</div>';
+
+    cardList.appendChild(row);
+
+    var input = row.querySelector('.dm-card-input');
+    cardInputs.push(input);
+
+    // 事件
+    input.addEventListener('input', handleCardInput);
+    input.addEventListener('blur', handleCardInput);
+  }
+
+  updateFillStatus();
+}
+
+// ========== 處理卡號輸入 ==========
+function handleCardInput(e) {
+  var input = e.target;
+  var val = input.value.trim().toUpperCase();
+  input.value = val;
+
+  var row = input.closest('.dm-card-row');
+  var nameEl = row.querySelector('.dm-card-name');
+  var thumbEl = row.querySelector('.dm-card-thumb');
+
+  if (!val) {
+    input.className = 'dm-card-input';
+    nameEl.textContent = '';
+    thumbEl.classList.remove('show');
+    updateFillStatus();
+    updateResult();
+    return;
+  }
+
+  // 驗證
+  if (validCodes.indexOf(val) !== -1) {
+    input.className = 'dm-card-input valid';
+
+    // 顯示牌卡名稱
+    var info = window.cardData ? window.cardData[val] : null;
+    if (info) {
+      nameEl.textContent = info.title || info.name || '';
+    } else {
+      nameEl.textContent = '';
+    }
+
+    // 顯示縮圖
+    thumbEl.src = 'cards/' + val + '.png';
+    thumbEl.classList.add('show');
+    thumbEl.onerror = function() { this.classList.remove('show'); };
+
+    // 自動跳到下一格
+    var idx = parseInt(input.dataset.idx);
+    if (idx < cardInputs.length - 1 && val.length >= 3) {
+      setTimeout(function() { cardInputs[idx + 1].focus(); }, 150);
+    }
+  } else {
+    input.className = 'dm-card-input invalid';
+    nameEl.textContent = '？';
+    thumbEl.classList.remove('show');
+  }
+
+  updateFillStatus();
+  updateResult();
+}
+
+// ========== 填入統計 ==========
+function updateFillStatus() {
+  var filled = 0;
+  cardInputs.forEach(function(inp) {
+    if (inp.classList.contains('valid')) filled++;
+  });
+  fillStatus.innerHTML = '已填入 <span class="done">' + filled + '</span> / <span class="total">' + currentN + '</span> 張';
+}
+
+// ========== 即時更新結果 ==========
+function updateResult() {
+  var filled = 0;
+  cardInputs.forEach(function(inp) {
+    if (inp.classList.contains('valid')) filled++;
+  });
+
+  if (filled === 0) {
+    step4.style.display = 'none';
+    return;
+  }
+
+  step4.style.display = 'block';
+  var txt = generateResultText();
+  resultBox.textContent = txt;
+}
+
+// ========== 產生結果文字 ==========
+function generateResultText() {
+  var labels = layouts[currentN] || [];
+  var question = questionInput.value.trim();
+
+  var txt = '【馥靈之鑰｜內在GPS 鑰盤結果】\n';
+  txt += '鑰盤：' + currentN + ' 張\n';
+  if (question) txt += '提問：' + question + '\n';
+  txt += '\n';
+
+  cardInputs.forEach(function(inp, i) {
+    var val = inp.value.trim().toUpperCase();
+    var posLabel = labels[i] || ('第 ' + (i + 1) + ' 張');
+
+    if (validCodes.indexOf(val) !== -1) {
+      var info = window.cardData ? window.cardData[val] : {};
+      txt += '▸ ' + posLabel + '：' + val + ' ' + (info.title || '') + '\n';
+    } else if (val) {
+      txt += '▸ ' + posLabel + '：' + val + '（未辨識）\n';
+    } else {
+      txt += '▸ ' + posLabel + '：（尚未填入）\n';
+    }
+  });
+
+  txt += '\n💫 想了解牌卡的深層訊息？\n';
+  txt += '預約馥靈覺察師為你完整解讀 👉 https://lin.ee/OQDB5t6';
+
+  return txt;
+}
+
+// ========== 複製 ==========
+copyBtn.addEventListener('click', function() {
+  var txt = generateResultText();
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(txt).then(function() {
+      showToast('已複製！可直接貼到 LINE 給覺察師');
+    });
+  } else {
+    // fallback
+    var ta = document.createElement('textarea');
+    ta.value = txt;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('已複製！');
+  }
+});
+
+// ========== 重置 ==========
+document.getElementById('resetBtn').addEventListener('click', function() {
+  currentN = 0;
+  cardInputs = [];
+  cardList.innerHTML = '';
+  step3.style.display = 'none';
+  step4.style.display = 'none';
+  resetArea.style.display = 'none';
+  questionInput.value = '';
+  fillStatus.innerHTML = '';
+
+  var allBtns = spreadGrid.querySelectorAll('.dm-spread-btn');
+  allBtns.forEach(function(b) { b.classList.remove('active'); });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// ========== Toast ==========
+function showToast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(function() { el.classList.remove('show'); }, 2500);
+}
+
+// 問題輸入也即時更新結果
+questionInput.addEventListener('input', updateResult);
+
+// 提問範例點擊自動填入
+document.getElementById('questionTips').addEventListener('click', function(e) {
+  var tip = e.target.closest('.dm-tip');
+  if (!tip) return;
+  questionInput.value = tip.textContent;
+  questionInput.focus();
+  updateResult();
+});
+</script>
+
+<!-- Footer -->
+<footer class="hl-footer-lite" style="margin-top:60px;">
+  <div class="hl-footer-brand">
+    <span class="hl-footer-logo">馥靈之鑰™</span>
+    <span class="hl-footer-tagline">Hour Light International</span>
+  </div>
+  <nav class="hl-footer-links">
+    <a href="privacy.html">隱私權政策</a>
+    <a href="terms.html">服務條款</a>
+    <a href="hourlight-sitemap.html">網站地圖</a>
+    <a href="https://lin.ee/OQDB5t6" target="_blank" rel="noopener">LINE 諮詢</a>
+  </nav>
+  <div class="hl-footer-copy">
+    © 2026 馥靈之鑰國際有限公司 Hour Light International Co., Ltd. All Rights Reserved.
+  </div>
+</footer>
+
+</body>
+</html>
