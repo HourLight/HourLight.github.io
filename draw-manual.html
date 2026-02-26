@@ -655,6 +655,14 @@ function generateResultText() {
     if (validCodes.indexOf(val) !== -1) {
       var info = window.cardData ? window.cardData[val] : {};
       txt += '▸ ' + posLabel + '：' + val + ' ' + (info.title || '') + '\n';
+
+      // 1張牌免費：直接附上覺察與行動指引
+      if (currentN === 1) {
+        var sense = info.sense || info['覺察'] || '';
+        var action = info.action || info['行動指引'] || '';
+        if (sense) txt += '\n💭 覺察：\n' + sense + '\n';
+        if (action) txt += '\n✨ 行動指引：\n' + action + '\n';
+      }
     } else if (val) {
       txt += '▸ ' + posLabel + '：' + val + '（未辨識）\n';
     } else {
@@ -662,8 +670,14 @@ function generateResultText() {
     }
   });
 
-  txt += '\n💫 想了解牌卡的深層訊息？\n';
-  txt += '預約馥靈覺察師為你完整解讀 👉 https://lin.ee/OQDB5t6';
+  if (currentN === 1) {
+    txt += '\n💫 這張牌點出了你現在的狀態，但故事還沒說完...\n';
+    txt += '想看見更完整的脈絡？試試 3 張以上的鑰盤\n';
+    txt += '預約馥靈覺察師深度解讀 👉 https://lin.ee/OQDB5t6';
+  } else {
+    txt += '\n💫 想了解牌卡的深層訊息？\n';
+    txt += '預約馥靈覺察師為你完整解讀 👉 https://lin.ee/OQDB5t6';
+  }
 
   return txt;
 }
