@@ -1021,26 +1021,191 @@ header[class*="bg-white"] {
 
         const HRPage = ({ result, isNight }) => {
             const [hrResult, setHrResult] = useState(null);
-            const hrData = { 1: { bestRoles: ['創業者', '部門主管', '專案負責人'], worstRoles: ['行政助理', '需高度配合的職位'], manageTip: '給予自主權，不要微管理', motivate: '挑戰性任務、獨立完成的成就感', warning: '可能搶功、不易接受批評' }, 2: { bestRoles: ['HR', '客服', '秘書助理'], worstRoles: ['高壓業務', '獨斷決策的主管'], manageTip: '給予情感支持和團隊歸屬感', motivate: '團隊和諧、被需要的感覺', warning: '可能過度承擔、隱藏真實想法' }, 3: { bestRoles: ['行銷企劃', '設計師', '講師'], worstRoles: ['會計', '品管'], manageTip: '給予表達舞台，定期讚美', motivate: '讚美、新鮮感、被看見的機會', warning: '可能過度承諾、逃避困難對話' }, 4: { bestRoles: ['專案經理', '品管', '財務'], worstRoles: ['需高度創意', '快速變化環境'], manageTip: '建立明確流程結構', motivate: '穩定、明確規則、被信任', warning: '可能抗拒變化、過度堅持己見' }, 5: { bestRoles: ['業務開發', '新創公司', '危機處理'], worstRoles: ['固定重複工作'], manageTip: '給予彈性和新挑戰', motivate: '自由、新挑戰、變化', warning: '可能突然離職、承諾可靠度較低' }, 6: { bestRoles: ['HR', '護理照護', '教育訓練'], worstRoles: ['高度競爭環境'], manageTip: '讓他感覺被需要和被重視', motivate: '被需要、團隊和諧', warning: '可能過度介入、控制他人' }, 7: { bestRoles: ['研究員', '分析師', '顧問'], worstRoles: ['大量社交職位'], manageTip: '給予獨處空間，尊重專業判斷', motivate: '專業成長、被尊重專業', warning: '可能過度分析、與團隊脫節' }, 8: { bestRoles: ['高階主管', '業務主管', '創業家'], worstRoles: ['需服從的職位'], manageTip: '給予明確KPI和升遷路徑', motivate: '權力、成就、掌控感', warning: '可能越權、團隊衝突' }, 9: { bestRoles: ['非營利組織', '教育培訓', '顧問導師'], worstRoles: ['純追求利潤環境'], manageTip: '連結工作與更大意義', motivate: '意義感、幫助他人', warning: '可能過度犧牲、不切實際' } };
-            const getRatings = (num) => { const ratings = { 1: { independence: 5, teamwork: 2, stress: 4, creativity: 4, stability: 3 }, 2: { independence: 2, teamwork: 5, stress: 3, creativity: 3, stability: 4 }, 3: { independence: 3, teamwork: 4, stress: 3, creativity: 5, stability: 2 }, 4: { independence: 3, teamwork: 4, stress: 4, creativity: 2, stability: 5 }, 5: { independence: 4, teamwork: 3, stress: 4, creativity: 4, stability: 2 }, 6: { independence: 3, teamwork: 5, stress: 3, creativity: 3, stability: 4 }, 7: { independence: 5, teamwork: 2, stress: 4, creativity: 4, stability: 4 }, 8: { independence: 5, teamwork: 3, stress: 5, creativity: 3, stability: 4 }, 9: { independence: 4, teamwork: 4, stress: 3, creativity: 4, stability: 3 } }; return ratings[getBaseNum(num)] || ratings[1]; };
-            if (!hrResult) return (<div className="max-w-2xl mx-auto fade-in"><div className="text-center mb-6"><h2 className="text-3xl font-bold gold-text serif">💼 HR快速識人報告</h2><p className="text-sm mt-2 opacity-60">基於馥靈秘碼H.O.U.R.系統的人才評估</p></div>{result && <button onClick={() => setHrResult(result)} className="w-full gold-btn py-4 rounded-lg text-lg mb-4">使用我的命盤生成報告</button>}<InputForm title="輸入員工/應徵者資料" showName={true} nameLabel="姓名（選填）" onCalculate={(data) => setHrResult(calculateHourLight(data))} /></div>);
+            const [triMode, setTriMode] = useState(false);
+            const [idInput, setIdInput] = useState('');
+            const [triData, setTriData] = useState(null);
+            const [triReading, setTriReading] = useState(null);
+
+            const hrData = {
+              1: { tag: '開創者', slogan: '讓我來帶頭', bestRoles: ['獨立負責的專案', '開拓新市場/新業務', '需要決策權的位置'], worstRoles: ['純執行、無決策權的工作', '需要大量配合他人的職位'], manageTip: '給明確目標，但不要規定「怎麼做」。讓他覺得是「他的決定」', motivate: '挑戰性任務、獨立完成的成就感、被認可為負責人', warning: '可能跟其他主管起衝突，不願做小事。沒升遷空間2-3年想離開', interview: '問「你過去主導過什麼專案？」眼睛會發亮。問「你如何配合團隊？」可能會說「我帶領團隊」', bestMatch: [{n:2,d:'支持者當副手→黃金組合'},{n:8,d:'執行者→強強聯手'}], avoidMatch: [{n:1,d:'另一個1號→權力鬥爭'}], ratings: {independence:5,obedience:2,teamwork:3,stress:4,stability:3} },
+              2: { tag: '協調者', slogan: '讓我來幫忙', bestRoles: ['跨部門溝通橋樑', '客服、HR、行政、秘書', '需要協調多方的工作'], worstRoles: ['需要獨斷決策的主管職', '高壓競爭環境'], manageTip: '經常給予肯定和感謝。不要在公開場合批評。讓他知道他是團隊重要一份子', motivate: '團隊和諧、被需要的感覺、穩定的歸屬感', warning: '太在意他人感受無法堅持立場。可能被情緒勒索。主管太冷漠會默默累積委屈', interview: '問「你如何處理衝突？」會說「我會居中協調」。觀察他是否一直在觀察你的反應', bestMatch: [{n:1,d:'領導者→完美副手'},{n:6,d:'照顧者→互相支持'}], avoidMatch: [{n:8,d:'權力者→容易被壓制'}], ratings: {independence:2,obedience:5,teamwork:5,stress:3,stability:5} },
+              3: { tag: '表達者', slogan: '讓我來說', bestRoles: ['行銷、公關、業務、講師', '需要創意發想的職位', '對外溝通、簡報'], worstRoles: ['獨自埋頭的資料分析', '重複性高的行政工作'], manageTip: '給他表現的舞台。讓他參與創意發想會議。不要只給執行，要讓他提案', motivate: '讚美、新鮮感、被看見的機會', warning: '可能答應太多做不完。只顧表面不顧細節。需要監督「說到是否做到」', interview: '面試時會很健談，容易讓面試官喜歡。注意是否「說得多、做得少」', bestMatch: [{n:4,d:'執行者→創意+落地'},{n:7,d:'分析者→表達+深度'}], avoidMatch: [{n:3,d:'另一個3號→都想表現'}], ratings: {independence:4,obedience:3,teamwork:4,stress:3,stability:3} },
+              4: { tag: '建構者', slogan: '讓我來做', bestRoles: ['專案管理、品管、會計', '建立制度、優化流程', '需要細心和耐心的工作'], worstRoles: ['需要快速變化的新創環境', '沒有明確規則的職位'], manageTip: '給明確的流程和時程。不要突然改變規則。肯定他的「穩定」和「可靠」', motivate: '穩定、明確規則、被信任的感覺', warning: '可能抗拒改變、速度太慢太謹慎。創新任務可能會卡住', interview: '會準時到達，資料準備齊全。問「沒有SOP的情況？」可能會猶豫', bestMatch: [{n:3,d:'創意者→互補'},{n:1,d:'開創者→執行決策'}], avoidMatch: [{n:5,d:'變動者→節奏差太大'}], ratings: {independence:3,obedience:5,teamwork:4,stress:4,stability:5} },
+              5: { tag: '變革者', slogan: '讓我來試試看', bestRoles: ['業務、記者、自由接案', '需要出差變化的工作', '新市場開發、危機處理'], worstRoles: ['固定座位固定時間的行政職', '需要長期重複的工作'], manageTip: '給他彈性（時間/空間/方法）。定期給新任務新挑戰。用目標引導，不用規定壓', motivate: '自由、新挑戰、變化、探索未知', warning: '離職率最高的類型。可能覺得無聊就走人。需要持續給予新鮮感', interview: '履歷可能換過很多工作。問「最長一份工作做多久？」→重要指標', bestMatch: [{n:4,d:'穩定者→互補'},{n:1,d:'開創者→一起冒險'}], avoidMatch: [{n:5,d:'另一個5號→太散'}], ratings: {independence:5,obedience:2,teamwork:3,stress:4,stability:2} },
+              6: { tag: '照顧者', slogan: '讓我來照顧', bestRoles: ['HR、教育訓練、客服主管', '需要帶新人的職位', '需要關懷團隊的管理職'], worstRoles: ['純數字純績效的工作', '需要強勢談判的職位'], manageTip: '讓他知道「你對團隊很重要」。注意他是否過度付出。提醒他也要照顧自己', motivate: '被需要、團隊和諧、看到別人因為他變好', warning: '可能攬太多責任。可能被情緒勒索。需要注意過勞', interview: '會主動關心「團隊氣氛如何」。可能會問「公司如何照顧員工」', bestMatch: [{n:2,d:'協調者→互相支持'},{n:1,d:'領導者→當副手'}], avoidMatch: [{n:8,d:'權力者→價值觀衝突'}], ratings: {independence:3,obedience:4,teamwork:5,stress:3,stability:4} },
+              7: { tag: '分析者', slogan: '讓我想一想', bestRoles: ['研究員、分析師、策略顧問', '需要深度思考的工作', '技術專家、工程師'], worstRoles: ['大量社交的業務職', '需要快速反應的客服'], manageTip: '不要微管理，給他空間。不強迫參加太多社交活動。用email溝通比開會有效', motivate: '專業成長、被尊重專業、獨立思考空間', warning: '可能被認為不合群。溝通可能太直接。需要時間消化，不能逼他馬上決定', interview: '話不多，但回答有深度。可能會問很專業的問題', bestMatch: [{n:3,d:'表達者→深度+表達'},{n:8,d:'執行者→策略+落地'}], avoidMatch: [{n:7,d:'另一個7號→都不講話'}], ratings: {independence:5,obedience:3,teamwork:2,stress:4,stability:4} },
+              8: { tag: '掌控者', slogan: '讓我來管', bestRoles: ['財務、投資、高階主管', '需要談判掌控資源的職位', '業務主管、專案總監'], worstRoles: ['沒有決策權的執行職', '需要大量情感關懷的職位'], manageTip: '給明確的KPI和獎金制度。讓他看到升遷路徑。肯定他的成就而非努力', motivate: '權力、成就、掌控感、升遷空間', warning: '可能太強勢得罪人。過度追求權力。沒有升遷會找下家', interview: '會問「升遷管道如何」。會展現過去的成就和數字', bestMatch: [{n:7,d:'策略者→策略+執行'},{n:2,d:'協調者→強+柔'}], avoidMatch: [{n:1,d:'開創者→權力鬥爭'}], ratings: {independence:5,obedience:3,teamwork:3,stress:5,stability:4} },
+              9: { tag: '服務者', slogan: '讓我來幫助更多人', bestRoles: ['非營利組織、教育、公益', 'CSR、ESG相關職位', '導師、培訓師'], worstRoles: ['純利潤導向的銷售', '需要為了錢不擇手段的工作'], manageTip: '連結工作與更大的意義。讓他參與公益活動。不要只談數字，要談影響力', motivate: '意義感、幫助他人、被認可做的事有價值', warning: '可能過度犧牲不切實際。對不公義的壓力很敏感。只認同公司理念才會忠誠', interview: '會問「公司的使命是什麼」。會關心「這份工作有什麼意義」', bestMatch: [{n:3,d:'表達者→理念傳播'},{n:6,d:'照顧者→使命共鳴'}], avoidMatch: [{n:8,d:'掌控者→價值觀衝突'}], ratings: {independence:4,obedience:3,teamwork:4,stress:3,stability:4} }
+            };
+            const ratingLabels = ['獨立性', '服從性', '團隊合作', '抗壓性', '穩定性'];
+            const StarBar = ({v, max=5}) => (<span className="inline-flex gap-0.5">{[...Array(max)].map((_,i)=><span key={i} className={i<v?'text-amber-500':'opacity-20'}>{i<v?'★':'☆'}</span>)}</span>);
+
+            const handleTriCalc = () => {
+              if (typeof HLTriangle === 'undefined') return;
+              HLTriangle.init('HL_TRI_2026');
+              const tri = HLTriangle.calculate(idInput);
+              if (!tri) { alert('請輸入完整的身份證字號（至少8碼）'); return; }
+              setTriData(tri);
+              setTriReading(HLTriangle.getReading(tri));
+            };
+
+            if (!hrResult) return (<div className="max-w-2xl mx-auto fade-in"><div className="text-center mb-6"><h2 className="text-3xl font-bold gold-text serif">💼 HR快速識人系統</h2><p className="text-sm mt-2 opacity-60">專為 HR主管、部門經理、企業老闆設計</p><p className="text-xs mt-1 opacity-40">只需員工的西曆生日，一分鐘看透工作態度與管理要點</p></div>{result && <button onClick={() => setHrResult(result)} className="w-full gold-btn py-4 rounded-lg text-lg mb-4">📋 使用我的命盤生成報告</button>}<InputForm title="輸入員工/應徵者資料" showName={true} nameLabel="姓名（選填）" onCalculate={(data) => setHrResult(calculateHourLight(data))} /></div>);
+
             const { hour, bridges, analysis } = hrResult;
             const oData = getNumData(hour.o);
-            const hr = hrData[getBaseNum(hour.o)] || hrData[1];
-            const ratings = getRatings(hour.o);
-            const ratingLabels = ['獨立性', '團隊合作', '抗壓性', '創造力', '穩定性'];
+            const workNum = getBaseNum(hour.o);
+            const hr = hrData[workNum] || hrData[1];
+            const ratings = hr.ratings;
+
             return (
                 <div className="max-w-2xl mx-auto fade-in space-y-6">
-                    <button onClick={() => setHrResult(null)} className="text-sm opacity-60 hover:opacity-100">← 重新輸入</button>
-                    <div className="card p-6 text-center"><div className="text-6xl font-bold gold-text">{hour.o}{isMasterNumber(hour.o) && <MasterBadge num={hour.o} />}</div><div className="text-2xl font-bold mt-2 serif">{oData?.work?.type}</div><div className="text-lg opacity-70">{oData?.work?.desc}</div><div className="text-sm opacity-50 mt-2">{oData?.work?.style}</div></div>
-                    <div className="card p-6"><h4 className="font-bold gold-text text-lg mb-4">🔑 H.O.U.R. 四維人才分析</h4><div className="grid grid-cols-2 gap-3"><div className={'p-3 rounded-lg ' + (isNight ? 'bg-blue-900/30' : 'bg-blue-50')}><div className="flex justify-between"><span className="text-xs opacity-60">H數（內在需求）</span><span className="text-xl font-bold gold-text">{hour.h}</span></div><p className="text-sm mt-1">{getNumData(hour.h)?.essence}</p><p className="text-xs opacity-50">面試看不到，但決定他留下或離開</p></div><div className={'p-3 rounded-lg ' + (isNight ? 'bg-green-900/30' : 'bg-green-50')}><div className="flex justify-between"><span className="text-xs opacity-60">O數（外在表現）</span><span className="text-xl font-bold gold-text">{hour.o}</span></div><p className="text-sm mt-1">{oData?.light}</p><p className="text-xs opacity-50">面試時你會看到的樣子</p></div><div className={'p-3 rounded-lg ' + (isNight ? 'bg-purple-900/30' : 'bg-purple-50')}><div className="flex justify-between"><span className="text-xs opacity-60">U數（隱藏潛能）</span><span className="text-xl font-bold gold-text">{hour.u || '—'}</span></div><p className="text-sm mt-1">{hour.u ? getNumData(hour.u)?.essence : '需深入了解'}</p><p className="text-xs opacity-50">長期培養後會展現</p></div><div className={'p-3 rounded-lg ' + (isNight ? 'bg-amber-900/30' : 'bg-amber-50')}><div className="flex justify-between"><span className="text-xs opacity-60">R數（人生方向）</span><span className="text-xl font-bold gold-text">{hour.r}</span></div><p className="text-sm mt-1">{getNumData(hour.r)?.essence}</p><p className="text-xs opacity-50">決定長期發展和職涯規劃</p></div></div></div>
-                    <div className="card p-6"><h4 className="font-bold gold-text text-lg mb-3">🌉 內外整合度</h4><div className="grid grid-cols-3 gap-3 text-center"><div><div className="text-2xl font-bold gold-text">{bridges.ho}</div><div className="text-xs opacity-60">H-O橋樑</div><div className="text-xs">{bridges.ho <= 2 ? '✓ 內外一致' : bridges.ho <= 4 ? '需調適' : '⚠️ 落差大'}</div></div><div><div className="text-2xl font-bold gold-text">{bridges.ou || '—'}</div><div className="text-xs opacity-60">O-U橋樑</div><div className="text-xs">{!bridges.ou ? '—' : bridges.ou <= 2 ? '潛能易發揮' : '需培養'}</div></div><div><div className="text-2xl font-bold gold-text">{bridges.ur || '—'}</div><div className="text-xs opacity-60">U-R橋樑</div><div className="text-xs">{!bridges.ur ? '—' : bridges.ur <= 2 ? '方向明確' : '需引導'}</div></div></div></div>
-                    <div className="card p-6"><h4 className="font-bold mb-4">📊 工作特質五維評估</h4><div className="flex justify-center"><div style={{width: '280px', height: '280px'}}><RadarChart data={Object.values(ratings)} labels={ratingLabels} isNight={isNight} /></div></div><div className="grid grid-cols-5 gap-2 mt-4 text-center text-xs">{Object.entries(ratings).map(([key, value], i) => <div key={key}><div className="font-bold gold-text">{value}/5</div><div className="opacity-60">{ratingLabels[i]}</div></div>)}</div></div>
-                    <div className="card p-6"><h4 className="font-bold gold-text text-lg mb-3">💼 職位適配度</h4><div className="grid grid-cols-2 gap-4"><div><h5 className="font-bold text-green-600 mb-2">👍 適合</h5><ul className="text-sm space-y-1 opacity-80">{hr.bestRoles.map((r, i) => <li key={i}>► {r}</li>)}</ul></div><div><h5 className="font-bold text-red-600 mb-2">👎 不適合</h5><ul className="text-sm space-y-1 opacity-80">{hr.worstRoles.map((r, i) => <li key={i}>► {r}</li>)}</ul></div></div></div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4"><div className={'card p-4 ' + (isNight ? 'bg-green-900/30' : 'bg-green-50')}><h4 className="font-bold text-green-600 mb-2">✅ 核心優勢</h4><p className="text-sm opacity-80">{oData?.light}</p></div><div className={'card p-4 ' + (isNight ? 'bg-red-900/30' : 'bg-red-50')}><h4 className="font-bold text-red-600 mb-2">⚠️ 潛在風險</h4><p className="text-sm opacity-80">{oData?.dark}</p></div></div>
-                    <div className="card p-6"><h4 className="font-bold gold-text text-lg mb-3">💡 管理建議</h4><div className="space-y-3 text-sm"><div className={'p-3 rounded-lg ' + (isNight ? 'bg-blue-900/20' : 'bg-blue-50')}><span className="font-bold">如何管理：</span> {hr.manageTip}</div><div className={'p-3 rounded-lg ' + (isNight ? 'bg-green-900/20' : 'bg-green-50')}><span className="font-bold">如何激勵：</span> {hr.motivate}</div><div className={'p-3 rounded-lg ' + (isNight ? 'bg-red-900/20' : 'bg-red-50')}><span className="font-bold">風險預警：</span> {hr.warning}</div></div></div>
-                    {analysis.missingNumbers.length > 0 && (<div className="card p-6"><h4 className="font-bold gold-text text-lg mb-3">🔍 可能盲點（空缺數字）</h4><div className="flex flex-wrap gap-2">{analysis.missingNumbers.map(n => <span key={n} className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm">{n} {getNumData(n)?.title}</span>)}</div></div>)}
-                    <div className={'card p-6 ' + (isNight ? 'bg-gradient-to-br from-purple-900/30 to-pink-900/20' : 'bg-gradient-to-br from-amber-50 to-yellow-50')}><h4 className="font-bold gold-text text-lg mb-3">💎 馥靈獨創洞察</h4><p className="opacity-80 italic">{oData?.uniqueReading}</p></div>
+                    <button onClick={() => { setHrResult(null); setTriData(null); setTriReading(null); setIdInput(''); setTriMode(false); }} className="text-sm opacity-60 hover:opacity-100">← 重新輸入</button>
+
+                    {/* 工作數總覽 */}
+                    <div className="card p-6 text-center">
+                      <div className="text-xs opacity-50 mb-1">工作數（O數）</div>
+                      <div className="text-6xl font-bold gold-text">{hour.o}{isMasterNumber(hour.o) && <MasterBadge num={hour.o} />}</div>
+                      <div className="text-2xl font-bold mt-2 serif">{hr.tag}</div>
+                      <div className={'inline-block mt-2 px-4 py-1 rounded-full text-sm ' + (isNight ? 'bg-amber-900/40 text-amber-200' : 'bg-amber-50 text-amber-800')}>「{hr.slogan}」</div>
+                    </div>
+
+                    {/* H.O.U.R. 四維人才分析 */}
+                    <div className="card p-6"><h4 className="font-bold gold-text text-lg mb-4">🔑 H.O.U.R. 四維人才分析</h4>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className={'p-3 rounded-lg ' + (isNight ? 'bg-blue-900/30' : 'bg-blue-50')}><div className="flex justify-between"><span className="text-xs opacity-60">H數（內在需求）</span><span className="text-xl font-bold gold-text">{hour.h}</span></div><p className="text-sm mt-1">{getNumData(hour.h)?.essence}</p><p className="text-xs opacity-50 mt-1">面試看不到，但決定他留下或離開</p></div>
+                        <div className={'p-3 rounded-lg ' + (isNight ? 'bg-green-900/30' : 'bg-green-50')}><div className="flex justify-between"><span className="text-xs opacity-60">O數（外在表現）</span><span className="text-xl font-bold gold-text">{hour.o}</span></div><p className="text-sm mt-1">{oData?.light}</p><p className="text-xs opacity-50 mt-1">面試時你會看到的樣子</p></div>
+                        <div className={'p-3 rounded-lg ' + (isNight ? 'bg-purple-900/30' : 'bg-purple-50')}><div className="flex justify-between"><span className="text-xs opacity-60">U數（隱藏潛能）</span><span className="text-xl font-bold gold-text">{hour.u || '—'}</span></div><p className="text-sm mt-1">{hour.u ? getNumData(hour.u)?.essence : '需深入了解'}</p><p className="text-xs opacity-50 mt-1">長期培養後會展現的能力</p></div>
+                        <div className={'p-3 rounded-lg ' + (isNight ? 'bg-amber-900/30' : 'bg-amber-50')}><div className="flex justify-between"><span className="text-xs opacity-60">R數（人生方向）</span><span className="text-xl font-bold gold-text">{hour.r}</span></div><p className="text-sm mt-1">{getNumData(hour.r)?.essence}</p><p className="text-xs opacity-50 mt-1">決定長期發展和職涯規劃</p></div>
+                      </div>
+                    </div>
+
+                    {/* 工作特質五維評估 */}
+                    <div className="card p-6"><h4 className="font-bold gold-text text-lg mb-4">📊 工作特質五維評估</h4>
+                      <div className="space-y-3">{Object.entries(ratings).map(([key,val],i) => (
+                        <div key={key} className="flex items-center gap-3"><span className="text-sm w-16 text-right opacity-70">{ratingLabels[i]}</span><div className="flex-1"><div className={'h-6 rounded-full overflow-hidden ' + (isNight ? 'bg-gray-800' : 'bg-gray-100')}><div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-yellow-400 flex items-center justify-end pr-2 text-xs font-bold text-white" style={{width:(val/5*100)+'%'}}>{val}/5</div></div></div></div>
+                      ))}</div>
+                    </div>
+
+                    {/* 內外整合度 */}
+                    <div className="card p-6"><h4 className="font-bold gold-text text-lg mb-3">🌉 內外整合度</h4><div className="grid grid-cols-3 gap-3 text-center"><div><div className="text-2xl font-bold gold-text">{bridges.ho}</div><div className="text-xs opacity-60">H-O橋樑</div><div className={'text-xs mt-1 px-2 py-0.5 rounded-full inline-block ' + (bridges.ho <= 2 ? 'bg-green-100 text-green-700' : bridges.ho <= 4 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700')}>{bridges.ho <= 2 ? '✓ 內外一致' : bridges.ho <= 4 ? '需調適' : '⚠️ 落差大'}</div></div><div><div className="text-2xl font-bold gold-text">{bridges.ou || '—'}</div><div className="text-xs opacity-60">O-U橋樑</div><div className="text-xs mt-1">{!bridges.ou ? '—' : bridges.ou <= 2 ? '潛能易發揮' : '需培養'}</div></div><div><div className="text-2xl font-bold gold-text">{bridges.ur || '—'}</div><div className="text-xs opacity-60">U-R橋樑</div><div className="text-xs mt-1">{!bridges.ur ? '—' : bridges.ur <= 2 ? '方向明確' : '需引導'}</div></div></div></div>
+
+                    {/* 職位適配度 */}
+                    <div className="card p-6"><h4 className="font-bold gold-text text-lg mb-3">💼 職位適配度</h4><div className="grid grid-cols-2 gap-4"><div><h5 className={'font-bold mb-2 ' + (isNight ? 'text-green-400' : 'text-green-600')}>✅ 適合</h5><div className="text-sm space-y-1 opacity-80">{hr.bestRoles.map((r,i) => <div key={i}>► {r}</div>)}</div></div><div><h5 className={'font-bold mb-2 ' + (isNight ? 'text-red-400' : 'text-red-600')}>❌ 不適合</h5><div className="text-sm space-y-1 opacity-80">{hr.worstRoles.map((r,i) => <div key={i}>► {r}</div>)}</div></div></div></div>
+
+                    {/* 面試觀察重點 */}
+                    <div className={'card p-6 ' + (isNight ? 'bg-gradient-to-br from-blue-900/20 to-purple-900/20' : 'bg-gradient-to-br from-blue-50 to-indigo-50')}><h4 className="font-bold gold-text text-lg mb-3">🔍 面試觀察重點</h4><p className="text-sm opacity-80 leading-relaxed">{hr.interview}</p></div>
+
+                    {/* 管理建議 */}
+                    <div className="card p-6"><h4 className="font-bold gold-text text-lg mb-3">💡 管理建議</h4><div className="space-y-3 text-sm">
+                      <div className={'p-3 rounded-lg ' + (isNight ? 'bg-blue-900/20' : 'bg-blue-50')}><div className="font-bold mb-1">如何管理</div>{hr.manageTip}</div>
+                      <div className={'p-3 rounded-lg ' + (isNight ? 'bg-green-900/20' : 'bg-green-50')}><div className="font-bold mb-1">如何激勵</div>{hr.motivate}</div>
+                      <div className={'p-3 rounded-lg ' + (isNight ? 'bg-red-900/20' : 'bg-red-50')}><div className="font-bold mb-1">⚠️ 風險預警</div>{hr.warning}</div>
+                    </div></div>
+
+                    {/* 最佳搭配 */}
+                    <div className="card p-6"><h4 className="font-bold gold-text text-lg mb-3">🤝 團隊搭配建議</h4>
+                      <div className="space-y-2 text-sm">
+                        {hr.bestMatch.map((m,i) => (<div key={i} className={'p-2 rounded-lg flex items-center gap-2 ' + (isNight ? 'bg-green-900/20' : 'bg-green-50')}><span className="text-lg font-bold gold-text w-8 text-center">{m.n}</span><span className="opacity-80">👍 {m.d}</span></div>))}
+                        {hr.avoidMatch.map((m,i) => (<div key={i} className={'p-2 rounded-lg flex items-center gap-2 ' + (isNight ? 'bg-red-900/20' : 'bg-red-50')}><span className="text-lg font-bold w-8 text-center opacity-60">{m.n}</span><span className="opacity-80">⚠️ {m.d}</span></div>))}
+                      </div>
+                    </div>
+
+                    {/* 空缺數字 */}
+                    {analysis.missingNumbers.length > 0 && (<div className="card p-6"><h4 className="font-bold gold-text text-lg mb-3">🔍 可能盲點（空缺數字）</h4><div className="flex flex-wrap gap-2">{analysis.missingNumbers.map(n => <span key={n} className={'px-3 py-1 rounded-full text-sm ' + (isNight ? 'bg-red-900/40 text-red-300' : 'bg-red-100 text-red-700')}>{n} {getNumData(n)?.title}</span>)}</div></div>)}
+
+                    {/* 馥靈獨創洞察 */}
+                    <div className={'card p-6 ' + (isNight ? 'bg-gradient-to-br from-purple-900/30 to-pink-900/20' : 'bg-gradient-to-br from-amber-50 to-yellow-50')}><h4 className="font-bold gold-text text-lg mb-3">💎 馥靈獨創洞察</h4><p className="opacity-80 italic leading-relaxed">{oData?.uniqueReading}</p></div>
+
+                    {/* ===== 馥靈三角秘碼進階識人 ===== */}
+                    <div className={'card p-6 text-center ' + (isNight ? 'ring-1 ring-purple-500/30' : 'ring-1 ring-amber-300/60')}>
+                      <h3 className="text-xl font-bold gold-text serif mb-2">📐 進階：馥靈三角秘碼識人</h3>
+                      <p className="text-sm opacity-60 mb-4">如果你有員工的身份證字號，可以進一步解碼「外在角色定位」</p>
+                      <p className="text-xs opacity-40 mb-4">生日看的是「他骨子裡是什麼人」，身份證看的是「他在職場上自然會被推向什麼位置」</p>
+                      {!triMode ? (
+                        <button onClick={() => setTriMode(true)} className={'px-6 py-3 rounded-lg font-bold transition-all ' + (isNight ? 'bg-purple-800/60 hover:bg-purple-700/60 text-purple-200' : 'bg-amber-100 hover:bg-amber-200 text-amber-800')}>🔺 解鎖三角秘碼分析</button>
+                      ) : (
+                        <div className="space-y-4">
+                          <div className={'p-4 rounded-lg text-left ' + (isNight ? 'bg-gray-800/50' : 'bg-gray-50')}>
+                            <label className="block text-sm font-bold mb-2 gold-text">身份證字號</label>
+                            <p className="text-xs opacity-40 mb-2">字號僅在你的裝置上計算，不會儲存或傳送到任何伺服器</p>
+                            <div className="flex gap-2">
+                              <input type="text" value={idInput} onChange={e => setIdInput(e.target.value)} placeholder="例：A123456789" className={'flex-1 px-3 py-2 rounded-lg border text-center ' + (isNight ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-300')} style={{letterSpacing:'2px'}} />
+                              <button onClick={handleTriCalc} className="gold-btn px-4 py-2 rounded-lg font-bold">✨ 解碼</button>
+                            </div>
+                          </div>
+
+                          {triData && triReading && (
+                            <div className="space-y-4 text-left">
+                              {/* 三角形視覺化 */}
+                              <div className="text-center py-4">
+                                <div className="inline-block text-left" style={{fontFamily:'monospace'}}>
+                                  <div className="text-center"><span className={'text-3xl font-bold ' + (isNight ? 'text-purple-300' : 'text-amber-600')}>{triData.apex}</span><br/><span className="text-xs opacity-50">核心使命數</span></div>
+                                  <div className="flex justify-center gap-12 mt-3">{triData.conv.map((c,i) => (<div key={i} className="text-center"><span className="text-xl font-bold gold-text">{c}{(c===11||c===22||c===33) ? '✨' : ''}</span><br/><span className="text-xs opacity-50">{i===0?'內在驅力':'外在使命'}</span></div>))}</div>
+                                  <div className="flex justify-center gap-6 mt-3">{triData.base.map((b,i) => (<div key={i} className="text-center"><span className="text-lg font-bold gold-text">{b}{(b===11||b===22||b===33) ? '✨' : ''}</span><br/><span className="text-xs opacity-50">{['H△','O△','U△','R△'][i]}</span></div>))}</div>
+                                  <div className="text-center mt-3 text-xs opacity-50">尾數：{triData.tail}</div>
+                                </div>
+                              </div>
+
+                              {/* 三角 HOUR 職場解讀 */}
+                              <div className="card p-4"><h4 className="font-bold gold-text mb-3">🔺 身份證 H.O.U.R. 職場角色</h4>
+                                <div className="space-y-3 text-sm">
+                                  <div className={'p-3 rounded-lg ' + (isNight ? 'bg-blue-900/20' : 'bg-blue-50')}>
+                                    <div className="flex justify-between items-center mb-1"><span className="font-bold">H△ 安全根基</span><span className="gold-text font-bold">{triData.base[0]}</span></div>
+                                    <p className="opacity-80">{triReading.h?.b}</p>
+                                    {triReading.h?.x && <p className={'mt-1 text-xs ' + (isNight ? 'text-red-400' : 'text-red-600')}>⚠ {triReading.h.x}</p>}
+                                  </div>
+                                  <div className={'p-3 rounded-lg ' + (isNight ? 'bg-green-900/20' : 'bg-green-50')}>
+                                    <div className="flex justify-between items-center mb-1"><span className="font-bold">O△ 能力展現</span><span className="gold-text font-bold">{triData.base[1]}</span></div>
+                                    <p className="opacity-80">{triReading.o?.b}</p>
+                                    {triReading.o?.x && <p className={'mt-1 text-xs ' + (isNight ? 'text-red-400' : 'text-red-600')}>⚠ {triReading.o.x}</p>}
+                                  </div>
+                                  <div className={'p-3 rounded-lg ' + (isNight ? 'bg-purple-900/20' : 'bg-purple-50')}>
+                                    <div className="flex justify-between items-center mb-1"><span className="font-bold">U△ 隱藏資源</span><span className="gold-text font-bold">{triData.base[2]}</span></div>
+                                    <p className="opacity-80">{triReading.u?.b}</p>
+                                  </div>
+                                  <div className={'p-3 rounded-lg ' + (isNight ? 'bg-amber-900/20' : 'bg-amber-50')}>
+                                    <div className="flex justify-between items-center mb-1"><span className="font-bold">R△ 最終角色</span><span className="gold-text font-bold">{triData.base[3]}</span></div>
+                                    <p className="opacity-80">{triReading.r?.b}</p>
+                                    {triReading.r?.x && <p className={'mt-1 text-xs opacity-60'}>{triReading.r.x}</p>}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* 核心使命 */}
+                              <div className={'card p-4 text-center ' + (isNight ? 'ring-1 ring-purple-500/30' : 'ring-1 ring-amber-300')}>
+                                <div className="text-xs opacity-50 mb-1">🏔️ 核心使命數</div>
+                                <div className="text-4xl font-bold gold-text serif mb-2">{triData.apex}</div>
+                                <p className="text-sm opacity-80 leading-relaxed">{triReading.apex?.b}</p>
+                                <div className={'mt-3 pt-3 text-xs opacity-60 ' + (isNight ? 'border-t border-gray-700' : 'border-t border-gray-200')}>尾數 {triData.tail} 是別人對他的第一印象，使命數 {triData.apex} 是他最終會站上的位置</div>
+                              </div>
+
+                              {/* 內外交叉分析 */}
+                              <div className={'card p-4 ' + (isNight ? 'bg-gradient-to-br from-indigo-900/30 to-purple-900/20' : 'bg-gradient-to-br from-indigo-50 to-purple-50')}>
+                                <h4 className="font-bold gold-text mb-3">🔀 內外交叉分析</h4>
+                                <div className="text-sm space-y-3">
+                                  <div><span className="font-bold">生日 O數</span> <span className="gold-text">{hour.o}</span>（骨子裡的工作風格）<span className="mx-2">vs</span><span className="font-bold">身份證 O△</span> <span className="gold-text">{triData.base[1]}</span>（職場上被推向的位置）</div>
+                                  {getBaseNum(hour.o) === (triData.base[1] > 9 ? triData.base[1] % 10 + Math.floor(triData.base[1]/10) : triData.base[1]) ? (
+                                    <p className="opacity-80">👉 兩者一致！他在職場上展現的樣子就是他真實的樣子。面試所見即所得，可信度高。</p>
+                                  ) : (
+                                    <p className="opacity-80">👉 兩者不同。他「骨子裡」的工作風格和「被職場推著走」的方向有落差。長期下來可能產生內耗。安排職位時，考慮兩者的交集會讓他更舒服。</p>
+                                  )}
+                                  <div className="mt-2"><span className="font-bold">生日 R數</span> <span className="gold-text">{hour.r}</span>（想去的方向）<span className="mx-2">vs</span><span className="font-bold">核心使命數</span> <span className="gold-text">{triData.apex}</span>（世界推他去的方向）</div>
+                                  {(() => { const rBase = getBaseNum(hour.r); const aBase = triData.apex > 9 ? (triData.apex === 11 ? 2 : triData.apex === 22 ? 4 : triData.apex) : triData.apex; const diff = Math.abs(rBase - aBase); return diff <= 2 ? (<p className="opacity-80">👉 方向接近。他內心想走的路和社會推他走的路大致吻合，職涯滿意度會比較高。</p>) : (<p className="opacity-80">👉 方向有落差（差距 {diff}）。他可能在「想做的事」和「被期待做的事」之間拉扯。給他一些空間探索，別只看眼前的崗位需求。</p>); })()}
+                                </div>
+                              </div>
+
+                              <p className="text-xs text-center opacity-40">馥靈三角秘碼為馥靈之鑰獨創系統。網頁版為快速參考，完整深度解讀請洽認證覺察師。</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 底部 CTA */}
+                    <div className="text-center space-y-3">
+                      <a href="https://lin.ee/OQDB5t6" target="_blank" rel="noopener" className={'inline-block px-6 py-2 rounded-lg font-bold border-2 transition-all ' + (isNight ? 'border-purple-500 text-purple-300 hover:bg-purple-900/30' : 'border-amber-500 hover:bg-amber-50')} style={{color: isNight ? undefined : '#996515'}}>💬 預約企業團隊識人諮詢</a>
+                      <p className="text-xs opacity-40">完整版報告含深度 H.O.U.R. × L.I.G.H.T. 交叉分析 + 馥靈三角秘碼比對</p>
+                    </div>
                 </div>
             );
         };
