@@ -29,7 +29,9 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>馥靈秘碼</title>
+    <title>馥靈秘碼｜農曆生日命盤計算 × 身份證三角秘碼｜馥靈之鑰</title>
+    <meta name="description" content="馥靈秘碼免費計算你的 H.O.U.R. 四主數、L.I.G.H.T. 五能量、12宮位命盤、流年運勢、關係合盤，以及獨家馥靈三角秘碼。科學化情緒覺察系統，不是算命，是看見自己。">
+    <meta name="keywords" content="馥靈秘碼,馥靈之鑰,生命靈數,馥靈三角秘碼,身份證解碼,HOUR,LIGHT,命盤,情緒覺察">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -40,69 +42,261 @@
     <script src="js/hl-core-data.js"></script>
     <script src="js/hl-calc-engine.js"></script>
     <script src="js/hl-system.js"></script>
+    <script src="js/hl-social-triangle.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/hourlight-global.css">
+<link rel="stylesheet" href="assets/css/hl-footer-lite.css">
 <style>
-        :root { --gold: #B8860B; --gold-dark: #996515; --gold-light: #F5E6A3; --cream: #FDF8E8; --brown: #4A3728; --night-bg: #1A1A2E; --night-card: #16213E; --purple: #9F5FDB; }
-        body { font-family: 'Noto Sans TC', sans-serif; }
-        .serif { font-family: 'Noto Serif TC', serif; }
-        body.day-mode { background: linear-gradient(135deg, #FDF8E8 0%, #F5E6A3 50%, #FDF8E8 100%); color: #4A3728; }
-        body.night-mode { background: linear-gradient(135deg, #1A1A2E 0%, #16213E 50%, #0F0F23 100%); color: #E0D4FC; }
-        .gold-text { color: var(--gold-dark); font-weight: 600; }
-        .night-mode .gold-text { color: #FFD700; text-shadow: 0 0 15px rgba(255,215,0,0.3); }
-        /* 提高輔助文字對比度 */
-        .opacity-50 { opacity: 0.7 !important; }
-        .opacity-60 { opacity: 0.8 !important; }
-        .opacity-40 { opacity: 0.65 !important; }
-        .gold-btn { background: linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%); color: #2D1B0E; font-weight: 600; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); transition: all 0.3s; }
-        .gold-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4); }
-        .night-mode .gold-btn { background: linear-gradient(135deg, #6B2C91 0%, #9F5FDB 50%, #6B2C91 100%); color: #fff; }
-        .key-btn { background: linear-gradient(135deg, #1E3A5F 0%, #2D5A8C 50%, #1E3A5F 100%); color: #FFD700; font-weight: 700; box-shadow: 0 4px 20px rgba(30, 58, 95, 0.5); transition: all 0.3s; border: 2px solid #D4AF37; }
-        .key-btn:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 30px rgba(30, 58, 95, 0.6); }
-        .night-mode .key-btn { background: linear-gradient(135deg, #2D1B4E 0%, #4A2C7A 50%, #2D1B4E 100%); border-color: #9F5FDB; }
-        .card { backdrop-filter: blur(10px); border-radius: 1rem; transition: all 0.3s; }
-        .day-mode .card { background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(212, 175, 55, 0.2); box-shadow: 0 4px 20px rgba(139, 115, 85, 0.1); }
-        .night-mode .card { background: rgba(22, 33, 62, 0.9); border: 1px solid rgba(159, 95, 219, 0.3); }
-        .tab-btn { transition: all 0.3s; border-bottom: 3px solid transparent; }
-        .tab-btn.active { border-bottom-color: var(--gold); }
-        .night-mode .tab-btn.active { border-bottom-color: var(--purple); }
-        .fade-in { animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 100; }
-        .modal-content { max-height: 90vh; overflow-y: auto; }
-        select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath fill='%23D4AF37' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; appearance: none; }
-        .score-bar { height: 8px; border-radius: 4px; overflow: hidden; }
-        .score-fill { height: 100%; transition: width 0.8s ease-out; }
-        /* 大師數美化樣式 */
-        .master-star { display: inline; font-size: 0.5em; vertical-align: super; margin-left: 2px; animation: twinkle 2s ease-in-out infinite; }
-        @keyframes twinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.2); } }
-        .master-num { position: relative; }
-        .master-num::after { content: ''; position: absolute; inset: -4px; background: radial-gradient(circle, rgba(233,194,125,0.3) 0%, transparent 70%); border-radius: 50%; z-index: -1; animation: glow-pulse 3s ease-in-out infinite; }
-        @keyframes glow-pulse { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.1); } }
-        @keyframes glow { from { box-shadow: 0 0 5px rgba(212, 175, 55, 0.5); } to { box-shadow: 0 0 15px rgba(212, 175, 55, 0.8); } }
-        .detail-panel { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
-        .detail-panel.open { max-height: 2000px; }
-        .bridge-section { position: relative; overflow: hidden; }
-        .bridge-section::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(212,175,55,0.1), transparent); animation: shimmer 3s infinite; }
-        @keyframes shimmer { 0% { left: -100%; } 100% { left: 100%; } }
-        .floating-card-btn { position: fixed; bottom: 100px; right: 20px; z-index: 45; animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        .fire-text { background: linear-gradient(45deg, #ff6b6b, #feca57, #ff9ff3, #ff6b6b); background-size: 300% 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: fireGlow 3s ease infinite; }
-        @keyframes fireGlow { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-        @media (max-width: 768px) { .tab-btn { font-size: 0.75rem; padding: 0.5rem; } }
-.night-mode
-.night-mode
-.night-mode
-.loading-screen { position: fixed; inset: 0; background: linear-gradient(135deg, #FDF8E8 0%, #F5E6A3 50%, #FDF8E8 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
-        .loading-spinner { width: 60px; height: 60px; border: 4px solid rgba(212,175,55,0.3); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+/* =====================================================
+   馥靈秘碼 - 統一黑金宇宙主題
+   與 hourlight-global.css 設計系統一致
+   ===================================================== */
+:root {
+  --gold: #e9c27d;
+  --gold-dark: #cda86e;
+  --gold-light: #fbe6c2;
+  --cream: #f9f3e8;
+  --brown: #20120a;
+  --night-bg: #05030a;
+  --night-card: rgba(10,6,24,0.92);
+  --purple: #9c6edb;
+}
+
+body {
+  font-family: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', system-ui, sans-serif;
+  background: transparent !important;
+  color: #f7efe1 !important;
+}
+.serif { font-family: 'Noto Serif TC', serif; }
+
+/* 不管什麼 mode 都是宇宙深色 */
+body.day-mode, body.night-mode {
+  background: transparent !important;
+  color: #f7efe1 !important;
+}
+
+/* 金色文字 - 統一漸層金 */
+.gold-text {
+  background: linear-gradient(135deg, #fbe6c2 0%, #e9c27d 30%, #cda86e 70%, #fff9ea 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  font-weight: 600;
+}
+.night-mode .gold-text {
+  background: linear-gradient(135deg, #fbe6c2 0%, #e9c27d 30%, #cda86e 70%, #fff9ea 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: none !important;
+}
+
+/* 提高輔助文字對比度 */
+.opacity-50 { opacity: 0.7 !important; }
+.opacity-60 { opacity: 0.8 !important; }
+.opacity-40 { opacity: 0.65 !important; }
+
+/* 主要按鈕 - 統一金色漸層（與 hl-btn-primary 一致）*/
+.gold-btn {
+  background: linear-gradient(135deg, #e9c27d, #cda86e) !important;
+  color: #20120a !important;
+  font-weight: 700;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.9), 0 0 20px rgba(233,194,125,0.65) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 999px;
+}
+.gold-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.95), 0 0 30px rgba(233,194,125,0.85) !important;
+}
+.night-mode .gold-btn {
+  background: linear-gradient(135deg, #e9c27d, #cda86e) !important;
+  color: #20120a !important;
+}
+
+/* 鑰匙按鈕 - 統一透明金邊（與 hl-btn-secondary 一致）*/
+.key-btn {
+  background: rgba(233,194,125,0.12) !important;
+  color: #e9c27d !important;
+  font-weight: 700;
+  border: 1px solid rgba(233,194,125,0.5) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.key-btn:hover {
+  background: rgba(233,194,125,0.2) !important;
+  color: #fbe6c2 !important;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6), 0 0 20px rgba(233,194,125,0.3) !important;
+}
+.night-mode .key-btn {
+  background: rgba(233,194,125,0.12) !important;
+  border-color: rgba(233,194,125,0.5) !important;
+  color: #e9c27d !important;
+}
+
+/* 卡片 - 統一玻璃擬態金邊（與 hl-card 一致）*/
+.card {
+  border-radius: 20px !important;
+  backdrop-filter: blur(18px) saturate(150%);
+  background: radial-gradient(circle at top left, rgba(233,194,125,0.12), transparent 55%), rgba(10,6,24,0.92) !important;
+  border: 1px solid rgba(233,194,125,0.35) !important;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(233,194,125,0.12), inset 0 1px 0 rgba(233,194,125,0.08) !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card:hover {
+  box-shadow: 0 25px 60px rgba(0,0,0,0.95), 0 0 40px rgba(233,194,125,0.2), inset 0 1px 0 rgba(233,194,125,0.15) !important;
+}
+.day-mode .card, .night-mode .card {
+  background: radial-gradient(circle at top left, rgba(233,194,125,0.12), transparent 55%), rgba(10,6,24,0.92) !important;
+  border: 1px solid rgba(233,194,125,0.35) !important;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(233,194,125,0.12), inset 0 1px 0 rgba(233,194,125,0.08) !important;
+}
+
+/* Tab 按鈕 - 統一金色 */
+.tab-btn { transition: all 0.3s; border-bottom: 3px solid transparent; color: #c4b7a6; }
+.tab-btn:hover { color: #e9c27d; }
+.tab-btn.active { border-bottom-color: #e9c27d !important; color: #e9c27d !important; }
+.night-mode .tab-btn.active { border-bottom-color: #e9c27d !important; color: #e9c27d !important; }
+
+/* 動畫 */
+.fade-in { animation: fadeIn 0.5s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+/* 彈窗 */
+.modal-overlay { position: fixed; inset: 0; background: rgba(5,3,10,0.85); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; z-index: 100; }
+.modal-content { max-height: 90vh; overflow-y: auto; }
+
+/* 選單下拉箭頭 - 金色 */
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath fill='%23e9c27d' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; appearance: none; background-color: rgba(10,6,24,0.8); color: #f7efe1; border: 1px solid rgba(233,194,125,0.3); }
+
+/* 進度條 */
+.score-bar { height: 8px; border-radius: 4px; overflow: hidden; background: rgba(233,194,125,0.15); }
+.score-fill { height: 100%; transition: width 0.8s ease-out; }
+
+/* 大師數美化樣式 */
+.master-star { display: inline; font-size: 0.5em; vertical-align: super; margin-left: 2px; animation: fm-twinkle 2s ease-in-out infinite; }
+@keyframes fm-twinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.2); } }
+.master-num { position: relative; }
+.master-num::after { content: ''; position: absolute; inset: -4px; background: radial-gradient(circle, rgba(233,194,125,0.3) 0%, transparent 70%); border-radius: 50%; z-index: -1; animation: glow-pulse 3s ease-in-out infinite; }
+@keyframes glow-pulse { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.1); } }
+
+/* 展開面板 */
+.detail-panel { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+.detail-panel.open { max-height: 2000px; }
+
+/* 橋樑區塊光效 */
+.bridge-section { position: relative; overflow: hidden; }
+.bridge-section::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(233,194,125,0.08), transparent); animation: shimmer 3s infinite; }
+@keyframes shimmer { 0% { left: -100%; } 100% { left: 100%; } }
+
+/* 浮動抽牌按鈕 */
+.floating-card-btn { position: fixed; bottom: 100px; right: 20px; z-index: 45; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+/* 火焰文字 */
+.fire-text { background: linear-gradient(45deg, #ff6b6b, #feca57, #ff9ff3, #ff6b6b); background-size: 300% 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: fireGlow 3s ease infinite; }
+@keyframes fireGlow { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+/* 手機版 tab */
+@media (max-width: 768px) { .tab-btn { font-size: 0.75rem; padding: 0.5rem; } }
+
+/* 載入畫面 - 深色宇宙 */
+.loading-screen { position: fixed; inset: 0; background: radial-gradient(ellipse at center, #0d0917 0%, #05030a 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
+.loading-spinner { width: 60px; height: 60px; border: 4px solid rgba(233,194,125,0.2); border-top-color: #e9c27d; border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== Tailwind 色彩覆蓋（強制深色宇宙調）===== */
+/* 背景色：淺色 → 半透明深色金邊 */
+[class*="bg-red-50"],
+[class*="bg-red-100"] { background: rgba(180,60,60,0.15) !important; }
+[class*="bg-yellow-50"],
+[class*="bg-yellow-100"],
+[class*="bg-amber-50"] { background: rgba(233,194,125,0.1) !important; }
+[class*="bg-green-50"],
+[class*="bg-green-100"],
+[class*="bg-green-200"] { background: rgba(80,160,100,0.15) !important; }
+[class*="bg-blue-50"],
+[class*="bg-blue-100"] { background: rgba(60,100,180,0.15) !important; }
+[class*="bg-gray-100"],
+[class*="bg-gray-200"] { background: rgba(233,194,125,0.08) !important; }
+[class*="bg-white"] { background: rgba(10,6,24,0.8) !important; }
+
+/* 夜間半透明背景 */
+[class*="bg-purple-900\\/"] { background: rgba(92,58,128,0.2) !important; }
+[class*="bg-red-900\\/"] { background: rgba(140,40,40,0.2) !important; }
+[class*="bg-yellow-900\\/"],
+[class*="bg-amber-900\\/"] { background: rgba(160,120,40,0.15) !important; }
+[class*="bg-green-900\\/"] { background: rgba(40,100,60,0.2) !important; }
+[class*="bg-blue-900\\/"] { background: rgba(40,60,120,0.2) !important; }
+
+/* 文字色覆蓋 */
+[class*="text-gray-700"] { color: #c4b7a6 !important; }
+[class*="text-gray-600"] { color: #988b7b !important; }
+[class*="text-red-700"] { color: #f0a0a0 !important; }
+[class*="text-yellow-700"] { color: #e9c27d !important; }
+[class*="text-green-700"],
+[class*="text-green-600"] { color: #7dbe8a !important; }
+[class*="text-green-500"] { color: #7dbe8a !important; }
+[class*="text-red-500"],
+[class*="text-red-600"] { color: #f0a0a0 !important; }
+[class*="text-amber-600"] { color: #e9c27d !important; }
+
+/* 標籤圓角色覆蓋 */
+.bg-red-200 { background: rgba(180,60,60,0.3) !important; }
+.text-red-700 { color: #f0a0a0 !important; }
+.bg-yellow-200 { background: rgba(233,194,125,0.25) !important; }
+.text-yellow-700 { color: #e9c27d !important; }
+.bg-green-200 { background: rgba(80,160,100,0.3) !important; }
+.text-green-700 { color: #7dbe8a !important; }
+.bg-red-100 { background: rgba(180,60,60,0.2) !important; }
+
+/* ring 強調色 */
+[class*="ring-purple-500"] { --tw-ring-color: rgba(233,194,125,0.6) !important; }
+[class*="ring-amber-500"] { --tw-ring-color: rgba(233,194,125,0.6) !important; }
+.bg-green-500 { background: rgba(80,160,100,0.8) !important; }
+
+/* 輸入框統一深色 */
+input, select, textarea {
+  background-color: rgba(10,6,24,0.8) !important;
+  color: #f7efe1 !important;
+  border-color: rgba(233,194,125,0.3) !important;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: rgba(233,194,125,0.6) !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(233,194,125,0.15) !important;
+}
+
+/* 隱藏白天/深夜切換按鈕 */
+button[class*="gold-btn"][class*="rounded-full"][class*="text-xs"] {
+  display: none !important;
+}
+
+/* header 統一 hl-nav 風格 */
+header {
+  background: rgba(5,3,10,0.85) !important;
+  backdrop-filter: blur(18px) saturate(150%) !important;
+  border-bottom: 1px solid rgba(233,194,125,0.3) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+}
+
+/* 修正 Tailwind backdrop-blur 覆蓋 */
+header[class*="backdrop-blur"] {
+  backdrop-filter: blur(18px) saturate(150%) !important;
+}
+header[class*="bg-gray-900"] {
+  background: rgba(5,3,10,0.85) !important;
+}
+header[class*="bg-white"] {
+  background: rgba(5,3,10,0.85) !important;
+}
     </style>
     <meta name="description" content="馥靈秘碼免費計算｜輸入農曆生日，解碼你的生命數字、性格特質與天賦潛能。">
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://hourlightkey.com/fuling-mima.html">
-    <meta property="og:title" content="馥靈秘碼">
-    <meta property="og:description" content="馥靈秘碼免費計算｜輸入農曆生日，解碼你的生命數字、性格特質與天賦潛能。">
+    <meta property="og:title" content="馥靈秘碼｜農曆生日命盤 × 身份證三角秘碼">
+    <meta property="og:description" content="馥靈秘碼免費計算｜H.O.U.R. 四主數、L.I.G.H.T. 五能量、12宮位命盤，以及獨家馥靈三角秘碼。科學化情緒覺察系統。">
     <meta property="og:image" content="https://hourlightkey.com/og-image.jpg">
     <meta property="og:locale" content="zh_TW">
     <meta property="og:site_name" content="馥靈之鑰 Hour Light">
@@ -115,7 +309,6 @@
 
     
     <link rel="canonical" href="https://hourlightkey.com/fuling-mima.html">
-    <meta name="keywords" content="馥靈秘碼, 生命數字, 農曆生日算命, 免費算命, 生命靈數">
     <!-- Schema.org 結構化資料 -->
     <script type="application/ld+json">
 {
@@ -180,7 +373,7 @@
   "@type": "WebApplication",
   "url": "https://hourlightkey.com/fuling-mima.html",
   "name": "馥靈秘碼",
-  "description": "輸入農曆生日，解碼你的生命數字、性格特質與天賦潛能",
+  "description": "輸入農曆生日解碼生命數字，或輸入身份證字號解碼馥靈三角秘碼。科學化情緒覺察系統。",
   "applicationCategory": "LifestyleApplication",
   "operatingSystem": "Web Browser",
   "offers": {
@@ -189,9 +382,12 @@
     "priceCurrency": "TWD"
   },
   "featureList": [
-    "生命數字計算",
-    "性格特質分析",
-    "天賦潛能解讀"
+    "H.O.U.R. 四主數計算",
+    "L.I.G.H.T. 五能量分析",
+    "12宮位命盤",
+    "流年運勢",
+    "關係合盤",
+    "馥靈三角秘碼（身份證解碼）"
   ]
 }
     </script>
@@ -250,6 +446,14 @@
         "@type": "Answer",
         "text": "目前免費版可以截圖保存。註冊會員後，系統會自動保存您的計算紀錄，方便日後查閱。"
       }
+    },
+    {
+      "@type": "Question",
+      "name": "馥靈三角秘碼是什麼？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "馥靈三角秘碼是馥靈秘碼的獨家系統，透過身份證字號解碼你在社會中的外在角色。生命靈數看內在設定，三角秘碼看外在使命，兩套系統合在一起才是完整的你。所有計算在你的裝置上完成，字號不會儲存或傳送。"
+      }
     }
   ]
 }
@@ -294,7 +498,7 @@
   "name": "馥靈秘碼｜免費生命靈數計算器｜數字能量解讀｜馥靈之鑰",
   "description": "馥靈秘碼是免費的生命靈數計算工具，輸入出生日期即可計算生命數字、天賦數、九宮格、流年運勢。結合芳香療法，提供精油推薦與健康指引。",
   "datePublished": "2024-01-01",
-  "dateModified": "2026-02-06",
+  "dateModified": "2026-03-01",
   "inLanguage": "zh-TW",
   "isPartOf": {
     "@type": "WebSite",
@@ -379,7 +583,7 @@
     <!-- 載入畫面 -->
     <div id="loadingScreen" class="loading-screen">
         <div class="loading-spinner"></div>
-        <p class="mt-4 text-lg gold-text serif">馥靈秘碼載入中...</p>
+        <p class="mt-4 text-lg serif" style="color:#e9c27d;font-weight:600;">馥靈秘碼載入中...</p>
     </div>
 <div id="root"></div>
     
@@ -903,17 +1107,132 @@
             );
         };
 
+
+        // ========================================
+        // 馥靈三角秘碼（身份證分析）
+        // ========================================
+        const SocialTrianglePage = ({ isNight }) => {
+            const [idInput, setIdInput] = useState('');
+            const [triResult, setTriResult] = useState(null);
+            const [triReading, setTriReading] = useState(null);
+            const [triError, setTriError] = useState('');
+            const [copyOk, setCopyOk] = useState(false);
+            const [engineReady, setEngineReady] = useState(false);
+
+            useEffect(() => {
+                if (typeof HLTriangle !== 'undefined' && HLTriangle.init('HL_TRI_2026')) setEngineReady(true);
+            }, []);
+
+            const isM = (n) => n === 11 || n === 22 || n === 33;
+
+            const handleCalc = () => {
+                setTriError('');
+                const v = idInput.replace(/[\s\-]/g, '').toUpperCase();
+                if (v.length < 8) { setTriError('請輸入完整的身份證字號（至少8碼）'); return; }
+                if (/^[A-Z]/.test(v) && !/^[A-Z]\d{9}$/.test(v)) { setTriError('台灣格式：1個英文字母＋9位數字'); return; }
+                try {
+                    const t = HLTriangle.calculate(v);
+                    if (!t) { setTriError('計算錯誤，請確認格式'); return; }
+                    setTriResult(t);
+                    setTriReading(HLTriangle.getReading(t));
+                } catch (e) { setTriError('系統錯誤，請重試'); }
+            };
+
+            const handleCopy = () => {
+                if (!triResult) return;
+                const t = triResult, ms = (n) => isM(n) ? n + '（大師數）' : '' + n;
+                let s = '【馥靈秘碼™ 馥靈三角秘碼】\n\n🔺 根基層（H.O.U.R.）\n';
+                s += '  H 安全根基：' + ms(t.base[0]) + '\n  O 能力展現：' + ms(t.base[1]) + '\n';
+                s += '  U 資源密碼：' + ms(t.base[2]) + '\n  R 方向導航：' + ms(t.base[3]) + '\n\n';
+                s += '🔺 匯流層\n  內在驅力（H+O）：' + ms(t.conv[0]) + '\n  外在使命（U+R）：' + ms(t.conv[1]) + '\n\n';
+                s += '🔺 頂點\n  核心使命數：' + ms(t.apex) + '\n  身份證尾數：' + t.tail + '\n\n';
+                s += '───────────────\n此數據由 hourlightkey.com 產生\n不含個人身份證字號\n請覺察師協助深度解讀 💫';
+                navigator.clipboard.writeText(s).then(() => { setCopyOk(true); setTimeout(() => setCopyOk(false), 3000); }).catch(() => {
+                    const ta = document.createElement('textarea'); ta.value = s; ta.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); setCopyOk(true); setTimeout(() => setCopyOk(false), 3000);
+                });
+            };
+
+            const ReadCard = ({ label, num, body, blind }) => (
+                <div className={'card p-5 ' + (isNight ? '' : 'bg-white/80')}>
+                    <div className="text-xs opacity-50 uppercase tracking-widest mb-2">{label}</div>
+                    <div className="flex items-center gap-2 mb-3">
+                        <span className="text-3xl font-bold gold-text serif">{num}</span>
+                        {isM(num) && <span className="text-xs px-2 py-0.5 rounded-full bg-purple-200 text-purple-700 font-bold">大師數</span>}
+                    </div>
+                    {body && <p className="text-sm opacity-80 leading-relaxed">{body}</p>}
+                    {blind && <div className={'mt-3 pt-3 text-sm opacity-60 leading-relaxed ' + (isNight ? 'border-t border-purple-800/30' : 'border-t border-amber-200')}>🔍 盲區提醒：{blind}</div>}
+                </div>
+            );
+
+            const TriSvg = ({ tri }) => {
+                const b = tri.base, c = tri.conv, a = tri.apex;
+                const bc = isNight ? 'rgba(159,95,219,' : 'rgba(212,175,55,';
+                const tc = isNight ? '#E0D4FC' : '#996515';
+                const lc = isNight ? 'rgba(224,212,252,0.5)' : 'rgba(74,55,40,0.5)';
+                const pts = [[60,250,b[0],'H根基',24],[160,250,b[1],'O能力',24],[240,250,b[2],'U資源',24],[340,250,b[3],'R方向',24],[130,155,c[0],'內在驅力',26],[270,155,c[1],'外在使命',26]];
+                return (
+                    <svg viewBox="0 0 400 300" className="w-full max-w-md mx-auto">
+                        {[[60,250,160,250],[160,250,240,250],[240,250,340,250]].map(([x1,y1,x2,y2],i) => <line key={'bl'+i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={bc+'0.4)'} strokeWidth="1.5"/>)}
+                        {[[60,250,130,155],[160,250,130,155],[240,250,270,155],[340,250,270,155],[130,155,200,60],[270,155,200,60]].map(([x1,y1,x2,y2],i) => <line key={'cl'+i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={bc+'0.2)'} strokeWidth="1"/>)}
+                        {pts.map(([x,y,v,lb,r],i) => (
+                            <g key={i}><circle cx={x} cy={y} r={r} fill={bc+'0.12)'} stroke={bc+'0.4)'} strokeWidth="1.5"/><text x={x} y={y+1} textAnchor="middle" dominantBaseline="middle" fill={tc} fontSize="18" fontWeight="700" fontFamily="Noto Serif TC,serif">{v}</text><text x={x} y={y+r+16} textAnchor="middle" fill={lc} fontSize="10" fontFamily="Noto Sans TC,sans-serif">{lb}</text></g>
+                        ))}
+                        <circle cx="200" cy="60" r="30" fill={bc+'0.25)'} stroke={bc+'0.8)'} strokeWidth="2"/>
+                        <text x="200" y="61" textAnchor="middle" dominantBaseline="middle" fill={tc} fontSize="22" fontWeight="700" fontFamily="Noto Serif TC,serif">{a}</text>
+                        <text x="200" y="96" textAnchor="middle" fill={lc} fontSize="10" fontFamily="Noto Sans TC,sans-serif">核心使命數</text>
+                    </svg>
+                );
+            };
+
+            if (!engineReady) return (<div className="max-w-xl mx-auto text-center py-12"><p className="opacity-60">馥靈三角引擎載入中...</p></div>);
+
+            return (
+                <div className="max-w-3xl mx-auto fade-in space-y-6">
+                    <div className="text-center mb-6">
+                        <h2 className="text-3xl font-bold gold-text serif">📐 馥靈三角秘碼</h2>
+                        <p className="text-sm mt-2 opacity-60">你的身份證字號裡，藏著一組三角秘碼</p>
+                    </div>
+                    {!triResult && (
+                        <div className="card p-8 max-w-md mx-auto">
+                            <div className="text-center mb-4"><p className="text-xs opacity-50">🔒 字號不會儲存或傳送，所有計算在你的裝置上完成</p></div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-bold mb-2 gold-text">身份證字號</label>
+                                <input type="password" value={idInput} onChange={(e) => setIdInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleCalc()} placeholder="輸入後自動遮蔽" className={'w-full px-4 py-3 rounded-lg text-center text-lg tracking-widest font-mono ' + (isNight ? 'bg-gray-800 border border-purple-700/50 text-white' : 'bg-gray-50 border border-amber-300/50 text-gray-800')}/>
+                                <p className="text-xs opacity-40 mt-2 text-center">台灣：英文＋9碼 ｜ 國際：直接輸入數字串</p>
+                            </div>
+                            {triError && <p className="text-red-500 text-sm text-center mb-3">{triError}</p>}
+                            <div className="flex gap-3">
+                                <button onClick={handleCalc} className="flex-1 gold-btn py-3 rounded-lg font-bold">✨ 解碼三角秘碼</button>
+                                <button onClick={() => { setIdInput(''); setTriError(''); }} className={'px-4 py-3 rounded-lg ' + (isNight ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600')}>清除</button>
+                            </div>
+                        </div>
+                    )}
+                    {triResult && triReading && (
+                        <div className="space-y-6 fade-in">
+                            <div className="card p-6 text-center"><h3 className="text-xl font-bold gold-text serif mb-4">你的馥靈三角秘碼</h3><TriSvg tri={triResult} /></div>
+                            <section><h3 className="text-2xl font-bold gold-text mb-4 pl-4 border-l-4 border-current serif">🏗️ 根基層・H.O.U.R.</h3><div className="grid grid-cols-1 md:grid-cols-2 gap-4"><ReadCard label="H｜安全根基" num={triResult.base[0]} body={triReading.h?.b} blind={triReading.h?.x}/><ReadCard label="O｜能力展現" num={triResult.base[1]} body={triReading.o?.b} blind={triReading.o?.x}/><ReadCard label="U｜資源密碼" num={triResult.base[2]} body={triReading.u?.b}/><ReadCard label="R｜方向導航" num={triResult.base[3]} body={triReading.r?.b} blind={triReading.r?.x}/></div></section>
+                            <section><h3 className="text-2xl font-bold gold-text mb-4 pl-4 border-l-4 border-current serif">🌊 匯流層</h3><div className="grid grid-cols-1 md:grid-cols-2 gap-4"><ReadCard label="內在驅力（H+O）" num={triResult.conv[0]} body={triReading.drive?.b}/><ReadCard label="外在使命（U+R）" num={triResult.conv[1]} body={triReading.mission?.b}/></div></section>
+                            <section><h3 className="text-2xl font-bold gold-text mb-4 pl-4 border-l-4 border-current serif">🔺 頂點・核心使命</h3><div className={'card p-6 text-center ' + (isNight ? 'ring-2 ring-purple-500/50' : 'ring-2 ring-amber-400/50')}><div className="text-xs opacity-50 mb-2">核心使命數</div><div className="flex items-center justify-center gap-2 mb-3"><span className="text-5xl font-bold gold-text serif">{triResult.apex}</span>{isM(triResult.apex) && <span className="text-xs px-2 py-0.5 rounded-full bg-purple-200 text-purple-700 font-bold">大師數</span>}</div>{triReading.apex?.b && <p className="text-sm opacity-80 leading-relaxed max-w-lg mx-auto">{triReading.apex.b}</p>}<div className={'mt-4 pt-4 ' + (isNight ? 'border-t border-purple-800/30' : 'border-t border-amber-200')}><div className="text-xs opacity-50 mb-1">身份證尾數</div><span className="text-2xl font-bold gold-text serif">{triResult.tail}</span><p className="text-xs opacity-50 mt-1">尾數是別人對你的第一印象，使命數是你最終要站上的位置</p></div></div></section>
+                            <section className="card p-6 text-center"><h4 className="font-bold gold-text mb-2 serif text-lg">📋 分享給覺察師</h4><p className="text-xs opacity-50 mb-4">只複製三角形數字，不含身份證字號</p><button onClick={handleCopy} className="gold-btn px-8 py-3 rounded-lg font-bold">📋 複製三角秘碼</button>{copyOk && <p className="text-green-500 text-sm mt-2">✅ 已複製！直接貼給覺察師</p>}<div className={'mt-4 pt-4 ' + (isNight ? 'border-t border-purple-800/30' : 'border-t border-amber-200')}><p className="text-xs opacity-50 mb-3">想知道完整的「對人模式、對事邏輯、盲區、人生課題」？</p><a href="https://lin.ee/OQDB5t6" target="_blank" rel="noopener" className={'inline-block px-6 py-2 rounded-lg font-bold border-2 transition-all ' + (isNight ? 'border-purple-500 text-purple-300 hover:bg-purple-900/30' : 'border-amber-500 hover:bg-amber-50')} style={{color: isNight ? undefined : '#996515'}}>💬 預約覺察師深度解讀</a></div></section>
+                            <div className="flex justify-center gap-3"><button onClick={() => { setTriResult(null); setTriReading(null); setIdInput(''); }} className="gold-btn px-6 py-2 rounded-lg">重新測試</button></div>
+                            <div className={'card p-4 text-sm opacity-70 ' + (isNight ? '' : 'bg-amber-50/80')}><p className="font-bold mb-2">📐 馥靈三角秘碼 vs 生命靈數</p><p>生命靈數看「內在設定」。馥靈三角秘碼看「外在角色」。兩套系統交叉比對，才是完整的你。網頁上是快速版，完整版需要認證覺察師結合生命靈數做交叉解讀。</p></div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
         // ========================================
         // 主應用
         // ========================================
         const App = () => {
             const [result, setResult] = useState(null);
-            const [isNight, setIsNight] = useState(false);
+            const [isNight, setIsNight] = useState(true);
             const [activeTab, setActiveTab] = useState('basic');
             const [showAgeConfirm, setShowAgeConfirm] = useState(false);
             const [showCardModal, setShowCardModal] = useState(false);
 
-            useEffect(() => { document.body.className = isNight ? 'night-mode' : 'day-mode'; }, [isNight]);
+            useEffect(() => { document.body.className = 'night-mode'; }, []);
 
             const handleNightToggle = () => { if (!isNight) setShowAgeConfirm(true); else setIsNight(false); };
             const confirmAge = () => { setIsNight(true); setShowAgeConfirm(false); };
@@ -923,7 +1242,8 @@
                 { id: 'year', label: '🗓️ 流年運勢', icon: '🗓️' },
                 { id: 'fortune', label: '⏳ 大運時間軸', icon: '⏳' },
                 { id: 'compat', label: '💕 關係合盤', icon: '💕' },
-                { id: 'hr', label: isNight ? '🔥 親密指南' : '💼 HR識人', icon: isNight ? '🔥' : '💼' }
+                { id: 'hr', label: isNight ? '🔥 親密指南' : '💼 HR識人', icon: isNight ? '🔥' : '💼' },
+                { id: 'social', label: '🔺 三角秘碼', icon: '🔺' }
             ];
 
             return (
@@ -962,6 +1282,7 @@
                         {activeTab === 'fortune' && <LifeFortunePage result={result} isNight={isNight} />}
                         {activeTab === 'compat' && <CompatibilityPage result={result} isNight={isNight} />}
                         {activeTab === 'hr' && (isNight ? <IntimacyPage result={result} isNight={isNight} /> : <HRPage result={result} isNight={isNight} />)}
+                        {activeTab === 'social' && <SocialTrianglePage isNight={isNight} />}
                     </main>
 
                     <div className="floating-card-btn"><button onClick={() => setShowCardModal(true)} className="key-btn px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-2"><span className="text-xl">🎴</span><div className="text-left"><div className="font-bold text-sm">抽一張牌</div><div className="text-xs opacity-80">馥靈之鑰</div></div></button></div>
