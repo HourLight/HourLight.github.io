@@ -42,7 +42,7 @@
     <script src="js/hl-core-data.js"></script>
     <script src="js/hl-calc-engine.js"></script>
     <script src="js/hl-system.js"></script>
-    <script src="js/hl-social-triangle.js"></script>
+    <script src="js/hl-social-triangle.js" charset="utf-8"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/hourlight-global.css">
 <style>
@@ -69,14 +69,18 @@ body {
 .serif { font-family: 'Noto Serif TC', serif; }
 
 /* 不管什麼 mode 都是宇宙深色 */
-body.day-mode, body.night-mode {
+body.night-mode {
   background: transparent !important;
   color: #f7efe1 !important;
 }
+body.day-mode {
+  background: #f9f7f3 !important;
+  color: #2d2418 !important;
+}
 
-/* 金色文字 - 統一漸層金 */
+/* 金色文字 - 白天深金色，夜間亮金色 */
 .gold-text {
-  background: linear-gradient(135deg, #fbe6c2 0%, #e9c27d 30%, #cda86e 70%, #fff9ea 100%) !important;
+  background: linear-gradient(135deg, #8B6914 0%, #996515 30%, #7A5A10 70%, #A67C20 100%) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
   background-clip: text !important;
@@ -90,72 +94,101 @@ body.day-mode, body.night-mode {
 }
 
 /* 提高輔助文字對比度 */
-.opacity-50 { opacity: 0.7 !important; }
-.opacity-60 { opacity: 0.8 !important; }
-.opacity-40 { opacity: 0.65 !important; }
+.night-mode .opacity-50 { opacity: 0.7 !important; }
+.night-mode .opacity-60 { opacity: 0.8 !important; }
+.night-mode .opacity-40 { opacity: 0.65 !important; }
+.day-mode .opacity-50 { opacity: 0.55 !important; }
+.day-mode .opacity-60 { opacity: 0.65 !important; }
+.day-mode .opacity-40 { opacity: 0.5 !important; }
 
-/* 主要按鈕 - 統一金色漸層（與 hl-btn-primary 一致）*/
+/* 主要按鈕 */
 .gold-btn {
   background: linear-gradient(135deg, #e9c27d, #cda86e) !important;
   color: #20120a !important;
   font-weight: 700;
-  box-shadow: 0 10px 26px rgba(0,0,0,0.9), 0 0 20px rgba(233,194,125,0.65) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 999px;
 }
+.night-mode .gold-btn {
+  box-shadow: 0 10px 26px rgba(0,0,0,0.9), 0 0 20px rgba(233,194,125,0.65) !important;
+}
+.day-mode .gold-btn {
+  box-shadow: 0 4px 12px rgba(180,140,60,0.3), 0 0 8px rgba(233,194,125,0.2) !important;
+}
 .gold-btn:hover {
   transform: translateY(-2px);
+}
+.night-mode .gold-btn:hover {
   box-shadow: 0 14px 34px rgba(0,0,0,0.95), 0 0 30px rgba(233,194,125,0.85) !important;
 }
-.night-mode .gold-btn {
-  background: linear-gradient(135deg, #e9c27d, #cda86e) !important;
-  color: #20120a !important;
+.day-mode .gold-btn:hover {
+  box-shadow: 0 6px 18px rgba(180,140,60,0.4), 0 0 12px rgba(233,194,125,0.3) !important;
 }
 
-/* 鑰匙按鈕 - 統一透明金邊（與 hl-btn-secondary 一致）*/
+/* 鑰匙按鈕 */
 .key-btn {
-  background: rgba(233,194,125,0.12) !important;
-  color: #e9c27d !important;
   font-weight: 700;
-  border: 1px solid rgba(233,194,125,0.5) !important;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.key-btn:hover {
+.night-mode .key-btn {
+  background: rgba(233,194,125,0.12) !important;
+  color: #e9c27d !important;
+  border: 1px solid rgba(233,194,125,0.5) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important;
+}
+.day-mode .key-btn {
+  background: rgba(180,140,60,0.08) !important;
+  color: #7A5A10 !important;
+  border: 1px solid rgba(180,140,60,0.3) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+}
+.night-mode .key-btn:hover {
   background: rgba(233,194,125,0.2) !important;
   color: #fbe6c2 !important;
   transform: translateY(-3px) scale(1.02);
   box-shadow: 0 8px 24px rgba(0,0,0,0.6), 0 0 20px rgba(233,194,125,0.3) !important;
 }
-.night-mode .key-btn {
-  background: rgba(233,194,125,0.12) !important;
-  border-color: rgba(233,194,125,0.5) !important;
-  color: #e9c27d !important;
+.day-mode .key-btn:hover {
+  background: rgba(180,140,60,0.15) !important;
+  color: #5a4510 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;
 }
 
-/* 卡片 - 統一玻璃擬態金邊（與 hl-card 一致）*/
+/* 卡片 */
 .card {
   border-radius: 20px !important;
   backdrop-filter: blur(18px) saturate(150%);
-  background: radial-gradient(circle at top left, rgba(233,194,125,0.12), transparent 55%), rgba(10,6,24,0.92) !important;
-  border: 1px solid rgba(233,194,125,0.35) !important;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(233,194,125,0.12), inset 0 1px 0 rgba(233,194,125,0.08) !important;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.card:hover {
-  box-shadow: 0 25px 60px rgba(0,0,0,0.95), 0 0 40px rgba(233,194,125,0.2), inset 0 1px 0 rgba(233,194,125,0.15) !important;
-}
-.day-mode .card, .night-mode .card {
+.night-mode .card {
   background: radial-gradient(circle at top left, rgba(233,194,125,0.12), transparent 55%), rgba(10,6,24,0.92) !important;
   border: 1px solid rgba(233,194,125,0.35) !important;
   box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(233,194,125,0.12), inset 0 1px 0 rgba(233,194,125,0.08) !important;
+}
+.night-mode .card:hover {
+  box-shadow: 0 25px 60px rgba(0,0,0,0.95), 0 0 40px rgba(233,194,125,0.2), inset 0 1px 0 rgba(233,194,125,0.15) !important;
+}
+.day-mode .card {
+  background: #ffffff !important;
+  border: 1px solid rgba(180,140,60,0.2) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06), 0 0 0 1px rgba(180,140,60,0.08) !important;
+}
+.day-mode .card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 0 0 1px rgba(180,140,60,0.15) !important;
+}
+  border: 1px solid rgba(180,140,60,0.2) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06), 0 0 0 1px rgba(180,140,60,0.08) !important;
 }
 
 /* Tab 按鈕 - 統一金色 */
-.tab-btn { transition: all 0.3s; border-bottom: 3px solid transparent; color: #c4b7a6; }
-.tab-btn:hover { color: #e9c27d; }
-.tab-btn.active { border-bottom-color: #e9c27d !important; color: #e9c27d !important; }
+.tab-btn { transition: all 0.3s; border-bottom: 3px solid transparent; }
+.night-mode .tab-btn { color: #c4b7a6; }
+.day-mode .tab-btn { color: #8c7a66; }
+.night-mode .tab-btn:hover { color: #e9c27d; }
+.day-mode .tab-btn:hover { color: #7A5A10; }
 .night-mode .tab-btn.active { border-bottom-color: #e9c27d !important; color: #e9c27d !important; }
+.day-mode .tab-btn.active { border-bottom-color: #8B6914 !important; color: #8B6914 !important; }
 
 /* 動畫 */
 .fade-in { animation: fadeIn 0.5s ease-out; }
@@ -166,7 +199,8 @@ body.day-mode, body.night-mode {
 .modal-content { max-height: 90vh; overflow-y: auto; }
 
 /* 選單下拉箭頭 - 金色 */
-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath fill='%23e9c27d' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; appearance: none; background-color: rgba(10,6,24,0.8); color: #f7efe1; border: 1px solid rgba(233,194,125,0.3); }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath fill='%23996515' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; appearance: none; }
+.night-mode select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath fill='%23e9c27d' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); }
 
 /* 進度條 */
 .score-bar { height: 8px; border-radius: 4px; overflow: hidden; background: rgba(233,194,125,0.15); }
@@ -204,94 +238,109 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .loading-spinner { width: 60px; height: 60px; border: 4px solid rgba(233,194,125,0.2); border-top-color: #e9c27d; border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ===== Tailwind 色彩覆蓋（強制深色宇宙調）===== */
-/* 背景色：淺色 → 半透明深色金邊 */
-[class*="bg-red-50"],
-[class*="bg-red-100"] { background: rgba(180,60,60,0.15) !important; }
-[class*="bg-yellow-50"],
-[class*="bg-yellow-100"],
-[class*="bg-amber-50"] { background: rgba(233,194,125,0.1) !important; }
-[class*="bg-green-50"],
-[class*="bg-green-100"],
-[class*="bg-green-200"] { background: rgba(80,160,100,0.15) !important; }
-[class*="bg-blue-50"],
-[class*="bg-blue-100"] { background: rgba(60,100,180,0.15) !important; }
-[class*="bg-gray-100"],
-[class*="bg-gray-200"] { background: rgba(233,194,125,0.08) !important; }
-[class*="bg-white"] { background: rgba(10,6,24,0.8) !important; }
+/* ===== Tailwind 色彩覆蓋（僅夜間模式）===== */
+/* 夜間：背景色 → 半透明深色金邊 */
+.night-mode [class*="bg-red-50"],
+.night-mode [class*="bg-red-100"] { background: rgba(180,60,60,0.15) !important; }
+.night-mode [class*="bg-yellow-50"],
+.night-mode [class*="bg-yellow-100"],
+.night-mode [class*="bg-amber-50"] { background: rgba(233,194,125,0.1) !important; }
+.night-mode [class*="bg-green-50"],
+.night-mode [class*="bg-green-100"],
+.night-mode [class*="bg-green-200"] { background: rgba(80,160,100,0.15) !important; }
+.night-mode [class*="bg-blue-50"],
+.night-mode [class*="bg-blue-100"] { background: rgba(60,100,180,0.15) !important; }
+.night-mode [class*="bg-gray-100"],
+.night-mode [class*="bg-gray-200"] { background: rgba(233,194,125,0.08) !important; }
+.night-mode [class*="bg-white"] { background: rgba(10,6,24,0.8) !important; }
+.night-mode [class*="bg-gray-50"] { background: rgba(233,194,125,0.05) !important; }
+.night-mode [class*="bg-purple-900\\/"] { background: rgba(92,58,128,0.2) !important; }
+.night-mode [class*="bg-red-900\\/"] { background: rgba(140,40,40,0.2) !important; }
+.night-mode [class*="bg-yellow-900\\/"],
+.night-mode [class*="bg-amber-900\\/"] { background: rgba(160,120,40,0.15) !important; }
+.night-mode [class*="bg-green-900\\/"] { background: rgba(40,100,60,0.2) !important; }
+.night-mode [class*="bg-blue-900\\/"] { background: rgba(40,60,120,0.2) !important; }
 
-/* 夜間半透明背景 */
-[class*="bg-purple-900\\/"] { background: rgba(92,58,128,0.2) !important; }
-[class*="bg-red-900\\/"] { background: rgba(140,40,40,0.2) !important; }
-[class*="bg-yellow-900\\/"],
-[class*="bg-amber-900\\/"] { background: rgba(160,120,40,0.15) !important; }
-[class*="bg-green-900\\/"] { background: rgba(40,100,60,0.2) !important; }
-[class*="bg-blue-900\\/"] { background: rgba(40,60,120,0.2) !important; }
+/* 夜間：文字色覆蓋 */
+.night-mode [class*="text-gray-700"] { color: #c4b7a6 !important; }
+.night-mode [class*="text-gray-600"] { color: #988b7b !important; }
+.night-mode [class*="text-red-700"],
+.night-mode [class*="text-red-500"],
+.night-mode [class*="text-red-600"] { color: #f0a0a0 !important; }
+.night-mode [class*="text-yellow-700"],
+.night-mode [class*="text-amber-600"] { color: #e9c27d !important; }
+.night-mode [class*="text-green-700"],
+.night-mode [class*="text-green-600"],
+.night-mode [class*="text-green-500"] { color: #7dbe8a !important; }
 
-/* 文字色覆蓋 */
-[class*="text-gray-700"] { color: #c4b7a6 !important; }
-[class*="text-gray-600"] { color: #988b7b !important; }
-[class*="text-red-700"] { color: #f0a0a0 !important; }
-[class*="text-yellow-700"] { color: #e9c27d !important; }
-[class*="text-green-700"],
-[class*="text-green-600"] { color: #7dbe8a !important; }
-[class*="text-green-500"] { color: #7dbe8a !important; }
-[class*="text-red-500"],
-[class*="text-red-600"] { color: #f0a0a0 !important; }
-[class*="text-amber-600"] { color: #e9c27d !important; }
+/* 夜間：標籤 */
+.night-mode .bg-red-200 { background: rgba(180,60,60,0.3) !important; }
+.night-mode .bg-yellow-200 { background: rgba(233,194,125,0.25) !important; }
+.night-mode .bg-green-200 { background: rgba(80,160,100,0.3) !important; }
+.night-mode .bg-red-100 { background: rgba(180,60,60,0.2) !important; }
 
-/* 標籤圓角色覆蓋 */
-.bg-red-200 { background: rgba(180,60,60,0.3) !important; }
-.text-red-700 { color: #f0a0a0 !important; }
-.bg-yellow-200 { background: rgba(233,194,125,0.25) !important; }
-.text-yellow-700 { color: #e9c27d !important; }
-.bg-green-200 { background: rgba(80,160,100,0.3) !important; }
-.text-green-700 { color: #7dbe8a !important; }
-.bg-red-100 { background: rgba(180,60,60,0.2) !important; }
+/* 夜間：ring */
+.night-mode [class*="ring-purple-500"] { --tw-ring-color: rgba(233,194,125,0.6) !important; }
+.night-mode [class*="ring-amber-500"] { --tw-ring-color: rgba(233,194,125,0.6) !important; }
+.night-mode .bg-green-500 { background: rgba(80,160,100,0.8) !important; }
 
-/* ring 強調色 */
-[class*="ring-purple-500"] { --tw-ring-color: rgba(233,194,125,0.6) !important; }
-[class*="ring-amber-500"] { --tw-ring-color: rgba(233,194,125,0.6) !important; }
-.bg-green-500 { background: rgba(80,160,100,0.8) !important; }
-
-/* 輸入框統一深色 */
-input, select, textarea {
+/* 輸入框 */
+.night-mode input, .night-mode select, .night-mode textarea {
   background-color: rgba(10,6,24,0.8) !important;
   color: #f7efe1 !important;
   border-color: rgba(233,194,125,0.3) !important;
 }
-input:focus, select:focus, textarea:focus {
+.night-mode input:focus, .night-mode select:focus, .night-mode textarea:focus {
   border-color: rgba(233,194,125,0.6) !important;
   outline: none;
   box-shadow: 0 0 0 3px rgba(233,194,125,0.15) !important;
 }
-
-/* 音樂按鈕下移，避免遮擋 header */
-.hl-music-toggle {
-  top: 72px !important;
+.day-mode input, .day-mode select, .day-mode textarea {
+  background-color: #ffffff !important;
+  color: #2d2418 !important;
+  border-color: rgba(180,140,60,0.3) !important;
 }
-@media (max-width: 768px) {
-  .hl-music-toggle { top: 64px !important; }
+.day-mode input:focus, .day-mode select:focus, .day-mode textarea:focus {
+  border-color: rgba(180,140,60,0.5) !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(180,140,60,0.1) !important;
 }
 
-/* header 統一 hl-nav 風格 */
-header {
+/* header */
+.night-mode header {
   background: rgba(5,3,10,0.85) !important;
   backdrop-filter: blur(18px) saturate(150%) !important;
   border-bottom: 1px solid rgba(233,194,125,0.3) !important;
   box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
 }
+.day-mode header {
+  background: rgba(255,255,255,0.92) !important;
+  backdrop-filter: blur(18px) saturate(150%) !important;
+  border-bottom: 1px solid rgba(180,140,60,0.15) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06) !important;
+}
 
-/* 修正 Tailwind backdrop-blur 覆蓋 */
-header[class*="backdrop-blur"] {
+/* 夜間 header 覆蓋 */
+.night-mode header[class*="backdrop-blur"] {
   backdrop-filter: blur(18px) saturate(150%) !important;
 }
-header[class*="bg-gray-900"] {
+.night-mode header[class*="bg-gray-900"],
+.night-mode header[class*="bg-white"] {
   background: rgba(5,3,10,0.85) !important;
 }
-header[class*="bg-white"] {
-  background: rgba(5,3,10,0.85) !important;
+.day-mode header[class*="bg-gray-900"],
+.day-mode header[class*="bg-white"] {
+  background: rgba(255,255,255,0.92) !important;
 }
+
+/* 白天模式：隱藏宇宙星空背景 */
+.day-mode .hl-cosmos { opacity: 0 !important; pointer-events: none; }
+.night-mode .hl-cosmos { opacity: 1 !important; }
+
+/* 白天模式：header 文字顏色 */
+.day-mode header h1 { -webkit-text-fill-color: transparent !important; }
+.day-mode header p { color: #8c7a66 !important; }
+
     </style>
     <meta name="description" content="馥靈秘碼免費計算｜輸入農曆生日，解碼你的生命數字、性格特質與天賦潛能。">
     <!-- Open Graph / Facebook -->
@@ -545,8 +594,18 @@ header[class*="bg-white"] {
 @media(max-width:480px){.hl-float-line{right:16px;bottom:20px;padding:12px 18px;font-size:0.85rem}.hl-float-line-text{display:none}.hl-float-line-icon{font-size:1.4rem}}
 </style>
 <link rel="stylesheet" href="assets/css/hl-music.css">
+
+<style>
+.hl-music-toggle { top: 72px !important; }
+@media (max-width: 768px) { .hl-music-toggle { top: 64px !important; } }
+</style>
+
+<style>
+.hl-music-toggle { top: 72px !important; }
+@media (max-width: 768px) { .hl-music-toggle { top: 64px !important; } }
+</style>
 </head>
-<body class="night-mode">
+<body class="day-mode">
 <!-- 星空背景 -->
 <div class="hl-cosmos">
   <div class="hl-stars-layer hl-stars-1"></div>
@@ -1032,486 +1091,31 @@ header[class*="bg-white"] {
             const [triMode, setTriMode] = useState(false);
             const [idInput, setIdInput] = useState('');
             const [triData, setTriData] = useState(null);
+            const [triReading, setTriReading] = useState(null);
             const radarRef = React.useRef(null);
 
-            // ===== HR職場數據 =====
-            // ===== 🔒 受保護的商業機密資料 =====
-            // © 2026 馥靈之鑰國際有限公司 - 未經授權禁止複製
-            const _HL_D = (s) => { try { const b = Uint8Array.from(atob(s), c => c.charCodeAt(0)); const t = new TextDecoder('utf-8').decode(b); return (0,eval)('(' + t + ')'); } catch(e) { return {}; } };
-            const hrData = _HL_D('ewogICAgICAgICAgICAgIDE6IHsgdGFnOiAn6ZaL5Ym16ICFJywgc2xvZ2FuOiAn6K6T5oiR5L6G5bi26aCtJywgYmVzdFJvbGVz'+
-                'OiBbJ+eNqOeri+iyoOiyrOeahOWwiOahiCcsICfplovmi5PmlrDluILloLQv5paw5qWt5YuZJywgJ+mcgOimgeaxuuetluasiuea'+
-                'hOS9jee9riddLCB3b3JzdFJvbGVzOiBbJ+e0lOWft+ihjOOAgeeEoeaxuuetluasiueahOW3peS9nCcsICfpnIDopoHlpKfph4/p'+
-                'hY3lkIjku5bkurrnmoTogbfkvY0nXSwgbWFuYWdlVGlwOiAn57Wm5piO56K655uu5qiZ77yM5L2G5LiN6KaB6KaP5a6a44CM5oCO'+
-                '6bq85YGa44CN44CC6K6T5LuW6Ka65b6X5piv44CM5LuW55qE5rG65a6a44CNJywgbW90aXZhdGU6ICfmjJHmiLDmgKfku7vli5nj'+
-                'gIHnjajnq4vlrozmiJDnmoTmiJDlsLHmhJ/jgIHooqvoqo3lj6/ngrrosqDosqzkuronLCB3YXJuaW5nOiAn5Y+v6IO96Lef5YW2'+
-                '5LuW5Li7566h6LW36KGd56qB77yM5LiN6aGY5YGa5bCP5LqL44CC5rKS5Y2H6YG356m66ZaTMi0z5bm05oOz6Zui6ZaLJywgaW50'+
-                'ZXJ2aWV3OiAn5ZWP44CM5L2g6YGO5Y675Li75bCO6YGO5LuA6bq85bCI5qGI77yf44CN55y8552b5pyD55m85Lqu44CC5ZWP44CM'+
-                '5L2g5aaC5L2V6YWN5ZCI5ZyY6ZqK77yf44CN5Y+v6IO95pyD6Kqq44CM5oiR5bi26aCY5ZyY6ZqK44CNJywgYmVzdE1hdGNoOiBb'+
-                'e246MixkOifmlK/mjIHogIXnlbblia/miYvihpLpu4Pph5HntYTlkIgnfSx7bjo4LGQ6J+Wft+ihjOiAheKGkuW8t+W8t+iBr+aJ'+
-                'iyd9XSwgYXZvaWRNYXRjaDogW3tuOjEsZDon5Y+m5LiA5YCLMeiZn+KGkuasiuWKm+mspeeIrSd9XSwgcmF0aW5nczoge2luZGVw'+
-                'ZW5kZW5jZTo1LG9iZWRpZW5jZToyLHRlYW13b3JrOjMsc3RyZXNzOjQsc3RhYmlsaXR5OjN9IH0sCiAgICAgICAgICAgICAgMjog'+
-                'eyB0YWc6ICfljZToqr/ogIUnLCBzbG9nYW46ICforpPmiJHkvobluavlv5knLCBiZXN0Um9sZXM6IFsn6Leo6YOo6ZaA5rqd6YCa'+
-                '5qmL5qiRJywgJ+WuouacjeOAgUhS44CB6KGM5pS/44CB56eY5pu4JywgJ+mcgOimgeWNlOiqv+WkmuaWueeahOW3peS9nCddLCB3'+
-                'b3JzdFJvbGVzOiBbJ+mcgOimgeeNqOaWt+axuuetlueahOS4u+euoeiBtycsICfpq5jlo5Pnq7bniK3nkrDlooMnXSwgbWFuYWdl'+
-                'VGlwOiAn57aT5bi457Wm5LqI6IKv5a6a5ZKM5oSf6Kyd44CC5LiN6KaB5Zyo5YWs6ZaL5aC05ZCI5om56KmV44CC6K6T5LuW55+l'+
-                '6YGT5LuW5piv5ZyY6ZqK6YeN6KaB5LiA5Lu95a2QJywgbW90aXZhdGU6ICflnJjpmorlkozoq6fjgIHooqvpnIDopoHnmoTmhJ/o'+
-                'prrjgIHnqanlrprnmoTmrbjlsazmhJ8nLCB3YXJuaW5nOiAn5aSq5Zyo5oSP5LuW5Lq65oSf5Y+X54Sh5rOV5aCF5oyB56uL5aC0'+
-                '44CC5Y+v6IO96KKr5oOF57eS5YuS57Si44CC5Li7566h5aSq5Ya35ryg5pyD6buY6buY57Sv56mN5aeU5bGIJywgaW50ZXJ2aWV3'+
-                'OiAn5ZWP44CM5L2g5aaC5L2V6JmV55CG6KGd56qB77yf44CN5pyD6Kqq44CM5oiR5pyD5bGF5Lit5Y2U6Kq/44CN44CC6KeA5a+f'+
-                '5LuW5piv5ZCm5LiA55u05Zyo6KeA5a+f5L2g55qE5Y+N5oeJJywgYmVzdE1hdGNoOiBbe246MSxkOifpoJjlsI7ogIXihpLlrozn'+
-                'vo7lia/miYsnfSx7bjo2LGQ6J+eFp+mhp+iAheKGkuS6kuebuOaUr+aMgSd9XSwgYXZvaWRNYXRjaDogW3tuOjgsZDon5qyK5Yqb'+
-                '6ICF4oaS5a655piT6KKr5aOT5Yi2J31dLCByYXRpbmdzOiB7aW5kZXBlbmRlbmNlOjIsb2JlZGllbmNlOjUsdGVhbXdvcms6NSxz'+
-                'dHJlc3M6MyxzdGFiaWxpdHk6NX0gfSwKICAgICAgICAgICAgICAzOiB7IHRhZzogJ+ihqOmBlOiAhScsIHNsb2dhbjogJ+iuk+aI'+
-                'keS+huiqqicsIGJlc3RSb2xlczogWyfooYzpirfjgIHlhazpl5zjgIHmpa3li5njgIHorJvluKsnLCAn6ZyA6KaB5Ym15oSP55m8'+
-                '5oOz55qE6IG35L2NJywgJ+WwjeWklua6nemAmuOAgeewoeWgsSddLCB3b3JzdFJvbGVzOiBbJ+eNqOiHquWfi+mgreeahOizh+aW'+
-                'meWIhuaekCcsICfph43opIfmgKfpq5jnmoTooYzmlL/lt6XkvZwnXSwgbWFuYWdlVGlwOiAn57Wm5LuW6KGo54++55qE6Iie5Y+w'+
-                '44CC6K6T5LuW5Y+D6IiH5Ym15oSP55m85oOz5pyD6K2w44CC5LiN6KaB5Y+q57Wm5Z+36KGM77yM6KaB6K6T5LuW5o+Q5qGIJywg'+
-                'bW90aXZhdGU6ICforprnvo7jgIHmlrDprq7mhJ/jgIHooqvnnIvopovnmoTmqZ/mnIMnLCB3YXJuaW5nOiAn5Y+v6IO9562U5oeJ'+
-                '5aSq5aSa5YGa5LiN5a6M44CC5Y+q6aGn6KGo6Z2i5LiN6aGn57Sw56+A44CC6ZyA6KaB55uj552j44CM6Kqq5Yiw5piv5ZCm5YGa'+
-                '5Yiw44CNJywgaW50ZXJ2aWV3OiAn6Z2i6Kmm5pmC5pyD5b6I5YGl6KuH77yM5a655piT6K6T6Z2i6Kmm5a6Y5Zac5q2h44CC5rOo'+
-                '5oSP5piv5ZCm44CM6Kqq5b6X5aSa44CB5YGa5b6X5bCR44CNJywgYmVzdE1hdGNoOiBbe246NCxkOifln7fooYzogIXihpLlibXm'+
-                'hI8r6JC95ZywJ30se246NyxkOifliIbmnpDogIXihpLooajpgZQr5rex5bqmJ31dLCBhdm9pZE1hdGNoOiBbe246MyxkOiflj6bk'+
-                'uIDlgIsz6Jmf4oaS6YO95oOz6KGo54++J31dLCByYXRpbmdzOiB7aW5kZXBlbmRlbmNlOjQsb2JlZGllbmNlOjMsdGVhbXdvcms6'+
-                'NCxzdHJlc3M6MyxzdGFiaWxpdHk6M30gfSwKICAgICAgICAgICAgICA0OiB7IHRhZzogJ+W7uuani+iAhScsIHNsb2dhbjogJ+iu'+
-                'k+aIkeS+huWBmicsIGJlc3RSb2xlczogWyflsIjmoYjnrqHnkIbjgIHlk4HnrqHjgIHmnIPoqIgnLCAn5bu656uL5Yi25bqm44CB'+
-                '5YSq5YyW5rWB56iLJywgJ+mcgOimgee0sOW/g+WSjOiAkOW/g+eahOW3peS9nCddLCB3b3JzdFJvbGVzOiBbJ+mcgOimgeW/q+mA'+
-                'n+iuiuWMlueahOaWsOWJteeSsOWigycsICfmspLmnInmmI7norropo/liYfnmoTogbfkvY0nXSwgbWFuYWdlVGlwOiAn57Wm5piO'+
-                '56K655qE5rWB56iL5ZKM5pmC56iL44CC5LiN6KaB56qB54S25pS56K6K6KaP5YmH44CC6IKv5a6a5LuW55qE44CM56mp5a6a44CN'+
-                '5ZKM44CM5Y+v6Z2g44CNJywgbW90aXZhdGU6ICfnqanlrprjgIHmmI7norropo/liYfjgIHooqvkv6Hku7vnmoTmhJ/opronLCB3'+
-                'YXJuaW5nOiAn5Y+v6IO95oqX5ouS5pS56K6K44CB6YCf5bqm5aSq5oWi5aSq6Ky55oWO44CC5Ym15paw5Lu75YuZ5Y+v6IO95pyD'+
-                '5Y2h5L2PJywgaW50ZXJ2aWV3OiAn5pyD5rqW5pmC5Yiw6YGU77yM6LOH5paZ5rqW5YKZ6b2K5YWo44CC5ZWP44CM5rKS5pyJU09Q'+
-                '55qE5oOF5rOB77yf44CN5Y+v6IO95pyD54y26LGrJywgYmVzdE1hdGNoOiBbe246MyxkOiflibXmhI/ogIXihpLkupLoo5wnfSx7'+
-                'bjoxLGQ6J+mWi+WJteiAheKGkuWft+ihjOaxuuetlid9XSwgYXZvaWRNYXRjaDogW3tuOjUsZDon6K6K5YuV6ICF4oaS56+A5aWP'+
-                '5beu5aSq5aSnJ31dLCByYXRpbmdzOiB7aW5kZXBlbmRlbmNlOjMsb2JlZGllbmNlOjUsdGVhbXdvcms6NCxzdHJlc3M6NCxzdGFi'+
-                'aWxpdHk6NX0gfSwKICAgICAgICAgICAgICA1OiB7IHRhZzogJ+iuiumdqeiAhScsIHNsb2dhbjogJ+iuk+aIkeS+huippuippuec'+
-                'iycsIGJlc3RSb2xlczogWyfmpa3li5njgIHoqJjogIXjgIHoh6rnlLHmjqXmoYgnLCAn6ZyA6KaB5Ye65beu6K6K5YyW55qE5bel'+
-                '5L2cJywgJ+aWsOW4guWgtOmWi+eZvOOAgeWNseapn+iZleeQhiddLCB3b3JzdFJvbGVzOiBbJ+WbuuWumuW6p+S9jeWbuuWumuaZ'+
-                'gumWk+eahOihjOaUv+iBtycsICfpnIDopoHplbfmnJ/ph43opIfnmoTlt6XkvZwnXSwgbWFuYWdlVGlwOiAn57Wm5LuW5b2I5oCn'+
-                '77yI5pmC6ZaTL+epuumWky/mlrnms5XvvInjgILlrprmnJ/ntabmlrDku7vli5nmlrDmjJHmiLDjgILnlKjnm67mqJnlvJXlsI7v'+
-                'vIzkuI3nlKjopo/lrprlo5MnLCBtb3RpdmF0ZTogJ+iHqueUseOAgeaWsOaMkeaIsOOAgeiuiuWMluOAgeaOoue0ouacquefpScs'+
-                'IHdhcm5pbmc6ICfpm6LogbfnjofmnIDpq5jnmoTpoZ7lnovjgILlj6/og73oprrlvpfnhKHogYrlsLHotbDkurrjgILpnIDopoHm'+
-                'jIHnuozntabkuojmlrDprq7mhJ8nLCBpbnRlcnZpZXc6ICflsaXmrbflj6/og73mj5vpgY7lvojlpJrlt6XkvZzjgILllY/jgIzm'+
-                'nIDplbfkuIDku73lt6XkvZzlgZrlpJrkuYXvvJ/jgI3ihpLph43opoHmjIfmqJknLCBiZXN0TWF0Y2g6IFt7bjo0LGQ6J+epqeWu'+
-                'muiAheKGkuS6kuijnCd9LHtuOjEsZDon6ZaL5Ym16ICF4oaS5LiA6LW35YaS6ZqqJ31dLCBhdm9pZE1hdGNoOiBbe246NSxkOifl'+
-                'j6bkuIDlgIs16Jmf4oaS5aSq5pWjJ31dLCByYXRpbmdzOiB7aW5kZXBlbmRlbmNlOjUsb2JlZGllbmNlOjIsdGVhbXdvcms6Myxz'+
-                'dHJlc3M6NCxzdGFiaWxpdHk6Mn0gfSwKICAgICAgICAgICAgICA2OiB7IHRhZzogJ+eFp+mhp+iAhScsIHNsb2dhbjogJ+iuk+aI'+
-                'keS+hueFp+mhpycsIGJlc3RSb2xlczogWydIUuOAgeaVmeiCsuiok+e3tOOAgeWuouacjeS4u+euoScsICfpnIDopoHluLbmlrDk'+
-                'urrnmoTogbfkvY0nLCAn6ZyA6KaB6Zec5oe35ZyY6ZqK55qE566h55CG6IG3J10sIHdvcnN0Um9sZXM6IFsn57SU5pW45a2X57SU'+
-                '57i+5pWI55qE5bel5L2cJywgJ+mcgOimgeW8t+WLouirh+WIpOeahOiBt+S9jSddLCBtYW5hZ2VUaXA6ICforpPku5bnn6XpgZPj'+
-                'gIzkvaDlsI3lnJjpmorlvojph43opoHjgI3jgILms6jmhI/ku5bmmK/lkKbpgY7luqbku5jlh7rjgILmj5DphpLku5bkuZ/opoHn'+
-                'hafpoafoh6rlt7EnLCBtb3RpdmF0ZTogJ+iiq+mcgOimgeOAgeWcmOmaiuWSjOirp+OAgeeci+WIsOWIpeS6uuWboOeCuuS7luiu'+
-                'iuWlvScsIHdhcm5pbmc6ICflj6/og73mlKzlpKrlpJrosqzku7vjgILlj6/og73ooqvmg4Xnt5Lli5LntKLjgILpnIDopoHms6jm'+
-                'hI/pgY7li54nLCBpbnRlcnZpZXc6ICfmnIPkuLvli5Xpl5zlv4PjgIzlnJjpmormsKPmsJvlpoLkvZXjgI3jgILlj6/og73mnIPl'+
-                'lY/jgIzlhazlj7jlpoLkvZXnhafpoaflk6Hlt6XjgI0nLCBiZXN0TWF0Y2g6IFt7bjoyLGQ6J+WNlOiqv+iAheKGkuS6kuebuOaU'+
-                'r+aMgSd9LHtuOjEsZDon6aCY5bCO6ICF4oaS55W25Ymv5omLJ31dLCBhdm9pZE1hdGNoOiBbe246OCxkOifmrIrlipvogIXihpLl'+
-                'g7nlgLzop4DooZ3nqoEnfV0sIHJhdGluZ3M6IHtpbmRlcGVuZGVuY2U6MyxvYmVkaWVuY2U6NCx0ZWFtd29yazo1LHN0cmVzczoz'+
-                'LHN0YWJpbGl0eTo0fSB9LAogICAgICAgICAgICAgIDc6IHsgdGFnOiAn5YiG5p6Q6ICFJywgc2xvZ2FuOiAn6K6T5oiR5oOz5LiA'+
-                '5oOzJywgYmVzdFJvbGVzOiBbJ+eglOeptuWToeOAgeWIhuaekOW4q+OAgeetlueVpemhp+WVjycsICfpnIDopoHmt7HluqbmgJ3o'+
-                'gIPnmoTlt6XkvZwnLCAn5oqA6KGT5bCI5a6244CB5bel56iL5birJ10sIHdvcnN0Um9sZXM6IFsn5aSn6YeP56S+5Lqk55qE5qWt'+
-                '5YuZ6IG3JywgJ+mcgOimgeW/q+mAn+WPjeaHieeahOWuouacjSddLCBtYW5hZ2VUaXA6ICfkuI3opoHlvq7nrqHnkIbvvIzntabk'+
-                'u5bnqbrplpPjgILkuI3lvLfov6vlj4PliqDlpKrlpJrnpL7kuqTmtLvli5XjgILnlKhlbWFpbOa6nemAmuavlOmWi+acg+acieaV'+
-                'iCcsIG1vdGl2YXRlOiAn5bCI5qWt5oiQ6ZW344CB6KKr5bCK6YeN5bCI5qWt44CB542o56uL5oCd6ICD56m66ZaTJywgd2Fybmlu'+
-                'ZzogJ+WPr+iDveiiq+iqjeeCuuS4jeWQiOe+pOOAgua6nemAmuWPr+iDveWkquebtOaOpeOAgumcgOimgeaZgumWk+a2iOWMlu+8'+
-                'jOS4jeiDvemAvOS7lummrOS4iuaxuuWumicsIGludGVydmlldzogJ+ipseS4jeWkmu+8jOS9huWbnuetlOaciea3seW6puOAguWP'+
-                'r+iDveacg+WVj+W+iOWwiOalreeahOWVj+mhjCcsIGJlc3RNYXRjaDogW3tuOjMsZDon6KGo6YGU6ICF4oaS5rex5bqmK+ihqOmB'+
-                'lCd9LHtuOjgsZDon5Z+36KGM6ICF4oaS562W55WlK+iQveWcsCd9XSwgYXZvaWRNYXRjaDogW3tuOjcsZDon5Y+m5LiA5YCLN+iZ'+
-                'n+KGkumDveS4jeism+ipsSd9XSwgcmF0aW5nczoge2luZGVwZW5kZW5jZTo1LG9iZWRpZW5jZTozLHRlYW13b3JrOjIsc3RyZXNz'+
-                'OjQsc3RhYmlsaXR5OjR9IH0sCiAgICAgICAgICAgICAgODogeyB0YWc6ICfmjozmjqfogIUnLCBzbG9nYW46ICforpPmiJHkvobn'+
-                'rqEnLCBiZXN0Um9sZXM6IFsn6LKh5YuZ44CB5oqV6LOH44CB6auY6ZqO5Li7566hJywgJ+mcgOimgeirh+WIpOaOjOaOp+izh+a6'+
-                'kOeahOiBt+S9jScsICfmpa3li5nkuLvnrqHjgIHlsIjmoYjnuL3nm6MnXSwgd29yc3RSb2xlczogWyfmspLmnInmsbrnrZbmrIrn'+
-                'moTln7fooYzogbcnLCAn6ZyA6KaB5aSn6YeP5oOF5oSf6Zec5oe355qE6IG35L2NJ10sIG1hbmFnZVRpcDogJ+e1puaYjueiuuea'+
-                'hEtQSeWSjOeNjumHkeWItuW6puOAguiuk+S7lueci+WIsOWNh+mBt+i3r+W+keOAguiCr+WumuS7lueahOaIkOWwseiAjOmdnuWK'+
-                'quWKmycsIG1vdGl2YXRlOiAn5qyK5Yqb44CB5oiQ5bCx44CB5o6M5o6n5oSf44CB5Y2H6YG356m66ZaTJywgd2FybmluZzogJ+WP'+
-                'r+iDveWkquW8t+WLouW+l+e9quS6uuOAgumBjuW6pui/veaxguasiuWKm+OAguaykuacieWNh+mBt+acg+aJvuS4i+WuticsIGlu'+
-                'dGVydmlldzogJ+acg+WVj+OAjOWNh+mBt+euoemBk+WmguS9leOAjeOAguacg+WxleePvumBjuWOu+eahOaIkOWwseWSjOaVuOWt'+
-                'lycsIGJlc3RNYXRjaDogW3tuOjcsZDon562W55Wl6ICF4oaS562W55WlK+Wft+ihjCd9LHtuOjIsZDon5Y2U6Kq/6ICF4oaS5by3'+
-                'K+aflCd9XSwgYXZvaWRNYXRjaDogW3tuOjEsZDon6ZaL5Ym16ICF4oaS5qyK5Yqb6ayl54itJ31dLCByYXRpbmdzOiB7aW5kZXBl'+
-                'bmRlbmNlOjUsb2JlZGllbmNlOjMsdGVhbXdvcms6MyxzdHJlc3M6NSxzdGFiaWxpdHk6NH0gfSwKICAgICAgICAgICAgICA5OiB7'+
-                'IHRhZzogJ+acjeWLmeiAhScsIHNsb2dhbjogJ+iuk+aIkeS+huW5q+WKqeabtOWkmuS6uicsIGJlc3RSb2xlczogWyfpnZ7nh5/l'+
-                'iKnntYTnuZTjgIHmlZnogrLjgIHlhaznm4onLCAnQ1NS44CBRVNH55u46Zec6IG35L2NJywgJ+WwjuW4q+OAgeWfueiok+W4qydd'+
-                'LCB3b3JzdFJvbGVzOiBbJ+e0lOWIqea9pOWwjuWQkeeahOmKt+WUricsICfpnIDopoHngrrkuobpjKLkuI3mk4fmiYvmrrXnmoTl'+
-                't6XkvZwnXSwgbWFuYWdlVGlwOiAn6YCj57WQ5bel5L2c6IiH5pu05aSn55qE5oSP576p44CC6K6T5LuW5Y+D6IiH5YWs55uK5rS7'+
-                '5YuV44CC5LiN6KaB5Y+q6KuH5pW45a2X77yM6KaB6KuH5b2x6Z+/5YqbJywgbW90aXZhdGU6ICfmhI/nvqnmhJ/jgIHluavliqnk'+
-                'u5bkurrjgIHooqvoqo3lj6/lgZrnmoTkuovmnInlg7nlgLwnLCB3YXJuaW5nOiAn5Y+v6IO96YGO5bqm54qn54my5LiN5YiH5a+m'+
-                '6Zqb44CC5bCN5LiN5YWs576p55qE5aOT5Yqb5b6I5pWP5oSf44CC5Y+q6KqN5ZCM5YWs5Y+455CG5b+15omN5pyD5b+g6KqgJywg'+
-                'aW50ZXJ2aWV3OiAn5pyD5ZWP44CM5YWs5Y+455qE5L2/5ZG95piv5LuA6bq844CN44CC5pyD6Zec5b+D44CM6YCZ5Lu95bel5L2c'+
-                '5pyJ5LuA6bq85oSP576p44CNJywgYmVzdE1hdGNoOiBbe246MyxkOifooajpgZTogIXihpLnkIblv7XlgrPmkq0nfSx7bjo2LGQ6'+
-                'J+eFp+mhp+iAheKGkuS9v+WRveWFsemztCd9XSwgYXZvaWRNYXRjaDogW3tuOjgsZDon5o6M5o6n6ICF4oaS5YO55YC86KeA6KGd'+
-                '56qBJ31dLCByYXRpbmdzOiB7aW5kZXBlbmRlbmNlOjQsb2JlZGllbmNlOjMsdGVhbXdvcms6NCxzdHJlc3M6MyxzdGFiaWxpdHk6'+
-                'NH0gfQogICAgICAgICAgICB9');
-            const TRI_H = _HL_D('ewogICAgICAgICAgICAgIDA6e3Q6J+a8gua1ruWeiycsYjon5a6J5YWo5oSf5LiN5L6d6ZmE5Zyo5Lu75L2V5YW36auU55qE5p2x'+
-                '6KW/5LiK44CC6Lef6Kqw6YO96IO96IGK77yM5L2G5b6I5bCR5pyJ5Lq655yf5q2j6LWw6YCy5qC45b+D44CCJyx4OifnvLrkuY/n'+
-                'qanlrprkvp3pmYTlsI3osaHvvIzooajpnaLoh6rnlLHlhbblr6bmmK/mspLmnInmrbjlsazmhJ/jgIInLGs6J+mBuOS4gOWAi+ad'+
-                'seilv++8jOiqjeecn+WwjeWug+iqquOAjOaIkeeVmeS4i+S+huOAjeOAgid9LAogICAgICAgICAgICAgIDE6e3Q6J+eNqOeri+We'+
-                'iycsYjon5a6J5YWo5oSf5L6G6Ieq44CM5oiR6Ieq5bex5pCe5b6X5a6a44CN44CC5b6e5bCP5bCx55m854++562J5Yil5Lq65LiN'+
-                '5aaC6Z2g6Ieq5bex5b+r44CC5rG6562W6YCf5bqm5piv5Yil5Lq655qE5YWp5YCN44CCJyx4Oifku6XngrrkuI3pnIDopoHliKXk'+
-                'urrmmK/lvLflpKfjgILplbfmnJ/mi5LntZXmlK/mjIHns7vntbHvvIzpq5jlo5PmsbrnrZblk4Hos6rkuIvpmY00MCXjgIInLGs6'+
-                'J+WtuOacg+iqquOAjOW5q+aIkeS4gOS4i+OAje+8jOmAmeS4ieWAi+Wtl+S4jeacg+iuk+S9oOiuiuW8seOAgid9LAogICAgICAg'+
-                'ICAgICAgIDI6e3Q6J+S+nemZhOWeiycsYjon5a6J5YWo5oSf5L6G6Ieq44CM5peB6YKK5pyJ5Lq644CN44CC5LiN6ZyA6KaB5bCN'+
-                '5pa55YGa5LuA6bq877yM55+l6YGT5pyJ5Lq65Zyo5bCx56mp5LqG44CC5aSp55Sf6K6A5b6X5oeC5oOF57eS44CCJyx4Oifmiorl'+
-                'kozoq6fnlbbmnIDpq5jlhKrlhYjvvIzlo5Poh6rlt7HmiJDlhajliKXkurrjgILnhKbmha7lnovkvp3pmYTigJTigJTkuI3mmK/m'+
-                'hJvlkozlubPvvIzmmK/mgJXooqvkuJ/kuIvjgIInLGs6J+acieS6uuWVj+S9oOOAjOaDs+WQg+S7gOm6vOOAje+8jOS4jeimgeiq'+
-                'quOAjOmDveWPr+S7peOAje+8jOiqquS4gOWAi+WFt+mrlOetlOahiOOAgid9LAogICAgICAgICAgICAgIDM6e3Q6J+WtmOWcqOWe'+
-                'iycsYjon5a6J5YWo5oSf5L6G6Ieq44CM6KKr55yL6KaL44CN44CC6ZyA6KaB56K66KqN6Ieq5bex5Zyo5LiW55WM5LiK5piv5a2Y'+
-                '5Zyo55qE44CC5aSp55Sf55qE5rCj5rCb6KO96YCg6ICF44CCJyx4OifnlKjjgIzmnInotqPjgI3kv53orbfoh6rlt7HjgILooajm'+
-                'vJTlnovpmLLooZvigJTigJTmgJXnmoTmmK/ooqvnnIvnqb/kuYvlvozpgoTooqvkuI3ooqvllpzmraHjgIInLGs6J+WujOaIkOS4'+
-                'gOS7tuS6i+OAguS4jeaYr+mWi+Wni++8jOaYr+W+numgreWIsOWwvuWujOaIkO+8jOWMheaLrOeEoeiBiueahOS4remWk+auteOA'+
-                'gid9LAogICAgICAgICAgICAgIDQ6e3Q6J+aOjOaOp+WeiycsYjon5a6J5YWo5oSf5L6G6Ieq44CM5LiA5YiH5bCx5a6a5L2N44CN'+
-                '44CC55Kw5aKD56mp5a6a44CB6KiI55Wr5piO56K677yM5L2g5omN6IO95ZG85ZC444CC5pyA6Z2g6K2c55qE5Lq644CCJyx4Oifm'+
-                'iormjozmjqfnlbblronlhajmhJ/kvobmupDjgILpgY7luqboqIjnlavmnKzouqvlsLHmmK/nhKbmha7nmoTooajnj77lvaLlvI/j'+
-                'gIInLGs6J+WFgeioseS4gOS7tuS6i+S4jeaMieioiOeVq+i1sO+8jOingOWvn+S4lueVjOacieaykuacieWboOatpOavgOa7heOA'+
-                'gid9LAogICAgICAgICAgICAgIDU6e3Q6J+mAgOi3r+WeiycsYjon5a6J5YWo5oSf5L6G6Ieq44CM5pyJ6YCA6Lev44CN44CC6ZyA'+
-                '6KaB55+l6YGT6Ieq5bex5Y+v5Lul6LWw77yM5omN5b6F5b6X5L2P44CC6K6K5YuV5Lit5om+5qmf5pyD77yM6LaK5LqC6LaK5Ya3'+
-                '6Z2c44CCJyx4Oifku6Xngrroh6rnlLHmmK/moLjlv4PpnIDmsYLvvIzlhbblr6bmmK/pmLLooZvmqZ/liLbjgILmgJXnlZnkuIvk'+
-                'vobkuYvlvoznmbznj77kuI3mmK/opoHnmoTjgIInLGs6J+WcqOWQjOS4gOWAi+WcsOaWueOAgeWQjOS4gOautemXnOS/guijoe+8'+
-                'jOW+heW+l+avlOS9oOS7peeCuuiDveaJv+WPl+eahOabtOS5heS4gOm7nuOAgid9LAogICAgICAgICAgICAgIDY6e3Q6J+iiq+mc'+
-                'gOimgeWeiycsYjon5a6J5YWo5oSf5L6G6Ieq44CM6KKr6ZyA6KaB44CN44CC5pyJ5Lq66ZyA6KaB5L2g77yM5L2g5omN6Ka65b6X'+
-                '56uZ5Zyo5pyJ5oSP576p55qE5L2N572u44CC5b6e5bCP5bCx5Zyo54Wn6aGn5Yil5Lq644CCJyx4OifnlKjku5jlh7rntoHkvY/p'+
-                'l5zkv4LjgILmi6/mlZHogIXmg4XntZDigJTigJTku6XngrrlnKjluavkurrvvIzlhbblr6blnKjnorrkv53kuI3ooqvmi4vmo4Tj'+
-                'gIInLGs6J+WVj+iHquW3se+8muWmguaenOaykuacieS6uumcgOimgeaIke+8jOaIkemChOaYr+iqsO+8n+etlOahiOS4jeaHieip'+
-                'suaYr+epuueZveOAgid9LAogICAgICAgICAgICAgIDc6e3Q6J+eQhuino+WeiycsYjon5a6J5YWo5oSf5L6G6Ieq44CM5byE5oeC'+
-                '5LqG44CN44CC5pCe5LiN5riF5qWa5bCx54Sm5oWu77yM55CG6Kej5LqG5omN6IO95pS+6ayG44CC5LiN6LyV5piT5L+h5Lu75Lq6'+
-                '44CCJyx4OifmiornkIbop6PnlbbmiJDmjqfliLbnmoTlj6bkuIDnqK7lvaLlvI/jgILpgY7luqbliIbmnpDmmK/pgIPpgb/ooYzl'+
-                'i5XnmoTmlrnlvI/jgIInLGs6J+WcqOmChOaykuWujOWFqOaQnuaHgueahOaDheazgeS4i++8jOWFiOWLlei1t+S+huOAgui6q+mr'+
-                'lOavlOiFpuiii+WLh+aVouOAgid9LAogICAgICAgICAgICAgIDg6e3Q6J+W6leawo+WeiycsYjon5a6J5YWo5oSf5L6G6Ieq44CM'+
-                '5pyJ5bqV5rCj44CN44CC5omL5LiK5pyJ6LOH5rqQ5pyJ5a+m5Yqb77yM5omN6Ka65b6X6Lip5b6X56mp44CC5YGa5LqL55yL57WQ'+
-                '5p6c77yM5qiZ5rqW5bCx5piv5qiZ5rqW44CCJyx4Oifmiormjozmjqfos4fmupDnrYnmlrzmjozmjqfkurrnlJ/jgILmgJXnmoTk'+
-                'uI3mmK/mspLpjKLvvIzmmK/jgIzmspLmnInos4fmoLzjgI3jgIInLGs6J+iuk+iHquW3seepuuaJi+ermeWcqOS6uue+pOijoeOA'+
-                'guS4jeW4tumgremKnOS4jeW4tuaIkOWwse+8jOS9oOmChOaYr+S9oOOAgid9LAogICAgICAgICAgICAgIDk6e3Q6J+aEj+e+qeWe'+
-                'iycsYjon5a6J5YWo5oSf5L6G6Ieq44CM5pyJ5oSP576p44CN44CC5Y+v5Lul5o6l5Y+X6L6b6Ium77yM5LiN6IO95o6l5Y+X5LiN'+
-                '55+l6YGT54K65LqG5LuA6bq844CC5bCN5Lq65pyJ5aSp54S255qE5oWI5oKy44CCJyx4OifmiorngrrliKXkurrniqfnibLnvo7l'+
-                'jJbmiJDmnInmhI/nvqnnmoTkurrnlJ/jgILniqfnibLkuI3nrYnmlrzmhI/nvqnvvIzplbfmnJ/oh6rmiJHmtojogJfmnIPmhYjm'+
-                'grLlgKbmgKDjgIInLGs6J+WFiOaKiuiHquW3seeahOS6uueUn+mBjuWlveOAguS9oOaykui+puazleeUqOepuuadr+WtkOWAkuaw'+
-                'tOe1puWIpeS6uuOAgid9LAogICAgICAgICAgICAgIDExOnt0Oifnm7ToprrlnosnLGI6J+WuieWFqOaEn+S+huiHquebtOimuuei'+
-                'uuiqjeOAguS4jeaYr+eUqOiFpuiii+WIpOaWt+WuieS4jeWuieWFqO+8jOaYr+eUqOaVtOWAi+i6q+mrlOWcqOaEn+imuuOAguS4'+
-                'ieenkuWFp+efpemBk+WwjeS4jeWwjeOAgicseDon5aSq5a655piT6KKr55u06Ka65bi26LWw77yM5b+Y5LqG55CG5oCn5LqM5qyh'+
-                '56K66KqN44CC56K66KqN5YGP6Kqk5Zyo6auY5pWP5oSf5peP576k5Lit6auY5Ye6MzAl44CCJyxrOifnm7ToprrlkYroqLTkvaDj'+
-                'gIzpgJnlgIvlsI3jgI3mmYLvvIzlhYjnrYkyNOWwj+aZguOAguetieWujOmChOS4gOaoo++8jOaJjeaYr+ecn+eahOOAgid9LAog'+
-                'ICAgICAgICAgICAgIDIyOnt0Oiflu7rpgKDlnosnLGI6J+WuieWFqOaEn+S+huiHquOAjOaIkeato+WcqOiTi+S4gOWAi+W+iOWk'+
-                'p+eahOadseilv+OAjeOAguS4jeaYr+ecvOWJjeepqeWumuiuk+S9oOWuieW/g++8jOaYr+efpemBk+iTi+WujOW+jOacg+aUueiu'+
-                'iuW+iOWkmuS6uuOAgicseDon5a6J5YWo5oSf5bu656uL5Zyo5pyq5L6G77yM6IWz5LiL5Zyw5Z+65Y+v6IO96YKE5rKS56mp44CC'+
-                '57+S5oWj55So5pyq5L6G6aGY5pmv5a6J5pKr55W25LiL54Sm5oWu44CCJyxrOifmiorkuIDku7blsI/liLDkuI3og73lho3lsI/n'+
-                'moTkuovlgZrlrozjgILkuI3mmK/lpKfol43lnJbvvIzmmK/nnLzliY3kvaDkuIDnm7Tmi5bokZfnmoTlsI/kuovjgIInfSwKICAg'+
-                'ICAgICAgICAgICAzMzp7dDon5L2/5ZG95Z6LJyxiOiflronlhajmhJ/kvoboh6rjgIzlgZrlsI3lvojlpJrkurrmnInmhI/nvqnn'+
-                'moTkuovjgI3jgILlpKnnhLbnmoTlronlhajnqbrplpPoo73pgKDogIXvvIzkuI3pnIDopoHoqqrku4DpurzvvIzkurrlgJHlsLHm'+
-                'nIPprIbplovjgIInLHg6J+WDj+a1t+e2v+WQuOaUtuaJgOacieS6uueahOaDhee3kuOAgumrmOWFseaDheS6uuagvOWcqOmVt+ac'+
-                'n+mrmOW8t+W6puaDhee3kueSsOWig+S4reWFjeeWq+ezu+e1seaYjumhr+S4i+mZjeOAgicsazon5a245pyD44CM5LiN5o6l44CN'+
-                '44CC5LiN5piv5Ya35ryg77yM5piv5L+d6K2344CC5L2g5LiN6ZyA6KaB5o6l5L2P5omA5pyJ5Lq644CCJ30KICAgICAgICAgICAg'+
-                'fQ==');
-            const TRI_O = _HL_D('ewogICAgICAgICAgICAgIDA6e3Q6J+acquWumue+qeWeiycsYjon5LiW55WM5LiN55+l6YGT5oCO6bq85a6a576p5L2g44CC6Lef'+
-                '6Kqw6YO96IO96IGK77yM5L2G5b6I5bCR5Lq655+l6YGT55yf5q2j55qE5L2g44CC5by36aCF5piv6Leo55WM5pW05ZCI44CCJyx4'+
-                'Oifku4Dpurzpg73og73lgZrkuZ/ku6PooajmspLmnInkuIDku7bkuovmmK/kvaDnmoTjgILnm7LljYDkuI3mmK/og73lipvvvIzm'+
-                'mK/mib/oq77jgIInLGs6J+mBuOS4gOS7tuS6i++8jOWwjeWug+iqquOAjOmAmeaYr+aIkeeahOOAje+8jOeEtuW+jOeUqOS4ieW5'+
-                'tOitieaYjuOAgid9LAogICAgICAgICAgICAgIDE6e3Q6J+mgmOmgreWeiycsYjon5LiW55WM6aCQ6Kit5L2g5piv6aCY6aCt55qE'+
-                '44CC5a2Y5Zyo5oSf5b6I5by377yM5bCx566X5LiN6Kqq6Kmx5Yil5Lq65Lmf5rOo5oSP5Yiw5L2g44CC5Y+N5oeJ5rC46YGg5piv'+
-                '44CM5oiR5L6G44CN44CCJyx4Oifku6XngrrluLbpoK3lsLHmmK/kuIDlgIvkurrotbDlnKjmnIDliY3pnaLjgILmnIDmnInmlYjn'+
-                'moTpoJjlsI7ogIXmmK/orpPlnJjpmorkuIDotbfotbDnmoTkurrjgIInLGs6J+WBmuaxuuWumuS5i+WJjeWFiOWVj+S4gOWPpeOA'+
-                'jOS9oOaAjum6vOeci++8n+OAjeOAguS4jeaYr+Wuouawo++8jOaYr+ecn+eahOWVj+OAgid9LAogICAgICAgICAgICAgIDI6e3Q6'+
-                'J+api+aokeWeiycsYjon5LiW55WM6aCQ6Kit5L2g5piv5qmL5qiR44CC6IO95Zyo5LiJ56eS5YWn6K6A5oeC5oi/6ZaT6KOh55qE'+
-                '56m65rCj44CC5aSq5a655piT5oqK5Yil5Lq655qE5ZWP6aGM5omb5Yiw6Ieq5bex6IKp5LiK44CCJyx4OifmiororpPlpKflrrbp'+
-                'g73mu7/mhI/nlbbnm67mqJnjgILoqablnJborpPmiYDmnInkurrmu7/mhI/vvIzmnIDkuI3mu7/mhI/nmoTmmK/oh6rlt7HjgIIn'+
-                'LGs6J+e3tOe/kuiuk+S4gOWAi+S6uuWwjeS9oOS4jea7v+aEj+OAguS9oOmChOWcqO+8jOS4lueVjOS5n+mChOWcqOOAgid9LAog'+
-                'ICAgICAgICAgICAgIDM6e3Q6J+ihqOmBlOWeiycsYjon5LiW55WM6aCQ6Kit5L2g5piv5pyD6Kqq6Kmx55qE6YKj5YCL5Lq644CC'+
-                '5LiN6ZaL5Y+j5Yil5Lq65bCx6Ka65b6X5bCR5LqG5LuA6bq844CC5oCd57at5piv55m85pWj5Z6L77yM5LiA5YCL6aGM5Zm05LiD'+
-                '5YCL5pa55ZCR44CCJyx4Oifoqp7oqIDmmK/mrablmajkuZ/mmK/nm77niYzjgILnlKjoqqrkvobomZXnkIbkuIDliIfvvIzljIXm'+
-                'i6zkuI3mg7PpnaLlsI3nmoTmg4Xnt5LjgIInLGs6J+e3tOe/kuiuk+Wwjeipseijoeacieayiem7mOeahOepuumWk+OAgid9LAog'+
-                'ICAgICAgICAgICAgIDQ6e3Q6J+mdoOitnOWeiycsYjon5LiW55WM6aCQ6Kit5L2g5piv5pCe5b6X5a6a55qE5Lq644CC5Lqk57Wm'+
-                '5L2g5LiN5pyD5Ye66Yyv77yM5L2G5Lmf6KKr6YCZ5YCL5pyf5b6F5aOT5b6X5ZaY5LiN6YGO5rCj44CCJyx4OifmiorpnaDorZzn'+
-                'lbboh6rmiJHlg7nlgLzjgILmkJ7noLjkuIDku7bkuovoh6rmiJHlg7nlgLzkuZ/noo7jgILlroznvo7kuLvnvqnmmK/mgZDmh7zn'+
-                'moTlgb3oo53jgIInLGs6J+aVheaEj+WBmuS4gOS7tuOAjOW3ruS4jeWkmuWwseWlveOAjeeahOS6i++8jOeci+Wkqeacg+S4jeac'+
-                'g+WhjOOAgid9LAogICAgICAgICAgICAgIDU6e3Q6J+egtOWxgOWeiycsYjon5LiW55WM6aCQ6Kit5L2g5piv5omT56C05YO15bGA'+
-                '55qE5Lq644CC5oCd57at6Z2e57ea5oCn77yM5Yil5Lq65oOzQeKGkkLihpJD5L2g5bey6Lez5YiwWuOAgicseDon5oqK5pS56K6K'+
-                '55W26Kej5pa544CC5pyJ5Lqb5ZWP6aGM5LiN5piv5o+b55Kw5aKD6IO96Kej5rG655qE77yM5piv5L2g5bi26JGX6LWw55qE44CC'+
-                'JyxrOiflnKjkuIDku7bkuovkuIrloIXmjIHnqb/pgY7jgIznhKHogYrmnJ/jgI3jgILnhKHogYrnmoTlj6bkuIDpnaLlj6vlsIjn'+
-                'sr7jgIInfSwKICAgICAgICAgICAgICA2Ont0OifnhafpoaflnosnLGI6J+S4lueVjOmgkOioreS9oOaYr+eFp+mhp+iAheOAguS9'+
-                'oOS4gOWHuuePvuWkp+WutuWwseaUvumshuS6hu+8jOWboOeCuuacieS6uueuoeS6huOAguW/g+ijoeacieS4gOacrOW4s+W+nuS4'+
-                'jee/u+mWi+OAgicseDon5oqK54Wn6aGn5Yil5Lq655W26KKr5oSb55qE5qKd5Lu244CC5LiN5piv5oSb77yM5piv5Lqk5piT44CC'+
-                '55uy5Y2A5LiN5piv5LuY5Ye677yM5piv5YuV5qmf44CCJyxrOifku4Dpurzpg73kuI3lgZrlnLDlvoXlnKjkuIDlgIvkurrouqvp'+
-                'gorjgILkuI3nhafpoafkuI3luavlv5nvvIznnIvlsI3mlrnpgoTlnKjkuI3lnKjjgIInfSwKICAgICAgICAgICAgICA3Ont0Oifm'+
-                'tJ7lr5/lnosnLGI6J+S4lueVjOmgkOioreS9oOaYr+eci+epv+acrOizqueahOS6uuOAguingOWvn+S6uuWDj+WcqOWBmueglOep'+
-                'tuOAguaAneiAg+a3seW6puaYr+WIpeS6uuS4ieWAje+8jOWuueaYk+WIhuaekOeZseeYk+OAgicseDon5Lul54K655yL56m/5LiA'+
-                '5YiH5bCx5LiN5pyD5Y+X5YK344CC5rSe5a+f5Yqb5by35Y+X5YK35pu05rex77yM5Zug54K66YCj5YuV5qmf6YO955yL5b6X5LiA'+
-                '5riF5LqM5qWa44CCJyxrOifot5/kuIDlgIvkurrnm7jomZXmmYLpl5zmjonliIbmnpDmqKHlvI/jgILnlKjmhJ/oprrvvIzkuI3n'+
-                'lKjohabooovjgIInfSwKICAgICAgICAgICAgICA4Ont0OifmkpDloLTlnosnLGI6J+S4lueVjOmgkOioreS9oOaYr+aSkOS9j+Wg'+
-                'tOmdoueahOS6uuOAguWHuuS6huS6i+Wkp+WutuesrOS4gOWAi+eci+WQkeS9oOOAguawo+WgtOW+iOW8t++8jOS4jeaYr+WFh+aY'+
-                'r+epqeOAgicseDon5oqK5LiN6IO95YCS55W25L+h5b+144CC6ZW35pyf5aOT5oqR6ISG5byx5oSf77yM5b+D6KGA566h55a+55eF'+
-                '6aKo6Zqq6aGv6JGX5YGP6auY44CCJyxrOifmib7kuIDlgIvkurrorpPku5bnnIvliLDkvaDmkpDkuI3kvY/nmoTmqKPlrZDjgILk'+
-                'u5bmspLmnInlm6DmraTpm6LplovjgIInfSwKICAgICAgICAgICAgICA5Ont0OifmoLzlsYDlnosnLGI6J+S4lueVjOmgkOioreS9'+
-                'oOaYr+e1puaWueWQkeeahOS6uuOAguWkqeeEtuWMheWuue+8jOiDveaOpee0jeWQhOeoruS4jeWQjOeahOS6uuOAguWBmuS6i+ag'+
-                'vOWxgOW+iOWkp++8jOWwj+S6i+S4jeWkquaDs+euoeOAgicseDon5qC85bGA5aSn5pyJ5pmC5piv6YCD6YG/57Sw56+A55qE5pa5'+
-                '5byP44CC56uZ5aSq6auY55yL5LiN6KaL6IWz5LiL44CC55uy5Y2A5LiN5piv6KaW6YeO77yM5piv6JC95Zyw44CCJyxrOiflgZrk'+
-                'uIDku7blvojlsI/lvojlhbfpq5TnmoTkuovjgILmjoPlnLDjgIHmtJfnopfjgIHlm57kuIDlsIHmi5bkuobkuInlpKnnmoToqIrm'+
-                'ga/jgIInfSwKICAgICAgICAgICAgICAxMTp7dDon55u06Ka65byV6Lev5Z6LJyxiOifkuJbnlYzpoJDoqK3kvaDmmK/nm7Toprrl'+
-                'novlvJXot6/kurrjgILkuI3pnIDopoHliIbmnpDlsLHog73nnIvliLDmlrnlkJHjgILlgZrkuovpnaDmoKHmupbmhJ/kuI3pnaDo'+
-                'qIjnlavooajjgIInLHg6J+ebtOimuuWksea6luaZguS4jeefpeaAjum6vOWIh+aPm+eQhuaAp+OAgumrmOebtOimuuWei+S6uuag'+
-                'vOWjk+WKm+S4i+WIpOaWt+Wksea6lueOh+aApemBveS4iuWNh+OAgicsazon5om+5LiA5YCL6Lef5L2g5a6M5YWo5LiN5ZCM6aGe'+
-                '5Z6L55qE5Lq655W244CM54++5a+m5qqi5p+l5Zmo44CN44CCJ30sCiAgICAgICAgICAgICAgMjI6e3Q6J+ezu+e1seW7uumAoOWe'+
-                'iycsYjon5LiW55WM6aCQ6Kit5L2g5piv57O757Wx5bu66YCg6ICF44CC5LiN6ZyA6KaB5aSn6IGy6Kqq6Kmx77yM5YGa5Ye65L6G'+
-                '55qE5p2x6KW/5pu/5L2g6Kqq6Kmx44CC5oCd57at5p625qeL5YWI6KGM44CCJyx4OifnnIvliLDnmoTol43lnJblpKrlpKfvvIzm'+
-                'r4/lpKnog73lgZrnmoTlpKrlsI/jgILpq5jmqJnmupbpqYXli5XlnovkurrmoLzlgKbmgKDpoqjpmqrmmK/kuIDoiKzkuroyLjTl'+
-                'gI3jgIInLGs6J+aKiuWBieWkp+iXjeWcluaLhuaIkOS7iuWkqeiDveWBmueahOS4gOS7tuS6i+OAguWBieWkp+aYr+S4gOWkqeS4'+
-                'gOWhiuejmuWghuWHuuS+hueahOOAgid9LAogICAgICAgICAgICAgIDMzOnt0Oifkv67lvqnlsI7luKvlnosnLGI6J+S4lueVjOmg'+
-                'kOioreS9oOaYr+iuk+S6uuiHquaIkeS/ruW+qeeahOWtmOWcqOOAguS9oOeahOWgtOWfn+W4tuaciea3qOWMluWKn+iDveOAguW3'+
-                'peS9nOaIkOaenOmbo+eUqEtQSeihoemHj+OAgicseDon5aSq5a655piT5oqK5Yil5Lq655eb6Ium55W26Ieq5bex5Yqf6Kqy44CC'+
-                '5YiG5LiN5riF5qWa5ZOq5Lqb5piv5L2g55qE5oOF57eS5ZOq5Lqb5piv5ZC45pS25L6G55qE44CCJyxrOifmr4/lpKnkupTliIbp'+
-                'kJjllY/oh6rlt7HvvJrmiJHmhJ/oprrliLDnmoTmg4Xnt5LvvIzmmK/miJHnmoTvvIzpgoTmmK/liKXkurrnmoTvvJ8nfQogICAg'+
-                'ICAgICAgICB9');
-            const TRI_U = _HL_D('ewogICAgICAgICAgICAgIDA6e3Q6J+epuueZveeVq+W4gycsYjon5LiW55WM54K65L2g5rqW5YKZ55qE5piv5LiA54mH56m655m9'+
-                '44CC5LiN5piv57y65LmP77yM5piv6K6T5L2g6Ieq5bex5aGr5LiK55qE55Wr5biD44CC5L2g5piv6Ieq5bex5pyA5aSn55qE6LOH'+
-                '5rqQ44CCJyx4Oiflj6/og73oprrlvpfkuJbnlYzku4Dpurzpg73mspLntabmiJHogIzlp5TlsYjjgILnqbrnmb3kuI3mmK/ljLHk'+
-                'uY/vvIzmmK/oh6rnlLHjgIInLGs6J+aLv+i1t+ethuWcqOepuueZveS4iueVq+esrOS4gOethu+8jOS4jeeuoeeVq+S7gOm6vOWF'+
-                'iOeVq+OAgid9LAogICAgICAgICAgICAgIDE6e3Q6J+iiq+i/q+eNqOeriycsYjon5LiW55WM54K65L2g5rqW5YKZ55qE5piv6KKr'+
-                '6L+r542o56uL55qE5oOF5aKD44CC5L2g5Lul54K65piv6KKr5Lif5LiL77yM5YW25a+m5piv6K6T5L2g6ZW35Ye657+F6IaA44CC'+
-                'Jyx4Oiflj6/og73lm6DmraTororlvpfkuI3mlaLkvp3os7Tku7vkvZXkurrjgILooqvov6vnjajnq4vlkozpgbjmk4fnjajnq4vm'+
-                'mK/lhannorzkuovjgIInLGs6J+WIhui+qOa4healmuS9oOePvuWcqOeahOeNqOeri++8jOaYr+ecn+eahOiHqueUsemChOaYr+S4'+
-                'jeaVouS/oeS7u+eahOW+jOmBuueXh+OAgid9LAogICAgICAgICAgICAgIDI6e3Q6J+WwjeeahOS6uicsYjon5LiW55WM54K65L2g'+
-                '5rqW5YKZ55qE5piv5bCN55qE5Lq644CC5LiN5piv6L2f6L2f54OI54OI5Ye654++55qE6LK05Lq677yM5piv5Zyo6Zec6Y215pmC'+
-                '5Yi75Ymb5aW95Zyo5peB6YKK55qE5Lq644CCJyx4Oiflj6/og73lpKrkvp3os7TmnInkurrlnKjmiY3mlaLli5XjgILpgqPlgIvk'+
-                'urrkuI3mnIPmsLjpgaDlnKjjgIInLGs6J+WIpeS6uuW5q+S6huS9oO+8jOWVj+iHquW3seS7luaVmeacg+S6huS9oOS7gOm6vO+8'+
-                'jOiuk+S9oOS7peW+jOS4jemcgOimgeS7luS5n+WPr+S7peOAgid9LAogICAgICAgICAgICAgIDM6e3Q6J+S4gOWAi+iInuWPsCcs'+
-                'Yjon5LiW55WM54K65L2g5rqW5YKZ55qE5piv5LiA5YCL6Iie5Y+w44CC5LiN566h5L2g6Lqy5Yiw5ZOq6KOh77yM57i95pyJ5LiA'+
-                '5aSp6KKr5o6o5Yiw6ZyA6KaB6ZaL5Y+j55qE5Zyw5pa544CCJyx4Oiflj6/og73lm6DngrrlrrPmgJXoqqrpjK/ogIzpgbLpgbLk'+
-                'uI3plovlj6PjgILkvaDmupblgpnlpb3kuobvvIzlj6rmmK/kuI3nm7jkv6Hoh6rlt7Hmupblgpnlpb3kuobjgIInLGs6J+S4jeWu'+
-                'jOe+juWcsOiqquWHuuS+hu+8jOavlOWujOe+juWcsOayiem7mOacieWKm+mHj+S4gOiQrOWAjeOAgid9LAogICAgICAgICAgICAg'+
-                'IDQ6e3Q6J+S4gOWll+ezu+e1sScsYjon5LiW55WM54K65L2g5rqW5YKZ55qE5piv5LiA5aWX57O757Wx44CC5L2g5Y+v6IO954++'+
-                '5Zyo5b6I6KiO5Y6t6KaP5YmH77yM5L2G6KaP5YmH5pyA5b6M5pyD6K6K5oiQ5L+d6K235L2g55qE5ZyN54mG44CCJyx4Oiflj6/o'+
-                'g73lm6DmuLTmnJvoh6rnlLHogIzmipfmi5LmiYDmnInmoYbmnrbjgILmspLmnInntZDmp4vnmoToh6rnlLHlj6vmt7fkuoLjgIIn'+
-                'LGs6J+e1puiHquW3seW7uuS4gOWAi+acgOWwj+eahOaXpeW4uOe1kOani+OAguavj+WkqeS4gOS7tuS6i++8jOWbuuWumuaZgumW'+
-                'k+WBmuOAgid9LAogICAgICAgICAgICAgIDU6e3Q6J+S4gOWgtOaEj+WklicsYjon5LiW55WM54K65L2g5rqW5YKZ55qE5piv5LiA'+
-                '5aC05oSP5aSW44CC6KiI55Wr5LmL5aSW55qE6YKj5YCL6L2J5oqY77yM5omN5piv55yf5q2j5pS56K6K5L2g5LiA55Sf55qE5p2x'+
-                '6KW/44CCJyx4Oiflj6/og73ppIrmiJDnrYnmhI/lpJbnmbznlJ/nmoTooqvli5Xlv4PmhYvjgILmhI/lpJblj6rmnInlnKjkvaDn'+
-                'p7vli5XmmYLmiY3og73mkp7kuIrkvaDjgIInLGs6J+S4u+WLleijvemAoOS4gOWAi+Wwj+aUueiuiuOAguS4jeimgeetieS4lueV'+
-                'jOS+huaOqOS9oO+8jOS9oOWFiOaOqOiHquW3seS4gOS4i+OAgid9LAogICAgICAgICAgICAgIDY6e3Q6J+S4gOWAi+mcgOimgeS9'+
-                'oOeahOS6uicsYjon5LiW55WM54K65L2g5rqW5YKZ55qE5piv5LiA5YCL6ZyA6KaB5L2g55qE5Lq644CC5L2g5Lul54K65Zyo54Wn'+
-                '6aGn5LuW77yM5YW25a+m5LuW55qE5Ye654++5piv5L6G5bmr5L2g5om+5Yiw5L2g6Ieq5bex44CCJyx4Oiflj6/og73lm6DmraTo'+
-                'qo3lrprmiJHnmoTlg7nlgLzkvoboh6rooqvpnIDopoHjgILooqvpnIDopoHmmK/kvaDnmoTlip/og73vvIzkuI3mmK/kvaDnmoTo'+
-                'uqvku73jgIInLGs6J+WcqOaykuS6uumcgOimgeS9oOeahOaZguWAme+8jOS+neeEtuimuuW+l+iHquW3seWAvOW+l+WtmOWcqOOA'+
-                'gid9LAogICAgICAgICAgICAgIDc6e3Q6J+S4gOWAi+etlOahiCcsYjon5LiW55WM54K65L2g5rqW5YKZ55qE5piv5LiA5YCL562U'+
-                '5qGI44CC5L2g5LiA55u05om+55qE5ou85ZyW5pyD5Zyo5pyA5LiN5Yi75oSP55qE5pmC5YCZ5o6J5Yiw6Z2i5YmN44CCJyx4Oifl'+
-                'j6/og73lm6DmraTpgY7luqbkv6Hku7vmg7PpgJrlsLHlpb3kuobjgILmg7PpgJrlkozlgZrliLDkuYvplpPpgoTmnInlvojplbfn'+
-                'moTot6/jgIInLGs6J+aDs+mAmuS6huS7gOm6vO+8jDI05bCP5pmC5YWn5YGa5LiA5Lu26Lef6YCZ5YCL5oOz5rOV5pyJ6Zec55qE'+
-                '5YW36auU6KGM5YuV44CCJ30sCiAgICAgICAgICAgICAgODp7dDon5LiA5qyh57+76LqrJyxiOifkuJbnlYzngrrkvaDmupblgpnn'+
-                'moTmmK/kuIDmrKHnv7vouqvjgILkvaDlj6/og73ntpPmrbfkvY7osLfvvIzkvYbkvY7osLfnm6HpoK3mnInlj6rmnInkvaDog73n'+
-                'q5nkuIrnmoTkvY3nva7jgIInLHg6J+WPr+iDvea9m+aEj+itmOijoemcgOimgeS9juiwt+OAguWboOeCuuWPquacieWcqOiwt+W6'+
-                'leaJjeimuuW+l+acieWLleWKm+OAgicsazon5a245pyD5Zyo5bmz5Zyw5LiK5Lmf6IO95Yqg6YCf44CC5LiN55So562J5Yiw5pGU'+
-                '5LiL5Y675omN55+l6YGT5b6A5ZOq6LeR44CCJ30sCiAgICAgICAgICAgICAgOTp7dDon5LiA5q6157aT5q23JyxiOifkuJbnlYzn'+
-                'grrkvaDmupblgpnnmoTmmK/kuIDmrrXntpPmrbfjgILpgqPmrrXkvaDoprrlvpfmnIDovpvoi6bnmoTml6XlrZDvvIzmnIDlvozm'+
-                'nIPorormiJDkvaDmnIDmnInlipvph4/nmoTmlYXkuovjgIInLHg6J+WPr+iDveWboOatpOe+juWMlueXm+iLpu+8jOimuuW+l+ay'+
-                'kuacieeXm+iLpuWwseaykuacieaIkOmVt+OAguaIkOmVt+S4jeS4gOWumumcgOimgeeXm+iLpuOAgicsazon5YWB6Kix5aW95LqL'+
-                '55m855Sf5Zyo5L2g6Lqr5LiK77yM5LiN6ZyA6KaB5YWI5ZCD6Ium5omN6YWN5b6X5LiK44CCJ30sCiAgICAgICAgICAgICAgMTE6'+
-                'e3Q6J+S4gOasoeimuumGkicsYjon5LiW55WM54K65L2g5rqW5YKZ55qE5piv5LiA5qyh6Ka66YaS44CC5LiN5piv5oWi5oWi57Sv'+
-                '56mN77yM5piv5p+Q5LiA5aSp5p+Q5LiA5Yi756qB54S25pW05YCL5Lq65YOP6KKr6Zu75Yiw5LiA5qij5riF6YaS6YGO5L6G44CC'+
-                'Jyx4Oiflj6/og73kuIDnm7TlnKjnrYnkuIvkuIDmrKHoprrphpLjgILoprrphpLkuI3mmK/nrYnkvobnmoTvvIzmmK/lgZrkuobl'+
-                'pKfph4/mupblgpnlvozmiY3nmbznlJ/nmoTjgIInLGs6J+S4jeimgeetieimuumGkuOAguWFiOWBmu+8jOWBmuWIsOafkOWAi+iH'+
-                'qOeVjOm7nu+8jOimuumGkuiHqueEtuacg+S+huaJvuS9oOOAgid9LAogICAgICAgICAgICAgIDIyOnt0OifkuIDlgIvlubPlj7An'+
-                'LGI6J+S4lueVjOeCuuS9oOa6luWCmeeahOaYr+S4gOWAi+imj+aooeaAp+iInuWPsOOAguS4jeaYr+Wwj+aJk+Wwj+msp+eahOap'+
-                'n+acg+OAguWIpeS6uuimuuW+l+WkquWkp+S4jeaVouaOpe+8jOS9oOaOpeS6hu+8jOS9oOWBmuWIsOS6huOAgicseDon5Y+v6IO9'+
-                '5Zug54K65LiA55u0562J5aSg5aSn55qE5qmf5pyD77yM5oqK55y85YmN5bCP5qmf5pyD6YO95pS+6YGO5LqG44CCJyxrOifmiorn'+
-                'nLzliY3mnIDlsI/nmoTmqZ/mnIPnlbbmiJDkvaDnmoQyMuiZn+W5s+WPsOOAguWFqOWKm+S7pei1tOWcsOWBmuOAgid9LAogICAg'+
-                'ICAgICAgICAgIDMzOnt0OifkuIDmrKHlvrnlupXovYnljJYnLGI6J+S4lueVjOeCuuS9oOa6luWCmeeahOaYr+S4gOasoeW+ueW6'+
-                'lei9ieWMlue2k+att+OAgue2k+att+WujOaVtOWAi+S6uuiEq+iDjuaPm+mqqOOAguacgOW8t+Wkp+eahOatpuWZqOaYr+abvue2'+
-                'k+acgOiEhuW8seeahOWcsOaWueOAgicseDon5Y+v6IO95r2b5oSP6K2Y6KOh6ZyA6KaB6Ium6Zuj44CC5L2g5bey57aT57aT5q23'+
-                '5aSg5LqG77yM5o6l5LiL5L6G5Y+v5Lul6YG45pOH5rqr5p+U5Zyw5oiQ6ZW344CCJyxrOiflhYHoqLHlpb3kuovnm7TmjqXnmbzn'+
-                'lJ/lnKjkvaDouqvkuIrjgILkvaDml6nlsLHphY3lvpfkuIrkuobjgIInfQogICAgICAgICAgICB9');
-            const TRI_R = _HL_D('ewogICAgICAgICAgICAgIDA6e3Q6J+mHjeaWsOWumue+qScsYjon5L2g5pyD6KKr5o6o5ZCR6YeN5paw5a6a576p55qE5L2N572u'+
-                '44CC5LiN5pyD6LWw5YmN5Lq66LWw6YGO55qE6Lev77yM5pyD6ZaL5Ye65Zyw5ZyW5LiK5rKS5pyJ55qE6Lev44CCJyx4Oiflj6/o'+
-                'g73lm6DmraToprrlvpflvojlraTllq7jgILkuI3mmK/lraTllq7vvIzmmK/otbDlpKrliY3pnaLvvIzlvozpnaLnmoTkurrpgoTm'+
-                'spLot5/kuIrjgIInLGs6J+aOpeWPl+aykuacieevhOacrOeahOS6uueUn+OAguS9oOWwseaYr+evhOacrOOAgid9LAogICAgICAg'+
-                'ICAgICAgIDE6e3Q6J+W4tumgreaxuuetlicsYjon5L2g5pyD6KKr5o6o5ZCR5bi26aCt5YGa5rG65a6a55qE5L2N572u44CC5LiN'+
-                '5piv5L2g5oOz55W26aCt77yM5piv5LqL5oOF5Yiw5pyA5b6M57i96ZyA6KaB5pyJ5Lq65ouN5p2/44CCJyx4Oiflj6/og73lm6Dl'+
-                'rrPmgJXmib/mk5TlvozmnpzkuIDnm7TourLlnKjlia/miYvkvY3nva7jgILkvYbkvaDotorourLkurrnlJ/otorkuI3lsI3li4Hj'+
-                'gIInLGs6J+aOpeWPl+S9oOWwseaYr+WBmuaxuuWumueahOS6uuOAguS4jeeuoeaxuuWumuWwjeS4jeWwje+8jOS9oOWBmuS6huaJ'+
-                'jeeul+aVuOOAgid9LAogICAgICAgICAgICAgIDI6e3Q6J+mAo+e1kOiAhScsYjon5L2g5pyD6KKr5o6o5ZCR6YCj57WQ6ICF55qE'+
-                '5L2N572u44CC5pyA5aSn5b2x6Z+/5Yqb5LiN5Zyo5Y+w5YmN77yM6ICM5piv5Zyo5YWp5YCL5Lq644CB5YWp5Lu25LqL6ZaT56m/'+
-                '6Yed5byV57ea44CCJyx4Oiflj6/og73lm6DngrrkuI3ooqvnnIvopovogIzoprrlvpfmspLlg7nlgLzjgILmqYvkuI3pnIDopoHo'+
-                'oqvorprnvo7vvIzmqYvlj6rpnIDopoHlnKjpgqPoo6HjgIInLGs6J+aOpeWPl+eci+S4jeimi+eahOW9semfv+WKm+S5n+aYr+S4'+
-                'gOeoruWKm+mHj+OAgid9LAogICAgICAgICAgICAgIDM6e3Q6J+ihqOmBlOiAhScsYjon5L2g5pyD6KKr5o6o5ZCR6KGo6YGU6ICF'+
-                '55qE5L2N572u44CC5L2g55qE6Kmx6Kqe44CB5paH5a2X44CB5L2c5ZOB77yM5pyA57WC5pyD5oiQ54K65Yil5Lq655qE5Y+D6ICD'+
-                '5bqn5qiZ44CCJyx4Oiflj6/og73lm6DlpKrlnKjmhI/oqqrlvpflpb3kuI3lpb3ogIzpgbLpgbLkuI3oqqrjgILnrYnkuI3liLDl'+
-                'roznvo7nmoTmmYLmqZ/jgIInLGs6J+S4jeWujOe+juWcsOeZvOiBsuOAguacgOacieWKm+mHj+eahOihqOmBlOW+gOW+gOaYr+ac'+
-                'gOS4jeS/rumjvueahOmCo+S4gOasoeOAgid9LAogICAgICAgICAgICAgIDQ6e3Q6J+W7uumAoOiAhScsYjon5L2g5pyD6KKr5o6o'+
-                '5ZCR5bu66YCg6ICF55qE5L2N572u44CC5L2g55WZ5LiL55qE5LiN5piv5ZCN6IGy77yM5piv5LiA5aWX5Yil5Lq65Y+v5Lul57m8'+
-                '57qM55So55qE5p2x6KW/44CCJyx4Oiflj6/og73oprrlvpflu7rpgKDlpKrnhKHogYrkuobjgILkvYbkvaDnmoTlpKnos6blsLHl'+
-                'nKjmiornhKHogYrnmoTkuovlgZrliLDmpbXoh7TjgIInLGs6J+aOpeWPl+S9oOWwseaYr+iTi+aIv+WtkOeahOS6uuOAguS4jeiP'+
-                'r+m6l++8jOS9huacg+ermeW+iOS5heOAgid9LAogICAgICAgICAgICAgIDU6e3Q6J+aUueiuiuiAhScsYjon5L2g5pyD6KKr5o6o'+
-                '5ZCR5pS56K6K6ICF55qE5L2N572u44CC5L2g57aT5omL55qE5q+P5LiA5Lu25LqL5pyA5b6M6YO96Lef5o6l5omL5pmC5LiN5LiA'+
-                '5qij5LqG44CCJyx4Oiflj6/og73ku6XngrrmlLnorormnKzouqvlsLHmmK/nm67nmoTjgILmspLmnInmlrnlkJHnmoTmlLnororl'+
-                'j6rmmK/mt7fkuoLjgIInLGs6J+aUueiuiuS5i+WJjeWVj+iHquW3se+8muaYr+imgeaUueW+l+abtOWlve+8jOmChOaYr+WPquaY'+
-                'r+WPl+S4jeS6huePvuWcqO+8nyd9LAogICAgICAgICAgICAgIDY6e3Q6J+WuiOitt+iAhScsYjon5L2g5pyD6KKr5o6o5ZCR5a6I'+
-                '6K236ICF55qE5L2N572u44CC5pyA57WC5pyD5oiQ54K65p+Q576k5Lq655qE5a6J5YWo57ay44CCJyx4Oiflj6/og73miormiZvk'+
-                'vY/nrYnmlrzmiJHkuI3og73lgJLjgILlronlhajntrLkuZ/pnIDopoHlrprmnJ/ntq3kv67jgIInLGs6J+avj+mAseeVmeS4gOau'+
-                'teaZgumWk+e1puiHquW3seOAguS4jee1puWutuS6uuS4jee1puW3peS9nO+8jOWwseS9oOiHquW3seOAgid9LAogICAgICAgICAg'+
-                'ICAgIDc6e3Q6J+a0nuWvn+iAhScsYjon5L2g5pyD6KKr5o6o5ZCR5rSe5a+f6ICF55qE5L2N572u44CC5pyA57WC5oiQ54K65bmr'+
-                '5aSn5a6255yL5oeC55qE5Lq644CC5aSn5a625pyJ5ZWP6aGM5L6G5ZWP5L2g44CCJyx4Oiflj6/og73lpKrmk4XplbfliIbmnpDo'+
-                'gIzlv5jkuobmnInkupvkuovpnIDopoHooqvntpPmrbfogIzkuI3mmK/ooqvnkIbop6PjgIInLGs6J+WBmuS4gOS7tuS9oOimuuW+'+
-                'l+S4jeeQhuaAp+eahOS6i+OAguiBveebtOimuu+8jOS4jeiBveiFpuiii+OAgid9LAogICAgICAgICAgICAgIDg6e3Q6J+aJv+aT'+
-                'lOiAhScsYjon5L2g5pyD6KKr5o6o5ZCR5om/5pOU6ICF55qE5L2N572u44CC56uZ5Zyo6ZyA6KaB5omb6LW36YeN6YeP55qE5Zyw'+
-                '5pa544CC5LiN5piv5pyA6aGv55y85L2G5ou/5o6J5L2g5bCx5YCS44CCJyx4Oiflj6/og73oprrlvpfkuI3og73llorntK/jgILm'+
-                'ib/mk5TkuI3mmK/msLjpgaDkuI3kvJHmga/vvIzmmK/nn6XpgZPku4DpurzmmYLlgJnoqbLmlL7kuIvlho3mkr/otbfkvobjgIIn'+
-                'LGs6J+S4u+WLleaUvuS4i+S4gOS7tuS9oOato+WcqOaJm+eahOadseilv+OAguS6pOe1puWIpeS6uuOAguS4lueVjOaykuacieWb'+
-                'oOatpOavgOa7heOAgid9LAogICAgICAgICAgICAgIDk6e3Q6J+WCs+aJv+iAhScsYjon5L2g5pyD6KKr5o6o5ZCR5YKz5om/6ICF'+
-                '55qE5L2N572u44CC5L2g6LWw6YGO55qE6Lev5pyA57WC5pyD6K6K5oiQ5Yil5Lq655qE6Lev5qiZ44CCJyx4Oiflj6/og73oprrl'+
-                'vpfoh6rlt7Hot6/pgoTmspLotbDlrozlk6rmnInos4fmoLzmlZnkurrjgILkvaDotbDpgY7nmoTmr4/kuIDmraXlsI3otbfpu57n'+
-                'moTkurrkvoboqqrpg73mmK/liY3mlrnjgIInLGs6J+mWi+Wni+iomOmMhOOAguS9oOi1sOmBjueahOi3r+OAgei4qemBjueahOWd'+
-                'keOAgeWtuOWIsOeahOS6i+OAgid9LAogICAgICAgICAgICAgIDExOnt0OifoprrphpLlgqzljJbogIUnLGI6J+S9oOacg+iiq+aO'+
-                'qOWQkemdiOaAp+WVn+eZvOiAheeahOS9jee9ruOAguS9oOeahOWtmOWcqOiuk+S6uueqgeeEtueci+a4healmuS7gOm6vOOAguWC'+
-                'rOWMluaViOaenOaYr+iHquWLleeZvOeUn+eahOOAgicseDon5YKs5YyW6IO96YeP5aSq5by35pyD5b6I57Sv44CC6auY5pWP5oSf'+
-                '5YWx5oOF6ICF6IO96YeP5raI6ICX6YCf5bqm5piv5LiA6Iis5Lq6M+WAjeOAgicsazon5q+P5aSp55WZ5LiA5q615a6M5YWo5LiN'+
-                '6Lef5Lu75L2V5Lq65LqS5YuV55qE5pmC6ZaT44CC5LiN5piv5aWi5L6I77yM5piv5b+F6ZyA5ZOB44CCJ30sCiAgICAgICAgICAg'+
-                'ICAgMjI6e3Q6J+WItuW6puW7uumAoOiAhScsYjon5L2g5pyD6KKr5o6o5ZCR5Yi25bqm5bu66YCg6ICF55qE5L2N572u44CC55WZ'+
-                '5LiL55qE5LiN5piv5LiA5YCL5L2c5ZOB77yM5piv5LiA5aWX57O757Wx44CC6YCA5LyR5b6M57WE57mU6YKE5Zyo55So5L2g5bu6'+
-                '55qE5rWB56iL44CCJyx4OifnnIvliLDnmoTol43lnJblpKrlro/lpKfvvIzoprrlvpfnnLzliY3lgZrnmoTlpKrmuLrlsI/ogIzm'+
-                'j5DkuI3otbfli4HjgILnm7LljYDkuI3mmK/moLzlsYDvvIzmmK/ogJDlv4PjgIInLGs6J+aKiuacgOWkp+eahOiXjeWclueVq+Wc'+
-                'qOe0meS4iu+8jOWciOWHuuS7iuWkqeiDveWBmueahOesrOS4gOatpeOAgid9LAogICAgICAgICAgICAgIDMzOnt0Oifnsr7npZ7l'+
-                'sI7luKsnLGI6J+S9oOacg+iiq+aOqOWQkeeyvuelnuWwjuW4q+eahOS9jee9ruOAguS4jeaYr+iHquW3seWwgeeahO+8jOaYr+S9'+
-                'oOi1sOmBjueahOi3r+Wkqua3seWkquecn+Wvpu+8jOiuk+S6uuS4jeiHquimuueVtuS9oOaYr+eHiOWhlOOAgicseDon5L2g5Y+v'+
-                '6IO96Ka65b6X5LiN6YWN56uZ5Zyo6YKj6KOh44CC5YaS5YWF6ICF55eH5YCZ576k5Zyo6LaK5pyJ5L2/5ZG95oSf55qE5Lq65Lit'+
-                '55m855Sf546H6LaK6auY44CCJyxrOifmjqXlj5fkvaDlsLHmmK/nq5nlnKjpgqPlgIvkvY3nva7nmoTkurrjgILkuI3mmK/lm6Dn'+
-                'grrlroznvo7vvIzmmK/lm6DngrrnnJ/lr6bjgIInfQogICAgICAgICAgICB9');
-            const TRI_DRIVE = _HL_D('ewogICAgICAgICAgICAgIDA6e2Q6J+S9oOmChOWcqOaJvuOAgueZvOWLleapn+mChOaykuiiq+WVn+WLle+8jOS4jeaYr+aykuac'+
-                'ie+8jOaYr+mChOaykuiiq+inuOeZvOOAgicseDon5Y+v6IO95Lul54K66Ieq5bex5rKS5YuV5Yqb77yM5YW25a+m5piv6YKE5rKS'+
-                '6YGH5Yiw6K6T5L2g5YWo5Yqb5Lul6LW055qE5p2x6KW/44CCJ30sCiAgICAgICAgICAgICAgMTp7ZDon5L2g5ou877yM5piv5Zug'+
-                '54K66KaB6K2J5piO44CM5oiR5Y+v5Lul44CN44CC55m85YuV5qmf5piv6Ieq5Li744CC5Y+X5LiN5LqG6KKr5a6J5o6S44CCJyx4'+
-                'OifmkJ7kuI3muIXoh6rlt7HmmK/lnKjov73msYLnjajnq4vvvIzpgoTmmK/lnKjpgIPpgb/lkIjkvZzjgIInfSwKICAgICAgICAg'+
-                'ICAgICAyOntkOifkvaDmi7zvvIzmmK/lm6DngrrkuI3mg7PorpPlnKjkuY7nmoTkurrlpLHmnJvjgILnmbzli5XmqZ/mmK/pgKPn'+
-                'tZDjgILkvaDkuI3mmK/ngrroh6rlt7HmtLvnmoTjgIInLHg6J+aQnuS4jea4heiHquW3seaYr+WcqOaEm+S6uu+8jOmChOaYr+Wc'+
-                'qOiojuWlveS6uuOAgid9LAogICAgICAgICAgICAgIDM6e2Q6J+S9oOaLvO+8jOaYr+WboOeCuuaDs+iiq+eci+imi+OAgeiiq+io'+
-                'mOS9j+OAgeiiq+itieaYjuS+humBjuOAgueZvOWLleapn+aYr+WtmOWcqOaEn+OAgicseDon5pCe5LiN5riF6Ieq5bex5piv5Zyo'+
-                '6KGo6YGU6Ieq5oiR77yM6YKE5piv5Zyo5bCL5rGC6KqN5Y+v44CCJ30sCiAgICAgICAgICAgICAgNDp7ZDon5L2g5ou877yM5piv'+
-                '5Zug54K66KaB5bu656uL56mp5Zu655qE5Z+656SO44CC55m85YuV5qmf5piv5a6J5YWo5oSf44CC6ZyA6KaB55yL5Yiw5p2x6KW/'+
-                '5oiQ5b2i44CCJyx4OifmkJ7kuI3muIXoh6rlt7HmmK/lnKjlu7roqK3mnKrkvobvvIzpgoTmmK/lnKjlsI3mipfnhKbmha7jgIIn'+
-                'fSwKICAgICAgICAgICAgICA1OntkOifkvaDmi7zvvIzmmK/lm6DngrrkuI3mg7Pooqvlm7DkvY/jgILnmbzli5XmqZ/mmK/oh6rn'+
-                'lLHjgILkuIDmiJDkuI3orormr5TlpLHmlZfmm7Tlj6/mgJXjgIInLHg6J+aQnuS4jea4heiHquW3seaYr+WcqOi/veaxguiHqueU'+
-                'se+8jOmChOaYr+WcqOWus+aAleaJv+irvuOAgid9LAogICAgICAgICAgICAgIDY6e2Q6J+S9oOaLvO+8jOaYr+WboOeCuuacieS6'+
-                'uumcgOimgeS9oOaSkOS9j+OAgueZvOWLleapn+aYr+iyrOS7u+OAgueCuuiHquW3seaUvuajhOeahOS6i++8jOeCuuWutuS6uuaL'+
-                'vOWRveS5n+imgeWBmuOAgicseDon5pCe5LiN5riF6Ieq5bex5piv5Zyo6LKg6LKs5Lu777yM6YKE5piv5Zyo55So6LKs5Lu757aB'+
-                '5p626Ieq5bex44CCJ30sCiAgICAgICAgICAgICAgNzp7ZDon5L2g5ou877yM5piv5Zug54K66ZyA6KaB5LiA5YCL6Kqq5b6X6YCa'+
-                '55qE562U5qGI44CC55m85YuV5qmf5piv55CG6Kej44CC5pCe5LiN5oeC55qE5LqL5YGa5LiN5LiL5Y6744CCJyx4OifmkJ7kuI3m'+
-                'uIXoh6rlt7HmmK/lnKjov73msYLnkIbop6PvvIzpgoTmmK/lnKjmi5blu7booYzli5XjgIInfSwKICAgICAgICAgICAgICA4Ontk'+
-                'OifkvaDmi7zvvIzmmK/lm6DngrrkuI3lhYHoqLHoh6rlt7HovLjjgILnmbzli5XmqZ/mmK/mjozmjqfjgILopoHnq5nlnKjjgIzm'+
-                'iJHoqqrkuobnrpfjgI3nmoTkvY3nva7jgIInLHg6J+aQnuS4jea4heiHquW3seaYr+WcqOi/veaxguaIkOWKn++8jOmChOaYr+Wc'+
-                'qOmAg+mBv+S4jeWkoOWlveeahOaBkOaHvOOAgid9LAogICAgICAgICAgICAgIDk6e2Q6J+S9oOaLvO+8jOaYr+WboOeCuuimuuW+'+
-                'l+S4jeiDveeZveS+huS4gOi2n+OAgueZvOWLleapn+aYr+aEj+e+qeOAguizuuWkmuWwkeS4jeWcqOaEj++8jOWcqOaEj+WAvOS4'+
-                'jeWAvOW+l+OAgicseDon5pCe5LiN5riF6Ieq5bex5piv5Zyo6L+95rGC5oSP576p77yM6YKE5piv5Zyo55So5pyJ5oSP576p5L6G'+
-                '6YCD6YG/5bmz5Yeh44CCJ30sCiAgICAgICAgICAgICAgMTE6e2Q6J+S9oOaLvO+8jOaYr+WboOeCuuWFp+WcqOacieS4gOiCoeiq'+
-                'quS4jea4heeahOOAjOS4jeW+l+S4jeOAjeOAguS4jeaYr+eCuumMoueCuuWQje+8jOaYr+ebtOimuuWxpOasoeeahOmpheWLleKA'+
-                'lOKAlOWmguaenOS9oOS4jeWBmu+8jOmAmeS7tuS6i+WwseS4jeacg+iiq+WBmuS6huOAgicseDon5pCe5LiN5riF6YCZ6IKh5Y+s'+
-                '5Zaa5piv5L6G6Ieq55yf5a+m5YWn5Zyo77yM6YKE5piv5oqK54Sm5oWu5YyF6KOd5oiQ5LqG5L2/5ZG944CCJ30KICAgICAgICAg'+
-                'ICAgfQ==');
-            const TRI_MISSION = _HL_D('ewogICAgICAgICAgICAgIDA6e2Q6J+S9oOeahOS7u+WLmeaYr+WJtemAoOS4gOWAi+aWsOeahOWPr+iDveOAguS9oOWBmueahOS6'+
-                'i+WcqOS9oOS5i+WJjeaykuacieevhOacrOOAgicseDon5Y+v6IO95Zug54K65rKS56+E5pys5LiA55u05Zyo562J5bCN55qE5pmC'+
-                '5qmf44CC5L2g5bCx5piv56ys5LiA5YCL44CCJ30sCiAgICAgICAgICAgICAgMTp7ZDon5L2g55qE5Lu75YuZ5piv6ZaL5LiA5qKd'+
-                '6Lev44CC5LiN5piv6LWw5Yil5Lq66LWw6YGO55qE77yM5piv6LWw5Ye65Y+q5pyJ5L2g6IO96LWw55qE6Lev44CCJyx4Oiflj6/o'+
-                'g73lm6DngrrmspLkurrnkIbop6PlsLHmlL7mo4TjgILplovot6/nmoTmhI/nvqnkuI3lnKjmlrzmnInmspLmnInkurrpvJPmjozj'+
-                'gIInfSwKICAgICAgICAgICAgICAyOntkOifkvaDnmoTku7vli5nmmK/nib3otbflhanpgorjgILkvaDlnKjnmoTlnLDmlrnmlrfo'+
-                'o4LnmoTmnbHopb/mnIPooqvph43mlrDmjqXkuIrjgIInLHg6J+WPr+iDveimuuW+l+eJvee3muS4jeWkoOS6huS4jei1t+iAjOec'+
-                'i+i8leiHquW3seOAgid9LAogICAgICAgICAgICAgIDM6e2Q6J+S9oOeahOS7u+WLmeaYr+eVmeS4i+S9nOWTgeOAguaWh+Wtl+iB'+
-                'sumfs+aVheS6i++8jOW9ouW8j+S4jeaLmOOAguaKiuiFpuiii+ijoeeahOadseilv+aLv+WHuuS+huiuk+S6uueci+imi+OAgics'+
-                'eDon5Y+v6IO95Zug6L+95rGC5a6M576O6ICM6YGy6YGy5LiN55m86KGo44CC5LiW55WM6ZyA6KaB55qE5LiN5piv5a6M576O6ICM'+
-                '5piv55yf5a+m55qE5L2g44CCJ30sCiAgICAgICAgICAgICAgNDp7ZDon5L2g55qE5Lu75YuZ5piv6JOL5LiA5qOf5Yil5Lq65Y+v'+
-                '5Lul5L2P6YCy5Y6755qE5oi/5a2Q44CC5LiA5aWX57O757Wx44CB5LiA5YCL57WE57mU44CB5LiA5YCL5Yi25bqm44CC5L2g6LWw'+
-                '5LqG5LmL5b6M5a6D6YKE5Zyo44CCJyx4Oiflj6/og73oprrlvpflpKrlubPlh6HkuobjgILkvYbog73orpPmnbHopb/lnKjkvaDp'+
-                'm6LplovlvoznubznuozlrZjlnKjnmoTkurrvvIzmiY3nnJ/mraPmnInlvbHpn7/lipvjgIInfSwKICAgICAgICAgICAgICA1Ontk'+
-                'OifkvaDnmoTku7vli5nmmK/mjqjli5XkuIDloLTmlLnororjgILlpKfnmoTlsI/nmoTpg73nrpfjgILkvaDntpPmiYvnmoTmnbHo'+
-                'pb/kuI3lj6/og73ntq3mjIHljp/mqKPjgIInLHg6J+WPr+iDveaUueWujOWwsei1sOS4jeeVmeS4i+S+huaUtuaLvuOAguecn+at'+
-                'o+eahOaUueiuiuiAheS4jeWPquaYr+aJk+egtO+8jOmChOimgemHjeW7uuOAgid9LAogICAgICAgICAgICAgIDY6e2Q6J+S9oOea'+
-                'hOS7u+WLmeaYr+WuiOitt+S4gOe+pOS6uuOAguWPr+iDveaYr+WutuS6uuOAgeWtuOeUn+OAgeWuouaItuOAguS9oOacgOe1guac'+
-                'g+ermeWcqOWkp+WutumdoOS9oOeahOS9jee9ruOAgicseDon5Y+v6IO95a6I6K235Yiw5b+Y5LqG6Ieq5bex44CC5a6I6K236ICF'+
-                '5YCS5LqG77yM6Kqw6YO95o6l5LiN5L2P44CCJ30sCiAgICAgICAgICAgICAgNzp7ZDon5L2g55qE5Lu75YuZ5piv5om+5Yiw5LiA'+
-                '5YCL55yf55u454S25b6M6Kqq5Ye65L6G44CC5L2g5piv57+76K2v6ICF77yM5oqK6KSH6Zuc6K6K5oiQ5aSn5a626IG95b6X5oeC'+
-                '55qE6Kqe6KiA44CCJyx4Oiflj6/og73kuIDnm7TlnKjmib7vvIzlv5jkuoboqqrlh7rkvobmiY3mmK/ku7vli5nph43pu57jgILm'+
-                'ib7liLDkuI3oqqrnrYnmlrzmspLmib7liLDjgIInfSwKICAgICAgICAgICAgICA4OntkOifkvaDnmoTku7vli5nmmK/miZvotbfk'+
-                'uIDlgIvloLTpnaLjgILlnKjmiYDmnInkurrpg73pgIDnmoTmmYLlgJnkvaDnq5nlh7rkvobjgILpgqPlgIvkvY3nva7pmaTkuobk'+
-                'vaDmspLkurrnq5nlvpfkvY/jgIInLHg6J+WPr+iDveaKiuS4jeiDvemAgOeVtuS/oeaineOAguefpemBk+S7gOm6vOaZguWAmeip'+
-                'sumAgOavlOawuOmBoOermeiRl+abtOmcgOimgeWLh+awo+OAgid9LAogICAgICAgICAgICAgIDk6e2Q6J+S9oOeahOS7u+WLmeaY'+
-                'r+m7nuS4gOebnueHiOOAgueUqOS9oOi1sOmBjueahOi3r+eFp+S6rumChOWcqOi3r+S4iueahOS6uuOAguS4jemcgOimgeWujOe+'+
-                'ju+8jOWPqumcgOimgei1sOmBjuOAgicseDon5Y+v6IO96Ka65b6X6LWw5b6X6YKE5LiN5aSg6YGg5LiN5aSg5aW944CC5bCN6LW3'+
-                '6bue55qE5Lq65L6G6Kqq5L2g5bey57aT6LWw5b6I6YGg5LqG44CCJ30sCiAgICAgICAgICAgICAgMTE6e2Q6J+S9oOeahOS7u+WL'+
-                'meaYr+WWmumGkuS4gOe+pOS6uuOAguS4jeaYr+eUqOWYtOW3tO+8jOaYr+eUqOS9oOeahOe2k+att+WSjOWtmOWcqOOAguS9oOi1'+
-                'sOmBjueahOi3r+acrOi6q+WwseaYr+aVmeadkOOAgicseDon5Y+v6IO96Ka65b6X6YKE5rKS5rqW5YKZ5aW955W26YKj5YCL6KeS'+
-                '6Imy44CCMTHnmoTkvb/lkb3lvp7kvobkuI3mmK/mupblgpnlpb3miY3plovlp4vnmoTjgIInfQogICAgICAgICAgICB9');
-            const APEX_DATA = _HL_D('ewogICAgICAgICAgICAgIDA6e3Q6J+mHjeaWsOWumue+qemBiuaIsuimj+WJh+eahOS6uicsZDon5L2g55qE57WC5qW15L2N572u'+
-                '5LiN5Zyo5Lu75L2V54++5pyJ5qGG5p626KOh44CC5L2g5L6G5piv54K65LqG5Ym16YCg5LiA5YCL5Y6f5pys5LiN5a2Y5Zyo55qE'+
-                '5L2N572u44CCJyxyOifmiZPnoLTml6LmnInliIbpoZ7ns7vntbHvvIznlKjkvaDnmoTlrZjlnKjorYnmmI7pgoTmnInlj6bkuIDn'+
-                'qK7lj6/og70nfSwKICAgICAgICAgICAgICAxOnt0OifmnIDntYLnq5nliLDmnIDliY3pnaLnmoTkuronLGQ6J+S4jeeuoei1t+m7'+
-                'nuWcqOWTquijoe+8jOS9oOWcqOekvuacg+S4reeahOi3r+W+kemDveacneiRl+WJjemdoui1sOOAguWIsOS6huafkOWAi+mXnOWP'+
-                'o+S9oOe4veaYr+WFiOWLleeahOS6uuOAgicscjon5Zyo5rKS5Lq65pWi5YuV55qE5pmC5YCZ5YWI6LiP5Ye65Y6777yM5pu/54y2'+
-                '6LGr55qE5Lq65o6o6ZaL56ys5LiA5omH6ZaAJ30sCiAgICAgICAgICAgICAgMjp7dDon5pyA57WC5oiQ54K66YKj5qKd55yL5LiN'+
-                '6KaL55qE57eaJyxkOifkvaDnmoTlvbHpn7/lipvmmK/pmrHmgKfnmoTjgILkuI3mnIPlh7rnj77lnKjloLHlsI7oo6HvvIzkvYbm'+
-                'i7/mjonkvaDlvojlpJrkuovmnIPmlaPmjonjgIInLHI6J+aKiuaWt+ijgueahOadseilv+mHjeaWsOaOpeS4iu+8jOaKiumZjOeU'+
-                'n+eahOS6uueJveWcqOS4gOi1tyd9LAogICAgICAgICAgICAgIDM6e3Q6J+acgOe1gueVmeS4i+S9nOWTgeeahOS6uicsZDon5L2g'+
-                '55qE6KGo6YGU5LiN5piv54K65LqG6Ieq5bex77yM5piv54K65LqG6YKj5Lqb5oSf6Ka65b6X5Yiw5L2G6Kqq5LiN5Ye65L6G55qE'+
-                '5Lq644CCJyxyOifmm7/msonpu5jnmoTkurrnmbzogbLvvIzmiornnIvkuI3opovnmoTmnbHopb/orormiJDnnIvlvpfopovnmoQn'+
-                'fSwKICAgICAgICAgICAgICA0Ont0OifmnIDntYLok4vlh7rkuIDluqflu7rnr4nnmoTkuronLGQ6J+S9oOeVmeS4i+eahOaYr+S4'+
-                'gOWAi+WcqOS9oOmboumWi+S5i+W+jOmChOiDvemBi+S9nOeahOezu+e1seOAgee1hOe5lOaIluWItuW6puOAgicscjon5Zyo5re3'+
-                '5LqC5Lit5bu656uL56ep5bqP77yM5oqK5pWj5rKZ6K6K5oiQ56mp5Zu657WQ5qeLJ30sCiAgICAgICAgICAgICAgNTp7dDon5pyA'+
-                '57WC5o6o5YuV5LiA5aC05pS56K6K55qE5Lq6JyxkOifkvaDntpPmiYvnmoTmr4/kuIDku7bkuovliLDmnIDlvozpg73ot5/mjqXm'+
-                'iYvmmYLkuI3kuIDmqKPkuobjgILkvaDmmK/lgqzljJblipHjgIInLHI6J+aMkeaIsOS4gOebtOS7peS+humDveaYr+mAmeaoo+ea'+
-                'hOaFo+aAp++8jOiuk+WBnOa7r+eahOadseilv+mHjeaWsOa1geWLlSd9LAogICAgICAgICAgICAgIDY6e3Q6J+acgOe1guaIkOeC'+
-                'uuafkOe+pOS6uueahOWuieWFqOe2sicsZDon5L2g5LiN5piv5Zug54K65by35aSn5omN5a6I6K2344CC5L2g5piv5Zug54K65a6I'+
-                '6K235omN6K6K5by35aSn55qE44CCJyxyOiflibXpgKDlronlhajmhJ/jgILkvaDlnKjnmoTlnLDmlrnkurrlgJHlj6/ku6Xljbjk'+
-                'uIvpmLLlgpknfSwKICAgICAgICAgICAgICA3Ont0OifmnIDntYLmiJDngrrnnIvnqb/nnJ/nm7jnmoTkuronLGQ6J+S9oOaYr+Wc'+
-                'qOW+jOmdouWuiemdnOingOWvn+OAgeetieaZguapn+aIkOeGn+aJjemWi+WPo+iqquWHuuiuk+aJgOacieS6uuWAkuWQuOS4gOWP'+
-                'o+awo+eahOipseeahOS6uuOAgicscjon56m/6YCP6KGo6LGh5om+5Yiw5pys6LOq77yM5bmr5aSn5a6255yL5Yiw6JeP5Zyo5bqV'+
-                '5LiL55qE5p2x6KW/J30sCiAgICAgICAgICAgICAgODp7dDon5pyA57WC56uZ5Yiw5om/5pOU5L2N572u55qE5Lq6JyxkOic45piv'+
-                '54Sh6ZmQ5aSn56ym6Jmf6L2JOTDluqbigJTigJTlvqrnkrDlvoDlvqnnmoTlipvph4/jgILkvaDmnIDntYLmnIPnq5nlnKjpnIDo'+
-                'poHmiZvkvY/nmoTkvY3nva7jgIInLHI6J+WcqOaJgOacieS6uumDveaFjOeahOaZguWAmeepqeS9j+WxgOmdou+8jOaKiuizh+a6'+
-                'kOaVtOWQiOWIsOWwjeeahOWcsOaWuSd9LAogICAgICAgICAgICAgIDk6e3Q6J+acgOe1guaIkOeCuuWIpeS6uui3r+aomeeahOS6'+
-                'uicsZDon5L2g5LiN5piv5aSp55Sf5bCx55+l6YGT562U5qGI44CC5L2g5piv5pGU6YGO6LeM6YGO5pG457Si6YGO77yM54S25b6M'+
-                '5oqK5pW05qKd6Lev6KiY5LiL5L6G55qE5Lq644CCJyxyOifmiorntpPmrbfovYnljJbmiJDlsI3ku5bkurrmnInnlKjnmoTmmbrm'+
-                'hafvvIzlgZrkuIDnm57otbDpgY7mmpfot6/lvoznlZnkuIvnmoTnh4gnfSwKICAgICAgICAgICAgICAxMTp7dDon5pyA57WC5oiQ'+
-                '54K65Zaa6YaS6ICFJyxkOifkvaDnmoTlrZjlnKjluLbokZfnqb/pgI/lipvjgILkvaDotbDpgY7nmoTot6/jgIHkvaDnmoTmsKPo'+
-                's6rjgIHkuI3ntpPmhI/oqqrlh7rnmoTkuIDlj6XoqbHvvIzmnIPorpPkurrlv4Poo6HlsIHljbDlvojkuYXnmoTmnbHopb/prIbl'+
-                'i5XjgIInLHI6J+a0u+WHuuS9oOiHquW3seWwseaYr+WwjemAmeWAi+S4lueVjOacgOWkp+eahOiyoueNu+OAguS9oOecn+Wvpuea'+
-                'hOaoo+WtkOacrOi6q+WwseaYr+S4gOmdoumPoeWtkCd9CiAgICAgICAgICAgIH0=');
-
-
-            // ===== 馥靈三角秘碼計算引擎 =====
-            const letterMap = {A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,I:9,J:10,K:11,L:12,M:13,N:14,O:15,P:16,Q:17,R:18,S:19,T:20,U:21,V:22,W:23,X:24,Y:25,Z:26};
-            const triReduce = (n) => { if(n===11||n===22||n===33) return n; while(n>9){n=String(n).split('').reduce((a,b)=>+a+(+b),0); if(n===11||n===22||n===33) return n;} return n; };
-            const triReduceForCalc = (n) => (n===11?2:n===22?4:n===33?6:n);
-
-            const calcTriangle = (idStr) => {
-              if(!idStr || idStr.length < 8) return null;
-              idStr = idStr.toUpperCase().trim();
-              let digits = '';
-              if(/^[A-Z]/.test(idStr)){
-                const lv = letterMap[idStr[0]];
-                if(!lv) return null;
-                digits = String(lv).padStart(2,'0') + idStr.slice(1);
-              } else {
-                digits = idStr.replace(/[^0-9]/g,'');
-              }
-              while(digits.length < 12) digits = '0' + digits;
-              let groups;
-              if(digits.length <= 12){
-                groups = [digits.slice(0,3), digits.slice(3,6), digits.slice(6,9), digits.slice(9,12)];
-              } else {
-                const len = digits.length;
-                const base = Math.floor(len/4);
-                const extra = len % 4;
-                let pos = 0; groups = [];
-                for(let i=0;i<4;i++){
-                  const sz = base + (i < extra ? 1 : 0);
-                  groups.push(digits.slice(pos, pos+sz));
-                  pos += sz;
-                }
-              }
-              const base = groups.map(g => triReduce(g.split('').reduce((a,b)=>a+(+b),0)));
-              const conv = [triReduce(triReduceForCalc(base[0])+triReduceForCalc(base[1])), triReduce(triReduceForCalc(base[2])+triReduceForCalc(base[3]))];
-              const apex = triReduce(triReduceForCalc(conv[0])+triReduceForCalc(conv[1]));
-              const tail = +idStr[idStr.length-1];
-              return { base, conv, apex, tail };
+            const hrData = {
+              1: { tag: '開創者', slogan: '讓我來帶頭', bestRoles: ['獨立負責的專案', '開拓新市場/新業務', '需要決策權的位置'], worstRoles: ['純執行、無決策權的工作', '需要大量配合他人的職位'], manageTip: '給明確目標，但不要規定「怎麼做」。讓他覺得是「他的決定」', motivate: '挑戰性任務、獨立完成的成就感、被認可為負責人', warning: '可能跟其他主管起衝突，不願做小事。沒升遷空間2-3年想離開', interview: '問「你過去主導過什麼專案？」眼睛會發亮。問「你如何配合團隊？」可能會說「我帶領團隊」', bestMatch: [{n:2,d:'支持者當副手→黃金組合'},{n:8,d:'執行者→強強聯手'}], avoidMatch: [{n:1,d:'另一個1號→權力鬥爭'}], ratings: {independence:5,obedience:2,teamwork:3,stress:4,stability:3} },
+              2: { tag: '協調者', slogan: '讓我來幫忙', bestRoles: ['跨部門溝通橋樑', '客服、HR、行政、秘書', '需要協調多方的工作'], worstRoles: ['需要獨斷決策的主管職', '高壓競爭環境'], manageTip: '經常給予肯定和感謝。不要在公開場合批評。讓他知道他是團隊重要一份子', motivate: '團隊和諧、被需要的感覺、穩定的歸屬感', warning: '太在意他人感受無法堅持立場。可能被情緒勒索。主管太冷漠會默默累積委屈', interview: '問「你如何處理衝突？」會說「我會居中協調」。觀察他是否一直在觀察你的反應', bestMatch: [{n:1,d:'領導者→完美副手'},{n:6,d:'照顧者→互相支持'}], avoidMatch: [{n:8,d:'權力者→容易被壓制'}], ratings: {independence:2,obedience:5,teamwork:5,stress:3,stability:5} },
+              3: { tag: '表達者', slogan: '讓我來說', bestRoles: ['行銷、公關、業務、講師', '需要創意發想的職位', '對外溝通、簡報'], worstRoles: ['獨自埋頭的資料分析', '重複性高的行政工作'], manageTip: '給他表現的舞台。讓他參與創意發想會議。不要只給執行，要讓他提案', motivate: '讚美、新鮮感、被看見的機會', warning: '可能答應太多做不完。只顧表面不顧細節。需要監督「說到是否做到」', interview: '面試時會很健談，容易讓面試官喜歡。注意是否「說得多、做得少」', bestMatch: [{n:4,d:'執行者→創意+落地'},{n:7,d:'分析者→表達+深度'}], avoidMatch: [{n:3,d:'另一個3號→都想表現'}], ratings: {independence:4,obedience:3,teamwork:4,stress:3,stability:3} },
+              4: { tag: '建構者', slogan: '讓我來做', bestRoles: ['專案管理、品管、會計', '建立制度、優化流程', '需要細心和耐心的工作'], worstRoles: ['需要快速變化的新創環境', '沒有明確規則的職位'], manageTip: '給明確的流程和時程。不要突然改變規則。肯定他的「穩定」和「可靠」', motivate: '穩定、明確規則、被信任的感覺', warning: '可能抗拒改變、速度太慢太謹慎。創新任務可能會卡住', interview: '會準時到達，資料準備齊全。問「沒有SOP的情況？」可能會猶豫', bestMatch: [{n:3,d:'創意者→互補'},{n:1,d:'開創者→執行決策'}], avoidMatch: [{n:5,d:'變動者→節奏差太大'}], ratings: {independence:3,obedience:5,teamwork:4,stress:4,stability:5} },
+              5: { tag: '變革者', slogan: '讓我來試試看', bestRoles: ['業務、記者、自由接案', '需要出差變化的工作', '新市場開發、危機處理'], worstRoles: ['固定座位固定時間的行政職', '需要長期重複的工作'], manageTip: '給他彈性（時間/空間/方法）。定期給新任務新挑戰。用目標引導，不用規定壓', motivate: '自由、新挑戰、變化、探索未知', warning: '離職率最高的類型。可能覺得無聊就走人。需要持續給予新鮮感', interview: '履歷可能換過很多工作。問「最長一份工作做多久？」→重要指標', bestMatch: [{n:4,d:'穩定者→互補'},{n:1,d:'開創者→一起冒險'}], avoidMatch: [{n:5,d:'另一個5號→太散'}], ratings: {independence:5,obedience:2,teamwork:3,stress:4,stability:2} },
+              6: { tag: '照顧者', slogan: '讓我來照顧', bestRoles: ['HR、教育訓練、客服主管', '需要帶新人的職位', '需要關懷團隊的管理職'], worstRoles: ['純數字純績效的工作', '需要強勢談判的職位'], manageTip: '讓他知道「你對團隊很重要」。注意他是否過度付出。提醒他也要照顧自己', motivate: '被需要、團隊和諧、看到別人因為他變好', warning: '可能攬太多責任。可能被情緒勒索。需要注意過勞', interview: '會主動關心「團隊氣氛如何」。可能會問「公司如何照顧員工」', bestMatch: [{n:2,d:'協調者→互相支持'},{n:1,d:'領導者→當副手'}], avoidMatch: [{n:8,d:'權力者→價值觀衝突'}], ratings: {independence:3,obedience:4,teamwork:5,stress:3,stability:4} },
+              7: { tag: '分析者', slogan: '讓我想想', bestRoles: ['研究、分析、策略規劃', '需要專業深度的顧問', '品管、稽核、法務'], worstRoles: ['需要大量社交的業務職', '快節奏不給思考時間的環境'], manageTip: '給他時間和空間思考。不要催。尊重他的專業判斷。1對1比大組會議有效', motivate: '知識、深度、被尊重為專家', warning: '可能過度分析無法行動。社交場合可能不自在。溝通容易太專業別人聽不懂', interview: '會問很有深度的問題。注意是否「分析到完美才動」', bestMatch: [{n:3,d:'表達者→深度+表達'},{n:8,d:'執行者→策略+行動'}], avoidMatch: [{n:5,d:'變動者→一個要深一個要廣'}], ratings: {independence:5,obedience:3,teamwork:2,stress:4,stability:4} },
+              8: { tag: '掌權者', slogan: '讓我來決定', bestRoles: ['總經理、營運長、事業部主管', '需要資源調度的位置', '拓展、併購、大型專案'], worstRoles: ['純技術無管理的位置', '沒有決策權的小職位'], manageTip: '給他足夠的權力和舞台。肯定他帶來的成果。不要微管理。讓他知道「你的成功就是公司的成功」', motivate: '權力、影響力、看得見的成果、被尊敬', warning: '可能權力慾過強引起反彈。可能為了結果犧牲關係。需要提醒「人比事重要」', interview: '問「你管過最大的團隊？」如果小於他期望可能興趣降低。注意權力需求是否匹配', bestMatch: [{n:2,d:'支持者→忠誠副手'},{n:7,d:'分析者→策略智囊'}], avoidMatch: [{n:1,d:'開創者→搶位子'},{n:8,d:'另一個8號→權力大戰'}], ratings: {independence:5,obedience:1,teamwork:3,stress:5,stability:3} },
+              9: { tag: '智慧者', slogan: '讓我來整合', bestRoles: ['培訓、諮詢、公益相關', '需要整合多方觀點的角色', '文化塑造與傳承的位置'], worstRoles: ['需要攻擊性強的業務', '純利潤導向的位置'], manageTip: '讓他看到工作的「意義」。不要只講KPI，要講「為什麼做這件事」。尊重他的理想主義', motivate: '意義感、幫助他人、被理解', warning: '可能太理想化不切實際。可能不願意做「只為了錢」的事。需要幫他在理想和現實間找平衡', interview: '會問「公司的願景是什麼」。對文化比薪資更在意。可能不會談薪（你要主動談）', bestMatch: [{n:1,d:'開創者→願景+行動'},{n:6,d:'照顧者→互相理解'}], avoidMatch: [{n:8,d:'掌權者→價值觀差異大'}], ratings: {independence:4,obedience:3,teamwork:4,stress:3,stability:3} }
             };
 
             const ratingLabels = ['獨立性', '服從性', '團隊合作', '抗壓性', '穩定性'];
             const StarBar = ({v, max=5}) => (<span className="inline-flex gap-0.5">{[...Array(max)].map((_,i)=><span key={i} className={i<v?'text-amber-500':'opacity-20'}>{i<v?'★':'☆'}</span>)}</span>);
 
-            // 三角形計算處理
             const handleTriCalc = () => {
-              const tri = calcTriangle(idInput);
+              if (typeof HLTriangle === 'undefined') return;
+              HLTriangle.init('HL_TRI_2026');
+              const tri = HLTriangle.calculate(idInput);
               if (!tri) { alert('請輸入完整的身份證字號（至少8碼）'); return; }
               setTriData(tri);
+              setTriReading(HLTriangle.getReading(tri));
             };
 
             // ===== 雷達圖繪製 =====
@@ -1522,13 +1126,10 @@ header[class*="bg-white"] {
               const w = canvas.width, h = canvas.height;
               const cx = w/2, cy = h/2, r = Math.min(cx,cy) - 40;
               ctx.clearRect(0,0,w,h);
-
               const ratings = hrData[getBaseNum(hrResult.hour.o)]?.ratings || hrData[1].ratings;
               const vals = Object.values(ratings);
               const labels = ratingLabels;
               const n = vals.length;
-
-              // 背景網格
               for(let lv=1;lv<=5;lv++){
                 ctx.beginPath();
                 for(let i=0;i<=n;i++){
@@ -1541,109 +1142,64 @@ header[class*="bg-white"] {
                 ctx.strokeStyle = isNight ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
                 ctx.stroke();
               }
-              // 軸線
               for(let i=0;i<n;i++){
                 const ang = (Math.PI*2/n)*i - Math.PI/2;
-                ctx.beginPath();
-                ctx.moveTo(cx,cy);
+                ctx.beginPath(); ctx.moveTo(cx,cy);
                 ctx.lineTo(cx+r*Math.cos(ang), cy+r*Math.sin(ang));
                 ctx.strokeStyle = isNight ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
                 ctx.stroke();
               }
-              // 數據面
               ctx.beginPath();
               for(let i=0;i<=n;i++){
-                const idx = i%n;
-                const ang = (Math.PI*2/n)*idx - Math.PI/2;
+                const idx = i%n; const ang = (Math.PI*2/n)*idx - Math.PI/2;
                 const vr = r*vals[idx]/5;
-                const px = cx + vr*Math.cos(ang);
-                const py = cy + vr*Math.sin(ang);
-                i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+                i===0?ctx.moveTo(cx+vr*Math.cos(ang),cy+vr*Math.sin(ang)):ctx.lineTo(cx+vr*Math.cos(ang),cy+vr*Math.sin(ang));
               }
-              ctx.fillStyle = isNight ? 'rgba(168,85,247,0.25)' : 'rgba(217,169,70,0.25)';
-              ctx.fill();
-              ctx.strokeStyle = isNight ? 'rgba(168,85,247,0.8)' : 'rgba(180,130,30,0.8)';
-              ctx.lineWidth = 2;
-              ctx.stroke();
-              // 數據點
+              ctx.fillStyle = isNight ? 'rgba(168,85,247,0.25)' : 'rgba(217,169,70,0.25)'; ctx.fill();
+              ctx.strokeStyle = isNight ? 'rgba(168,85,247,0.8)' : 'rgba(180,130,30,0.8)'; ctx.lineWidth = 2; ctx.stroke();
               for(let i=0;i<n;i++){
-                const ang = (Math.PI*2/n)*i - Math.PI/2;
-                const vr = r*vals[i]/5;
-                ctx.beginPath();
-                ctx.arc(cx+vr*Math.cos(ang), cy+vr*Math.sin(ang), 4, 0, Math.PI*2);
-                ctx.fillStyle = isNight ? '#a855f7' : '#b4821e';
-                ctx.fill();
+                const ang = (Math.PI*2/n)*i - Math.PI/2; const vr = r*vals[i]/5;
+                ctx.beginPath(); ctx.arc(cx+vr*Math.cos(ang), cy+vr*Math.sin(ang), 4, 0, Math.PI*2);
+                ctx.fillStyle = isNight ? '#a855f7' : '#b4821e'; ctx.fill();
               }
-              // 標籤
               ctx.font = '13px sans-serif';
               ctx.fillStyle = isNight ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)';
               ctx.textAlign = 'center';
               for(let i=0;i<n;i++){
-                const ang = (Math.PI*2/n)*i - Math.PI/2;
-                const lr = r + 24;
+                const ang = (Math.PI*2/n)*i - Math.PI/2; const lr = r + 24;
                 ctx.fillText(labels[i]+' '+vals[i], cx+lr*Math.cos(ang), cy+lr*Math.sin(ang)+5);
               }
             }, [hrResult, isNight]);
 
             // ===== 未輸入狀態 =====
-
-            // ===== 未輸入狀態：專業 HR 入口 =====
             if (!hrResult) return (
               <div className="max-w-3xl mx-auto fade-in">
-                {/* Hero */}
                 <div className="text-center mb-8">
                   <div className={'inline-block px-4 py-1 rounded-full text-xs mb-4 ' + (isNight ? 'bg-purple-900/40 text-purple-300' : 'bg-amber-100 text-amber-800')}>馥靈之鑰 × 企業人才管理</div>
                   <h2 className="text-3xl font-bold gold-text serif mb-2">HR 快速識人系統</h2>
                   <p className="opacity-70 leading-relaxed">輸入一組生日，3 秒生成五維人格報告<br/>涵蓋管理風格、職位適配、團隊搭配與風險預警</p>
                 </div>
-
-                {/* 價值主張 */}
                 <div className="grid grid-cols-3 gap-3 mb-6">
-                  {[
-                    {icon:'⚡', title:'3 秒出報告', desc:'輸入生日即刻生成'},
-                    {icon:'📊', title:'五維雷達圖', desc:'獨立性 / 服從性 / 協作 / 抗壓 / 穩定'},
-                    {icon:'🔒', title:'資料零傳輸', desc:'所有計算在你的裝置完成'}
-                  ].map((v,i) => (
-                    <div key={i} className={'card p-4 text-center ' + (isNight ? '' : '')}>
-                      <div className="text-2xl mb-2">{v.icon}</div>
-                      <div className="text-sm font-bold mb-1">{v.title}</div>
-                      <div className="text-xs opacity-50">{v.desc}</div>
-                    </div>
+                  {[{icon:'⚡',title:'3 秒出報告',desc:'輸入生日即刻生成'},{icon:'📊',title:'五維雷達圖',desc:'獨立性 / 服從性 / 協作 / 抗壓 / 穩定'},{icon:'🔒',title:'資料零傳輸',desc:'所有計算在你的裝置完成'}].map((v,i) => (
+                    <div key={i} className="card p-4 text-center"><div className="text-2xl mb-2">{v.icon}</div><div className="text-sm font-bold mb-1">{v.title}</div><div className="text-xs opacity-50">{v.desc}</div></div>
                   ))}
                 </div>
-
-                {/* 輸入區 */}
                 <div className={'card p-6 ' + (isNight ? 'ring-1 ring-purple-500/20' : 'ring-1 ring-amber-300/40')}>
                   {result && <button onClick={() => setHrResult(result)} className="w-full gold-btn py-4 rounded-lg text-lg mb-4 font-bold">📋 使用我的命盤直接生成報告</button>}
                   <InputForm title="輸入員工 / 應徵者的西曆生日" showName={true} nameLabel="姓名（選填，僅顯示在報告上）" onCalculate={(data) => setHrResult(calculateHourLight(data))} />
                 </div>
-
-                {/* 適用場景 */}
-                <div className="mt-6">
-                  <div className="text-center text-xs opacity-40 mb-3">適用場景</div>
+                <div className="mt-6"><div className="text-center text-xs opacity-40 mb-3">適用場景</div>
                   <div className="grid grid-cols-2 gap-3">
-                    {[
-                      {icon:'🎯', t:'面試決策', d:'快速掌握應徵者核心特質與潛在風險'},
-                      {icon:'🏗️', t:'團隊組建', d:'找出最佳搭配組合，避免人格衝突'},
-                      {icon:'📈', t:'績效管理', d:'理解員工內在驅力，精準激勵'},
-                      {icon:'🔄', t:'輪調規劃', d:'根據潛能與方向，安排最適發展路徑'}
-                    ].map((s,i) => (
-                      <div key={i} className={'p-3 rounded-lg text-sm ' + (isNight ? 'bg-white/5' : 'bg-amber-50/60')}>
-                        <span className="mr-1">{s.icon}</span>
-                        <span className="font-bold">{s.t}</span>
-                        <span className="opacity-60 ml-1">{s.d}</span>
-                      </div>
+                    {[{icon:'🎯',t:'面試決策',d:'快速掌握應徵者核心特質'},{icon:'🏗️',t:'團隊組建',d:'找出最佳搭配避免衝突'},{icon:'📈',t:'績效管理',d:'理解員工驅力精準激勵'},{icon:'🔄',t:'輪調規劃',d:'根據潛能安排發展路徑'}].map((s,i) => (
+                      <div key={i} className={'p-3 rounded-lg text-sm ' + (isNight ? 'bg-white/5' : 'bg-amber-50/60')}><span className="mr-1">{s.icon}</span><span className="font-bold">{s.t}</span><span className="opacity-60 ml-1">{s.d}</span></div>
                     ))}
                   </div>
                 </div>
-
-                {/* 方法論信賴標誌 */}
                 <div className="mt-6 text-center">
                   <div className="flex flex-wrap justify-center gap-2 text-xs opacity-40">
-                    <span className={'px-3 py-1 rounded-full border ' + (isNight ? 'border-white/10' : 'border-gray-200')}>創辦人 34 年美業實戰</span>
-                    <span className={'px-3 py-1 rounded-full border ' + (isNight ? 'border-white/10' : 'border-gray-200')}>碩士論文級研究基底</span>
-                    <span className={'px-3 py-1 rounded-full border ' + (isNight ? 'border-white/10' : 'border-gray-200')}>H.O.U.R. 原創方法論</span>
-                    <span className={'px-3 py-1 rounded-full border ' + (isNight ? 'border-white/10' : 'border-gray-200')}>馥靈三角秘碼獨家系統</span>
+                    {['創辦人 34 年美業實戰','碩士論文級研究基底','H.O.U.R. 原創方法論','馥靈三角秘碼獨家系統'].map((t,i) => (
+                      <span key={i} className={'px-3 py-1 rounded-full border ' + (isNight ? 'border-white/10' : 'border-gray-200')}>{t}</span>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -1654,55 +1210,33 @@ header[class*="bg-white"] {
             const oData = getNumData(hour.o);
             const workNum = getBaseNum(hour.o);
             const hr = hrData[workNum] || hrData[1];
-            const triR = triData ? {
-              h: TRI_H[triData.base[0]] || TRI_H[0],
-              o: TRI_O[triData.base[1]] || TRI_O[0],
-              u: TRI_U[triData.base[2]] || TRI_U[0],
-              r: TRI_R[triData.base[3]] || TRI_R[0],
-              drive: TRI_DRIVE[triData.conv[0]] || TRI_DRIVE[0],
-              mission: TRI_MISSION[triData.conv[1]] || TRI_MISSION[0],
-              apex: APEX_DATA[triData.apex] || APEX_DATA[0]
-            } : null;
-            const masterBadge = (n) => (n===11||n===22||n===33) ? ' ✨' : '';
-            // 綜合適配度計算
             const fitScore = (() => {
               const hoFit = bridges.ho <= 2 ? 30 : bridges.ho <= 4 ? 20 : 10;
               const ouFit = !bridges.ou ? 15 : bridges.ou <= 2 ? 20 : bridges.ou <= 4 ? 15 : 8;
               const urFit = !bridges.ur ? 15 : bridges.ur <= 2 ? 20 : bridges.ur <= 4 ? 15 : 8;
-              const base = hoFit + ouFit + urFit;
-              return Math.min(98, base + 30);
+              return Math.min(98, hoFit + ouFit + urFit + 30);
             })();
             const fitColor = fitScore >= 80 ? (isNight ? 'text-green-400' : 'text-green-600') : fitScore >= 60 ? (isNight ? 'text-yellow-400' : 'text-yellow-600') : (isNight ? 'text-red-400' : 'text-red-600');
 
             return (
                 <div className="max-w-3xl mx-auto fade-in space-y-5">
-
-                    {/* ===== 報告標頭 ===== */}
                     <div className="flex items-center justify-between">
-                      <button onClick={() => { setHrResult(null); setTriData(null); setIdInput(''); setTriMode(false); }} className="text-sm opacity-60 hover:opacity-100 flex items-center gap-1">← 重新識人</button>
+                      <button onClick={() => { setHrResult(null); setTriData(null); setTriReading(null); setIdInput(''); setTriMode(false); }} className="text-sm opacity-60 hover:opacity-100">← 重新識人</button>
                       <div className="text-xs opacity-30">馥靈之鑰 HR 識人系統 v8.3</div>
                     </div>
 
-                    {/* ===== 頂部摘要卡（一眼看完） ===== */}
+                    {/* 頂部摘要卡 */}
                     <div className={'card p-6 ' + (isNight ? 'ring-1 ring-amber-500/20' : 'ring-1 ring-amber-300/40')}>
                       <div className="flex items-start gap-6">
-                        {/* 左：大數字 */}
                         <div className="text-center flex-shrink-0">
                           <div className="text-6xl font-bold gold-text serif">{hour.o}{isMasterNumber(hour.o) && <MasterBadge num={hour.o} />}</div>
-                          <div className={'mt-1 px-4 py-1 rounded-full text-sm inline-block font-bold ' + (isNight ? 'bg-amber-900/50 text-amber-200' : 'bg-amber-100 text-amber-800')}>
-                            {hr.tag}
-                          </div>
+                          <div className={'mt-1 px-4 py-1 rounded-full text-sm inline-block font-bold ' + (isNight ? 'bg-amber-900/50 text-amber-200' : 'bg-amber-100 text-amber-800')}>{hr.tag}</div>
                         </div>
-                        {/* 右：摘要 */}
                         <div className="flex-1 min-w-0">
                           <div className="text-lg font-bold mb-2 serif">「{hr.slogan}」</div>
                           <div className="grid grid-cols-2 gap-2 text-sm">
-                            <div className={'p-2 rounded ' + (isNight ? 'bg-white/5' : 'bg-gray-50')}>
-                              <span className="opacity-50">適合 ► </span>{hr.bestRoles[0]}
-                            </div>
-                            <div className={'p-2 rounded ' + (isNight ? 'bg-white/5' : 'bg-gray-50')}>
-                              <span className="opacity-50">避免 ► </span>{hr.worstRoles[0]}
-                            </div>
+                            <div className={'p-2 rounded ' + (isNight ? 'bg-white/5' : 'bg-gray-50')}><span className="opacity-50">適合 ► </span>{hr.bestRoles[0]}</div>
+                            <div className={'p-2 rounded ' + (isNight ? 'bg-white/5' : 'bg-gray-50')}><span className="opacity-50">避免 ► </span>{hr.worstRoles[0]}</div>
                           </div>
                           <div className="flex items-center gap-4 mt-3">
                             <div className="text-xs"><span className="opacity-50">內外一致性：</span><span className={'font-bold ' + (bridges.ho <= 2 ? (isNight?'text-green-400':'text-green-600') : bridges.ho <= 4 ? (isNight?'text-yellow-400':'text-yellow-600') : (isNight?'text-red-400':'text-red-600'))}>{bridges.ho <= 2 ? '高' : bridges.ho <= 4 ? '中' : '低'}</span></div>
@@ -1712,257 +1246,125 @@ header[class*="bg-white"] {
                       </div>
                     </div>
 
-                    {/* ===== H.O.U.R. 四維深度分析 ===== */}
+                    {/* H.O.U.R. 四維 */}
                     <div className="card p-6">
                       <h4 className="font-bold gold-text text-lg mb-1">🔑 H.O.U.R. 四維人才分析</h4>
                       <p className="text-xs opacity-40 mb-4">四個維度揭示員工從內在需求到外在發展的完整面貌</p>
                       <div className="grid grid-cols-2 gap-3">
-                        {[
-                          {key:'h', label:'H 數', sub:'內在需求', val:hour.h, color:isNight?'bg-blue-900/30 border-blue-800/30':'bg-blue-50 border-blue-200', hint:'面試看不到，但決定他留下或離開'},
-                          {key:'o', label:'O 數', sub:'外在表現', val:hour.o, color:isNight?'bg-green-900/30 border-green-800/30':'bg-green-50 border-green-200', hint:'面試時你會看到的樣子'},
-                          {key:'u', label:'U 數', sub:'隱藏潛能', val:hour.u||'—', color:isNight?'bg-purple-900/30 border-purple-800/30':'bg-purple-50 border-purple-200', hint:'長期培養後會展現的能力'},
-                          {key:'r', label:'R 數', sub:'人生方向', val:hour.r, color:isNight?'bg-amber-900/30 border-amber-800/30':'bg-amber-50 border-amber-200', hint:'決定長期職涯走向'}
+                        {[{key:'h',label:'H 數',sub:'內在需求',val:hour.h,color:isNight?'bg-blue-900/30 border-blue-800/30':'bg-blue-50 border-blue-200',hint:'面試看不到，但決定他留下或離開'},
+                          {key:'o',label:'O 數',sub:'外在表現',val:hour.o,color:isNight?'bg-green-900/30 border-green-800/30':'bg-green-50 border-green-200',hint:'面試時你會看到的樣子'},
+                          {key:'u',label:'U 數',sub:'隱藏潛能',val:hour.u||'—',color:isNight?'bg-purple-900/30 border-purple-800/30':'bg-purple-50 border-purple-200',hint:'長期培養後會展現的能力'},
+                          {key:'r',label:'R 數',sub:'人生方向',val:hour.r,color:isNight?'bg-amber-900/30 border-amber-800/30':'bg-amber-50 border-amber-200',hint:'決定長期職涯走向'}
                         ].map((d,i) => (
                           <div key={i} className={'p-4 rounded-lg border ' + d.color}>
-                            <div className="flex justify-between items-center mb-2">
-                              <div><span className="text-xs opacity-50">{d.label}</span><span className="text-xs opacity-40 ml-1">({d.sub})</span></div>
-                              <span className="text-2xl font-bold gold-text">{d.val}</span>
-                            </div>
+                            <div className="flex justify-between items-center mb-2"><div><span className="text-xs opacity-50">{d.label}</span><span className="text-xs opacity-40 ml-1">({d.sub})</span></div><span className="text-2xl font-bold gold-text">{d.val}</span></div>
                             <p className="text-sm opacity-80">{d.key === 'o' ? oData?.light : d.key === 'u' && !hour.u ? '需深入了解' : getNumData(d.val)?.essence}</p>
-                            <p className={'text-xs mt-2 opacity-40 italic'}>{d.hint}</p>
+                            <p className="text-xs mt-2 opacity-40 italic">{d.hint}</p>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    {/* ===== 五維雷達圖 + 星級評分並排 ===== */}
+                    {/* 雷達圖 + 星級 */}
                     <div className="card p-6">
                       <h4 className="font-bold gold-text text-lg mb-4">📊 工作特質五維雷達圖</h4>
                       <div className="flex flex-col md:flex-row items-center gap-6">
-                        <div className="flex-shrink-0">
-                          <canvas ref={radarRef} width={280} height={280} style={{maxWidth:'100%'}} />
-                        </div>
+                        <div className="flex-shrink-0"><canvas ref={radarRef} width={280} height={280} style={{maxWidth:'100%'}} /></div>
                         <div className="flex-1 w-full space-y-3">
                           {ratingLabels.map((label, i) => {
-                            const vals = hrData[workNum]?.ratings ? Object.values(hrData[workNum].ratings) : [3,3,3,3,3];
+                            const vals = hr.ratings ? Object.values(hr.ratings) : [3,3,3,3,3];
                             const v = vals[i];
-                            return (
-                              <div key={i}>
-                                <div className="flex justify-between items-center mb-1">
-                                  <span className="text-sm font-bold">{label}</span>
-                                  <StarBar v={v} />
-                                </div>
-                                <div className="w-full h-2 rounded-full overflow-hidden" style={{background: isNight ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}}>
-                                  <div className="h-full rounded-full transition-all" style={{width: (v/5*100)+'%', background:'linear-gradient(90deg, #cda86e, #e9c27d)'}} />
-                                </div>
-                              </div>
-                            );
+                            return (<div key={i}><div className="flex justify-between items-center mb-1"><span className="text-sm font-bold">{label}</span><StarBar v={v} /></div><div className="w-full h-2 rounded-full overflow-hidden" style={{background:isNight?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)'}}><div className="h-full rounded-full" style={{width:(v/5*100)+'%',background:'linear-gradient(90deg, #cda86e, #e9c27d)'}} /></div></div>);
                           })}
                         </div>
                       </div>
                     </div>
 
-                    {/* ===== 內外整合度 ===== */}
-                    <div className="card p-6">
-                      <h4 className="font-bold gold-text text-lg mb-3">🌉 內外整合度分析</h4>
-                      <div className="grid grid-cols-3 gap-4 text-center">
-                        {[
-                          {val:bridges.ho, label:'H → O 橋樑', desc:'需求vs表現', good:'內外一致', mid:'需要調適', bad:'落差大'},
-                          {val:bridges.ou, label:'O → U 橋樑', desc:'表現vs潛能', good:'潛能易發揮', mid:'需要培養', bad:'落差大'},
-                          {val:bridges.ur, label:'U → R 橋樑', desc:'潛能vs方向', good:'方向明確', mid:'需要引導', bad:'落差大'}
-                        ].map((b,i) => {
-                          const v = b.val;
-                          const isLow = v === null || v === undefined;
-                          const status = isLow ? '—' : v <= 2 ? b.good : v <= 4 ? b.mid : b.bad;
-                          const sColor = isLow ? '' : v <= 2 ? 'bg-green-100 text-green-700' : v <= 4 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700';
-                          return (
-                            <div key={i} className={'p-3 rounded-lg ' + (isNight ? 'bg-white/5' : 'bg-gray-50')}>
-                              <div className="text-2xl font-bold gold-text mb-1">{isLow ? '—' : v}</div>
-                              <div className="text-xs opacity-60 mb-2">{b.label}</div>
-                              {!isLow && <div className={'text-xs px-2 py-0.5 rounded-full inline-block ' + (isNight ? '' : sColor)}>{status}</div>}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
+                    {/* 整合度 */}
+                    <div className="card p-6"><h4 className="font-bold gold-text text-lg mb-3">🌉 內外整合度分析</h4><div className="grid grid-cols-3 gap-4 text-center">{[{val:bridges.ho,label:'H → O 橋樑',good:'內外一致',mid:'需要調適',bad:'落差大'},{val:bridges.ou,label:'O → U 橋樑',good:'潛能易發揮',mid:'需要培養',bad:'落差大'},{val:bridges.ur,label:'U → R 橋樑',good:'方向明確',mid:'需要引導',bad:'落差大'}].map((b,i) => {const v=b.val;const isLow=v===null||v===undefined;const status=isLow?'—':v<=2?b.good:v<=4?b.mid:b.bad;const sColor=isLow?'':v<=2?'bg-green-100 text-green-700':v<=4?'bg-yellow-100 text-yellow-700':'bg-red-100 text-red-700';return (<div key={i} className={'p-3 rounded-lg '+(isNight?'bg-white/5':'bg-gray-50')}><div className="text-2xl font-bold gold-text mb-1">{isLow?'—':v}</div><div className="text-xs opacity-60 mb-2">{b.label}</div>{!isLow&&<div className={'text-xs px-2 py-0.5 rounded-full inline-block '+(isNight?'':sColor)}>{status}</div>}</div>);})}</div></div>
 
-                    {/* ===== 職位適配 + 面試觀察 ===== */}
+                    {/* 職位適配 + 面試 */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="card p-5">
                         <h4 className="font-bold gold-text mb-3">✅ 適合的職位</h4>
-                        <div className="space-y-2 text-sm">{hr.bestRoles.map((r,i) => <div key={i} className={'p-2 rounded ' + (isNight ? 'bg-green-900/20' : 'bg-green-50')}>► {r}</div>)}</div>
-                        <h4 className={'font-bold mt-4 mb-3 ' + (isNight ? 'text-red-400' : 'text-red-600')}>❌ 不適合的職位</h4>
-                        <div className="space-y-2 text-sm">{hr.worstRoles.map((r,i) => <div key={i} className={'p-2 rounded ' + (isNight ? 'bg-red-900/20' : 'bg-red-50')}>► {r}</div>)}</div>
+                        <div className="space-y-2 text-sm">{hr.bestRoles.map((r,i) => <div key={i} className={'p-2 rounded '+(isNight?'bg-green-900/20':'bg-green-50')}>► {r}</div>)}</div>
+                        <h4 className={'font-bold mt-4 mb-3 '+(isNight?'text-red-400':'text-red-600')}>❌ 不適合的職位</h4>
+                        <div className="space-y-2 text-sm">{hr.worstRoles.map((r,i) => <div key={i} className={'p-2 rounded '+(isNight?'bg-red-900/20':'bg-red-50')}>► {r}</div>)}</div>
                       </div>
-                      <div className={'card p-5 ' + (isNight ? 'bg-gradient-to-br from-blue-900/20 to-indigo-900/20' : 'bg-gradient-to-br from-blue-50 to-indigo-50')}>
+                      <div className={'card p-5 '+(isNight?'bg-gradient-to-br from-blue-900/20 to-indigo-900/20':'bg-gradient-to-br from-blue-50 to-indigo-50')}>
                         <h4 className="font-bold gold-text mb-3">🔍 面試觀察重點</h4>
                         <p className="text-sm opacity-80 leading-relaxed mb-4">{hr.interview}</p>
-                        <div className={'p-3 rounded-lg text-sm ' + (isNight ? 'bg-black/20' : 'bg-white/70')}>
-                          <div className="font-bold mb-1 opacity-60">⚠️ 風險預警</div>
-                          <p className="opacity-80">{hr.warning}</p>
-                        </div>
+                        <div className={'p-3 rounded-lg text-sm '+(isNight?'bg-black/20':'bg-white/70')}><div className="font-bold mb-1 opacity-60">⚠️ 風險預警</div><p className="opacity-80">{hr.warning}</p></div>
                       </div>
                     </div>
 
-                    {/* ===== 管理策略 ===== */}
-                    <div className="card p-6">
-                      <h4 className="font-bold gold-text text-lg mb-4">💡 管理策略手冊</h4>
-                      <div className="space-y-3">
-                        <div className={'p-4 rounded-lg ' + (isNight ? 'bg-blue-900/20' : 'bg-blue-50')}>
-                          <div className="flex items-center gap-2 mb-2"><span className="text-lg">🎯</span><span className="font-bold">日常管理要訣</span></div>
-                          <p className="text-sm opacity-80">{hr.manageTip}</p>
-                        </div>
-                        <div className={'p-4 rounded-lg ' + (isNight ? 'bg-green-900/20' : 'bg-green-50')}>
-                          <div className="flex items-center gap-2 mb-2"><span className="text-lg">🔥</span><span className="font-bold">激勵這個人的關鍵</span></div>
-                          <p className="text-sm opacity-80">{hr.motivate}</p>
-                        </div>
-                      </div>
-                    </div>
+                    {/* 管理策略 */}
+                    <div className="card p-6"><h4 className="font-bold gold-text text-lg mb-4">💡 管理策略手冊</h4><div className="space-y-3">
+                      <div className={'p-4 rounded-lg '+(isNight?'bg-blue-900/20':'bg-blue-50')}><div className="flex items-center gap-2 mb-2"><span className="text-lg">🎯</span><span className="font-bold">日常管理要訣</span></div><p className="text-sm opacity-80">{hr.manageTip}</p></div>
+                      <div className={'p-4 rounded-lg '+(isNight?'bg-green-900/20':'bg-green-50')}><div className="flex items-center gap-2 mb-2"><span className="text-lg">🔥</span><span className="font-bold">激勵這個人的關鍵</span></div><p className="text-sm opacity-80">{hr.motivate}</p></div>
+                    </div></div>
 
-                    {/* ===== 團隊搭配 ===== */}
-                    <div className="card p-6">
-                      <h4 className="font-bold gold-text text-lg mb-3">🤝 團隊搭配建議</h4>
-                      <div className="space-y-2">
-                        {hr.bestMatch.map((m,i) => (
-                          <div key={i} className={'p-3 rounded-lg flex items-center gap-3 ' + (isNight ? 'bg-green-900/20' : 'bg-green-50')}>
-                            <span className="text-2xl font-bold gold-text w-10 text-center flex-shrink-0">{m.n}</span>
-                            <div><span className="text-sm font-bold">推薦搭配</span><span className="text-sm opacity-70 ml-2">{m.d}</span></div>
-                          </div>
-                        ))}
-                        {hr.avoidMatch.map((m,i) => (
-                          <div key={i} className={'p-3 rounded-lg flex items-center gap-3 ' + (isNight ? 'bg-red-900/20' : 'bg-red-50')}>
-                            <span className="text-2xl font-bold w-10 text-center flex-shrink-0 opacity-50">{m.n}</span>
-                            <div><span className="text-sm font-bold">注意組合</span><span className="text-sm opacity-70 ml-2">{m.d}</span></div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    {/* 團隊搭配 */}
+                    <div className="card p-6"><h4 className="font-bold gold-text text-lg mb-3">🤝 團隊搭配建議</h4><div className="space-y-2">
+                      {hr.bestMatch.map((m,i) => (<div key={i} className={'p-3 rounded-lg flex items-center gap-3 '+(isNight?'bg-green-900/20':'bg-green-50')}><span className="text-2xl font-bold gold-text w-10 text-center flex-shrink-0">{m.n}</span><div><span className="text-sm font-bold">推薦搭配</span><span className="text-sm opacity-70 ml-2">{m.d}</span></div></div>))}
+                      {hr.avoidMatch.map((m,i) => (<div key={i} className={'p-3 rounded-lg flex items-center gap-3 '+(isNight?'bg-red-900/20':'bg-red-50')}><span className="text-2xl font-bold w-10 text-center flex-shrink-0 opacity-50">{m.n}</span><div><span className="text-sm font-bold">注意組合</span><span className="text-sm opacity-70 ml-2">{m.d}</span></div></div>))}
+                    </div></div>
 
-                    {/* ===== 空缺數字 ===== */}
-                    {analysis.missingNumbers.length > 0 && (
-                      <div className="card p-6">
-                        <h4 className="font-bold gold-text text-lg mb-3">🔍 可能盲點（空缺數字）</h4>
-                        <p className="text-xs opacity-40 mb-3">生日中缺少的數字代表需要後天補強的面向</p>
-                        <div className="flex flex-wrap gap-2">{analysis.missingNumbers.map(n => <span key={n} className={'px-4 py-2 rounded-lg text-sm font-bold ' + (isNight ? 'bg-red-900/30 text-red-300 border border-red-800/30' : 'bg-red-50 text-red-700 border border-red-200')}>{n} {getNumData(n)?.title}</span>)}</div>
-                      </div>
-                    )}
+                    {/* 空缺數字 */}
+                    {analysis.missingNumbers.length > 0 && (<div className="card p-6"><h4 className="font-bold gold-text text-lg mb-3">🔍 可能盲點（空缺數字）</h4><p className="text-xs opacity-40 mb-3">生日中缺少的數字代表需要後天補強的面向</p><div className="flex flex-wrap gap-2">{analysis.missingNumbers.map(n => <span key={n} className={'px-4 py-2 rounded-lg text-sm font-bold '+(isNight?'bg-red-900/30 text-red-300 border border-red-800/30':'bg-red-50 text-red-700 border border-red-200')}>{n} {getNumData(n)?.title}</span>)}</div></div>)}
 
-                    {/* ===== 馥靈獨創洞察 ===== */}
-                    <div className={'card p-6 ' + (isNight ? 'bg-gradient-to-br from-purple-900/30 to-pink-900/20 ring-1 ring-purple-500/20' : 'bg-gradient-to-br from-amber-50 to-yellow-50 ring-1 ring-amber-300/30')}>
-                      <h4 className="font-bold gold-text text-lg mb-3">💎 馥靈獨創洞察</h4>
-                      <p className="opacity-80 italic leading-relaxed text-sm">{oData?.uniqueReading}</p>
-                    </div>
+                    {/* 馥靈獨創洞察 */}
+                    <div className={'card p-6 '+(isNight?'bg-gradient-to-br from-purple-900/30 to-pink-900/20 ring-1 ring-purple-500/20':'bg-gradient-to-br from-amber-50 to-yellow-50 ring-1 ring-amber-300/30')}><h4 className="font-bold gold-text text-lg mb-3">💎 馥靈獨創洞察</h4><p className="opacity-80 italic leading-relaxed text-sm">{oData?.uniqueReading}</p></div>
 
-                    {/* ========== 馥靈三角秘碼進階識人 ========== */}
-                    <div className={'card p-6 text-center ' + (isNight ? 'ring-1 ring-purple-500/30' : 'ring-1 ring-amber-300/60')}>
-                      <div className={'inline-block px-3 py-0.5 rounded-full text-xs mb-3 ' + (isNight ? 'bg-purple-900/40 text-purple-300' : 'bg-amber-100 text-amber-700')}>進階解鎖</div>
+                    {/* 三角秘碼進階 */}
+                    <div className={'card p-6 text-center '+(isNight?'ring-1 ring-purple-500/30':'ring-1 ring-amber-300/60')}>
+                      <div className={'inline-block px-3 py-0.5 rounded-full text-xs mb-3 '+(isNight?'bg-purple-900/40 text-purple-300':'bg-amber-100 text-amber-700')}>進階解鎖</div>
                       <h3 className="text-xl font-bold gold-text serif mb-2">📐 馥靈三角秘碼・深層識人</h3>
                       <p className="text-sm opacity-60 mb-1">輸入身份證字號，進一步解碼「外在角色定位」</p>
                       <p className="text-xs opacity-40 mb-4">生日看「骨子裡是什麼人」・身份證看「職場上自然會被推向什麼位置」</p>
                       {!triMode ? (
-                        <button onClick={() => setTriMode(true)} className={'px-8 py-3 rounded-lg font-bold transition-all text-lg ' + (isNight ? 'bg-purple-800/60 hover:bg-purple-700/60 text-purple-200' : 'bg-amber-100 hover:bg-amber-200 text-amber-800')}>🔺 解鎖三角秘碼分析</button>
+                        <button onClick={() => setTriMode(true)} className={'px-8 py-3 rounded-lg font-bold transition-all text-lg '+(isNight?'bg-purple-800/60 hover:bg-purple-700/60 text-purple-200':'bg-amber-100 hover:bg-amber-200 text-amber-800')}>🔺 解鎖三角秘碼分析</button>
                       ) : (
                         <div className="space-y-4">
-                          <div className={'p-4 rounded-lg text-left ' + (isNight ? 'bg-gray-800/50' : 'bg-gray-50')}>
+                          <div className={'p-4 rounded-lg text-left '+(isNight?'bg-gray-800/50':'bg-gray-50')}>
                             <label className="block text-sm font-bold mb-1 gold-text">身份證字號</label>
                             <p className="text-xs opacity-40 mb-2">🔒 字號僅在你的裝置上計算，不會儲存或傳送到任何伺服器</p>
                             <div className="flex gap-2">
-                              <input type="text" value={idInput} onChange={e => setIdInput(e.target.value)} placeholder="例：A123456789" className={'flex-1 px-3 py-2 rounded-lg border text-center ' + (isNight ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-300')} style={{letterSpacing:'2px'}} />
+                              <input type="text" value={idInput} onChange={e => setIdInput(e.target.value)} placeholder="例：A123456789" className={'flex-1 px-3 py-2 rounded-lg border text-center '+(isNight?'bg-gray-900 border-gray-700':'bg-white border-gray-300')} style={{letterSpacing:'2px'}} />
                               <button onClick={handleTriCalc} className="gold-btn px-6 py-2 rounded-lg font-bold">✨ 解碼</button>
                             </div>
                           </div>
-
-                          {triData && triR && (
+                          {triData && triReading && (
                             <div className="space-y-4 text-left">
-                              {/* 三角形視覺化 */}
-                              <div className="text-center py-4">
-                                <div className="inline-block text-left" style={{fontFamily:'monospace'}}>
-                                  <div className="text-center"><span className={'text-3xl font-bold ' + (isNight ? 'text-purple-300' : 'text-amber-600')}>{triData.apex}{masterBadge(triData.apex)}</span><br/><span className="text-xs opacity-50">核心使命數</span></div>
-                                  <div className="flex justify-center gap-12 mt-3">{triData.conv.map((c,i) => (<div key={i} className="text-center"><span className="text-xl font-bold gold-text">{c}{masterBadge(c)}</span><br/><span className="text-xs opacity-50">{i===0?'內在驅力':'外在使命'}</span></div>))}</div>
-                                  <div className="flex justify-center gap-6 mt-3">{triData.base.map((b,i) => (<div key={i} className="text-center"><span className="text-lg font-bold gold-text">{b}{masterBadge(b)}</span><br/><span className="text-xs opacity-50">{['H△','O△','U△','R△'][i]}</span></div>))}</div>
-                                  <div className="text-center mt-3 text-xs opacity-50">尾數：{triData.tail}</div>
-                                </div>
-                              </div>
-
-                              {/* 根基層 */}
-                              <div className="card p-4"><h4 className="font-bold gold-text mb-3">🔺 根基層：身份證 H.O.U.R. 職場角色</h4>
-                                <div className="space-y-3 text-sm">
-                                  {[{key:'h',label:'H△ 安全根基',desc:'在壓力來的時候第一個反射動作',color:isNight?'bg-blue-900/20':'bg-blue-50',num:triData.base[0]},
-                                    {key:'o',label:'O△ 能力展現',desc:'別人怎麼看你、對你有什麼期待',color:isNight?'bg-green-900/20':'bg-green-50',num:triData.base[1]},
-                                    {key:'u',label:'U△ 隱藏資源',desc:'世界在看不見的地方為你埋了什麼',color:isNight?'bg-purple-900/20':'bg-purple-50',num:triData.base[2]},
-                                    {key:'r',label:'R△ 方向導航',desc:'不管你願不願意世界會推你去哪裡',color:isNight?'bg-amber-900/20':'bg-amber-50',num:triData.base[3]}
-                                  ].map(item => (
-                                    <div key={item.key} className={'p-4 rounded-lg ' + item.color}>
-                                      <div className="flex justify-between items-center mb-2"><span className="font-bold">{item.label}</span><span className="gold-text font-bold text-xl">{item.num}{masterBadge(item.num)}</span></div>
-                                      <div className={'inline-block px-2 py-0.5 rounded text-xs mb-2 ' + (isNight ? 'bg-white/10' : 'bg-black/5')}>{triR[item.key].t} ► {item.desc}</div>
-                                      <p className="opacity-80 leading-relaxed">{triR[item.key].b}</p>
-                                      <p className={'mt-2 text-xs ' + (isNight ? 'text-red-400' : 'text-red-600')}>⚠ 盲區：{triR[item.key].x}</p>
-                                      <p className={'mt-1 text-xs ' + (isNight ? 'text-green-400' : 'text-green-700')}>✦ 課題：{triR[item.key].k}</p>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-
-                              {/* 匯流層 */}
-                              <div className="card p-4"><h4 className="font-bold gold-text mb-3">🔀 匯流層：雙引擎解讀</h4>
-                                <div className="grid grid-cols-1 gap-3 text-sm">
-                                  <div className={'p-4 rounded-lg ' + (isNight ? 'bg-indigo-900/20' : 'bg-indigo-50')}>
-                                    <div className="flex justify-between items-center mb-2"><span className="font-bold">⚡ 內在驅力</span><span className="gold-text font-bold text-xl">{triData.conv[0]}{masterBadge(triData.conv[0])}</span></div>
-                                    <p className="text-xs opacity-50 mb-2">H△({triData.base[0]}) + O△({triData.base[1]}) 匯流 → 在社會中往前走的發動機</p>
-                                    <p className="opacity-80 leading-relaxed">{triR.drive.d}</p>
-                                    <p className={'mt-2 text-xs ' + (isNight ? 'text-red-400' : 'text-red-600')}>⚠ {triR.drive.x}</p>
+                              <div className="text-center py-4"><div className="inline-block text-left" style={{fontFamily:'monospace'}}>
+                                <div className="text-center"><span className={'text-3xl font-bold '+(isNight?'text-purple-300':'text-amber-600')}>{triData.apex}</span><br/><span className="text-xs opacity-50">核心使命數</span></div>
+                                <div className="flex justify-center gap-12 mt-3">{triData.conv.map((c,i) => (<div key={i} className="text-center"><span className="text-xl font-bold gold-text">{c}{(c===11||c===22||c===33)?'✨':''}</span><br/><span className="text-xs opacity-50">{i===0?'內在驅力':'外在使命'}</span></div>))}</div>
+                                <div className="flex justify-center gap-6 mt-3">{triData.base.map((b,i) => (<div key={i} className="text-center"><span className="text-lg font-bold gold-text">{b}{(b===11||b===22||b===33)?'✨':''}</span><br/><span className="text-xs opacity-50">{['H△','O△','U△','R△'][i]}</span></div>))}</div>
+                                <div className="text-center mt-3 text-xs opacity-50">尾數：{triData.tail}</div>
+                              </div></div>
+                              <div className="card p-4"><h4 className="font-bold gold-text mb-3">🔺 根基層：身份證 H.O.U.R. 職場角色</h4><div className="space-y-3 text-sm">
+                                {[{key:'h',label:'H△ 安全根基',color:isNight?'bg-blue-900/20':'bg-blue-50',idx:0},{key:'o',label:'O△ 能力展現',color:isNight?'bg-green-900/20':'bg-green-50',idx:1},{key:'u',label:'U△ 隱藏資源',color:isNight?'bg-purple-900/20':'bg-purple-50',idx:2},{key:'r',label:'R△ 方向導航',color:isNight?'bg-amber-900/20':'bg-amber-50',idx:3}].map(item => (
+                                  <div key={item.key} className={'p-4 rounded-lg '+item.color}>
+                                    <div className="flex justify-between items-center mb-2"><span className="font-bold">{item.label}</span><span className="gold-text font-bold text-xl">{triData.base[item.idx]}</span></div>
+                                    <p className="opacity-80 leading-relaxed">{triReading[item.key]?.b}</p>
+                                    {triReading[item.key]?.x && <p className={'mt-2 text-xs '+(isNight?'text-red-400':'text-red-600')}>⚠ 盲區：{triReading[item.key].x}</p>}
                                   </div>
-                                  <div className={'p-4 rounded-lg ' + (isNight ? 'bg-violet-900/20' : 'bg-violet-50')}>
-                                    <div className="flex justify-between items-center mb-2"><span className="font-bold">🎯 外在使命</span><span className="gold-text font-bold text-xl">{triData.conv[1]}{masterBadge(triData.conv[1])}</span></div>
-                                    <p className="text-xs opacity-50 mb-2">U△({triData.base[2]}) + R△({triData.base[3]}) 匯流 → 在這個世界上要做的事</p>
-                                    <p className="opacity-80 leading-relaxed">{triR.mission.d}</p>
-                                    <p className={'mt-2 text-xs ' + (isNight ? 'text-red-400' : 'text-red-600')}>⚠ {triR.mission.x}</p>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* 核心使命數 */}
-                              <div className={'card p-5 text-center ' + (isNight ? 'ring-1 ring-purple-500/30 bg-gradient-to-br from-purple-900/20 to-indigo-900/20' : 'ring-1 ring-amber-300 bg-gradient-to-br from-amber-50 to-yellow-50')}>
+                                ))}
+                              </div></div>
+                              <div className={'card p-5 text-center '+(isNight?'ring-1 ring-purple-500/30 bg-gradient-to-br from-purple-900/20 to-indigo-900/20':'ring-1 ring-amber-300 bg-gradient-to-br from-amber-50 to-yellow-50')}>
                                 <div className="text-xs opacity-50 mb-1">🏔️ 核心使命數</div>
-                                <div className="text-5xl font-bold gold-text serif mb-2">{triData.apex}{masterBadge(triData.apex)}</div>
-                                <div className={'text-lg font-bold mb-3 ' + (isNight ? 'text-purple-300' : 'text-amber-700')}>{triR.apex.t}</div>
-                                <p className="text-sm opacity-80 leading-relaxed mb-3">{triR.apex.d}</p>
-                                <div className={'p-3 rounded-lg text-sm ' + (isNight ? 'bg-white/5' : 'bg-white/60')}>
-                                  <span className="font-bold">社會任務：</span>{triR.apex.r}
-                                </div>
-                                <div className={'mt-3 pt-3 text-xs opacity-60 ' + (isNight ? 'border-t border-gray-700' : 'border-t border-gray-200')}>尾數 <span className="gold-text font-bold">{triData.tail}</span> 是別人對他的第一印象，使命數 <span className="gold-text font-bold">{triData.apex}</span> 是他最終會站上的位置</div>
+                                <div className="text-5xl font-bold gold-text serif mb-2">{triData.apex}</div>
+                                <p className="text-sm opacity-80 leading-relaxed mb-3">{triReading.apex?.b}</p>
+                                <div className={'mt-3 pt-3 text-xs opacity-60 '+(isNight?'border-t border-gray-700':'border-t border-gray-200')}>尾數 <span className="gold-text font-bold">{triData.tail}</span> 是別人對他的第一印象，使命數 <span className="gold-text font-bold">{triData.apex}</span> 是他最終會站上的位置</div>
                               </div>
-
-                              {/* 交叉分析 */}
-                              <div className={'card p-4 ' + (isNight ? 'bg-gradient-to-br from-indigo-900/30 to-purple-900/20' : 'bg-gradient-to-br from-indigo-50 to-purple-50')}>
-                                <h4 className="font-bold gold-text mb-3">🔀 生日 × 身份證 交叉分析</h4>
-                                <div className="text-sm space-y-4">
-                                  <div className={'p-3 rounded-lg ' + (isNight ? 'bg-white/5' : 'bg-white/60')}>
-                                    <div className="font-bold mb-1">O數對照（職場風格）</div>
-                                    <div className="flex items-center gap-2 mb-2 flex-wrap"><span>生日O數 <span className="gold-text font-bold">{hour.o}</span></span><span className="opacity-40">vs</span><span>身份證O△ <span className="gold-text font-bold">{triData.base[1]}</span></span></div>
-                                    {getBaseNum(hour.o) === triReduceForCalc(triData.base[1]) ? (
-                                      <p className="opacity-80">👉 兩者一致！職場上展現的樣子就是真實的樣子，面試所見即所得。</p>
-                                    ) : (
-                                      <p className="opacity-80">👉 兩者不同。「骨子裡」的工作風格和「被推著走」的方向有落差，長期可能內耗。安排職位時考慮兩者的交集。</p>
-                                    )}
-                                  </div>
-                                  <div className={'p-3 rounded-lg ' + (isNight ? 'bg-white/5' : 'bg-white/60')}>
-                                    <div className="font-bold mb-1">R數對照（人生方向）</div>
-                                    <div className="flex items-center gap-2 mb-2 flex-wrap"><span>生日R數 <span className="gold-text font-bold">{hour.r}</span></span><span className="opacity-40">vs</span><span>核心使命數 <span className="gold-text font-bold">{triData.apex}</span></span></div>
-                                    {(() => { const rBase = getBaseNum(hour.r); const aBase = triReduceForCalc(triData.apex); const diff = Math.abs(rBase - aBase); return diff <= 2 ? (<p className="opacity-80">👉 方向接近。內心想走的路和社會推他走的路大致吻合，職涯滿意度高。</p>) : (<p className="opacity-80">👉 方向有落差（差距 {diff}）。可能在「想做的事」和「被期待做的事」之間拉扯。</p>); })()}
-                                  </div>
-                                  <div className={'p-3 rounded-lg ' + (isNight ? 'bg-white/5' : 'bg-white/60')}>
-                                    <div className="font-bold mb-1">H數對照（安全感來源）</div>
-                                    <div className="flex items-center gap-2 mb-2 flex-wrap"><span>生日H數 <span className="gold-text font-bold">{hour.h}</span></span><span className="opacity-40">vs</span><span>身份證H△ <span className="gold-text font-bold">{triData.base[0]}</span></span></div>
-                                    {getBaseNum(hour.h) === triReduceForCalc(triData.base[0]) ? (
-                                      <p className="opacity-80">👉 安全感來源一致。職場中感受到的穩定感和內心需求吻合，留任意願高。</p>
-                                    ) : (
-                                      <p className="opacity-80">👉 安全感來源不同。內心需要的穩定和職場給的穩定不是同一種。了解這個落差可以更精準留住人才。</p>
-                                    )}
-                                  </div>
+                              <div className={'card p-4 '+(isNight?'bg-gradient-to-br from-indigo-900/30 to-purple-900/20':'bg-gradient-to-br from-indigo-50 to-purple-50')}><h4 className="font-bold gold-text mb-3">🔀 生日 × 身份證 交叉分析</h4><div className="text-sm space-y-4">
+                                <div className={'p-3 rounded-lg '+(isNight?'bg-white/5':'bg-white/60')}><div className="font-bold mb-1">O數對照（職場風格）</div><div className="flex items-center gap-2 mb-2 flex-wrap"><span>生日O數 <span className="gold-text font-bold">{hour.o}</span></span><span className="opacity-40">vs</span><span>身份證O△ <span className="gold-text font-bold">{triData.base[1]}</span></span></div>
+                                  {getBaseNum(hour.o) === (triData.base[1] > 9 ? triData.base[1] % 10 + Math.floor(triData.base[1]/10) : triData.base[1]) ? (<p className="opacity-80">👉 兩者一致！職場上展現的樣子就是真實的樣子，面試所見即所得。</p>) : (<p className="opacity-80">👉 兩者不同。「骨子裡」的工作風格和「被推著走」的方向有落差，長期可能內耗。</p>)}
                                 </div>
-                              </div>
-
+                                <div className={'p-3 rounded-lg '+(isNight?'bg-white/5':'bg-white/60')}><div className="font-bold mb-1">R數對照（人生方向）</div><div className="flex items-center gap-2 mb-2 flex-wrap"><span>生日R數 <span className="gold-text font-bold">{hour.r}</span></span><span className="opacity-40">vs</span><span>核心使命數 <span className="gold-text font-bold">{triData.apex}</span></span></div>
+                                  {(() => { const rBase = getBaseNum(hour.r); const aBase = triData.apex > 9 ? (triData.apex === 11 ? 2 : triData.apex === 22 ? 4 : triData.apex) : triData.apex; const diff = Math.abs(rBase - aBase); return diff <= 2 ? (<p className="opacity-80">👉 方向接近。內心想走的路和社會推他走的路大致吻合。</p>) : (<p className="opacity-80">👉 方向有落差（差距 {diff}）。可能在「想做的事」和「被期待做的事」之間拉扯。</p>); })()}
+                                </div>
+                              </div></div>
                               <p className="text-xs text-center opacity-40">馥靈三角秘碼為馥靈之鑰獨創系統 ► <a href="https://www.pubu.com.tw/ebook/645548" target="_blank" rel="noopener" className="underline">完整解讀書籍</a></p>
                             </div>
                           )}
@@ -1970,45 +1372,30 @@ header[class*="bg-white"] {
                       )}
                     </div>
 
-                    {/* ========== 企業培訓合作鉤子 ========== */}
-                    <div className={'card p-6 ' + (isNight ? 'bg-gradient-to-br from-indigo-900/30 to-purple-900/30 ring-1 ring-indigo-500/20' : 'bg-gradient-to-br from-indigo-50 to-blue-50 ring-1 ring-indigo-200')}>
+                    {/* 企業培訓合作鉤子 */}
+                    <div className={'card p-6 '+(isNight?'bg-gradient-to-br from-indigo-900/30 to-purple-900/30 ring-1 ring-indigo-500/20':'bg-gradient-to-br from-indigo-50 to-blue-50 ring-1 ring-indigo-200')}>
                       <div className="text-center mb-5">
-                        <div className={'inline-block px-3 py-1 rounded-full text-xs font-bold mb-3 ' + (isNight ? 'bg-indigo-800/60 text-indigo-200' : 'bg-indigo-100 text-indigo-700')}>企業方案</div>
+                        <div className={'inline-block px-3 py-1 rounded-full text-xs font-bold mb-3 '+(isNight?'bg-indigo-800/60 text-indigo-200':'bg-indigo-100 text-indigo-700')}>企業方案</div>
                         <h3 className="text-xl font-bold gold-text serif">如果一個人的報告就這麼有料</h3>
                         <h3 className="text-xl font-bold gold-text serif">想像一下整個團隊的呢？</h3>
                       </div>
-
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
-                        {[
-                          {icon:'🏢', title:'H.O.U.R. 團隊覺察工作坊', items:['3 小時沉浸式體驗', '全員四維人格報告', '團隊搭配矩陣圖', '管理者專屬策略手冊']},
-                          {icon:'📊', title:'AI × 情緒紀錄工具', items:['匿名回饋・好落地', '情緒趨勢追蹤圖表', '管理者觀察指標', '季度壓力與覺察報告']},
-                          {icon:'👔', title:'領導者一對一', items:['決策冷靜度評估', '溝通張力管理', '團隊動態深度解析', '12,000字完整書面報告']}
-                        ].map((s,i) => (
-                          <div key={i} className={'p-4 rounded-lg ' + (isNight ? 'bg-white/5 border border-white/10' : 'bg-white/70 border border-indigo-100')}>
-                            <div className="text-2xl mb-2">{s.icon}</div>
-                            <div className="font-bold text-sm mb-2">{s.title}</div>
-                            <div className="text-xs opacity-60 space-y-1">{s.items.map((item,j) => <div key={j}>► {item}</div>)}</div>
-                          </div>
+                        {[{icon:'🏢',title:'H.O.U.R. 團隊覺察工作坊',items:['3 小時沉浸式體驗','全員四維人格報告','團隊搭配矩陣圖','管理者專屬策略手冊']},{icon:'📊',title:'AI × 情緒紀錄工具',items:['匿名回饋・好落地','情緒趨勢追蹤圖表','管理者觀察指標','季度壓力與覺察報告']},{icon:'👔',title:'領導者一對一',items:['決策冷靜度評估','溝通張力管理','團隊動態深度解析','12,000字完整書面報告']}].map((s,i) => (
+                          <div key={i} className={'p-4 rounded-lg '+(isNight?'bg-white/5 border border-white/10':'bg-white/70 border border-indigo-100')}><div className="text-2xl mb-2">{s.icon}</div><div className="font-bold text-sm mb-2">{s.title}</div><div className="text-xs opacity-60 space-y-1">{s.items.map((item,j)=><div key={j}>► {item}</div>)}</div></div>
                         ))}
                       </div>
-
-                      <div className={'p-4 rounded-lg text-center text-sm mb-5 ' + (isNight ? 'bg-white/5' : 'bg-white/60')}>
+                      <div className={'p-4 rounded-lg text-center text-sm mb-5 '+(isNight?'bg-white/5':'bg-white/60')}>
                         <div className="flex flex-wrap justify-center gap-3 mb-3">
-                          <span className={'px-3 py-1 rounded-full text-xs ' + (isNight ? 'bg-amber-900/40 text-amber-200' : 'bg-amber-100 text-amber-700')}>合規話術內建</span>
-                          <span className={'px-3 py-1 rounded-full text-xs ' + (isNight ? 'bg-amber-900/40 text-amber-200' : 'bg-amber-100 text-amber-700')}>非醫療・非心理諮商</span>
-                          <span className={'px-3 py-1 rounded-full text-xs ' + (isNight ? 'bg-amber-900/40 text-amber-200' : 'bg-amber-100 text-amber-700')}>可複製 SOP</span>
-                          <span className={'px-3 py-1 rounded-full text-xs ' + (isNight ? 'bg-amber-900/40 text-amber-200' : 'bg-amber-100 text-amber-700')}>H.O.U.R.×LIGHT 雙迴路</span>
+                          {['合規話術內建','非醫療・非心理諮商','可複製 SOP','H.O.U.R.×LIGHT 雙迴路'].map((t,i)=>(<span key={i} className={'px-3 py-1 rounded-full text-xs '+(isNight?'bg-amber-900/40 text-amber-200':'bg-amber-100 text-amber-700')}>{t}</span>))}
                         </div>
                         <p className="opacity-60 italic">「你的團隊不會比你這個人的狀態更好。先讀懂人，才能帶好人。」</p>
                       </div>
-
                       <div className="flex flex-col sm:flex-row justify-center gap-3">
-                        <a href="https://lin.ee/OQDB5t6" target="_blank" rel="noopener" className={'px-8 py-3 rounded-lg font-bold text-center transition-all ' + (isNight ? 'bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 text-white' : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white')}>💬 預約企業培訓諮詢</a>
-                        <a href="enterprise.html" className={'px-8 py-3 rounded-lg font-bold text-center transition-all border ' + (isNight ? 'border-purple-500/40 text-purple-300 hover:bg-purple-900/30' : 'border-amber-400 hover:bg-amber-50')} style={{color: isNight ? undefined : '#996515'}}>📋 查看完整企業方案</a>
+                        <a href="https://lin.ee/OQDB5t6" target="_blank" rel="noopener" className={'px-8 py-3 rounded-lg font-bold text-center transition-all '+(isNight?'bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 text-white':'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white')}>💬 預約企業培訓諮詢</a>
+                        <a href="enterprise.html" className={'px-8 py-3 rounded-lg font-bold text-center transition-all border '+(isNight?'border-purple-500/40 text-purple-300 hover:bg-purple-900/30':'border-amber-400 hover:bg-amber-50')} style={{color: isNight ? undefined : '#996515'}}>📋 查看完整企業方案</a>
                       </div>
                     </div>
 
-                    {/* 底部浮水印 */}
                     <div className="text-center space-y-2">
                       <p className="text-xs opacity-30">© 2026 馥靈之鑰國際有限公司｜HR 識人系統 v8.3｜H.O.U.R. 原創方法論</p>
                       <p className="text-xs opacity-20">本報告內容為馥靈之鑰商業機密，未經授權禁止複製或散布</p>
@@ -2205,9 +1592,9 @@ header[class*="bg-white"] {
             const [showAgeConfirm, setShowAgeConfirm] = useState(false);
             const [showCardModal, setShowCardModal] = useState(false);
 
-            useEffect(() => { document.body.className = isNight ? 'night-mode' : ''; }, [isNight]);
+            useEffect(() => { document.body.className = isNight ? 'night-mode' : 'day-mode'; }, [isNight]);
 
-            const handleNightToggle = () => { if (isNight) { setIsNight(false); } else { setShowAgeConfirm(true); } };
+            const handleNightToggle = () => { if (!isNight) setShowAgeConfirm(true); else setIsNight(false); };
             const confirmAge = () => { setIsNight(true); setShowAgeConfirm(false); };
 
             const tabs = [
