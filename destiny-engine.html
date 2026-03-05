@@ -94,7 +94,7 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background: var(--bg);
+  background: var(--bg) url('HOUR-LIGHT.png') center center / cover fixed;
   color: var(--ink);
   font-family: 'Noto Serif TC', serif;
   font-size: 15px;
@@ -103,20 +103,12 @@ body {
   overflow-x: hidden;
 }
 
-/* ── 星空背景 ── */
+/* ── 底圖遮罩（讓文字可讀）── */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background-image:
-    radial-gradient(1px 1px at 20% 30%, rgba(233,194,125,0.4) 0%, transparent 100%),
-    radial-gradient(1px 1px at 80% 10%, rgba(255,255,255,0.3) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 45% 70%, rgba(233,194,125,0.3) 0%, transparent 100%),
-    radial-gradient(1px 1px at 60% 20%, rgba(255,255,255,0.2) 0%, transparent 100%),
-    radial-gradient(1px 1px at 10% 80%, rgba(156,110,219,0.3) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 90% 60%, rgba(233,194,125,0.2) 0%, transparent 100%),
-    radial-gradient(1px 1px at 35% 50%, rgba(255,255,255,0.25) 0%, transparent 100%),
-    radial-gradient(1px 1px at 70% 85%, rgba(156,110,219,0.2) 0%, transparent 100%);
+  background: rgba(5,3,10,0.72);
   pointer-events: none;
   z-index: 0;
 }
@@ -166,6 +158,10 @@ body::before {
 .engine-hero {
   text-align: center;
   margin-bottom: 44px;
+  padding: 28px 24px;
+  background: rgba(5,3,10,0.65);
+  border-radius: var(--r);
+  backdrop-filter: blur(6px);
 }
 
 .engine-hero .badge {
@@ -216,11 +212,12 @@ body::before {
 
 /* ── 輸入卡片 ── */
 .input-card {
-  background: var(--bg3);
+  background: rgba(5,3,10,0.88);
   border: 1px solid var(--border2);
   border-radius: var(--r);
   padding: 32px 28px;
   margin-bottom: 28px;
+  backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   box-shadow: 0 4px 40px rgba(0,0,0,0.4);
 }
@@ -311,6 +308,34 @@ body::before {
   text-align: center;
   margin-top: 28px;
 }
+
+.date-inputs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.date-part {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(233,194,125,0.25);
+  border-radius: 8px;
+  color: #f9f0e5;
+  padding: 10px 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+.date-part::-webkit-inner-spin-button,
+.date-part::-webkit-outer-spin-button { -webkit-appearance: none; }
+.date-part:focus {
+  outline: none;
+  border-color: rgba(233,194,125,0.7);
+  background: rgba(255,255,255,0.1);
+}
+.date-year { width: 100px; }
+.date-md   { width: 58px; }
+.date-sep  { color: #e9c27d; font-size: 1.1rem; flex-shrink: 0; }
+.sys-row   { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 4px; }
 
 #calcBtn {
   background: linear-gradient(135deg, var(--gd3) 0%, var(--gd) 50%, var(--gd3) 100%);
@@ -617,16 +642,20 @@ button.cp-main:hover {
       輸入出生資料，幾秒內看見你完整的人生藍圖
     </p>
     <div class="sys-tags">
-      <span class="sys-tag">① 八字</span>
-      <span class="sys-tag">② 紫微斗數</span>
-      <span class="sys-tag">③ 西洋占星</span>
-      <span class="sys-tag">④ 人類圖</span>
-      <span class="sys-tag">⑤ 七政四餘</span>
-      <span class="sys-tag">⑥ 瑪雅曆法</span>
-      <span class="sys-tag">⑦ 生命靈數</span>
-      <span class="sys-tag">⑧ 馥靈秘碼</span>
-      <span class="sys-tag">⑨ 生命數字</span>
-      <span class="sys-tag">⑩ 身分證秘碼</span>
+      <div class="sys-row">
+        <span class="sys-tag">① 八字</span>
+        <span class="sys-tag">② 紫微斗數</span>
+        <span class="sys-tag">③ 西洋占星</span>
+        <span class="sys-tag">④ 人類圖</span>
+        <span class="sys-tag">⑤ 七政四餘</span>
+      </div>
+      <div class="sys-row">
+        <span class="sys-tag">⑥ 瑪雅曆法</span>
+        <span class="sys-tag">⑦ 生命靈數</span>
+        <span class="sys-tag">⑧ 馥靈秘碼</span>
+        <span class="sys-tag">⑨ 生命數字</span>
+        <span class="sys-tag">⑩ 身分證秘碼</span>
+      </div>
     </div>
   </div>
 
@@ -637,12 +666,18 @@ button.cp-main:hover {
 
       <div class="form-group">
         <label>出生日期 <span class="req">*</span></label>
-        <input type="date" id="bdate" placeholder="西曆出生日期">
+        <div class="date-inputs">
+          <input type="number" id="byear" placeholder="年（如1976）" min="1900" max="2099" maxlength="4" inputmode="numeric" class="date-part date-year">
+          <span class="date-sep">/</span>
+          <input type="number" id="bmonth" placeholder="月" min="1" max="12" maxlength="2" inputmode="numeric" class="date-part date-md">
+          <span class="date-sep">/</span>
+          <input type="number" id="bday" placeholder="日" min="1" max="31" maxlength="2" inputmode="numeric" class="date-part date-md">
+        </div>
       </div>
 
       <div class="form-group">
-        <label>出生時間 <span class="hint">（不確定可留空）</span></label>
-        <input type="time" id="btime" value="12:00">
+        <label>出生時間 <span class="hint">（不確定可跳過）</span></label>
+        <input type="time" id="btime" placeholder="不確定可留空">
       </div>
 
       <div class="form-group">
@@ -1681,6 +1716,72 @@ function switchTab(idx){
   document.querySelectorAll('.tabs button').forEach(function(b,i){b.className=i==idx?'on':''});
   document.querySelectorAll('.panel').forEach(function(p,i){p.className=i==idx?'panel on':'panel'});
 }
+// ── 年月日自動跳焦點 ──
+document.addEventListener('DOMContentLoaded', function(){
+  var yr = document.getElementById('byear');
+  var mo = document.getElementById('bmonth');
+  var dy = document.getElementById('bday');
+  if(yr && mo && dy){
+    yr.addEventListener('input', function(){
+      var v = this.value.replace(/[^0-9]/g,'');
+      if(v.length > 4) v = v.slice(0,4);
+      this.value = v;
+      if(v.length === 4){
+        var y = parseInt(v);
+        if(y >= 1900 && y <= 2099){ mo.focus(); mo.select(); }
+      }
+    });
+    mo.addEventListener('input', function(){
+      var v = this.value.replace(/[^0-9]/g,'');
+      if(v.length > 2) v = v.slice(0,2);
+      this.value = v;
+      var n = parseInt(v);
+      if(v.length === 2 && n >= 1 && n <= 12){ dy.focus(); dy.select(); }
+      if(n > 12){ this.value = '12'; dy.focus(); dy.select(); }
+    });
+    dy.addEventListener('input', function(){
+      var v = this.value.replace(/[^0-9]/g,'');
+      if(v.length > 2) v = v.slice(0,2);
+      this.value = v;
+      var n = parseInt(v);
+      if(n > 31){ this.value = '31'; }
+    });
+  }
+});
+
+// ── 年月日自動跳焦點 ──
+document.addEventListener('DOMContentLoaded', function(){
+  var yr = document.getElementById('byear');
+  var mo = document.getElementById('bmonth');
+  var dy = document.getElementById('bday');
+  if(yr && mo && dy){
+    yr.addEventListener('input', function(){
+      var v = this.value.replace(/[^0-9]/g,'');
+      if(v.length > 4) v = v.slice(0,4);
+      this.value = v;
+      if(v.length === 4){
+        var y = parseInt(v);
+        if(y >= 1900 && y <= 2099){ mo.focus(); mo.select(); }
+      }
+    });
+    mo.addEventListener('input', function(){
+      var v = this.value.replace(/[^0-9]/g,'');
+      if(v.length > 2) v = v.slice(0,2);
+      this.value = v;
+      var n = parseInt(v);
+      if(v.length === 2 && n >= 1 && n <= 12){ dy.focus(); dy.select(); }
+      if(n > 12){ this.value = '12'; dy.focus(); dy.select(); }
+    });
+    dy.addEventListener('input', function(){
+      var v = this.value.replace(/[^0-9]/g,'');
+      if(v.length > 2) v = v.slice(0,2);
+      this.value = v;
+      var n = parseInt(v);
+      if(n > 31){ this.value = '31'; }
+    });
+  }
+});
+
 function copyText(id){
   var el=document.getElementById(id);if(!el)return;
   navigator.clipboard.writeText(el.textContent).then(function(){
@@ -1697,14 +1798,50 @@ function copyResult(id,btn){
   });
 }
 
+// ── 年月日自動跳欄 ──
+document.addEventListener('DOMContentLoaded', function(){
+  var yr = document.getElementById('byear');
+  var mo = document.getElementById('bmonth');
+  var dy = document.getElementById('bday');
+  if(!yr) return;
+
+  yr.addEventListener('input', function(){
+    // 限制只能4位
+    if(this.value.length > 4) this.value = this.value.slice(0,4);
+    if(this.value.length === 4) { mo.focus(); mo.select(); }
+  });
+  mo.addEventListener('input', function(){
+    if(this.value.length > 2) this.value = this.value.slice(0,2);
+    if(parseInt(this.value) > 1 && this.value.length === 1) { dy.focus(); dy.select(); }
+    if(this.value.length === 2) { dy.focus(); dy.select(); }
+  });
+  dy.addEventListener('input', function(){
+    if(this.value.length > 2) this.value = this.value.slice(0,2);
+  });
+  // 退格鍵往回跳
+  mo.addEventListener('keydown', function(e){
+    if(e.key==='Backspace' && this.value==='') { yr.focus(); yr.select(); }
+  });
+  dy.addEventListener('keydown', function(e){
+    if(e.key==='Backspace' && this.value==='') { mo.focus(); mo.select(); }
+  });
+});
+
 function runAll(){
-  var bd=document.getElementById('bdate').value;
+  var byear=document.getElementById('byear').value.trim();
+  var bmonth=document.getElementById('bmonth').value.trim();
+  var bday=document.getElementById('bday').value.trim();
   var bt=document.getElementById('btime').value;
   var gen=document.getElementById('bgender').value;
   var plc=document.getElementById('bplace').value.split(',');
   var lat=parseFloat(plc[0]),lon=parseFloat(plc[1]);
-  if(!bd){alert('請輸入出生日期');return}
-  var ps=bd.split('-'),Y=+ps[0],M=+ps[1],D=+ps[2];
+  if(!byear||byear.length<4){alert('請輸入完整的出生年份（4位數）');return}
+  if(!bmonth){alert('請輸入出生月份');return}
+  if(!bday){alert('請輸入出生日期');return}
+  var Y=+byear,M=+bmonth,D=+bday;
+  if(Y<1900||Y>2099){alert('年份請輸入1900～2099之間');return}
+  if(M<1||M>12){alert('月份請輸入1～12');return}
+  if(D<1||D>31){alert('日期請輸入1～31');return}
   var tp=bt.split(':'),H=+tp[0]||0,min=+tp[1]||0;
 
   var btn=document.getElementById('calcBtn');
