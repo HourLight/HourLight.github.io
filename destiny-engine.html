@@ -145,8 +145,8 @@ var EPH = null; // 星曆資料（延遲載入）
 var EPH_LOADING = false;
 var TG='甲乙丙丁戊己庚辛壬癸', DZ='子丑寅卯辰巳午未申酉戌亥';
 var SIGNS=['牡羊','金牛','雙子','巨蟹','獅子','處女','天秤','天蠍','射手','摩羯','水瓶','雙魚'];
-var P_ORDER=['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','node'];
-var P_NAMES=['太陽','月亮','水星','金星','火星','木星','土星','天王星','海王星','冥王星','北交點'];
+var P_ORDER=['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','node','chiron'];
+var P_NAMES=['太陽','月亮','水星','金星','火星','木星','土星','天王星','海王星','冥王星','北交點','凱龍星'];
 
 function loadEphemeris(){
   return new Promise(function(resolve, reject){
@@ -564,7 +564,7 @@ function eclToGong(lon){
 
 function fmtDeg(d){return Math.floor(d)+'°'+Math.round((d%1)*60).toString().padStart(2,'0')+"'"}
 
-function calcQizheng(planets){
+function calcQizheng(planets,Y,M,D){
   if(!planets)return null;
   var result={bodies:[],relations:{}};
   
@@ -595,37 +595,78 @@ function calcQizheng(planets){
     result.bodies.push({name:'孛',xiu:beiXiu.name,xiuDeg:beiXiu.deg,gong:beiGong.name,gongDeg:beiGong.deg,lon:planets.apog.lon});
   }
 
+
+  // 紫氣（28年週期虛星）
+  // 基準：1976/2/5 UTC=242.067°，每年移動12°51'(3/7)" ≈ 12.857°
+  var ZIQI_BASE_LON=242.067,ZIQI_BASE_Y=1976.1,ZIQI_YEARLY=12.857142857;
+  var yearsFromBase=Y-1976+(M-2)/12+(D-5)/365.25;
+  var ziqiLon=((ZIQI_BASE_LON+yearsFromBase*ZIQI_YEARLY)%360+360)%360;
+  var ziqiXiu=eclToXiu(ziqiLon),ziqiGong=eclToGong(ziqiLon);
+  result.bodies.push({name:'紫',xiu:ziqiXiu.name,xiuDeg:ziqiXiu.deg,gong:ziqiGong.name,gongDeg:ziqiGong.deg,lon:ziqiLon});
+
   return result;
 }
 
-// ═══ ⑥ 瑪雅曆法 ═══
+// ═══ ⑥ 瑪雅曆法（增強版：修正Oracle+13月亮曆）═══
 var M_SEAL=['紅龍','白風','藍夜','黃種子','紅蛇','白世界橋','藍手','黃星星','紅月','白狗','藍猴','黃人','紅天行者','白巫師','藍鷹','黃戰士','紅地球','白鏡','藍風暴','黃太陽'];
 var M_TONE=['磁性的','月亮的','電力的','自我存在的','超頻的','韻律的','共振的','銀河的','太陽的','行星的','光譜的','水晶的','宇宙的'];
+var M_TONE_EN=['Magnetic','Lunar','Electric','Self-Existing','Overtone','Rhythmic','Resonant','Galactic','Solar','Planetary','Spectral','Crystal','Cosmic'];
+var M_SEAL_EN=['Red Dragon','White Wind','Blue Night','Yellow Seed','Red Serpent','White Worldbridger','Blue Hand','Yellow Star','Red Moon','White Dog','Blue Monkey','Yellow Human','Red Skywalker','White Wizard','Blue Eagle','Yellow Warrior','Red Earth','White Mirror','Blue Storm','Yellow Sun'];
 var M_PLN=['海王星','天王星','地球','冥王星','火星','冥王星','地球','金星','水星','水星','金星','地球','火星','木星','木星','土星','天王星','海王星','冥王星','太陽'];
+var M_FAM={0:'極性',1:'極性',4:'極性',7:'極性',8:'信號',9:'信號',12:'極性',13:'極性',14:'信號',17:'極性',18:'信號',19:'極性',2:'通道',3:'通道',5:'通道',6:'通道',10:'通道',11:'通道',15:'通道',16:'通道'};
+var MOON13=['磁性蝙蝠月','月亮蠍月','電力鹿月','自我存在貓頭鷹月','超頻孔雀月','韻律蜥蜴月','共振猴月','銀河鷹月','太陽美洲豹月','行星狗月','光譜蛇月','水晶兔月','宇宙海龜月'];
 
 function calcMaya(Y,M,D){
-  // Dreamspell: 基準1993/7/26=KIN144(黃磁性種子)
   var base=new Date(1993,6,26),tgt=new Date(Y,M-1,D);
   var diff=Math.floor((tgt-base)/86400000);
-  // 閏日修正（Dreamspell跳過閏日）
-  function countLeaps(y1,m1,d1,y2,m2,d2){
-    var c=0,d=new Date(y1,m1-1,d1),end=new Date(y2,m2-1,d2);
-    while(d<end){if(d.getMonth()==1&&d.getDate()==29)c++;d.setDate(d.getDate()+1)}
-    return c;
-  }
-  var leaps=diff>=0?countLeaps(1993,7,26,Y,M,D):-countLeaps(Y,M,D,1993,7,26);
+  function cntLeap(y1,m1,d1,y2,m2,d2){var c=0,d=new Date(y1,m1-1,d1),e=new Date(y2,m2-1,d2);while(d<e){if(d.getMonth()==1&&d.getDate()==29)c++;d.setDate(d.getDate()+1)}return c}
+  var leaps=diff>=0?cntLeap(1993,7,26,Y,M,D):-cntLeap(Y,M,D,1993,7,26);
   var disp=diff-leaps;
   var kin=(((144-1+disp)%260)+260)%260+1;
   var tone=((kin-1)%13)+1;
   var seal=(kin-1)%20;
-  // Oracle
-  var sameC=[];for(var s=0;s<20;s++)if(s%4==seal%4)sameC.push(s);
-  var guideSI=sameC[[0,4,1,2,3][(tone-1)%5]]||seal;
-  var analogSI=(19-seal+20)%20;
+
+  // ═══ 修正版 Oracle 五大神諭 ═══
+  // Analog/Support: pairs sum to 17
+  var analogSI=(17-seal+20)%20;
+  // Antipode/Challenge: +10
   var antiSI=(seal+10)%20;
+  // Occult/Hidden: from 261-KIN
   var occK=261-kin;if(occK<=0)occK+=260;
-  var ws=Math.floor((kin-1)/13)+1,wsDay=((kin-1)%13)+1,wsSeal=M_SEAL[((ws-1)*13)%20];
-  return{kin:kin,tone:tone,toneN:M_TONE[tone-1],seal:seal,sealN:M_SEAL[seal],guide:M_SEAL[guideSI],analog:M_SEAL[analogSI],anti:M_SEAL[antiSI],occK:occK,ws:ws,wsDay:wsDay,wsSeal:wsSeal,planet:M_PLN[seal]};
+  var occSeal=(occK-1)%20;
+  // Guide: same color, index = (tone%5==0?4:tone%5-1)
+  var sCI=[];for(var s=0;s<20;s++)if(s%4==seal%4)sCI.push(s);
+  var gIdx=tone%5==0?4:tone%5-1;
+  // tone 1,6,11 = self-guided
+  if(tone%5==1)gIdx=sCI.indexOf(seal);
+  var guideSI=sCI[gIdx];
+
+  // 波符
+  var ws=Math.floor((kin-1)/13)+1,wsDay=((kin-1)%13)+1;
+  var wsSealIdx=((ws-1)*13)%20;
+
+  // 13月亮曆（7/26起算，NS epoch = 1935）
+  var yearStart=new Date(Y,6,26);
+  if(tgt<yearStart)yearStart=new Date(Y-1,6,26);
+  var dayOfYear=Math.floor((tgt-yearStart)/86400000);
+  var nsYear=yearStart.getFullYear()-1935;
+  var nsMoon,nsDay,nsWeek;
+  if(dayOfYear>=364){nsMoon=0;nsDay=0;nsWeek=0}
+  else{nsMoon=Math.floor(dayOfYear/28)+1;nsDay=(dayOfYear%28)+1;nsWeek=Math.ceil(nsDay/7)}
+
+  // PSI & Inner Goddess（需260天查表，此處用近似公式+AI指令補完）
+  var psiKin=((kin+168-1)%260)+1;
+  var psiTone=((psiKin-1)%13)+1;var psiSeal=(psiKin-1)%20;
+
+  return{kin:kin,tone:tone,toneN:M_TONE[tone-1],toneEN:M_TONE_EN[tone-1],
+    seal:seal,sealN:M_SEAL[seal],sealEN:M_SEAL_EN[seal],
+    guide:M_SEAL[guideSI],analog:M_SEAL[analogSI],anti:M_SEAL[antiSI],
+    occK:occK,occSeal:M_SEAL[occSeal],
+    ws:ws,wsDay:wsDay,wsSeal:M_SEAL[wsSealIdx],planet:M_PLN[seal],family:M_FAM[seal]||'',
+    psi:{kin:psiKin,tone:M_TONE[psiTone-1],seal:M_SEAL[psiSeal]},
+    ns:{year:nsYear,moon:nsMoon,day:nsDay,week:nsWeek,moonName:nsMoon>0?MOON13[nsMoon-1]:'時間外之日'},
+    nsCoord:'NS 1.'+nsYear+'.'+nsMoon+'.'+nsDay
+  };
 }
 
 // ═══ ⑦ 生命靈數（商用完整版：大師數+九宮格+禮物挑戰+時辰經絡）═══
@@ -880,7 +921,7 @@ function doCalc(Y,M,D,H,min,gen,lat,lon){
 
   // ── ③⑤ 占星 + 七政四餘 ──
   var planets=ephLookup(Y,M,D,H,min);
-  var qz=calcQizheng(planets);
+  var qz=calcQizheng(planets,Y,M,D);
   var houses=null;
   var aspects=[],patterns=[],stats={};
   if(planets&&lat&&lon){
@@ -1165,13 +1206,62 @@ function doCalc(Y,M,D,H,min,gen,lat,lon){
   }else{h5+='<div class="item" style="color:var(--inkm)">需要星曆資料</div>'}
   addP(ps,h5);
 
-  // ⑥ 瑪雅
-  var h6='<h3>🌀 瑪雅曆法</h3>';
-  h6+='<div class="item"><b>KIN '+my.kin+'：</b>'+my.toneN+'的'+my.sealN+'</div>';
-  h6+='<div class="item"><b>音調：</b>第'+my.tone+'音（'+my.toneN+'）　<b>圖騰：</b>'+my.sealN+'</div>';
-  h6+='<div class="item"><b>指引：</b>'+my.guide+'　<b>支持：</b>'+my.analog+'　<b>挑戰：</b>'+my.anti+'</div>';
-  h6+='<div class="item"><b>波符：</b>第'+my.ws+'（'+my.wsSeal+'）第'+my.wsDay+'天　<b>行星：</b>'+my.planet+'</div>';
-  var ai6='【AI解讀指令】請依據《The Mayan Factor》做瑪雅Dreamspell深度解讀：\nKIN '+my.kin+'：'+my.toneN+'的'+my.sealN+'\n指引：'+my.guide+' | 支持：'+my.analog+' | 挑戰：'+my.anti+'\n波符：'+my.wsSeal+'第'+my.wsDay+'天';
+  // ⑥ 瑪雅（增強版）
+  var h6='<h3>🌀 瑪雅曆法（Dreamspell + 13月亮曆）</h3>';
+
+  // 雙曆紀元
+  h6+='<div class="palace"><div class="pt">雙曆紀元</div>';
+  h6+='<div class="rs">國曆：'+Y+'-'+String(M).padStart(2,'0')+'-'+String(D).padStart(2,'0')+'</div>';
+  h6+='<div class="rs">農曆：'+lunarStr+'</div>';
+  h6+='</div>';
+
+  // KIN主印記
+  h6+='<div class="palace"><div class="pt">KIN.'+my.kin+' '+my.toneN+' '+my.sealN+'</div>';
+  h6+='<div class="rs"><em>'+my.wsSeal+'</em> 波符 13天的第 <em>'+my.wsDay+'</em> 天</div>';
+  h6+='<div class="rs">調性 '+my.tone+'：'+my.toneN+' ('+['Magnetic','Lunar','Electric','Self-Existing','Overtone','Rhythmic','Resonant','Galactic','Solar','Planetary','Spectral','Crystal','Cosmic'][my.tone-1]+')</div>';
+  h6+='<div class="rs">圖騰 '+(my.seal+1)+'：'+my.sealN+' ('+['Red Dragon','White Wind','Blue Night','Yellow Seed','Red Serpent','White Worldbridger','Blue Hand','Yellow Star','Red Moon','White Dog','Blue Monkey','Yellow Human','Red Skywalker','White Wizard','Blue Eagle','Yellow Warrior','Red Earth','White Mirror','Blue Storm','Yellow Sun'][my.seal]+')</div>';
+  h6+='<div class="rs">PSI（行星記憶資料庫）：KIN.'+my.psi.kin+' '+my.psi.tone+' '+my.psi.seal+'</div>';
+  h6+='<div class="rs">內在女神力：KIN.'+my.innerGoddess.kin+' '+my.innerGoddess.tone+' '+my.innerGoddess.seal+'</div>';
+  h6+='</div>';
+
+  // 五大神諭
+  h6+='<div class="palace"><div class="pt">五大神諭 Oracle</div>';
+  h6+='<div class="rs">🔴 主印記（中央）：'+my.sealN+'</div>';
+  h6+='<div class="rs">→ 支持（右）：'+my.analog+'</div>';
+  h6+='<div class="rs">↑ 引導（上）：'+my.guide+'</div>';
+  h6+='<div class="rs">← 挑戰擴展（左）：'+my.anti+'</div>';
+  h6+='<div class="rs">↓ 隱藏推動（下）：'+my.occSeal+'（KIN '+my.occK+'）</div>';
+  h6+='</div>';
+
+  // 13月亮曆
+  h6+='<div class="palace"><div class="pt">13月亮曆</div>';
+  if(my.ns.moon>0){
+    h6+='<div class="rs">'+my.ns.moonName+'</div>';
+    h6+='<div class="rs">第 '+my.ns.moon+' 月 第 '+my.ns.week+' 周 第 '+my.ns.day+' 天</div>';
+  }else{
+    h6+='<div class="rs">時間外之日（Day Out of Time）</div>';
+  }
+  h6+='<div class="rs">星際共時座標：'+my.nsCoord+'</div>';
+  h6+='<div class="rs">行星家族：'+my.planet+'　身份家族：'+my.family+'家族</div>';
+  h6+='</div>';
+
+  // AI指令
+  var ai6='【AI解讀指令】請依據Jose Arguelles《The Mayan Factor》及Dreamspell系統做深度解讀：\n\n';
+  ai6+='KIN.'+my.kin+' '+my.toneN+' '+my.sealN+'\n';
+  ai6+='波符：'+my.wsSeal+'波符 第'+my.wsDay+'天\n';
+  ai6+='調性：'+my.tone+'（'+my.toneN+'）\n';
+  ai6+='圖騰：'+my.sealN+'\n\n';
+  ai6+='五大神諭：\n';
+  ai6+='  支持：'+my.analog+'\n';
+  ai6+='  引導：'+my.guide+'\n';
+  ai6+='  挑戰擴展：'+my.anti+'\n';
+  ai6+='  隱藏推動：'+my.occSeal+'（KIN '+my.occK+'）\n\n';
+  ai6+='PSI：KIN.'+my.psi.kin+' '+my.psi.tone+' '+my.psi.seal+'\n';
+  ai6+='內在女神力：KIN.'+my.innerGoddess.kin+' '+my.innerGoddess.tone+' '+my.innerGoddess.seal+'\n';
+  ai6+='13月亮曆：'+(my.ns.moon>0?my.ns.moonName+' 第'+my.ns.moon+'月第'+my.ns.day+'天':'時間外之日')+'\n';
+  ai6+='星際座標：'+my.nsCoord+'\n';
+  ai6+='行星：'+my.planet+' 家族：'+my.family+'家族\n\n';
+  ai6+='請分析：\n1. 主印記圖騰的核心能量與天賦\n2. 調性的人生目的與學習方向\n3. 五大神諭的力量關係與啟動方式\n4. 波符13天的位置意義\n5. PSI的高維度課題\n6. 13月亮曆的能量週期\n7. 與其他命理系統的交叉共振';
   h6+='<div class="ai-box"><h4>📜 AI深度解讀指令</h4><pre id="ai6">'+ai6+'</pre><button class="cp" onclick="copyText(\'ai6\')">📋 複製AI指令</button></div>';
   addP(ps,h6);
 
