@@ -27,8 +27,8 @@
 /></noscript>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>十系統命盤引擎｜馥靈之鑰 Hour Light</title>
-<meta name="description" content="輸入出生資料，一鍵生成八字、紫微斗數、西洋占星、人類圖、瑪雅曆、生命靈數、馥靈秘碼等十大命理系統完整命盤。"/>
+<title>馥靈座標哲學 高階自動運算引擎｜馥靈之鑰 Hour Light</title>
+<meta name="description" content="輸入出生資料，馥靈座標哲學高階自動運算引擎，一鍵生成八字、紫微斗數、西洋占星、人類圖、瑪雅曆、生命靈數、馥靈秘碼完整命盤。"/>
 <link rel="icon" href="favicon.ico"/>
 <link rel="canonical" href="https://hourlightkey.com/destiny-engine.html"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -91,8 +91,8 @@ select option{background:#1a1a2e;color:var(--ink)}
   <a href="hourlight-sitemap.html" class="bk">← 網站地圖</a>
 </div>
 <div class="wrap">
-  <h1>✦ 十系統命盤引擎 ✦</h1>
-  <p class="sub">輸入出生資料，一鍵生成完整命盤 ＋ AI深度解讀指令</p>
+  <h1>✦ 馥靈座標哲學 ✦</h1>
+  <p class="sub">高階自動運算引擎｜輸入出生資料，一鍵生成完整命盤 ＋ AI深度解讀指令</p>
   <div class="form-box">
     <h2>🔑 請輸入出生資料</h2>
     <div class="row">
@@ -116,6 +116,9 @@ select option{background:#1a1a2e;color:var(--ink)}
         </select>
       </label>
     </div>
+    <div class="row">
+      <label><span>身份證字號（選填，馥靈三角秘碼用）</span><input type="text" id="bidno" placeholder="例：H201046653" maxlength="20" style="text-transform:uppercase"/></label>
+    </div>
     <button class="btn-go" id="calcBtn" onclick="runAll()">🔮 開始計算</button>
     <div id="loadMsg"></div>
   </div>
@@ -130,7 +133,7 @@ select option{background:#1a1a2e;color:var(--ink)}
 </div>
 <script>
 // ═══════════════════════════════════════
-// 馥靈之鑰 十系統命盤引擎
+// 馥靈之鑰 馥靈座標哲學 高階自動運算引擎
 // © 2026 Hour Light International
 // ═══════════════════════════════════════
 
@@ -191,39 +194,120 @@ function ephLookup(Y,M,D,H,min){
   return result;
 }
 
-// ═══ 占星宮位計算（簡化Placidus近似）═══
-function calcHouses(lat,lon,jd_frac,obliquity){
-  // 恆星時近似
-  var lst=280.46061837+360.98564736629*jd_frac+lon;
-  lst=((lst%360)+360)%360;
-  // 上升點
-  var eps=obliquity||23.44;
-  var epsR=eps*Math.PI/180, lstR=lst*Math.PI/180, latR=lat*Math.PI/180;
-  var ascR=Math.atan2(-Math.cos(lstR), Math.sin(lstR)*Math.cos(epsR)+Math.tan(latR)*Math.sin(epsR));
-  var asc=((ascR*180/Math.PI)%360+360)%360;
-  // 天頂
-  var mcR=Math.atan2(Math.sin(lstR), Math.cos(lstR)*Math.cos(epsR));
-  var mc=((mcR*180/Math.PI)%360+360)%360;
-  // 12宮頭（等宮制近似）
-  var cusps=[];for(var i=0;i<12;i++)cusps.push((asc+i*30)%360);
-  return{asc:asc,mc:mc,cusps:cusps};
-}
+// ═══ 占星：正確Placidus宮位系統 ═══
+function calcPlacidus(lat,geo_lon,jd_val){
+  var T=(jd_val-2451545.0)/36525;
+  var GMST=(280.46061837+360.98564736629*(jd_val-2451545.0)+0.000387933*T*T)%360;
+  if(GMST<0)GMST+=360;
+  var RAMC=(GMST+geo_lon)%360;
+  var eps=23.4393-0.013*T;
+  var er=eps*Math.PI/180, lr=lat*Math.PI/180;
+  var ramc_r=RAMC*Math.PI/180;
+  // ASC
+  var asc_val=(Math.atan2(-Math.cos(ramc_r),Math.sin(ramc_r)*Math.cos(er)+Math.tan(lr)*Math.sin(er))*180/Math.PI+180)%360;
+  // MC
+  var mc_val=(Math.atan2(Math.sin(ramc_r),Math.cos(ramc_r)*Math.cos(er))*180/Math.PI+360)%360;
 
-function degToSignStr(lon){
-  var si=Math.floor(lon/30);
-  var d=lon-si*30;
-  return SIGNS[si]+Math.floor(d)+'°'+Math.round((d%1)*60)+"'";
-}
+  function ecl_to_dec(lon_deg){return Math.asin(Math.sin(er)*Math.sin(lon_deg*Math.PI/180))*180/Math.PI}
+  function ra_dec_to_ecl(ra_d,dec_d){var ra=ra_d*Math.PI/180,dec=dec_d*Math.PI/180;return(Math.atan2(Math.sin(ra)*Math.cos(er)+Math.tan(dec)*Math.sin(er),Math.cos(ra))*180/Math.PI+360)%360}
 
-function planetHouse(plon,cusps){
-  for(var i=11;i>=0;i--){
-    var c1=cusps[i],c2=cusps[(i+1)%12];
-    if(c2<c1)c2+=360;
-    var p=plon;if(p<c1)p+=360;
-    if(p>=c1&&p<c2)return i+1;
+  function placCusp(frac,above){
+    var lam;
+    if(above){lam=(mc_val+frac*((asc_val-mc_val+360)%360))%360}
+    else{var ic=(mc_val+180)%360;lam=(asc_val+frac*((ic-asc_val+360)%360))%360}
+    for(var it=0;it<100;it++){
+      var dec=ecl_to_dec(lam),dec_r=dec*Math.PI/180;
+      var arg=-Math.tan(lr)*Math.tan(dec_r);arg=Math.max(-1,Math.min(1,arg));
+      var DSA=Math.acos(arg)*180/Math.PI;
+      var target_ra;
+      if(above){target_ra=(RAMC+frac*DSA)%360}
+      else{target_ra=(RAMC+DSA+frac*(180-DSA))%360}
+      var new_lam=ra_dec_to_ecl(target_ra,dec);
+      var df=Math.abs(new_lam-lam);if(df>180)df=360-df;
+      if(df<0.0001)break;
+      lam=new_lam;
+    }
+    return lam;
   }
+
+  var c11=placCusp(1/3,true),c12=placCusp(2/3,true);
+  var c2=placCusp(1/3,false),c3=placCusp(2/3,false);
+  var cusps=[asc_val,c2,c3,(mc_val+180)%360,(c11+180)%360,(c12+180)%360,(asc_val+180)%360,(c2+180)%360,(c3+180)%360,mc_val,c11,c12];
+  return{asc:asc_val,mc:mc_val,cusps:cusps,RAMC:RAMC};
+}
+
+function degToSignStr(lon){var si=Math.floor(((lon%360)+360)%360/30);var d=((lon%360)+360)%360-si*30;return SIGNS[si]+Math.floor(d)+'°'+Math.round((d%1)*60)+"'"}
+function planetHouse(plon,cusps){
+  plon=((plon%360)+360)%360;
+  for(var i=0;i<12;i++){var c1=cusps[i],c2=cusps[(i+1)%12];
+    if(c2<c1){if(plon>=c1||plon<c2)return i+1}
+    else{if(plon>=c1&&plon<c2)return i+1}}
   return 1;
 }
+
+// ═══ 相位計算 ═══
+var ASP_TYPES=[{name:'合相',angle:0,orb:8,sym:'☌'},{name:'對分相',angle:180,orb:8,sym:'☍'},{name:'三分相',angle:120,orb:8,sym:'△'},{name:'四分相',angle:90,orb:7,sym:'□'},{name:'六分相',angle:60,orb:6,sym:'⚹'},{name:'八分之三相',angle:135,orb:2,sym:'⚼'},{name:'十二分之五相',angle:150,orb:2,sym:'⚻'}];
+
+function calcAspects(pData){
+  var keys=Object.keys(pData);
+  var aspects=[];
+  for(var i=0;i<keys.length;i++){
+    for(var j=i+1;j<keys.length;j++){
+      var d=Math.abs(pData[keys[i]].lon-pData[keys[j]].lon);
+      if(d>180)d=360-d;
+      for(var a=0;a<ASP_TYPES.length;a++){
+        var diff=Math.abs(d-ASP_TYPES[a].angle);
+        if(diff<=ASP_TYPES[a].orb){
+          aspects.push({p1:keys[i],p2:keys[j],type:ASP_TYPES[a].name,sym:ASP_TYPES[a].sym,angle:ASP_TYPES[a].angle,orb:Math.round(diff*10)/10});
+          break;
+        }
+      }
+    }
+  }
+  return aspects;
+}
+
+// ═══ 格局偵測 ═══
+function detectPatterns(aspects,pData){
+  var patterns=[];
+  var trines=aspects.filter(function(a){return a.type=='三分相'});
+  var squares=aspects.filter(function(a){return a.type=='四分相'});
+  var oppos=aspects.filter(function(a){return a.type=='對分相'});
+  // 大三角：三個行星互成三分相
+  for(var i=0;i<trines.length;i++){for(var j=i+1;j<trines.length;j++){
+    var ps=new Set([trines[i].p1,trines[i].p2,trines[j].p1,trines[j].p2]);
+    if(ps.size==3){var arr=Array.from(ps);
+      var third=trines.filter(function(t){return(t.p1==arr[0]&&t.p2==arr[2])||(t.p1==arr[2]&&t.p2==arr[0])||(t.p1==arr[1]&&t.p2==arr[2])||(t.p1==arr[2]&&t.p2==arr[1])});
+      if(third.length>0)patterns.push({type:'大三角',planets:arr.join('～')})
+    }
+  }}
+  // T三角：兩個行星對分，第三個同時四分兩者
+  for(var i=0;i<oppos.length;i++){var o=oppos[i];
+    for(var k=0;k<squares.length;k++){var s1=squares[k];
+      if(s1.p1==o.p1||s1.p2==o.p1||s1.p1==o.p2||s1.p2==o.p2){
+        var apex=(s1.p1!=o.p1&&s1.p1!=o.p2)?s1.p1:s1.p2;
+        var base1=(s1.p1==apex)?s1.p2:s1.p1;
+        if(base1==o.p1||base1==o.p2){
+          var base2=(base1==o.p1)?o.p2:o.p1;
+          var hasOther=squares.filter(function(s){return(s.p1==apex&&s.p2==base2)||(s.p1==base2&&s.p2==apex)});
+          if(hasOther.length>0)patterns.push({type:'T三角',planets:apex+'～'+base1+'～'+base2})
+        }
+      }
+    }
+  }
+  // 去重
+  var seen={};var unique=[];
+  patterns.forEach(function(p){var k=p.type+p.planets.split('～').sort().join('');if(!seen[k]){seen[k]=1;unique.push(p)}});
+  return unique;
+}
+
+// ═══ 統計：元素/模式/陰陽 ═══
+var SIGN_ELEMENT={牡羊:'火',金牛:'土',雙子:'風',巨蟹:'水',獅子:'火',處女:'土',天秤:'風',天蠍:'水',射手:'火',摩羯:'土',水瓶:'風',雙魚:'水'};
+var SIGN_MODE={牡羊:'開創',金牛:'固定',雙子:'變動',巨蟹:'開創',獅子:'固定',處女:'變動',天秤:'開創',天蠍:'固定',射手:'變動',摩羯:'開創',水瓶:'固定',雙魚:'變動'};
+var SIGN_POLAR={牡羊:'陽',金牛:'陰',雙子:'陽',巨蟹:'陰',獅子:'陽',處女:'陰',天秤:'陽',天蠍:'陰',射手:'陽',摩羯:'陰',水瓶:'陽',雙魚:'陰'};
+
+// 宮位守護星
+var SIGN_RULER={牡羊:'火星',金牛:'金星',雙子:'水星',巨蟹:'月亮',獅子:'太陽',處女:'水星',天秤:'金星',天蠍:'冥王星',射手:'木星',摩羯:'土星',水瓶:'天王星',雙魚:'海王星'};
 
 // ═══ ② 紫微斗數引擎（全展開版 已驗證）═══
 var GN=['命宮','兄弟宮','夫妻宮','子女宮','財帛宮','疾厄宮','遷移宮','交友宮','事業宮','田宅宮','福德宮','父母宮'];
@@ -296,15 +380,19 @@ function calcZiwei(lm,ld,ytI,yzI,hzI,gen){
 }
 
 // ═══ ④ 人類圖（閘門表 + 通道表）═══
-var HD_GATES=[2.00,2.5625,3.125,3.6875,4.25,4.8125,5.375,5.9375,6.50,7.0625,7.625,8.1875,8.75,9.3125,9.875,10.4375,11.00,11.5625,12.125,12.6875,13.25,13.8125,14.375,14.9375,15.50,16.0625,16.625,17.1875,17.75,18.3125,18.875,19.4375,20.00,20.5625,21.125,21.6875,22.25,22.8125,23.375,23.9375,24.50,25.0625,25.625,26.1875,26.75,27.3125,27.875,28.4375,29.00,29.5625,30.125,30.6875,31.25,31.8125,32.375,32.9375,33.50,34.0625,34.625,35.1875,35.75,36.3125,36.875,37.4375];
-// 閘門順序（按黃道排列，從牡羊0°開始）
-var GATE_SEQ=[41,19,13,49,30,55,37,63,22,36,25,17,21,51,42,3,27,24,2,23,8,20,16,35,45,12,15,52,39,53,62,56,31,33,7,4,29,59,40,64,47,6,46,18,48,57,32,50,28,44,1,43,14,34,9,5,26,11,10,58,38,54,61,60];
+// 閘門表（已驗證版：起始黃經→閘門號，來自humandesign-v4-verified.py）
+var GATE_TABLE=[[358.25,25],[3.875,17],[9.5,21],[15.125,51],[20.75,42],[26.375,3],[32.0,27],[37.625,24],[43.25,2],[48.875,23],[54.5,8],[60.125,20],[65.75,16],[71.375,35],[77.0,45],[82.625,12],[88.25,15],[93.875,52],[99.5,39],[105.125,53],[110.75,62],[116.375,56],[122.0,31],[127.625,33],[133.25,7],[138.875,4],[144.5,29],[150.125,59],[155.75,40],[161.375,64],[167.0,47],[172.625,6],[178.25,46],[183.875,18],[189.5,48],[195.125,57],[200.75,32],[206.375,50],[212.0,28],[217.625,44],[223.25,1],[228.875,43],[234.5,14],[240.125,34],[245.75,9],[251.375,5],[257.0,26],[262.625,11],[268.25,10],[273.875,58],[279.5,38],[285.125,54],[290.75,61],[296.375,60],[302.0,41],[307.625,19],[313.25,13],[318.875,49],[324.5,30],[330.125,55],[335.75,37],[341.375,63],[347.0,22],[352.625,36]];
 
 function lonToGate(lon){
-  // 黃道經度→閘門：每個閘門佔5.625度
-  var idx=Math.floor(lon/5.625);
-  if(idx>=64)idx=63;
-  return{gate:GATE_SEQ[idx],line:Math.floor((lon%5.625)/0.9375)+1};
+  lon=((lon%360)+360)%360;
+  for(var i=GATE_TABLE.length-1;i>=0;i--){
+    if(lon>=GATE_TABLE[i][0]){
+      var gate=GATE_TABLE[i][1],dist=lon-GATE_TABLE[i][0];
+      return{gate:gate,line:Math.min(Math.floor(dist/0.9375)+1,6)};
+    }
+  }
+  var dist=lon-GATE_TABLE[63][0]+360;
+  return{gate:GATE_TABLE[63][1],line:Math.min(Math.floor(dist/0.9375)+1,6)};
 }
 
 var HD_CHANNELS={
@@ -411,6 +499,20 @@ function calcHumanDesign(planets,Y,M,D,H,min){
   return{type:type,strategy:strategy,authority:authority,profile:profile,nst:nst,channels:channels,defC:defC,undefC:undefC,pGates:pGates,dGates:dGates};
 }
 
+// ═══ 袁天罡稱骨算命 ═══
+var BONE_YEAR={'甲子':12,'乙丑':9,'丙寅':6,'丁卯':7,'戊辰':12,'己巳':5,'庚午':9,'辛未':8,'壬申':7,'癸酉':8,'甲戌':15,'乙亥':9,'丙子':16,'丁丑':8,'戊寅':8,'己卯':19,'庚辰':12,'辛巳':6,'壬午':8,'癸未':7,'甲申':5,'乙酉':15,'丙戌':6,'丁亥':16,'戊子':15,'己丑':7,'庚寅':9,'辛卯':12,'壬辰':10,'癸巳':7,'甲午':15,'乙未':6,'丙申':5,'丁酉':14,'戊戌':14,'己亥':9,'庚子':7,'辛丑':7,'壬寅':9,'癸卯':12,'甲辰':8,'乙巳':7,'丙午':13,'丁未':5,'戊申':14,'己酉':5,'庚戌':9,'辛亥':17,'壬子':5,'癸丑':7,'甲寅':12,'乙卯':8,'丙辰':8,'丁巳':6,'戊午':19,'己未':6,'庚申':8,'辛酉':16,'壬戌':10,'癸亥':7};
+var BONE_MONTH={1:6,2:7,3:18,4:9,5:5,6:16,7:9,8:15,9:18,10:8,11:9,12:5};
+var BONE_DAY={1:5,2:10,3:8,4:15,5:16,6:15,7:8,8:16,9:8,10:16,11:9,12:17,13:8,14:17,15:10,16:8,17:9,18:18,19:5,20:15,21:10,22:9,23:8,24:9,25:15,26:18,27:7,28:8,29:16,30:6};
+var BONE_HOUR={0:16,1:6,2:7,3:10,4:9,5:16,6:10,7:8,8:8,9:16,10:6,11:6};
+var BONE_TEXT={20:'此命勞碌一生窮，每逢困難事重重',21:'短命非業謂大凶，平生災難事重重',22:'身寒骨冷苦伶仃，此命推來行乞人',23:'此命推來骨肉輕，求謀做事事難成',24:'此命推來福祿無，門庭困苦總難榮',25:'此命推來祖業微，門庭營度似稀奇',26:'平生衣祿苦中求，獨自營謀事不休',27:'一生做事少商量，難靠祖宗作主張',28:'一生行事似飄蓬，祖宗產業在夢中',29:'初年運限未曾亨，縱有功名在後成',30:'勞勞碌碌苦中求，東奔西走何日休',31:'忙忙碌碌苦中求，何日雲開見日頭',32:'初年運蹇事難謀，漸有財源如水流',33:'早年做事事難成，百計徒勞枉費心',34:'此命推來自不同，為人能幹異凡庸',35:'生平福量不周全，祖業根基覺少傳',36:'不須勞碌過平生，獨自成家福不輕',37:'此命般般事不成，弟兄少力自孤成',38:'一身骨肉最清高，早入簧門姓氏標',39:'此命終身運不通，勞勞作事盡皆空',40:'平生衣祿是綿長，件件心中自主張',41:'此命推來事不同，為人能幹異凡庸',42:'此命推來旺末年，妻榮子貴自怡然',43:'為人心性最聰明，做事軒昂近貴人',44:'來事由天莫苦求，須知福祿勝前途',45:'福中取貴格求真，明敏才華志自伸',46:'東西南北盡皆通，出姓移名更覺隆',47:'此命推來旺末年，妻榮子貴自怡然',48:'初年運道未曾亨，若是蹉跎再不興',49:'此命推來福不輕，自成自立顯門庭',50:'為利為名終日勞，中年福祿也多遭',51:'一世榮華事事通，不須勞碌自亨通',52:'一世榮華事事能，不須勞思自然寧',53:'此格推來氣象真，興家發達在其中',54:'此命推來禮義通，一生福祿用無窮',55:'走馬揚鞭爭名利，少年做事費籌論',60:'一世榮華事事宜，不須勞碌自然宜',70:'此命推來福不輕，不須愁慮苦勞心',71:'此命生成大不同，公侯卿相在其中'};
+
+function calcBone(yearGZ,lunarMonth,lunarDay,hourIdx){
+  var t=(BONE_YEAR[yearGZ]||0)+(BONE_MONTH[lunarMonth]||0)+(BONE_DAY[lunarDay]||0)+(BONE_HOUR[hourIdx]||0);
+  var txt=BONE_TEXT[t]||BONE_TEXT[Math.floor(t/10)*10]||'查無對應批註';
+  return{total:t,text:Math.floor(t/10)+'兩'+(t%10)+'錢',poem:txt,
+    detail:{year:BONE_YEAR[yearGZ]||0,month:BONE_MONTH[lunarMonth]||0,day:BONE_DAY[lunarDay]||0,hour:BONE_HOUR[hourIdx]||0}};
+}
+
 // ═══ ⑤ 七政四餘 ═══
 var XIU28=['角','亢','氐','房','心','尾','箕','斗','牛','女','虛','危','室','壁','奎','婁','胃','昴','畢','觜','參','井','鬼','柳','星','張','翼','軫'];
 var XIU_START=[0,12.45,28.35,43.80,48.70,54.18,71.38,81.25,105.56,112.91,124.67,134.60,148.12,164.69,178.85,195.30,207.25,221.63,239.20,257.12,259.63,268.10,298.46,303.18,310.20,327.19,344.88,355.05];
@@ -465,19 +567,66 @@ function calcMaya(Y,M,D){
   return{kin:kin,tone:tone,toneN:M_TONE[tone-1],seal:seal,sealN:M_SEAL[seal],guide:M_SEAL[guideSI],analog:M_SEAL[analogSI],anti:M_SEAL[antiSI],occK:occK,ws:ws,wsDay:wsDay,wsSeal:wsSeal,planet:M_PLN[seal]};
 }
 
-// ═══ ⑦ 生命靈數 ═══
+// ═══ ⑦ 生命靈數（商用完整版：大師數+九宮格+禮物挑戰+時辰經絡）═══
+// rd = 保留大師數(11/22/33)  rdP = 全部化簡到個位
 function rd(n){n=Math.abs(n);if(n==11||n==22||n==33)return n;while(n>9){var s=0;String(n).split('').forEach(function(d){s+=+d});n=s;if(n==11||n==22||n==33)return n}return n}
 function rdP(n){n=Math.abs(n);while(n>9){var s=0;String(n).split('').forEach(function(d){s+=+d});n=s}return n}
 
-function calcNum(Y,M,D){
-  var life=rd(Y+M+D),talent=rd(M+D);
-  var yS=rd(Y),mS=rd(M),dS=rd(D);
+var NUM_GIFT={1:'開創與獨立',2:'配合與感受',3:'表達與創造',4:'秩序與安全',5:'自由與體驗',6:'責任與愛護',7:'真理與深度',8:'權威與豐盛',9:'大愛與放下',0:'潛能待開發',11:'直覺與啟發的傳訊者',22:'把夢想變現實的建築師',33:'無私奉獻的終極導師'};
+
+var MISS_TXT={
+  1:'習慣聽別人的，找不到自己的主場。功課：練習說「我要什麼」',
+  2:'太過獨立或遲鈍，接不住別人的情緒。功課：先停三秒再開口',
+  3:'心裡想了一百句，說出來變一句。功課：允許自己表達「不完美」的想法',
+  4:'極度討厭被綁住，容易缺乏安全感。功課：建立最微小的日常微習慣',
+  5:'害怕改變，待在舒適圈會慢慢窒息。功課：每月做一件從沒做過的小事',
+  6:'很難毫無顧忌地去愛，總怕自己給得不夠。功課：先看見自己的付出',
+  7:'懷疑論者，很難真心相信別人。功課：把「可是」換成「也有可能喔」',
+  8:'對金錢或權力有隱形匱乏感。功課：練習管理小額金錢，建立豐盛意識',
+  9:'對別人的苦難無感，或者過度冷漠。功課：給出一個沒有目的的微笑'
+};
+
+function calcNum(Y,M,D,H){
+  var mS=rd(M),dS=rd(D),yS=rd(Y);
+  var life=rd(Y+M+D);
+  var talent=rd(M+D);
+
+  // 九宮格
   var digits=String(Y)+String(M)+String(D);
-  var innate=digits.split('').map(Number).sort();
-  var missing=[];for(var i=1;i<=9;i++)if(innate.indexOf(i)<0)missing.push(i);
-  var py=rd(rd(2+0+2+6)+M+D);
-  var ch1=Math.abs(rdP(M)-rdP(D)),ch2=Math.abs(rdP(D)-rdP(Y%100)),chM=Math.abs(ch1-ch2);
-  return{life:life,talent:talent,yS:yS,mS:mS,dS:dS,innate:innate.join(''),missing:missing,py:py,ch1:ch1,ch2:ch2,chM:chM};
+  var grid={};for(var i=1;i<=9;i++)grid[i]=0;
+  digits.split('').forEach(function(d){var n=+d;if(n>=1&&n<=9)grid[n]++});
+  var innate=digits.split('').map(Number).filter(function(n){return n>0}).sort();
+  var missing=[];for(var i=1;i<=9;i++)if(grid[i]==0)missing.push(i);
+
+  // 禮物（往上加，保留大師數）
+  var g1=rd(rdP(mS)+rdP(dS)),g2=rd(rdP(dS)+rdP(yS)),g3=rd(rdP(g1)+rdP(g2)),g4=rd(rdP(mS)+rdP(yS));
+
+  // 挑戰（往下減，不保留大師數）
+  var c1=Math.abs(rdP(mS)-rdP(dS)),c2=Math.abs(rdP(dS)-rdP(yS)),c3=Math.abs(c1-c2),c4=Math.abs(rdP(mS)-rdP(yS));
+
+  // 階段年齡（36 - 生命數化簡到單數）
+  var lifeSimple=rdP(life);
+  var p1end=36-lifeSimple;
+  var stages=[
+    {name:'第一階段（種子期）',age:'0～'+p1end+'歲',gift:g1,challenge:c1},
+    {name:'第二階段（扎根期）',age:(p1end+1)+'～'+(p1end+9)+'歲',gift:g2,challenge:c2},
+    {name:'第三階段（開花期）',age:(p1end+10)+'～'+(p1end+18)+'歲',gift:g3,challenge:c3},
+    {name:'第四階段（結果期）',age:(p1end+19)+'歲以後',gift:g4,challenge:c4}
+  ];
+
+  // 流年
+  var py2026=rd(rdP(2+0+2+6)+M+D);
+
+  // 時辰經絡
+  var scIdx=(H==null||H==undefined)?-1:(H==23?0:Math.floor((H+1)/2)%12);
+  var MERIDIAN=['膽經（子時23-1點）','肝經（丑時1-3點）','肺經（寅時3-5點）','大腸經（卯時5-7點）','胃經（辰時7-9點）','脾經（巳時9-11點）','心經（午時11-13點）','小腸經（未時13-15點）','膀胱經（申時15-17點）','腎經（酉時17-19點）','心包經（戌時19-21點）','三焦經（亥時21-23點）'];
+
+  return{life:life,talent:talent,yS:yS,mS:mS,dS:dS,
+    grid:grid,innate:innate.join(''),missing:missing,
+    stages:stages,py:py2026,
+    gifts:{g1:g1,g2:g2,g3:g3,g4:g4},
+    challenges:{c1:c1,c2:c2,c3:c3,c4:c4},
+    meridian:scIdx>=0?MERIDIAN[scIdx]:'未提供時辰',scIdx:scIdx};
 }
 
 // ═══ ⑧ 馥靈秘碼 ═══
@@ -492,22 +641,128 @@ function calcFL(lm,ld,sY,sM,sD,H){
   return{H:{H:hV,O:oV,U:uV,R:rV},L:{L:lV,I:iV,G:gV,H:hLV,T:tV},pals:pals};
 }
 
-// ═══ ⑨ 生命數字三角形 ═══
+// ═══ ⑩ 馥靈三角秘碼（身份證完整解碼）═══
+var TAIL_READ={
+  0:'被這個世界派來「歸零」的人。你來不是為了在既有遊戲裡拿高分，你來是為了提醒大家：遊戲規則本身是不是該換了。',
+  1:'被這個世界派來「帶頭」的人。在大家都在觀望的時候，你是那個會先動的人。你的價值是，因為你先走了，別人才敢跟上來。',
+  2:'被這個世界派來「連結」的人。人跟人之間的橋，很多時候就是你。你花了大半輩子在連結別人，是時候把那條線接回自己身上了。',
+  3:'被這個世界派來「說出來」的人。你是社會的嘴巴、筆、擴音器。你的天賦是開始，你的功課是結束。',
+  4:'被這個世界派來「蓋房子」的人。別人負責做夢，你負責把夢蓋成一棟住得進去的房子。試著在牆上開一扇窗。',
+  5:'被這個世界派來「打破框架」的人。你不是來守規矩的，你是來看看規矩到底合不合理的。你最大的突破是在同一個地方待得更深。',
+  6:'被這個世界派來「守護」的人。你是社會裡的安全氣囊，出事的時候永遠第一個彈出來。但守護者倒了，誰都接不住。',
+  7:'被這個世界派來「看穿真相」的人。大家用肉眼看世界，你用放大鏡。有些東西不是用想的，是用經歷的。',
+  8:'被這個世界派來「撐住場面」的人。你是社會裡的承重牆，整棟樓會不會倒全靠你。讓自己喘口氣吧，你值得休息。',
+  9:'被這個世界派來「照亮別人」的人。你不是天生就發光的，你是被淬鍊過之後才發光的。你已經夠好了。'
+};
+
+var CORE_READ={
+  0:'重新定義遊戲規則的人。你這輩子在社會中的角色，不是去填滿某個空缺，而是去創造一個原本不存在的位置。',
+  1:'最終站到最前面的人。不管起點在哪裡，你在社會中的路徑都會朝著同一個方向走：前面。',
+  2:'最終成為那條看不見的線的人。你的影響力是隱性的，但把你拿掉，很多事情會莫名散掉。',
+  3:'最終留下作品的人。你的表達不是為了自己，是為了那些感覺得到但說不出來的人。',
+  4:'最終蓋出一座建築的人。你留下的是一個在你離開之後還能運作的系統、組織、或制度。',
+  5:'最終推動一場改變的人。你經手的每一件事，到最後都跟你接手時長得不一樣了。',
+  6:'最終成為某群人安全網的人。你不是因為強大才守護，你是因為守護才變強大的。',
+  7:'最終成為看穿真相的人。你是在後面安靜觀察、等到時機成熟才開口的那個人。',
+  8:'最終站到承擔位置的人。8是無限大符號轉90度，代表循環往復的力量。',
+  9:'最終成為別人路標的人。你不是天生就知道答案，你是走過了、把整條路記下來的人。',
+  11:'最終成為喚醒者的人。你的存在本身就帶著一股穿透力，讓人心裡封印很久的東西突然鬆動。'
+};
+
+var BASE_LABELS=['H△ 安全根基','O△ 能力展現','U△ 資源密碼','R△ 方向導航'];
+var MID_LABELS=['內在驅力（H社+O社）','外在使命（U社+R社）'];
+
+function calcSocialTriangle(idStr){
+  if(!idStr||idStr.length<8)return null;
+  idStr=idStr.toUpperCase().trim();
+
+  // 字母轉數字
+  var digits='';
+  if(idStr.charCodeAt(0)>=65&&idStr.charCodeAt(0)<=90){
+    var letterNum=idStr.charCodeAt(0)-64;
+    digits=String(letterNum).padStart(2,'0')+idStr.substring(1);
+  }else{
+    digits=idStr.replace(/[^0-9]/g,'');
+  }
+
+  // 補到12位（台灣標準）或按國際規則分組
+  var totalLen=digits.length;
+  var groups=[];
+
+  if(totalLen<=12){
+    while(digits.length<12)digits='0'+digits;
+    groups=[digits.substr(0,3),digits.substr(3,3),digits.substr(6,3),digits.substr(9,3)];
+  }else{
+    // 國際版：平均分4組
+    var base=Math.floor(totalLen/4);
+    var extra=totalLen%4;
+    var pos=0;
+    for(var gi=0;gi<4;gi++){
+      var len=base+(gi<extra?1:0);
+      groups.push(digits.substr(pos,len));
+      pos+=len;
+    }
+  }
+
+  // 第一層：根基層
+  function sumReduce(s){
+    var n=0;
+    for(var i=0;i<s.length;i++)n+=parseInt(s[i])||0;
+    // 保留大師數11/22/33
+    if(n==11||n==22||n==33)return n;
+    while(n>9){var t=0;String(n).split('').forEach(function(d){t+=+d});n=t;if(n==11||n==22||n==33)return n}
+    return n;
+  }
+  var layer1=groups.map(sumReduce);
+
+  // 第二層：匯流層（大師數化簡參與運算）
+  function simplify(n){if(n==11)return 2;if(n==22)return 4;if(n==33)return 6;return n}
+  var mid1=simplify(layer1[0])+simplify(layer1[1]);
+  mid1=(mid1==11||mid1==22)?mid1:rdP(mid1);
+  var mid2=simplify(layer1[2])+simplify(layer1[3]);
+  mid2=(mid2==11||mid2==22)?mid2:rdP(mid2);
+  var layer2=[mid1,mid2];
+
+  // 第三層：頂點
+  var top=simplify(layer2[0])+simplify(layer2[1]);
+  top=(top==11)?top:rdP(top);
+
+  // 尾數
+  var tail=parseInt(idStr[idStr.length-1])||0;
+
+  return{
+    groups:groups,
+    layer1:layer1, // 根基層4數
+    layer2:layer2, // 匯流層2數
+    top:top,       // 核心使命數
+    tail:tail,     // 尾數
+    tailRead:TAIL_READ[tail]||'',
+    coreRead:CORE_READ[top]||CORE_READ[rdP(top)]||''
+  };
+}
+
+// ═══ ⑨ 生命數字三角形（日日月月年年年年）═══
 function calcTri(Y,M,D){
-  var ds=String(Y).padStart(4,'0')+String(M).padStart(2,'0')+String(D).padStart(2,'0');
+  // 正確順序：日日月月年年年年（不是YYYYMMDD！）
+  var dd=String(D).padStart(2,'0');
+  var mm=String(M).padStart(2,'0');
+  var yy=String(Y).padStart(4,'0');
+  var ds=dd+mm+yy;
   var A=+ds[0],B=+ds[1],C=+ds[2],D2=+ds[3],E=+ds[4],F=+ds[5],G=+ds[6],H=+ds[7];
-  var I=rd(A+B),J=rd(C+D2),K=rd(E+F),L=rd(G+H);
-  var M2=rd(I+J),N=rd(K+L),O=rd(M2+N);
-  var T=rd(I+M2),S=rd(J+M2),U=rd(T+S);
-  var V=rd(K+N),W=rd(L+N),X=rd(V+W);
-  var P=rd(M2+O),Q=rd(N+O),R=rd(P+Q);
-  return{I:I,J:J,K:K,L:L,M:M2,N:N,O:O,T:T,S:S,U:U,V:V,W:W,X:X,P:P,Q:Q,R:R,sub:rd(I+L+O),ext:rd(U+R+X)};
+  // 此系統不保留大師數，全部化簡到1-9
+  var rr=rdP; // 用不保留大師數的版本
+  var I=rr(A+B),J=rr(C+D2),K=rr(E+F),L=rr(G+H);
+  var M2=rr(I+J),N=rr(K+L),O=rr(M2+N);
+  var T=rr(I+M2),S=rr(J+M2),U=rr(T+S);
+  var V=rr(K+N),W=rr(L+N),X=rr(V+W);
+  var P=rr(M2+O),Q=rr(N+O),R=rr(P+Q);
+  return{I:I,J:J,K:K,L:L,M:M2,N:N,O:O,T:T,S:S,U:U,V:V,W:W,X:X,P:P,Q:Q,R:R,sub:rr(I+L+O),ext:rr(U+R+X)};
 }
 
 // ═══════════════════════════════════════
 // 主控台
 // ═══════════════════════════════════════
-var SYS=['① 八字','② 紫微斗數','③ 西洋占星','④ 人類圖','⑤ 七政四餘','⑥ 瑪雅曆法','⑦ 生命靈數','⑧ 馥靈秘碼','⑨ 生命數字三角形'];
+var SYS=['① 八字','② 紫微斗數','③ 西洋占星','④ 人類圖','⑤ 七政四餘','⑥ 瑪雅曆法','⑦ 生命靈數','⑧ 馥靈秘碼','⑨ 生命數字三角形','⑩ 馥靈三角秘碼'];
 
 function switchTab(idx){
   document.querySelectorAll('.tabs button').forEach(function(b,i){b.className=i==idx?'on':''});
@@ -566,9 +821,30 @@ function doCalc(Y,M,D,H,min,gen,lat,lon){
   var planets=ephLookup(Y,M,D,H,min);
   var qz=calcQizheng(planets);
   var houses=null;
+  var aspects=[],patterns=[],stats={};
   if(planets&&lat&&lon){
-    var jd0=Date.UTC(Y,M-1,D,H,min)/(86400000)+2440587.5-2451545.0;
-    houses=calcHouses(lat,lon,jd0,23.44);
+    // UTC Julian Day
+    var utcH=H-8+(min||0)/60; // 台灣UTC+8
+    var jd_val=367*Y-Math.floor(7*(Y+Math.floor((M+9)/12))/4)+Math.floor(275*M/9)+D+1721013.5+utcH/24;
+    houses=calcPlacidus(lat,lon,jd_val);
+    // 加入ASC和MC到行星資料做相位
+    var allP={};
+    P_NAMES.forEach(function(n,i){if(planets[P_ORDER[i]])allP[n]=planets[P_ORDER[i]]});
+    allP['上升']={lon:houses.asc,sign:SIGNS[Math.floor(houses.asc/30)]};
+    allP['天頂']={lon:houses.mc,sign:SIGNS[Math.floor(houses.mc/30)]};
+    aspects=calcAspects(allP);
+    patterns=detectPatterns(aspects,allP);
+    // 統計
+    var elCnt={火:[],土:[],風:[],水:[]},modeCnt={開創:[],固定:[],變動:[]},polCnt={陽:[],陰:[]};
+    var statNames=['太陽','月亮','水星','金星','火星','木星','土星','天王星','海王星','冥王星','上升','天頂'];
+    statNames.forEach(function(n){
+      var p=allP[n];if(!p)return;
+      var s=p.sign||SIGNS[Math.floor(((p.lon%360)+360)%360/30)];
+      if(SIGN_ELEMENT[s])elCnt[SIGN_ELEMENT[s]].push(n);
+      if(SIGN_MODE[s])modeCnt[SIGN_MODE[s]].push(n);
+      if(SIGN_POLAR[s])polCnt[SIGN_POLAR[s]].push(n);
+    });
+    stats={elements:elCnt,modes:modeCnt,polarity:polCnt};
   }
 
   // ── ④ 人類圖 ──
@@ -578,7 +854,7 @@ function doCalc(Y,M,D,H,min,gen,lat,lon){
   var my=calcMaya(Y,M,D);
 
   // ── ⑦ 靈數 ──
-  var nm=calcNum(Y,M,D);
+  var nm=calcNum(Y,M,D,H);
 
   // ── ⑧ 馥靈秘碼 ──
   var fl=calcFL(lm,ld,Y,M,D,H);
@@ -592,15 +868,85 @@ function doCalc(Y,M,D,H,min,gen,lat,lon){
   SYS.forEach(function(n,i){var b=document.createElement('button');b.textContent=n;b.onclick=function(){switchTab(i)};tb.appendChild(b)});
   var ps=document.getElementById('panels');ps.innerHTML='';
 
-  // ① 八字
-  var h1='<h3>🏛️ 八字命盤</h3>';
+  // ① 八字（完整版：四柱+藏干+十神+地勢+納音+大運+流年+稱骨）
+  var yearGZ=ec.getYear();
+  var bone=calcBone(yearGZ,lm,ld,hzI);
+
+  var h1='<h3>🏛️ 八字命盤（完整版）</h3>';
   h1+='<div class="item"><b>陽曆：</b>'+solarStr+'　<b>農曆：</b>'+lunarStr+'</div>';
-  h1+='<div class="item"><b>年柱：</b>'+ec.getYear()+'（'+ec.getYearNaYin()+'）　<b>月柱：</b>'+ec.getMonth()+'（'+ec.getMonthNaYin()+'）</div>';
-  h1+='<div class="item"><b>日柱：</b>'+ec.getDay()+'（'+ec.getDayNaYin()+'）　<b>時柱：</b>'+ec.getTime()+'（'+ec.getTimeNaYin()+'）</div>';
-  h1+='<div class="item"><b>日主：</b>'+ec.getDayGan()+'</div>';
-  h1+='<div class="item"><b>大運：</b></div>';
-  dyArr.forEach(function(d){h1+='<div class="item">　'+d+'</div>'});
-  var ai1='【AI解讀指令】請依據《滴天髓》《淵海子平》《三命通會》《子平真詮》《神峰通考》《窮通寶鑒》做深度解讀：\n四柱：'+ec.getYear()+' '+ec.getMonth()+' '+ec.getDay()+' '+ec.getTime()+'\n日主：'+ec.getDayGan()+'\n性別：'+(gen=='F'?'女':'男')+'\n大運：'+dyArr.join(' / ')+'\n\n請分析：格局判定、用神喜忌、大運走勢、2026流年吉凶。';
+  h1+='<div class="item"><b>性別：</b>'+(gen=='F'?'坤造（女）':'乾造（男）')+'</div>';
+
+  // 四柱表格式
+  h1+='<div class="palace" style="margin-top:12px">';
+  h1+='<div class="pt">四柱命盤</div>';
+  h1+='<div class="rs">　　　　　<em>年柱</em>　　<em>月柱</em>　　<em>日柱</em>　　<em>時柱</em></div>';
+  h1+='<div class="rs"><b>主星</b>　'+ec.getYearShiShenGan()+'　　'+ec.getMonthShiShenGan()+'　　元'+(gen=='F'?'女':'男')+'　　'+ec.getTimeShiShenGan()+'</div>';
+  h1+='<div class="rs"><b>天干</b>　<em>'+ec.getYear()[0]+'</em>　　　<em>'+ec.getMonth()[0]+'</em>　　　<em>'+ec.getDay()[0]+'</em>　　　<em>'+ec.getTime()[0]+'</em></div>';
+  h1+='<div class="rs"><b>地支</b>　<em>'+ec.getYear()[1]+'</em>　　　<em>'+ec.getMonth()[1]+'</em>　　　<em>'+ec.getDay()[1]+'</em>　　　<em>'+ec.getTime()[1]+'</em></div>';
+
+  // 藏干十神
+  h1+='<div class="rs"><b>藏干</b>　'+ec.getYearShiShenZhi().join(',')+'</div>';
+  h1+='<div class="rs">　　　　'+ec.getMonthShiShenZhi().join(',')+'</div>';
+  h1+='<div class="rs">　　　　'+ec.getDayShiShenZhi().join(',')+'</div>';
+  h1+='<div class="rs">　　　　'+ec.getTimeShiShenZhi().join(',')+'</div>';
+
+  // 地勢
+  h1+='<div class="rs"><b>地勢</b>　'+ec.getYearDiShi()+'　　'+ec.getMonthDiShi()+'　　'+ec.getDayDiShi()+'　　'+ec.getTimeDiShi()+'</div>';
+
+  // 納音
+  h1+='<div class="rs"><b>納音</b>　'+ec.getYearNaYin()+'　'+ec.getMonthNaYin()+'　'+ec.getDayNaYin()+'　'+ec.getTimeNaYin()+'</div>';
+  h1+='</div>';
+
+  // 稱骨
+  h1+='<div class="palace">';
+  h1+='<div class="pt">袁天罡稱骨算命</div>';
+  h1+='<div class="rs"><b>骨重：</b><em>'+bone.text+'</em></div>';
+  h1+='<div class="rs" style="color:var(--inks)">（年'+bone.detail.year+'錢 + 月'+bone.detail.month+'錢 + 日'+bone.detail.day+'錢 + 時'+bone.detail.hour+'錢 = '+bone.total+'錢）</div>';
+  h1+='<div class="rs"><b>批註：</b>'+bone.poem+'</div>';
+  h1+='<div class="rs" style="margin-top:6px;color:var(--inks);font-style:italic">📌 古文僅作趣味參考，命盤不是命定劇本，是你的人生藏寶圖</div>';
+  h1+='</div>';
+
+  // 起運
+  var yunInfo=yun.getStartYear()+'年'+yun.getStartMonth()+'月'+yun.getStartDay()+'天';
+  h1+='<div class="item" style="margin-top:12px"><b>起運：</b>出生後'+yunInfo+'起運</div>';
+
+  // 大運
+  h1+='<div class="palace">';
+  h1+='<div class="pt">十年大運</div>';
+  dyArr.forEach(function(d){h1+='<div class="rs">'+d+'</div>'});
+  h1+='</div>';
+
+  // 大運+流年矩陣
+  h1+='<div class="palace">';
+  h1+='<div class="pt">大運流年對照</div>';
+  var currentDaYun=null;
+  daYuns.forEach(function(d,i){
+    if(i==0)return;
+    var age=d.getStartAge();
+    if(age<=50&&age>=41)currentDaYun=d;
+    if(age>0&&age<=81){
+      h1+='<div class="rs"><em>'+age+'歲 '+d.getGanZhi()+'</em>：';
+      try{
+        var lns=d.getLiuNian();
+        var lnArr=[];
+        lns.forEach(function(ln){lnArr.push(ln.getYear()+'('+ln.getGanZhi()+')')});
+        h1+=lnArr.join(' ');
+      }catch(e){}
+      h1+='</div>';
+    }
+  });
+  h1+='</div>';
+
+  // AI指令
+  var ai1='【AI解讀指令】請依據《滴天髓》《淵海子平》《三命通會》《子平真詮》《神峰通考》《窮通寶鑒》做深度解讀：\n\n';
+  ai1+='四柱：'+ec.getYear()+' '+ec.getMonth()+' '+ec.getDay()+' '+ec.getTime()+'\n';
+  ai1+='日主：'+ec.getDay()[0]+'\n性別：'+(gen=='F'?'女':'男')+'\n';
+  ai1+='納音：'+ec.getYearNaYin()+' '+ec.getMonthNaYin()+' '+ec.getDayNaYin()+' '+ec.getTimeNaYin()+'\n';
+  ai1+='地勢：'+ec.getYearDiShi()+' '+ec.getMonthDiShi()+' '+ec.getDayDiShi()+' '+ec.getTimeDiShi()+'\n';
+  ai1+='十神：年'+ec.getYearShiShenGan()+' 月'+ec.getMonthShiShenGan()+' 時'+ec.getTimeShiShenGan()+'\n';
+  ai1+='藏干：年支['+ec.getYearShiShenZhi().join(',')+'] 月支['+ec.getMonthShiShenZhi().join(',')+'] 日支['+ec.getDayShiShenZhi().join(',')+'] 時支['+ec.getTimeShiShenZhi().join(',')+']\n';
+  ai1+='起運：'+yunInfo+'\n大運：'+dyArr.join(' / ')+'\n骨重：'+bone.text+'\n\n';
+  ai1+='請分析：格局判定（正印格/食神格等）、身強身弱、用神喜忌、調候用神、天干合化、地支刑沖合害、神煞吉凶、大運走勢、2026丙午年流年吉凶、袁天罡稱骨白話解讀。';
   h1+='<div class="ai-box"><h4>📜 AI深度解讀指令</h4><pre id="ai1">'+ai1+'</pre><button class="cp" onclick="copyText(\'ai1\')">📋 複製AI指令</button></div>';
   addP(ps,h1);
 
@@ -627,23 +973,45 @@ function doCalc(Y,M,D,H,min,gen,lat,lon){
   h2+='<div class="ai-box"><h4>📜 AI深度解讀指令</h4><pre id="ai2">'+ai2+'</pre><button class="cp" onclick="copyText(\'ai2\')">📋 複製AI指令</button></div>';
   addP(ps,h2);
 
-  // ③ 占星
-  var h3='<h3>🔭 西洋占星</h3>';
-  if(planets){
+  // ③ 占星（完整版：Placidus宮位+相位+格局+統計）
+  var h3='<h3>🔭 西洋占星（Placidus宮位制）</h3>';
+  if(planets&&houses){
+    h3+='<div class="item" style="margin-bottom:12px"><b>✦ 星體位置</b></div>';
+    var pShort={};
     P_NAMES.forEach(function(n,i){
       var p=planets[P_ORDER[i]];if(!p)return;
-      var houseNum=houses?planetHouse(p.lon,houses.cusps):'';
-      h3+='<div class="item"><b>'+n+'：</b>'+p.sign+p.deg+'°'+p.min+"'"+(houseNum?' 第'+houseNum+'宮':'')+(p.retro?' ℞':'')+'</div>';
+      var hNum=planetHouse(p.lon,houses.cusps);
+      pShort[n]={sign:p.sign,house:hNum};
+      h3+='<div class="item">'+n+'：'+p.sign+p.deg+'°'+p.min+"\'"+(p.retro?' ℞':'')+' → 第'+hNum+'宮</div>';
     });
-    if(houses){h3+='<div class="item"><b>上升：</b>'+degToSignStr(houses.asc)+'</div>';h3+='<div class="item"><b>天頂：</b>'+degToSignStr(houses.mc)+'</div>'}
-    var ai3='【AI解讀指令】請依據托勒密《占星四書》做深度解讀：\n';
-    P_NAMES.forEach(function(n,i){var p=planets[P_ORDER[i]];if(p)ai3+=n+'：'+p.sign+p.deg+'°'+p.min+"'"+(p.retro?' 逆行':'')+'\n'});
-    if(houses)ai3+='上升：'+degToSignStr(houses.asc)+'\n天頂：'+degToSignStr(houses.mc)+'\n';
+    h3+='<div class="item">上升：'+degToSignStr(houses.asc)+' → 第1宮</div>';
+    h3+='<div class="item">天頂：'+degToSignStr(houses.mc)+' → 第10宮</div>';
+    // 宮位系統
+    h3+='<div class="item" style="margin-top:16px"><b>✦ 宮位系統</b></div>';
+    var HN=['自我完成宮','賺錢價值宮','學習運氣宮','原生家庭宮','才藝戀愛宮','職場菁英宮','婚姻合作宮','資源權勢宮','高遠跩屁宮','責任貴人宮','社群人氣宮','神祕心靈宮'];
+    for(var hi=0;hi<12;hi++){var cL=houses.cusps[hi];var cS=SIGNS[Math.floor(((cL%360)+360)%360/30)];var rul=SIGN_RULER[cS]||'';var rS='',rH='';if(rul&&pShort[rul]){rS=pShort[rul].sign;rH=pShort[rul].house+'宮'}h3+='<div class="item">'+(hi+1)+'宮（'+HN[hi]+'）'+cS+' → 守護'+rul+(rH?' 飛入'+rS+rH:'')+'</div>'}
+    // 相位
+    h3+='<div class="item" style="margin-top:16px"><b>✦ 主要相位（'+aspects.length+'個）</b></div>';
+    aspects.forEach(function(a){h3+='<div class="item">　'+a.sym+' '+a.p1+' '+a.type+' '+a.p2+'（'+a.orb+'°）</div>'});
+    // 格局
+    if(patterns.length){h3+='<div class="item" style="margin-top:16px"><b>✦ 格局</b></div>';patterns.forEach(function(p){h3+='<div class="item">　'+p.type+'：'+p.planets+'</div>'})}
+    // 統計
+    h3+='<div class="item" style="margin-top:16px"><b>✦ 統計</b></div>';
+    if(stats.polarity){h3+='<div class="item">陽性：'+stats.polarity['陽'].join('、')+'</div>';h3+='<div class="item">陰性：'+stats.polarity['陰'].join('、')+'</div>'}
+    if(stats.modes){h3+='<div class="item">開創：'+stats.modes['開創'].join('、')+'</div>';h3+='<div class="item">固定：'+stats.modes['固定'].join('、')+'</div>';h3+='<div class="item">變動：'+stats.modes['變動'].join('、')+'</div>'}
+    if(stats.elements){h3+='<div class="item">火象：'+stats.elements['火'].join('、')+'</div>';h3+='<div class="item">土象：'+stats.elements['土'].join('、')+'</div>';h3+='<div class="item">風象：'+stats.elements['風'].join('、')+'</div>';h3+='<div class="item">水象：'+stats.elements['水'].join('、')+'</div>'}
+    // AI指令
+    var ai3='【AI解讀指令】請依據托勒密《占星四書》、Liz Greene、Stephen Arroyo做深度解讀：\n\n';
+    P_NAMES.forEach(function(n,i){var p=planets[P_ORDER[i]];if(p){var hN=planetHouse(p.lon,houses.cusps);ai3+=n+'：'+p.sign+p.deg+'°'+p.min+"\'"+(p.retro?' ℞':'')+' 第'+hN+'宮\n'}});
+    ai3+='上升：'+degToSignStr(houses.asc)+'\n天頂：'+degToSignStr(houses.mc)+'\n\n相位：\n';
+    aspects.forEach(function(a){ai3+=a.p1+' '+a.type+' '+a.p2+'（'+a.orb+'°）\n'});
+    if(patterns.length){ai3+='\n格局：\n';patterns.forEach(function(p){ai3+=p.type+'：'+p.planets+'\n'})}
+    ai3+='\n請分析：日月升三重奏、元素模式分佈、主要相位格局、宮位守護星飛入、2026行運預測。';
     h3+='<div class="ai-box"><h4>📜 AI深度解讀指令</h4><pre id="ai3">'+ai3+'</pre><button class="cp" onclick="copyText(\'ai3\')">📋 複製AI指令</button></div>';
   }else{h3+='<div class="item" style="color:var(--inkm)">星曆資料載入中或不可用</div>'}
   addP(ps,h3);
 
-  // ④ 人類圖
+  // ④  // ④ 人類圖
   var h4='<h3>🔑 人類圖</h3>';
   if(hd){
     h4+='<div class="item"><b>類型：</b>'+hd.type+'　<b>策略：</b>'+hd.strategy+'</div>';
@@ -682,12 +1050,103 @@ function doCalc(Y,M,D,H,min,gen,lat,lon){
   h6+='<div class="ai-box"><h4>📜 AI深度解讀指令</h4><pre id="ai6">'+ai6+'</pre><button class="cp" onclick="copyText(\'ai6\')">📋 複製AI指令</button></div>';
   addP(ps,h6);
 
-  // ⑦ 靈數
-  var h7='<h3>🔢 生命靈數</h3>';
-  h7+='<div class="item"><b>生命數：</b>'+nm.life+'　<b>天賦數：</b>'+nm.talent+'</div>';
-  h7+='<div class="item"><b>年份數：</b>'+nm.yS+'　<b>月份數：</b>'+nm.mS+'　<b>日期數：</b>'+nm.dS+'</div>';
+  // ⑦ 靈數（商用完整版）
+  var h7='<h3>🔢 生命靈數（畢達哥拉斯完整版）</h3>';
+  h7+='<div class="item"><b>基礎參數：</b>M(月)='+nm.mS+(nm.mS>=11?' ✦大師數':'')+'　D(日)='+nm.dS+(nm.dS>=11?' ✦大師數':'')+'　Y(年)='+nm.yS+(nm.yS>=11?' ✦大師數':'')+'</div>';
+  h7+='<div class="item"><b>生命數：</b>'+nm.life+'（'+(NUM_GIFT[nm.life]||'')+'）'+(nm.life>=11?' ✦大師數':'')+' <b>天賦數：</b>'+nm.talent+'（'+(NUM_GIFT[nm.talent]||'')+'）</div>';
+  h7+='<div class="item"><b>2026流年：</b>'+nm.py+'（'+(NUM_GIFT[nm.py]||'')+'）</div>';
+  h7+='<div class="item"><b>出生時辰經絡：</b>'+nm.meridian+'</div>';
+
+  // 九宮格
+  h7+='<div class="item" style="margin-top:16px"><b>✦ 九宮格先天矩陣</b></div>';
+  h7+='<div style="display:inline-block;font-family:monospace;font-size:.9rem;line-height:2;margin:8px 0 8px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(233,194,125,.2);border-radius:8px;padding:12px 20px">';
+  h7+='<div>3:'+('●'.repeat(nm.grid[3])||'○')+'　6:'+('●'.repeat(nm.grid[6])||'○')+'　9:'+('●'.repeat(nm.grid[9])||'○')+'</div>';
+  h7+='<div>2:'+('●'.repeat(nm.grid[2])||'○')+'　5:'+('●'.repeat(nm.grid[5])||'○')+'　8:'+('●'.repeat(nm.grid[8])||'○')+'</div>';
+  h7+='<div>1:'+('●'.repeat(nm.grid[1])||'○')+'　4:'+('●'.repeat(nm.grid[4])||'○')+'　7:'+('●'.repeat(nm.grid[7])||'○')+'</div>';
+  h7+='</div>';
   h7+='<div class="item"><b>先天數：</b>'+nm.innate+'　<b>空缺數：</b>'+(nm.missing.length?nm.missing.join('、'):'無')+'</div>';
-  h7+='<div class="item"><b>2026個人年：</b>'+nm.py+'　<b>挑戰數：</b>'+nm.ch1+', '+nm.ch2+', '+nm.chM+'</div>';
+
+  // 空缺數解讀
+  if(nm.missing.length){
+    h7+='<div class="item" style="margin-top:8px"><b>✦ 空缺數解讀（隱藏版魔王）</b></div>';
+    nm.missing.forEach(function(m){
+      h7+='<div class="item">　缺 '+m+'：'+(MISS_TXT[m]||'')+'</div>';
+    });
+  }
+
+  // 禮物與挑戰
+  h7+='<div class="item" style="margin-top:16px"><b>🎁 往上算：禮物與高峰</b>（宇宙發給你的外在武器與環境助力）</div>';
+  h7+='<div class="item" style="color:var(--inks)">　公式：① M+D　② D+Y　③ ①+②　④ M+Y（保留大師數11/22/33）</div>';
+  nm.stages.forEach(function(s){
+    h7+='<div class="item">　'+s.name+'（'+s.age+'）→ 禮物 <b>'+s.gift+'</b>（'+(NUM_GIFT[s.gift]||'')+'）</div>';
+  });
+
+  h7+='<div class="item" style="margin-top:12px"><b>🥊 往下算：挑戰與盲點</b>（天生容易卡關、需要去跨越的心理防線）</div>';
+  h7+='<div class="item" style="color:var(--inks)">　公式：① |M-D|　② |D-Y|　③ |①-②|　④ |M-Y|</div>';
+  nm.stages.forEach(function(s){
+    h7+='<div class="item">　'+s.name+'（'+s.age+'）→ 挑戰 <b>'+s.challenge+'</b>（'+(NUM_GIFT[s.challenge]||'')+'）</div>';
+  });
+
+
+  // 折疊教學區塊
+  h7+='<details style="margin-top:16px;border:1px solid rgba(233,194,125,.2);border-radius:10px;padding:0">';
+  h7+='<summary style="cursor:pointer;padding:14px 16px;color:var(--g);font-weight:500">📖 數字涵義完整對照表（點擊展開）</summary>';
+  h7+='<div style="padding:0 16px 16px;font-size:.85rem;line-height:1.8;color:var(--inks)">';
+
+  // 公式說明
+  h7+='<div style="margin-bottom:12px;color:var(--ink)"><b>► 基礎參數</b><br>';
+  h7+='💭 M = 出生月份加總化簡<br>💭 D = 出生日期加總化簡<br>💭 Y = 出生年份加總化簡</div>';
+
+  h7+='<div style="margin-bottom:12px;color:var(--ink)"><b>🎁 往上算「禮物與高峰」</b>（宇宙發給你的外在武器與環境助力）<br>';
+  h7+='① M + D　② D + Y　③ ①+②　④ M + Y（過程中出現11/22/33保留不化簡）</div>';
+
+  h7+='<div style="margin-bottom:12px;color:var(--ink)"><b>🥊 往下算「挑戰與盲點」</b>（天生容易卡關、需要跨越的心理防線）<br>';
+  h7+='① |M-D|　② |D-Y|　③ |①-②|　④ |M-Y|</div>';
+
+  h7+='<div style="margin-bottom:12px;color:var(--ink)"><b>🌊 流年公式</b>（今年宇宙要你學什麼）<br>';
+  h7+='→ 當下年份的加總 + 出生月份 + 出生日期（全部相加化簡）</div>';
+
+  // 數字涵義
+  h7+='<div style="margin-bottom:8px;color:var(--ink)"><b>🗝️ 1～9 涵義對照</b></div>';
+
+  var numDetail = {
+    1: ['開創與獨立', '禮物：自帶破冰氣場，能當老大', '挑戰：容易自私自利，或者太害怕獨立'],
+    2: ['配合與感受', '禮物：超強輔助，人際潤滑劑', '挑戰：容易委屈求全，玻璃心碎滿地'],
+    3: ['表達與創造', '禮物：自帶聚光燈，靠嘴巴跟創意吃飯', '挑戰：可能只會出一張嘴，或是嚴重容貌焦慮'],
+    4: ['秩序與安全', '禮物：超強執行力，是團隊的定海神針', '挑戰：死腦筋，不知變通又愛死撐'],
+    5: ['自由與體驗', '禮物：百搭萬能，到哪都能混得風生水起', '挑戰：三分鐘熱度，永遠在逃避責任'],
+    6: ['責任與愛護', '禮物：溫暖包容，是大家最想依靠的避風港', '挑戰：管太多變控制狂，總覺得別人沒你不行'],
+    7: ['真理與深度', '禮物：看透一切的智者，直覺準到嚇人', '挑戰：憤世嫉俗、疑心病重，活在自己的象牙塔'],
+    8: ['權威與豐盛', '禮物：自帶搞錢搞事業的雷達，掌握資源', '挑戰：陷入世俗慾望的泥沼，或對金錢極度匱乏'],
+    9: ['大愛與放下', '禮物：萬物皆可拋的豁達，吸引各種貴人', '挑戰：太過理想化而逃避現實，甚至容易被騙'],
+    0: ['潛能待開發', '禮物：擁有無限可能性的白紙', '挑戰：需要從零建立自己的核心能力']
+  };
+
+  for(var num in numDetail){
+    var d = numDetail[num];
+    h7+='<div style="margin-bottom:6px"><b>'+num+'號：'+d[0]+'</b><br>';
+    h7+='→ '+d[1]+'<br>→ '+d[2]+'</div>';
+  }
+
+  h7+='<div style="margin-top:12px;padding:10px;background:rgba(233,194,125,.08);border-radius:6px;color:var(--ink);font-style:italic">';
+  h7+='這套上下加減的數學遊戲，最迷人的從來不是你拿到了什麼神仙禮物 💅<br>';
+  h7+='而是你終於看懂，那些曾經讓你痛不欲生的挑戰，其實是宇宙為了防你太安逸，故意給你裝的防禦塔呀。</div>';
+
+  h7+='</div></details>';
+
+  // AI指令
+  var ai7='【AI解讀指令】請依據畢達哥拉斯數命論、David A. Phillips《生命靈數全書》做深度解讀：\n\n';
+  ai7+='基礎：M(月)='+nm.mS+' D(日)='+nm.dS+' Y(年)='+nm.yS+'\n';
+  ai7+='生命數：'+nm.life+(nm.life>=11?' (大師數)':'')+' | 天賦數：'+nm.talent+'\n';
+  ai7+='先天數：'+nm.innate+' | 空缺數：'+nm.missing.join(',')+'\n';
+  ai7+='出生時辰經絡：'+nm.meridian+'\n\n';
+  ai7+='九宮格：3='+nm.grid[3]+' 6='+nm.grid[6]+' 9='+nm.grid[9]+' / 2='+nm.grid[2]+' 5='+nm.grid[5]+' 8='+nm.grid[8]+' / 1='+nm.grid[1]+' 4='+nm.grid[4]+' 7='+nm.grid[7]+'\n\n';
+  ai7+='禮物（往上加 Pinnacles，保留大師數）：\n';
+  nm.stages.forEach(function(s){ai7+=s.name+'('+s.age+'): 禮物='+s.gift+'\n'});
+  ai7+='\n挑戰（往下減 Challenges）：\n';
+  nm.stages.forEach(function(s){ai7+=s.name+'('+s.age+'): 挑戰='+s.challenge+'\n'});
+  ai7+='\n2026流年：'+nm.py+'\n\n請分析：生命數核心天賦、大師數特殊使命（如有）、九宮格能量分佈、空缺數的隱藏課題與具體修煉方法、四階段禮物如何善用、四階段挑戰如何跨越、當前所在階段的具體建議、時辰經絡對情緒能量的影響、2026流年能量走向。';
+  h7+='<div class="ai-box"><h4>📜 AI深度解讀指令</h4><pre id="ai7">'+ai7+'</pre><button class="cp" onclick="copyText(\'ai7\')">📋 複製AI指令</button></div>';
   addP(ps,h7);
 
   // ⑧ 馥靈秘碼
@@ -701,12 +1160,65 @@ function doCalc(Y,M,D,H,min,gen,lat,lon){
 
   // ⑨ 三角形
   var h9='<h3>🔺 生命數字三角形</h3>';
-  h9+='<div class="item"><b>內三角：</b>I='+tri.I+' J='+tri.J+' K='+tri.K+' L='+tri.L+'</div>';
-  h9+='<div class="item"><b>M（父親基因）=</b>'+tri.M+'　<b>N（母親基因）=</b>'+tri.N+'　<b>O（命數）=</b>'+tri.O+'</div>';
-  h9+='<div class="item"><b>外三角：</b>S='+tri.S+' T='+tri.T+' U='+tri.U+' V='+tri.V+' W='+tri.W+' X='+tri.X+'</div>';
-  h9+='<div class="item"><b>P=</b>'+tri.P+' <b>Q=</b>'+tri.Q+' <b>R=</b>'+tri.R+'</div>';
-  h9+='<div class="item"><b>潛意識密碼：</b>'+tri.sub+'　<b>外心密碼：</b>'+tri.ext+'</div>';
+  h9+='<div class="item"><b>底部（日月年）：</b>'+String(D).padStart(2,'0')+' '+String(M).padStart(2,'0')+' '+String(Y)+'</div>';
+  h9+='<div class="item" style="margin-top:8px"><b>內三角：</b></div>';
+  h9+='<div class="item">　I(日)='+tri.I+'　J(月)='+tri.J+'　K(年前)='+tri.K+'　L(年後)='+tri.L+'</div>';
+  h9+='<div class="item">　<b>父親基因（I, J, M）</b>= '+tri.I+''+tri.J+''+tri.M+'</div>';
+  h9+='<div class="item">　<b>母親基因（K, L, N）</b>= '+tri.K+''+tri.L+''+tri.N+'</div>';
+  h9+='<div class="item">　M+N='+tri.M+'+'+tri.N+'='+tri.O+'　<b>O（主性格/命數）= '+tri.O+'</b>　主宰近60%行為模式</div>';
+  h9+='<div class="item" style="margin-top:8px"><b>外三角：</b></div>';
+  h9+='<div class="item">　工作朋友（21～40歲）：T='+tri.T+' S='+tri.S+' U='+tri.U+'</div>';
+  h9+='<div class="item">　下屬兒女（41～60歲）：P='+tri.P+' Q='+tri.Q+' R='+tri.R+'</div>';
+  h9+='<div class="item">　晚年家庭（61歲後）：V='+tri.V+' W='+tri.W+' X='+tri.X+'</div>';
+  h9+='<div class="item" style="margin-top:8px"><b>密碼算式：</b></div>';
+  h9+='<div class="item">　I+L+O = '+tri.I+'+'+tri.L+'+'+tri.O+' = '+tri.sub+'　<b>潛意識密碼</b>（主宰大部分舉動）</div>';
+  h9+='<div class="item">　U+R+X = '+tri.U+'+'+tri.R+'+'+tri.X+' = '+tri.ext+'　<b>外心密碼</b></div>';
+  h9+='<div class="item" style="margin-top:8px"><b>七魄（妊娠期）：</b></div>';
+  h9+='<div class="item">　I='+tri.I+'(喜)　J='+tri.J+'(怒)　K='+tri.K+'(哀)　L='+tri.L+'(懼)　M='+tri.M+'(愛)　N='+tri.N+'(欲)　O='+tri.O+'(惡)</div>';
   addP(ps,h9);
+
+  // ⑩ 馥靈三角秘碼
+  var idno=document.getElementById('bidno').value.trim();
+  var st=calcSocialTriangle(idno);
+  var h10='<h3>🔐 馥靈三角秘碼（身份證解碼）</h3>';
+  if(st){
+    // 三角形視覺化
+    h10+='<div style="text-align:center;font-family:monospace;line-height:2.2;margin:16px 0;font-size:1rem">';
+    h10+='<div>【<b style="color:var(--g);font-size:1.2em">'+st.top+'</b>】← 核心使命數</div>';
+    h10+='<div style="margin:4px 0">╱　　╲</div>';
+    h10+='<div>【<b>'+st.layer2[0]+'</b>】　【<b>'+st.layer2[1]+'</b>】← 匯流層</div>';
+    h10+='<div style="margin:4px 0">╱　╲　╱　╲</div>';
+    h10+='<div>【'+st.layer1[0]+'】【'+st.layer1[1]+'】【'+st.layer1[2]+'】【'+st.layer1[3]+'】← 根基層</div>';
+    h10+='</div>';
+
+    // 尾數
+    h10+='<div class="palace"><div class="pt">尾數 '+st.tail+'</div>';
+    h10+='<div class="rs"><em>'+st.tailRead+'</em></div></div>';
+
+    // 核心使命數
+    h10+='<div class="palace"><div class="pt">核心使命數 '+st.top+'</div>';
+    h10+='<div class="rs"><em>'+st.coreRead+'</em></div>';
+    h10+='<div class="rs" style="margin-top:6px">尾數（'+st.tail+'）是門面，核心使命數（'+st.top+'）是地基。兩個數字一起讀，才看得到完整的人。</div></div>';
+
+    // 根基層 H.O.U.R. 四柱
+    h10+='<div class="palace"><div class="pt">根基層（H.O.U.R. 社會四柱）</div>';
+    for(var bi=0;bi<4;bi++){
+      h10+='<div class="rs"><b>'+BASE_LABELS[bi]+'：</b><em>'+st.layer1[bi]+'</em>'+(st.layer1[bi]>=11?' ✦大師數':'')+'</div>';
+    }
+    h10+='<div class="rs" style="margin-top:4px;color:var(--inks)">分組：'+st.groups.join(' ｜ ')+'</div></div>';
+
+    // 匯流層
+    h10+='<div class="palace"><div class="pt">匯流層（兩股力量的交會）</div>';
+    h10+='<div class="rs"><b>'+MID_LABELS[0]+'：</b><em>'+st.layer2[0]+'</em>'+(st.layer2[0]>=11?' ✦大師數':'')+'</div>';
+    h10+='<div class="rs"><b>'+MID_LABELS[1]+'：</b><em>'+st.layer2[1]+'</em>'+(st.layer2[1]>=11?' ✦大師數':'')+'</div></div>';
+
+    // 隱私提醒
+    h10+='<div class="item" style="margin-top:12px;color:var(--inkm);font-size:.8rem;text-align:center">🔒 所有計算在你的裝置上完成，身份證字號不會儲存或傳送至任何伺服器</div>';
+
+  }else{
+    h10+='<div class="item" style="color:var(--inkm);text-align:center;padding:20px">請在上方輸入身份證字號即可計算</div>';
+  }
+  addP(ps,h10);
 
   switchTab(0);
   ra.scrollIntoView({behavior:'smooth',block:'start'});
