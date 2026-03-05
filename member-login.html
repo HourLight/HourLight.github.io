@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登入／註冊｜馥靈之鑰會員</title>
+<meta name="robots" content="noindex">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0a0612">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="馥靈之鑰">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;700&family=LXGW+WenKai+TC&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #e9c27d;
+  --gold-light: #f5d89a;
+  --gold-dim: rgba(233,194,125,0.3);
+  --bg: #05030a;
+  --surface: rgba(255,255,255,0.04);
+  --border: rgba(233,194,125,0.15);
+  --text: #f9f0e5;
+  --text-dim: rgba(249,240,229,0.5);
+  --serif: 'Noto Serif TC', serif;
+  --body: 'LXGW WenKai TC', 'Noto Serif TC', serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  font-family: var(--body);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
+  padding: 24px 16px;
+}
+
+/* 星空背景 */
+#stars-canvas {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+}
+
+/* 光暈 */
+.bg-glow {
+  position: fixed;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(120,80,200,0.12) 0%, transparent 70%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 主容器 */
+.login-wrap {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 440px;
+}
+
+/* Logo */
+.login-logo {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.login-logo a {
+  display: inline-block;
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  color: var(--gold);
+  text-decoration: none;
+  letter-spacing: 0.1em;
+}
+.login-logo .subtitle {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+  letter-spacing: 0.05em;
+}
+
+/* 卡片 */
+.login-card {
+  background: rgba(10,6,18,0.9);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 36px 32px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5),
+              inset 0 1px 0 rgba(233,194,125,0.1);
+}
+
+/* Tab */
+.tab-row {
+  display: flex;
+  gap: 0;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+.tab-btn {
+  flex: 1;
+  padding: 12px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  font-family: var(--body);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all .3s;
+  margin-bottom: -1px;
+}
+.tab-btn.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+
+/* 表單 */
+.form-group {
+  margin-bottom: 18px;
+}
+.form-label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+}
+.form-input {
+  width: 100%;
+  padding: 13px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 0.95rem;
+  transition: border-color .3s, box-shadow .3s;
+  outline: none;
+}
+.form-input:focus {
+  border-color: rgba(233,194,125,0.5);
+  box-shadow: 0 0 0 3px rgba(233,194,125,0.08);
+}
+.form-input::placeholder { color: rgba(249,240,229,0.25); }
+
+/* 提示文字 */
+.form-hint {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
+/* 按鈕 */
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #c9a050, #e9c27d, #c9a050);
+  background-size: 200%;
+  border: none;
+  border-radius: 10px;
+  color: #1a1008;
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .3s;
+  letter-spacing: 0.05em;
+  margin-top: 8px;
+}
+.btn-primary:hover {
+  background-position: right;
+  box-shadow: 0 8px 24px rgba(233,194,125,0.25);
+  transform: translateY(-1px);
+}
+.btn-primary:disabled {
+  opacity: 0.5; cursor: not-allowed; transform: none;
+}
+
+/* Google 按鈕 */
+.divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 20px 0;
+  color: var(--text-dim); font-size: 0.8rem;
+}
+.divider::before, .divider::after {
+  content: ''; flex: 1;
+  height: 1px; background: var(--border);
+}
+
+.btn-google {
+  width: 100%;
+  padding: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex; align-items: center;
+  justify-content: center; gap: 10px;
+  transition: all .3s;
+}
+.btn-google:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(233,194,125,0.3);
+}
+.btn-google img {
+  width: 20px; height: 20px;
+}
+
+/* 忘記密碼 */
+.forgot-link {
+  text-align: right; margin-top: 8px;
+}
+.forgot-link a {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color .3s;
+}
+.forgot-link a:hover { color: var(--gold); }
+
+/* 訊息 */
+.msg {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+  display: none;
+}
+.msg.error {
+  display: block;
+  background: rgba(220,60,60,0.15);
+  border: 1px solid rgba(220,60,60,0.3);
+  color: #ff9999;
+}
+.msg.success {
+  display: block;
+  background: rgba(60,180,100,0.15);
+  border: 1px solid rgba(60,180,100,0.3);
+  color: #99ffbb;
+}
+
+/* 載入中 */
+.loading-overlay {
+  display: none;
+  position: absolute; inset: 0;
+  background: rgba(5,3,10,0.8);
+  border-radius: 20px;
+  z-index: 10;
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 12px;
+}
+.loading-overlay.show { display: flex; }
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* 服務條款 */
+.terms-note {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 20px;
+  line-height: 1.6;
+}
+.terms-note a {
+  color: rgba(233,194,125,0.7);
+  text-decoration: none;
+}
+.terms-note a:hover { color: var(--gold); }
+
+/* 回首頁 */
+.back-home {
+  text-align: center;
+  margin-top: 20px;
+}
+.back-home a {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  text-decoration: none;
+  transition: color .3s;
+}
+.back-home a:hover { color: var(--gold); }
+
+/* 忘記密碼彈窗 */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 100;
+  align-items: center; justify-content: center;
+  padding: 16px;
+}
+.modal-overlay.show { display: flex; }
+.modal-box {
+  background: #0d0918;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 24px;
+  width: 100%; max-width: 360px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+}
+.modal-title {
+  font-family: var(--serif);
+  color: var(--gold);
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+.modal-desc {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 18px;
+  line-height: 1.6;
+}
+.modal-actions {
+  display: flex; gap: 10px; margin-top: 16px;
+}
+.btn-secondary {
+  flex: 1; padding: 11px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-dim);
+  font-family: var(--body);
+  cursor: pointer;
+  transition: all .3s;
+}
+.btn-secondary:hover { border-color: var(--gold-dim); color: var(--text); }
+.btn-sm-primary {
+  flex: 1; padding: 11px;
+  background: linear-gradient(135deg, #c9a050, #e9c27d);
+  border: none;
+  border-radius: 8px;
+  color: #1a1008;
+  font-family: var(--body);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .3s;
+}
+.btn-sm-primary:hover { opacity: 0.9; }
+
+@media (max-width: 480px) {
+  .login-card { padding: 28px 20px; }
+  body { padding: 16px 12px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="stars-canvas"></canvas>
+<div class="bg-glow"></div>
+
+<div class="login-wrap">
+
+  <!-- Logo -->
+  <div class="login-logo">
+    <a href="index.html">🔑 馥靈之鑰</a>
+    <div class="subtitle">Hour Light International</div>
+  </div>
+
+  <!-- 主卡片 -->
+  <div class="login-card" style="position:relative;">
+
+    <!-- 載入遮罩 -->
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="spinner"></div>
+      <span style="color:var(--text-dim);font-size:0.85rem;">處理中...</span>
+    </div>
+
+    <!-- Tab 切換 -->
+    <div class="tab-row">
+      <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">登入</button>
+      <button class="tab-btn" id="tabRegister" onclick="switchTab('register')">免費註冊</button>
+    </div>
+
+    <!-- 訊息區 -->
+    <div class="msg" id="msgBox"></div>
+
+    <!-- 登入表單 -->
+    <div id="formLogin">
+      <div class="form-group">
+        <label class="form-label">電子郵件</label>
+        <input type="email" id="loginEmail" class="form-input" placeholder="your@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">密碼</label>
+        <input type="password" id="loginPwd" class="form-input" placeholder="••••••••" autocomplete="current-password">
+        <div class="forgot-link"><a onclick="showForgot()">忘記密碼？</a></div>
+      </div>
+      <button class="btn-primary" onclick="doLogin()">進入我的城堡 🏰</button>
+
+      <div class="divider">或</div>
+      <button class="btn-google" onclick="doGoogleLogin()">
+        <svg width="20" height="20" viewBox="0 0 48 48">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+        使用 Google 帳號登入
+      </button>
+    </div>
+
+    <!-- 註冊表單 -->
+    <div id="formRegister" style="display:none;">
+      <div class="form-group">
+        <label class="form-label">你的名字 / 暱稱</label>
+        <input type="text" id="regName" class="form-input" placeholder="例：逸君 / Ruby">
+      </div>
+      <div class="form-group">
+        <label class="form-label">電子郵件</label>
+        <input type="email" id="regEmail" class="form-input" placeholder="your@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">設定密碼</label>
+        <input type="password" id="regPwd" class="form-input" placeholder="至少6個字元" autocomplete="new-password">
+        <div class="form-hint">密碼至少6個字元</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">確認密碼</label>
+        <input type="password" id="regPwd2" class="form-input" placeholder="再輸入一次" autocomplete="new-password">
+      </div>
+      <button class="btn-primary" onclick="doRegister()">✨ 開始我的覺察旅程</button>
+
+      <div class="divider">或</div>
+      <button class="btn-google" onclick="doGoogleLogin()">
+        <svg width="20" height="20" viewBox="0 0 48 48">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+        使用 Google 帳號快速加入
+      </button>
+    </div>
+
+    <!-- 條款說明 -->
+    <div class="terms-note">
+      繼續即表示你同意我們的
+      <a href="terms.html">服務條款</a> 與
+      <a href="privacy.html">隱私政策</a>
+    </div>
+  </div>
+
+  <div class="back-home">
+    <a href="index.html">← 回到馥靈之鑰首頁</a>
+  </div>
+</div>
+
+<!-- 忘記密碼彈窗 -->
+<div class="modal-overlay" id="forgotModal">
+  <div class="modal-box">
+    <div class="modal-title">重設密碼</div>
+    <div class="modal-desc">輸入你的電子郵件，我們會發送重設連結給你。</div>
+    <div class="form-group">
+      <input type="email" id="forgotEmail" class="form-input" placeholder="your@email.com">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeForgot()">取消</button>
+      <button class="btn-sm-primary" onclick="doForgot()">發送重設信</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+
+<script>
+// ===== 星空背景 =====
+(function(){
+  const canvas = document.getElementById('stars-canvas');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  function createStars() {
+    stars = [];
+    for (let i = 0; i < 120; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.2 + 0.2,
+        a: Math.random(),
+        speed: Math.random() * 0.003 + 0.001,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+  }
+  function draw(t) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(s => {
+      const alpha = 0.3 + 0.5 * Math.sin(t * s.speed + s.phase);
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(233,194,125,${alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  resize();
+  createStars();
+  window.addEventListener('resize', () => { resize(); createStars(); });
+  requestAnimationFrame(draw);
+})();
+
+// ===== Firebase 初始化 =====
+let auth, db;
+const firebaseReady = typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY';
+
+if (firebaseReady) {
+  if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+  auth = firebase.auth();
+  db = firebase.firestore();
+
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      // 已登入→直接跳轉
+      const redirect = new URLSearchParams(location.search).get('redirect');
+      window.location.href = redirect || 'member-dashboard.html';
+    }
+  });
+} else {
+  showMsg('⚠️ Firebase 尚未設定，請先完成 firebase-config.js 設定', 'error');
+}
+
+// ===== UI 邏輯 =====
+function switchTab(tab) {
+  document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+  document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+  document.getElementById('formLogin').style.display = tab === 'login' ? '' : 'none';
+  document.getElementById('formRegister').style.display = tab === 'register' ? '' : 'none';
+  clearMsg();
+}
+
+function showMsg(text, type) {
+  const box = document.getElementById('msgBox');
+  box.className = 'msg ' + type;
+  box.textContent = text;
+}
+function clearMsg() {
+  const box = document.getElementById('msgBox');
+  box.className = 'msg';
+  box.textContent = '';
+}
+
+function setLoading(show) {
+  document.getElementById('loadingOverlay').classList.toggle('show', show);
+}
+
+// ===== Firebase 操作 =====
+async function doLogin() {
+  if (!firebaseReady) return;
+  const email = document.getElementById('loginEmail').value.trim();
+  const pwd = document.getElementById('loginPwd').value;
+  if (!email || !pwd) return showMsg('請輸入電子郵件與密碼', 'error');
+
+  setLoading(true);
+  try {
+    await auth.signInWithEmailAndPassword(email, pwd);
+    // onAuthStateChanged 會處理跳轉
+  } catch(e) {
+    setLoading(false);
+    const msgs = {
+      'auth/user-not-found': '找不到此帳號，請確認 Email 或先註冊',
+      'auth/wrong-password': '密碼錯誤，請再試一次',
+      'auth/too-many-requests': '嘗試次數過多，請稍後再試',
+      'auth/invalid-email': '電子郵件格式有誤'
+    };
+    showMsg(msgs[e.code] || `登入失敗：${e.message}`, 'error');
+  }
+}
+
+async function doRegister() {
+  if (!firebaseReady) return;
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pwd = document.getElementById('regPwd').value;
+  const pwd2 = document.getElementById('regPwd2').value;
+
+  if (!name) return showMsg('請輸入你的名字', 'error');
+  if (!email) return showMsg('請輸入電子郵件', 'error');
+  if (pwd.length < 6) return showMsg('密碼至少要6個字元', 'error');
+  if (pwd !== pwd2) return showMsg('兩次密碼不一樣，請確認', 'error');
+
+  setLoading(true);
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, pwd);
+    await cred.user.updateProfile({ displayName: name });
+
+    // 建立 Firestore 會員資料
+    await db.doc(`users/${cred.user.uid}`).set({
+      email,
+      displayName: name,
+      plan: 'free',
+      planExpiry: null,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+      totalDraws: 0,
+      totalAnalyses: 0
+    });
+
+    showMsg('🎉 歡迎加入！正在進入你的城堡...', 'success');
+    // onAuthStateChanged 會跳轉
+  } catch(e) {
+    setLoading(false);
+    const msgs = {
+      'auth/email-already-in-use': '這個 Email 已經被註冊了，請直接登入',
+      'auth/invalid-email': '電子郵件格式有誤',
+      'auth/weak-password': '密碼太簡單了，請設定更複雜的密碼'
+    };
+    showMsg(msgs[e.code] || `註冊失敗：${e.message}`, 'error');
+  }
+}
+
+async function doGoogleLogin() {
+  if (!firebaseReady) return;
+  setLoading(true);
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    const cred = await auth.signInWithPopup(provider);
+    const user = cred.user;
+
+    // 確認 Firestore 有會員資料（新用戶才建）
+    const docRef = db.doc(`users/${user.uid}`);
+    const snap = await docRef.get();
+    if (!snap.exists) {
+      await docRef.set({
+        email: user.email,
+        displayName: user.displayName || user.email.split('@')[0],
+        plan: 'free',
+        planExpiry: null,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+        totalDraws: 0,
+        totalAnalyses: 0
+      });
+    }
+    // onAuthStateChanged 跳轉
+  } catch(e) {
+    setLoading(false);
+    if (e.code !== 'auth/popup-closed-by-user') {
+      showMsg(`Google 登入失敗：${e.message}`, 'error');
+    }
+  }
+}
+
+function showForgot() {
+  document.getElementById('forgotEmail').value = document.getElementById('loginEmail').value;
+  document.getElementById('forgotModal').classList.add('show');
+}
+function closeForgot() {
+  document.getElementById('forgotModal').classList.remove('show');
+}
+
+async function doForgot() {
+  if (!firebaseReady) return;
+  const email = document.getElementById('forgotEmail').value.trim();
+  if (!email) return;
+  try {
+    await auth.sendPasswordResetEmail(email);
+    closeForgot();
+    showMsg('✅ 重設連結已發送，請檢查信箱（包含垃圾郵件匣）', 'success');
+  } catch(e) {
+    showMsg(`發送失敗：${e.message}`, 'error');
+  }
+}
+
+// Enter 鍵登入
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('formLogin').style.display !== 'none') doLogin();
+    else doRegister();
+  }
+});
+</script>
+<script>if("serviceWorker"in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js").catch(()=>{})})}</script>
+</body>
+</html>

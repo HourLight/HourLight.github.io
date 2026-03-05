@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的城堡｜馥靈之鑰會員中心</title>
+<meta name="robots" content="noindex">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0a0612">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="馥靈之鑰">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;700&family=LXGW+WenKai+TC&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #e9c27d;
+  --gold-light: #f5d89a;
+  --gold-dim: rgba(233,194,125,0.3);
+  --bg: #05030a;
+  --surface: rgba(255,255,255,0.04);
+  --surface-hover: rgba(255,255,255,0.07);
+  --border: rgba(233,194,125,0.12);
+  --border-hover: rgba(233,194,125,0.3);
+  --text: #f9f0e5;
+  --text-dim: rgba(249,240,229,0.5);
+  --text-faint: rgba(249,240,229,0.3);
+  --serif: 'Noto Serif TC', serif;
+  --body: 'LXGW WenKai TC', 'Noto Serif TC', serif;
+  --sidebar-w: 220px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  font-family: var(--body);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* ===== 星空背景 ===== */
+#stars-canvas {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+}
+
+/* ===== 佈局 ===== */
+.layout {
+  display: flex;
+  min-height: 100vh;
+  position: relative; z-index: 1;
+}
+
+/* ===== 側邊欄 ===== */
+.sidebar {
+  width: var(--sidebar-w);
+  background: rgba(8,5,15,0.95);
+  border-right: 1px solid var(--border);
+  padding: 24px 0;
+  position: fixed; left: 0; top: 0; bottom: 0;
+  z-index: 100;
+  display: flex; flex-direction: column;
+  backdrop-filter: blur(20px);
+  transition: transform .3s;
+}
+.sidebar-logo {
+  padding: 0 20px 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+.sidebar-logo a {
+  font-family: var(--serif);
+  color: var(--gold);
+  text-decoration: none;
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  display: block;
+}
+.sidebar-logo .ver { font-size: 0.7rem; color: var(--text-faint); margin-top: 3px; }
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 20px;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all .2s;
+  border-left: 2px solid transparent;
+  font-size: 0.88rem;
+  text-decoration: none;
+  user-select: none;
+}
+.nav-item:hover { color: var(--text); background: var(--surface); }
+.nav-item.active {
+  color: var(--gold);
+  border-left-color: var(--gold);
+  background: rgba(233,194,125,0.06);
+}
+.nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+.nav-sep {
+  height: 1px; background: var(--border);
+  margin: 10px 20px;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  padding: 16px 20px 8px;
+  border-top: 1px solid var(--border);
+}
+.user-avatar-row {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 12px;
+}
+.user-avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: rgba(233,194,125,0.15);
+  border: 1px solid var(--gold-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; overflow: hidden; flex-shrink: 0;
+}
+.user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.user-name-col { flex: 1; min-width: 0; }
+.user-display-name {
+  font-size: 0.85rem; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.user-plan-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  padding: 1px 7px;
+  border-radius: 99px;
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  margin-top: 2px;
+}
+.btn-logout {
+  width: 100%;
+  padding: 8px;
+  background: none;
+  border: 1px solid rgba(200,100,100,0.2);
+  border-radius: 8px;
+  color: rgba(200,150,150,0.7);
+  font-family: var(--body);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all .3s;
+}
+.btn-logout:hover { border-color: rgba(200,100,100,0.5); color: #ffaaaa; }
+
+/* 手機側邊欄收合 */
+.sidebar-toggle {
+  display: none;
+  position: fixed; top: 14px; left: 14px; z-index: 200;
+  width: 40px; height: 40px;
+  background: rgba(10,6,18,0.9);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  align-items: center; justify-content: center;
+  cursor: pointer; color: var(--gold); font-size: 1.2rem;
+}
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 90;
+}
+
+/* ===== 主內容區 ===== */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  padding: 32px 28px;
+  max-width: calc(100vw - var(--sidebar-w));
+}
+.page-section { display: none; }
+.page-section.active { display: block; }
+
+/* ===== 頁面標題 ===== */
+.page-header {
+  margin-bottom: 28px;
+}
+.page-title {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+}
+.page-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+/* ===== 統計卡 ===== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 16px;
+  transition: all .3s;
+}
+.stat-card:hover { border-color: var(--border-hover); background: var(--surface-hover); }
+.stat-icon { font-size: 1.5rem; margin-bottom: 8px; }
+.stat-num {
+  font-family: var(--serif);
+  font-size: 1.8rem;
+  color: var(--gold);
+  line-height: 1;
+}
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+/* ===== 卡片容器 ===== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px 20px;
+  margin-bottom: 18px;
+}
+.card-title {
+  font-family: var(--serif);
+  font-size: 1rem;
+  color: var(--gold);
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* ===== 歷史足跡 ===== */
+.history-list { display: flex; flex-direction: column; gap: 10px; }
+.history-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: all .3s;
+}
+.history-item:hover { background: var(--surface-hover); border-color: var(--border-hover); }
+.history-type-icon {
+  width: 36px; height: 36px; flex-shrink: 0;
+  border-radius: 10px;
+  background: rgba(233,194,125,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+}
+.history-content { flex: 1; min-width: 0; }
+.history-title {
+  font-size: 0.9rem; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.history-detail {
+  font-size: 0.78rem; color: var(--text-dim);
+  margin-top: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.history-time {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ===== 上傳解析區 ===== */
+.upload-area {
+  border: 2px dashed rgba(233,194,125,0.2);
+  border-radius: 14px;
+  padding: 32px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .3s;
+  margin-bottom: 18px;
+}
+.upload-area:hover, .upload-area.dragover {
+  border-color: rgba(233,194,125,0.5);
+  background: rgba(233,194,125,0.04);
+}
+.upload-icon { font-size: 2rem; margin-bottom: 10px; }
+.upload-text { color: var(--text-dim); font-size: 0.9rem; }
+.upload-hint { font-size: 0.75rem; color: var(--text-faint); margin-top: 6px; }
+
+/* 分析表單 */
+.form-row { margin-bottom: 14px; }
+.form-label { display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 7px; }
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 11px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color .3s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: rgba(233,194,125,0.4);
+}
+.form-textarea { resize: vertical; min-height: 140px; line-height: 1.7; }
+.form-select option { background: #0d0918; }
+.form-input::placeholder, .form-textarea::placeholder { color: var(--text-faint); }
+
+.btn-gold {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #c9a050, #e9c27d);
+  border: none; border-radius: 10px;
+  color: #1a1008; font-family: var(--serif);
+  font-size: 0.9rem; font-weight: 700;
+  cursor: pointer; transition: all .3s;
+  letter-spacing: 0.03em;
+}
+.btn-gold:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(233,194,125,0.2); }
+
+/* ===== 解析列表 ===== */
+.analyses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+.analysis-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  cursor: pointer;
+  transition: all .3s;
+  position: relative;
+}
+.analysis-card:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+}
+.analysis-type-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  padding: 2px 9px;
+  border-radius: 99px;
+  border: 1px solid var(--gold-dim);
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+.analysis-title {
+  font-size: 0.95rem; color: var(--text);
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+.analysis-preview {
+  font-size: 0.78rem; color: var(--text-dim);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.analysis-meta {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 12px;
+  font-size: 0.72rem; color: var(--text-faint);
+}
+.btn-delete-analysis {
+  background: none; border: none;
+  color: rgba(200,100,100,0.4);
+  cursor: pointer; font-size: 0.8rem;
+  transition: color .3s; padding: 2px;
+}
+.btn-delete-analysis:hover { color: #ff8888; }
+
+/* 解析詳情彈窗 */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 200;
+  align-items: flex-start; justify-content: center;
+  padding: 40px 16px; overflow-y: auto;
+}
+.modal-overlay.show { display: flex; }
+.modal-box {
+  background: #0d0918;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 28px 24px;
+  width: 100%; max-width: 600px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+  position: relative;
+}
+.modal-close {
+  position: absolute; top: 16px; right: 16px;
+  background: none; border: none;
+  color: var(--text-dim); font-size: 1.3rem;
+  cursor: pointer; transition: color .3s;
+  line-height: 1;
+}
+.modal-close:hover { color: var(--gold); }
+.modal-title {
+  font-family: var(--serif); font-size: 1.1rem;
+  color: var(--gold); margin-bottom: 16px;
+}
+.modal-content {
+  font-size: 0.9rem; line-height: 1.8;
+  color: var(--text); white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ===== 方案頁 ===== */
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.plan-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px 18px;
+  text-align: center;
+  transition: all .3s;
+  position: relative;
+}
+.plan-card.current {
+  border-color: var(--gold);
+  background: rgba(233,194,125,0.06);
+}
+.plan-card:hover:not(.current) {
+  border-color: var(--border-hover);
+  transform: translateY(-3px);
+}
+.plan-current-badge {
+  position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+  background: var(--gold);
+  color: #1a1008;
+  font-size: 0.65rem; font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 0 0 8px 8px;
+  letter-spacing: 0.05em;
+}
+.plan-icon { font-size: 2rem; margin-bottom: 8px; }
+.plan-name {
+  font-family: var(--serif);
+  font-size: 1rem; color: var(--text);
+  margin-bottom: 4px;
+}
+.plan-price {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  color: var(--gold);
+  margin: 8px 0;
+}
+.plan-price span { font-size: 0.75rem; color: var(--text-dim); }
+.plan-features {
+  list-style: none;
+  text-align: left;
+  margin: 12px 0;
+}
+.plan-features li {
+  font-size: 0.78rem; color: var(--text-dim);
+  padding: 4px 0;
+  padding-left: 16px;
+  position: relative;
+}
+.plan-features li::before { content: '✓'; position: absolute; left: 0; color: var(--gold); }
+.btn-upgrade {
+  width: 100%; padding: 10px;
+  background: linear-gradient(135deg, #c9a050, #e9c27d);
+  border: none; border-radius: 8px;
+  color: #1a1008; font-family: var(--serif);
+  font-size: 0.85rem; font-weight: 700;
+  cursor: pointer; transition: all .3s; margin-top: 8px;
+}
+.btn-upgrade:hover { opacity: 0.9; }
+.btn-upgrade:disabled {
+  background: rgba(255,255,255,0.08);
+  color: var(--text-dim); cursor: default;
+}
+
+/* 藍新付款提示 */
+.payment-notice {
+  background: rgba(233,194,125,0.06);
+  border: 1px solid var(--gold-dim);
+  border-radius: 14px;
+  padding: 20px 18px;
+  margin-top: 8px;
+}
+.payment-notice-title {
+  font-family: var(--serif);
+  color: var(--gold); font-size: 0.95rem;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.payment-notice-text {
+  font-size: 0.82rem; color: var(--text-dim);
+  line-height: 1.7;
+}
+.payment-notice-text strong { color: var(--text); }
+
+/* ===== 個人資料 ===== */
+.profile-card {
+  display: flex; align-items: center; gap: 20px;
+  padding: 24px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  margin-bottom: 18px;
+}
+.profile-avatar-big {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: rgba(233,194,125,0.12);
+  border: 2px solid var(--gold-dim);
+  display: flex; align-items: center;
+  justify-content: center; font-size: 2rem;
+  overflow: hidden; flex-shrink: 0;
+}
+.profile-avatar-big img { width: 100%; height: 100%; object-fit: cover; }
+.profile-info { flex: 1; }
+.profile-name {
+  font-family: var(--serif);
+  font-size: 1.3rem; color: var(--text);
+}
+.profile-email {
+  font-size: 0.82rem; color: var(--text-dim); margin-top: 4px;
+}
+.profile-joined {
+  font-size: 0.75rem; color: var(--text-faint); margin-top: 4px;
+}
+
+/* 空狀態 */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-dim);
+}
+.empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.empty-text { font-size: 0.9rem; }
+.empty-hint { font-size: 0.78rem; color: var(--text-faint); margin-top: 6px; }
+
+/* 載入中 */
+.loading-state {
+  text-align: center; padding: 30px;
+  color: var(--text-dim); font-size: 0.9rem;
+}
+.spinner-sm {
+  display: inline-block;
+  width: 20px; height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  vertical-align: middle; margin-right: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  background: rgba(10,6,18,0.95);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 12px 22px;
+  border-radius: 99px;
+  font-size: 0.85rem;
+  z-index: 9999;
+  opacity: 0; transition: opacity .3s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* ===== 手機響應 ===== */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-toggle { display: flex; }
+  .sidebar-overlay.show { display: block; }
+  .main { margin-left: 0; padding: 20px 14px 80px; max-width: 100%; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .plans-grid { grid-template-columns: 1fr 1fr; }
+  .analyses-grid { grid-template-columns: 1fr; }
+  .profile-card { flex-direction: column; text-align: center; }
+}
+@media (max-width: 420px) {
+  .plans-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="stars-canvas"></canvas>
+
+<!-- 手機側邊欄按鈕 -->
+<div class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">☰</div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<div class="layout">
+
+  <!-- 側邊欄 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <a href="index.html">🔑 馥靈之鑰</a>
+      <div class="ver">Hour Light International</div>
+    </div>
+
+    <nav>
+      <div class="nav-item active" onclick="showPage('overview')" data-page="overview">
+        <span class="nav-icon">🏰</span> 我的城堡
+      </div>
+      <div class="nav-item" onclick="showPage('history')" data-page="history">
+        <span class="nav-icon">📜</span> 我的足跡
+      </div>
+      <div class="nav-item" onclick="showPage('analyses')" data-page="analyses">
+        <span class="nav-icon">💎</span> 我的解析
+      </div>
+      <div class="nav-item" onclick="showPage('upload')" data-page="upload">
+        <span class="nav-icon">📤</span> 上傳紀錄
+      </div>
+      <div class="nav-sep"></div>
+      <div class="nav-item" onclick="showPage('plans')" data-page="plans">
+        <span class="nav-icon">✨</span> 方案升級
+      </div>
+      <div class="nav-item" onclick="showPage('profile')" data-page="profile">
+        <span class="nav-icon">👤</span> 個人資料
+      </div>
+      <div class="nav-sep"></div>
+      <a class="nav-item" href="index.html">
+        <span class="nav-icon">🌐</span> 回官網
+      </a>
+      <a class="nav-item" href="draw-hl.html">
+        <span class="nav-icon">🎴</span> 去抽牌
+      </a>
+      <a class="nav-item" href="fuling-mima.html">
+        <span class="nav-icon">🔮</span> 馥靈秘碼
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="user-avatar-row">
+        <div class="user-avatar" id="sidebarAvatar">👑</div>
+        <div class="user-name-col">
+          <div class="user-display-name" id="sidebarName">載入中...</div>
+          <div class="user-plan-badge" id="sidebarPlan">免費版</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">登出</button>
+    </div>
+  </aside>
+
+  <!-- 主內容 -->
+  <main class="main">
+
+    <!-- 🏰 我的城堡（總覽） -->
+    <section class="page-section active" id="page-overview">
+      <div class="page-header">
+        <div class="page-title">🏰 我的城堡</div>
+        <div class="page-subtitle" id="overviewGreeting">歡迎回來</div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">🎴</div>
+          <div class="stat-num" id="statDraws">0</div>
+          <div class="stat-label">抽牌次數</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🧩</div>
+          <div class="stat-num" id="statQuizzes">0</div>
+          <div class="stat-label">完成測驗</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">💎</div>
+          <div class="stat-num" id="statAnalyses">0</div>
+          <div class="stat-label">解析記錄</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📅</div>
+          <div class="stat-num" id="statDays">1</div>
+          <div class="stat-label">加入天數</div>
+        </div>
+      </div>
+
+      <!-- 最近足跡 -->
+      <div class="card">
+        <div class="card-title">📜 最近的足跡</div>
+        <div id="recentHistoryList">
+          <div class="loading-state"><span class="spinner-sm"></span>載入中...</div>
+        </div>
+      </div>
+
+      <!-- 快速入口 -->
+      <div class="card">
+        <div class="card-title">⚡ 快速前往</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;">
+          <a href="draw-hl.html" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;text-decoration:none;color:var(--text-dim);font-size:0.8rem;transition:all .3s;text-align:center;" onmouseover="this.style.borderColor='var(--border-hover)'" onmouseout="this.style.borderColor='var(--border)'">
+            <span style="font-size:1.5rem;">🎴</span>馥靈抽牌
+          </a>
+          <a href="fuling-mima.html" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;text-decoration:none;color:var(--text-dim);font-size:0.8rem;transition:all .3s;text-align:center;" onmouseover="this.style.borderColor='var(--border-hover)'" onmouseout="this.style.borderColor='var(--border)'">
+            <span style="font-size:1.5rem;">🔮</span>馥靈秘碼
+          </a>
+          <a href="quiz-mbti.html" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;text-decoration:none;color:var(--text-dim);font-size:0.8rem;transition:all .3s;text-align:center;" onmouseover="this.style.borderColor='var(--border-hover)'" onmouseout="this.style.borderColor='var(--border)'">
+            <span style="font-size:1.5rem;">🧠</span>MBTI 測驗
+          </a>
+          <div onclick="showPage('upload')" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-dim);font-size:0.8rem;transition:all .3s;text-align:center;" onmouseover="this.style.borderColor='var(--border-hover)'" onmouseout="this.style.borderColor='var(--border)'">
+            <span style="font-size:1.5rem;">📤</span>上傳解析
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 📜 我的足跡 -->
+    <section class="page-section" id="page-history">
+      <div class="page-header">
+        <div class="page-title">📜 我的足跡</div>
+        <div class="page-subtitle">你走過的每一步，都算數</div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div class="card-title" style="margin-bottom:0;">全部記錄</div>
+          <select id="historyFilter" class="form-select" style="width:auto;padding:7px 12px;font-size:0.8rem;" onchange="loadHistory()">
+            <option value="all">全部類型</option>
+            <option value="draw">抽牌</option>
+            <option value="quiz">測驗</option>
+            <option value="page">瀏覽</option>
+          </select>
+        </div>
+        <div id="historyList">
+          <div class="loading-state"><span class="spinner-sm"></span>載入中...</div>
+        </div>
+        <div style="text-align:center;margin-top:16px;">
+          <button class="btn-gold" id="loadMoreHistoryBtn" onclick="loadMoreHistory()" style="display:none;padding:10px 24px;font-size:0.85rem;">載入更多</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 💎 我的解析 -->
+    <section class="page-section" id="page-analyses">
+      <div class="page-header">
+        <div class="page-title">💎 我的解析</div>
+        <div class="page-subtitle">每一段對話，都是與自己的深層連結</div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:14px;">
+        <button class="btn-gold" onclick="showPage('upload')" style="padding:10px 20px;font-size:0.85rem;">+ 新增解析</button>
+      </div>
+      <div id="analysesList">
+        <div class="loading-state"><span class="spinner-sm"></span>載入中...</div>
+      </div>
+    </section>
+
+    <!-- 📤 上傳記錄 -->
+    <section class="page-section" id="page-upload">
+      <div class="page-header">
+        <div class="page-title">📤 上傳解析記錄</div>
+        <div class="page-subtitle">把重要的對話、解讀、靈感，都存進你的城堡</div>
+      </div>
+
+      <div class="card">
+        <!-- 拖曳上傳區 -->
+        <div class="upload-area" id="dropZone"
+          onclick="document.getElementById('fileInput').click()"
+          ondragover="handleDragOver(event)"
+          ondragleave="handleDragLeave(event)"
+          ondrop="handleDrop(event)">
+          <div class="upload-icon">📄</div>
+          <div class="upload-text">點擊或拖曳文字檔案到這裡</div>
+          <div class="upload-hint">支援 .txt、.md、純文字貼上｜最大 50,000 字</div>
+        </div>
+        <input type="file" id="fileInput" accept=".txt,.md,.text" style="display:none;" onchange="handleFileSelect(event)">
+
+        <div class="form-row">
+          <label class="form-label">解析標題</label>
+          <input type="text" id="uploadTitle" class="form-input" placeholder="例：2026年3月牌陣解讀、與 AI 的深度對話">
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">類型</label>
+          <select id="uploadType" class="form-select">
+            <option value="conversation">AI 對話記錄</option>
+            <option value="reading">牌卡解讀</option>
+            <option value="note">個人筆記</option>
+            <option value="insight">靈感與洞察</option>
+            <option value="other">其他</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">標籤（用逗號分隔）</label>
+          <input type="text" id="uploadTags" class="form-input" placeholder="例：情緒覺察, H.O.U.R., 2026年">
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">內容 <span style="color:var(--text-faint);font-size:0.75rem;">（可直接貼上或從檔案載入）</span></label>
+          <textarea id="uploadContent" class="form-textarea" placeholder="在這裡貼上你想保存的對話、解讀、靈感...&#10;&#10;這裡是你的私人空間，只有你自己看得到。"></textarea>
+          <div style="text-align:right;font-size:0.72rem;color:var(--text-faint);margin-top:5px;" id="charCount">0 / 50,000 字</div>
+        </div>
+
+        <button class="btn-gold" onclick="saveAnalysis()">💾 存入我的城堡</button>
+      </div>
+    </section>
+
+    <!-- ✨ 方案升級 -->
+    <section class="page-section" id="page-plans">
+      <div class="page-header">
+        <div class="page-title">✨ 會員方案</div>
+        <div class="page-subtitle">選擇最適合你這個階段的旅程</div>
+      </div>
+
+      <div class="plans-grid" id="plansGrid">
+        <!-- 由 JS 動態生成 -->
+      </div>
+
+      <!-- 藍新付款說明 -->
+      <div class="payment-notice">
+        <div class="payment-notice-title">💳 關於付款</div>
+        <div class="payment-notice-text">
+          付費功能即將開通！我們正在整合 <strong>藍新金流</strong>，讓你可以用信用卡、ATM 轉帳、超商繳費等多種方式升級方案。<br><br>
+          預計開通日期：2026 年 Q2<br><br>
+          想要搶先體驗或有任何問題，歡迎直接 <strong><a href="https://lin.ee/OQDB5t6" target="_blank" style="color:var(--gold);text-decoration:none;">LINE 聯繫我們</a></strong> 洽談方案。
+        </div>
+      </div>
+    </section>
+
+    <!-- 👤 個人資料 -->
+    <section class="page-section" id="page-profile">
+      <div class="page-header">
+        <div class="page-title">👤 個人資料</div>
+        <div class="page-subtitle">你是自己城堡的主人</div>
+      </div>
+
+      <div class="profile-card" id="profileCard">
+        <div class="profile-avatar-big" id="profileAvatar">👑</div>
+        <div class="profile-info">
+          <div class="profile-name" id="profileName">載入中...</div>
+          <div class="profile-email" id="profileEmail"></div>
+          <div class="profile-joined" id="profileJoined"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔑 修改密碼</div>
+        <div class="form-row">
+          <label class="form-label">新密碼</label>
+          <input type="password" id="newPwd" class="form-input" placeholder="至少6個字元">
+        </div>
+        <div class="form-row">
+          <label class="form-label">確認新密碼</label>
+          <input type="password" id="newPwd2" class="form-input" placeholder="再輸入一次">
+        </div>
+        <button class="btn-gold" onclick="changePassword()">更新密碼</button>
+        <div id="pwdMsg" style="margin-top:10px;font-size:0.82rem;"></div>
+      </div>
+
+      <div class="card" style="border-color:rgba(200,80,80,0.15);">
+        <div class="card-title" style="color:rgba(255,150,150,0.8);">⚠️ 危險區域</div>
+        <p style="font-size:0.82rem;color:var(--text-dim);margin-bottom:14px;">
+          刪除帳號後，所有資料（足跡、解析記錄）將永久無法恢復。
+        </p>
+        <button onclick="confirmDeleteAccount()"
+          style="padding:10px 20px;background:none;border:1px solid rgba(200,80,80,0.3);border-radius:8px;color:rgba(200,150,150,0.7);font-family:var(--body);font-size:0.82rem;cursor:pointer;transition:all .3s;"
+          onmouseover="this.style.borderColor='rgba(200,80,80,0.6)';this.style.color='#ffaaaa'"
+          onmouseout="this.style.borderColor='rgba(200,80,80,0.3)';this.style.color='rgba(200,150,150,0.7)'">
+          刪除我的帳號
+        </button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- 解析詳情彈窗 -->
+<div class="modal-overlay" id="analysisModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title" id="modalTitle"></div>
+    <div style="font-size:0.75rem;color:var(--text-faint);margin-bottom:16px;" id="modalMeta"></div>
+    <div class="modal-content" id="modalContent"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+
+<script>
+// ===== 星空 =====
+(function(){
+  const c = document.getElementById('stars-canvas');
+  const ctx = c.getContext('2d');
+  let stars = [];
+  function resize(){ c.width=innerWidth; c.height=innerHeight; }
+  function init(){
+    stars=[];
+    for(let i=0;i<150;i++) stars.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.2+0.2,phase:Math.random()*Math.PI*2,speed:Math.random()*0.003+0.001});
+  }
+  function draw(t){
+    ctx.clearRect(0,0,c.width,c.height);
+    stars.forEach(s=>{
+      const a=0.2+0.4*Math.sin(t*s.speed+s.phase);
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(233,194,125,${a})`;ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  resize();init();
+  window.addEventListener('resize',()=>{resize();init();});
+  requestAnimationFrame(draw);
+})();
+
+// ===== Firebase =====
+const firebaseReady = typeof FIREBASE_CONFIG!=='undefined' && FIREBASE_CONFIG.apiKey!=='YOUR_API_KEY';
+let auth, db, currentUser, userProfile;
+let historyLastDoc = null;
+
+if (firebaseReady) {
+  if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+  auth = firebase.auth();
+  db = firebase.firestore();
+
+  auth.onAuthStateChanged(async user => {
+    if (!user) {
+      window.location.href = 'member-login.html?redirect=' + encodeURIComponent(location.href);
+      return;
+    }
+    currentUser = user;
+    await loadUserProfile();
+    initDashboard();
+  });
+} else {
+  // Firebase 未設定，顯示示範模式
+  showDemoMode();
+}
+
+// ===== 示範模式（Firebase 未設定時）=====
+function showDemoMode() {
+  document.getElementById('sidebarName').textContent = '示範帳號';
+  document.getElementById('sidebarPlan').textContent = '覺察旅人';
+  document.getElementById('overviewGreeting').textContent = '歡迎來到你的城堡 🏰（示範模式）';
+  document.getElementById('statDraws').textContent = '12';
+  document.getElementById('statQuizzes').textContent = '3';
+  document.getElementById('statAnalyses').textContent = '5';
+  document.getElementById('statDays').textContent = '30';
+  renderHistory([
+    {type:'draw',title:'7張牌陣解讀',detail:'覺察指引 A07、精油牌 038、複方 102...', timestamp:{seconds: Date.now()/1000 - 3600}},
+    {type:'quiz',title:'MBTI 人格測驗',detail:'INFJ - 提倡者', timestamp:{seconds: Date.now()/1000 - 86400}},
+    {type:'draw',title:'單張即時覺察',detail:'精油牌 055 乳香', timestamp:{seconds: Date.now()/1000 - 172800}}
+  ], 'recentHistoryList');
+  renderPlans('free');
+  showToast('⚠️ Firebase 尚未設定，目前為示範模式');
+}
+
+// ===== 載入用戶資料 =====
+async function loadUserProfile() {
+  try {
+    const snap = await db.doc(`users/${currentUser.uid}`).get();
+    userProfile = snap.exists ? snap.data() : { plan: 'free', totalDraws: 0, totalAnalyses: 0 };
+  } catch(e) {
+    userProfile = { plan: 'free', totalDraws: 0, totalAnalyses: 0 };
+  }
+}
+
+// ===== 初始化儀表板 =====
+function initDashboard() {
+  // 側邊欄用戶資訊
+  const name = currentUser.displayName || currentUser.email.split('@')[0];
+  document.getElementById('sidebarName').textContent = name;
+
+  const planInfo = MEMBER_PLANS[userProfile.plan || 'free'];
+  document.getElementById('sidebarPlan').textContent = planInfo ? `${planInfo.icon} ${planInfo.name}` : '覺察旅人';
+
+  if (currentUser.photoURL) {
+    document.getElementById('sidebarAvatar').innerHTML = `<img src="${currentUser.photoURL}" alt="">`;
+  }
+
+  // 問候語
+  const h = new Date().getHours();
+  const greet = h < 6 ? '夜深了，還在探索自己 🌙' : h < 12 ? '早安！新的一天，新的覺察 ✨' : h < 18 ? '下午好！今天有什麼想整理的嗎 🌟' : '晚安！這是睡前好好沉澱的時刻 🌙';
+  document.getElementById('overviewGreeting').textContent = `${greet}，${name}`;
+
+  // 統計數字
+  document.getElementById('statDraws').textContent = userProfile.totalDraws || 0;
+  document.getElementById('statAnalyses').textContent = userProfile.totalAnalyses || 0;
+
+  // 加入天數
+  if (userProfile.createdAt) {
+    const days = Math.max(1, Math.round((Date.now() - userProfile.createdAt.seconds * 1000) / 86400000));
+    document.getElementById('statDays').textContent = days;
+  }
+
+  // 個人資料頁
+  document.getElementById('profileName').textContent = name;
+  document.getElementById('profileEmail').textContent = currentUser.email;
+  if (userProfile.createdAt) {
+    const d = new Date(userProfile.createdAt.seconds * 1000);
+    document.getElementById('profileJoined').textContent = `加入於 ${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+  }
+  if (currentUser.photoURL) {
+    document.getElementById('profileAvatar').innerHTML = `<img src="${currentUser.photoURL}" alt="">`;
+  }
+
+  // 載入最近足跡
+  loadRecentHistory();
+  // 渲染方案卡
+  renderPlans(userProfile.plan || 'free');
+  // 字數計算
+  document.getElementById('uploadContent').addEventListener('input', updateCharCount);
+}
+
+// ===== 頁面切換 =====
+function showPage(id) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item[data-page]').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelector(`[data-page="${id}"]`)?.classList.add('active');
+
+  // 關閉手機側邊欄
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('show');
+
+  // 各頁面懶載入
+  if (id === 'history') loadHistory();
+  if (id === 'analyses') loadAnalyses();
+  if (id === 'upload') clearUploadForm();
+}
+
+// ===== 側邊欄切換（手機）=====
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+
+// ===== 歷史足跡 =====
+const HISTORY_PAGE_SIZE = 20;
+let historyData = [];
+
+async function loadRecentHistory() {
+  if (!db || !currentUser) return;
+  try {
+    const snap = await db.collection(`users/${currentUser.uid}/history`)
+      .orderBy('timestamp','desc').limit(5).get();
+    const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // 更新測驗數量
+    const quizCount = items.filter(i => i.type === 'quiz').length;
+    document.getElementById('statQuizzes').textContent = quizCount;
+
+    renderHistory(items, 'recentHistoryList');
+  } catch(e) { document.getElementById('recentHistoryList').innerHTML = '<div class="empty-state"><div class="empty-icon">🌱</div><div class="empty-text">還沒有足跡</div><div class="empty-hint">去抽一張牌，或做個測驗吧！</div></div>'; }
+}
+
+async function loadHistory() {
+  if (!db || !currentUser) return;
+  historyData = [];
+  historyLastDoc = null;
+  document.getElementById('historyList').innerHTML = '<div class="loading-state"><span class="spinner-sm"></span>載入中...</div>';
+
+  const filter = document.getElementById('historyFilter').value;
+  try {
+    let q = db.collection(`users/${currentUser.uid}/history`).orderBy('timestamp','desc');
+    if (filter !== 'all') q = q.where('type','==',filter);
+    q = q.limit(HISTORY_PAGE_SIZE);
+    const snap = await q.get();
+    historyData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    historyLastDoc = snap.docs[snap.docs.length - 1];
+    renderHistory(historyData, 'historyList');
+    document.getElementById('loadMoreHistoryBtn').style.display = snap.docs.length === HISTORY_PAGE_SIZE ? '' : 'none';
+  } catch(e) { document.getElementById('historyList').innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">暫無記錄</div></div>'; }
+}
+
+async function loadMoreHistory() {
+  if (!historyLastDoc) return;
+  const filter = document.getElementById('historyFilter').value;
+  let q = db.collection(`users/${currentUser.uid}/history`).orderBy('timestamp','desc').startAfter(historyLastDoc);
+  if (filter !== 'all') q = q.where('type','==',filter);
+  q = q.limit(HISTORY_PAGE_SIZE);
+  const snap = await q.get();
+  const more = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  historyData = [...historyData, ...more];
+  historyLastDoc = snap.docs[snap.docs.length - 1];
+  renderHistory(historyData, 'historyList');
+  document.getElementById('loadMoreHistoryBtn').style.display = snap.docs.length === HISTORY_PAGE_SIZE ? '' : 'none';
+}
+
+function renderHistory(items, containerId) {
+  const container = document.getElementById(containerId);
+  if (!items.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">🌱</div><div class="empty-text">這裡還沒有足跡</div><div class="empty-hint">去抽牌、做測驗，你的足跡就會出現在這裡</div></div>';
+    return;
+  }
+  const typeIcons = { draw:'🎴', quiz:'🧩', page:'👁', analysis:'💎' };
+  container.innerHTML = '<div class="history-list">' + items.map(item => {
+    const icon = typeIcons[item.type] || '📌';
+    const time = item.timestamp ? formatTime(item.timestamp.seconds * 1000) : '';
+    return `<div class="history-item">
+      <div class="history-type-icon">${icon}</div>
+      <div class="history-content">
+        <div class="history-title">${escHtml(item.title || '未命名')}</div>
+        <div class="history-detail">${escHtml(item.detail || '')}</div>
+      </div>
+      <div class="history-time">${time}</div>
+    </div>`;
+  }).join('') + '</div>';
+}
+
+// ===== 解析記錄 =====
+let analysesData = [];
+
+async function loadAnalyses() {
+  if (!db || !currentUser) return;
+  document.getElementById('analysesList').innerHTML = '<div class="loading-state"><span class="spinner-sm"></span>載入中...</div>';
+  try {
+    const snap = await db.collection(`users/${currentUser.uid}/analyses`)
+      .orderBy('createdAt','desc').limit(50).get();
+    analysesData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderAnalyses(analysesData);
+  } catch(e) { document.getElementById('analysesList').innerHTML = '<div class="empty-state"><div class="empty-icon">💎</div><div class="empty-text">還沒有解析記錄</div><div class="empty-hint">上傳你的對話記錄或牌陣解讀，都可以保存在這裡</div></div>'; }
+}
+
+function renderAnalyses(items) {
+  if (!items.length) {
+    document.getElementById('analysesList').innerHTML = '<div class="empty-state"><div class="empty-icon">💎</div><div class="empty-text">還沒有解析記錄</div><div class="empty-hint">點上方「＋新增解析」，把重要的對話或解讀存進來吧</div></div>';
+    return;
+  }
+  const typeLabels = { conversation:'AI 對話', reading:'牌卡解讀', note:'個人筆記', insight:'靈感洞察', other:'其他' };
+  document.getElementById('analysesList').innerHTML = '<div class="analyses-grid">' + items.map(item => {
+    const time = item.createdAt ? formatDate(item.createdAt.seconds * 1000) : '';
+    const label = typeLabels[item.type] || item.type;
+    return `<div class="analysis-card" onclick="openAnalysis('${item.id}')">
+      <div class="analysis-type-badge">${label}</div>
+      <div class="analysis-title">${escHtml(item.title || '未命名')}</div>
+      <div class="analysis-preview">${escHtml((item.content || '').slice(0,150))}</div>
+      <div class="analysis-meta">
+        <span>${time} · ${item.wordCount || 0} 字</span>
+        <button class="btn-delete-analysis" onclick="event.stopPropagation();deleteAnalysis('${item.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('') + '</div>';
+}
+
+function openAnalysis(id) {
+  const item = analysesData.find(a => a.id === id);
+  if (!item) return;
+  document.getElementById('modalTitle').textContent = item.title || '未命名';
+  document.getElementById('modalMeta').textContent = `${item.createdAt ? formatDate(item.createdAt.seconds*1000) : ''} · ${item.wordCount || 0} 字`;
+  document.getElementById('modalContent').textContent = item.content || '';
+  document.getElementById('analysisModal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('analysisModal').classList.remove('show');
+}
+
+async function deleteAnalysis(id) {
+  if (!confirm('確定要刪除這筆解析記錄嗎？刪除後無法恢復。')) return;
+  try {
+    await db.doc(`users/${currentUser.uid}/analyses/${id}`).delete();
+    analysesData = analysesData.filter(a => a.id !== id);
+    renderAnalyses(analysesData);
+    showToast('✅ 已刪除');
+  } catch(e) { showToast('❌ 刪除失敗，請再試'); }
+}
+
+// ===== 上傳解析 =====
+function clearUploadForm() {
+  document.getElementById('uploadTitle').value = '';
+  document.getElementById('uploadContent').value = '';
+  document.getElementById('uploadTags').value = '';
+  document.getElementById('uploadType').value = 'conversation';
+  updateCharCount();
+}
+
+function updateCharCount() {
+  const len = document.getElementById('uploadContent').value.length;
+  document.getElementById('charCount').textContent = `${len.toLocaleString()} / 50,000 字`;
+  document.getElementById('charCount').style.color = len > 45000 ? '#ffaaaa' : 'var(--text-faint)';
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.add('dragover');
+}
+function handleDragLeave(e) {
+  document.getElementById('dropZone').classList.remove('dragover');
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) readFile(file);
+}
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (file) readFile(file);
+}
+function readFile(file) {
+  if (file.size > 200000) { showToast('❌ 檔案太大了，請上傳 200KB 以內的文字檔'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('uploadContent').value = e.target.result.slice(0, 50000);
+    if (!document.getElementById('uploadTitle').value) {
+      document.getElementById('uploadTitle').value = file.name.replace(/\.[^.]+$/, '');
+    }
+    updateCharCount();
+    showToast('✅ 檔案載入成功');
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+async function saveAnalysis() {
+  if (!db || !currentUser) { showToast('❌ 請先登入'); return; }
+  const title = document.getElementById('uploadTitle').value.trim();
+  const content = document.getElementById('uploadContent').value.trim();
+  const type = document.getElementById('uploadType').value;
+  const tagsRaw = document.getElementById('uploadTags').value;
+  const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+  if (!title) { showToast('⚠️ 請輸入解析標題'); document.getElementById('uploadTitle').focus(); return; }
+  if (!content) { showToast('⚠️ 內容不能是空的'); document.getElementById('uploadContent').focus(); return; }
+  if (content.length > 50000) { showToast('❌ 內容超過 50,000 字限制'); return; }
+
+  try {
+    await db.collection(`users/${currentUser.uid}/analyses`).add({
+      title, content, type, tags,
+      wordCount: content.length,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await db.doc(`users/${currentUser.uid}`).set({
+      totalAnalyses: firebase.firestore.FieldValue.increment(1)
+    }, { merge: true });
+
+    userProfile.totalAnalyses = (userProfile.totalAnalyses || 0) + 1;
+    document.getElementById('statAnalyses').textContent = userProfile.totalAnalyses;
+
+    showToast('💎 解析記錄已存入你的城堡！');
+    clearUploadForm();
+    showPage('analyses');
+  } catch(e) { showToast('❌ 儲存失敗：' + e.message); }
+}
+
+// ===== 方案卡 =====
+function renderPlans(currentPlan) {
+  const grid = document.getElementById('plansGrid');
+  if (!grid) return;
+  grid.innerHTML = Object.entries(MEMBER_PLANS).map(([key, plan]) => {
+    const isCurrent = key === currentPlan;
+    const price = plan.price === 0 ? '免費' : `NT$ ${plan.price.toLocaleString()}`;
+    const priceUnit = plan.price === 0 ? '' : '<span>/ 月</span>';
+    return `<div class="plan-card ${isCurrent ? 'current' : ''}">
+      ${isCurrent ? '<div class="plan-current-badge">目前方案</div>' : ''}
+      <div class="plan-icon">${plan.icon}</div>
+      <div class="plan-name">${plan.name}</div>
+      <div class="plan-price">${price}${priceUnit}</div>
+      <ul class="plan-features">${plan.features.map(f => `<li>${f}</li>`).join('')}</ul>
+      <button class="btn-upgrade" ${isCurrent ? 'disabled' : ''} onclick="handleUpgrade('${key}')">
+        ${isCurrent ? '目前使用中' : '升級此方案'}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function handleUpgrade(plan) {
+  if (plan === 'free') return;
+  showToast('💳 付款功能即將開通，請 LINE 聯繫我們 ✨');
+  setTimeout(() => { window.open('https://lin.ee/OQDB5t6', '_blank'); }, 1500);
+}
+
+// ===== 個人資料功能 =====
+async function changePassword() {
+  if (!currentUser) return;
+  const p1 = document.getElementById('newPwd').value;
+  const p2 = document.getElementById('newPwd2').value;
+  const msg = document.getElementById('pwdMsg');
+  if (p1.length < 6) { msg.style.color='#ff9999'; msg.textContent='密碼至少 6 個字元'; return; }
+  if (p1 !== p2) { msg.style.color='#ff9999'; msg.textContent='兩次密碼不一樣'; return; }
+  try {
+    await currentUser.updatePassword(p1);
+    msg.style.color='#99ffbb'; msg.textContent='✅ 密碼已更新';
+    document.getElementById('newPwd').value = '';
+    document.getElementById('newPwd2').value = '';
+  } catch(e) {
+    if (e.code === 'auth/requires-recent-login') {
+      msg.style.color='#ffaaaa'; msg.textContent='請先登出再重新登入，才能修改密碼';
+    } else {
+      msg.style.color='#ff9999'; msg.textContent='更新失敗：' + e.message;
+    }
+  }
+}
+
+function confirmDeleteAccount() {
+  if (!confirm('⚠️ 真的要刪除帳號嗎？\n\n所有解析記錄和足跡都會永久消失，這個動作無法撤銷。\n\n確定要刪除？')) return;
+  if (!confirm('最後確認：刪除後所有資料無法恢復，確定繼續嗎？')) return;
+  deleteAccount();
+}
+
+async function deleteAccount() {
+  if (!currentUser || !db) return;
+  try {
+    // 刪除 Firestore 資料（基本刪除，子集合需用 Cloud Function）
+    await db.doc(`users/${currentUser.uid}`).delete();
+    await currentUser.delete();
+    window.location.href = 'index.html';
+  } catch(e) {
+    if (e.code === 'auth/requires-recent-login') {
+      showToast('請先登出重新登入，才能刪除帳號');
+    } else {
+      showToast('刪除失敗：' + e.message);
+    }
+  }
+}
+
+async function doLogout() {
+  if (!auth) return;
+  await auth.signOut();
+  window.location.href = 'index.html';
+}
+
+// ===== 工具函數 =====
+function formatTime(ms) {
+  const diff = Date.now() - ms;
+  if (diff < 60000) return '剛剛';
+  if (diff < 3600000) return `${Math.floor(diff/60000)} 分鐘前`;
+  if (diff < 86400000) return `${Math.floor(diff/3600000)} 小時前`;
+  if (diff < 604800000) return `${Math.floor(diff/86400000)} 天前`;
+  return new Date(ms).toLocaleDateString('zh-TW');
+}
+
+function formatDate(ms) {
+  const d = new Date(ms);
+  return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ESC 關閉彈窗
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+<script>if("serviceWorker"in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js").catch(()=>{})})}</script>
+</body>
+</html>
