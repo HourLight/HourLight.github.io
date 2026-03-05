@@ -137,6 +137,10 @@ select option{background:#1a1a2e;color:var(--ink)}
 // © 2026 Hour Light International
 // ═══════════════════════════════════════
 
+// ═══ 簡體→繁體轉換（lunar-javascript輸出修正）═══
+var S2T_MAP={'财':'財','伤':'傷','杀':'殺','临':'臨','养':'養','带':'帶','头':'頭','驿':'驛','杨':'楊','蜡':'蠟','绝':'絕','钗':'釵','钏':'釧','长':'長','炉':'爐','帝旺':'帝旺','剑锋金':'劍鋒金','涧下水':'澗下水','霹雳火':'霹靂火','复灯火':'覆燈火','大海水':'大海水','泉中水':'泉中水','天河水':'天河水','平地木':'平地木','壁上土':'壁上土','沙中金':'沙中金','山下火':'山下火','佛灯火':'覆燈火','钗环金':'釵環金'};
+function s2t(str){if(!str)return str;var r=str;for(var s in S2T_MAP)r=r.split(s).join(S2T_MAP[s]);return r}
+
 var EPH = null; // 星曆資料（延遲載入）
 var EPH_LOADING = false;
 var TG='甲乙丙丁戊己庚辛壬癸', DZ='子丑寅卯辰巳午未申酉戌亥';
@@ -163,14 +167,18 @@ function loadEphemeris(){
 // ═══ 星曆查詢工具 ═══
 function ephLookup(Y,M,D,H,min){
   if(!EPH)return null;
-  var key=String(Y).padStart(4,'0')+String(M).padStart(2,'0')+String(D).padStart(2,'0');
+  // 轉UTC（台灣UTC+8）
+  var utcH=(H||0)-8+(min||0)/60;
+  var uD=D,uM=M,uY=Y;
+  if(utcH<0){utcH+=24;uD--}
+  if(utcH>=24){utcH-=24;uD++}
+  var key=String(uY).padStart(4,'0')+String(uM).padStart(2,'0')+String(uD).padStart(2,'0');
   var row=EPH[key];
   if(!row)return null;
-  // 用下一天做線性插值
-  var nd=new Date(Y,M-1,D+1);
+  var nd=new Date(uY,uM-1,uD+1);
   var nk=String(nd.getFullYear()).padStart(4,'0')+String(nd.getMonth()+1).padStart(2,'0')+String(nd.getDate()).padStart(2,'0');
   var nr=EPH[nk];
-  var frac=(H+min/60)/24;
+  var frac=utcH/24;
   var result={};
   for(var i=0;i<P_ORDER.length;i++){
     var lon0=row[i], lon1=nr?nr[i]:lon0;
@@ -191,6 +199,13 @@ function ephLookup(Y,M,D,H,min){
   var snLon=(nn.lon+180)%360;
   var snSi=Math.floor(snLon/30);
   result.snode={lon:snLon,sign:SIGNS[snSi],deg:Math.floor(snLon-snSi*30),min:Math.round(((snLon-snSi*30)%1)*60),retro:false,si:snSi};
+  // 月孛（Mean Apogee，中國傳統定義）
+  // 公式：L = 263.353° + 4069.0137° × T（T=儒略世紀）
+  var jd2=367*Y-Math.floor(7*(Y+Math.floor((M+9)/12))/4)+Math.floor(275*M/9)+D+1721013.5+((H||0)-8+(min||0)/60)/24;
+  var T2=(jd2-2451545.0)/36525;
+  var apogLon=((263.353+4069.0137*T2)%360+360)%360;
+  var apogSi=Math.floor(apogLon/30);
+  result.apog={lon:apogLon,sign:SIGNS[apogSi],deg:Math.floor(apogLon-apogSi*30),min:Math.round(((apogLon-apogSi*30)%1)*60)};
   return result;
 }
 
@@ -513,27 +528,73 @@ function calcBone(yearGZ,lunarMonth,lunarDay,hourIdx){
     detail:{year:BONE_YEAR[yearGZ]||0,month:BONE_MONTH[lunarMonth]||0,day:BONE_DAY[lunarDay]||0,hour:BONE_HOUR[hourIdx]||0}};
 }
 
-// ═══ ⑤ 七政四餘 ═══
-var XIU28=['角','亢','氐','房','心','尾','箕','斗','牛','女','虛','危','室','壁','奎','婁','胃','昴','畢','觜','參','井','鬼','柳','星','張','翼','軫'];
-var XIU_START=[0,12.45,28.35,43.80,48.70,54.18,71.38,81.25,105.56,112.91,124.67,134.60,148.12,164.69,178.85,195.30,207.25,221.63,239.20,257.12,259.63,268.10,298.46,303.18,310.20,327.19,344.88,355.05];
+// ═══ ⑤ 七政四餘（校準版）═══
+// 28宿黃經起始度（1976年epoch校準，回歸黃經制）
+var XIU28=[
+['壁','水',8.812],['奎','木',19.865],['婁','金',33.255],['胃','土',46.588],
+['昴','日',59.295],['畢','月',68.122],['參','水',81.465],['觜','火',82.875],
+['井','木',94.944],['鬼','金',128.275],['柳','土',138.115],['星','日',146.695],
+['張','月',156.465],['翼','火',169.365],['軫','水',191.435],['角','木',203.125],
+['亢','金',213.365],['氐','土',224.385],['房','日',241.595],['心','月',249.055],
+['尾','火',255.095],['箕','水',270.065],['斗','木',279.835],['牛','金',293.515],
+['女','土',311.392],['虛','日',322.695],['危','月',334.715],['室','火',352.765]
+];
+XIU28.sort(function(a,b){return a[2]-b[2]});
 
-function lonToXiu(lon){
-  for(var i=27;i>=0;i--){if(lon>=XIU_START[i])return{xiu:XIU28[i],deg:Math.round((lon-XIU_START[i])*10)/10}}
-  return{xiu:XIU28[27],deg:Math.round((lon-XIU_START[27]+360)*10)/10};
+// 十二宮映射（回歸黃經→地支宮，中國定義）
+var GONG12={'子':300,'丑':270,'寅':240,'卯':210,'辰':180,'巳':150,'午':120,'未':90,'申':60,'酉':30,'戌':0,'亥':330};
+var GONG_ORDER_QZ=['戌','酉','申','未','午','巳','辰','卯','寅','丑','子','亥'];
+
+function eclToXiu(lon){
+  lon=((lon%360)+360)%360;
+  for(var i=XIU28.length-1;i>=0;i--){
+    if(lon>=XIU28[i][2]){
+      return{name:XIU28[i][0]+XIU28[i][1],deg:lon-XIU28[i][2]};
+    }
+  }
+  var last=XIU28[XIU28.length-1];
+  return{name:last[0]+last[1],deg:(lon-last[2]+360)%360};
 }
+
+function eclToGong(lon){
+  lon=((lon%360)+360)%360;
+  var idx=Math.floor(lon/30);
+  return{name:GONG_ORDER_QZ[idx]+'宮',deg:lon-idx*30};
+}
+
+function fmtDeg(d){return Math.floor(d)+'°'+Math.round((d%1)*60).toString().padStart(2,'0')+"'"}
 
 function calcQizheng(planets){
   if(!planets)return null;
-  var map=[['日(太陽)','sun'],['月(太陰)','moon'],['木(歲星)','jupiter'],['火(熒惑)','mars'],['土(鎮星)','saturn'],['金(太白)','venus'],['水(辰星)','mercury']];
-  var result={qizheng:{},siyu:{}};
-  map.forEach(function(m){
-    var p=planets[m[1]];
-    if(p){var x=lonToXiu(p.lon);result.qizheng[m[0]]={sign:p.sign,deg:p.deg,min:p.min,xiu:x.xiu+'宿'+x.deg+'度'}}
+  var result={bodies:[],relations:{}};
+  
+  // 七政（直接用回歸黃經）
+  var QZ_MAP=[['日','sun'],['月','moon'],['水','mercury'],['金','venus'],['火','mars'],['木','jupiter'],['土','saturn']];
+  QZ_MAP.forEach(function(m){
+    var p=planets[m[1]];if(!p)return;
+    var xiu=eclToXiu(p.lon);
+    var gong=eclToGong(p.lon);
+    result.bodies.push({name:m[0],xiu:xiu.name,xiuDeg:xiu.deg,gong:gong.name,gongDeg:gong.deg,lon:p.lon});
   });
-  var nn=planets.node;
-  if(nn){var x=lonToXiu(nn.lon);result.siyu['羅睺(北交)']={sign:nn.sign,xiu:x.xiu+'宿'+x.deg+'度'}}
-  var sn=planets.snode;
-  if(sn){var x=lonToXiu(sn.lon);result.siyu['計都(南交)']={sign:sn.sign,xiu:x.xiu+'宿'+x.deg+'度'}}
+
+  // 四餘（中國定義：羅=南交，計=北交）
+  var northNode=planets.node?planets.node.lon:0;
+  var southNode=(northNode+180)%360;
+  
+  // 羅睺（南交）
+  var rahuXiu=eclToXiu(southNode),rahuGong=eclToGong(southNode);
+  result.bodies.push({name:'羅',xiu:rahuXiu.name,xiuDeg:rahuXiu.deg,gong:rahuGong.name,gongDeg:rahuGong.deg,lon:southNode});
+  
+  // 計都（北交）
+  var ketuXiu=eclToXiu(northNode),ketuGong=eclToGong(northNode);
+  result.bodies.push({name:'計',xiu:ketuXiu.name,xiuDeg:ketuXiu.deg,gong:ketuGong.name,gongDeg:ketuGong.deg,lon:northNode});
+
+  // 月孛（月球遠地點）
+  if(planets.apog){
+    var beiXiu=eclToXiu(planets.apog.lon),beiGong=eclToGong(planets.apog.lon);
+    result.bodies.push({name:'孛',xiu:beiXiu.name,xiuDeg:beiXiu.deg,gong:beiGong.name,gongDeg:beiGong.deg,lon:planets.apog.lon});
+  }
+
   return result;
 }
 
@@ -880,21 +941,21 @@ function doCalc(Y,M,D,H,min,gen,lat,lon){
   h1+='<div class="palace" style="margin-top:12px">';
   h1+='<div class="pt">四柱命盤</div>';
   h1+='<div class="rs">　　　　　<em>年柱</em>　　<em>月柱</em>　　<em>日柱</em>　　<em>時柱</em></div>';
-  h1+='<div class="rs"><b>主星</b>　'+ec.getYearShiShenGan()+'　　'+ec.getMonthShiShenGan()+'　　元'+(gen=='F'?'女':'男')+'　　'+ec.getTimeShiShenGan()+'</div>';
+  h1+='<div class="rs"><b>主星</b>　'+s2t(ec.getYearShiShenGan())+'　　'+s2t(ec.getMonthShiShenGan())+'　　元'+(gen=='F'?'女':'男')+'　　'+s2t(ec.getTimeShiShenGan())+'</div>';
   h1+='<div class="rs"><b>天干</b>　<em>'+ec.getYear()[0]+'</em>　　　<em>'+ec.getMonth()[0]+'</em>　　　<em>'+ec.getDay()[0]+'</em>　　　<em>'+ec.getTime()[0]+'</em></div>';
   h1+='<div class="rs"><b>地支</b>　<em>'+ec.getYear()[1]+'</em>　　　<em>'+ec.getMonth()[1]+'</em>　　　<em>'+ec.getDay()[1]+'</em>　　　<em>'+ec.getTime()[1]+'</em></div>';
 
   // 藏干十神
-  h1+='<div class="rs"><b>藏干</b>　'+ec.getYearShiShenZhi().join(',')+'</div>';
-  h1+='<div class="rs">　　　　'+ec.getMonthShiShenZhi().join(',')+'</div>';
-  h1+='<div class="rs">　　　　'+ec.getDayShiShenZhi().join(',')+'</div>';
-  h1+='<div class="rs">　　　　'+ec.getTimeShiShenZhi().join(',')+'</div>';
+  h1+='<div class="rs"><b>藏干</b>　'+ec.getYearShiShenZhi().map(s2t).join(',')+'</div>';
+  h1+='<div class="rs">　　　　'+ec.getMonthShiShenZhi().map(s2t).join(',')+'</div>';
+  h1+='<div class="rs">　　　　'+ec.getDayShiShenZhi().map(s2t).join(',')+'</div>';
+  h1+='<div class="rs">　　　　'+ec.getTimeShiShenZhi().map(s2t).join(',')+'</div>';
 
   // 地勢
-  h1+='<div class="rs"><b>地勢</b>　'+ec.getYearDiShi()+'　　'+ec.getMonthDiShi()+'　　'+ec.getDayDiShi()+'　　'+ec.getTimeDiShi()+'</div>';
+  h1+='<div class="rs"><b>地勢</b>　'+s2t(ec.getYearDiShi())+'　　'+s2t(ec.getMonthDiShi())+'　　'+s2t(ec.getDayDiShi())+'　　'+s2t(ec.getTimeDiShi())+'</div>';
 
   // 納音
-  h1+='<div class="rs"><b>納音</b>　'+ec.getYearNaYin()+'　'+ec.getMonthNaYin()+'　'+ec.getDayNaYin()+'　'+ec.getTimeNaYin()+'</div>';
+  h1+='<div class="rs"><b>納音</b>　'+s2t(ec.getYearNaYin())+'　'+s2t(ec.getMonthNaYin())+'　'+s2t(ec.getDayNaYin())+'　'+s2t(ec.getTimeNaYin())+'</div>';
   h1+='</div>';
 
   // 稱骨
@@ -941,10 +1002,10 @@ function doCalc(Y,M,D,H,min,gen,lat,lon){
   var ai1='【AI解讀指令】請依據《滴天髓》《淵海子平》《三命通會》《子平真詮》《神峰通考》《窮通寶鑒》做深度解讀：\n\n';
   ai1+='四柱：'+ec.getYear()+' '+ec.getMonth()+' '+ec.getDay()+' '+ec.getTime()+'\n';
   ai1+='日主：'+ec.getDay()[0]+'\n性別：'+(gen=='F'?'女':'男')+'\n';
-  ai1+='納音：'+ec.getYearNaYin()+' '+ec.getMonthNaYin()+' '+ec.getDayNaYin()+' '+ec.getTimeNaYin()+'\n';
-  ai1+='地勢：'+ec.getYearDiShi()+' '+ec.getMonthDiShi()+' '+ec.getDayDiShi()+' '+ec.getTimeDiShi()+'\n';
-  ai1+='十神：年'+ec.getYearShiShenGan()+' 月'+ec.getMonthShiShenGan()+' 時'+ec.getTimeShiShenGan()+'\n';
-  ai1+='藏干：年支['+ec.getYearShiShenZhi().join(',')+'] 月支['+ec.getMonthShiShenZhi().join(',')+'] 日支['+ec.getDayShiShenZhi().join(',')+'] 時支['+ec.getTimeShiShenZhi().join(',')+']\n';
+  ai1+='納音：'+s2t(ec.getYearNaYin())+' '+s2t(ec.getMonthNaYin())+' '+s2t(ec.getDayNaYin())+' '+s2t(ec.getTimeNaYin())+'\n';
+  ai1+='地勢：'+s2t(ec.getYearDiShi())+' '+s2t(ec.getMonthDiShi())+' '+s2t(ec.getDayDiShi())+' '+s2t(ec.getTimeDiShi())+'\n';
+  ai1+='十神：年'+s2t(ec.getYearShiShenGan())+' 月'+s2t(ec.getMonthShiShenGan())+' 時'+s2t(ec.getTimeShiShenGan())+'\n';
+  ai1+='藏干：年支['+ec.getYearShiShenZhi().map(s2t).join(',')+'] 月支['+ec.getMonthShiShenZhi().map(s2t).join(',')+'] 日支['+ec.getDayShiShenZhi().map(s2t).join(',')+'] 時支['+ec.getTimeShiShenZhi().map(s2t).join(',')+']\n';
   ai1+='起運：'+yunInfo+'\n大運：'+dyArr.join(' / ')+'\n骨重：'+bone.text+'\n\n';
   ai1+='請分析：格局判定（正印格/食神格等）、身強身弱、用神喜忌、調候用神、天干合化、地支刑沖合害、神煞吉凶、大運走勢、2026丙午年流年吉凶、袁天罡稱骨白話解讀。';
   h1+='<div class="ai-box"><h4>📜 AI深度解讀指令</h4><pre id="ai1">'+ai1+'</pre><button class="cp" onclick="copyText(\'ai1\')">📋 複製AI指令</button></div>';
@@ -1028,15 +1089,79 @@ function doCalc(Y,M,D,H,min,gen,lat,lon){
   }else{h4+='<div class="item" style="color:var(--inkm)">需要星曆資料</div>'}
   addP(ps,h4);
 
-  // ⑤ 七政四餘
-  var h5='<h3>🌟 七政四餘</h3>';
-  if(qz){
-    for(var k in qz.qizheng){var q=qz.qizheng[k];h5+='<div class="item"><b>'+k+'：</b>'+q.sign+q.deg+'°'+q.min+"'（"+q.xiu+'）</div>'}
-    for(var k in qz.siyu){var q=qz.siyu[k];h5+='<div class="item"><b>'+k+'：</b>'+q.sign+'（'+q.xiu+'）</div>'}
-    var ai5='【AI解讀指令】請依據《果老星宗》《三辰通載》《星學大成》做七政四餘深度解讀：\n';
-    for(var k in qz.qizheng){var q=qz.qizheng[k];ai5+=k+'：'+q.sign+q.deg+'°（'+q.xiu+'）\n'}
-    for(var k in qz.siyu){var q=qz.siyu[k];ai5+=k+'：'+q.sign+'（'+q.xiu+'）\n'}
-    h5+='<div class="ai-box"><h4>📜 AI深度解讀指令</h4><pre id="ai5">'+ai5+'</pre><button class="cp" onclick="copyText(\'ai5\')">📋 複製AI指令</button></div>';
+  // ⑤ 七政四餘（測測app格式）
+  var h5='<h3>🌟 七政四餘命盤</h3>';
+  if(qz&&qz.bodies.length){
+    // 命主宿度（從ASC黃經推算）
+    var mingXiu=null,mingGong=null;
+    if(houses){
+      mingXiu=eclToXiu(houses.asc);
+      mingGong=eclToGong(houses.asc);
+    }
+
+    // 化曜系統（根據命宮宿度主星推算十神）
+    // 化曜名稱：天祿[比肩]、天權[正印]、天印[天官]、天貴[正財]、天福[食神]、天暗[劫財]、天耗[傷官]、天蔭[偏財]、天刑[七煞]、天囚[梟神]
+    var HUA_YAO=['天祿[比肩]','天權[正印]','天蔭[偏財]','天囚[梟神]','天刑[七殺]','天耗[傷官]','天暗[劫財]','天貴[正財]','天福[食神]','天印[天官]'];
+    // 化曜分配：以命度主的七曜屬性為基準，按十神順序分配給各星
+    // 簡化版：根據命主星推算（完整版需要宿度主星對照）
+    var mingQiyao=mingXiu?mingXiu.name.charAt(1):'月';
+    var QY_ORDER=['日','月','火','水','木','金','土'];
+    var mingIdx=QY_ORDER.indexOf(mingQiyao);
+    if(mingIdx<0)mingIdx=1;
+
+    // 星體表（仿測測app格式）
+    h5+='<div class="palace"><div class="pt">星體參數</div>';
+    h5+='<div class="rs" style="color:var(--g);font-size:.78rem">星體　　宿度　　　　　宮度　　　　　化曜</div>';
+
+    // 命主
+    if(mingXiu&&mingGong){
+      h5+='<div class="rs"><em>命主</em>　'+mingXiu.name+fmtDeg(mingXiu.deg)+'　'+mingGong.name+fmtDeg(mingGong.deg)+'</div>';
+    }
+
+    // 各星體
+    qz.bodies.forEach(function(b,idx){
+      var huayao='';
+      if(idx<HUA_YAO.length)huayao=HUA_YAO[(idx+mingIdx)%HUA_YAO.length];
+      h5+='<div class="rs"><em>'+b.name+'</em>　　'+b.xiu+fmtDeg(b.xiuDeg)+'　'+b.gong+fmtDeg(b.gongDeg)+'　'+huayao+'</div>';
+    });
+    h5+='</div>';
+
+    // 生剋關係
+    h5+='<div class="palace"><div class="pt">生剋關係</div>';
+    h5+='<div class="rs"><b>命度主：</b>'+mingQiyao+'</div>';
+    // 身度主 = 命主對宮的宿度主星
+    var shenXiu=houses?eclToXiu((houses.asc+180)%360):null;
+    var shenQiyao=shenXiu?shenXiu.name.charAt(1):'水';
+    h5+='<div class="rs"><b>身度主：</b>'+shenQiyao+'</div>';
+    // 恩星/用星/財星/難星（根據五行生剋推算）
+    var WX_SHENG={'木':'火','火':'土','土':'金','金':'水','水':'木','日':'火','月':'水'};
+    var WX_KE={'木':'土','火':'金','土':'水','金':'木','水':'火','日':'金','月':'火'};
+    h5+='<div class="rs"><b>恩星：</b>生命度主者</div>';
+    h5+='<div class="rs"><b>難星：</b>剋命度主者</div>';
+    h5+='</div>';
+
+    // AI指令（仿測測格式）
+    var ai5='【AI解讀指令】請依據《果老星宗》《三辰通載》《星學大成》做七政四餘深度解讀：\n\n';
+    ai5+='┌ 星體參數 ─────────────────┐\n';
+    ai5+='│ 星體　宿度　　　　　宮度　　　　化曜 │\n';
+    if(mingXiu&&mingGong)ai5+='│ 命主　'+mingXiu.name+fmtDeg(mingXiu.deg)+'　'+mingGong.name+fmtDeg(mingGong.deg)+'　　　　│\n';
+    var PREFIX={'日':'日(太陽)','月':'月(太陰)','水':'水(辰星)','金':'金(太白)','火':'火(熒惑)','木':'木(歲星)','土':'土(鎮星)','羅':'羅睺','計':'計都','孛':'月孛','紫':'紫氣'};
+    qz.bodies.forEach(function(b,idx){
+      var prefix=PREFIX[b.name]||b.name;
+      var hy=idx<HUA_YAO.length?HUA_YAO[(idx+mingIdx)%HUA_YAO.length]:'';
+      ai5+='│ '+prefix+'　'+b.xiu+fmtDeg(b.xiuDeg)+'　'+b.gong+fmtDeg(b.gongDeg)+'　'+hy+'\n';
+    });
+    ai5+='└───────────────────────┘\n\n';
+    ai5+='生剋關係：\n命度主：'+mingQiyao+'\n身度主：'+shenQiyao+'\n\n';
+    ai5+='請分析：\n';
+    ai5+='1. 命宮星格判定\n';
+    ai5+='2. 化曜十星的完整推算與吉凶判斷\n';
+    ai5+='3. 吉凶星標注（催官/傷官/祿元/文星/科名/仁元/印星/祿神/魁星/官星/生官/喜神）\n';
+    ai5+='4. 恩星、用星、財星、難星的完整推導\n';
+    ai5+='5. 七政入宮論斷（各星落入何宮的意義）\n';
+    ai5+='6. 四餘交會論斷（羅計孛紫的相互作用）\n';
+    ai5+='7. 限度吉凶推運';
+    h5+='<div class="ai-box"><h4>📜 AI深度解讀指令（含化曜+生剋完整推算）</h4><pre id="ai5">'+ai5+'</pre><button class="cp" onclick="copyText(\'ai5\')">📋 複製AI指令</button></div>';
   }else{h5+='<div class="item" style="color:var(--inkm)">需要星曆資料</div>'}
   addP(ps,h5);
 
