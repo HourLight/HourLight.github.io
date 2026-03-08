@@ -88,16 +88,120 @@
 .more-card:hover{border-color:rgba(233,194,125,0.35);background:rgba(233,194,125,0.05);color:#f7efe1;-webkit-text-fill-color:#f7efe1}
 .more-card-icon{font-size:1.5rem;display:block;margin-bottom:6px}
 
+/* ===== 馥靈稱號卡片 ===== */
+.hl-title-reveal {
+  margin-bottom: 24px;
+  animation: titleGlow 0.8s ease-out;
+}
+@keyframes titleGlow {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.hl-title-card {
+  background: linear-gradient(145deg, rgba(20,10,40,0.96), rgba(12,6,24,0.96));
+  border: 1px solid rgba(233,194,125,0.45);
+  border-radius: 24px;
+  padding: 36px 28px 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hl-title-card::before {
+  content: '';
+  position: absolute;
+  top: -60px; left: 50%; transform: translateX(-50%);
+  width: 240px; height: 240px;
+  background: radial-gradient(circle, rgba(233,194,125,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hl-title-eyebrow {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.78rem;
+  font-style: italic;
+  letter-spacing: 5px;
+  color: rgba(233,194,125,0.7);
+  margin-bottom: 10px;
+}
+.hl-title-icon {
+  font-size: 3.2rem;
+  display: block;
+  margin-bottom: 14px;
+  animation: float 3s ease-in-out infinite;
+}
+.hl-title-main {
+  font-family: 'LXGW WenKai TC', 'Noto Serif TC', serif;
+  font-size: clamp(1.7rem, 5vw, 2.4rem);
+  font-weight: 400;
+  color: #f7efe1;
+  letter-spacing: 4px;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #f7efe1 30%, #e9c27d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hl-title-sub {
+  font-size: 0.95rem;
+  color: #c4b7a6;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+.hl-title-divider {
+  width: 48px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(233,194,125,0.5), transparent);
+  margin: 0 auto 24px;
+}
+.hl-title-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+.hl-title-tag {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(233,194,125,0.18);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+.hl-title-tag-label {
+  font-size: 0.68rem;
+  letter-spacing: 2px;
+  color: rgba(233,194,125,0.65);
+  margin-bottom: 6px;
+}
+.hl-title-tag-value {
+  font-size: 0.88rem;
+  color: #f0e8d8;
+  line-height: 1.5;
+  font-family: 'LXGW WenKai TC', serif;
+}
+.hl-title-quote {
+  font-family: 'LXGW WenKai TC', serif;
+  font-size: 1rem;
+  color: rgba(233,194,125,0.85);
+  line-height: 1.85;
+  padding: 16px 20px;
+  background: rgba(233,194,125,0.07);
+  border-left: 2px solid rgba(233,194,125,0.4);
+  border-radius: 0 12px 12px 0;
+  text-align: left;
+}
+.hl-title-combo-hint {
+  font-size: 0.75rem;
+  color: rgba(200,185,170,0.55);
+  margin-top: 18px;
+  letter-spacing: 1px;
+}
+@media (max-width: 480px) {
+  .hl-title-grid { grid-template-columns: 1fr; }
+  .hl-title-card { padding: 28px 18px 24px; }
+}
+
 /* ===== 奶油浮雕底圖覆蓋 ===== */
 .hl-cosmos {
-  background:
-    linear-gradient(rgba(10,6,20,0.48), rgba(10,6,20,0.48)),
-    url('background.jpg');
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
+  background: transparent;
 }
-.hl-stars-layer, .hl-meteors, .hl-aura { opacity: 0.35; }
+.hl-stars-layer, .hl-meteors, .hl-aura { opacity: 0.85; }
 
 /* ── 馥靈之鑰 LOGO 圖標 ── */
 .hl-logo-icon {
@@ -164,6 +268,7 @@
   <div id="questionsArea"></div>
 
   <div class="quiz-result" id="quizResult">
+    <div class="hl-title-reveal" id="hlTitleReveal"></div>
     <div class="result-hero" id="resultHero"></div>
     <div class="ocean-bars" id="oceanBars"></div>
     <div class="result-section" id="rO"></div>
@@ -399,9 +504,67 @@ function showResult(){
     <div class="hour-bridge-text">${bridgeMap[topTrait[0]]||bridgeMap['O']}</div>
     <a href="draw-hl.html" class="hour-bridge-cta">抽一張牌，聽聽自己的聲音 ✨</a>`;
 
+  // ===== 馥靈稱號系統 =====
+  const hlTitles = {
+    'O-C': { icon:'🏗️', title:'藍圖織造師', sub:'你既能看見可能性，又能把它做出來。你不只是夢想家，你是把夢想蓋成建築的人。', castle:'解鎖密室（U 區）', hour:'Unlock ✦ 潛能解鎖', oil:'雪松 · 迷迭香', quote:'你最稀有的能力，是「我看到了，而且我做得到」同時存在一個人身上。' },
+    'O-E': { icon:'🔥', title:'點燃者', sub:'你的想法是火種，你的存在讓它燃起來。你到哪裡，哪裡就開始有了可能。', castle:'王座塔（R 區）', hour:'Rise ✦ 行動進化', oil:'甜橙 · 佛手柑', quote:'你不只是帶光的人，你是讓別人發現自己也有光的那道火。' },
+    'O-A': { icon:'🌿', title:'溫柔先知', sub:'你看見別人還沒看到的，但你用最溫柔的方式說出來，所以人家願意聽。', castle:'覺察廳（O 區）', hour:'Own ✦ 智慧辨識', oil:'洋甘菊 · 薰衣草', quote:'你的溫柔不是軟弱，是你選擇用理解代替評判——這其實比勇敢更難。' },
+    'O-N': { icon:'🌊', title:'靜靜的革命者', sub:'思想上無比活躍，情緒上卻異常穩定。你的創意從不失控，因為你有一個很穩的根基。', castle:'解鎖密室（U 區）', hour:'Unlock ✦ 潛能解鎖', oil:'乳香 · 廣藿香', quote:'最厲害的革命不是喧囂的，是那個一直安靜把事情做出來的人。' },
+    'C-O': { icon:'🔭', title:'精密夢想家', sub:'你的夢想不只是夢，你有系統把它一塊一塊建出來。你的完成清單比別人的願景清單還長。', castle:'解鎖密室（U 區）', hour:'Unlock ✦ 潛能解鎖', oil:'迷迭香 · 薄荷', quote:'你知道「可能性」和「計畫」不是對立的——它們合在你身上，就是現實。' },
+    'C-E': { icon:'⚙️', title:'動能引擎', sub:'你又能做、又能衝，你的節奏讓整個團隊都跟著動起來。你的「完成」帶有感染力。', castle:'王座塔（R 區）', hour:'Rise ✦ 行動進化', oil:'尤加利 · 薑', quote:'你不只是做事快，是你做事的樣子讓別人也覺得「我也可以」。' },
+    'C-A': { icon:'🛡️', title:'溫暖守衛者', sub:'你用行動照顧別人，默默把所有事情撐起來，讓周圍的人不知不覺就靠在你身上了。', castle:'休憩塔（H 區）', hour:'Heal ✦ 身心校準', oil:'玫瑰 · 天竺葵', quote:'你最大的盲點，是忘了問自己：「誰在照顧你？」' },
+    'C-N': { icon:'⚓', title:'磐石', sub:'你不只穩定，你讓別人的世界也跟著穩定下來。你的存在本身就是一種安全感。', castle:'休憩塔（H 區）', hour:'Heal ✦ 身心校準', oil:'檀香 · 岩蘭草', quote:'最大的力量不是劇烈的，是那個一直在、一直穩的那一個。' },
+    'E-O': { icon:'✨', title:'故事播種者', sub:'你到哪裡都在說一個讓人想聽下去的故事，而且你說的每個故事裡，都藏著一個新的可能性。', castle:'覺察廳（O 區）', hour:'Own ✦ 智慧辨識', oil:'佛手柑 · 甜橙', quote:'你最獨特的地方，是你能讓別人在你的故事裡看見自己。' },
+    'E-C': { icon:'🎯', title:'催化劑', sub:'你既有感染力，又有執行力。你不只能讓大家興奮，你還能把那個興奮變成真的東西。', castle:'王座塔（R 區）', hour:'Rise ✦ 行動進化', oil:'薄荷 · 甜橙', quote:'少了你這件事根本不會開始，有了你這件事才真的做完——這就是催化劑。' },
+    'E-A': { icon:'🌸', title:'人間太陽', sub:'你讓任何空間都充滿溫度。人們靠近你，不是因為你有什麼，是因為在你旁邊他們覺得自己更好了。', castle:'休憩塔（H 區）', hour:'Heal ✦ 身心校準', oil:'伊蘭 · 玫瑰', quote:'真正的太陽不是耀眼，是讓萬物覺得「我可以生長」。' },
+    'E-N': { icon:'🌪️', title:'暴風眼', sub:'颶風中心最平靜的那個點，就是你。你能量充沛卻不失控，熱鬧但不失重心。', castle:'覺察廳（O 區）', hour:'Own ✦ 智慧辨識', oil:'薰衣草 · 雪松', quote:'你的魔法是：你讓一切動起來，但你自己知道站在哪裡。' },
+    'A-O': { icon:'🌉', title:'橋的建造者', sub:'你用理解連結不同的人和想法。你最擅長的，是讓本來說不上話的兩邊，找到共同語言。', castle:'覺察廳（O 區）', hour:'Own ✦ 智慧辨識', oil:'茉莉 · 依蘭', quote:'世界上最需要的技能，是讓不同的人覺得「被理解了」——你天生就會。' },
+    'A-C': { icon:'🌹', title:'溫暖系完美主義者', sub:'你照顧別人和照顧事情同樣認真，但你照顧自己的方式，常常是最後才想到的那個。', castle:'休憩塔（H 區）', hour:'Heal ✦ 身心校準', oil:'玫瑰 · 乳香', quote:'你對別人的標準叫做「用心」，對自己的標準叫做「夠了嗎」——這個標準不對稱，值得好好看一眼。' },
+    'A-E': { icon:'💫', title:'引力場', sub:'不需要做什麼，人就往你身邊靠。你的溫暖和活力合在一起，讓你成為任何地方的引力中心。', castle:'休憩塔（H 區）', hour:'Heal ✦ 身心校準', oil:'甜橙 · 天竺葵', quote:'你最不知道的事，是你對別人的影響有多深。' },
+    'A-N': { icon:'🏖️', title:'深水港', sub:'任何人靠近你都會覺得安全。你是那種讓別人可以說出「我從來沒跟別人說過這件事」的人。', castle:'休憩塔（H 區）', hour:'Heal ✦ 身心校準', oil:'岩蘭草 · 廣藿香', quote:'你給別人的安全感，是這個時代最稀缺的東西之一。' },
+    'N-O': { icon:'🔍', title:'深海探測器', sub:'你的穩定不是沒有感受，是你能在感受的同時，還繼續往深處看。這是非常高階的覺察力。', castle:'解鎖密室（U 區）', hour:'Unlock ✦ 潛能解鎖', oil:'乳香 · 迷迭香', quote:'你看得到別人沒看到的層次，而且你不會因為看到深處而動搖。' },
+    'N-C': { icon:'🏔️', title:'長跑冠軍', sub:'你不需要爆發力，你用穩定和紀律把別人衝了又停的事做完了。你的勝利是時間換來的。', castle:'王座塔（R 區）', hour:'Rise ✦ 行動進化', oil:'迷迭香 · 雪松', quote:'你的超能力叫做「持續」——這比天分更難得。' },
+    'N-E': { icon:'🕯️', title:'有重量的光', sub:'你不是空洞的歡樂，你的溫暖有深度。你能讓別人感到開心，同時也感到被真正看見。', castle:'覺察廳（O 區）', hour:'Own ✦ 智慧辨識', oil:'佛手柑 · 廣藿香', quote:'最有力量的光，是那個在黑暗裡也不晃動的那種。' },
+    'N-A': { icon:'🌙', title:'月光守護者', sub:'你的穩定和溫柔合在一起，讓你成為別人最想在脆弱時候靠近的人。你不需要說很多，你只要在。', castle:'休憩塔（H 區）', hour:'Heal ✦ 身心校準', oil:'洋甘菊 · 岩蘭草', quote:'有些人是太陽，有些人是月亮——月亮的陪伴，在最黑的夜裡才顯出它的珍貴。' },
+  };
+
+  // 決定稱號組合
+  const top1 = sorted[0][0];
+  const top2 = sorted[1][0];
+  const titleKey1 = `${top1}-${top2}`;
+  const titleKey2 = `${top2}-${top1}`;
+  const titleData = hlTitles[titleKey1] || hlTitles[titleKey2] || hlTitles['O-C'];
+
+  document.getElementById('hlTitleReveal').innerHTML = `
+    <div class="hl-title-card">
+      <div class="hl-title-eyebrow">Hour Light ✦ 你的馥靈稱號</div>
+      <span class="hl-title-icon">${titleData.icon}</span>
+      <div class="hl-title-main">${titleData.title}</div>
+      <div class="hl-title-sub">${titleData.sub}</div>
+      <div class="hl-title-divider"></div>
+      <div class="hl-title-grid">
+        <div class="hl-title-tag">
+          <div class="hl-title-tag-label">✦ 城堡守護宮</div>
+          <div class="hl-title-tag-value">${titleData.castle}</div>
+        </div>
+        <div class="hl-title-tag">
+          <div class="hl-title-tag-label">✦ H.O.U.R. 最大天賦</div>
+          <div class="hl-title-tag-value">${titleData.hour}</div>
+        </div>
+        <div class="hl-title-tag" style="grid-column:1/-1">
+          <div class="hl-title-tag-label">✦ 你的精油指引</div>
+          <div class="hl-title-tag-value">🌿 ${titleData.oil}</div>
+        </div>
+      </div>
+      <div class="hl-title-quote">「${titleData.quote}」</div>
+      <div class="hl-title-combo-hint">由你的前兩強維度 ${sorted[0][2]}（${sorted[0][1]}%）× ${sorted[1][2]}（${sorted[1][1]}%）共同決定</div>
+    </div>`;
+
+  // 更新分享文字，加入稱號
+  window._resultText=`【馥靈之鑰 Big Five 五大人格】\n開放性 ${pct.O}% ・ 盡責性 ${pct.C}% ・ 外向性 ${pct.E}% ・ 親和性 ${pct.A}% ・ 情緒穩定 ${pct.N_stable}%\n最突出的特質：${names[topTrait[0]]||''}\n✦ 馥靈稱號：${titleData.title}\n\n測你的五種原力 👉 hourlightkey.com/quiz-bigfive.html`;
+
   document.getElementById('quizResult').classList.add('active');
   document.getElementById('quizResult').scrollIntoView({behavior:'smooth',block:'start'});
-  window._resultText=`【馥靈之鑰 Big Five 五大人格】\n開放性 ${pct.O}% ・ 盡責性 ${pct.C}% ・ 外向性 ${pct.E}% ・ 親和性 ${pct.A}% ・ 情緒穩定 ${pct.N_stable}%\n最突出的特質：${names[topTrait[0]]||''}\n\n測你的五種原力 👉 hourlightkey.com/quiz-bigfive.html`;
 }
 
 function copyResult(){if(window._resultText)navigator.clipboard.writeText(window._resultText).then(()=>alert('已複製！'));}
@@ -412,6 +575,14 @@ function restartQuiz(){answers={};currentQ=0;document.getElementById('quizResult
 <script src="assets/js/hourlight-global.js"></script>
   <script>if("serviceWorker"in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js").catch(()=>{})})}</script>
   <script src="assets/js/firebase-config.js"></script>
-  <script src="assets/js/hl-member.js"></script>
+
+<!-- HL Auth Gate + Tracking -->
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-auth-gate.js"
+  data-tool="quiz-bigfive"
+  data-tool-name="大五人格測驗"
+  data-tool-name-en="Big Five Quiz"
+  data-tool-type="quiz">
+</script>
 </body>
 </html>

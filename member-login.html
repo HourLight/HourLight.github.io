@@ -381,6 +381,7 @@ body {
   filter: drop-shadow(0 0 18px rgba(233,194,125,0.55));
 }
 </style>
+<link rel="icon" href="favicon.ico">
 </head>
 <body>
 
@@ -634,11 +635,15 @@ async function doRegister() {
       email,
       displayName: name,
       plan: 'free',
+      role: 'guest',
       planExpiry: null,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
       totalDraws: 0,
-      totalAnalyses: 0
+      totalAnalyses: 0,
+      totalQuizzes: 0,
+      totalCalcs: 0,
+      totalPageViews: 0
     });
 
     showMsg('🎉 歡迎加入！正在進入你的城堡...', 'success');
@@ -670,12 +675,19 @@ async function doGoogleLogin() {
         email: user.email,
         displayName: user.displayName || user.email.split('@')[0],
         plan: 'free',
+        role: 'guest',
         planExpiry: null,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
         totalDraws: 0,
-        totalAnalyses: 0
+        totalAnalyses: 0,
+        totalQuizzes: 0,
+        totalCalcs: 0,
+        totalPageViews: 0
       });
+    } else if (!snap.data().role) {
+      // 舊用戶補寫 role 字段
+      await docRef.set({ role: 'guest' }, { merge: true });
     }
     // onAuthStateChanged 跳轉
   } catch(e) {

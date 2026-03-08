@@ -72,6 +72,22 @@
 .result-section-title{font-size:0.85rem;letter-spacing:2px;color:#e9c27d;opacity:1;margin-bottom:14px;font-weight:500}
 .result-section-content{color:#c4b7a6;font-size:0.92rem;line-height:1.85}
 .result-section-content strong{color:#f7efe1;font-weight:500}
+.hl-title-reveal{margin-bottom:24px;animation:titleGlow 0.8s ease-out}
+@keyframes titleGlow{from{opacity:0;transform:translateY(20px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.hl-title-card{background:linear-gradient(145deg,rgba(20,10,40,0.96),rgba(12,6,24,0.96));border:1px solid rgba(233,194,125,0.45);border-radius:24px;padding:36px 28px 32px;text-align:center;position:relative;overflow:hidden}
+.hl-title-card::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:240px;height:240px;background:radial-gradient(circle,rgba(233,194,125,0.12) 0%,transparent 70%);pointer-events:none}
+.hl-title-eyebrow{font-family:'Cormorant Garamond',serif;font-size:0.78rem;font-style:italic;letter-spacing:5px;color:rgba(233,194,125,0.7);margin-bottom:10px}
+.hl-title-icon{font-size:3.2rem;display:block;margin-bottom:14px;animation:float 3s ease-in-out infinite}
+.hl-title-main{font-family:'LXGW WenKai TC','Noto Serif TC',serif;font-size:clamp(1.7rem,5vw,2.4rem);font-weight:400;color:#f7efe1;letter-spacing:4px;margin-bottom:8px;background:linear-gradient(135deg,#f7efe1 30%,#e9c27d 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hl-title-sub{font-size:0.95rem;color:#c4b7a6;line-height:1.7;margin-bottom:24px}
+.hl-title-divider{width:48px;height:1px;background:linear-gradient(90deg,transparent,rgba(233,194,125,0.5),transparent);margin:0 auto 24px}
+.hl-title-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;text-align:left}
+.hl-title-tag{background:rgba(255,255,255,0.04);border:1px solid rgba(233,194,125,0.18);border-radius:14px;padding:14px 16px}
+.hl-title-tag-label{font-size:0.68rem;letter-spacing:2px;color:rgba(233,194,125,0.65);margin-bottom:6px}
+.hl-title-tag-value{font-size:0.88rem;color:#f0e8d8;line-height:1.5;font-family:'LXGW WenKai TC',serif}
+.hl-title-quote{font-family:'LXGW WenKai TC',serif;font-size:1rem;color:rgba(233,194,125,0.85);line-height:1.85;padding:16px 20px;background:rgba(233,194,125,0.07);border-left:2px solid rgba(233,194,125,0.4);border-radius:0 12px 12px 0;text-align:left}
+.hl-title-combo-hint{font-size:0.75rem;color:rgba(200,185,170,0.55);margin-top:18px;letter-spacing:1px}
+@media(max-width:480px){.hl-title-grid{grid-template-columns:1fr}.hl-title-card{padding:28px 18px 24px}}
 .result-hour-bridge{background:linear-gradient(135deg,rgba(156,110,219,0.12),rgba(233,194,125,0.08));border:1px solid rgba(156,110,219,0.3);border-radius:20px;padding:28px 24px;margin-bottom:20px;text-align:center}
 .hour-bridge-label{font-size:0.75rem;letter-spacing:2px;color:#b399e8;margin-bottom:12px}
 .hour-bridge-text{font-family:"LXGW WenKai TC",serif;font-size:1.05rem;color:#f7efe1;line-height:1.85;margin-bottom:16px}
@@ -91,14 +107,9 @@
 
 /* ===== 奶油浮雕底圖覆蓋 ===== */
 .hl-cosmos {
-  background:
-    linear-gradient(rgba(10,6,20,0.48), rgba(10,6,20,0.48)),
-    url('background.jpg');
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
+  background: transparent;
 }
-.hl-stars-layer, .hl-meteors, .hl-aura { opacity: 0.35; }
+.hl-stars-layer, .hl-meteors, .hl-aura { opacity: 0.85; }
 
 /* ── 馥靈之鑰 LOGO 圖標 ── */
 .hl-logo-icon {
@@ -228,6 +239,7 @@
 
   <!-- 結果區 -->
   <div class="quiz-result" id="quizResult">
+    <div class="hl-title-reveal" id="hlTitleReveal"></div>
     <div class="result-hero" id="resultHero"></div>
     <div class="result-section" id="resultBars"></div>
     <div class="result-section" id="resultMain"></div>
@@ -448,6 +460,34 @@ const questions = [
 // ============================
 // 血型結果資料庫
 // ============================
+
+// ===== 馥靈稱號系統 =====
+const btTitles = {
+  A: { icon:'🌸', title:'靜謐掌舵者', sub:'你默默把所有事扛起來了，但不代表你應該一個人扛著。', castle:'覺察廳（O 區）', hour:'Own ✦ 智慧辨識', oil:'薰衣草 · 玫瑰', quote:'你的標準高是因為你看得見更好的可能性——不是挑剔，是你對美的事物有特別深的理解。' },
+  B: { icon:'🌀', title:'自由燃燒者', sub:'你按照自己的節奏活著。這不是任性，是你跟自己的一種誠實。', castle:'解鎖密室（U 區）', hour:'Unlock ✦ 潛能解鎖', oil:'佛手柑 · 尤加利', quote:'你最大的自由，不是不受束縛，是知道自己為什麼選擇這樣活。' },
+  O: { icon:'🔥', title:'烈焰先鋒者', sub:'你天生就知道怎麼帶領，怎麼推動，怎麼讓事情動起來。', castle:'王座塔（R 區）', hour:'Rise ✦ 行動進化', oil:'薑 · 甜橙', quote:'那個在你身後沒被你注意到的人，也許正是讓你能一路向前的原因。' },
+  AB: { icon:'🌙', title:'複數宇宙使者', sub:'你同時活在好幾個維度，所以有時候你自己也不知道哪一個才是「本人」。', castle:'覺察廳（O 區）', hour:'Own ✦ 智慧辨識', oil:'廣藿香 · 乳香', quote:'你不是難懂，是你的層次太多了。問題不是「你是誰」，是你先選哪個你出來說話。' }
+};
+
+function renderHlTitle(type, typeName) {
+  const t = btTitles[type] || btTitles['O'];
+  document.getElementById('hlTitleReveal').innerHTML = `
+    <div class="hl-title-card">
+      <div class="hl-title-eyebrow">Hour Light ✦ 你的馥靈稱號</div>
+      <span class="hl-title-icon">${t.icon}</span>
+      <div class="hl-title-main">${t.title}</div>
+      <div class="hl-title-sub">${t.sub}</div>
+      <div class="hl-title-divider"></div>
+      <div class="hl-title-grid">
+        <div class="hl-title-tag"><div class="hl-title-tag-label">✦ 城堡守護宮</div><div class="hl-title-tag-value">${t.castle}</div></div>
+        <div class="hl-title-tag"><div class="hl-title-tag-label">✦ H.O.U.R. 天賦</div><div class="hl-title-tag-value">${t.hour}</div></div>
+        <div class="hl-title-tag" style="grid-column:1/-1"><div class="hl-title-tag-label">✦ 你的精油指引</div><div class="hl-title-tag-value">🌿 ${t.oil}</div></div>
+      </div>
+      <div class="hl-title-quote">「${t.quote}」</div>
+      <div class="hl-title-combo-hint">由你的行為模式 ${type} 型決定</div>
+    </div>`;
+}
+
 const btResults = {
   A: {
     icon: "🌸",
@@ -839,6 +879,7 @@ function showResult() {
     <div class="result-section-content">${result.shadow.replace(/\n/g, '<br>')}</div>`;
 
   // 馥靈之鑰橋接
+  renderHlTitle(winBt, result.name);
   document.getElementById('resultHour').innerHTML = `
     <div class="hour-bridge-label">✦ 馥靈之鑰 × 覺察系統 ✦</div>
     <div class="hour-bridge-text">${result.bridge.replace(/\n/g, '<br>')}</div>
@@ -852,7 +893,7 @@ function showResult() {
 
   const frameTxt = isSame ? `（真實 ${realBloodType}型，行為也是 ${winBt}型｜活得真實一致！）` 
     : realBloodType ? `（真實 ${realBloodType}型，行為卻測出 ${winBt}型｜早就出走了框架 👏）` : '';
-  window._resultText = `【馥靈之鑰 血型框架測驗】\n我的行為血型是「${result.type}型 · ${result.name}」\n${frameTxt}\n「${result.subtitle}」\n\n你有沒有活在框架裡？來測測看 👉 hourlightkey.com/quiz-bloodtype.html`;
+  window._resultText = `【馥靈之鑰 血型框架測驗】\n我的行為血型是「${result.type}型 · ${result.name}」\n${frameTxt}\n「${result.subtitle}」\n✦ 馥靈稱號：${btTitles[winBt]?.title||''}\n\n你有沒有活在框架裡？來測測看 👉 hourlightkey.com/quiz-bloodtype.html`;
 }
 
 function copyResult() {
@@ -887,6 +928,14 @@ function restartQuiz() {
 </script>
   <script>if("serviceWorker"in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js").catch(()=>{})})}</script>
   <script src="assets/js/firebase-config.js"></script>
-  <script src="assets/js/hl-member.js"></script>
+
+<!-- HL Auth Gate + Tracking -->
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-auth-gate.js"
+  data-tool="quiz-bloodtype"
+  data-tool-name="血型性格測驗"
+  data-tool-name-en="Blood Type Quiz"
+  data-tool-type="quiz">
+</script>
 </body>
 </html>

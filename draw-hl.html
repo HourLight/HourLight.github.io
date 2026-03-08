@@ -62,7 +62,6 @@
         radial-gradient(circle at 10% 0%, rgba(233,194,125,0.16) 0, transparent 55%),
         radial-gradient(circle at 80% 100%, rgba(132,112,255,0.2) 0, transparent 55%),
         radial-gradient(circle at 50% 40%, rgba(8,5,18,0.80) 0, transparent 60%),
-        url('background.jpg') center/cover fixed no-repeat,
         var(--hl-v2-bg-deep);
     }
     .hl-v2-wrap {
@@ -1247,9 +1246,15 @@ document.querySelectorAll('.hl-v2-mode-btn').forEach(btn => {
 modalCancel.addEventListener('click', () => modal.classList.remove('show'));
 modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('show'); });
 
-modalConfirm.addEventListener('click', () => {
+modalConfirm.addEventListener('click', async () => {
   userQuestion = modalQuestion.value.trim();
   modal.classList.remove('show');
+
+  // 單張牌（n=1）免費不計配額；2張以上計一次
+  if (pendingN > 1 && typeof window.HL_checkQuota === 'function') {
+    const allowed = await window.HL_checkQuota();
+    if (!allowed) return; // 配額耗盡，Paywall 已彈出
+  }
   drawCards(pendingN);
 });
 
@@ -1768,13 +1773,127 @@ function toggleLegalContent() {
 <!-- ========== Footer End ========== -->
 
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="assets/js/hl-music.js"></script>
+<script src="assets/js/hl-music.js"></script>
 <script src="assets/js/hourlight-global.js"></script>
+
+<!-- Firebase SDK（配額檢查用） -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+
+<script>
+/* ── 配額橋接：在 draw-hl.html 內實作 HL_checkQuota ── */
+(function() {
+  const MONTHLY_QUOTA = { free: 3, basic: 9999, pro: 9999, vip: 9999, elite: 9999 };
+
+  function getMonthKey() {
+    const now = new Date();
+    return now.getFullYear() + '-' + (now.getMonth() + 1);
+  }
+
+  function initQuotaBridge() {
+    const ready = typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY';
+    if (!ready) {
+      window.HL_checkQuota = async () => true; // Firebase 未設定，放行
+      return;
+    }
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    window.HL_checkQuota = async function() {
+      const user = auth.currentUser;
+      if (!user) return true; // 未登入，放行（登入牆另設）
+
+      // 取用戶方案
+      let plan = 'free';
+      try {
+        const snap = await db.doc('users/' + user.uid).get();
+        if (snap.exists) plan = snap.data().plan || 'free';
+      } catch(e) {}
+
+      const limit = MONTHLY_QUOTA[plan] || 3;
+      if (limit >= 9999) return true; // 付費，無限
+
+      const qRef = db.doc('users/' + user.uid + '/quota/' + getMonthKey());
+      try {
+        const qSnap = await qRef.get();
+        const used = qSnap.exists ? (qSnap.data().draws || 0) : 0;
+        if (used >= limit) {
+          // 顯示 Paywall
+          showPaywallInline(used, limit);
+          return false;
+        }
+        await qRef.set(
+          { draws: used + 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() },
+          { merge: true }
+        );
+        return true;
+      } catch(e) {
+        return true;
+      }
+    };
+  }
+
+  function showPaywallInline(used, limit) {
+    const existing = document.getElementById('hl-quota-paywall');
+    if (existing) { existing.style.display = 'flex'; return; }
+
+    const el = document.createElement('div');
+    el.id = 'hl-quota-paywall';
+    el.style.cssText = 'position:fixed;inset:0;background:rgba(2,1,6,0.88);backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;';
+    el.innerHTML = `
+      <div style="width:min(440px,92vw);background:radial-gradient(ellipse at top,rgba(233,194,125,0.1),transparent 55%),rgba(7,4,18,0.98);border:1px solid rgba(233,194,125,0.3);border-radius:24px;padding:40px 28px 28px;text-align:center;box-shadow:0 40px 80px rgba(0,0,0,0.7);">
+        <div style="font-size:2.4rem;margin-bottom:10px;">🔮</div>
+        <div style="font-family:'Noto Serif TC',serif;font-size:1.3rem;color:#e9c27d;letter-spacing:1.5px;margin-bottom:12px;">本月配額已用完</div>
+        <p style="font-size:0.88rem;color:rgba(249,240,229,0.6);line-height:1.9;margin-bottom:22px;">
+          你本月已使用 <strong style="color:#e9c27d;">${used}</strong> / ${limit} 次完整牌陣解讀。<br>
+          每月1日自動重置，或升級後立即解鎖無限次。
+        </p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+          <div style="border:1px solid rgba(233,194,125,0.35);border-radius:14px;padding:16px 10px;cursor:pointer;transition:.2s;" onmouseover="this.style.borderColor='#e9c27d'" onmouseout="this.style.borderColor='rgba(233,194,125,0.35)'">
+            <div style="font-size:1.3rem;margin-bottom:5px;">🔑</div>
+            <div style="font-size:0.85rem;color:#f9f0e5;font-weight:600;margin-bottom:3px;">覺察學員</div>
+            <div style="font-size:0.78rem;color:#e9c27d;margin-bottom:6px;">NT$ 299 / 月</div>
+            <div style="font-size:0.7rem;color:rgba(249,240,229,0.45);">無限牌陣解讀</div>
+          </div>
+          <div style="border:1px solid rgba(233,194,125,0.35);border-radius:14px;padding:16px 10px;cursor:pointer;transition:.2s;" onmouseover="this.style.borderColor='#e9c27d'" onmouseout="this.style.borderColor='rgba(233,194,125,0.35)'">
+            <div style="font-size:1.3rem;margin-bottom:5px;">✨</div>
+            <div style="font-size:0.85rem;color:#f9f0e5;font-weight:600;margin-bottom:3px;">覺察修練者</div>
+            <div style="font-size:0.78rem;color:#e9c27d;margin-bottom:6px;">NT$ 999 / 月</div>
+            <div style="font-size:0.7rem;color:rgba(249,240,229,0.45);">無限 + 解析記錄</div>
+          </div>
+        </div>
+        <a href="member-dashboard.html?tab=plans" style="display:block;width:100%;padding:14px;border-radius:999px;background:linear-gradient(135deg,#e9c27d,#cda86e);color:#1a1008;font-size:0.92rem;font-weight:700;letter-spacing:1px;text-decoration:none;margin-bottom:10px;">立即升級 · 繼續探索 →</a>
+        <button onclick="document.getElementById('hl-quota-paywall').style.display='none'" style="background:none;border:none;color:rgba(249,240,229,0.4);font-size:0.78rem;cursor:pointer;font-family:inherit;">先跳過，等明天</button>
+      </div>`;
+    document.body.appendChild(el);
+  }
+
+  // DOM 就緒後初始化
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initQuotaBridge);
+  } else {
+    initQuotaBridge();
+  }
+})();
+</script>
+
 <!-- ========== 浮動 LINE 按鈕（玻璃擬態）========== -->
 <a href="https://lin.ee/OQDB5t6" target="_blank" rel="noopener" class="hl-float-line" id="floatLine">
   <span class="hl-float-line-icon">💬</span>
   <span class="hl-float-line-text">LINE 諮詢</span>
 </a>
 <script>if("serviceWorker"in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js").catch(()=>{})})}</script>
+
+<!-- HL Auth Gate + Tracking -->
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-auth-gate.js"
+  data-tool="draw-hl"
+  data-tool-name="馥靈牌陣抽牌"
+  data-tool-name-en="HL Card Spread"
+  data-tool-type="draw">
+</script>
 </body>
 </html>

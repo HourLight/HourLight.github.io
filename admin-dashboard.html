@@ -1,655 +1,1212 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-<!-- Google Analytics 4 -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-BXP7K53QG6');
-</script>
-<!-- Facebook Pixel -->
-<script>
-  !function(f,b,e,v,n,t,s)
-  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-  n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];
-  s.parentNode.insertBefore(t,s)}(window, document,'script',
-  'https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', '1333106288588347');
-  fbq('track', 'PageView');
-</script>
-<noscript><img height="1" width="1" style="display:none"
-  src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"
-/></noscript>
-<!-- End Facebook Pixel -->
-
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="description" content="馥靈之鑰 - 會員管理後台">
-  <title>馥靈之鑰 - 會員管理後台</title>
-  <link rel="icon" href="favicon.ico" />
-  <link rel="stylesheet" href="assets/css/hourlight-global.css">
-<style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-    body { font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Arial", sans-serif; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); color: #2a2a2a; line-height: 1.6; }
-    .dashboard { display: grid; grid-template-columns: 250px 1fr; min-height: 100vh; }
-    .sidebar { background: rgba(0, 0, 0, 0.8); padding: 30px 20px; border-right: 1px solid rgba(205, 168, 110, 0.2); position: sticky; top: 0; height: 100vh; overflow-y: auto; }
-    .sidebar h1 { color: var(--hl-gold-deep); font-size: 1.3rem; margin-bottom: 30px; text-align: center; letter-spacing: 1px; }
-    .nav-menu { list-style: none; }
-    .nav-item { margin-bottom: 10px; }
-    .nav-link { display: block; padding: 12px 16px; color: rgba(255, 255, 255, 0.7); text-decoration: none; border-radius: 8px; transition: all 0.3s ease; cursor: pointer; font-weight: 500; }
-    .nav-link:hover, .nav-link.active { background: rgba(205, 168, 110, 0.2); color: var(--hl-gold-deep); }
-    .main-content { padding: 40px; overflow-y: auto; }
-    .page-title { color: #fff; font-size: 2rem; margin-bottom: 30px; font-weight: 700; }
-    .content-section { display: none; }
-    .content-section.active { display: block; }
-    .card { background: rgba(255, 255, 255, 0.95); border-radius: 12px; padding: 30px; margin-bottom: 30px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); }
-    .card h2 { color: #2a2a2a; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--hl-gold-deep); font-size: 1.5rem; }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-    .stat-card { background: linear-gradient(135deg, var(--hl-gold-deep) 0%, var(--hl-gold-soft) 100%); color: #fff; padding: 25px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(205, 168, 110, 0.3); }
-    .stat-number { font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; }
-    .stat-label { font-size: 0.95rem; opacity: 0.9; }
-    .table-container { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    thead { background: #f9f5f0; }
-    th { padding: 15px; text-align: left; font-weight: 600; color: #2a2a2a; border-bottom: 2px solid var(--hl-gold-deep); }
-    td { padding: 12px 15px; border-bottom: 1px solid #e0e0e0; color: #666; }
-    tr:hover { background: #f9f5f0; }
-    .btn { padding: 10px 20px; border: none; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-family: "Noto Sans TC", sans-serif; }
-    .btn-small { padding: 6px 12px; font-size: 0.85rem; }
-    .btn-primary { background: var(--hl-gold-deep); color: #fff; }
-    .btn-primary:hover { background: var(--hl-gold-soft); }
-    .btn-danger { background: #ff6b6b; color: #fff; }
-    .btn-danger:hover { background: #ff5252; }
-    .btn-secondary { background: #f0f0f0; color: #2a2a2a; border: 1px solid #e0e0e0; }
-    .btn-secondary:hover { background: #e8e8e8; }
-    .filter-section { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-    .filter-section input, .filter-section select { padding: 10px 15px; border: 1px solid #e0e0e0; border-radius: 6px; font-family: "Noto Sans TC", sans-serif; color: #2a2a2a; }
-    .filter-section input:focus, .filter-section select:focus { outline: none; border-color: var(--hl-gold-deep); box-shadow: 0 0 0 3px rgba(205, 168, 110, 0.1); }
-    .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
-    .badge-success { background: #d4edda; color: #155724; }
-    .badge-warning { background: #fff3cd; color: #856404; }
-    @media (max-width: 768px) {
-      .dashboard { grid-template-columns: 1fr; }
-      .sidebar { position: relative; height: auto; border-right: none; border-bottom: 1px solid rgba(205, 168, 110, 0.2); }
-      .main-content { padding: 20px; }
-      .page-title { font-size: 1.5rem; }
-      .stats-grid { grid-template-columns: 1fr; }
-      .filter-section { flex-direction: column; }
-      .filter-section input, .filter-section select { width: 100%; }
-      table { font-size: 0.9rem; }
-      th, td { padding: 10px; }
-    }
-  
-/* ── 馥靈之鑰 LOGO 圖標 ── */
-.hl-logo-icon {
-  height: 1.15em;
-  width: 1.15em;
-  border-radius: 50%;
-  object-fit: cover;
-  vertical-align: middle;
-  margin-right: 4px;
-  display: inline-block;
-  position: relative;
-  top: -0.08em;
-}
-.hl-logo-hero {
-  display: block;
-  width: 88px;
-  height: 88px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin: 0 auto 14px auto;
-  filter: drop-shadow(0 0 18px rgba(233,194,125,0.55));
-}
-</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>馥靈之鑰｜後台管理中心</title>
+<meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://hourlightkey.com/admin-dashboard.html">
-    <meta property="og:title" content="馥靈之鑰 - 會員管理後台">
-    <meta property="og:description" content="馥靈之鑰會員管理後台｜管理員專用控制台。">
-    <meta property="og:image" content="https://hourlightkey.com/og-image.jpg">
-    <meta property="og:locale" content="zh_TW">
-    <meta property="og:site_name" content="馥靈之鑰 Hour Light">
-    
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="馥靈之鑰 - 會員管理後台">
-    <meta name="twitter:description" content="馥靈之鑰會員管理後台｜管理員專用控制台。">
-    <meta name="twitter:image" content="https://hourlightkey.com/og-image.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#040210;--bg2:#07050f;--bg3:rgba(12,8,22,0.95);
+  --gold:#e9c27d;--gold2:#cda86e;--gold-dim:rgba(233,194,125,0.18);
+  --text:#f0e8d8;--text2:rgba(240,232,216,0.6);--text3:rgba(240,232,216,0.3);
+  --border:rgba(233,194,125,0.12);--border2:rgba(233,194,125,0.28);
+  --sidebar:220px;--serif:'Noto Serif TC',serif;--sans:'Noto Sans TC',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{min-height:100vh;background:var(--bg);font-family:var(--sans);color:var(--text);overflow-x:hidden;}
+#bg-canvas{position:fixed;inset:0;pointer-events:none;z-index:0;}
+.layout{display:flex;min-height:100vh;position:relative;z-index:1;}
 
-    <link rel="canonical" href="https://hourlightkey.com/admin-dashboard.html">
-<link rel="stylesheet" href="assets/css/hl-cosmos.css">
-<link rel="stylesheet" href="assets/css/hl-music.css">
-<script src="assets/js/hl-analytics.js" defer></script>
-<!-- MailerLite Universal -->
-<script>
-    (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
-    .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
-    n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
-    (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
-    ml('account', '2060689');
-</script>
-<!-- End MailerLite Universal -->
-  <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#0a0612">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="馥靈之鑰">
+/* sidebar */
+.sidebar{width:var(--sidebar);background:rgba(6,3,14,0.97);border-right:1px solid var(--border);
+  padding:0;position:fixed;left:0;top:0;bottom:0;z-index:100;display:flex;flex-direction:column;
+  backdrop-filter:blur(20px);}
+.sb-logo{padding:22px 18px 18px;border-bottom:1px solid var(--border);
+  font-family:var(--serif);color:var(--gold);font-size:0.88rem;letter-spacing:0.05em;}
+.sb-logo .ver{font-size:0.65rem;color:var(--text3);margin-top:3px;letter-spacing:1px;}
+.sb-logo .admin-chip{display:inline-block;padding:2px 8px;border-radius:4px;
+  background:rgba(255,80,80,0.15);border:1px solid rgba(255,80,80,0.3);
+  font-size:0.6rem;color:rgba(255,160,160,0.8);letter-spacing:1px;margin-top:5px;}
+nav{flex:1;padding:8px 0;overflow-y:auto;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 18px;
+  color:var(--text2);cursor:pointer;transition:all .2s;border-left:2px solid transparent;
+  font-size:0.85rem;user-select:none;}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,0.03);}
+.nav-item.active{color:var(--gold);border-left-color:var(--gold);background:rgba(233,194,125,0.06);}
+.nav-icon{font-size:1rem;width:18px;text-align:center;}
+.nav-sep{height:1px;background:var(--border);margin:6px 16px;}
+.sb-admin-badge{padding:16px 18px;border-top:1px solid var(--border);}
+.sb-admin-email{font-size:0.72rem;color:var(--text3);word-break:break-all;}
+.btn-logout{margin-top:8px;width:100%;padding:8px;border-radius:8px;
+  background:none;border:1px solid rgba(255,100,100,0.25);color:rgba(255,150,150,0.6);
+  font-family:var(--sans);font-size:0.78rem;cursor:pointer;transition:all .2s;}
+.btn-logout:hover{border-color:rgba(255,100,100,0.5);color:#ffaaaa;}
+
+/* main */
+.main{margin-left:var(--sidebar);flex:1;padding:0;min-height:100vh;}
+.page-section{display:none;padding:32px 36px;min-height:100vh;}
+.page-section.active{display:block;}
+.page-header{margin-bottom:24px;}
+.page-title{font-family:var(--serif);font-size:1.5rem;font-weight:400;color:var(--gold);letter-spacing:1px;}
+.page-sub{font-size:0.8rem;color:var(--text3);margin-top:5px;letter-spacing:0.5px;}
+
+/* cards */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:24px;}
+.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:14px;
+  padding:18px 16px;transition:border-color .2s;}
+.stat-card:hover{border-color:var(--border2);}
+.stat-icon{font-size:1.4rem;margin-bottom:8px;}
+.stat-num{font-family:var(--serif);font-size:2rem;font-weight:300;color:var(--gold);line-height:1.1;}
+.stat-label{font-size:0.72rem;color:var(--text3);margin-top:4px;letter-spacing:1px;}
+.stat-sub{font-size:0.68rem;color:rgba(100,220,150,0.6);margin-top:2px;}
+
+/* card block */
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:14px;
+  padding:20px 22px;margin-bottom:16px;}
+.card-title{font-size:0.9rem;font-weight:500;color:var(--text);margin-bottom:16px;
+  display:flex;align-items:center;gap:8px;}
+.card-title-right{margin-left:auto;font-size:0.75rem;color:var(--text3);}
+
+/* table */
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+th{background:rgba(233,194,125,0.06);color:var(--text2);font-weight:500;
+  padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);
+  white-space:nowrap;font-size:0.75rem;letter-spacing:0.5px;}
+td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--text2);
+  vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.02);}
+.td-name{color:var(--text);font-weight:500;}
+.td-email{color:var(--text3);font-size:0.75rem;}
+.td-tool{color:var(--gold);font-size:0.8rem;}
+.td-time{color:var(--text3);font-size:0.75rem;white-space:nowrap;}
+.td-type-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.7rem;
+  border:1px solid;white-space:nowrap;}
+.td-type-draw{color:rgba(150,180,255,0.8);border-color:rgba(150,180,255,0.2);background:rgba(150,180,255,0.06);}
+.td-type-quiz{color:rgba(180,150,255,0.8);border-color:rgba(180,150,255,0.2);background:rgba(180,150,255,0.06);}
+.td-type-calc{color:rgba(255,200,100,0.8);border-color:rgba(255,200,100,0.2);background:rgba(255,200,100,0.06);}
+.td-type-tool{color:rgba(100,220,150,0.8);border-color:rgba(100,220,150,0.2);background:rgba(100,220,150,0.06);}
+.td-type-page{color:rgba(200,200,200,0.5);border-color:rgba(200,200,200,0.1);background:rgba(200,200,200,0.03);}
+
+/* member detail */
+.member-card{display:flex;align-items:center;gap:14px;
+  background:rgba(233,194,125,0.04);border:1px solid var(--border2);
+  border-radius:12px;padding:16px 18px;margin-bottom:14px;cursor:pointer;transition:all .2s;}
+.member-card:hover{border-color:var(--gold);background:rgba(233,194,125,0.07);}
+.member-avatar{width:40px;height:40px;border-radius:50%;background:rgba(233,194,125,0.15);
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.member-info{flex:1;min-width:0;}
+.member-name{font-size:0.9rem;color:var(--text);font-weight:500;margin-bottom:2px;}
+.member-email{font-size:0.72rem;color:var(--text3);}
+.member-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:5px;}
+.meta-chip{font-size:0.65rem;padding:2px 8px;border-radius:4px;
+  background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--text3);}
+.meta-chip.gold{border-color:rgba(233,194,125,0.25);color:rgba(233,194,125,0.7);}
+.member-stats{display:flex;gap:16px;flex-shrink:0;text-align:right;}
+.ms-item .ms-num{font-family:var(--serif);font-size:1.2rem;color:var(--gold);}
+.ms-item .ms-label{font-size:0.62rem;color:var(--text3);}
+
+/* filter / search */
+.filter-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+.filter-input{background:rgba(255,255,255,0.04);border:1px solid var(--border);
+  border-radius:8px;padding:9px 14px;color:var(--text);font-family:var(--sans);font-size:0.82rem;
+  outline:none;transition:border-color .2s;min-width:200px;}
+.filter-input:focus{border-color:var(--border2);}
+.filter-select{background:rgba(5,3,10,0.9);border:1px solid var(--border);
+  border-radius:8px;padding:9px 12px;color:var(--text2);font-family:var(--sans);
+  font-size:0.82rem;outline:none;cursor:pointer;}
+.btn-gold{padding:9px 20px;border-radius:8px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#1a1008;font-family:var(--sans);font-size:0.82rem;
+  font-weight:600;border:none;cursor:pointer;transition:opacity .2s;white-space:nowrap;}
+.btn-gold:hover{opacity:.85;}
+.btn-outline{padding:9px 16px;border-radius:8px;
+  background:none;border:1px solid var(--border2);
+  color:var(--gold);font-family:var(--sans);font-size:0.82rem;cursor:pointer;transition:all .2s;}
+.btn-outline:hover{background:rgba(233,194,125,0.07);}
+
+/* charts */
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+.chart-bar-wrap{margin-top:10px;}
+.chart-bar-item{margin-bottom:10px;}
+.chart-bar-label{display:flex;justify-content:space-between;
+  font-size:0.75rem;color:var(--text2);margin-bottom:4px;}
+.chart-bar-track{height:8px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;}
+.chart-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--gold2));}
+
+/* event log */
+.event-log-item{display:flex;gap:14px;align-items:flex-start;
+  padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.event-log-item:last-child{border-bottom:none;}
+.el-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.el-dot.draw{background:rgba(150,180,255,0.7);}
+.el-dot.quiz{background:rgba(180,150,255,0.7);}
+.el-dot.calc{background:rgba(255,200,100,0.7);}
+.el-dot.tool,.el-dot.page{background:rgba(100,220,150,0.4);}
+.el-content{flex:1;min-width:0;}
+.el-title{font-size:0.82rem;color:var(--text);margin-bottom:2px;}
+.el-meta{font-size:0.72rem;color:var(--text3);}
+.el-time{font-size:0.7rem;color:var(--text3);white-space:nowrap;flex-shrink:0;}
+
+/* loading / empty */
+.loading-box{padding:40px;text-align:center;color:var(--text3);font-size:0.85rem;}
+.spinner{width:24px;height:24px;border:2px solid var(--gold-dim);border-top-color:var(--gold);
+  border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-box{padding:40px;text-align:center;}
+.empty-icon{font-size:2rem;margin-bottom:8px;}
+.empty-text{font-size:0.85rem;color:var(--text3);}
+
+/* member detail modal */
+.md-overlay{position:fixed;inset:0;background:rgba(2,1,6,0.85);backdrop-filter:blur(8px);
+  z-index:2000;display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .3s;}
+.md-overlay.show{opacity:1;pointer-events:all;}
+.md-box{width:min(700px,95vw);max-height:88vh;overflow-y:auto;
+  background:var(--bg3);border:1px solid var(--border2);border-radius:20px;
+  padding:28px 28px 24px;
+  transform:translateY(20px) scale(0.97);
+  transition:transform .35s cubic-bezier(0.34,1.56,0.64,1);}
+.md-overlay.show .md-box{transform:translateY(0) scale(1);}
+.md-close{position:absolute;top:14px;right:18px;background:none;border:none;
+  color:var(--text3);font-size:1.3rem;cursor:pointer;transition:color .2s;}
+.md-close:hover{color:var(--gold);}
+.md-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;
+  padding-bottom:18px;border-bottom:1px solid var(--border);}
+.md-avatar{width:52px;height:52px;border-radius:50%;background:rgba(233,194,125,0.15);
+  display:flex;align-items:center;justify-content:center;font-size:1.4rem;}
+.md-name{font-family:var(--serif);font-size:1.2rem;color:var(--gold);}
+.md-email{font-size:0.75rem;color:var(--text3);}
+.md-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+
+/* toast */
+.admin-toast{position:fixed;bottom:24px;right:24px;z-index:9999;
+  background:rgba(7,4,18,0.95);border:1px solid var(--border2);border-radius:10px;
+  padding:12px 20px;font-size:0.85rem;color:var(--gold);
+  transform:translateY(10px);opacity:0;transition:all .3s;pointer-events:none;}
+.admin-toast.show{transform:translateY(0);opacity:1;}
+
+/* ── 角色管理 ── */
+.role-header-row{display:grid;grid-template-columns:200px repeat(8,1fr);gap:0;margin-bottom:0;}
+.role-col-header{padding:12px 8px;text-align:center;font-size:0.7rem;letter-spacing:0.5px;}
+.role-icon-big{font-size:1.4rem;display:block;margin-bottom:3px;}
+.role-name-sm{color:var(--text2);font-size:0.65rem;line-height:1.3;}
+.role-level-badge{font-size:0.58rem;padding:2px 6px;border-radius:4px;margin-top:3px;display:inline-block;}
+
+.perm-matrix{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:8px;}
+.perm-group-header{background:rgba(233,194,125,0.06);padding:10px 16px;font-size:0.72rem;
+  color:rgba(233,194,125,0.5);letter-spacing:2px;border-bottom:1px solid var(--border);}
+.perm-row{display:grid;grid-template-columns:200px repeat(8,1fr);border-bottom:1px solid rgba(255,255,255,0.03);
+  transition:background .15s;}
+.perm-row:last-child{border-bottom:none;}
+.perm-row:hover{background:rgba(255,255,255,0.02);}
+.perm-tool-name{padding:10px 16px;font-size:0.8rem;color:var(--text2);display:flex;
+  align-items:center;gap:8px;border-right:1px solid var(--border);}
+.perm-tool-type{font-size:0.6rem;padding:2px 6px;border-radius:4px;}
+.perm-tool-type.draw{background:rgba(150,180,255,0.08);color:rgba(150,180,255,0.6);}
+.perm-tool-type.quiz{background:rgba(180,150,255,0.08);color:rgba(180,150,255,0.6);}
+.perm-tool-type.calculator{background:rgba(255,200,100,0.08);color:rgba(255,200,100,0.6);}
+.perm-tool-type.explore{background:rgba(100,220,150,0.08);color:rgba(100,220,150,0.6);}
+.perm-cell{display:flex;align-items:center;justify-content:center;padding:8px 4px;}
+.perm-toggle{position:relative;width:36px;height:20px;cursor:pointer;}
+.perm-toggle input{opacity:0;width:0;height:0;position:absolute;}
+.perm-slider{position:absolute;inset:0;background:rgba(255,255,255,0.08);
+  border-radius:999px;transition:.25s;border:1px solid rgba(255,255,255,0.1);}
+.perm-slider:before{content:'';position:absolute;width:14px;height:14px;left:2px;top:2px;
+  background:#555;border-radius:50%;transition:.25s;}
+.perm-toggle input:checked + .perm-slider{background:rgba(100,200,130,0.25);border-color:rgba(100,200,130,0.4);}
+.perm-toggle input:checked + .perm-slider:before{transform:translateX(16px);background:#70d090;}
+.perm-admin-lock{font-size:0.85rem;color:rgba(233,194,125,0.3);}
+
+.role-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:24px;}
+.role-card{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:18px;
+  transition:border-color .2s;}
+.role-card:hover{border-color:var(--border2);}
+.role-card-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.role-card-icon{font-size:1.6rem;}
+.role-card-name{font-family:var(--serif);font-size:0.95rem;color:var(--gold);}
+.role-card-en{font-size:0.7rem;color:var(--text3);}
+.role-card-desc{font-size:0.78rem;color:var(--text2);line-height:1.7;margin-bottom:12px;}
+.role-card-count{font-size:0.72rem;color:var(--text3);}
+.role-badge-preview{display:inline-block;padding:3px 10px;border-radius:999px;
+  font-size:0.7rem;margin-top:6px;}
+
+/* 會員身分調整彈窗 */
+.assign-role-select{background:rgba(5,3,10,0.9);border:1px solid var(--border2);
+  border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--sans);
+  font-size:0.88rem;outline:none;width:100%;margin-top:8px;cursor:pointer;}
+.btn-save-role{margin-top:12px;width:100%;padding:12px;border-radius:8px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#1a1008;font-family:var(--sans);font-size:0.88rem;font-weight:700;
+  border:none;cursor:pointer;transition:opacity .2s;}
+.btn-save-role:hover{opacity:.85;}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%);transition:transform .3s;}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;}
+  .page-section{padding:20px 16px;}
+  .chart-row{grid-template-columns:1fr;}
+  .member-stats{display:none;}
+}
+.mob-toggle{display:none;position:fixed;top:14px;left:14px;z-index:200;
+  background:rgba(5,3,10,0.88);border:1px solid var(--border2);border-radius:8px;
+  padding:8px 12px;cursor:pointer;color:var(--gold);font-size:1rem;}
+@media(max-width:900px){.mob-toggle{display:block;}}
+</style>
+<link rel="icon" href="favicon.ico">
 </head>
 <body>
-<!-- 星空背景 -->
-<div class="hl-cosmos">
-  <div class="hl-stars-layer hl-stars-1"></div>
-  <div class="hl-stars-layer hl-stars-2"></div>
-  <div class="hl-stars-layer hl-stars-3"></div>
-  <div class="hl-meteors">
-    <div class="hl-meteor"></div>
-    <div class="hl-meteor"></div>
-    <div class="hl-meteor"></div>
-    <div class="hl-meteor"></div>
-    <div class="hl-meteor"></div>
-    <div class="hl-meteor"></div>
-    <div class="hl-meteor"></div>
-    <div class="hl-meteor"></div>
-    <div class="hl-meteor"></div>
-    <div class="hl-meteor"></div>
-    <div class="hl-meteor"></div>
-    <div class="hl-meteor"></div>
-  </div>
-  <div class="hl-aura hl-aura-1"></div>
-  <div class="hl-aura hl-aura-2"></div>
-  <div class="hl-aura hl-aura-3"></div>
+
+<canvas id="bg-canvas"></canvas>
+<button class="mob-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+<div class="layout">
+
+  <!-- 側邊欄 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-logo">
+      🔑 馥靈之鑰
+      <div class="ver">Hour Light International</div>
+      <div class="admin-chip">ADMIN</div>
+    </div>
+    <nav>
+      <div class="nav-item active" data-page="overview" onclick="showPage(this,'overview')">
+        <span class="nav-icon">📊</span> 總覽
+      </div>
+      <div class="nav-item" data-page="members" onclick="showPage(this,'members')">
+        <span class="nav-icon">👥</span> 會員管理
+      </div>
+      <div class="nav-item" data-page="roles" onclick="showPage(this,'roles')">
+        <span class="nav-icon">⚜️</span> 角色與權限
+      </div>
+      <div class="nav-item" data-page="events" onclick="showPage(this,'events')">
+        <span class="nav-icon">📋</span> 全站事件流
+      </div>
+      <div class="nav-item" data-page="tools" onclick="showPage(this,'tools')">
+        <span class="nav-icon">🔮</span> 工具使用統計
+      </div>
+      <div class="nav-sep"></div>
+      <a class="nav-item" href="index.html">
+        <span class="nav-icon">🌐</span> 回官網
+      </a>
+    </nav>
+    <div class="sb-admin-badge">
+      <div class="sb-admin-email" id="adminEmail">驗證中...</div>
+      <button class="btn-logout" onclick="doLogout()">登出後台</button>
+    </div>
+  </aside>
+
+  <!-- 主內容 -->
+  <main class="main">
+
+    <!-- ── 總覽 ── -->
+    <section class="page-section active" id="page-overview">
+      <div class="page-header">
+        <div class="page-title">📊 後台總覽</div>
+        <div class="page-sub" id="lastRefresh">載入中...</div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-num" id="statTotal">—</div>
+          <div class="stat-label">總會員數</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🟢</div>
+          <div class="stat-num" id="statActive7">—</div>
+          <div class="stat-label">7 天活躍</div>
+          <div class="stat-sub" id="statActive7Pct"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✨</div>
+          <div class="stat-num" id="statNew30">—</div>
+          <div class="stat-label">本月新加入</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🎴</div>
+          <div class="stat-num" id="statTotalDraws">—</div>
+          <div class="stat-label">累計抽牌</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🧩</div>
+          <div class="stat-num" id="statTotalQuizzes">—</div>
+          <div class="stat-label">累計測驗</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔮</div>
+          <div class="stat-num" id="statTotalCalcs">—</div>
+          <div class="stat-label">累計計算</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📋</div>
+          <div class="stat-num" id="statTotalEvents">—</div>
+          <div class="stat-label">總事件數</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">💎</div>
+          <div class="stat-num" id="statPaid">—</div>
+          <div class="stat-label">付費會員</div>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <!-- 最近事件 -->
+        <div class="card">
+          <div class="card-title">
+            📡 最新動態
+            <span class="card-title-right" id="eventsTs"></span>
+          </div>
+          <div id="recentEvents">
+            <div class="loading-box"><div class="spinner"></div>載入中...</div>
+          </div>
+        </div>
+        <!-- 工具排行 -->
+        <div class="card">
+          <div class="card-title">🏆 工具使用排行</div>
+          <div id="toolRankChart" class="chart-bar-wrap">
+            <div class="loading-box"><div class="spinner"></div>統計中...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 會員管理 ── -->
+    <section class="page-section" id="page-members">
+      <div class="page-header">
+        <div class="page-title">👥 會員管理</div>
+        <div class="page-sub">點擊任一會員查看完整使用記錄</div>
+      </div>
+      <div class="filter-row">
+        <input class="filter-input" id="memberSearch" placeholder="🔍 搜尋姓名或電郵..." oninput="filterMembers()">
+        <select class="filter-select" id="memberPlanFilter" onchange="filterMembers()">
+          <option value="">全部方案</option>
+          <option value="free">免費</option>
+          <option value="basic">學員</option>
+          <option value="pro">修練者</option>
+          <option value="vip">夥伴</option>
+          <option value="elite">傳承者</option>
+        </select>
+        <button class="btn-outline" onclick="exportMembers()">📥 匯出 CSV</button>
+        <button class="btn-gold" onclick="loadMembers()">🔄 重新載入</button>
+      </div>
+      <div id="membersList">
+        <div class="loading-box"><div class="spinner"></div>載入中...</div>
+      </div>
+    </section>
+
+    <!-- ── 全站事件流 ── -->
+    <section class="page-section" id="page-events">
+      <div class="page-header">
+        <div class="page-title">📋 全站事件流</div>
+        <div class="page-sub">所有會員的使用記錄（即時）</div>
+      </div>
+      <div class="filter-row">
+        <input class="filter-input" id="eventSearch" placeholder="🔍 搜尋電郵或工具名稱...">
+        <select class="filter-select" id="eventTypeFilter">
+          <option value="">全部類型</option>
+          <option value="draw">抽牌</option>
+          <option value="quiz">測驗</option>
+          <option value="calculator">計算</option>
+          <option value="explore">探索</option>
+          <option value="page_enter">進入頁面</option>
+        </select>
+        <select class="filter-select" id="eventToolFilter">
+          <option value="">全部工具</option>
+        </select>
+        <button class="btn-gold" onclick="loadEvents()">🔄 重新載入</button>
+      </div>
+      <div class="card">
+        <div id="eventsTableWrap">
+          <div class="loading-box"><div class="spinner"></div>載入事件流...</div>
+        </div>
+        <div style="text-align:center;margin-top:14px;">
+          <button class="btn-outline" id="loadMoreEventsBtn" onclick="loadMoreEvents()" style="display:none;">
+            載入更多 ↓
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 角色與權限 ── -->
+    <section class="page-section" id="page-roles">
+      <div class="page-header">
+        <div class="page-title">⚜️ 角色與權限管理</div>
+        <div class="page-sub">只有馥靈管理員可以調整各身分的工具開放範圍</div>
+      </div>
+
+      <!-- 八個角色總覽卡 -->
+      <div class="role-card-grid" id="roleCardGrid">
+        <div class="loading-box"><div class="spinner"></div>載入身分資訊...</div>
+      </div>
+
+      <!-- 權限矩陣 -->
+      <div class="card">
+        <div class="card-title">
+          🗂 工具開放矩陣
+          <span class="card-title-right">
+            <button class="btn-gold" onclick="savePermMatrix()" style="padding:8px 18px;font-size:0.8rem;">💾 儲存所有變更</button>
+          </span>
+        </div>
+        <p style="font-size:0.78rem;color:var(--text3);margin-bottom:16px;line-height:1.8;">
+          每個開關代表「此身分是否能使用該工具」。管理員與策展總監預設全開（⚜️ 無法關閉）。<br>
+          調整後請按「儲存所有變更」，設定會同步到 Firestore，所有用戶下次進入工具頁時即時生效。
+        </p>
+        <div id="permMatrixWrap">
+          <div class="loading-box"><div class="spinner"></div>載入矩陣...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 工具統計 ── -->
+    <section class="page-section" id="page-tools">
+      <div class="page-header">
+        <div class="page-title">🔮 工具使用統計</div>
+        <div class="page-sub">哪些工具最受歡迎</div>
+      </div>
+      <div id="toolStatsWrap">
+        <div class="loading-box"><div class="spinner"></div>統計中...</div>
+      </div>
+    </section>
+
+  </main>
 </div>
 
-  <div class="dashboard">
-    <div class="sidebar">
-      <h1>馥靈之鑰</h1>
-      <ul class="nav-menu">
-        <li class="nav-item">
-          <div class="nav-link active" onclick="switchTab('overview')">📊 概覽</div>
-        </li>
-        <li class="nav-item">
-          <div class="nav-link" onclick="switchTab('members')">👥 會員名單</div>
-        </li>
-        <li class="nav-item">
-          <div class="nav-link" onclick="switchTab('readings')">🎴 抽牌紀錄</div>
-        </li>
-        <li class="nav-item">
-          <div class="nav-link" onclick="switchTab('calculator')">🔢 計算機紀錄</div>
-        </li>
-        <li class="nav-item">
-          <div class="nav-link" onclick="switchTab('settings')">⚙️ 設定</div>
-        </li>
-      </ul>
+<!-- 會員詳情 Modal -->
+<div class="md-overlay" id="memberDetailModal">
+  <div class="md-box" style="position:relative;">
+    <button class="md-close" onclick="closeMemberDetail()">×</button>
+    <div class="md-header">
+      <div class="md-avatar" id="mdAvatar">👑</div>
+      <div>
+        <div class="md-name" id="mdName">—</div>
+        <div class="md-email" id="mdEmail"></div>
+        <div class="md-chips" id="mdChips"></div>
+      </div>
+    </div>
+    <div class="stats-grid" id="mdStats" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px;"></div>
+
+    <!-- 角色調整區 -->
+    <div class="card" style="margin-bottom:14px;background:rgba(233,194,125,0.04);border-color:rgba(233,194,125,0.2);">
+      <div class="card-title" style="margin-bottom:10px;">⚜️ 調整身分</div>
+      <p style="font-size:0.78rem;color:var(--text3);margin-bottom:10px;line-height:1.7;">
+        更改後立即生效。此會員下次使用工具頁時，系統將依新身分決定可用功能。
+      </p>
+      <select class="assign-role-select" id="mdRoleSelect">
+        <option value="">— 選擇身分 —</option>
+      </select>
+      <div id="mdRolePreview" style="margin-top:10px;font-size:0.78rem;color:var(--text3);min-height:20px;"></div>
+      <button class="btn-save-role" onclick="applyMemberRole()">✅ 確認更新身分</button>
     </div>
 
-    <div class="main-content">
-      <div class="content-section active" id="overview">
-        <h2 class="page-title">概覽</h2>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-number" id="totalMembers">0</div>
-            <div class="stat-label">總會員數</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number" id="totalReadings">0</div>
-            <div class="stat-label">抽牌總次數</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number" id="totalCalculations">0</div>
-            <div class="stat-label">計算機使用次數</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number" id="thisMonthMembers">0</div>
-            <div class="stat-label">本月新增會員</div>
-          </div>
-        </div>
-        <div class="card">
-          <h2>最近活動</h2>
-          <div id="recentActivity" class="table-container"></div>
-        </div>
-      </div>
-
-      <div class="content-section" id="members">
-        <h2 class="page-title">會員名單</h2>
-        <div class="card">
-          <div class="filter-section">
-            <input type="text" id="memberSearch" placeholder="搜尋會員名稱或電郵..." onkeyup="filterMembers()">
-            <select id="memberStatus" onchange="filterMembers()">
-              <option value="">全部狀態</option>
-              <option value="active">活躍</option>
-              <option value="inactive">非活躍</option>
-            </select>
-            <button class="btn btn-primary" onclick="exportMembers()">📥 匯出名單</button>
-          </div>
-          <div class="table-container">
-            <table id="membersTable">
-              <thead>
-                <tr>
-                  <th>姓名</th>
-                  <th>電郵</th>
-                  <th>加入日期</th>
-                  <th>最後活動</th>
-                  <th>狀態</th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody id="membersBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <div class="content-section" id="readings">
-        <h2 class="page-title">抽牌紀錄</h2>
-        <div class="card">
-          <div class="filter-section">
-            <input type="text" id="readingSearch" placeholder="搜尋會員名稱..." onkeyup="filterReadings()">
-            <button class="btn btn-primary" onclick="exportReadings()">📥 匯出紀錄</button>
-          </div>
-          <div class="table-container">
-            <table id="readingsTable">
-              <thead>
-                <tr>
-                  <th>會員</th>
-                  <th>卡牌</th>
-                  <th>抽牌日期</th>
-                  <th>備註</th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody id="readingsBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <div class="content-section" id="calculator">
-        <h2 class="page-title">計算機紀錄</h2>
-        <div class="card">
-          <div class="filter-section">
-            <input type="text" id="calcSearch" placeholder="搜尋會員名稱..." onkeyup="filterCalculations()">
-            <button class="btn btn-primary" onclick="exportCalculations()">📥 匯出紀錄</button>
-          </div>
-          <div class="table-container">
-            <table id="calculationsTable">
-              <thead>
-                <tr>
-                  <th>會員</th>
-                  <th>出生日期</th>
-                  <th>內在核心數字</th>
-                  <th>外在人格數字</th>
-                  <th>計算日期</th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody id="calculationsBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <div class="content-section" id="settings">
-        <h2 class="page-title">設定</h2>
-        <div class="card">
-          <h2>系統設定</h2>
-          <div style="margin-bottom: 20px;">
-            <label style="display: block; margin-bottom: 10px; color: #2a2a2a; font-weight: 600;">
-              <input type="checkbox" id="emailNotification" checked> 啟用電郵通知
-            </label>
-            <label style="display: block; margin-bottom: 10px; color: #2a2a2a; font-weight: 600;">
-              <input type="checkbox" id="autoBackup" checked> 自動備份數據
-            </label>
-          </div>
-          <button class="btn btn-primary" onclick="saveSettings()">💾 保存設定</button>
-        </div>
-        <div class="card">
-          <h2>數據管理</h2>
-          <div style="margin-bottom: 20px;">
-            <p style="color: #666; margin-bottom: 15px;"><strong>備份數據：</strong>將所有會員和紀錄數據下載為JSON文件。</p>
-            <button class="btn btn-secondary" onclick="backupData()">📦 備份所有數據</button>
-          </div>
-        </div>
+    <div class="card" style="margin-bottom:0;">
+      <div class="card-title">📜 此會員的完整使用記錄</div>
+      <div id="mdHistory">
+        <div class="loading-box"><div class="spinner"></div>載入中...</div>
       </div>
     </div>
   </div>
+</div>
 
-  <script>
-    let members = JSON.parse(localStorage.getItem('members')) || [];
-    let readings = JSON.parse(localStorage.getItem('readings')) || [];
-    let calculations = JSON.parse(localStorage.getItem('calculations')) || [];
+<div class="admin-toast" id="adminToast"></div>
 
-    function init() {
-      if (members.length === 0) {
-        members = [
-          { id: 1, name: "李美玲", email: "meiling@example.com", joinDate: "2024-11-01", lastActivity: "2024-11-22", status: "active" },
-          { id: 2, name: "王小芸", email: "xiaoyun@example.com", joinDate: "2024-11-05", lastActivity: "2024-11-20", status: "active" },
-          { id: 3, name: "陳思語", email: "siyu@example.com", joinDate: "2024-11-10", lastActivity: "2024-11-15", status: "inactive" }
-        ];
-        readings = [
-          { id: 1, member: "李美玲", card: "魔術師", date: "2024-11-22", notes: "關於事業決策" },
-          { id: 2, member: "王小芸", card: "玫瑰草", date: "2024-11-20", notes: "情緒平衡" }
-        ];
-        calculations = [
-          { id: 1, member: "李美玲", birthDate: "1990-05-15", innerCore: 1, outerPersonality: 5, date: "2024-11-22" },
-          { id: 2, member: "王小芸", birthDate: "1995-08-22", innerCore: 7, outerPersonality: 3, date: "2024-11-20" }
-        ];
-        saveMembersData();
-      }
-      updateStats();
-      displayMembers();
-      displayReadings();
-      displayCalculations();
-      displayRecentActivity();
-    }
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
 
-    function switchTab(tab) {
-      document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
-      document.getElementById(tab).classList.add('active');
-      event.target.classList.add('active');
-    }
-
-    function updateStats() {
-      document.getElementById('totalMembers').textContent = members.length;
-      document.getElementById('totalReadings').textContent = readings.length;
-      document.getElementById('totalCalculations').textContent = calculations.length;
-      const thisMonth = members.filter(m => {
-        const joinDate = new Date(m.joinDate);
-        const now = new Date();
-        return joinDate.getMonth() === now.getMonth() && joinDate.getFullYear() === now.getFullYear();
-      }).length;
-      document.getElementById('thisMonthMembers').textContent = thisMonth;
-    }
-
-    function displayMembers() {
-      const tbody = document.getElementById('membersBody');
-      tbody.innerHTML = '';
-      members.forEach(member => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${member.name}</td>
-          <td>${member.email}</td>
-          <td>${member.joinDate}</td>
-          <td>${member.lastActivity}</td>
-          <td><span class="badge badge-${member.status === 'active' ? 'success' : 'warning'}">${member.status === 'active' ? '活躍' : '非活躍'}</span></td>
-          <td>
-            <button class="btn btn-small btn-danger" onclick="deleteMember(${member.id})">刪除</button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
-
-    function displayReadings() {
-      const tbody = document.getElementById('readingsBody');
-      tbody.innerHTML = '';
-      readings.forEach(reading => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${reading.member}</td>
-          <td>${reading.card}</td>
-          <td>${reading.date}</td>
-          <td>${reading.notes}</td>
-          <td>
-            <button class="btn btn-small btn-danger" onclick="deleteReading(${reading.id})">刪除</button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
-
-    function displayCalculations() {
-      const tbody = document.getElementById('calculationsBody');
-      tbody.innerHTML = '';
-      calculations.forEach(calc => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${calc.member}</td>
-          <td>${calc.birthDate}</td>
-          <td>${calc.innerCore}</td>
-          <td>${calc.outerPersonality}</td>
-          <td>${calc.date}</td>
-          <td>
-            <button class="btn btn-small btn-danger" onclick="deleteCalculation(${calc.id})">刪除</button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
-
-    function displayRecentActivity() {
-      const container = document.getElementById('recentActivity');
-      const allActivities = [
-        ...readings.map(r => ({ type: '抽牌', member: r.member, detail: r.card, date: r.date })),
-        ...calculations.map(c => ({ type: '計算機', member: c.member, detail: `${c.innerCore}/${c.outerPersonality}`, date: c.date }))
-      ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
-
-      if (allActivities.length === 0) {
-        container.innerHTML = '<p style="color: #999;">暫無活動紀錄</p>';
-        return;
-      }
-
-      let html = '<table style="width: 100%;"><thead><tr><th>活動類型</th><th>會員</th><th>詳情</th><th>日期</th></tr></thead><tbody>';
-      allActivities.forEach(activity => {
-        html += `<tr><td>${activity.type}</td><td>${activity.member}</td><td>${activity.detail}</td><td>${activity.date}</td></tr>`;
-      });
-      html += '</tbody></table>';
-      container.innerHTML = html;
-    }
-
-    function filterMembers() {
-      const search = document.getElementById('memberSearch').value.toLowerCase();
-      const status = document.getElementById('memberStatus').value;
-      const filtered = members.filter(m => {
-        const matchSearch = m.name.toLowerCase().includes(search) || m.email.toLowerCase().includes(search);
-        const matchStatus = !status || m.status === status;
-        return matchSearch && matchStatus;
-      });
-      const tbody = document.getElementById('membersBody');
-      tbody.innerHTML = '';
-      filtered.forEach(member => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${member.name}</td>
-          <td>${member.email}</td>
-          <td>${member.joinDate}</td>
-          <td>${member.lastActivity}</td>
-          <td><span class="badge badge-${member.status === 'active' ? 'success' : 'warning'}">${member.status === 'active' ? '活躍' : '非活躍'}</span></td>
-          <td>
-            <button class="btn btn-small btn-danger" onclick="deleteMember(${member.id})">刪除</button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
-
-    function filterReadings() {
-      const search = document.getElementById('readingSearch').value.toLowerCase();
-      const filtered = readings.filter(r => r.member.toLowerCase().includes(search));
-      const tbody = document.getElementById('readingsBody');
-      tbody.innerHTML = '';
-      filtered.forEach(reading => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${reading.member}</td>
-          <td>${reading.card}</td>
-          <td>${reading.date}</td>
-          <td>${reading.notes}</td>
-          <td>
-            <button class="btn btn-small btn-danger" onclick="deleteReading(${reading.id})">刪除</button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
-
-    function filterCalculations() {
-      const search = document.getElementById('calcSearch').value.toLowerCase();
-      const filtered = calculations.filter(c => c.member.toLowerCase().includes(search));
-      const tbody = document.getElementById('calculationsBody');
-      tbody.innerHTML = '';
-      filtered.forEach(calc => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${calc.member}</td>
-          <td>${calc.birthDate}</td>
-          <td>${calc.innerCore}</td>
-          <td>${calc.outerPersonality}</td>
-          <td>${calc.date}</td>
-          <td>
-            <button class="btn btn-small btn-danger" onclick="deleteCalculation(${calc.id})">刪除</button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
-
-    function deleteMember(id) {
-      if (confirm('確定要刪除此會員嗎？')) {
-        members = members.filter(m => m.id !== id);
-        saveMembersData();
-        displayMembers();
-        updateStats();
-      }
-    }
-
-    function deleteReading(id) {
-      if (confirm('確定要刪除此抽牌紀錄嗎？')) {
-        readings = readings.filter(r => r.id !== id);
-        localStorage.setItem('readings', JSON.stringify(readings));
-        displayReadings();
-        updateStats();
-      }
-    }
-
-    function deleteCalculation(id) {
-      if (confirm('確定要刪除此計算機紀錄嗎？')) {
-        calculations = calculations.filter(c => c.id !== id);
-        localStorage.setItem('calculations', JSON.stringify(calculations));
-        displayCalculations();
-        updateStats();
-      }
-    }
-
-    function saveMembersData() {
-      localStorage.setItem('members', JSON.stringify(members));
-    }
-
-    function exportMembers() {
-      const csv = "姓名,電郵,加入日期,最後活動,狀態\n" + members.map(m => `${m.name},${m.email},${m.joinDate},${m.lastActivity},${m.status}`).join('\n');
-      downloadCSV(csv, 'members.csv');
-    }
-
-    function exportReadings() {
-      const csv = "會員,卡牌,日期,備註\n" + readings.map(r => `${r.member},${r.card},${r.date},${r.notes}`).join('\n');
-      downloadCSV(csv, 'readings.csv');
-    }
-
-    function exportCalculations() {
-      const csv = "會員,出生日期,內在核心,外在人格,日期\n" + calculations.map(c => `${c.member},${c.birthDate},${c.innerCore},${c.outerPersonality},${c.date}`).join('\n');
-      downloadCSV(csv, 'calculations.csv');
-    }
-
-    function downloadCSV(csv, filename) {
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = filename;
-      link.click();
-    }
-
-    function backupData() {
-      const backup = { members, readings, calculations, backupDate: new Date().toISOString() };
-      const json = JSON.stringify(backup, null, 2);
-      const blob = new Blob([json], { type: 'application/json' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `backup-${new Date().toISOString().split('T')[0]}.json`;
-      link.click();
-    }
-
-    function saveSettings() {
-      alert('設定已保存');
-    }
-
-    init();
-  </script>
-
-
-<!-- ========== 馥靈之鑰完整版權聲明 Footer ========== -->
-<footer class="hl-footer">
-  <div class="hl-footer-inner">
-    <div class="hl-footer-brand">
-      <div class="hl-footer-logo"><img src="LOGO-1.png" alt="" class="hl-logo-icon" aria-hidden="true">馥靈之鑰 Hour Light</div>
-      <div class="hl-footer-tagline">讀懂自己，活對人生｜創辦人 王逸君</div>
-    </div>
-    <div class="hl-footer-links">
-      <a href="member-login.html">🔑 會員登入</a>
-      <a href="member-dashboard.html">👑 會員中心</a>
-      
-      <a href="index.html">首頁</a>
-      <a href="services.html">服務項目</a>
-      <a href="courses.html">課程學苑</a>
-      <a href="book.html">著作</a>
-      <a href="hourlight-sitemap.html">網站地圖</a>
-      <a href="privacy.html">隱私政策</a>
-      <a href="terms.html">服務條款</a>
-      <a href="https://lin.ee/OQDB5t6" target="_blank" rel="noopener">LINE 諮詢</a>
-      <a href="mailto:info@hourlightkey.com">📧 寫信給我們</a>
-    </div>
-    <div class="hl-footer-legal-toggle" onclick="toggleLegalContent()">
-      <span>📜 法律聲明與免責條款</span>
-      <span class="arrow">▼</span>
-    </div>
-    <div class="hl-footer-legal-content" id="legalContent">
-      <div class="hl-legal-section">
-        <div class="hl-legal-title">🌿 服務性質說明</div>
-        <div class="hl-legal-text">
-          本網站提供之服務（芳香能量覺察、牌卡解讀、生命數字分析等）僅供<strong>個人壓力管理、情緒紓解、自我探索</strong>參考。本服務<strong>不構成亦不取代</strong>醫療診斷、心理諮商、法律或財務建議。如有身心健康疑慮，請諮詢合格醫療專業人員。
-        </div>
-      </div>
-      <div class="hl-legal-section">
-        <div class="hl-legal-title">📄 智慧財產權聲明</div>
-        <div class="hl-legal-text">
-          本網站所有內容（文字、圖片、程式碼、方法論、課程架構、牌卡系統、H.O.U.R. 方法論）均受著作權法保護。未經書面授權，禁止複製、轉載、改作或商業使用。
-        </div>
-      </div>
-      <div class="hl-legal-section">
-        <div class="hl-legal-title">™ 商標聲明</div>
-        <div class="hl-legal-text">
-          「馥靈之鑰」「Hour Light」「H.O.U.R.」「馥靈秘碼」及相關標誌為馥靈之鑰國際有限公司之商標（申請中）。未經授權不得使用或註冊近似商標。
-        </div>
-      </div>
-    </div>
-    <div class="hl-footer-copyright">
-      © 2026 馥靈之鑰國際有限公司 Hour Light International Co., Ltd.｜統編：60303284<br>
-      All Rights Reserved.
-    </div>
-  </div>
-</footer>
 <script>
-function toggleLegalContent() {
-  const toggle = document.querySelector('.hl-footer-legal-toggle');
-  const content = document.getElementById('legalContent');
-  toggle.classList.toggle('active');
-  content.classList.toggle('active');
+/* ===== 星空 ===== */
+(function(){
+  var c=document.getElementById('bg-canvas'),ctx=c.getContext('2d'),stars=[];
+  function resize(){c.width=innerWidth;c.height=innerHeight;}
+  function init(){stars=[];for(var i=0;i<120;i++)stars.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.2+0.2,ph:Math.random()*Math.PI*2,sp:Math.random()*.003+.001});}
+  function draw(t){ctx.clearRect(0,0,c.width,c.height);stars.forEach(function(s){var a=0.15+0.3*Math.sin(t*s.sp+s.ph);ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle='rgba(233,194,125,'+a+')';ctx.fill();});requestAnimationFrame(draw);}
+  resize();init();window.addEventListener('resize',function(){resize();init();});requestAnimationFrame(draw);
+})();
+
+/* ===== Firebase ===== */
+var auth, db, adminUser;
+var allMembers = [], allEvents = [], eventsLastDoc = null;
+var ADMIN_EMAILS = ['info@hourlightkey.com', 'judyanee@gmail.com'];
+
+(function init(){
+  if(!window.FIREBASE_CONFIG||FIREBASE_CONFIG.apiKey==='YOUR_API_KEY'){
+    showToast('⚠️ Firebase 尚未設定，顯示示範資料');
+    loadDemoData();
+    return;
+  }
+  if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+  auth = firebase.auth();
+  db   = firebase.firestore();
+
+  auth.onAuthStateChanged(function(user){
+    if(!user){
+      window.location.href = 'member-login.html?redirect='+encodeURIComponent(location.href);
+      return;
+    }
+    if(!ADMIN_EMAILS.includes(user.email)){
+      document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#040210;color:#e9c27d;font-family:serif;text-align:center;padding:40px;"><div><div style="font-size:2rem;margin-bottom:12px;">🔒</div><div style="font-size:1.2rem;margin-bottom:8px;">權限不足</div><div style="font-size:0.85rem;opacity:0.6;">這個頁面只開放給管理員</div><a href="index.html" style="display:inline-block;margin-top:20px;color:#e9c27d;">← 回官網</a></div></div>';
+      return;
+    }
+    adminUser = user;
+    document.getElementById('adminEmail').textContent = user.email;
+    loadOverview();
+  });
+})();
+
+/* ===== 頁面切換 ===== */
+function showPage(el, id){
+  document.querySelectorAll('.page-section').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.nav-item[data-page]').forEach(function(n){n.classList.remove('active');});
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+  if(id==='members') loadMembers();
+  if(id==='events')  loadEvents();
+  if(id==='tools')   loadToolStats();
+  if(id==='roles')   loadRolesPage();
+  document.querySelector('.sidebar').classList.remove('open');
 }
+
+/* ===== 總覽 ===== */
+async function loadOverview(){
+  if(!db) return;
+  try{
+    /* 所有用戶 */
+    var userSnap = await db.collection('users').get();
+    var users = userSnap.docs.map(function(d){return{id:d.id,...d.data()};});
+    allMembers = users;
+
+    var total = users.length;
+    var now = Date.now();
+    var active7 = users.filter(function(u){
+      return u.lastSeen && (now - u.lastSeen.seconds*1000) < 7*86400000;
+    }).length;
+    var new30 = users.filter(function(u){
+      return u.createdAt && (now - u.createdAt.seconds*1000) < 30*86400000;
+    }).length;
+    var totalDraws  = users.reduce(function(s,u){return s+(u.totalDraws||0);},0);
+    var totalQuizzes= users.reduce(function(s,u){return s+(u.totalQuizzes||0);},0);
+    var totalCalcs  = users.reduce(function(s,u){return s+(u.totalCalcs||0);},0);
+    var paid = users.filter(function(u){return u.plan && u.plan!=='free';}).length;
+
+    setNum('statTotal', total);
+    setNum('statActive7', active7);
+    document.getElementById('statActive7Pct').textContent = total ? Math.round(active7/total*100)+'% 活躍率' : '';
+    setNum('statNew30', new30);
+    setNum('statTotalDraws', totalDraws);
+    setNum('statTotalQuizzes', totalQuizzes);
+    setNum('statTotalCalcs', totalCalcs);
+    setNum('statPaid', paid);
+
+    /* 最近事件 */
+    var evSnap = await db.collection('events').orderBy('ts','desc').limit(8).get();
+    var events = evSnap.docs.map(function(d){return{id:d.id,...d.data()};});
+    document.getElementById('statTotalEvents').textContent = events.length + '+';
+    renderRecentEvents(events);
+
+    /* 工具排行 */
+    renderToolRank(events);
+
+    document.getElementById('lastRefresh').textContent = '上次更新：' + new Date().toLocaleTimeString('zh-TW');
+  }catch(e){
+    console.error(e);
+    showToast('❌ 載入失敗：'+e.message);
+  }
+}
+
+function renderRecentEvents(events){
+  var el = document.getElementById('recentEvents');
+  if(!events.length){el.innerHTML='<div class="empty-box"><div class="empty-icon">📭</div><div class="empty-text">還沒有事件</div></div>';return;}
+  el.innerHTML = events.map(function(ev){
+    var type = ev.toolType || ev.eventType || 'page';
+    var name = ev.email ? ev.email.split('@')[0] : '訪客';
+    var tool = ev.toolName || ev.toolId || '—';
+    var timeStr = ev.ts ? fmtTime(ev.ts.seconds*1000) : '剛剛';
+    return '<div class="event-log-item">'
+      +'<div class="el-dot '+escT(type)+'"></div>'
+      +'<div class="el-content">'
+      +'<div class="el-title">'+escHtml(name)+' · <span class="td-tool">'+escHtml(tool)+'</span></div>'
+      +'<div class="el-meta">'+typeBadge(type)+' '+escHtml(ev.eventType||type)+'</div>'
+      +'</div>'
+      +'<div class="el-time">'+timeStr+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function renderToolRank(events){
+  var tally = {};
+  events.forEach(function(ev){
+    if(!ev.toolName) return;
+    tally[ev.toolName] = (tally[ev.toolName]||0)+1;
+  });
+  var sorted = Object.entries(tally).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
+  var max = sorted.length ? sorted[0][1] : 1;
+  var el = document.getElementById('toolRankChart');
+  if(!sorted.length){el.innerHTML='<div class="empty-box"><div class="empty-icon">📊</div><div class="empty-text">資料不足</div></div>';return;}
+  el.innerHTML = sorted.map(function(pair){
+    var pct = Math.round(pair[1]/max*100);
+    return '<div class="chart-bar-item">'
+      +'<div class="chart-bar-label"><span>'+escHtml(pair[0])+'</span><span>'+pair[1]+' 次</span></div>'
+      +'<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%"></div></div>'
+      +'</div>';
+  }).join('');
+}
+
+// =====================================================
+//  角色管理系統
+// =====================================================
+var _localPermMatrix = null;  // 本地編輯中的矩陣
+var _memberCounts    = {};    // 各角色人數
+
+async function loadRolesPage() {
+  await loadMemberCountsByRole();
+  renderRoleCards();
+  await loadPermMatrixForAdmin();
+  renderPermMatrix();
+}
+
+async function loadMemberCountsByRole() {
+  if (!db) return;
+  try {
+    var snap = await db.collection('users').get();
+    _memberCounts = {};
+    snap.docs.forEach(function(d) {
+      var r = d.data().role || 'guest';
+      _memberCounts[r] = (_memberCounts[r]||0) + 1;
+    });
+  } catch(e) {}
+}
+
+function renderRoleCards() {
+  var roles = typeof HL_ROLES !== 'undefined' ? HL_ROLES : {};
+  var el = document.getElementById('roleCardGrid');
+  el.innerHTML = Object.entries(roles).map(function(entry) {
+    var key = entry[0], r = entry[1];
+    var count = _memberCounts[key] || 0;
+    return '<div class="role-card">'
+      + '<div class="role-card-head">'
+      +   '<div class="role-card-icon">'+r.icon+'</div>'
+      +   '<div><div class="role-card-name">'+r.name+'</div>'
+      +   '<div class="role-card-en">'+r.nameEn+'</div></div>'
+      + '</div>'
+      + '<div style="display:inline-block;padding:3px 12px;border-radius:999px;'
+      +   'background:'+r.badge+';color:'+r.badgeText+';font-size:0.72rem;margin-bottom:10px;">Lv.'+r.level+'</div>'
+      + '<div class="role-card-desc">'+r.desc+'</div>'
+      + '<div class="role-card-count">目前 <strong style="color:var(--gold)">'+count+'</strong> 位</div>'
+      + '</div>';
+  }).join('');
+}
+
+async function loadPermMatrixForAdmin() {
+  var def = typeof HL_DEFAULT_PERMISSIONS !== 'undefined' ? HL_DEFAULT_PERMISSIONS : {};
+  _localPermMatrix = JSON.parse(JSON.stringify(def)); // deep copy
+  if (!db) return;
+  try {
+    var snap = await db.doc('system/permissions').get();
+    if (snap.exists) _localPermMatrix = snap.data();
+  } catch(e) {}
+}
+
+function renderPermMatrix() {
+  var roles = typeof HL_ROLES !== 'undefined' ? HL_ROLES : {};
+  var tools = typeof HL_TOOL_PERMISSIONS !== 'undefined' ? HL_TOOL_PERMISSIONS : {};
+  var roleKeys = Object.keys(roles);
+  var toolKeys = Object.keys(tools);
+
+  // 分組
+  var groups = {
+    draw:       { label: '🎴 抽牌工具', tools: [] },
+    quiz:       { label: '🧩 測驗工具', tools: [] },
+    calculator: { label: '🔮 計算工具', tools: [] },
+    explore:    { label: '🌿 探索工具', tools: [] },
+    premium:    { label: '💎 高階專屬工具', tools: [] },
+  };
+  toolKeys.forEach(function(k) { groups[tools[k].type].tools.push(k); });
+
+  // 欄標頭
+  var colHeaders = '<div class="role-col-header" style="text-align:left;padding-left:16px;">工具名稱</div>'
+    + roleKeys.map(function(rk) {
+        var r = roles[rk];
+        return '<div class="role-col-header">'
+          + '<span class="role-icon-big">'+r.icon+'</span>'
+          + '<div class="role-name-sm">'+r.name+'</div>'
+          + '</div>';
+      }).join('');
+
+  // 各群組的行
+  var rows = '';
+  Object.values(groups).forEach(function(g) {
+    if (!g.tools.length) return;
+    rows += '<div class="perm-group-header">'+g.label+'</div>';
+    g.tools.forEach(function(tk) {
+      var tool = tools[tk];
+      rows += '<div class="perm-row">'
+        + '<div class="perm-tool-name">'
+        +   '<span class="perm-tool-type '+tool.type+'">'+{'draw':'抽牌','quiz':'測驗','calculator':'計算','explore':'探索','premium':'高階'}[tool.type]+'</span>'
+        +   tool.name
+        + '</div>'
+        + roleKeys.map(function(rk) {
+            var r = roles[rk];
+            // 管理員和無限權限角色：鎖定開啟
+            if (r.unlimitedAll || r.canAccessAdmin) {
+              return '<div class="perm-cell"><span class="perm-admin-lock" title="此身分預設全開">⚜️</span></div>';
+            }
+            var checked = (_localPermMatrix && _localPermMatrix[rk] && _localPermMatrix[rk][tk]) ? 'checked' : '';
+            return '<div class="perm-cell">'
+              + '<label class="perm-toggle">'
+              + '<input type="checkbox" '+checked+' data-role="'+rk+'" data-tool="'+tk+'" onchange="onPermToggle(this)">'
+              + '<span class="perm-slider"></span>'
+              + '</label></div>';
+          }).join('')
+        + '</div>';
+    });
+  });
+
+  document.getElementById('permMatrixWrap').innerHTML =
+    '<div style="overflow-x:auto;">'
+    + '<div style="min-width:max-content;">'
+    + '<div class="role-header-row" style="border-bottom:1px solid var(--border);background:rgba(233,194,125,0.04);">'+colHeaders+'</div>'
+    + '<div class="perm-matrix">'+rows+'</div>'
+    + '</div></div>';
+}
+
+function onPermToggle(el) {
+  var role = el.getAttribute('data-role');
+  var tool = el.getAttribute('data-tool');
+  if (!_localPermMatrix) _localPermMatrix = {};
+  if (!_localPermMatrix[role]) _localPermMatrix[role] = {};
+  _localPermMatrix[role][tool] = el.checked;
+}
+
+async function savePermMatrix() {
+  if (!db) { showToast('❌ Firebase 未連線'); return; }
+  if (!_localPermMatrix) { showToast('⚠️ 尚未載入矩陣'); return; }
+  try {
+    // Firestore 不支援巢狀物件，用 flatten 方式存
+    var flat = {};
+    Object.entries(_localPermMatrix).forEach(function(re) {
+      Object.entries(re[1]).forEach(function(te) {
+        flat[re[0]+'.'+te[0]] = te[1];
+      });
+    });
+    // 先刪掉再整個寫入
+    await db.doc('system/permissions').set(_localPermMatrix);
+    showToast('✅ 權限矩陣已儲存，即時生效');
+  } catch(e) {
+    showToast('❌ 儲存失敗：'+e.message);
+  }
+}
+
+// =====================================================
+//  會員身分指派（在會員詳情 Modal 裡）
+// =====================================================
+async function updateMemberRole(uid, newRole) {
+  if (!db) return;
+  try {
+    await db.doc('users/'+uid).set({ role: newRole }, { merge: true });
+    showToast('✅ 身分已更新為：' + (typeof HL_ROLES!=='undefined'&&HL_ROLES[newRole]? HL_ROLES[newRole].name : newRole));
+    // 同步更新本地列表
+    var m = allMembers.find(function(x){ return x.id===uid; });
+    if (m) { m.role = newRole; renderMembers(filteredMembers); }
+    await loadMemberCountsByRole();
+    renderRoleCards();
+  } catch(e) {
+    showToast('❌ 更新失敗：'+e.message);
+  }
+}
+
+/* ===== 會員管理 ===== */
+var filteredMembers = [];
+async function loadMembers(){
+  if(!db){loadDemoMembers();return;}
+  document.getElementById('membersList').innerHTML = '<div class="loading-box"><div class="spinner"></div>載入中...</div>';
+  try{
+    var snap = await db.collection('users').orderBy('lastSeen','desc').limit(200).get();
+    allMembers = snap.docs.map(function(d){return{id:d.id,...d.data()};});
+    filteredMembers = [...allMembers];
+    renderMembers(filteredMembers);
+  }catch(e){
+    document.getElementById('membersList').innerHTML='<div class="empty-box"><div class="empty-icon">⚠️</div><div class="empty-text">載入失敗：'+escHtml(e.message)+'</div></div>';
+  }
+}
+
+function filterMembers(){
+  var q = (document.getElementById('memberSearch').value||'').toLowerCase();
+  var plan = document.getElementById('memberPlanFilter').value;
+  filteredMembers = allMembers.filter(function(m){
+    var name = (m.displayName||'').toLowerCase();
+    var email = (m.email||'').toLowerCase();
+    var matchQ = !q || name.includes(q) || email.includes(q);
+    var matchPlan = !plan || (m.plan||'free') === plan;
+    return matchQ && matchPlan;
+  });
+  renderMembers(filteredMembers);
+}
+
+function renderMembers(list){
+  var el = document.getElementById('membersList');
+  if(!list.length){
+    el.innerHTML='<div class="empty-box"><div class="empty-icon">👥</div><div class="empty-text">沒有符合的會員</div></div>';
+    return;
+  }
+  el.innerHTML = list.map(function(m){
+    var name = m.displayName || (m.email?m.email.split('@')[0]:'未知');
+    var plan = PLAN_INFO[m.plan||'free']||PLAN_INFO.free;
+    var joined = m.createdAt ? fmtDate(m.createdAt.seconds*1000) : '—';
+    var seen   = m.lastSeen  ? fmtTime(m.lastSeen.seconds*1000)  : '—';
+    return '<div class="member-card" onclick="openMemberDetail(\''+m.id+'\')">'
+      +'<div class="member-avatar">👑</div>'
+      +'<div class="member-info">'
+      +'<div class="member-name">'+escHtml(name)+'</div>'
+      +'<div class="member-email">'+escHtml(m.email||'')+'</div>'
+      +'<div class="member-meta">'
+      +'<span class="meta-chip gold">'+plan.icon+' '+plan.name+'</span>'
+      +'<span class="meta-chip">加入 '+joined+'</span>'
+      +'<span class="meta-chip">最後 '+seen+'</span>'
+      +'</div></div>'
+      +'<div class="member-stats">'
+      +'<div class="ms-item"><div class="ms-num">'+(m.totalDraws||0)+'</div><div class="ms-label">抽牌</div></div>'
+      +'<div class="ms-item"><div class="ms-num">'+(m.totalQuizzes||0)+'</div><div class="ms-label">測驗</div></div>'
+      +'<div class="ms-item"><div class="ms-num">'+(m.totalCalcs||0)+'</div><div class="ms-label">計算</div></div>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function exportMembers(){
+  var rows = [['姓名','電郵','身分','方案','加入日期','最後上線','抽牌','測驗','計算']];
+  var roles = typeof HL_ROLES !== 'undefined' ? HL_ROLES : {};
+  filteredMembers.forEach(function(m){
+    var roleInfo = roles[m.role||'guest'];
+    rows.push([
+      m.displayName||'',
+      m.email||'',
+      roleInfo ? roleInfo.name : (m.role||'馥靈訪客'),
+      m.plan||'free',
+      m.createdAt ? fmtDate(m.createdAt.seconds*1000) : '',
+      m.lastSeen  ? fmtDate(m.lastSeen.seconds*1000)  : '',
+      m.totalDraws||0, m.totalQuizzes||0, m.totalCalcs||0
+    ]);
+  });
+  downloadCSV(rows, 'hl-members-'+new Date().toISOString().slice(0,10)+'.csv');
+}
+
+/* ===== 會員詳情 ===== */
+var detailMemberId = null;
+async function openMemberDetail(uid){
+  var m = allMembers.find(function(x){return x.id===uid;});
+  if(!m) return;
+  detailMemberId = uid;
+
+  var modal   = document.getElementById('memberDetailModal');
+  var name    = m.displayName || (m.email?m.email.split('@')[0]:'未知');
+  var roles   = typeof HL_ROLES!=='undefined' ? HL_ROLES : {};
+  var currRole = m.role || 'guest';
+  var roleInfo = roles[currRole] || { name: currRole, icon: '🌱', badge:'linear-gradient(135deg,#555,#333)', badgeText:'#ccc' };
+
+  document.getElementById('mdName').textContent = name;
+  document.getElementById('mdEmail').textContent = m.email||'';
+  document.getElementById('mdChips').innerHTML =
+    '<span class="meta-chip gold" style="background:'+roleInfo.badge+';color:'+roleInfo.badgeText+';padding:3px 10px;border-radius:999px;font-size:0.72rem;">'+roleInfo.icon+' '+roleInfo.name+'</span>'
+    +(m.createdAt?'<span class="meta-chip">加入 '+fmtDate(m.createdAt.seconds*1000)+'</span>':'')
+    +(m.lastSeen?'<span class="meta-chip">最後上線 '+fmtTime(m.lastSeen.seconds*1000)+'</span>':'');
+
+  document.getElementById('mdStats').innerHTML = [
+    {icon:'🎴',num:m.totalDraws||0,label:'抽牌'},
+    {icon:'🧩',num:m.totalQuizzes||0,label:'測驗'},
+    {icon:'🔮',num:m.totalCalcs||0,label:'計算'},
+    {icon:'📖',num:m.totalPageViews||0,label:'頁面訪問'},
+  ].map(function(s){
+    return '<div class="stat-card">'
+      +'<div class="stat-icon">'+s.icon+'</div>'
+      +'<div class="stat-num">'+s.num+'</div>'
+      +'<div class="stat-label">'+s.label+'</div>'
+      +'</div>';
+  }).join('');
+
+  // 填充角色選擇器
+  var sel = document.getElementById('mdRoleSelect');
+  sel.innerHTML = '<option value="">— 選擇身分 —</option>';
+  Object.entries(roles).forEach(function(entry){
+    var rk = entry[0], ri = entry[1];
+    var opt = document.createElement('option');
+    opt.value = rk;
+    opt.textContent = ri.icon + ' ' + ri.name + '（Lv.' + ri.level + '）';
+    if (rk === currRole) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  sel.onchange = function(){
+    var selected = roles[sel.value];
+    if (selected) {
+      var note = (sel.value === 'vip_guest')
+        ? '<div style="margin-top:6px;padding:8px 12px;background:rgba(240,128,160,0.1);border-radius:8px;border:1px solid rgba(240,128,160,0.3);font-size:0.72rem;color:rgba(240,128,160,0.9);">⚠️ 馥靈特殊貴賓的身分由系統自動辨識 Email，不需手動設定。若此人的 Email 已在硬編碼清單中，Firestore 的 role 欄位不影響實際權限。</div>'
+        : '';
+      document.getElementById('mdRolePreview').innerHTML =
+        '<span style="background:'+selected.badge+';color:'+selected.badgeText+';padding:3px 12px;border-radius:999px;font-size:0.72rem;">'+selected.icon+' '+selected.name+'</span>'
+        +' — '+selected.desc + note;
+    } else {
+      document.getElementById('mdRolePreview').textContent = '';
+    }
+  };
+  sel.onchange(); // 初始化預覽
+
+  modal.classList.add('show');
+
+  // 載入此會員的歷史
+  var histEl = document.getElementById('mdHistory');
+  histEl.innerHTML = '<div class="loading-box"><div class="spinner"></div>載入記錄...</div>';
+
+  try{
+    var snap = await db.collection('users/'+uid+'/history')
+      .orderBy('timestamp','desc').limit(50).get();
+    var items = snap.docs.map(function(d){return{id:d.id,...d.data()};});
+
+    if(!items.length){
+      histEl.innerHTML='<div class="empty-box"><div class="empty-icon">📭</div><div class="empty-text">還沒有記錄</div></div>';
+      return;
+    }
+
+    histEl.innerHTML = '<div class="tbl-wrap"><table>'
+      +'<thead><tr><th>類型</th><th>工具／動作</th><th>詳情</th><th>時間</th></tr></thead>'
+      +'<tbody>'
+      +items.map(function(h){
+        var t = h.type||'page';
+        return '<tr>'
+          +'<td>'+typeBadge(t)+'</td>'
+          +'<td class="td-tool">'+escHtml(h.title||h.toolId||'—')+'</td>'
+          +'<td class="td-email" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+escHtml(h.detail||'')+'</td>'
+          +'<td class="td-time">'+fmtTime(h.timestamp?h.timestamp.seconds*1000:Date.now())+'</td>'
+          +'</tr>';
+      }).join('')
+      +'</tbody></table></div>';
+  }catch(e){
+    histEl.innerHTML='<div class="empty-box"><div class="empty-text">載入失敗</div></div>';
+  }
+}
+
+function applyMemberRole() {
+  var sel = document.getElementById('mdRoleSelect');
+  var newRole = sel.value;
+  if (!newRole) { showToast('⚠️ 請先選擇一個身分'); return; }
+  if (!detailMemberId) return;
+  updateMemberRole(detailMemberId, newRole);
+}
+
+function closeMemberDetail(){
+  document.getElementById('memberDetailModal').classList.remove('show');
+}
+
+/* ===== 全站事件流 ===== */
+var eventsPage = 0;
+async function loadEvents(){
+  if(!db) return;
+  eventsPage = 0;
+  eventsLastDoc = null;
+  document.getElementById('eventsTableWrap').innerHTML='<div class="loading-box"><div class="spinner"></div>載入事件流...</div>';
+  await fetchEvents(true);
+}
+
+async function fetchEvents(reset){
+  if(!db) return;
+  var typeF = document.getElementById('eventTypeFilter').value;
+  var toolF = document.getElementById('eventToolFilter').value;
+
+  try{
+    var q = db.collection('events').orderBy('ts','desc');
+    if(typeF) q = q.where('toolType','==',typeF);
+    if(toolF) q = q.where('toolId','==',toolF);
+    if(!reset && eventsLastDoc) q = q.startAfter(eventsLastDoc);
+    q = q.limit(50);
+
+    var snap = await q.get();
+    var docs = snap.docs.map(function(d){return{id:d.id,...d.data()};});
+    eventsLastDoc = snap.docs[snap.docs.length-1];
+
+    if(reset) allEvents = docs;
+    else allEvents = allEvents.concat(docs);
+
+    renderEventsTable(allEvents);
+    document.getElementById('loadMoreEventsBtn').style.display = snap.docs.length>=50?'':'none';
+
+    // 建立工具下拉選項
+    if(reset){
+      var tools = [...new Set(allEvents.map(function(e){return e.toolId;}).filter(Boolean))];
+      var sel = document.getElementById('eventToolFilter');
+      var existing = Array.from(sel.options).map(function(o){return o.value;});
+      tools.forEach(function(t){
+        if(!existing.includes(t)){
+          var opt=document.createElement('option');opt.value=t;opt.textContent=t;sel.appendChild(opt);
+        }
+      });
+    }
+  }catch(e){
+    document.getElementById('eventsTableWrap').innerHTML='<div class="empty-box"><div class="empty-text">載入失敗：'+escHtml(e.message)+'</div></div>';
+  }
+}
+
+function loadMoreEvents(){ fetchEvents(false); }
+
+function renderEventsTable(events){
+  var q = (document.getElementById('eventSearch').value||'').toLowerCase();
+  var filtered = q ? events.filter(function(e){
+    return (e.email||'').toLowerCase().includes(q)||(e.toolName||'').toLowerCase().includes(q);
+  }) : events;
+
+  if(!filtered.length){
+    document.getElementById('eventsTableWrap').innerHTML='<div class="empty-box"><div class="empty-icon">📭</div><div class="empty-text">沒有符合的記錄</div></div>';
+    return;
+  }
+
+  document.getElementById('eventsTableWrap').innerHTML = '<div class="tbl-wrap"><table>'
+    +'<thead><tr><th>類型</th><th>會員</th><th>工具</th><th>動作</th><th>詳情</th><th>時間</th></tr></thead>'
+    +'<tbody>'
+    +filtered.map(function(ev){
+      var type = ev.toolType||'page';
+      var email = ev.email ? ev.email.split('@')[0] : '—';
+      return '<tr>'
+        +'<td>'+typeBadge(type)+'</td>'
+        +'<td class="td-name">'+escHtml(email)+'</td>'
+        +'<td class="td-tool">'+escHtml(ev.toolName||ev.toolId||'—')+'</td>'
+        +'<td class="td-email">'+escHtml(ev.eventType||'—')+'</td>'
+        +'<td class="td-email" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+escHtml(JSON.stringify(ev.detail||{}).substring(0,80))+'</td>'
+        +'<td class="td-time">'+fmtTime(ev.ts?ev.ts.seconds*1000:Date.now())+'</td>'
+        +'</tr>';
+    }).join('')
+    +'</tbody></table></div>';
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  document.getElementById('eventSearch').addEventListener('input', function(){renderEventsTable(allEvents);});
+  document.getElementById('eventTypeFilter').addEventListener('change', loadEvents);
+  document.getElementById('eventToolFilter').addEventListener('change', function(){renderEventsTable(allEvents);});
+});
+
+/* ===== 工具統計 ===== */
+async function loadToolStats(){
+  if(!db) return;
+  document.getElementById('toolStatsWrap').innerHTML='<div class="loading-box"><div class="spinner"></div>統計中...</div>';
+  try{
+    var snap = await db.collection('events').orderBy('ts','desc').limit(500).get();
+    var events = snap.docs.map(function(d){return d.data();});
+
+    var byTool = {};
+    events.forEach(function(ev){
+      var k = ev.toolName||ev.toolId||'unknown';
+      if(!byTool[k]) byTool[k]={name:k,id:ev.toolId,type:ev.toolType||'tool',count:0,users:new Set()};
+      byTool[k].count++;
+      if(ev.uid) byTool[k].users.add(ev.uid);
+    });
+
+    var sorted = Object.values(byTool).sort(function(a,b){return b.count-a.count;});
+    var max = sorted.length ? sorted[0].count : 1;
+
+    document.getElementById('toolStatsWrap').innerHTML = '<div class="tbl-wrap"><table>'
+      +'<thead><tr><th>排名</th><th>工具名稱</th><th>類型</th><th>使用次數</th><th>使用人數</th><th>熱度</th></tr></thead>'
+      +'<tbody>'
+      +sorted.map(function(t,i){
+        var pct = Math.round(t.count/max*100);
+        return '<tr>'
+          +'<td style="color:var(--gold);font-family:var(--serif);">'+(i+1)+'</td>'
+          +'<td class="td-tool">'+escHtml(t.name)+'</td>'
+          +'<td>'+typeBadge(t.type)+'</td>'
+          +'<td><strong>'+t.count+'</strong></td>'
+          +'<td>'+t.users.size+'</td>'
+          +'<td style="min-width:100px;">'
+          +'<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%"></div></div>'
+          +'</td>'
+          +'</tr>';
+      }).join('')
+      +'</tbody></table></div>';
+  }catch(e){
+    document.getElementById('toolStatsWrap').innerHTML='<div class="empty-box"><div class="empty-text">載入失敗</div></div>';
+  }
+}
+
+/* ===== 示範模式 ===== */
+function loadDemoData(){
+  setNum('statTotal',42);setNum('statActive7',18);setNum('statNew30',8);
+  setNum('statTotalDraws',234);setNum('statTotalQuizzes',89);setNum('statTotalCalcs',156);
+  setNum('statTotalEvents',1200);setNum('statPaid',5);
+  document.getElementById('statActive7Pct').textContent='43% 活躍率';
+  renderRecentEvents([
+    {email:'alice@demo.com',toolName:'馥靈牌陣抽牌',toolType:'draw',eventType:'draw_complete',ts:{seconds:Date.now()/1000-300}},
+    {email:'bob@demo.com',toolName:'MBTI 人格測驗',toolType:'quiz',eventType:'quiz_complete',ts:{seconds:Date.now()/1000-1800}},
+    {email:'carol@demo.com',toolName:'命盤運算引擎',toolType:'calculator',eventType:'page_enter',ts:{seconds:Date.now()/1000-3600}},
+  ]);
+  renderToolRank([
+    {toolName:'馥靈牌陣抽牌'},{toolName:'馥靈牌陣抽牌'},{toolName:'馥靈牌陣抽牌'},
+    {toolName:'MBTI 人格測驗'},{toolName:'MBTI 人格測驗'},
+    {toolName:'命盤運算引擎'},
+    {toolName:'馥靈秘碼'},{toolName:'馥靈秘碼'},
+  ]);
+  document.getElementById('lastRefresh').textContent='示範模式（Firebase 未設定）';
+}
+function loadDemoMembers(){
+  allMembers=[{id:'u1',displayName:'示範用戶',email:'demo@example.com',plan:'free',totalDraws:5,totalQuizzes:2,totalCalcs:3}];
+  filteredMembers=[...allMembers];renderMembers(filteredMembers);
+}
+
+/* ===== 計劃資訊 ===== */
+var PLAN_INFO = window.MEMBER_PLANS || {
+  free:{name:'覺察旅人',icon:'🌱'},
+  basic:{name:'覺察學員',icon:'🔑'},
+  pro:{name:'覺察修練者',icon:'✨'},
+  vip:{name:'馥靈夥伴',icon:'👑'},
+  elite:{name:'馥靈傳承者',icon:'🏰'}
+};
+
+/* ===== 工具函數 ===== */
+function setNum(id,val){var e=document.getElementById(id);if(e)e.textContent=val;}
+function fmtTime(ms){
+  var d=Date.now()-ms;
+  if(d<60000)return '剛剛';
+  if(d<3600000)return Math.floor(d/60000)+'分鐘前';
+  if(d<86400000)return Math.floor(d/3600000)+'小時前';
+  return fmtDate(ms);
+}
+function fmtDate(ms){
+  var d=new Date(ms);
+  return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();
+}
+function escHtml(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escT(t){return ['draw','quiz','calc','tool','page'].includes(t)?t:'page';}
+function typeBadge(t){
+  var m={draw:'🎴 抽牌',quiz:'🧩 測驗',calc:'🔮 計算',calculator:'🔮 計算',explore:'🌿 探索',tool:'🛠 工具',page:'📄 進入','page_enter':'📄 進入'};
+  var cls={draw:'draw',quiz:'quiz',calc:'calc',calculator:'calc',explore:'tool',tool:'tool',page:'page','page_enter':'page'};
+  return '<span class="td-type-badge td-type-'+(cls[t]||'page')+'">'+(m[t]||t)+'</span>';
+}
+function downloadCSV(rows, filename){
+  var content = rows.map(function(r){
+    return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');
+  }).join('\n');
+  var blob = new Blob(['\uFEFF'+content],{type:'text/csv;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
+}
+function showToast(msg){
+  var t=document.getElementById('adminToast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},3000);
+}
+function doLogout(){
+  if(auth) auth.signOut().then(function(){window.location.href='index.html';});
+  else window.location.href='index.html';
+}
+
+// 關閉 modal（ESC）
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeMemberDetail();});
+document.getElementById('memberDetailModal').addEventListener('click',function(e){
+  if(e.target===this)closeMemberDetail();
+});
 </script>
-<!-- ========== Footer End ========== -->
-
-
-<script src="assets/js/hourlight-global.js"></script>
-<script src="assets/js/hl-music.js"></script>
-  <script>if("serviceWorker"in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js").catch(()=>{})})}</script>
 </body>
 </html>

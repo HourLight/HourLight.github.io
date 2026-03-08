@@ -67,6 +67,22 @@
 .result-section-title{font-size:0.85rem;letter-spacing:2px;color:#e9c27d;opacity:1;margin-bottom:14px;font-weight:500}
 .result-section-content{color:#c4b7a6;font-size:0.92rem;line-height:1.85}
 .result-section-content strong{color:#f7efe1;font-weight:500}
+.hl-title-reveal{margin-bottom:24px;animation:titleGlow 0.8s ease-out}
+@keyframes titleGlow{from{opacity:0;transform:translateY(20px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.hl-title-card{background:linear-gradient(145deg,rgba(20,10,40,0.96),rgba(12,6,24,0.96));border:1px solid rgba(233,194,125,0.45);border-radius:24px;padding:36px 28px 32px;text-align:center;position:relative;overflow:hidden}
+.hl-title-card::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:240px;height:240px;background:radial-gradient(circle,rgba(233,194,125,0.12) 0%,transparent 70%);pointer-events:none}
+.hl-title-eyebrow{font-family:'Cormorant Garamond',serif;font-size:0.78rem;font-style:italic;letter-spacing:5px;color:rgba(233,194,125,0.7);margin-bottom:10px}
+.hl-title-icon{font-size:3.2rem;display:block;margin-bottom:14px;animation:float 3s ease-in-out infinite}
+.hl-title-main{font-family:'LXGW WenKai TC','Noto Serif TC',serif;font-size:clamp(1.7rem,5vw,2.4rem);font-weight:400;color:#f7efe1;letter-spacing:4px;margin-bottom:8px;background:linear-gradient(135deg,#f7efe1 30%,#e9c27d 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hl-title-sub{font-size:0.95rem;color:#c4b7a6;line-height:1.7;margin-bottom:24px}
+.hl-title-divider{width:48px;height:1px;background:linear-gradient(90deg,transparent,rgba(233,194,125,0.5),transparent);margin:0 auto 24px}
+.hl-title-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;text-align:left}
+.hl-title-tag{background:rgba(255,255,255,0.04);border:1px solid rgba(233,194,125,0.18);border-radius:14px;padding:14px 16px}
+.hl-title-tag-label{font-size:0.68rem;letter-spacing:2px;color:rgba(233,194,125,0.65);margin-bottom:6px}
+.hl-title-tag-value{font-size:0.88rem;color:#f0e8d8;line-height:1.5;font-family:'LXGW WenKai TC',serif}
+.hl-title-quote{font-family:'LXGW WenKai TC',serif;font-size:1rem;color:rgba(233,194,125,0.85);line-height:1.85;padding:16px 20px;background:rgba(233,194,125,0.07);border-left:2px solid rgba(233,194,125,0.4);border-radius:0 12px 12px 0;text-align:left}
+.hl-title-combo-hint{font-size:0.75rem;color:rgba(200,185,170,0.55);margin-top:18px;letter-spacing:1px}
+@media(max-width:480px){.hl-title-grid{grid-template-columns:1fr}.hl-title-card{padding:28px 18px 24px}}
 .result-hour-bridge{background:linear-gradient(135deg,rgba(156,110,219,0.12),rgba(233,194,125,0.08));border:1px solid rgba(156,110,219,0.3);border-radius:20px;padding:28px 24px;margin-bottom:20px;text-align:center}
 .hour-bridge-label{font-size:0.75rem;letter-spacing:2px;color:#b399e8;margin-bottom:12px}
 .hour-bridge-text{font-family:"LXGW WenKai TC",serif;font-size:1.1rem;color:#f7efe1;line-height:1.8;margin-bottom:16px}
@@ -87,14 +103,9 @@
 
 /* ===== 奶油浮雕底圖覆蓋 ===== */
 .hl-cosmos {
-  background:
-    linear-gradient(rgba(10,6,20,0.48), rgba(10,6,20,0.48)),
-    url('background.jpg');
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
+  background: transparent;
 }
-.hl-stars-layer, .hl-meteors, .hl-aura { opacity: 0.35; }
+.hl-stars-layer, .hl-meteors, .hl-aura { opacity: 0.85; }
 
 /* ── 馥靈之鑰 LOGO 圖標 ── */
 .hl-logo-icon {
@@ -180,6 +191,7 @@
   <div id="questionsArea"></div>
 
   <div class="quiz-result" id="quizResult">
+    <div class="hl-title-reveal" id="hlTitleReveal"></div>
     <div class="result-hero" id="resultHero"></div>
     <div class="dims-grid" id="dimsGrid"></div>
     <div class="result-section" id="resultMain"></div>
@@ -234,11 +246,11 @@
 // MBTI 題目：每題測一個維度 E/I, S/N, T/F, J/P
 const questions = [
   // E vs I（8題）
-  {dim:'EI', q:'週末連玩三天後，你的感覺是？',scenario:'（誠實說）',
+  {dim:'EI', q:'週末連玩三天後，你的感覺是？',scenario:'（不要說你希望的那種，說你真實的反應）',
    opts:[{text:'超充實！但要繼續再玩三天我也OK，社交讓我有能量',v:'E'},{text:'雖然很好玩，但我已經需要「一個人待著」充電了',v:'I'}]},
   {dim:'EI', q:'你平常怎麼解決問題？',scenario:'',
    opts:[{text:'找人說說看，邊講邊想，腦子在說話的時候才開竅',v:'E'},{text:'先自己想清楚，想透了才說，說出來通常已經有答案了',v:'I'}]},
-  {dim:'EI', q:'一場不認識任何人的派對，兩小時後你在幹嘛？',scenario:'（最可能的那個）',
+  {dim:'EI', q:'一場不認識任何人的派對，兩小時後你在幹嘛？',scenario:'（說你大概率會怎樣，不是你希望自己怎樣）',
    opts:[{text:'已經加了三個人的Line，正在約下次見面',v:'E'},{text:'在廁所划手機，或者找藉口準備離開了',v:'I'}]},
   {dim:'EI', q:'家族群組突然炸出100則訊息，你？',scenario:'',
    opts:[{text:'馬上滑下去看，說不定有什麼好笑的或重要的事',v:'E'},{text:'看到那個數字就直接封鎖通知，有事找我直接傳',v:'I'}]},
@@ -262,7 +274,7 @@ const questions = [
    opts:[{text:'有點煩躁，未來的事說不準，先把眼前的搞定再說',v:'S'},{text:'突然興奮起來，腦子裡畫面一張一張跑出來',v:'N'}]},
   {dim:'SN', q:'你解釋一件事情的時候，習慣從哪裡開始？',scenario:'',
    opts:[{text:'從具體的例子開始，說完再說道理，有畫面才懂',v:'S'},{text:'從整體概念開始，先說大方向，細節到時候再補',v:'N'}]},
-  {dim:'SN', q:'買了一個新玩意兒，你會先？',scenario:'（說真的）',
+  {dim:'SN', q:'買了一個新玩意兒，你會先？',scenario:'（說你平常真實的樣子，不是你覺得應該有的那種）',
    opts:[{text:'看說明書或教學影片，按步驟來，先弄懂再用',v:'S'},{text:'直接拿起來玩，說明書是在我弄不動的時候才看的',v:'N'}]},
   {dim:'SN', q:'你最享受什麼類型的對話？',scenario:'',
    opts:[{text:'聊具體發生的事、八卦、計畫，有內容有情節的那種',v:'S'},{text:'聊「如果...」「你覺得...」「為什麼...」這種沒有標準答案的問題',v:'N'}]},
@@ -284,13 +296,13 @@ const questions = [
    opts:[{text:'「這個邏輯有點說不通，為什麼那個角色要那樣做」',v:'T'},{text:'「那一幕真的讓我哭了，你有沒有這樣的感覺」',v:'F'}]},
   {dim:'TF', q:'你在幫人做決定時，你會優先考慮？',scenario:'',
    opts:[{text:'哪個選項客觀條件最好、風險最低、效益最高',v:'T'},{text:'哪個選項讓他心裡最舒服、跟他的個性最合',v:'F'}]},
-  {dim:'TF', q:'一個你不太喜歡的人突然找你幫忙，你？',scenario:'',
-   opts:[{text:'有能力幫就幫，喜不喜歡是一回事，能幫就幫',v:'T'},{text:'心裡有點複雜，但還是會幫，不然過不了自己那關',v:'F'}]},
+  {dim:'TF', q:'朋友做了一件你覺得很不對的決定，但他超開心地跟你說，你？',scenario:'（他完全沒問你意見）',
+   opts:[{text:'忍不住還是說出來，「我說說我的看法，你自己決定」，關心就是說真話',v:'T'},{text:'先配合他一起開心，等他問你或時機對了再說，現在說破壞心情沒意義',v:'F'}]},
 
   // J vs P（8題）
-  {dim:'JP', q:'你的包包裡通常有什麼？',scenario:'（說真實情況）',
+  {dim:'JP', q:'你的包包裡通常有什麼？',scenario:'（說真話，沒有標準答案，測不出「好人」還是「壞人」）',
    opts:[{text:'固定的幾樣東西，每次出門前確認清單，缺一樣就不舒服',v:'J'},{text:'各種說不清楚的東西，但我在裡面找什麼都找得到',v:'P'}]},
-  {dim:'JP', q:'答應朋友的事，你通常是？',scenario:'（說真的）',
+  {dim:'JP', q:'答應朋友的事，你通常是？',scenario:'（說你平常真實的樣子，不是你覺得應該有的那種）',
    opts:[{text:'提早做好，說好什麼時候就什麼時候，拖著我自己也焦慮',v:'J'},{text:'沒到時間點就先放著，快到了才衝，壓線反而效率最高',v:'P'}]},
   {dim:'JP', q:'旅行時朋友臨時說「這裡看起來很好吃，進去吃？」你？',scenario:'',
    opts:[{text:'要先看一下是幾點、後面有沒有行程、還餓不餓，再決定',v:'J'},{text:'好啊進去，人生就是要說走就走，管那麼多幹嘛',v:'P'}]},
@@ -307,6 +319,46 @@ const questions = [
 ];
 
 // MBTI結果資料（簡化16型）
+
+// ===== 馥靈稱號系統 =====
+const mbtiTitles = {
+  INTJ: { icon:'🌑', title:'黑暗棋手', sub:'你三步後的布局，別人現在才看懂第一步。', castle:'解鎖密室（U 區）', hour:'Unlock ✦ 潛能解鎖', oil:'乳香 · 迷迭香', quote:'你最大的孤獨，是你已經看見了，但還要等世界跟上來。' },
+  INTP: { icon:'🔭', title:'宇宙偵探', sub:'你不找答案，你找答案背後的答案。腦子永遠沒有關機時間。', castle:'解鎖密室（U 區）', hour:'Unlock ✦ 潛能解鎖', oil:'薄荷 · 廣藿香', quote:'這個世界對你來說，一直是一道還沒解完的謎題。' },
+  ENTJ: { icon:'⚔️', title:'征途立令者', sub:'你說的方向，就是大家走的方向。不是因為你強迫，是因為你看得清楚。', castle:'王座塔（R 區）', hour:'Rise ✦ 行動進化', oil:'黑胡椒 · 雪松', quote:'你最難學的一課：有些人需要的不是方向，是有人陪他們走。' },
+  ENTP: { icon:'🌀', title:'規則破壞者', sub:'你不是故意搞破壞，你只是看到了更好的可能性，然後忍不住說出來。', castle:'覺察廳（O 區）', hour:'Own ✦ 智慧辨識', oil:'尤加利 · 甜橙', quote:'你最厲害的地方，是在所有人說「不行」的時候，你說「那如果這樣呢？」' },
+  INFJ: { icon:'🌿', title:'靜默預言者', sub:'你說的話常常比當時看起來的更深，往往要過一陣子，對方才恍然大悟。', castle:'休憩塔（H 區）', hour:'Heal ✦ 身心校準', oil:'洋甘菊 · 乳香', quote:'你不是在猜，你是在感受——這是一種被大多數人忽略的高級智慧。' },
+  INFP: { icon:'🌙', title:'內在詩人', sub:'你的感受力比任何人都深，你的世界比任何人想像的都豐富。', castle:'休憩塔（H 區）', hour:'Heal ✦ 身心校準', oil:'玫瑰 · 岩蘭草', quote:'你最不需要的，是有人叫你「想太多」。那不是缺點，是你看見的維度比較多。' },
+  ENFJ: { icon:'🌟', title:'人心牧者', sub:'你讓別人看見自己最好的樣子。這不是說教，是一種自然散發的力量。', castle:'覺察廳（O 區）', hour:'Own ✦ 智慧辨識', oil:'天竺葵 · 伊蘭', quote:'你照亮了很多人，但你有沒有也照亮自己？' },
+  ENFP: { icon:'🎆', title:'可能性獵人', sub:'你活在一個充滿「也許」的世界，這讓你永遠保持對生命的好奇。', castle:'解鎖密室（U 區）', hour:'Unlock ✦ 潛能解鎖', oil:'佛手柑 · 甜橙', quote:'你最難學的一課：不是所有的可能性都需要被追求，有些只需要被感受。' },
+  ISTJ: { icon:'⚓', title:'磐石守誓者', sub:'你是那個說到做到、一諾千金的人。在這個世界上，這比任何頭銜都珍貴。', castle:'王座塔（R 區）', hour:'Rise ✦ 行動進化', oil:'雪松 · 廣藿香', quote:'你的可靠不是習慣，是你對這個世界的一種承諾。' },
+  ISFJ: { icon:'🫧', title:'無聲照顧者', sub:'你默默為每個人記著他們說過的事、在意過的事。這是一種連你自己都低估的愛。', castle:'休憩塔（H 區）', hour:'Heal ✦ 身心校準', oil:'薰衣草 · 洋甘菊', quote:'你給的太多了。不是要你停，是要你也記得，你也值得被這樣記著。' },
+  ESTJ: { icon:'🏛️', title:'秩序建構師', sub:'你看見混亂，然後把它整理成可以運作的系統。這個能力很多人終其一生都沒有。', castle:'王座塔（R 區）', hour:'Rise ✦ 行動進化', oil:'迷迭香 · 薑', quote:'系統是你的語言，但不是所有人都用這個語言思考——這是你最大的課題。' },
+  ESFJ: { icon:'🌸', title:'關係守護神', sub:'你讓每個人都感覺被歡迎。這不是社交技巧，是你真的在乎每一個人。', castle:'休憩塔（H 區）', hour:'Heal ✦ 身心校準', oil:'玫瑰 · 天竺葵', quote:'你最需要的練習：允許自己不討所有人喜歡，仍然值得被愛。' },
+  ISTP: { icon:'🔧', title:'靜默工匠', sub:'你不說，你做。等別人還在討論的時候，你已經把問題解決了。', castle:'解鎖密室（U 區）', hour:'Unlock ✦ 潛能解鎖', oil:'雪松 · 黑胡椒', quote:'你的沉默不是冷漠，是你在認真想。不是每個人都懂這個，但懂的人知道你的份量。' },
+  ISFP: { icon:'🎨', title:'感官詩人', sub:'你用身體感受這個世界，你的美感天線永遠開著。你活著的方式，本身就是一種藝術。', castle:'覺察廳（O 區）', hour:'Own ✦ 智慧辨識', oil:'依蘭 · 廣藿香', quote:'你的存在本身就是美。不需要解釋，也不需要被誰認可。' },
+  ESTP: { icon:'⚡', title:'當下燃燒者', sub:'你不活在過去，也不活在未來。你活在這一秒，而且你讓這一秒燃燒得最旺。', castle:'王座塔（R 區）', hour:'Rise ✦ 行動進化', oil:'薑 · 甜橙', quote:'你最珍貴的地方，是你讓身邊的人也突然記起「活著可以這麼帶勁」。' },
+  ESFP: { icon:'🎉', title:'生命慶典師', sub:'你不是在表演，你是真的這麼享受活著。這種純粹的熱情，是這個時代最需要的東西。', castle:'覺察廳（O 區）', hour:'Own ✦ 智慧辨識', oil:'甜橙 · 伊蘭', quote:'你讓人感覺生命是值得慶祝的。這比任何成就都難得。' }
+};
+
+function renderHlTitle(type, typeName) {
+  const t = mbtiTitles[type] || mbtiTitles['INFP'];
+  document.getElementById('hlTitleReveal').innerHTML = `
+    <div class="hl-title-card">
+      <div class="hl-title-eyebrow">Hour Light ✦ 你的馥靈稱號</div>
+      <span class="hl-title-icon">${t.icon}</span>
+      <div class="hl-title-main">${t.title}</div>
+      <div class="hl-title-sub">${t.sub}</div>
+      <div class="hl-title-divider"></div>
+      <div class="hl-title-grid">
+        <div class="hl-title-tag"><div class="hl-title-tag-label">✦ 城堡守護宮</div><div class="hl-title-tag-value">${t.castle}</div></div>
+        <div class="hl-title-tag"><div class="hl-title-tag-label">✦ H.O.U.R. 天賦</div><div class="hl-title-tag-value">${t.hour}</div></div>
+        <div class="hl-title-tag" style="grid-column:1/-1"><div class="hl-title-tag-label">✦ 你的精油指引</div><div class="hl-title-tag-value">🌿 ${t.oil}</div></div>
+      </div>
+      <div class="hl-title-quote">「${t.quote}」</div>
+      <div class="hl-title-combo-hint">由你的 ${type}｜${typeName} 決定</div>
+    </div>`;
+}
+
 const mbtiData = {
   INTJ:{icon:'🔭',name:'建築師',sub:'宇宙最孤獨的設計師',
     main:`你是那種腦子裡永遠在運算一個你還沒跟任何人說的計畫的人。你不是冷漠，你只是不想把不確定的話說出來。<strong>你的策略眼光是頂配</strong>，你能看見別人看不見三步之後的格局。問題是，不是每個人都能跟上你的思維速度，所以你常常有種「說了也沒用」的孤獨感。`,
@@ -495,6 +547,7 @@ function showResult(){
   document.getElementById('resultWork').innerHTML=`<div class="result-section-title">💼 職場上的你</div><div class="result-section-content">${result.work}</div>`;
   document.getElementById('resultRelation').innerHTML=`<div class="result-section-title">🪞 你的盲點</div><div class="result-section-content">${result.shadow}</div>`;
   document.getElementById('resultShadow').style.display='none';
+  renderHlTitle(type, result.name);
   document.getElementById('resultHour').innerHTML=`
     <div class="hour-bridge-label">✦ 馥靈之鑰 × 你的覺察密碼</div>
     <div class="hour-bridge-text">${result.hour}</div>
@@ -525,6 +578,14 @@ function restartQuiz(){
 <script src="assets/js/hourlight-global.js"></script>
   <script>if("serviceWorker"in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js").catch(()=>{})})}</script>
   <script src="assets/js/firebase-config.js"></script>
-  <script src="assets/js/hl-member.js"></script>
+
+<!-- HL Auth Gate + Tracking -->
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-auth-gate.js"
+  data-tool="quiz-mbti"
+  data-tool-name="MBTI 人格測驗"
+  data-tool-name-en="MBTI Quiz"
+  data-tool-type="quiz">
+</script>
 </body>
 </html>

@@ -74,7 +74,7 @@ body.night-mode {
   color: #f7efe1 !important;
 }
 body.day-mode {
-  background: url('background.jpg') center center / cover no-repeat fixed !important;
+  background: #05030a !important;
 }
   color: #2d2418 !important;
 }
@@ -633,6 +633,7 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="馥靈之鑰">
+<link rel="icon" href="favicon.ico">
 </head>
 <body class="day-mode">
 <!-- 星空背景 -->
@@ -1070,7 +1071,24 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
         // 頁面元件
         // ========================================
         const BasicPage = ({ result, setResult, isNight, onDrawCard }) => {
-            if (!result) return (<div className="max-w-xl mx-auto"><div className="text-center mb-8"><h2 className="text-3xl font-bold gold-text serif">開啟你的內在城堡</h2><p className="text-sm mt-2 opacity-60">輸入出生資料，找到你的生命密碼</p><p className="text-xs mt-1 opacity-40">🔐 v8.3 核心數據保護版</p></div><InputForm onCalculate={(data) => setResult(calculateHourLight(data))} /></div>);
+            if (!result) return (<div className="max-w-xl mx-auto"><div className="text-center mb-8"><h2 className="text-3xl font-bold gold-text serif">開啟你的內在城堡</h2><p className="text-sm mt-2 opacity-60">輸入出生資料，找到你的生命密碼</p><p className="text-xs mt-1 opacity-40">🔐 v8.3 核心數據保護版</p></div><InputForm onCalculate={(data) => {
+              const r = calculateHourLight(data);
+              setResult(r);
+              // 同步命盤快取到 Dashboard
+              if (r && r.hour && typeof window.HL_saveBlueprintCache === 'function') {
+                try {
+                  window.HL_saveBlueprintCache(
+                    { h: r.hour.h, o: r.hour.o, u: r.hour.u, r: r.hour.r },
+                    r.light || {},
+                    data.year + '/' + data.month + '/' + data.day
+                  );
+                } catch(e) {}
+              }
+              // 追蹤計算事件
+              if (typeof window.HL_track === 'function') {
+                window.HL_track('draw_complete', { spread: '命盤計算', cards: 'H'+r.hour.h+' O'+r.hour.o+' R'+r.hour.r });
+              }
+            }} /></div>);
             const { hour, light, palaces, bridges, balanceNum, analysis, inputData } = result;
             return (
                 <div className="space-y-8 fade-in">
@@ -1861,5 +1879,14 @@ function toggleLegalContent() {
   <span class="hl-float-line-text">LINE 諮詢</span>
 </a>
 <script>if("serviceWorker"in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js").catch(()=>{})})}</script>
+
+<!-- HL Auth Gate + Tracking -->
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-auth-gate.js"
+  data-tool="fuling-mima"
+  data-tool-name="馥靈秘碼"
+  data-tool-name-en="Blueprint Code"
+  data-tool-type="calculator">
+</script>
 </body>
 </html>

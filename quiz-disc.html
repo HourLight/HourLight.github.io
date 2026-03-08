@@ -499,14 +499,9 @@
 
 /* ===== 奶油浮雕底圖覆蓋 ===== */
 .hl-cosmos {
-  background:
-    linear-gradient(rgba(10,6,20,0.48), rgba(10,6,20,0.48)),
-    url('background.jpg');
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
+  background: transparent;
 }
-.hl-stars-layer, .hl-meteors, .hl-aura { opacity: 0.35; }
+.hl-stars-layer, .hl-meteors, .hl-aura { opacity: 0.85; }
 
 /* ── 馥靈之鑰 LOGO 圖標 ── */
 .hl-logo-icon {
@@ -604,6 +599,7 @@
 
   <!-- 結果區 -->
   <div class="quiz-result" id="quizResult">
+    <div class="hl-title-reveal" id="hlTitleReveal"></div>
     <div class="result-hero" id="resultHero"></div>
 
     <div class="score-bars" id="scoreBars"></div>
@@ -824,6 +820,34 @@ const questions = [
 ];
 
 // DISC 結果資料
+
+// ===== 馥靈稱號系統 =====
+const discTitles = {
+  D: { icon:'🦅', title:'破界者', sub:'你天生就知道規則是用來突破的，你不等許可，你直接出發。', castle:'王座塔（R 區）', hour:'Rise ✦ 行動進化', oil:'黑胡椒 · 薑', quote:'你不是無法等待，是你看見的可能性不允許你浪費時間。' },
+  I: { icon:'✨', title:'點亮者', sub:'你走到哪裡，哪裡就有溫度。不是因為你表演，是因為你真的感染了每個人。', castle:'覺察廳（O 區）', hour:'Own ✦ 智慧辨識', oil:'甜橙 · 佛手柑', quote:'最稀缺的能力不是讓自己快樂，是讓別人覺得自己值得快樂。' },
+  S: { icon:'🕊️', title:'根之守護者', sub:'你是那個讓一切都不崩潰的人。沒有你，大家不知道會飄到哪裡去。', castle:'休憩塔（H 區）', hour:'Heal ✦ 身心校準', oil:'岩蘭草 · 雪松', quote:'有些人是火，有些人是土——土讓火有地方落地，這份力量叫做「在」。' },
+  C: { icon:'🔍', title:'精準解碼師', sub:'你的腦子裡有一套別人看不見的精密系統，你看見的細節讓你永遠走在問題的前面。', castle:'解鎖密室（U 區）', hour:'Unlock ✦ 潛能解鎖', oil:'迷迭香 · 薄荷', quote:'完美不是強迫症，是你相信每一個細節都值得被認真對待。' }
+};
+
+function renderHlTitle(type, typeName) {
+  const t = discTitles[type] || discTitles['D'];
+  document.getElementById('hlTitleReveal').innerHTML = `
+    <div class="hl-title-card">
+      <div class="hl-title-eyebrow">Hour Light ✦ 你的馥靈稱號</div>
+      <span class="hl-title-icon">${t.icon}</span>
+      <div class="hl-title-main">${t.title}</div>
+      <div class="hl-title-sub">${t.sub}</div>
+      <div class="hl-title-divider"></div>
+      <div class="hl-title-grid">
+        <div class="hl-title-tag"><div class="hl-title-tag-label">✦ 城堡守護宮</div><div class="hl-title-tag-value">${t.castle}</div></div>
+        <div class="hl-title-tag"><div class="hl-title-tag-label">✦ H.O.U.R. 天賦</div><div class="hl-title-tag-value">${t.hour}</div></div>
+        <div class="hl-title-tag" style="grid-column:1/-1"><div class="hl-title-tag-label">✦ 你的精油指引</div><div class="hl-title-tag-value">🌿 ${t.oil}</div></div>
+      </div>
+      <div class="hl-title-quote">「${t.quote}」</div>
+      <div class="hl-title-combo-hint">由你的 ${typeName} 特質決定</div>
+    </div>`;
+}
+
 const discResults = {
   D: {
     animal: "🦅",
@@ -1066,6 +1090,7 @@ function showResult() {
   `;
 
   // 馥靈橋接
+  renderHlTitle(topType, result.name);
   document.getElementById('resultHour').innerHTML = `
     <div class="hour-bridge-label">✦ 馥靈之鑰 × 你的覺察密碼</div>
     <div class="hour-bridge-text">${result.hour}</div>
@@ -1077,7 +1102,7 @@ function showResult() {
   document.getElementById('quizResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   // 結果文字給分享用
-  window._resultText = `【馥靈之鑰 DISC 測驗】\n我是「${result.animal} ${result.name}」\n${result.subtitle}\n\n測你是哪種動物 👉 hourlightkey.com/quiz-disc.html`;
+  window._resultText = `【馥靈之鑰 DISC 測驗】\n我是「${result.animal} ${result.name}」\n${result.subtitle}\n✦ 馥靈稱號：${discTitles[topType]?.title||\'\'}\n\n測你是哪種動物 👉 hourlightkey.com/quiz-disc.html`;
 }
 
 function copyResult() {
@@ -1119,6 +1144,14 @@ function restartQuiz() {
 <script src="assets/js/hourlight-global.js"></script>
   <script>if("serviceWorker"in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js").catch(()=>{})})}</script>
   <script src="assets/js/firebase-config.js"></script>
-  <script src="assets/js/hl-member.js"></script>
+
+<!-- HL Auth Gate + Tracking -->
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-auth-gate.js"
+  data-tool="quiz-disc"
+  data-tool-name="DISC 性格測驗"
+  data-tool-name-en="DISC Quiz"
+  data-tool-type="quiz">
+</script>
 </body>
 </html>
