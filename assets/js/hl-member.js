@@ -187,9 +187,6 @@
       navLogin.textContent = '👑 ' + name;
       navLogin.href = '/member-dashboard.html';
     }
-    // 移除舊浮動按鈕（如有殘留）
-    const old = document.getElementById('hl-member-btn');
-    if (old) old.remove();
   }
 
   // 更新導覽列（未登入）
@@ -199,9 +196,6 @@
       navLogin.textContent = '登入';
       navLogin.href = '/member-login.html';
     }
-    // 移除舊浮動按鈕（如有殘留）
-    const old = document.getElementById('hl-member-btn');
-    if (old) old.remove();
   }
 
   // 啟動

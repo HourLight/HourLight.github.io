@@ -174,7 +174,7 @@ const HL_TOOL_PERMISSIONS = {
   // 計算工具
   'fuling-mima':          { name: '馥靈秘碼',         type: 'calculator', en: 'Blueprint Code',     freeAccess: true  },
   'destiny-engine':       { name: '命盤運算引擎',    type: 'calculator', en: 'Destiny Engine',     freeAccess: true  },
-  'maslow-frequency':     { name: '馬斯洛頻率',       type: 'calculator', en: 'Maslow Freq',        freeAccess: false },
+  'maslow-frequency':     { name: '馬斯洛節律',       type: 'calculator', en: 'Maslow Freq',        freeAccess: false },
   'lifepath-calculator':  { name: '生命路徑計算',    type: 'calculator', en: 'Life Path',           freeAccess: false },
   'numerology-calculator':{ name: '生命靈數計算',    type: 'calculator', en: 'Numerology',          freeAccess: false },
   'rainbow-calculator':   { name: '彩虹數字計算',    type: 'calculator', en: 'Rainbow',             freeAccess: false },
