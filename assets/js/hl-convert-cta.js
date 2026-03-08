@@ -123,9 +123,6 @@
         // LINE 浮動按鈕上移
         var lineBtn = document.getElementById('floatLine') || document.querySelector('.hl-float-line');
         if (lineBtn) lineBtn.style.bottom = (h + 16) + 'px';
-        // 🌟 幸運籤按鈕上移
-        var fab = document.getElementById('luckyFab') || document.querySelector('.hl-lucky-fab');
-        if (fab) fab.style.bottom = (h + 16) + 'px';
       }, 520);
     }, 2500);
 
@@ -136,8 +133,6 @@
       document.body.style.paddingBottom = '';
       var lineBtn = document.getElementById('floatLine') || document.querySelector('.hl-float-line');
       if (lineBtn) lineBtn.style.bottom = '';
-      var fab = document.getElementById('luckyFab') || document.querySelector('.hl-lucky-fab');
-      if (fab) fab.style.bottom = '';
     });
 
     // 監聽語言切換
