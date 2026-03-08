@@ -1,5 +1,5 @@
 // 馥靈之鑰 Hour Light - Service Worker
-const CACHE_NAME = 'hourlight-v1';
+const CACHE_NAME = 'hourlight-v20260308';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
