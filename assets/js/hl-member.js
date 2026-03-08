@@ -180,50 +180,28 @@
 
   // 更新導覽列（已登入）
   function updateNavForLoggedIn(user) {
-    // 建立或更新會員浮動按鈕
-    let btn = document.getElementById('hl-member-btn');
-    if (!btn) {
-      btn = document.createElement('a');
-      btn.id = 'hl-member-btn';
-      btn.style.cssText = `
-        position:fixed; top:18px; left:18px; z-index:9001;
-        display:flex; align-items:center; gap:8px;
-        padding:8px 14px; border-radius:999px;
-        background:rgba(5,3,10,0.85); border:1px solid rgba(233,194,125,0.4);
-        color:#e9c27d; text-decoration:none; font-size:0.8rem;
-        backdrop-filter:blur(12px); cursor:pointer;
-        transition:all .3s ease; font-family:inherit;
-      `;
-      document.body.appendChild(btn);
+    // 更新 nav 內的「登入」連結 → 顯示名稱並指向會員中心
+    const navLogin = document.getElementById('hl-nav-login');
+    if (navLogin) {
+      const name = user.displayName || user.email.split('@')[0];
+      navLogin.textContent = '👑 ' + name;
+      navLogin.href = '/member-dashboard.html';
     }
-    const avatar = user.photoURL
-      ? `<img src="${user.photoURL}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;">`
-      : `<span style="width:22px;height:22px;border-radius:50%;background:rgba(233,194,125,0.3);display:flex;align-items:center;justify-content:center;font-size:0.7rem;">👑</span>`;
-    const name = user.displayName || user.email.split('@')[0];
-    btn.innerHTML = `${avatar}<span>${name}</span>`;
-    btn.href = '/member-dashboard.html';
-    btn.title = '前往會員中心';
+    // 移除舊浮動按鈕（如有殘留）
+    const old = document.getElementById('hl-member-btn');
+    if (old) old.remove();
   }
 
   // 更新導覽列（未登入）
   function updateNavForLoggedOut() {
-    let btn = document.getElementById('hl-member-btn');
-    if (!btn) {
-      btn = document.createElement('a');
-      btn.id = 'hl-member-btn';
-      btn.style.cssText = `
-        position:fixed; top:18px; left:18px; z-index:9001;
-        display:flex; align-items:center; gap:6px;
-        padding:8px 14px; border-radius:999px;
-        background:rgba(5,3,10,0.7); border:1px solid rgba(233,194,125,0.2);
-        color:rgba(233,194,125,0.7); text-decoration:none; font-size:0.8rem;
-        backdrop-filter:blur(12px); cursor:pointer;
-        transition:all .3s ease; font-family:inherit;
-      `;
-      btn.innerHTML = `<span>🔑</span><span>登入</span>`;
-      btn.href = '/member-login.html';
-      document.body.appendChild(btn);
+    const navLogin = document.getElementById('hl-nav-login');
+    if (navLogin) {
+      navLogin.textContent = '登入';
+      navLogin.href = '/member-login.html';
     }
+    // 移除舊浮動按鈕（如有殘留）
+    const old = document.getElementById('hl-member-btn');
+    if (old) old.remove();
   }
 
   // 啟動
