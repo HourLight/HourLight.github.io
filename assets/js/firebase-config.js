@@ -250,55 +250,33 @@ const HL_DEFAULT_PERMISSIONS = (function(){
 // 新代碼請改用 HL_ROLES
 const MEMBER_PLANS = {
   free: {
-    name: "覺察旅人",
-    nameEn: "Explorer",
+    name: "馥靈訪客",
+    nameEn: "Guest",
     price: 0,
-    color: "#888",
+    color: "#888888",
     icon: "🌱",
-    features: ["免費工具無限使用", "基本牌卡解讀", "每月3次解析記錄"],
+    features: ["9 個核心免費工具", "牌卡抽牌不限次", "馥靈秘碼每月 3 次", "基礎命理計算"],
     drawLimit: 3,
     analysisLimit: 3
   },
   basic: {
-    name: "覺察學員",
-    nameEn: "Student",
+    name: "馥靈會員",
+    nameEn: "Member",
     price: 299,
-    color: "#c0a060",
+    color: "#c8a252",
     icon: "🔑",
-    features: ["所有免費功能", "無限牌卡解讀", "每月30次解析記錄", "歷史足跡保存"],
-    drawLimit: 999,
+    features: ["全站工具無限使用", "每月 30 次完整解析", "歷史足跡紀錄", "生日月可加購限定禮"],
+    drawLimit: 9999,
     analysisLimit: 30
   },
   pro: {
-    name: "覺察修練者",
-    nameEn: "Practitioner",
+    name: "馥靈高階會員",
+    nameEn: "Premium",
     price: 999,
     color: "#e9c27d",
-    icon: "✨",
-    features: ["所有學員功能", "無限解析記錄", "對話紀錄上傳", "優先客服"],
-    drawLimit: 999,
-    analysisLimit: 999
-  },
-  vip: {
-    name: "馥靈夥伴",
-    nameEn: "Partner",
-    price: 3999,
-    color: "#f0d090",
-    icon: "👑",
-    features: ["所有修練者功能", "每月1次1對1諮詢", "專屬能量月報", "課程折扣20%"],
-    drawLimit: 999,
-    analysisLimit: 999,
-    consulting: 1
-  },
-  elite: {
-    name: "馥靈傳承者",
-    nameEn: "Inheritor",
-    price: 9999,
-    color: "#fff0c0",
-    icon: "🏰",
-    features: ["所有夥伴功能", "每月3次1對1諮詢", "授權導師資格", "年度靜心工作坊"],
-    drawLimit: 999,
-    analysisLimit: 999,
-    consulting: 3
+    icon: "💎",
+    features: ["一切會員功能", "無限次完整解析", "馥靈輕盈系列專屬", "生日月加購限定禮", "未來 AI 解讀優先體驗"],
+    drawLimit: 9999,
+    analysisLimit: 9999
   }
 };

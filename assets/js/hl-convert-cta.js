@@ -116,11 +116,28 @@
     // 捲動後滑入
     setTimeout(function () {
       el.style.transform = 'translateY(0)';
+      // 滑入完成後（transition 0.5s），補底部間距 + 移開浮動元素
+      setTimeout(function () {
+        var h = el.offsetHeight;
+        document.body.style.paddingBottom = h + 'px';
+        // LINE 浮動按鈕上移
+        var lineBtn = document.getElementById('floatLine') || document.querySelector('.hl-float-line');
+        if (lineBtn) lineBtn.style.bottom = (h + 16) + 'px';
+        // 🌟 幸運籤按鈕上移
+        var fab = document.getElementById('luckyFab') || document.querySelector('.hl-lucky-fab');
+        if (fab) fab.style.bottom = (h + 16) + 'px';
+      }, 520);
     }, 2500);
 
     document.getElementById('hl-cta-close').addEventListener('click', function () {
       el.style.transform = 'translateY(100%)';
       try { localStorage.setItem(DISMISS_KEY, '1'); } catch (e) {}
+      // 收起後恢復原位
+      document.body.style.paddingBottom = '';
+      var lineBtn = document.getElementById('floatLine') || document.querySelector('.hl-float-line');
+      if (lineBtn) lineBtn.style.bottom = '';
+      var fab = document.getElementById('luckyFab') || document.querySelector('.hl-lucky-fab');
+      if (fab) fab.style.bottom = '';
     });
 
     // 監聽語言切換
