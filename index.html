@@ -3029,5 +3029,37 @@ function setLang(lang) {
 <!-- HL 轉化 CTA（展示頁用） -->
 <script src="assets/js/firebase-config.js"></script>
 <script src="assets/js/hl-convert-cta.js" data-page-type="home"></script>
+<script>
+/* ── CTA bar 與 mobile sticky bar 共存修正 ── */
+(function(){
+  function adjustForCTA(bar){
+    if(!bar) return;
+    var h = bar.offsetHeight || 72;
+    var sticky = document.getElementById('mobileStickyBar');
+    if(sticky && window.innerWidth <= 768){
+      sticky.style.bottom = h + 'px';
+      // 同步 footer margin
+      var footer = document.querySelector('.hl-footer');
+      if(footer) footer.style.marginBottom = (h + 68) + 'px';
+    }
+    bar.addEventListener('transitionend', function onHide(){
+      if(bar.style.transform === 'translateY(100%)'){
+        if(sticky) sticky.style.bottom = '';
+        var footer = document.querySelector('.hl-footer');
+        if(footer) footer.style.marginBottom = '';
+        bar.removeEventListener('transitionend', onHide);
+      }
+    });
+  }
+  // 監聽 CTA bar 被注入
+  new MutationObserver(function(mutations){
+    mutations.forEach(function(m){
+      m.addedNodes.forEach(function(n){
+        if(n.id === 'hl-convert-cta') adjustForCTA(n);
+      });
+    });
+  }).observe(document.body, {childList: true});
+})();
+</script>
 </body>
 </html>
