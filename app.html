@@ -1206,19 +1206,31 @@ let userRole = 'guest';
 
 // ── 初始化 ──
 document.addEventListener('DOMContentLoaded', () => {
-  firebase.initializeApp(FIREBASE_CONFIG);
-  auth = firebase.auth();
-  db   = firebase.firestore();
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    auth = firebase.auth();
+    db   = firebase.firestore();
 
-  auth.onAuthStateChanged(async (user) => {
-    if (user) {
-      currentUser = user;
-      await loadUserProfile(user);
-      initApp();
-    } else {
+    // 5秒超時保護：Firebase 沒回應就直接顯示登入畫面
+    const authTimeout = setTimeout(() => {
+      console.warn('Firebase auth timeout, showing login screen');
       showLoginScreen();
-    }
-  });
+    }, 5000);
+
+    auth.onAuthStateChanged(async (user) => {
+      clearTimeout(authTimeout);
+      if (user) {
+        currentUser = user;
+        await loadUserProfile(user);
+        initApp();
+      } else {
+        showLoginScreen();
+      }
+    });
+  } catch(e) {
+    console.error('Firebase init error:', e);
+    showLoginScreen();
+  }
 });
 
 function showLoginScreen() {
