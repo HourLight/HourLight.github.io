@@ -9,6 +9,21 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400&family=LXGW+WenKai+TC&display=swap" rel="stylesheet">
 
+<!-- 清除 Service Worker 快取 + 緊急登入畫面 fallback -->
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(regs) {
+    regs.forEach(function(reg) { reg.unregister(); });
+  });
+}
+window._loginFallback = setTimeout(function() {
+  var ls = document.getElementById('loading-screen');
+  var li = document.getElementById('login-screen');
+  if (ls) ls.style.display = 'none';
+  if (li) { li.style.display = 'flex'; li.classList.remove('hide'); }
+}, 2000);
+</script>
+
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -1219,6 +1234,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     auth.onAuthStateChanged(async (user) => {
       clearTimeout(authTimeout);
+      clearTimeout(window._loginFallback);
       if (user) {
         currentUser = user;
         await loadUserProfile(user);
