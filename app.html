@@ -1265,12 +1265,13 @@ input,select,textarea{font-family:var(--body)}
 
 /* ── Firebase 設定 ── */
 const FB_CFG = {
-  apiKey:"AIzaSyBVtRIGSkmIv3B1bOaqKVHVA08sWcNnCHU",
-  authDomain:"hourlight-app.firebaseapp.com",
-  projectId:"hourlight-app",
-  storageBucket:"hourlight-app.appspot.com",
-  messagingSenderId:"263800951369",
-  appId:"1:263800951369:web:4b8f2e1a3d5c7f9e2b1a4d"
+  apiKey:"AIzaSyAbVr_CtMw1d8b1RBGuJ27tQsZFRwyzpvM",
+  authDomain:"hourlight-key.firebaseapp.com",
+  projectId:"hourlight-key",
+  storageBucket:"hourlight-key.firebasestorage.app",
+  messagingSenderId:"797772820371",
+  appId:"1:797772820371:web:bc12f805bd1b2d8a124266",
+  measurementId:"G-1PQYBM206R"
 };
 firebase.initializeApp(FB_CFG);
 const auth = firebase.auth();
@@ -1344,16 +1345,27 @@ function dismissPwaBanner() {
 }
 
 /* ═══ Auth ═══ */
+// 保險機制：5秒沒收到 Firebase 回應，強制跳登入頁
+const _authTimeout = setTimeout(() => {
+  const ls = document.getElementById("loading-screen");
+  const li = document.getElementById("login-screen");
+  if (ls && !ls.classList.contains("hide")) {
+    ls.classList.add("hide");
+    if (li) li.classList.remove("hide");
+  }
+}, 5000);
+
 auth.onAuthStateChanged(user => {
+  clearTimeout(_authTimeout);
   if (user) {
     currentUser = user;
-    document.getElementById('loading-screen').classList.add('hide');
-    document.getElementById('login-screen').classList.add('hide');
+    document.getElementById("loading-screen").classList.add("hide");
+    document.getElementById("login-screen").classList.add("hide");
     initApp();
   } else {
     currentUser = null;
-    document.getElementById('loading-screen').classList.add('hide');
-    document.getElementById('login-screen').classList.remove('hide');
+    document.getElementById("loading-screen").classList.add("hide");
+    document.getElementById("login-screen").classList.remove("hide");
   }
 });
 
