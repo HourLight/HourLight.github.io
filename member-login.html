@@ -3,733 +3,188 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>登入／註冊｜馥靈之鑰會員</title>
+<title>加入馥靈之鑰｜登入 / 註冊</title>
 <meta name="robots" content="noindex">
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#0a0612">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="馥靈之鑰">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;700&family=LXGW+WenKai+TC&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400&family=LXGW+WenKai+TC&display=swap" rel="stylesheet">
 <style>
-:root {
-  --gold: #e9c27d;
-  --gold-light: #f5d89a;
-  --gold-dim: rgba(233,194,125,0.3);
-  --bg: #05030a;
-  --surface: rgba(255,255,255,0.04);
-  --border: rgba(233,194,125,0.15);
-  --text: #f9f0e5;
-  --text-dim: rgba(249,240,229,0.5);
-  --serif: 'Noto Serif TC', serif;
-  --body: 'LXGW WenKai TC', 'Noto Serif TC', serif;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  min-height: 100vh;
-  background: var(--bg);
-  font-family: var(--body);
-  color: var(--text);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  overflow-x: hidden;
-  padding: 24px 16px;
-}
-
-/* 星空背景 */
-#stars-canvas {
-  position: fixed; inset: 0;
-  pointer-events: none; z-index: 0;
-}
-
-/* 光暈 */
-.bg-glow {
-  position: fixed;
-  width: 600px; height: 600px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(120,80,200,0.12) 0%, transparent 70%);
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 0;
-  pointer-events: none;
-}
-
-/* 主容器 */
-.login-wrap {
-  position: relative; z-index: 1;
-  width: 100%; max-width: 440px;
-}
-
-/* Logo */
-.login-logo {
-  text-align: center;
-  margin-bottom: 32px;
-}
-.login-logo a {
-  display: inline-block;
-  font-family: var(--serif);
-  font-size: 1.4rem;
-  color: var(--gold);
-  text-decoration: none;
-  letter-spacing: 0.1em;
-}
-.login-logo .subtitle {
-  font-size: 0.8rem;
-  color: var(--text-dim);
-  margin-top: 4px;
-  letter-spacing: 0.05em;
-}
-
-/* 卡片 */
-.login-card {
-  background: rgba(10,6,18,0.9);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 36px 32px;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 32px 80px rgba(0,0,0,0.5),
-              inset 0 1px 0 rgba(233,194,125,0.1);
-}
-
-/* Tab */
-.tab-row {
-  display: flex;
-  gap: 0;
-  margin-bottom: 28px;
-  border-bottom: 1px solid var(--border);
-}
-.tab-btn {
-  flex: 1;
-  padding: 12px;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: var(--text-dim);
-  font-family: var(--body);
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all .3s;
-  margin-bottom: -1px;
-}
-.tab-btn.active {
-  color: var(--gold);
-  border-bottom-color: var(--gold);
-}
-
-/* 表單 */
-.form-group {
-  margin-bottom: 18px;
-}
-.form-label {
-  display: block;
-  font-size: 0.8rem;
-  color: var(--text-dim);
-  margin-bottom: 8px;
-  letter-spacing: 0.05em;
-}
-.form-input {
-  width: 100%;
-  padding: 13px 16px;
-  background: rgba(8,5,18,0.82);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--text);
-  font-family: var(--body);
-  font-size: 0.95rem;
-  transition: border-color .3s, box-shadow .3s;
-  outline: none;
-}
-.form-input:focus {
-  border-color: rgba(233,194,125,0.5);
-  box-shadow: 0 0 0 3px rgba(233,194,125,0.08);
-}
-.form-input::placeholder { color: rgba(249,240,229,0.25); }
-
-/* 提示文字 */
-.form-hint {
-  font-size: 0.75rem;
-  color: var(--text-dim);
-  margin-top: 6px;
-}
-
-/* 按鈕 */
-.btn-primary {
-  width: 100%;
-  padding: 14px;
-  background: linear-gradient(135deg, #c9a050, #e9c27d, #c9a050);
-  background-size: 200%;
-  border: none;
-  border-radius: 10px;
-  color: #1a1008;
-  font-family: var(--serif);
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all .3s;
-  letter-spacing: 0.05em;
-  margin-top: 8px;
-}
-.btn-primary:hover {
-  background-position: right;
-  box-shadow: 0 8px 24px rgba(233,194,125,0.25);
-  transform: translateY(-1px);
-}
-.btn-primary:disabled {
-  opacity: 0.5; cursor: not-allowed; transform: none;
-}
-
-/* Google 按鈕 */
-.divider {
-  display: flex; align-items: center; gap: 12px;
-  margin: 20px 0;
-  color: var(--text-dim); font-size: 0.8rem;
-}
-.divider::before, .divider::after {
-  content: ''; flex: 1;
-  height: 1px; background: var(--border);
-}
-
-.btn-google {
-  width: 100%;
-  padding: 12px;
-  background: rgba(8,5,18,0.80);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--text);
-  font-family: var(--body);
-  font-size: 0.9rem;
-  cursor: pointer;
-  display: flex; align-items: center;
-  justify-content: center; gap: 10px;
-  transition: all .3s;
-}
-.btn-google:hover {
-  background: rgba(8,5,18,0.75);
-  border-color: rgba(233,194,125,0.3);
-}
-.btn-google img {
-  width: 20px; height: 20px;
-}
-
-/* 忘記密碼 */
-.forgot-link {
-  text-align: right; margin-top: 8px;
-}
-.forgot-link a {
-  font-size: 0.78rem;
-  color: var(--text-dim);
-  text-decoration: none;
-  cursor: pointer;
-  transition: color .3s;
-}
-.forgot-link a:hover { color: var(--gold); }
-
-/* 訊息 */
-.msg {
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  margin-bottom: 16px;
-  display: none;
-}
-.msg.error {
-  display: block;
-  background: rgba(220,60,60,0.15);
-  border: 1px solid rgba(220,60,60,0.3);
-  color: #ff9999;
-}
-.msg.success {
-  display: block;
-  background: rgba(60,180,100,0.15);
-  border: 1px solid rgba(60,180,100,0.3);
-  color: #99ffbb;
-}
-
-/* 載入中 */
-.loading-overlay {
-  display: none;
-  position: absolute; inset: 0;
-  background: rgba(5,3,10,0.8);
-  border-radius: 20px;
-  z-index: 10;
-  align-items: center; justify-content: center;
-  flex-direction: column; gap: 12px;
-}
-.loading-overlay.show { display: flex; }
-.spinner {
-  width: 36px; height: 36px;
-  border: 3px solid var(--border);
-  border-top-color: var(--gold);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* 服務條款 */
-.terms-note {
-  text-align: center;
-  font-size: 0.75rem;
-  color: var(--text-dim);
-  margin-top: 20px;
-  line-height: 1.6;
-}
-.terms-note a {
-  color: rgba(233,194,125,0.7);
-  text-decoration: none;
-}
-.terms-note a:hover { color: var(--gold); }
-
-/* 回首頁 */
-.back-home {
-  text-align: center;
-  margin-top: 20px;
-}
-.back-home a {
-  color: var(--text-dim);
-  font-size: 0.8rem;
-  text-decoration: none;
-  transition: color .3s;
-}
-.back-home a:hover { color: var(--gold); }
-
-/* 忘記密碼彈窗 */
-.modal-overlay {
-  display: none;
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.7);
-  z-index: 100;
-  align-items: center; justify-content: center;
-  padding: 16px;
-}
-.modal-overlay.show { display: flex; }
-.modal-box {
-  background: #0d0918;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 28px 24px;
-  width: 100%; max-width: 360px;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
-}
-.modal-title {
-  font-family: var(--serif);
-  color: var(--gold);
-  font-size: 1.1rem;
-  margin-bottom: 8px;
-}
-.modal-desc {
-  font-size: 0.85rem;
-  color: var(--text-dim);
-  margin-bottom: 18px;
-  line-height: 1.6;
-}
-.modal-actions {
-  display: flex; gap: 10px; margin-top: 16px;
-}
-.btn-secondary {
-  flex: 1; padding: 11px;
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--text-dim);
-  font-family: var(--body);
-  cursor: pointer;
-  transition: all .3s;
-}
-.btn-secondary:hover { border-color: var(--gold-dim); color: var(--text); }
-.btn-sm-primary {
-  flex: 1; padding: 11px;
-  background: linear-gradient(135deg, #c9a050, #e9c27d);
-  border: none;
-  border-radius: 8px;
-  color: #1a1008;
-  font-family: var(--body);
-  font-weight: 700;
-  cursor: pointer;
-  transition: all .3s;
-}
-.btn-sm-primary:hover { opacity: 0.9; }
-
-@media (max-width: 480px) {
-  .login-card { padding: 28px 20px; }
-  body { padding: 16px 12px; }
-}
-
-/* ── 馥靈之鑰 LOGO 圖標 ── */
-.hl-logo-icon {
-  height: 1.15em;
-  width: 1.15em;
-  border-radius: 50%;
-  object-fit: cover;
-  vertical-align: middle;
-  margin-right: 4px;
-  display: inline-block;
-  position: relative;
-  top: -0.08em;
-}
-.hl-logo-hero {
-  display: block;
-  width: 88px;
-  height: 88px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin: 0 auto 14px auto;
-  filter: drop-shadow(0 0 18px rgba(233,194,125,0.55));
-}
+:root{--gold:#e9c27d;--gold2:#cda86e;--bg:#fdf8f2;--card:#ffffff;--border:#e8ddd0;--text:#2d2418;--mid:#7a6a58;--light:#b0a090;--serif:'Noto Serif TC',serif;--body:'LXGW WenKai TC','Noto Serif TC',serif;--red:#c05050;--green:#4a8a5a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:var(--bg);font-family:var(--body);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle at 20% 20%,rgba(233,194,125,.08) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(200,168,120,.06) 0%,transparent 50%);pointer-events:none}
+.logo{text-align:center;margin-bottom:28px}
+.logo a{text-decoration:none;font-family:var(--serif);font-size:1.3rem;font-weight:400;color:var(--text);letter-spacing:.1em}
+.logo .sub{margin-top:4px;font-size:.72rem;color:var(--light);letter-spacing:.2em}
+.card{width:100%;max-width:420px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:36px 32px;box-shadow:0 8px 40px rgba(180,150,100,.12);position:relative}
+.tabs{display:flex;background:#f5ede4;border-radius:10px;padding:4px;margin-bottom:28px}
+.tab{flex:1;padding:9px;border:none;background:transparent;border-radius:8px;font-family:var(--body);font-size:.9rem;color:var(--mid);cursor:pointer;transition:all .2s}
+.tab.on{background:var(--card);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.blk{display:none}.blk.on{display:block}
+.ttl{font-family:var(--serif);font-size:1.35rem;font-weight:300;margin-bottom:5px}
+.dsc{font-size:.82rem;color:var(--mid);margin-bottom:22px;line-height:1.75}
+.fld{margin-bottom:14px}
+.fld label{display:block;font-size:.78rem;color:var(--mid);margin-bottom:5px}
+.fld input{width:100%;padding:12px 15px;border:1px solid var(--border);border-radius:9px;font-family:var(--body);font-size:.93rem;color:var(--text);background:#fdf8f2;outline:none;transition:border-color .2s}
+.fld input:focus{border-color:var(--gold);background:#fff}
+.btn-main{width:100%;padding:13px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:9px;font-family:var(--body);font-size:.97rem;color:#2d1a00;cursor:pointer;transition:opacity .2s;margin-bottom:12px;letter-spacing:.04em}
+.btn-main:hover{opacity:.88}
+.div{display:flex;align-items:center;gap:12px;margin:14px 0;font-size:.76rem;color:var(--light)}
+.div::before,.div::after{content:'';flex:1;height:1px;background:var(--border)}
+.btn-g{width:100%;padding:12px;background:#fff;border:1px solid var(--border);border-radius:9px;font-family:var(--body);font-size:.9rem;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:border-color .2s,box-shadow .2s}
+.btn-g:hover{border-color:#aaa;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.btn-g svg{width:19px;height:19px}
+.msg{min-height:22px;margin:10px 0 2px;font-size:.83rem;line-height:1.6;border-radius:8px;padding:0;transition:all .2s}
+.msg.err{color:var(--red);background:rgba(192,80,80,.06);padding:9px 13px;border:1px solid rgba(192,80,80,.15)}
+.msg.ok{color:var(--green);background:rgba(74,138,90,.07);padding:9px 13px;border:1px solid rgba(74,138,90,.15)}
+.forgot{display:block;text-align:right;font-size:.76rem;color:var(--light);cursor:pointer;margin-top:-6px;margin-bottom:14px;transition:color .2s;background:none;border:none;font-family:var(--body)}
+.forgot:hover{color:var(--gold2)}
+.foot{text-align:center;margin-top:22px;font-size:.75rem;color:var(--light);line-height:1.8}
+.foot a{color:var(--mid);text-decoration:none}
+.foot a:hover{color:var(--gold2)}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);backdrop-filter:blur(4px);z-index:999;align-items:center;justify-content:center}
+.modal.on{display:flex}
+.mbox{background:var(--card);border-radius:16px;padding:30px 26px;width:min(360px,90vw);box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.mttl{font-family:var(--serif);font-size:1.05rem;margin-bottom:7px}
+.mdsc{font-size:.8rem;color:var(--mid);margin-bottom:16px;line-height:1.7}
+.mbtns{display:flex;gap:10px;margin-top:14px}
+.mbtns button{flex:1;padding:11px;border-radius:8px;font-family:var(--body);font-size:.86rem;cursor:pointer;transition:all .2s}
+.mbtns .send{background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;color:#2d1a00}
+.mbtns .cancel{background:transparent;border:1px solid var(--border);color:var(--mid)}
+.mbtns .cancel:hover{border-color:#aaa}
+.cover{display:none;position:absolute;inset:0;background:rgba(255,255,255,.85);border-radius:20px;align-items:center;justify-content:center;z-index:10;font-size:.88rem;color:var(--mid);gap:9px}
+.cover.on{display:flex}
+.spin{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media(max-width:460px){.card{padding:26px 18px}}
 </style>
-<link rel="icon" href="favicon.ico">
-<link rel="stylesheet" href="assets/css/hl-music.css">
-<link rel="canonical" href="https://hourlightkey.com/member-login.html">
 </head>
 <body>
 
-<canvas id="stars-canvas"></canvas>
-<div class="bg-glow"></div>
-
-<div class="login-wrap">
-
-  <!-- Logo -->
-  <div class="login-logo">
-    <a href="index.html">🔑 馥靈之鑰</a>
-    <div class="subtitle">Hour Light International</div>
-  </div>
-
-  <!-- 主卡片 -->
-  <div class="login-card" style="position:relative;">
-
-    <!-- 載入遮罩 -->
-    <div class="loading-overlay" id="loadingOverlay">
-      <div class="spinner"></div>
-      <span style="color:var(--text-dim);font-size:0.85rem;">處理中...</span>
-    </div>
-
-    <!-- Tab 切換 -->
-    <div class="tab-row">
-      <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">登入</button>
-      <button class="tab-btn" id="tabRegister" onclick="switchTab('register')">免費註冊</button>
-    </div>
-
-    <!-- 訊息區 -->
-    <div class="msg" id="msgBox"></div>
-
-    <!-- 登入表單 -->
-    <div id="formLogin">
-      <div class="form-group">
-        <label class="form-label">電子郵件</label>
-        <input type="email" id="loginEmail" class="form-input" placeholder="your@email.com" autocomplete="email">
-      </div>
-      <div class="form-group">
-        <label class="form-label">密碼</label>
-        <input type="password" id="loginPwd" class="form-input" placeholder="••••••••" autocomplete="current-password">
-        <div class="forgot-link"><a onclick="showForgot()">忘記密碼？</a></div>
-      </div>
-      <button class="btn-primary" onclick="doLogin()">進入我的城堡 🏰</button>
-
-      <div class="divider">或</div>
-      <button class="btn-google" onclick="doGoogleLogin()">
-        <svg width="20" height="20" viewBox="0 0 48 48">
-          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-        </svg>
-        使用 Google 帳號登入
-      </button>
-    </div>
-
-    <!-- 註冊表單 -->
-    <div id="formRegister" style="display:none;">
-      <div class="form-group">
-        <label class="form-label">你的名字 / 暱稱</label>
-        <input type="text" id="regName" class="form-input" placeholder="例：逸君 / Ruby">
-      </div>
-      <div class="form-group">
-        <label class="form-label">電子郵件</label>
-        <input type="email" id="regEmail" class="form-input" placeholder="your@email.com" autocomplete="email">
-      </div>
-      <div class="form-group">
-        <label class="form-label">設定密碼</label>
-        <input type="password" id="regPwd" class="form-input" placeholder="至少6個字元" autocomplete="new-password">
-        <div class="form-hint">密碼至少6個字元</div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">確認密碼</label>
-        <input type="password" id="regPwd2" class="form-input" placeholder="再輸入一次" autocomplete="new-password">
-      </div>
-      <button class="btn-primary" onclick="doRegister()">✨ 開始我的覺察旅程</button>
-
-      <div class="divider">或</div>
-      <button class="btn-google" onclick="doGoogleLogin()">
-        <svg width="20" height="20" viewBox="0 0 48 48">
-          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-        </svg>
-        使用 Google 帳號快速加入
-      </button>
-    </div>
-
-    <!-- 條款說明 -->
-    <div class="terms-note">
-      繼續即表示你同意我們的
-      <a href="terms.html">服務條款</a> 與
-      <a href="privacy.html">隱私政策</a>
-    </div>
-  </div>
-
-  <div class="back-home">
-    <a href="index.html">← 回到馥靈之鑰首頁</a>
-  </div>
+<div class="logo">
+  <a href="index.html">馥靈之鑰 Hour Light</a>
+  <div class="sub">HOURLIGHTKEY.COM</div>
 </div>
 
-<!-- 忘記密碼彈窗 -->
-<div class="modal-overlay" id="forgotModal">
-  <div class="modal-box">
-    <div class="modal-title">重設密碼</div>
-    <div class="modal-desc">輸入你的電子郵件，我們會發送重設連結給你。</div>
-    <div class="form-group">
-      <input type="email" id="forgotEmail" class="form-input" placeholder="your@email.com">
-    </div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeForgot()">取消</button>
-      <button class="btn-sm-primary" onclick="doForgot()">發送重設信</button>
+<div class="card">
+  <div class="cover" id="cover"><div class="spin"></div><span>處理中...</span></div>
+
+  <div class="tabs">
+    <button class="tab on" id="tLogin" onclick="sw('login')">登入</button>
+    <button class="tab" id="tReg" onclick="sw('reg')">建立帳號</button>
+  </div>
+
+  <!-- 登入 -->
+  <div class="blk on" id="bLogin">
+    <div class="ttl">歡迎回來 ✦</div>
+    <div class="dsc">登入後，你使用過的工具、測驗結果<br>都會幫你自動留存記錄。</div>
+    <div class="fld"><label>電子郵件</label><input type="email" id="lEmail" placeholder="your@email.com"></div>
+    <div class="fld"><label>密碼</label><input type="password" id="lPwd" placeholder="輸入密碼"></div>
+    <button class="forgot" onclick="openForgot()">忘記密碼？</button>
+    <button class="btn-main" onclick="doLogin()">登入</button>
+    <div class="div">或</div>
+    <button class="btn-g" onclick="doGoogle()">
+      <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      用 Google 帳號登入
+    </button>
+    <div class="msg" id="mLogin"></div>
+  </div>
+
+  <!-- 建立帳號 -->
+  <div class="blk" id="bReg">
+    <div class="ttl">建立你的帳號 🌱</div>
+    <div class="dsc">完全免費，不需要信用卡。<br>你的使用足跡會安全保存，只有你自己看得到。</div>
+    <div class="fld"><label>你的名字（暱稱也可以）</label><input type="text" id="rName" placeholder="叫我什麼都好"></div>
+    <div class="fld"><label>電子郵件</label><input type="email" id="rEmail" placeholder="your@email.com"></div>
+    <div class="fld"><label>設定密碼（至少 6 個字元）</label><input type="password" id="rPwd" placeholder="設定密碼"></div>
+    <div class="fld"><label>再輸入一次密碼確認</label><input type="password" id="rPwd2" placeholder="確認密碼"></div>
+    <button class="btn-main" onclick="doReg()">建立帳號</button>
+    <div class="div">或</div>
+    <button class="btn-g" onclick="doGoogle()">
+      <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      用 Google 快速加入
+    </button>
+    <div class="msg" id="mReg"></div>
+  </div>
+
+  <div class="foot">← <a href="index.html">回到官網</a></div>
+</div>
+
+<!-- 忘記密碼 -->
+<div class="modal" id="forgotModal">
+  <div class="mbox">
+    <div class="mttl">重設密碼</div>
+    <div class="mdsc">輸入你的 Email，<br>我們會寄一封重設密碼的信給你。</div>
+    <div class="fld"><label>電子郵件</label><input type="email" id="fEmail" placeholder="your@email.com"></div>
+    <div class="msg" id="mForgot"></div>
+    <div class="mbtns">
+      <button class="cancel" onclick="closeForgot()">取消</button>
+      <button class="send" onclick="doForgot()">發送重設信</button>
     </div>
   </div>
 </div>
 
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
-
 <script>
-// ===== 星空背景 =====
-(function(){
-  const canvas = document.getElementById('stars-canvas');
-  const ctx = canvas.getContext('2d');
-  let stars = [];
-  function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  function createStars() {
-    stars = [];
-    for (let i = 0; i < 120; i++) {
-      stars.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 1.2 + 0.2,
-        a: Math.random(),
-        speed: Math.random() * 0.003 + 0.001,
-        phase: Math.random() * Math.PI * 2
-      });
-    }
-  }
-  function draw(t) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    stars.forEach(s => {
-      const alpha = 0.3 + 0.5 * Math.sin(t * s.speed + s.phase);
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(233,194,125,${alpha})`;
-      ctx.fill();
-    });
-    requestAnimationFrame(draw);
-  }
-  resize();
-  createStars();
-  window.addEventListener('resize', () => { resize(); createStars(); });
-  requestAnimationFrame(draw);
-})();
+let auth,db;
+const ok=typeof FIREBASE_CONFIG!=='undefined'&&FIREBASE_CONFIG.apiKey!=='YOUR_API_KEY';
+if(ok){if(!firebase.apps.length)firebase.initializeApp(FIREBASE_CONFIG);auth=firebase.auth();db=firebase.firestore();auth.onAuthStateChanged(u=>{if(u){const rd=new URLSearchParams(location.search).get('redirect');location.href=rd||'member-dashboard.html';}});}
 
-// ===== Firebase 初始化 =====
-let auth, db;
-const firebaseReady = typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY';
+function sw(t){
+  document.getElementById('tLogin').classList.toggle('on',t==='login');
+  document.getElementById('tReg').classList.toggle('on',t==='reg');
+  document.getElementById('bLogin').classList.toggle('on',t==='login');
+  document.getElementById('bReg').classList.toggle('on',t==='reg');
+}
+function msg(id,txt,type){const e=document.getElementById(id);e.className='msg '+(type||'');e.textContent=txt;}
+function loading(s){document.getElementById('cover').classList.toggle('on',s);}
+const E={'auth/user-not-found':'找不到這個帳號，請確認 Email 或先建立帳號','auth/wrong-password':'密碼不對，再試一次？','auth/invalid-credential':'帳號或密碼有誤','auth/too-many-requests':'嘗試太多次了，請稍後再試','auth/invalid-email':'Email 格式不對','auth/email-already-in-use':'這個 Email 已有帳號，直接登入就好','auth/weak-password':'密碼太短，請至少設 6 個字元'};
+function em(e){return E[e.code]||e.message;}
 
-if (firebaseReady) {
-  if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-  auth = firebase.auth();
-  db = firebase.firestore();
-
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      // 已登入→直接跳轉
-      const redirect = new URLSearchParams(location.search).get('redirect');
-      window.location.href = redirect || 'member-dashboard.html';
-    }
-  });
-} else {
-  showMsg('⚠️ Firebase 尚未設定，請先完成 firebase-config.js 設定', 'error');
+async function doLogin(){
+  if(!ok)return;
+  const email=document.getElementById('lEmail').value.trim(),pwd=document.getElementById('lPwd').value;
+  if(!email||!pwd)return msg('mLogin','請填寫 Email 和密碼','err');
+  loading(true);
+  try{await auth.signInWithEmailAndPassword(email,pwd);}
+  catch(e){loading(false);msg('mLogin',em(e),'err');}
 }
 
-// ===== UI 邏輯 =====
-function switchTab(tab) {
-  document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
-  document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
-  document.getElementById('formLogin').style.display = tab === 'login' ? '' : 'none';
-  document.getElementById('formRegister').style.display = tab === 'register' ? '' : 'none';
-  clearMsg();
+async function doReg(){
+  if(!ok)return;
+  const name=document.getElementById('rName').value.trim(),email=document.getElementById('rEmail').value.trim(),pwd=document.getElementById('rPwd').value,pwd2=document.getElementById('rPwd2').value;
+  if(!name)return msg('mReg','名字不能空著啦','err');
+  if(!email)return msg('mReg','Email 不能空著','err');
+  if(pwd.length<6)return msg('mReg','密碼至少 6 個字元','err');
+  if(pwd!==pwd2)return msg('mReg','兩次密碼不一樣','err');
+  loading(true);
+  try{
+    const c=await auth.createUserWithEmailAndPassword(email,pwd);
+    await c.user.updateProfile({displayName:name});
+    await db.doc(`users/${c.user.uid}`).set({displayName:name,email,createdAt:firebase.firestore.FieldValue.serverTimestamp(),lastSeen:firebase.firestore.FieldValue.serverTimestamp(),totalDraws:0,totalQuizzes:0,totalCalcs:0,totalPageViews:0});
+    msg('mReg','🎉 歡迎加入！','ok');
+  }catch(e){loading(false);msg('mReg',em(e),'err');}
 }
 
-function showMsg(text, type) {
-  const box = document.getElementById('msgBox');
-  box.className = 'msg ' + type;
-  box.textContent = text;
-}
-function clearMsg() {
-  const box = document.getElementById('msgBox');
-  box.className = 'msg';
-  box.textContent = '';
+async function doGoogle(){
+  if(!ok)return;loading(true);
+  try{
+    const p=new firebase.auth.GoogleAuthProvider(),c=await auth.signInWithPopup(p),u=c.user,ref=db.doc(`users/${u.uid}`),snap=await ref.get();
+    if(!snap.exists)await ref.set({displayName:u.displayName||u.email.split('@')[0],email:u.email,createdAt:firebase.firestore.FieldValue.serverTimestamp(),lastSeen:firebase.firestore.FieldValue.serverTimestamp(),totalDraws:0,totalQuizzes:0,totalCalcs:0,totalPageViews:0});
+  }catch(e){loading(false);if(e.code!=='auth/popup-closed-by-user')msg('mLogin',em(e),'err');}
 }
 
-function setLoading(show) {
-  document.getElementById('loadingOverlay').classList.toggle('show', show);
+function openForgot(){document.getElementById('fEmail').value=document.getElementById('lEmail').value;document.getElementById('mForgot').className='msg';document.getElementById('mForgot').textContent='';document.getElementById('forgotModal').classList.add('on');}
+function closeForgot(){document.getElementById('forgotModal').classList.remove('on');}
+async function doForgot(){
+  if(!ok)return;
+  const email=document.getElementById('fEmail').value.trim();if(!email)return;
+  try{await auth.sendPasswordResetEmail(email);msg('mForgot','✅ 已發送！請去信箱收信','ok');setTimeout(closeForgot,3000);}
+  catch(e){msg('mForgot',em(e),'err');}
 }
-
-// ===== Firebase 操作 =====
-async function doLogin() {
-  if (!firebaseReady) return;
-  const email = document.getElementById('loginEmail').value.trim();
-  const pwd = document.getElementById('loginPwd').value;
-  if (!email || !pwd) return showMsg('請輸入電子郵件與密碼', 'error');
-
-  setLoading(true);
-  try {
-    await auth.signInWithEmailAndPassword(email, pwd);
-    // onAuthStateChanged 會處理跳轉
-  } catch(e) {
-    setLoading(false);
-    const msgs = {
-      'auth/user-not-found': '找不到此帳號，請確認 Email 或先註冊',
-      'auth/wrong-password': '密碼錯誤，請再試一次',
-      'auth/too-many-requests': '嘗試次數過多，請稍後再試',
-      'auth/invalid-email': '電子郵件格式有誤'
-    };
-    showMsg(msgs[e.code] || `登入失敗：${e.message}`, 'error');
-  }
-}
-
-async function doRegister() {
-  if (!firebaseReady) return;
-  const name = document.getElementById('regName').value.trim();
-  const email = document.getElementById('regEmail').value.trim();
-  const pwd = document.getElementById('regPwd').value;
-  const pwd2 = document.getElementById('regPwd2').value;
-
-  if (!name) return showMsg('請輸入你的名字', 'error');
-  if (!email) return showMsg('請輸入電子郵件', 'error');
-  if (pwd.length < 6) return showMsg('密碼至少要6個字元', 'error');
-  if (pwd !== pwd2) return showMsg('兩次密碼不一樣，請確認', 'error');
-
-  setLoading(true);
-  try {
-    const cred = await auth.createUserWithEmailAndPassword(email, pwd);
-    await cred.user.updateProfile({ displayName: name });
-
-    // 建立 Firestore 會員資料
-    await db.doc(`users/${cred.user.uid}`).set({
-      email,
-      displayName: name,
-      plan: 'free',
-      role: 'guest',
-      planExpiry: null,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
-      totalDraws: 0,
-      totalAnalyses: 0,
-      totalQuizzes: 0,
-      totalCalcs: 0,
-      totalPageViews: 0
-    });
-
-    showMsg('🎉 歡迎加入！正在進入你的城堡...', 'success');
-    // onAuthStateChanged 會跳轉
-  } catch(e) {
-    setLoading(false);
-    const msgs = {
-      'auth/email-already-in-use': '這個 Email 已經被註冊了，請直接登入',
-      'auth/invalid-email': '電子郵件格式有誤',
-      'auth/weak-password': '密碼太簡單了，請設定更複雜的密碼'
-    };
-    showMsg(msgs[e.code] || `註冊失敗：${e.message}`, 'error');
-  }
-}
-
-async function doGoogleLogin() {
-  if (!firebaseReady) return;
-  setLoading(true);
-  try {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    const cred = await auth.signInWithPopup(provider);
-    const user = cred.user;
-
-    // 確認 Firestore 有會員資料（新用戶才建）
-    const docRef = db.doc(`users/${user.uid}`);
-    const snap = await docRef.get();
-    if (!snap.exists) {
-      await docRef.set({
-        email: user.email,
-        displayName: user.displayName || user.email.split('@')[0],
-        plan: 'free',
-        role: 'guest',
-        planExpiry: null,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
-        totalDraws: 0,
-        totalAnalyses: 0,
-        totalQuizzes: 0,
-        totalCalcs: 0,
-        totalPageViews: 0
-      });
-    } else if (!snap.data().role) {
-      // 舊用戶補寫 role 字段
-      await docRef.set({ role: 'guest' }, { merge: true });
-    }
-    // onAuthStateChanged 跳轉
-  } catch(e) {
-    setLoading(false);
-    if (e.code !== 'auth/popup-closed-by-user') {
-      showMsg(`Google 登入失敗：${e.message}`, 'error');
-    }
-  }
-}
-
-function showForgot() {
-  document.getElementById('forgotEmail').value = document.getElementById('loginEmail').value;
-  document.getElementById('forgotModal').classList.add('show');
-}
-function closeForgot() {
-  document.getElementById('forgotModal').classList.remove('show');
-}
-
-async function doForgot() {
-  if (!firebaseReady) return;
-  const email = document.getElementById('forgotEmail').value.trim();
-  if (!email) return;
-  try {
-    await auth.sendPasswordResetEmail(email);
-    closeForgot();
-    showMsg('✅ 重設連結已發送，請檢查信箱（包含垃圾郵件匣）', 'success');
-  } catch(e) {
-    showMsg(`發送失敗：${e.message}`, 'error');
-  }
-}
-
-// Enter 鍵登入
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    if (document.getElementById('formLogin').style.display !== 'none') doLogin();
-    else doRegister();
-  }
-});
+document.addEventListener('keydown',e=>{if(e.key!=='Enter')return;if(document.getElementById('bLogin').classList.contains('on'))doLogin();else doReg();});
 </script>
-<script src="assets/js/hl-music.js?v=20260309"></script>
-
 </body>
 </html>
