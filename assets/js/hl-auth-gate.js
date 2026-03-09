@@ -87,6 +87,20 @@
     auth = firebase.auth();
     db   = firebase.firestore();
 
+    // ── freeAccess 快速通道：標記免費的工具直接放行，不查矩陣 ──
+    var toolDef = (typeof HL_TOOL_PERMISSIONS !== 'undefined') ? HL_TOOL_PERMISSIONS[TOOL_ID] : null;
+    var isFreeAccess = toolDef && toolDef.freeAccess === true;
+
+    if (isFreeAccess) {
+      unlockPage();
+      // 仍偵聽登入狀態：有登入顯示會員 badge，沒登入顯示訪客 badge
+      auth.onAuthStateChanged(function(user){
+        if (user) { onLoggedIn(user); }
+        else       { injectGuestBadge(); }
+      });
+      return;
+    }
+
     // 先載入權限矩陣（快取），再偵聽登入狀態
     loadPermMatrix().then(function(){ 
       auth.onAuthStateChanged(function(user){
