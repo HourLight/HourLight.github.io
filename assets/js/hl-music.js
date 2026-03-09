@@ -91,15 +91,23 @@
     audio.src = getTrackUrl();
     document.body.appendChild(audio);
 
-    var btn = document.createElement('button');
-    btn.id = 'hlMusicToggle';
-    btn.className = 'hl-music-toggle';
-    btn.setAttribute('aria-label', '背景音樂開關');
-    btn.setAttribute('title', '點擊播放宇宙氛圍音樂');
-    btn.innerHTML = '<span class="hl-music-icon">♪</span>';
-    btn.onclick = toggleMusic;
-    document.body.appendChild(btn);
-
+    // 若底部導航啟用則不建立浮動按鈕
+    var btn;
+    if (!window.HLBottomNavActive) {
+      btn = document.createElement('button');
+      btn.id = 'hlMusicToggle';
+      btn.className = 'hl-music-toggle';
+      btn.setAttribute('aria-label', '背景音樂開關');
+      btn.setAttribute('title', '點擊播放宇宙氛圍音樂');
+      btn.innerHTML = '<span class="hl-music-icon">♪</span>';
+      btn.onclick = toggleMusic;
+      document.body.appendChild(btn);
+    } else {
+      btn = document.createElement('button');
+      btn.id = 'hlMusicToggle';
+      btn.style.display = 'none';
+      document.body.appendChild(btn);
+    }
     restorePlayState(audio, btn);
   }
 
