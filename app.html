@@ -1,0 +1,2089 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>馥靈工作台｜Hour Light App</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="assets/images/HOUR-LIGHT.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400&family=LXGW+WenKai+TC&display=swap" rel="stylesheet">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<style>
+/* ── 全域變數 ── */
+:root{
+  --gold:#e9c27d;--gold2:#cda86e;--gold3:#b8903c;
+  --bg:#fdf8f2;--card:#ffffff;--border:#e8ddd0;
+  --text:#2d2418;--mid:#7a6a58;--light:#b0a090;--faint:#d5c8b8;
+  --red:#d45050;--green:#5a9060;--blue:#4a78c0;
+  --serif:'Noto Serif TC',serif;--body:'LXGW WenKai TC','Noto Serif TC',serif;
+  --sidebar:240px;--topbar:56px;
+  --shadow:0 2px 12px rgba(45,36,24,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--body);color:var(--text);background:var(--bg);min-height:100vh;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font-family:var(--body);cursor:pointer}
+input,textarea,select{font-family:var(--body)}
+.hide{display:none!important}
+
+/* ── 載入畫面 ── */
+#loading-screen{
+  position:fixed;inset:0;background:var(--bg);z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+}
+.ld-logo{width:64px;height:64px;border-radius:14px;overflow:hidden}
+.ld-logo img{width:100%;height:100%;object-fit:cover}
+.ld-brand{font-family:var(--serif);font-size:1.2rem;font-weight:300;letter-spacing:.1em;color:var(--text)}
+.ld-dots{display:flex;gap:6px}
+.ld-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:ldpulse 1.2s ease-in-out infinite}
+.ld-dot:nth-child(2){animation-delay:.2s}
+.ld-dot:nth-child(3){animation-delay:.4s}
+@keyframes ldpulse{0%,100%{opacity:.2}50%{opacity:1}}
+
+/* ── 登入畫面 ── */
+#login-screen{
+  position:fixed;inset:0;background:var(--bg);z-index:8888;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+#login-screen::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    radial-gradient(circle at 10% 10%,rgba(233,194,125,.08) 0%,transparent 50%),
+    radial-gradient(circle at 90% 90%,rgba(200,168,120,.06) 0%,transparent 50%);
+  pointer-events:none;
+}
+.login-card{
+  background:var(--card);border:1px solid var(--border);border-radius:20px;
+  padding:40px 36px;width:100%;max-width:400px;
+  box-shadow:0 8px 40px rgba(45,36,24,.1);position:relative;
+}
+.lc-head{text-align:center;margin-bottom:28px}
+.lc-icon{width:52px;height:52px;margin:0 auto 12px;border-radius:12px;overflow:hidden}
+.lc-icon img{width:100%;height:100%;object-fit:cover}
+.lc-title{font-family:var(--serif);font-size:1.3rem;font-weight:300;letter-spacing:.06em;margin-bottom:4px}
+.lc-sub{font-size:.8rem;color:var(--light)}
+.lc-tabs{display:flex;background:#f7f2ec;border-radius:10px;padding:4px;margin-bottom:24px;gap:4px}
+.lc-tab{flex:1;padding:9px;border:none;background:transparent;border-radius:7px;font-size:.85rem;color:var(--mid);transition:all .2s}
+.lc-tab.on{background:var(--card);color:var(--text);box-shadow:0 1px 4px rgba(45,36,24,.1)}
+.lc-form{display:flex;flex-direction:column;gap:14px}
+.lc-form.hide{display:none}
+.lf-label{font-size:.75rem;color:var(--mid);margin-bottom:4px;display:block}
+.lf-input{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:9px;font-size:.9rem;color:var(--text);background:#fdf8f2;outline:none;transition:border-color .2s}
+.lf-input:focus{border-color:var(--gold);background:#fff}
+.btn-primary{width:100%;padding:13px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;font-size:.95rem;color:#2d1a00;font-weight:500;transition:opacity .2s;margin-top:4px}
+.btn-primary:hover{opacity:.88}
+.btn-google{width:100%;padding:12px;background:#fff;border:1px solid var(--border);border-radius:10px;font-size:.88rem;color:var(--text);display:flex;align-items:center;justify-content:center;gap:10px;transition:border-color .2s}
+.btn-google:hover{border-color:var(--gold)}
+.btn-google svg{width:18px;height:18px}
+.lc-divider{display:flex;align-items:center;gap:10px;color:var(--faint);font-size:.78rem}
+.lc-divider::before,.lc-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.lc-err{font-size:.78rem;color:var(--red);min-height:18px;text-align:center}
+.lc-forget{text-align:right}
+.lc-forget button{background:none;border:none;font-size:.75rem;color:var(--light);cursor:pointer;padding:0}
+.lc-forget button:hover{color:var(--gold)}
+.lc-back{text-align:center;margin-top:18px}
+.lc-back a{font-size:.78rem;color:var(--light);}
+.lc-back a:hover{color:var(--gold)}
+
+/* ── 主應用 ── */
+#app{display:none;min-height:100vh}
+
+/* ── 頂部導覽 ── */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:500;height:var(--topbar);
+  background:rgba(253,248,242,.96);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 20px;gap:16px;
+}
+.tb-menu{display:none;background:none;border:none;font-size:1.2rem;color:var(--mid);padding:4px}
+.tb-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.tb-logo-img{width:28px;height:28px;border-radius:6px;overflow:hidden;flex-shrink:0}
+.tb-logo-img img{width:100%;height:100%;object-fit:cover}
+.tb-brand{font-family:var(--serif);font-size:.95rem;font-weight:300;letter-spacing:.06em;color:var(--text)}
+.tb-sep{color:var(--faint);margin:0 4px}
+.tb-page{font-size:.82rem;color:var(--mid)}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.tb-role-badge{padding:4px 10px;border-radius:20px;font-size:.72rem;font-weight:500}
+.tb-user{display:flex;align-items:center;gap:8px;cursor:pointer}
+.tb-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#2d1a00;overflow:hidden;flex-shrink:0}
+.tb-avatar img{width:100%;height:100%;object-fit:cover}
+.tb-name{font-size:.82rem;color:var(--mid);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn-logout{padding:6px 14px;background:transparent;border:1px solid var(--border);border-radius:20px;font-size:.75rem;color:var(--mid);transition:all .2s;white-space:nowrap}
+.btn-logout:hover{border-color:var(--gold);color:var(--text)}
+
+/* ── 側邊欄 ── */
+.sidebar{
+  position:fixed;top:var(--topbar);left:0;bottom:0;
+  width:var(--sidebar);background:var(--card);
+  border-right:1px solid var(--border);
+  overflow-y:auto;z-index:400;
+  padding:20px 12px;
+  transition:transform .3s ease;
+}
+.sidebar::-webkit-scrollbar{width:0}
+.sb-section{margin-bottom:20px}
+.sb-section-label{font-size:.68rem;letter-spacing:.12em;color:var(--faint);padding:0 10px;margin-bottom:6px;text-transform:uppercase}
+.sb-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:9px;
+  font-size:.88rem;color:var(--mid);
+  cursor:pointer;transition:all .2s;
+  border:none;background:none;width:100%;text-align:left;
+}
+.sb-item:hover{background:rgba(233,194,125,.08);color:var(--text)}
+.sb-item.on{background:linear-gradient(135deg,rgba(233,194,125,.15),rgba(205,168,110,.1));color:var(--text)}
+.sb-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+.sb-badge{margin-left:auto;background:var(--gold);color:#2d1a00;font-size:.65rem;padding:2px 6px;border-radius:10px;font-weight:600}
+.sb-admin-badge{margin-left:auto;background:#4a78c0;color:#fff;font-size:.65rem;padding:2px 6px;border-radius:10px}
+
+/* ── 主內容 ── */
+.main{
+  margin-left:var(--sidebar);padding-top:var(--topbar);
+  min-height:100vh;
+}
+.page{display:none;padding:28px 32px 60px}
+.page.on{display:block}
+
+/* ── 頁面標題 ── */
+.page-head{margin-bottom:28px}
+.page-head h1{font-family:var(--serif);font-size:1.6rem;font-weight:300;margin-bottom:6px}
+.page-head p{font-size:.85rem;color:var(--mid);line-height:1.7}
+
+/* ── 統計卡 ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center;box-shadow:var(--shadow)}
+.stat-n{font-family:var(--serif);font-size:2rem;font-weight:300;color:var(--text);line-height:1}
+.stat-l{font-size:.72rem;color:var(--light);margin-top:5px;letter-spacing:.02em}
+.stat-icon{font-size:1.3rem;margin-bottom:6px}
+
+/* ── 卡片 ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.card+.card{margin-top:16px}
+.card-head{padding:18px 20px 0;display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:.75rem;letter-spacing:.12em;color:var(--light);text-transform:uppercase}
+.card-body{padding:18px 20px 20px}
+.card-body-pt0{padding-top:10px}
+
+/* ── 格線 ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* ── 今日幸運籤 ── */
+.oracle-strip{
+  background:linear-gradient(135deg,rgba(233,194,125,.1),rgba(205,168,110,.07));
+  border:1px solid rgba(233,194,125,.3);border-radius:14px;
+  padding:18px 20px;display:flex;align-items:center;gap:16px;margin-bottom:24px;
+  cursor:pointer;transition:border-color .2s;
+}
+.oracle-strip:hover{border-color:var(--gold)}
+.oracle-img{width:52px;height:52px;border-radius:10px;background:rgba(233,194,125,.15);border:1px solid rgba(233,194,125,.3);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;overflow:hidden}
+.oracle-img img{width:100%;height:100%;object-fit:cover}
+.oracle-info{flex:1;min-width:0}
+.oracle-day{font-size:.7rem;color:var(--light);letter-spacing:.08em;margin-bottom:2px}
+.oracle-name{font-size:1rem;color:var(--text);margin-bottom:4px}
+.oracle-q{font-size:.82rem;color:var(--mid);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.oracle-arrow{color:var(--gold);font-size:1.2rem;flex-shrink:0}
+
+/* ── 身分卡 ── */
+.role-strip{
+  border-radius:14px;padding:16px 20px;
+  display:flex;align-items:center;gap:14px;margin-bottom:24px;
+}
+.role-icon-big{font-size:1.8rem}
+.role-info h3{font-size:1rem;margin-bottom:3px}
+.role-info p{font-size:.78rem;opacity:.7;line-height:1.5}
+.role-actions{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+.btn-sm{padding:7px 16px;border-radius:8px;font-size:.78rem;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:inherit;transition:background .2s}
+.btn-sm:hover{background:rgba(255,255,255,.25)}
+.btn-sm-gold{padding:7px 16px;border-radius:8px;font-size:.78rem;border:none;background:var(--gold);color:#2d1a00;transition:opacity .2s}
+.btn-sm-gold:hover{opacity:.85}
+
+/* ── 足跡列表 ── */
+.filter-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-chip{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;font-size:.78rem;color:var(--mid);cursor:pointer;transition:all .2s;font-family:var(--body)}
+.filter-chip.on{border-color:var(--gold);background:rgba(233,194,125,.1);color:var(--text)}
+.hlist{display:flex;flex-direction:column}
+.hitem{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid #f2ece4}
+.hitem:last-child{border-bottom:none}
+.hicon{width:38px;height:38px;border-radius:10px;background:rgba(233,194,125,.1);border:1px solid rgba(233,194,125,.2);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.hinfo{flex:1;min-width:0}
+.htool{font-size:.9rem;color:var(--text);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hdetail{font-size:.77rem;color:var(--light);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.htime{font-size:.72rem;color:var(--faint);white-space:nowrap;margin-top:3px}
+.empty{text-align:center;padding:50px 20px;color:var(--light)}
+.empty-icon{font-size:2.5rem;margin-bottom:10px}
+.empty p{font-size:.85rem;line-height:2}
+.load-more{display:flex;justify-content:center;margin-top:16px}
+.btn-more{padding:9px 24px;border:1px solid var(--border);border-radius:20px;background:transparent;font-size:.82rem;color:var(--mid);cursor:pointer;transition:all .2s;font-family:var(--body)}
+.btn-more:hover{border-color:var(--gold);color:var(--text)}
+
+/* ── 筆記 ── */
+.note-textarea{width:100%;min-height:120px;padding:14px;border:1px solid var(--border);border-radius:10px;font-size:.9rem;color:var(--text);background:var(--bg);resize:vertical;outline:none;transition:border-color .2s;line-height:1.7}
+.note-textarea:focus{border-color:var(--gold);background:#fff}
+.note-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.note-cnt{font-size:.75rem;color:var(--light)}
+.btn-save-note{padding:10px 24px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:8px;font-size:.85rem;color:#2d1a00;cursor:pointer;transition:opacity .2s}
+.btn-save-note:hover{opacity:.85}
+.note-item{padding:14px 0;border-bottom:1px solid #f2ece4}
+.note-item:last-child{border-bottom:none}
+.note-text{font-size:.88rem;color:var(--text);line-height:1.8;margin-bottom:6px;white-space:pre-wrap}
+.note-meta{display:flex;justify-content:space-between;align-items:center}
+.note-ts{font-size:.72rem;color:var(--light)}
+.btn-del{background:none;border:none;font-size:.72rem;color:var(--faint);cursor:pointer;padding:0;transition:color .2s;font-family:var(--body)}
+.btn-del:hover{color:var(--red)}
+
+/* ── 訂閱 ── */
+.plan-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.plan-card{border:2px solid var(--border);border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:var(--card)}
+.plan-card.current{border-color:var(--gold);background:linear-gradient(135deg,rgba(233,194,125,.08),rgba(205,168,110,.05))}
+.plan-card.popular::before{content:'推薦';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--gold);color:#2d1a00;font-size:.65rem;padding:3px 10px;border-radius:10px;font-weight:600;white-space:nowrap}
+.plan-icon{font-size:1.6rem;margin-bottom:8px}
+.plan-name{font-size:.95rem;font-weight:500;margin-bottom:4px}
+.plan-price{font-family:var(--serif);font-size:1.5rem;color:var(--gold3);margin-bottom:8px}
+.plan-price span{font-size:.75rem;color:var(--light);font-family:var(--body)}
+.plan-feats{list-style:none;text-align:left;font-size:.78rem;color:var(--mid);line-height:2}
+.plan-feats li::before{content:'✓ ';color:var(--gold)}
+.current-badge{position:absolute;top:10px;right:10px;background:var(--green);color:#fff;font-size:.65rem;padding:2px 8px;border-radius:10px}
+
+/* ── 生日禮 ── */
+.birthday-card{
+  background:linear-gradient(135deg,#1a0e24,#2a1a3a);
+  border:1px solid rgba(233,194,125,.2);border-radius:14px;
+  padding:24px;color:#f0e8d0;position:relative;overflow:hidden;
+}
+.birthday-card::before{content:'✦';position:absolute;top:16px;right:20px;font-size:3rem;opacity:.08;color:var(--gold)}
+.bc-title{font-family:var(--serif);font-size:1.1rem;font-weight:300;margin-bottom:6px;letter-spacing:.06em}
+.bc-sub{font-size:.8rem;opacity:.6;margin-bottom:16px;line-height:1.6}
+.bc-price{font-family:var(--serif);font-size:1.6rem;color:var(--gold);margin-bottom:16px}
+.bc-price span{font-size:.8rem;color:rgba(240,232,208,.6);font-family:var(--body)}
+.btn-birthday{padding:11px 28px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;font-size:.88rem;color:#2d1a00;font-weight:500;cursor:pointer;transition:opacity .2s}
+.btn-birthday:hover{opacity:.85}
+
+/* ── 帳號設定 ── */
+.settings-section{margin-bottom:28px}
+.settings-title{font-size:.8rem;letter-spacing:.1em;color:var(--light);text-transform:uppercase;margin-bottom:14px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f2ece4}
+.setting-row:last-child{border-bottom:none}
+.setting-label{font-size:.9rem;color:var(--text)}
+.setting-val{font-size:.82rem;color:var(--light)}
+.btn-change{padding:7px 16px;border:1px solid var(--border);border-radius:8px;background:transparent;font-size:.78rem;color:var(--mid);cursor:pointer;transition:all .2s;font-family:var(--body)}
+.btn-change:hover{border-color:var(--gold);color:var(--text)}
+.danger-zone{margin-top:32px;padding-top:20px;border-top:1px solid rgba(212,80,80,.15)}
+.danger-title{font-size:.75rem;letter-spacing:.1em;color:var(--red);text-transform:uppercase;margin-bottom:12px;opacity:.7}
+.btn-danger{padding:9px 20px;border:1px solid rgba(212,80,80,.3);border-radius:8px;background:transparent;font-size:.82rem;color:var(--red);cursor:pointer;transition:all .2s;font-family:var(--body)}
+.btn-danger:hover{background:rgba(212,80,80,.05)}
+
+/* ═══════════ 導師後台 ═══════════ */
+.student-search{
+  display:flex;gap:10px;margin-bottom:18px;
+}
+.search-input{flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:9px;font-size:.88rem;outline:none;background:var(--bg);transition:border-color .2s}
+.search-input:focus{border-color:var(--gold);background:#fff}
+.student-list{display:flex;flex-direction:column;gap:1px}
+.student-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--card);cursor:pointer;transition:background .2s;border-bottom:1px solid var(--border)}
+.student-item:first-child{border-radius:12px 12px 0 0}
+.student-item:last-child{border-radius:0 0 12px 12px;border-bottom:none}
+.student-item:hover{background:#fdf3e8}
+.student-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#2d1a00;flex-shrink:0}
+.student-info{flex:1;min-width:0}
+.student-name{font-size:.92rem;color:var(--text);margin-bottom:2px}
+.student-email{font-size:.75rem;color:var(--light);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.student-stats{display:flex;gap:12px;flex-shrink:0}
+.sstat{text-align:center}
+.sstat-n{font-size:1rem;font-weight:500;color:var(--gold3)}
+.sstat-l{font-size:.65rem;color:var(--light)}
+
+/* ── 認證卡 ── */
+.cert-card{
+  background:linear-gradient(135deg,rgba(233,194,125,.1),rgba(205,168,110,.06));
+  border:1px solid rgba(233,194,125,.25);border-radius:14px;padding:20px;
+  display:flex;align-items:center;gap:16px;
+}
+.cert-icon{font-size:2rem}
+.cert-info{flex:1}
+.cert-name{font-size:1rem;margin-bottom:4px}
+.cert-detail{font-size:.78rem;color:var(--mid);line-height:1.6}
+.cert-status{padding:6px 14px;border-radius:20px;font-size:.75rem;font-weight:500}
+.cert-active{background:rgba(90,144,96,.15);color:var(--green)}
+.cert-pending{background:rgba(205,168,110,.15);color:var(--gold3)}
+
+/* ═══════════ 管理後台 ═══════════ */
+.admin-tabs{display:flex;gap:0;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:24px;overflow-x:auto}
+.admin-tab{flex-shrink:0;padding:9px 18px;border-radius:7px;border:none;background:transparent;font-size:.85rem;color:var(--mid);cursor:pointer;transition:all .2s;font-family:var(--body)}
+.admin-tab.on{background:var(--card);color:var(--text);box-shadow:0 1px 4px rgba(45,36,24,.1)}
+.admin-sub{display:none}
+.admin-sub.on{display:block}
+
+/* 總覽統計 */
+.admin-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.admin-stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.as-n{font-family:var(--serif);font-size:1.8rem;font-weight:300;color:var(--text)}
+.as-l{font-size:.72rem;color:var(--light);margin-top:4px}
+.as-trend{font-size:.7rem;color:var(--green);margin-top:3px}
+
+/* 會員管理 */
+.member-filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.member-search{flex:1;min-width:180px;padding:9px 14px;border:1px solid var(--border);border-radius:9px;font-size:.85rem;outline:none;background:var(--bg)}
+.member-search:focus{border-color:var(--gold);background:#fff}
+.role-filter{padding:8px 14px;border:1px solid var(--border);border-radius:9px;font-size:.82rem;background:var(--bg);outline:none;color:var(--text);cursor:pointer}
+.member-table{width:100%;border-collapse:collapse}
+.member-table th{font-size:.72rem;letter-spacing:.08em;color:var(--light);text-transform:uppercase;padding:10px 12px;border-bottom:2px solid var(--border);text-align:left;background:var(--bg)}
+.member-table td{padding:12px;border-bottom:1px solid #f2ece4;font-size:.85rem;vertical-align:middle}
+.member-table tr:hover td{background:#fdf3e8}
+.member-table tr:last-child td{border-bottom:none}
+.role-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:500}
+.user-cell{display:flex;align-items:center;gap:10px}
+.user-cell-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#2d1a00;flex-shrink:0}
+.user-cell-info{}
+.user-cell-name{font-size:.88rem;color:var(--text);margin-bottom:1px}
+.user-cell-email{font-size:.72rem;color:var(--light)}
+.btn-edit-role{padding:5px 12px;border:1px solid var(--border);border-radius:7px;background:transparent;font-size:.75rem;color:var(--mid);cursor:pointer;transition:all .2s;font-family:var(--body)}
+.btn-edit-role:hover{border-color:var(--gold);color:var(--text)}
+.pagination{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+.page-info{font-size:.78rem;color:var(--light)}
+.page-btns{display:flex;gap:6px}
+.page-btn{padding:6px 14px;border:1px solid var(--border);border-radius:7px;background:transparent;font-size:.78rem;color:var(--mid);cursor:pointer;transition:all .2s;font-family:var(--body)}
+.page-btn:hover{border-color:var(--gold)}
+.page-btn.disabled{opacity:.4;cursor:default}
+
+/* 事件流 */
+.event-list{display:flex;flex-direction:column}
+.event-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid #f2ece4}
+.event-item:last-child{border-bottom:none}
+.event-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:7px}
+.event-dot.draw{background:#e9c27d}
+.event-dot.quiz{background:#78b4c8}
+.event-dot.calculator{background:#9070c0}
+.event-dot.page{background:#b0b0b0}
+.event-info{flex:1;min-width:0}
+.event-tool{font-size:.88rem;color:var(--text);margin-bottom:2px}
+.event-user{font-size:.75rem;color:var(--light)}
+.event-time{font-size:.72rem;color:var(--faint);white-space:nowrap}
+
+/* 工具矩陣 */
+.matrix-wrap{overflow-x:auto}
+.matrix-table{border-collapse:collapse;font-size:.78rem;min-width:600px}
+.matrix-table th{padding:8px 10px;border:1px solid var(--border);background:var(--bg);color:var(--mid);font-weight:400;white-space:nowrap;font-size:.7rem}
+.matrix-table td{padding:8px 10px;border:1px solid var(--border);text-align:center}
+.matrix-table td:first-child{text-align:left;font-size:.78rem;color:var(--text);white-space:nowrap;background:var(--bg)}
+.matrix-toggle{width:20px;height:20px;border-radius:5px;border:none;cursor:pointer;transition:all .2s;font-size:.75rem;display:inline-flex;align-items:center;justify-content:center}
+.mt-on{background:rgba(90,144,96,.15);color:var(--green)}
+.mt-off{background:rgba(212,80,80,.1);color:var(--red)}
+.mt-locked{background:rgba(233,194,125,.15);color:var(--gold3);cursor:default}
+.matrix-save{display:flex;justify-content:flex-end;margin-top:14px}
+.btn-matrix-save{padding:10px 24px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:9px;font-size:.88rem;color:#2d1a00;cursor:pointer;transition:opacity .2s;font-family:var(--body)}
+.btn-matrix-save:hover{opacity:.85}
+
+/* ── 彈窗 ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(45,36,24,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal{background:var(--card);border-radius:16px;padding:28px;width:100%;max-width:440px;box-shadow:0 8px 40px rgba(45,36,24,.15)}
+.modal-title{font-family:var(--serif);font-size:1.1rem;font-weight:300;margin-bottom:6px}
+.modal-sub{font-size:.82rem;color:var(--mid);margin-bottom:20px;line-height:1.6}
+.modal-form{display:flex;flex-direction:column;gap:12px}
+.modal-label{font-size:.75rem;color:var(--mid);margin-bottom:4px;display:block}
+.modal-input{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:9px;font-size:.88rem;outline:none;background:var(--bg);transition:border-color .2s}
+.modal-input:focus{border-color:var(--gold);background:#fff}
+.modal-select{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:9px;font-size:.88rem;outline:none;background:var(--bg);cursor:pointer}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+.btn-modal-cancel{padding:9px 20px;border:1px solid var(--border);border-radius:8px;background:transparent;font-size:.85rem;color:var(--mid);cursor:pointer;font-family:var(--body)}
+.btn-modal-ok{padding:9px 20px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:8px;font-size:.85rem;color:#2d1a00;cursor:pointer;font-family:var(--body)}
+.modal-err{font-size:.78rem;color:var(--red);min-height:16px}
+
+/* ── Toast ── */
+#toast{
+  position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:#2d2418;color:#f0e8d0;padding:12px 24px;border-radius:30px;
+  font-size:.85rem;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;
+  white-space:nowrap;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── 手機版 ── */
+@media(max-width:768px){
+  :root{--sidebar:240px}
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 20px rgba(45,36,24,.15)}
+  .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(45,36,24,.4);z-index:399}
+  .sidebar-overlay.show{display:block}
+  .main{margin-left:0}
+  .page{padding:20px 16px 80px}
+  .tb-menu{display:block}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .plan-cards{grid-template-columns:1fr}
+  .admin-stats{grid-template-columns:repeat(2,1fr)}
+  .grid-2,.grid-3{grid-template-columns:1fr}
+  .tb-name{display:none}
+}
+
+/* ── 工具快捷 ── */
+.quick-tools{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+.qt-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;text-decoration:none;transition:all .2s;display:block}
+.qt-item:hover{border-color:var(--gold);background:rgba(233,194,125,.05)}
+.qt-icon{font-size:1.4rem;margin-bottom:6px}
+.qt-name{font-size:.75rem;color:var(--mid);line-height:1.4}
+
+/* ── 活動 timeline ── */
+.timeline{position:relative;padding-left:28px}
+.timeline::before{content:'';position:absolute;left:8px;top:4px;bottom:4px;width:2px;background:var(--border)}
+.tl-item{position:relative;margin-bottom:16px}
+.tl-dot{position:absolute;left:-24px;top:4px;width:10px;height:10px;border-radius:50%;border:2px solid var(--card);box-shadow:0 0 0 1px var(--border);background:var(--gold)}
+.tl-time{font-size:.7rem;color:var(--faint);margin-bottom:2px}
+.tl-text{font-size:.85rem;color:var(--text);line-height:1.6}
+
+/* ── 圖表容器 ── */
+.chart-bar{display:flex;align-items:flex-end;gap:6px;height:100px;padding:0 4px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar-fill{width:100%;border-radius:4px 4px 0 0;background:linear-gradient(180deg,var(--gold),var(--gold2));transition:height .6s ease;min-height:2px}
+.bar-label{font-size:.62rem;color:var(--light)}
+.bar-n{font-size:.65rem;color:var(--mid)}
+</style>
+</head>
+<body>
+
+<!-- 載入畫面 -->
+<div id="loading-screen">
+  <div class="ld-logo"><img src="assets/images/HOUR-LIGHT.png" alt="Hour Light"></div>
+  <div class="ld-brand">馥靈工作台</div>
+  <div class="ld-dots">
+    <div class="ld-dot"></div>
+    <div class="ld-dot"></div>
+    <div class="ld-dot"></div>
+  </div>
+</div>
+
+<!-- 登入畫面 -->
+<div id="login-screen" class="hide">
+  <div class="login-card">
+    <div class="lc-head">
+      <div class="lc-icon"><img src="assets/images/HOUR-LIGHT.png" alt="Hour Light"></div>
+      <div class="lc-title">馥靈工作台</div>
+      <div class="lc-sub">app.hourlightkey.com</div>
+    </div>
+    <div class="lc-tabs">
+      <button class="lc-tab on" onclick="switchLoginTab('login')">登入</button>
+      <button class="lc-tab" onclick="switchLoginTab('register')">建立帳號</button>
+    </div>
+
+    <!-- 登入表單 -->
+    <div id="form-login" class="lc-form">
+      <div>
+        <label class="lf-label">電子郵件</label>
+        <input class="lf-input" type="email" id="login-email" placeholder="your@email.com" autocomplete="email">
+      </div>
+      <div>
+        <label class="lf-label">密碼</label>
+        <input class="lf-input" type="password" id="login-pw" placeholder="••••••••" autocomplete="current-password">
+        <div class="lc-forget" style="margin-top:6px">
+          <button onclick="forgotPassword()">忘記密碼？</button>
+        </div>
+      </div>
+      <div class="lc-err" id="login-err"></div>
+      <button class="btn-primary" onclick="doLogin()">登入</button>
+      <div class="lc-divider">或</div>
+      <button class="btn-google" onclick="doGoogleLogin()">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        使用 Google 帳號登入
+      </button>
+    </div>
+
+    <!-- 註冊表單 -->
+    <div id="form-register" class="lc-form hide">
+      <div>
+        <label class="lf-label">顯示名稱</label>
+        <input class="lf-input" type="text" id="reg-name" placeholder="你的名字或暱稱">
+      </div>
+      <div>
+        <label class="lf-label">電子郵件</label>
+        <input class="lf-input" type="email" id="reg-email" placeholder="your@email.com" autocomplete="email">
+      </div>
+      <div>
+        <label class="lf-label">密碼（至少 8 位）</label>
+        <input class="lf-input" type="password" id="reg-pw" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <div class="lc-err" id="reg-err"></div>
+      <button class="btn-primary" onclick="doRegister()">建立帳號</button>
+      <div class="lc-divider">或</div>
+      <button class="btn-google" onclick="doGoogleLogin()">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        使用 Google 帳號建立
+      </button>
+    </div>
+    <div class="lc-back"><a href="https://hourlightkey.com">← 返回官網</a></div>
+  </div>
+</div>
+
+<!-- 側邊欄遮罩（手機） -->
+<div class="sidebar-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
+
+<!-- 主應用 -->
+<div id="app">
+
+  <!-- 頂部導覽 -->
+  <header class="topbar">
+    <button class="tb-menu" onclick="toggleSidebar()">☰</button>
+    <a class="tb-logo" href="https://hourlightkey.com" target="_blank">
+      <div class="tb-logo-img"><img src="assets/images/HOUR-LIGHT.png" alt="HL"></div>
+      <span class="tb-brand">馥靈之鑰</span>
+    </a>
+    <span class="tb-sep">｜</span>
+    <span class="tb-page" id="tb-page-name">工作台</span>
+    <div class="tb-right">
+      <span class="tb-role-badge" id="tb-role-badge"></span>
+      <div class="tb-user">
+        <div class="tb-avatar" id="tb-avatar">R</div>
+        <span class="tb-name" id="tb-name">載入中</span>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">登出</button>
+    </div>
+  </header>
+
+  <!-- 側邊欄 -->
+  <nav class="sidebar" id="sidebar">
+
+    <!-- 用戶功能 -->
+    <div class="sb-section">
+      <div class="sb-section-label">我的工作台</div>
+      <button class="sb-item on" onclick="showPage('overview')" id="sb-overview">
+        <span class="sb-icon">🏠</span> 今日總覽
+      </button>
+      <button class="sb-item" onclick="showPage('history')" id="sb-history">
+        <span class="sb-icon">👣</span> 使用足跡
+      </button>
+      <button class="sb-item" onclick="showPage('notes')" id="sb-notes">
+        <span class="sb-icon">📝</span> 覺察筆記
+      </button>
+      <button class="sb-item" onclick="showPage('subscription')" id="sb-subscription">
+        <span class="sb-icon">💎</span> 訂閱與方案
+      </button>
+      <button class="sb-item" onclick="showPage('settings')" id="sb-settings">
+        <span class="sb-icon">⚙️</span> 帳號設定
+      </button>
+    </div>
+
+    <!-- 導師功能（mentor 以上才顯示） -->
+    <div class="sb-section hide" id="sb-mentor-section">
+      <div class="sb-section-label">導師後台</div>
+      <button class="sb-item" onclick="showPage('students')" id="sb-students">
+        <span class="sb-icon">🌟</span> 學員管理
+        <span class="sb-badge" id="student-count-badge">0</span>
+      </button>
+      <button class="sb-item" onclick="showPage('certification')" id="sb-certification">
+        <span class="sb-icon">🎓</span> 授權認證
+      </button>
+    </div>
+
+    <!-- 管理功能（admin/curator 才顯示） -->
+    <div class="sb-section hide" id="sb-admin-section">
+      <div class="sb-section-label">管理後台</div>
+      <button class="sb-item" onclick="showPage('admin')" id="sb-admin">
+        <span class="sb-icon">⚜️</span> 管理總覽
+        <span class="sb-admin-badge">Admin</span>
+      </button>
+    </div>
+
+    <!-- 工具快捷 -->
+    <div class="sb-section" style="margin-top:auto;padding-top:10px;border-top:1px solid var(--border)">
+      <div class="sb-section-label">快速前往</div>
+      <a class="sb-item" href="https://hourlightkey.com/draw-hl.html" target="_blank">
+        <span class="sb-icon">🃏</span> 馥靈抽牌
+      </a>
+      <a class="sb-item" href="https://hourlightkey.com/fuling-mima.html" target="_blank">
+        <span class="sb-icon">🔮</span> 馥靈秘碼
+      </a>
+      <a class="sb-item" href="https://hourlightkey.com/destiny-engine.html" target="_blank">
+        <span class="sb-icon">⭐</span> 命盤引擎
+      </a>
+    </div>
+  </nav>
+
+  <!-- 主內容區 -->
+  <main class="main">
+
+    <!-- ══════ 今日總覽 ══════ -->
+    <div class="page on" id="page-overview">
+      <div class="page-head">
+        <h1 id="welcome-name">歡迎回來 ✨</h1>
+        <p id="welcome-sub">今天是個好日子，看看今天你的籤說什麼。</p>
+      </div>
+
+      <!-- 今日幸運籤 -->
+      <div class="oracle-strip" onclick="location.href='https://hourlightkey.com/draw-hl.html'" id="oracle-strip">
+        <div class="oracle-img" id="oracle-img">✦</div>
+        <div class="oracle-info">
+          <div class="oracle-day" id="oracle-day">今日｜載入中</div>
+          <div class="oracle-name" id="oracle-name">— — —</div>
+          <div class="oracle-q" id="oracle-q">每天一個覺察問題，陪你把注意力放回自己身上。</div>
+        </div>
+        <div class="oracle-arrow">›</div>
+      </div>
+
+      <!-- 身分卡 -->
+      <div class="role-strip" id="role-strip" style="background:linear-gradient(135deg,#e9c27d20,#cda86e10);border:1px solid rgba(233,194,125,.2)">
+        <div class="role-icon-big" id="role-icon-big">🌱</div>
+        <div class="role-info">
+          <h3 id="role-name-big">馥靈訪客</h3>
+          <p id="role-desc-big">免費帳號，每月 3 次完整牌陣，基本功能可用</p>
+        </div>
+        <div class="role-actions">
+          <button class="btn-sm-gold" onclick="showPage('subscription')">查看方案</button>
+        </div>
+      </div>
+
+      <!-- 使用統計 -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon">🃏</div>
+          <div class="stat-n" id="stat-draws">0</div>
+          <div class="stat-l">抽牌次數</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📊</div>
+          <div class="stat-n" id="stat-quizzes">0</div>
+          <div class="stat-l">測驗完成</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔮</div>
+          <div class="stat-n" id="stat-calcs">0</div>
+          <div class="stat-l">命理計算</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📅</div>
+          <div class="stat-n" id="stat-days">1</div>
+          <div class="stat-l">加入天數</div>
+        </div>
+      </div>
+
+      <!-- 最近足跡 + 命盤摘要 -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><span class="card-title">最近足跡</span></div>
+          <div class="card-body card-body-pt0">
+            <div class="hlist" id="recent-list">
+              <div class="empty"><div class="empty-icon">👣</div><p>還沒有任何使用記錄<br>去試試看工具吧</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">命盤摘要</span></div>
+          <div class="card-body card-body-pt0" id="blueprint-card">
+            <div class="empty"><div class="empty-icon">🔮</div><p>還沒有命盤記錄<br><a href="https://hourlightkey.com/fuling-mima.html" target="_blank" style="color:var(--gold)">前往馥靈秘碼計算 →</a></p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 工具快捷 -->
+      <div class="card" style="margin-top:16px">
+        <div class="card-head"><span class="card-title">工具快捷</span></div>
+        <div class="card-body card-body-pt0">
+          <div class="quick-tools" id="quick-tools-grid">
+            <a class="qt-item" href="https://hourlightkey.com/draw-hl.html" target="_blank">
+              <div class="qt-icon">🃏</div><div class="qt-name">馥靈抽牌</div>
+            </a>
+            <a class="qt-item" href="https://hourlightkey.com/draw-light.html" target="_blank">
+              <div class="qt-icon">✦</div><div class="qt-name">單牌抽取</div>
+            </a>
+            <a class="qt-item" href="https://hourlightkey.com/fuling-mima.html" target="_blank">
+              <div class="qt-icon">🔮</div><div class="qt-name">馥靈秘碼</div>
+            </a>
+            <a class="qt-item" href="https://hourlightkey.com/destiny-engine.html" target="_blank">
+              <div class="qt-icon">⭐</div><div class="qt-name">命盤引擎</div>
+            </a>
+            <a class="qt-item" href="https://hourlightkey.com/quiz-mbti.html" target="_blank">
+              <div class="qt-icon">🧠</div><div class="qt-name">MBTI 測驗</div>
+            </a>
+            <a class="qt-item" href="https://hourlightkey.com/quiz-disc.html" target="_blank">
+              <div class="qt-icon">🎯</div><div class="qt-name">DISC 測驗</div>
+            </a>
+            <a class="qt-item" href="https://hourlightkey.com/quiz-bigfive.html" target="_blank">
+              <div class="qt-icon">🌟</div><div class="qt-name">大五人格</div>
+            </a>
+            <a class="qt-item" href="https://hourlightkey.com/birthday-gift.html" target="_blank">
+              <div class="qt-icon">🎂</div><div class="qt-name">生日禮</div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div><!-- /overview -->
+
+    <!-- ══════ 使用足跡 ══════ -->
+    <div class="page hide" id="page-history">
+      <div class="page-head">
+        <h1>使用足跡</h1>
+        <p>你所有在馥靈之鑰留下的使用記錄，都在這裡。</p>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="filter-row">
+            <button class="filter-chip on" onclick="filterHistory('all',this)">全部</button>
+            <button class="filter-chip" onclick="filterHistory('draw',this)">🃏 抽牌</button>
+            <button class="filter-chip" onclick="filterHistory('quiz',this)">📊 測驗</button>
+            <button class="filter-chip" onclick="filterHistory('calculator',this)">🔮 命理</button>
+          </div>
+          <div class="hlist" id="history-list">
+            <div class="empty"><div class="empty-icon">👣</div><p>還沒有任何記錄</p></div>
+          </div>
+          <div class="load-more hide" id="load-more-btn">
+            <button class="btn-more" onclick="loadMoreHistory()">載入更多</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ 覺察筆記 ══════ -->
+    <div class="page hide" id="page-notes">
+      <div class="page-head">
+        <h1>覺察筆記</h1>
+        <p>隨手記下你的覺察和感受，只有你自己看得到。</p>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-body">
+          <textarea class="note-textarea" id="note-input" placeholder="此刻你注意到什麼？&#10;&#10;不需要寫得漂亮，只要真實就好。" maxlength="1000"></textarea>
+          <div class="note-footer">
+            <span class="note-cnt"><span id="note-char">0</span> / 1000</span>
+            <button class="btn-save-note" onclick="saveNote()">儲存筆記</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">我的筆記 <span id="note-total">0</span> 則</span></div>
+        <div class="card-body card-body-pt0">
+          <div id="notes-list">
+            <div class="empty"><div class="empty-icon">📝</div><p>還沒有筆記<br>今天的第一則，從這裡開始</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ 訂閱與方案 ══════ -->
+    <div class="page hide" id="page-subscription">
+      <div class="page-head">
+        <h1>訂閱與方案</h1>
+        <p>選擇最適合你現在階段的方案。</p>
+      </div>
+
+      <div class="plan-cards" id="plan-cards">
+        <div class="plan-card" id="plan-guest">
+          <div class="plan-icon">🌱</div>
+          <div class="plan-name">馥靈訪客</div>
+          <div class="plan-price">免費 <span>/ 永久</span></div>
+          <ul class="plan-feats">
+            <li>9 個核心免費工具</li>
+            <li>牌卡抽牌不限次</li>
+            <li>每月 3 次完整牌陣</li>
+            <li>基礎命理計算</li>
+          </ul>
+        </div>
+        <div class="plan-card popular" id="plan-member">
+          <div class="plan-icon">🔑</div>
+          <div class="plan-name">馥靈會員</div>
+          <div class="plan-price">NT$299 <span>/ 月</span></div>
+          <ul class="plan-feats">
+            <li>全站工具解鎖</li>
+            <li>每月 30 次完整解析</li>
+            <li>歷史足跡完整保存</li>
+            <li>生日月可加購限定禮</li>
+          </ul>
+        </div>
+        <div class="plan-card" id="plan-premium">
+          <div class="plan-icon">💎</div>
+          <div class="plan-name">馥靈高階會員</div>
+          <div class="plan-price">NT$999 <span>/ 月</span></div>
+          <ul class="plan-feats">
+            <li>全方案功能</li>
+            <li>無限次完整解析</li>
+            <li>馥靈輕盈系列專屬</li>
+            <li>AI 解讀優先體驗</li>
+            <li>生日禮優先資格</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-bottom:28px">
+        <p style="font-size:.82rem;color:var(--mid);margin-bottom:12px">升級方案請透過 LINE 聯繫，我們在 24 小時內為你處理。</p>
+        <a href="https://lin.ee/OQDB5t6" target="_blank" class="btn-sm-gold" style="display:inline-block;padding:11px 28px;text-decoration:none;border-radius:10px;font-size:.9rem">
+          💬 LINE 聯繫升級
+        </a>
+      </div>
+
+      <!-- 生日禮 -->
+      <div class="birthday-card">
+        <div class="bc-title">🎂 生日月限定 · 生日禮</div>
+        <div class="bc-sub">21 張牌卡全盤矩陣解析 + 流年座標哲學詳細分析<br>＋ 神祕實體禮物（Ruby 親自依牌陣結果挑選）</div>
+        <div class="bc-price">NT$3,600 <span>加購</span></div>
+        <a href="https://hourlightkey.com/birthday-gift.html" target="_blank">
+          <button class="btn-birthday">了解生日禮詳情</button>
+        </a>
+      </div>
+    </div>
+
+    <!-- ══════ 帳號設定 ══════ -->
+    <div class="page hide" id="page-settings">
+      <div class="page-head">
+        <h1>帳號設定</h1>
+        <p>管理你的帳號資料。</p>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="settings-section">
+            <div class="settings-title">基本資料</div>
+            <div class="setting-row">
+              <div><div class="setting-label">顯示名稱</div><div class="setting-val" id="s-name">—</div></div>
+              <button class="btn-change" onclick="showEditNameModal()">修改</button>
+            </div>
+            <div class="setting-row">
+              <div><div class="setting-label">電子郵件</div><div class="setting-val" id="s-email">—</div></div>
+              <span></span>
+            </div>
+            <div class="setting-row">
+              <div><div class="setting-label">身分</div><div class="setting-val" id="s-role">—</div></div>
+              <span></span>
+            </div>
+            <div class="setting-row">
+              <div><div class="setting-label">加入時間</div><div class="setting-val" id="s-joined">—</div></div>
+              <span></span>
+            </div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-title">安全性</div>
+            <div class="setting-row">
+              <div class="setting-label">密碼</div>
+              <button class="btn-change" onclick="showChangePwModal()">修改密碼</button>
+            </div>
+          </div>
+          <div class="danger-zone">
+            <div class="danger-title">⚠ 危險區域</div>
+            <button class="btn-danger" onclick="confirmDeleteAccount()">刪除我的帳號</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ 導師：學員管理 ══════ -->
+    <div class="page hide" id="page-students">
+      <div class="page-head">
+        <h1>學員管理</h1>
+        <p>你的學員使用記錄和目前狀態。</p>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="student-search">
+            <input class="search-input" id="student-search" type="text" placeholder="搜尋學員姓名或 Email" oninput="filterStudents()">
+          </div>
+          <div class="student-list" id="student-list">
+            <div class="empty"><div class="empty-icon">🌟</div><p>目前還沒有學員記錄<br>學員在官網使用工具後會自動顯示在這裡</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ 導師：授權認證 ══════ -->
+    <div class="page hide" id="page-certification">
+      <div class="page-head">
+        <h1>授權認證</h1>
+        <p>你的馥靈覺察導師認證狀態。</p>
+      </div>
+      <div class="cert-card" style="margin-bottom:16px">
+        <div class="cert-icon">🌟</div>
+        <div class="cert-info">
+          <div class="cert-name">馥靈覺察導師 — 認證中</div>
+          <div class="cert-detail" id="cert-detail">認證由馥靈管理員手動開通，如有疑問請透過 LINE 聯繫。</div>
+        </div>
+        <span class="cert-status cert-active" id="cert-status">有效</span>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">導師權益說明</span></div>
+        <div class="card-body">
+          <div class="hlist">
+            <div class="hitem">
+              <div class="hicon">✓</div>
+              <div class="hinfo"><div class="htool">全站工具不限次數使用</div><div class="hdetail">包含所有抽牌、測驗、命理計算功能</div></div>
+            </div>
+            <div class="hitem">
+              <div class="hicon">✓</div>
+              <div class="hinfo"><div class="htool">學員使用記錄查閱</div><div class="hdetail">可看到你名下學員的工具使用足跡</div></div>
+            </div>
+            <div class="hitem">
+              <div class="hicon">✓</div>
+              <div class="hinfo"><div class="htool">覺察記錄永久保存</div><div class="hdetail">歷史記錄與筆記不受次數限制</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ 管理：總覽 ══════ -->
+    <div class="page hide" id="page-admin">
+      <div class="page-head">
+        <h1>⚜️ 管理總覽</h1>
+        <p>馥靈之鑰後台管理系統</p>
+      </div>
+
+      <div class="admin-tabs">
+        <button class="admin-tab on" onclick="switchAdminTab('dashboard')">📊 數據總覽</button>
+        <button class="admin-tab" onclick="switchAdminTab('members')">👥 會員管理</button>
+        <button class="admin-tab" onclick="switchAdminTab('events')">⚡ 事件流</button>
+        <button class="admin-tab" onclick="switchAdminTab('permissions')">🔐 工具權限矩陣</button>
+      </div>
+
+      <!-- 數據總覽 -->
+      <div class="admin-sub on" id="admin-dashboard">
+        <div class="admin-stats" id="admin-stats-grid">
+          <div class="admin-stat"><div class="as-n" id="a-total-users">—</div><div class="as-l">總會員數</div></div>
+          <div class="admin-stat"><div class="as-n" id="a-today-active">—</div><div class="as-l">今日活躍</div></div>
+          <div class="admin-stat"><div class="as-n" id="a-total-events">—</div><div class="as-l">總使用次數</div></div>
+          <div class="admin-stat"><div class="as-n" id="a-premium-users">—</div><div class="as-l">付費會員</div></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><span class="card-title">身分分佈</span></div>
+            <div class="card-body card-body-pt0" id="role-distribution">
+              <div class="empty"><p>載入中</p></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">工具使用排行</span></div>
+            <div class="card-body card-body-pt0" id="tool-ranking">
+              <div class="empty"><p>載入中</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <div class="card-head"><span class="card-title">最近動態</span></div>
+          <div class="card-body card-body-pt0">
+            <div class="event-list" id="admin-recent-events">
+              <div class="empty"><p>載入中</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 會員管理 -->
+      <div class="admin-sub hide" id="admin-members">
+        <div class="member-filters">
+          <input class="member-search" id="admin-member-search" type="text" placeholder="搜尋姓名或 Email" oninput="adminSearchMembers()">
+          <select class="role-filter" id="admin-role-filter" onchange="adminSearchMembers()">
+            <option value="">全部身分</option>
+            <option value="admin">⚜️ 馥靈管理員</option>
+            <option value="curator">🎨 策展總監</option>
+            <option value="mentor">🌟 覺察導師</option>
+            <option value="practitioner">✦ 覺察師</option>
+            <option value="premium">💎 高階會員</option>
+            <option value="member">🔑 馥靈會員</option>
+            <option value="guest">🌱 馥靈訪客</option>
+            <option value="vip_guest">🌸 特殊貴賓</option>
+          </select>
+        </div>
+        <div class="card">
+          <div class="card-body" style="padding:0;overflow-x:auto">
+            <table class="member-table" id="admin-member-table">
+              <thead><tr>
+                <th>會員</th>
+                <th>身分</th>
+                <th>抽牌</th>
+                <th>測驗</th>
+                <th>計算</th>
+                <th>最近上線</th>
+                <th>操作</th>
+              </tr></thead>
+              <tbody id="admin-member-tbody">
+                <tr><td colspan="7" class="empty" style="padding:30px;text-align:center">載入中...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="pagination">
+          <span class="page-info" id="member-page-info">第 1 / 1 頁</span>
+          <div class="page-btns">
+            <button class="page-btn" onclick="adminPrevPage()" id="btn-prev-page">上一頁</button>
+            <button class="page-btn" onclick="adminNextPage()" id="btn-next-page">下一頁</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 事件流 -->
+      <div class="admin-sub hide" id="admin-events">
+        <div class="card">
+          <div class="card-body">
+            <div class="event-list" id="admin-events-list">
+              <div class="empty"><p>載入中</p></div>
+            </div>
+            <div class="load-more" style="margin-top:16px">
+              <button class="btn-more" onclick="loadMoreEvents()">載入更多</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 工具權限矩陣 -->
+      <div class="admin-sub hide" id="admin-permissions">
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">工具開放矩陣</span>
+            <span style="font-size:.75rem;color:var(--light)">⚜️ 鎖定 = 系統預設全開，無法關閉</span>
+          </div>
+          <div class="card-body">
+            <div class="matrix-wrap" id="matrix-container">
+              <div class="empty"><p>載入中</p></div>
+            </div>
+            <div class="matrix-save">
+              <button class="btn-matrix-save" onclick="savePermissionsMatrix()">儲存所有變更</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div><!-- /app -->
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- 彈窗：修改名稱 -->
+<div class="modal-overlay hide" id="modal-name">
+  <div class="modal">
+    <div class="modal-title">修改顯示名稱</div>
+    <div class="modal-form">
+      <div>
+        <label class="modal-label">新的顯示名稱</label>
+        <input class="modal-input" type="text" id="new-name-input" placeholder="輸入新名稱">
+      </div>
+      <div class="modal-err" id="name-err"></div>
+      <div class="modal-btns">
+        <button class="btn-modal-cancel" onclick="closeModal('modal-name')">取消</button>
+        <button class="btn-modal-ok" onclick="saveDisplayName()">儲存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 彈窗：修改密碼 -->
+<div class="modal-overlay hide" id="modal-pw">
+  <div class="modal">
+    <div class="modal-title">修改密碼</div>
+    <div class="modal-form">
+      <div>
+        <label class="modal-label">目前密碼</label>
+        <input class="modal-input" type="password" id="cur-pw" placeholder="••••••••">
+      </div>
+      <div>
+        <label class="modal-label">新密碼（至少 8 位）</label>
+        <input class="modal-input" type="password" id="new-pw" placeholder="••••••••">
+      </div>
+      <div class="modal-err" id="pw-err"></div>
+      <div class="modal-btns">
+        <button class="btn-modal-cancel" onclick="closeModal('modal-pw')">取消</button>
+        <button class="btn-modal-ok" onclick="doChangePw()">確認修改</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 彈窗：調整身分 -->
+<div class="modal-overlay hide" id="modal-role">
+  <div class="modal">
+    <div class="modal-title">調整會員身分</div>
+    <div class="modal-sub" id="modal-role-sub">調整此會員的身分等級</div>
+    <div class="modal-form">
+      <div>
+        <label class="modal-label">選擇身分</label>
+        <select class="modal-select" id="role-select">
+          <option value="guest">🌱 馥靈訪客</option>
+          <option value="member">🔑 馥靈會員</option>
+          <option value="premium">💎 馥靈高階會員</option>
+          <option value="practitioner">✦ 馥靈覺察師</option>
+          <option value="mentor">🌟 馥靈覺察導師</option>
+          <option value="curator">🎨 馥靈策展總監</option>
+          <option value="admin">⚜️ 馥靈管理員</option>
+        </select>
+      </div>
+      <div class="modal-err" id="role-err"></div>
+      <div class="modal-btns">
+        <button class="btn-modal-cancel" onclick="closeModal('modal-role')">取消</button>
+        <button class="btn-modal-ok" onclick="saveRole()">確認修改</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase + 設定 -->
+<script>
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAbVr_CtMw1d8b1RBGuJ27tQsZFRwyzpvM",
+  authDomain: "hourlight-key.firebaseapp.com",
+  projectId: "hourlight-key",
+  storageBucket: "hourlight-key.firebasestorage.app",
+  messagingSenderId: "797772820371",
+  appId: "1:797772820371:web:bc12f805bd1b2d8a124266"
+};
+
+const ADMIN_EMAILS   = ['judyanee@gmail.com','info@hourlightkey.com'];
+const VIP_EMAILS     = ['maxinerong17@gmail.com','candywang5266@gmail.com','bird548888@gmail.com','hyukhae8611@gmail.com'];
+
+const HL_ROLES_DEF = {
+  admin:       {level:1,name:'馥靈管理員',icon:'⚜️',color:'#e9c27d',bg:'linear-gradient(135deg,#fff0a0,#e9c27d)',tc:'#1a1008'},
+  curator:     {level:2,name:'馥靈策展總監',icon:'🎨',color:'#c890f0',bg:'linear-gradient(135deg,#c890f0,#9060d0)',tc:'#fff'},
+  vip_guest:   {level:2,name:'馥靈特殊貴賓',icon:'🌸',color:'#ffb0c8',bg:'linear-gradient(135deg,#f080a0,#c06080)',tc:'#fff'},
+  mentor:      {level:3,name:'馥靈覺察導師',icon:'🌟',color:'#ffd080',bg:'linear-gradient(135deg,#e9c27d,#cda86e)',tc:'#1a1008'},
+  practitioner:{level:4,name:'馥靈覺察師',icon:'✦',color:'#a0d8c0',bg:'linear-gradient(135deg,#60c0a0,#3a9080)',tc:'#fff'},
+  premium:     {level:5,name:'馥靈高階會員',icon:'💎',color:'#90c8ff',bg:'linear-gradient(135deg,#6090e0,#4060c0)',tc:'#fff'},
+  member:      {level:6,name:'馥靈會員',icon:'🔑',color:'#c0a060',bg:'linear-gradient(135deg,#c0a060,#a08040)',tc:'#fff'},
+  guest:       {level:7,name:'馥靈訪客',icon:'🌱',color:'#888',bg:'linear-gradient(135deg,#555,#333)',tc:'#ccc'},
+};
+
+// 工具定義
+const TOOLS = {
+  'draw-hl':{'name':'馥靈牌陣抽牌','icon':'🃏','type':'draw'},
+  'draw-light':{'name':'馥靈單牌','icon':'✦','type':'draw'},
+  'draw-body':{'name':'身體能量抽牌','icon':'💫','type':'draw'},
+  'draw-spa':{'name':'SPA 抽牌','icon':'🌿','type':'draw'},
+  'draw-nail':{'name':'美甲抽牌','icon':'💅','type':'draw'},
+  'tarot-draw':{'name':'塔羅抽牌','icon':'🔮','type':'draw'},
+  'tarot':{'name':'塔羅牌庫','icon':'📖','type':'explore'},
+  'fuling-mima':{'name':'馥靈秘碼','icon':'🔮','type':'calculator'},
+  'destiny-engine':{'name':'命盤運算引擎','icon':'⭐','type':'calculator'},
+  'maslow-frequency':{'name':'馬斯洛節律','icon':'📊','type':'calculator'},
+  'lifepath-calculator':{'name':'生命路徑計算','icon':'🌟','type':'calculator'},
+  'numerology-calculator':{'name':'生命靈數計算','icon':'🔢','type':'calculator'},
+  'rainbow-calculator':{'name':'彩虹數字計算','icon':'🌈','type':'calculator'},
+  'maya-calculator':{'name':'瑪雅曆法計算','icon':'🌀','type':'calculator'},
+  'digital-energy-analyzer':{'name':'數位能量分析','icon':'💡','type':'calculator'},
+  'scent-navigator':{'name':'香氣導航','icon':'🌹','type':'explore'},
+  'quantum-numerology':{'name':'量子數字學','icon':'⚛️','type':'calculator'},
+  'quiz-mbti':{'name':'MBTI 測驗','icon':'🧠','type':'quiz'},
+  'quiz-disc':{'name':'DISC 測驗','icon':'🎯','type':'quiz'},
+  'quiz-bigfive':{'name':'大五人格','icon':'🌟','type':'quiz'},
+  'quiz-enneagram':{'name':'九型人格','icon':'🔯','type':'quiz'},
+  'quiz-bloodtype':{'name':'血型測驗','icon':'💉','type':'quiz'},
+  'abundance-program':{'name':'馥靈輕盈課程','icon':'✨','type':'premium'},
+  'abundance':{'name':'馥靈輕盈系統','icon':'🦋','type':'premium'},
+};
+
+// 今日幸運籤資料（精簡版）
+const ORACLE_DATA = [
+  {id:'A00',name:'啟程',q:'今天你願意為自己做一個什麼小小的選擇？'},
+  {id:'A01',name:'根基',q:'你現在站在哪裡？這個地方讓你感到穩定嗎？'},
+  {id:'A02',name:'直覺',q:'你最近忽略了哪個自己其實已經知道答案的問題？'},
+  {id:'A03',name:'創造',q:'如果今天你可以創造一件事，那是什麼？'},
+  {id:'A04',name:'穩定',q:'什麼事情讓你感到有根、有踏實感？'},
+  {id:'A05',name:'連結',q:'你今天和誰的連結，讓你感覺到被看見？'},
+  {id:'A06',name:'選擇',q:'在你現在面對的事情裡，你真正想選的是哪條路？'},
+  {id:'A07',name:'勝利',q:'你最近有哪個小成就，還沒好好肯定自己？'},
+  {id:'A08',name:'力量',q:'你的力量來自哪裡？它現在還在嗎？'},
+  {id:'A09',name:'內觀',q:'如果安靜一分鐘，你的內心在說什麼？'},
+  {id:'A10',name:'命運',q:'有什麼事，你一直說「以後再說」，其實是現在就該面對的？'},
+  {id:'A11',name:'正義',q:'對現在的你來說，什麼叫做「公平」？'},
+  {id:'A12',name:'放下',q:'你願意放手的那件事，現在在哪裡？'},
+  {id:'A13',name:'蛻變',q:'你正在經歷的改變，讓你失去了什麼，又得到了什麼？'},
+  {id:'A14',name:'平衡',q:'你的生活裡，哪一塊需要多一點注意力？'},
+  {id:'A15',name:'陰影',q:'你現在不想看的是什麼？'},
+  {id:'A16',name:'突破',q:'什麼事情讓你覺得「不可能」，但其實你心裡知道它是可能的？'},
+  {id:'A17',name:'希望',q:'你今天相信什麼？'},
+  {id:'A18',name:'月亮',q:'你最近有什麼感覺，一直沒有說出口？'},
+  {id:'A19',name:'太陽',q:'什麼讓你感到有光、有活力？'},
+  {id:'A20',name:'覺醒',q:'有什麼事，你現在終於清楚了？'},
+  {id:'A21',name:'圓滿',q:'今天，你最感謝自己的是什麼？'},
+];
+</script>
+
+<script>
+/* ══════════════════════════════════════════════
+   App 核心邏輯
+══════════════════════════════════════════════ */
+
+let fb, auth, db;
+let currentUser = null;
+let userProfile = null;
+let userRole = 'guest';
+
+// ── 初始化 ──
+document.addEventListener('DOMContentLoaded', () => {
+  firebase.initializeApp(FIREBASE_CONFIG);
+  auth = firebase.auth();
+  db   = firebase.firestore();
+
+  auth.onAuthStateChanged(async (user) => {
+    if (user) {
+      currentUser = user;
+      await loadUserProfile(user);
+      initApp();
+    } else {
+      showLoginScreen();
+    }
+  });
+});
+
+function showLoginScreen() {
+  document.getElementById('loading-screen').classList.add('hide');
+  document.getElementById('login-screen').classList.remove('hide');
+}
+
+// ── 載入用戶資料 ──
+async function loadUserProfile(user) {
+  const email = user.email || '';
+
+  // 判斷角色（硬編碼優先）
+  if (ADMIN_EMAILS.includes(email)) {
+    userRole = 'admin';
+  } else if (VIP_EMAILS.includes(email)) {
+    userRole = 'vip_guest';
+  } else {
+    // 從 Firestore 讀
+    try {
+      const doc = await db.collection('users').doc(user.uid).get();
+      if (doc.exists) {
+        userProfile = doc.data();
+        userRole = userProfile.role || 'guest';
+      } else {
+        // 新用戶：建立文件
+        const now = firebase.firestore.FieldValue.serverTimestamp();
+        const newProfile = {
+          displayName: user.displayName || email.split('@')[0],
+          email, role: 'guest', plan: 'free',
+          createdAt: now, lastSeen: now,
+          totalDraws: 0, totalQuizzes: 0, totalCalcs: 0, totalPageViews: 0,
+        };
+        await db.collection('users').doc(user.uid).set(newProfile);
+        userProfile = newProfile;
+        userRole = 'guest';
+      }
+    } catch (e) {
+      console.warn('Firestore read failed:', e);
+      userProfile = { displayName: user.displayName || email.split('@')[0], email, role:'guest' };
+      userRole = 'guest';
+    }
+  }
+
+  // 更新 lastSeen
+  try {
+    await db.collection('users').doc(user.uid).update({
+      lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch(e){}
+}
+
+// ── 初始化 App ──
+function initApp() {
+  document.getElementById('loading-screen').classList.add('hide');
+  document.getElementById('login-screen').classList.add('hide');
+  document.getElementById('app').style.display = '';
+
+  const role  = HL_ROLES_DEF[userRole] || HL_ROLES_DEF.guest;
+  const uname = userProfile?.displayName || currentUser?.displayName || currentUser?.email?.split('@')[0] || '使用者';
+
+  // Topbar
+  document.getElementById('tb-name').textContent = uname;
+  const badge = document.getElementById('tb-role-badge');
+  badge.textContent = role.icon + ' ' + role.name;
+  badge.style.background = role.bg;
+  badge.style.color = role.tc;
+  badge.style.padding = '4px 10px';
+  badge.style.borderRadius = '20px';
+  badge.style.fontSize = '.72rem';
+
+  // Avatar
+  const av = document.getElementById('tb-avatar');
+  if (currentUser?.photoURL) {
+    av.innerHTML = `<img src="${currentUser.photoURL}" alt="">`;
+  } else {
+    av.textContent = uname.charAt(0).toUpperCase();
+  }
+
+  // 顯示/隱藏 mentor / admin 側欄
+  const level = role.level;
+  if (level <= 3) { // mentor 以上
+    document.getElementById('sb-mentor-section').classList.remove('hide');
+  }
+  if (level <= 2) { // admin / curator
+    document.getElementById('sb-admin-section').classList.remove('hide');
+  }
+
+  // 設定頁資料
+  document.getElementById('s-name').textContent = uname;
+  document.getElementById('s-email').textContent = currentUser?.email || '—';
+  document.getElementById('s-role').textContent = role.icon + ' ' + role.name;
+  if (userProfile?.createdAt?.toDate) {
+    document.getElementById('s-joined').textContent = userProfile.createdAt.toDate().toLocaleDateString('zh-TW');
+  }
+
+  // 今日幸運籤
+  loadOracle();
+  // 統計
+  loadStats();
+  // 最近足跡
+  loadRecentHistory();
+  // 命盤摘要
+  loadBlueprint();
+  // 訂閱方案 highlight
+  highlightCurrentPlan();
+
+  // 足跡頁
+  loadFullHistory('all');
+  // 筆記頁
+  loadNotes();
+
+  // 導師頁
+  if (level <= 3) loadStudents();
+
+  // 管理頁
+  if (level <= 2) {
+    loadAdminStats();
+    loadAdminMembers(1);
+    loadAdminEvents();
+    buildPermissionsMatrix();
+  }
+}
+
+/* ─────────────── 幸運籤 ─────────────── */
+function loadOracle() {
+  const today = new Date();
+  const seed  = today.getFullYear() * 10000 + (today.getMonth()+1) * 100 + today.getDate();
+  let s = seed;
+  s = ((s * 1664525 + 1013904223) & 0xffffffff) >>> 0;
+  s = ((s * 1664525 + 1013904223) & 0xffffffff) >>> 0;
+  const idx = s % ORACLE_DATA.length;
+  const card = ORACLE_DATA[idx];
+
+  const months = ['一','二','三','四','五','六','七','八','九','十','十一','十二'];
+  document.getElementById('oracle-day').textContent = `今日 ${today.getMonth()+1}月${today.getDate()}日 ｜ ${card.id}`;
+  document.getElementById('oracle-name').textContent = card.name;
+  document.getElementById('oracle-q').textContent = card.q;
+}
+
+/* ─────────────── 統計 ─────────────── */
+async function loadStats() {
+  if (!currentUser) return;
+  try {
+    const doc = await db.collection('users').doc(currentUser.uid).get();
+    if (!doc.exists) return;
+    const d = doc.data();
+    document.getElementById('stat-draws').textContent   = d.totalDraws   || 0;
+    document.getElementById('stat-quizzes').textContent = d.totalQuizzes || 0;
+    document.getElementById('stat-calcs').textContent   = d.totalCalcs   || 0;
+    if (d.createdAt?.toDate) {
+      const days = Math.max(1, Math.floor((Date.now() - d.createdAt.toDate()) / 86400000));
+      document.getElementById('stat-days').textContent = days;
+    }
+  } catch(e) {}
+}
+
+/* ─────────────── 最近足跡 ─────────────── */
+async function loadRecentHistory() {
+  if (!currentUser) return;
+  try {
+    const snap = await db.collection('users').doc(currentUser.uid)
+      .collection('history').orderBy('timestamp','desc').limit(5).get();
+    const list = document.getElementById('recent-list');
+    if (snap.empty) return;
+    list.innerHTML = '';
+    snap.forEach(doc => {
+      const d = doc.data();
+      list.appendChild(makeHistoryItem(d));
+    });
+  } catch(e) {}
+}
+
+/* ─────────────── 命盤摘要 ─────────────── */
+function loadBlueprint() {
+  const bp = JSON.parse(localStorage.getItem('hl_blueprint_cache') || 'null');
+  const el = document.getElementById('blueprint-card');
+  if (!bp) return;
+  const { hour, light, date } = bp;
+  const hourLabels = {h:'Heal',o:'Own',u:'Unlock',r:'Rise'};
+  const lightLabels = {l:'Love',i:'Intuition',g:'Ground',h:'Harmony',t:'Transform'};
+  let html = `<div style="font-size:.75rem;color:var(--light);margin-bottom:10px">最後計算：${date || '—'}</div>`;
+  if (hour) {
+    html += `<div style="margin-bottom:10px"><div style="font-size:.72rem;letter-spacing:.08em;color:var(--faint);margin-bottom:6px">H.O.U.R.</div><div style="display:flex;gap:8px;flex-wrap:wrap">`;
+    Object.entries(hour).forEach(([k,v]) => {
+      html += `<div style="background:rgba(233,194,125,.1);border:1px solid rgba(233,194,125,.2);border-radius:8px;padding:6px 10px;text-align:center"><div style="font-size:.65rem;color:var(--light)">${hourLabels[k]||k}</div><div style="font-family:var(--serif);font-size:1.1rem;color:var(--gold3)">${v}</div></div>`;
+    });
+    html += '</div></div>';
+  }
+  if (light) {
+    html += `<div><div style="font-size:.72rem;letter-spacing:.08em;color:var(--faint);margin-bottom:6px">L.I.G.H.T.</div><div style="display:flex;gap:8px;flex-wrap:wrap">`;
+    Object.entries(light).forEach(([k,v]) => {
+      html += `<div style="background:rgba(144,200,255,.08);border:1px solid rgba(144,200,255,.15);border-radius:8px;padding:6px 10px;text-align:center"><div style="font-size:.65rem;color:var(--light)">${lightLabels[k]||k}</div><div style="font-family:var(--serif);font-size:1.1rem;color:#6090e0">${v}</div></div>`;
+    });
+    html += '</div></div>';
+  }
+  el.innerHTML = html;
+}
+
+/* ─────────────── 方案 highlight ─────────────── */
+function highlightCurrentPlan() {
+  const planMap = { guest:'plan-guest', member:'plan-member', premium:'plan-premium',
+                    practitioner:'plan-premium', mentor:'plan-premium', curator:'plan-premium',
+                    admin:'plan-premium', vip_guest:'plan-premium' };
+  const planId = planMap[userRole];
+  if (planId) {
+    const el = document.getElementById(planId);
+    if (el) {
+      el.classList.add('current');
+      el.innerHTML += '<span class="current-badge">目前方案</span>';
+    }
+  }
+}
+
+/* ─────────────── 完整足跡 ─────────────── */
+let historyFilter = 'all', historyCursor = null, historyAll = [];
+
+async function loadFullHistory(filter) {
+  if (!currentUser) return;
+  historyFilter = filter;
+  historyCursor = null;
+  historyAll = [];
+  document.getElementById('history-list').innerHTML = '';
+  await fetchMoreHistory();
+}
+
+async function fetchMoreHistory() {
+  try {
+    let q = db.collection('users').doc(currentUser.uid).collection('history')
+      .orderBy('timestamp','desc').limit(20);
+    if (historyFilter !== 'all') q = q.where('type','==',historyFilter);
+    if (historyCursor) q = q.startAfter(historyCursor);
+
+    const snap = await q.get();
+    const list = document.getElementById('history-list');
+
+    if (snap.empty && historyAll.length === 0) {
+      list.innerHTML = '<div class="empty"><div class="empty-icon">👣</div><p>還沒有符合條件的記錄</p></div>';
+      document.getElementById('load-more-btn').classList.add('hide');
+      return;
+    }
+
+    snap.forEach(doc => {
+      const d = doc.data();
+      historyAll.push(d);
+      list.appendChild(makeHistoryItem(d));
+      historyCursor = doc;
+    });
+
+    document.getElementById('load-more-btn').classList.toggle('hide', snap.size < 20);
+  } catch(e) { console.warn(e); }
+}
+
+function filterHistory(type, btn) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('on'));
+  btn.classList.add('on');
+  loadFullHistory(type);
+}
+
+function loadMoreHistory() { fetchMoreHistory(); }
+
+/* ─────────────── 筆記 ─────────────── */
+let notesList = [];
+const noteInput = () => document.getElementById('note-input');
+
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    const ta = document.getElementById('note-input');
+    if (ta) ta.addEventListener('input', () => {
+      document.getElementById('note-char').textContent = ta.value.length;
+    });
+  }, 500);
+});
+
+async function loadNotes() {
+  if (!currentUser) return;
+  try {
+    const snap = await db.collection('users').doc(currentUser.uid)
+      .collection('notes').orderBy('createdAt','desc').limit(30).get();
+    notesList = [];
+    snap.forEach(doc => notesList.push({id: doc.id, ...doc.data()}));
+    renderNotes();
+  } catch(e) {}
+}
+
+function renderNotes() {
+  const el = document.getElementById('notes-list');
+  document.getElementById('note-total').textContent = notesList.length;
+  if (!notesList.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📝</div><p>還沒有筆記<br>今天的第一則，從這裡開始</p></div>';
+    return;
+  }
+  el.innerHTML = notesList.map(n => `
+    <div class="note-item">
+      <div class="note-text">${escHtml(n.text)}</div>
+      <div class="note-meta">
+        <span class="note-ts">${fmtTime(n.createdAt)}</span>
+        <button class="btn-del" onclick="deleteNote('${n.id}')">刪除</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function saveNote() {
+  const ta = document.getElementById('note-input');
+  const text = ta.value.trim();
+  if (!text) return;
+  if (!currentUser) { showToast('請先登入'); return; }
+  try {
+    const ref = await db.collection('users').doc(currentUser.uid).collection('notes').add({
+      text, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    notesList.unshift({id: ref.id, text, createdAt: {toDate: () => new Date()}});
+    renderNotes();
+    ta.value = '';
+    document.getElementById('note-char').textContent = '0';
+    showToast('筆記已儲存 ✓');
+  } catch(e) { showToast('儲存失敗，請稍後再試'); }
+}
+
+async function deleteNote(id) {
+  if (!currentUser) return;
+  try {
+    await db.collection('users').doc(currentUser.uid).collection('notes').doc(id).delete();
+    notesList = notesList.filter(n => n.id !== id);
+    renderNotes();
+    showToast('筆記已刪除');
+  } catch(e) { showToast('刪除失敗'); }
+}
+
+/* ─────────────── 學員管理（導師） ─────────────── */
+async function loadStudents() {
+  try {
+    const snap = await db.collection('users')
+      .where('mentorId','==', currentUser.uid).limit(50).get();
+    const list = document.getElementById('student-list');
+    document.getElementById('student-count-badge').textContent = snap.size;
+    if (snap.empty) return;
+    list.innerHTML = '';
+    snap.forEach(doc => {
+      const d = doc.data();
+      const el = document.createElement('div');
+      el.className = 'student-item';
+      el.innerHTML = `
+        <div class="student-avatar">${(d.displayName||'？').charAt(0)}</div>
+        <div class="student-info">
+          <div class="student-name">${escHtml(d.displayName||'—')}</div>
+          <div class="student-email">${escHtml(d.email||'—')}</div>
+        </div>
+        <div class="student-stats">
+          <div class="sstat"><div class="sstat-n">${d.totalDraws||0}</div><div class="sstat-l">抽牌</div></div>
+          <div class="sstat"><div class="sstat-n">${d.totalQuizzes||0}</div><div class="sstat-l">測驗</div></div>
+          <div class="sstat"><div class="sstat-n">${d.totalCalcs||0}</div><div class="sstat-l">計算</div></div>
+        </div>`;
+      list.appendChild(el);
+    });
+  } catch(e) {}
+}
+
+function filterStudents() {
+  const q = document.getElementById('student-search').value.toLowerCase();
+  document.querySelectorAll('.student-item').forEach(el => {
+    const txt = el.textContent.toLowerCase();
+    el.style.display = txt.includes(q) ? '' : 'none';
+  });
+}
+
+/* ─────────────── 管理後台 ─────────────── */
+async function loadAdminStats() {
+  try {
+    const [usersSnap, eventsSnap] = await Promise.all([
+      db.collection('users').get(),
+      db.collection('events').get()
+    ]);
+    const today = new Date().toDateString();
+    let todayActive = 0, premiumCount = 0;
+    const roleDist = {};
+
+    usersSnap.forEach(doc => {
+      const d = doc.data();
+      const role = d.role || 'guest';
+      roleDist[role] = (roleDist[role] || 0) + 1;
+      if (['admin','curator','mentor','practitioner','premium','vip_guest'].includes(role)) premiumCount++;
+      if (d.lastSeen?.toDate && d.lastSeen.toDate().toDateString() === today) todayActive++;
+    });
+
+    document.getElementById('a-total-users').textContent  = usersSnap.size;
+    document.getElementById('a-today-active').textContent = todayActive;
+    document.getElementById('a-total-events').textContent = eventsSnap.size;
+    document.getElementById('a-premium-users').textContent = premiumCount;
+
+    // 身分分佈
+    const rdEl = document.getElementById('role-distribution');
+    rdEl.innerHTML = Object.entries(roleDist).map(([r,n]) => {
+      const rd = HL_ROLES_DEF[r] || HL_ROLES_DEF.guest;
+      const pct = Math.round(n / usersSnap.size * 100);
+      return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <span style="font-size:.85rem;min-width:110px;color:var(--text)">${rd.icon} ${rd.name}</span>
+        <div style="flex:1;height:8px;background:#f0e8de;border-radius:4px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${rd.color};border-radius:4px;transition:width .5s"></div>
+        </div>
+        <span style="font-size:.75rem;color:var(--light);min-width:36px;text-align:right">${n}</span>
+      </div>`;
+    }).join('') || '<div class="empty"><p>尚無資料</p></div>';
+
+    // 工具排行（從 events）
+    const toolCounts = {};
+    eventsSnap.forEach(doc => {
+      const tid = doc.data().toolId || 'unknown';
+      toolCounts[tid] = (toolCounts[tid] || 0) + 1;
+    });
+    const topTools = Object.entries(toolCounts).sort((a,b) => b[1]-a[1]).slice(0,8);
+    const maxN = topTools[0]?.[1] || 1;
+    document.getElementById('tool-ranking').innerHTML = topTools.map(([tid,n]) => {
+      const td = TOOLS[tid] || {name:tid, icon:'🔧'};
+      return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:.78rem;min-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)">${td.icon} ${td.name}</span>
+        <div style="flex:1;height:7px;background:#f0e8de;border-radius:4px;overflow:hidden">
+          <div style="height:100%;width:${Math.round(n/maxN*100)}%;background:var(--gold);border-radius:4px"></div>
+        </div>
+        <span style="font-size:.72rem;color:var(--light);min-width:28px;text-align:right">${n}</span>
+      </div>`;
+    }).join('') || '<div class="empty"><p>尚無資料</p></div>';
+
+  } catch(e) { console.warn('Admin stats error:', e); }
+}
+
+let adminEventsSnap = null, adminEventsCursor = null;
+async function loadAdminEvents() {
+  try {
+    const snap = await db.collection('events').orderBy('ts','desc').limit(30).get();
+    adminEventsCursor = snap.docs[snap.docs.length - 1];
+    renderAdminEvents(snap);
+    // also for main dashboard recent
+    const recentEl = document.getElementById('admin-recent-events');
+    recentEl.innerHTML = '';
+    snap.docs.slice(0,8).forEach(doc => {
+      recentEl.appendChild(makeEventItem(doc.data()));
+    });
+  } catch(e) {}
+}
+
+function renderAdminEvents(snap) {
+  const list = document.getElementById('admin-events-list');
+  if (snap.empty) { list.innerHTML = '<div class="empty"><p>尚無事件記錄</p></div>'; return; }
+  snap.forEach(doc => list.appendChild(makeEventItem(doc.data())));
+}
+
+async function loadMoreEvents() {
+  if (!adminEventsCursor) return;
+  try {
+    const snap = await db.collection('events').orderBy('ts','desc').startAfter(adminEventsCursor).limit(30).get();
+    adminEventsCursor = snap.docs[snap.docs.length - 1];
+    renderAdminEvents(snap);
+  } catch(e) {}
+}
+
+/* 會員管理 */
+let allMembers = [], filteredMembers = [], adminPage = 1;
+const PAGE_SIZE = 15;
+
+async function loadAdminMembers(page = 1) {
+  try {
+    const snap = await db.collection('users').orderBy('createdAt','desc').get();
+    allMembers = [];
+    snap.forEach(doc => allMembers.push({uid: doc.id, ...doc.data()}));
+    filteredMembers = [...allMembers];
+    adminPage = page;
+    renderAdminMembers();
+  } catch(e) { console.warn(e); }
+}
+
+function adminSearchMembers() {
+  const q   = (document.getElementById('admin-member-search').value || '').toLowerCase();
+  const rol = document.getElementById('admin-role-filter').value;
+  filteredMembers = allMembers.filter(m => {
+    const match = !q || (m.displayName||'').toLowerCase().includes(q) || (m.email||'').toLowerCase().includes(q);
+    const roleMatch = !rol || (m.role||'guest') === rol;
+    return match && roleMatch;
+  });
+  adminPage = 1;
+  renderAdminMembers();
+}
+
+function renderAdminMembers() {
+  const tbody = document.getElementById('admin-member-tbody');
+  const start = (adminPage - 1) * PAGE_SIZE;
+  const page  = filteredMembers.slice(start, start + PAGE_SIZE);
+  const total = Math.max(1, Math.ceil(filteredMembers.length / PAGE_SIZE));
+
+  document.getElementById('member-page-info').textContent = `第 ${adminPage} / ${total} 頁（共 ${filteredMembers.length} 筆）`;
+  document.getElementById('btn-prev-page').classList.toggle('disabled', adminPage <= 1);
+  document.getElementById('btn-next-page').classList.toggle('disabled', adminPage >= total);
+
+  if (!page.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--light)">沒有符合條件的會員</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = page.map(m => {
+    const r   = HL_ROLES_DEF[m.role || 'guest'] || HL_ROLES_DEF.guest;
+    const av  = (m.displayName || m.email || '?').charAt(0).toUpperCase();
+    const lastSeen = m.lastSeen?.toDate ? m.lastSeen.toDate().toLocaleDateString('zh-TW') : '—';
+    return `<tr>
+      <td><div class="user-cell">
+        <div class="user-cell-avatar">${av}</div>
+        <div><div class="user-cell-name">${escHtml(m.displayName||'—')}</div>
+        <div class="user-cell-email">${escHtml(m.email||'—')}</div></div>
+      </div></td>
+      <td><span class="role-pill" style="background:${r.bg};color:${r.tc}">${r.icon} ${r.name}</span></td>
+      <td>${m.totalDraws||0}</td>
+      <td>${m.totalQuizzes||0}</td>
+      <td>${m.totalCalcs||0}</td>
+      <td>${lastSeen}</td>
+      <td><button class="btn-edit-role" onclick="openRoleModal('${m.uid}','${escHtml(m.displayName||m.email||'—')}','${m.role||'guest'}')">調整身分</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function adminPrevPage() {
+  if (adminPage > 1) { adminPage--; renderAdminMembers(); }
+}
+function adminNextPage() {
+  const total = Math.ceil(filteredMembers.length / PAGE_SIZE);
+  if (adminPage < total) { adminPage++; renderAdminMembers(); }
+}
+
+/* 身分調整 */
+let editingUid = null;
+function openRoleModal(uid, name, currentRole) {
+  editingUid = uid;
+  document.getElementById('modal-role-sub').textContent = `正在調整：${name}`;
+  document.getElementById('role-select').value = currentRole;
+  document.getElementById('role-err').textContent = '';
+  document.getElementById('modal-role').classList.remove('hide');
+}
+
+async function saveRole() {
+  if (!editingUid) return;
+  const newRole = document.getElementById('role-select').value;
+  try {
+    await db.collection('users').doc(editingUid).update({ role: newRole });
+    const r = HL_ROLES_DEF[newRole] || HL_ROLES_DEF.guest;
+    showToast(`身分已更新為 ${r.icon} ${r.name}`);
+    closeModal('modal-role');
+    // 更新本地資料
+    const idx = allMembers.findIndex(m => m.uid === editingUid);
+    if (idx > -1) allMembers[idx].role = newRole;
+    adminSearchMembers();
+  } catch(e) {
+    document.getElementById('role-err').textContent = '更新失敗：' + e.message;
+  }
+}
+
+/* 權限矩陣 */
+let permMatrix = {};
+async function buildPermissionsMatrix() {
+  // 從 Firestore 讀取或用預設值
+  try {
+    const doc = await db.collection('system').doc('permissions').get();
+    permMatrix = doc.exists ? doc.data() : buildDefaultMatrix();
+  } catch(e) { permMatrix = buildDefaultMatrix(); }
+  renderPermissionsMatrix();
+}
+
+function buildDefaultMatrix() {
+  const m = {};
+  const highLevel = ['admin','curator','vip_guest','mentor','practitioner','premium'];
+  const freeTools = Object.entries(TOOLS).filter(([,t]) => ['draw-hl','draw-light','fuling-mima','destiny-engine','quiz-mbti','quiz-disc','quiz-bigfive','quiz-enneagram','quiz-bloodtype'].includes(Object.keys(TOOLS).find(k => TOOLS[k]===t))).map(([k])=>k);
+  // simplified
+  const FREE_IDS = ['draw-hl','draw-light','fuling-mima','destiny-engine','quiz-mbti','quiz-disc','quiz-bigfive','quiz-enneagram','quiz-bloodtype'];
+  const PREMIUM_IDS = ['abundance','abundance-program'];
+  Object.keys(HL_ROLES_DEF).forEach(role => {
+    m[role] = {};
+    const level = HL_ROLES_DEF[role].level;
+    Object.keys(TOOLS).forEach(tid => {
+      if (PREMIUM_IDS.includes(tid)) { m[role][tid] = level <= 5; }
+      else if (level <= 5) { m[role][tid] = true; }
+      else if (role === 'member') { m[role][tid] = !['quantum-numerology'].includes(tid); }
+      else if (role === 'guest') { m[role][tid] = FREE_IDS.includes(tid); }
+      else { m[role][tid] = false; }
+    });
+  });
+  return m;
+}
+
+function renderPermissionsMatrix() {
+  const container = document.getElementById('matrix-container');
+  const roles = Object.keys(HL_ROLES_DEF);
+  const tools = Object.keys(TOOLS);
+  const LOCKED = ['admin','curator','vip_guest','mentor','practitioner'];
+
+  let html = `<table class="matrix-table"><thead><tr><th>工具</th>`;
+  roles.forEach(r => {
+    const rd = HL_ROLES_DEF[r];
+    html += `<th title="${rd.name}">${rd.icon}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  tools.forEach(tid => {
+    const tool = TOOLS[tid];
+    html += `<tr><td>${tool.icon} ${tool.name}</td>`;
+    roles.forEach(role => {
+      const locked = LOCKED.includes(role);
+      const on = locked || (permMatrix[role]?.[tid] ?? false);
+      if (locked) {
+        html += `<td><button class="matrix-toggle mt-locked" disabled>⚜</button></td>`;
+      } else {
+        html += `<td><button class="matrix-toggle ${on ? 'mt-on' : 'mt-off'}" 
+          onclick="togglePerm('${role}','${tid}',this)">${on ? '✓' : '✕'}</button></td>`;
+      }
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+function togglePerm(role, tid, btn) {
+  if (!permMatrix[role]) permMatrix[role] = {};
+  const current = permMatrix[role][tid] ?? false;
+  permMatrix[role][tid] = !current;
+  btn.textContent = !current ? '✓' : '✕';
+  btn.className = 'matrix-toggle ' + (!current ? 'mt-on' : 'mt-off');
+}
+
+async function savePermissionsMatrix() {
+  try {
+    await db.collection('system').doc('permissions').set(permMatrix);
+    showToast('權限矩陣已儲存，即時生效 ✓');
+  } catch(e) { showToast('儲存失敗：' + e.message); }
+}
+
+/* ─────────────── 管理後台 tab 切換 ─────────────── */
+function switchAdminTab(tab) {
+  document.querySelectorAll('.admin-tab').forEach((t, i) => {
+    const tabs = ['dashboard','members','events','permissions'];
+    t.classList.toggle('on', tabs[i] === tab);
+  });
+  ['dashboard','members','events','permissions'].forEach(t => {
+    const el = document.getElementById('admin-' + t);
+    if (el) el.classList.toggle('on', t === tab);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
+    if (el) el.classList.toggle('hide', t !== tab);
+  });
+}
+
+/* ─────────────── 登入邏輯 ─────────────── */
+function switchLoginTab(tab) {
+  document.querySelectorAll('.lc-tab').forEach((t, i) => t.classList.toggle('on', (i === 0 && tab === 'login') || (i === 1 && tab === 'register')));
+  document.getElementById('form-login').classList.toggle('hide', tab !== 'login');
+  document.getElementById('form-register').classList.toggle('hide', tab !== 'register');
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pw    = document.getElementById('login-pw').value;
+  const err   = document.getElementById('login-err');
+  err.textContent = '';
+  if (!email || !pw) { err.textContent = '請填寫 Email 和密碼'; return; }
+  try {
+    await auth.signInWithEmailAndPassword(email, pw);
+  } catch(e) {
+    err.textContent = errMsg(e.code);
+  }
+}
+
+async function doRegister() {
+  const name  = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pw    = document.getElementById('reg-pw').value;
+  const err   = document.getElementById('reg-err');
+  err.textContent = '';
+  if (!name || !email || !pw) { err.textContent = '請填寫所有欄位'; return; }
+  if (pw.length < 8) { err.textContent = '密碼至少需要 8 個字元'; return; }
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, pw);
+    await cred.user.updateProfile({ displayName: name });
+  } catch(e) {
+    err.textContent = errMsg(e.code);
+  }
+}
+
+async function doGoogleLogin() {
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await auth.signInWithPopup(provider);
+  } catch(e) {
+    document.getElementById('login-err').textContent = errMsg(e.code);
+  }
+}
+
+async function forgotPassword() {
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) { document.getElementById('login-err').textContent = '請先填寫你的 Email'; return; }
+  try {
+    await auth.sendPasswordResetEmail(email);
+    document.getElementById('login-err').style.color = 'var(--green)';
+    document.getElementById('login-err').textContent = '重設連結已寄出，請查看你的信箱 ✓';
+  } catch(e) {
+    document.getElementById('login-err').textContent = errMsg(e.code);
+  }
+}
+
+function doLogout() {
+  auth.signOut().then(() => { location.reload(); });
+}
+
+/* ─────────────── 帳號設定 ─────────────── */
+function showEditNameModal() {
+  document.getElementById('new-name-input').value = currentUser?.displayName || '';
+  document.getElementById('name-err').textContent = '';
+  document.getElementById('modal-name').classList.remove('hide');
+}
+
+async function saveDisplayName() {
+  const name = document.getElementById('new-name-input').value.trim();
+  const err  = document.getElementById('name-err');
+  if (!name) { err.textContent = '名稱不能是空的'; return; }
+  try {
+    await currentUser.updateProfile({ displayName: name });
+    await db.collection('users').doc(currentUser.uid).update({ displayName: name });
+    document.getElementById('s-name').textContent = name;
+    document.getElementById('tb-name').textContent = name;
+    document.getElementById('tb-avatar').textContent = name.charAt(0).toUpperCase();
+    closeModal('modal-name');
+    showToast('名稱已更新 ✓');
+  } catch(e) { err.textContent = '更新失敗：' + e.message; }
+}
+
+function showChangePwModal() {
+  document.getElementById('cur-pw').value = '';
+  document.getElementById('new-pw').value = '';
+  document.getElementById('pw-err').textContent = '';
+  document.getElementById('modal-pw').classList.remove('hide');
+}
+
+async function doChangePw() {
+  const curPw = document.getElementById('cur-pw').value;
+  const newPw = document.getElementById('new-pw').value;
+  const err   = document.getElementById('pw-err');
+  if (!curPw || !newPw) { err.textContent = '請填寫目前密碼和新密碼'; return; }
+  if (newPw.length < 8) { err.textContent = '新密碼至少 8 個字元'; return; }
+  try {
+    const cred = firebase.auth.EmailAuthProvider.credential(currentUser.email, curPw);
+    await currentUser.reauthenticateWithCredential(cred);
+    await currentUser.updatePassword(newPw);
+    closeModal('modal-pw');
+    showToast('密碼已更新 ✓');
+  } catch(e) { err.textContent = errMsg(e.code); }
+}
+
+async function confirmDeleteAccount() {
+  if (!confirm('確定要刪除帳號嗎？\n\n所有使用記錄和筆記都會永久消失，此操作無法撤銷。')) return;
+  try {
+    await db.collection('users').doc(currentUser.uid).delete();
+    await currentUser.delete();
+    location.reload();
+  } catch(e) {
+    if (e.code === 'auth/requires-recent-login') {
+      alert('基於安全考量，請先登出後重新登入，再執行刪除帳號操作。');
+    } else {
+      alert('刪除失敗：' + e.message);
+    }
+  }
+}
+
+/* ─────────────── UI 工具 ─────────────── */
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => { p.classList.remove('on'); p.classList.add('hide'); });
+  document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('on'));
+
+  const page = document.getElementById('page-' + name);
+  if (page) { page.classList.remove('hide'); page.classList.add('on'); }
+  const sb = document.getElementById('sb-' + name);
+  if (sb) sb.classList.add('on');
+
+  const pageNames = {
+    overview:'今日總覽', history:'使用足跡', notes:'覺察筆記',
+    subscription:'訂閱與方案', settings:'帳號設定',
+    students:'學員管理', certification:'授權認證', admin:'管理後台'
+  };
+  document.getElementById('tb-page-name').textContent = pageNames[name] || name;
+
+  closeSidebar();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sb-overlay').classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sb-overlay').classList.remove('show');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.add('hide');
+}
+
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+/* ─────────────── 工具函式 ─────────────── */
+function makeHistoryItem(d) {
+  const el = document.createElement('div');
+  el.className = 'hitem';
+  const typeIcon = {draw:'🃏', quiz:'📊', calculator:'🔮', tool:'✦'}[d.type] || '✦';
+  el.innerHTML = `
+    <div class="hicon">${typeIcon}</div>
+    <div class="hinfo">
+      <div class="htool">${escHtml(d.toolName || d.toolId || '工具使用')}</div>
+      <div class="hdetail">${escHtml(d.detail || '')}</div>
+    </div>
+    <div class="htime">${fmtTime(d.timestamp)}</div>`;
+  return el;
+}
+
+function makeEventItem(d) {
+  const el = document.createElement('div');
+  el.className = 'event-item';
+  const typeClass = {draw:'draw', quiz:'quiz', calculator:'calculator'}[d.toolType] || 'page';
+  el.innerHTML = `
+    <div class="event-dot ${typeClass}"></div>
+    <div class="event-info">
+      <div class="event-tool">${escHtml(d.toolName || d.toolId || '—')}</div>
+      <div class="event-user">${escHtml(d.email || d.uid || '—')}</div>
+    </div>
+    <div class="event-time">${fmtTime(d.ts)}</div>`;
+  return el;
+}
+
+function fmtTime(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  const now = new Date();
+  const diff = Math.floor((now - d) / 1000);
+  if (diff < 60)   return '剛才';
+  if (diff < 3600) return Math.floor(diff / 60) + ' 分鐘前';
+  if (diff < 86400) return Math.floor(diff / 3600) + ' 小時前';
+  if (diff < 604800) return Math.floor(diff / 86400) + ' 天前';
+  return d.toLocaleDateString('zh-TW');
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function errMsg(code) {
+  const m = {
+    'auth/user-not-found':'找不到這個帳號，請確認 Email 是否正確',
+    'auth/wrong-password':'密碼錯誤，請再試一次',
+    'auth/email-already-in-use':'這個 Email 已經被使用了',
+    'auth/weak-password':'密碼強度不足，請使用 8 位以上的密碼',
+    'auth/invalid-email':'Email 格式不正確',
+    'auth/too-many-requests':'嘗試次數太多，請稍後再試',
+    'auth/network-request-failed':'網路連線錯誤，請檢查網路',
+  };
+  return m[code] || '發生錯誤，請稍後再試（' + code + '）';
+}
+</script>
+</body>
+</html>
