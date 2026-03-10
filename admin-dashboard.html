@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -314,43 +314,43 @@ tr:hover td{background:rgba(255,255,255,0.02);}
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-icon">👥</div>
-          <div class="stat-num" id="statTotal">—</div>
+          <div class="stat-num" id="statTotal">-</div>
           <div class="stat-label">總會員數</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">🟢</div>
-          <div class="stat-num" id="statActive7">—</div>
+          <div class="stat-num" id="statActive7">-</div>
           <div class="stat-label">7 天活躍</div>
           <div class="stat-sub" id="statActive7Pct"></div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">✨</div>
-          <div class="stat-num" id="statNew30">—</div>
+          <div class="stat-num" id="statNew30">-</div>
           <div class="stat-label">本月新加入</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">🎴</div>
-          <div class="stat-num" id="statTotalDraws">—</div>
+          <div class="stat-num" id="statTotalDraws">-</div>
           <div class="stat-label">累計抽牌</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">🧩</div>
-          <div class="stat-num" id="statTotalQuizzes">—</div>
+          <div class="stat-num" id="statTotalQuizzes">-</div>
           <div class="stat-label">累計測驗</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">🔮</div>
-          <div class="stat-num" id="statTotalCalcs">—</div>
+          <div class="stat-num" id="statTotalCalcs">-</div>
           <div class="stat-label">累計計算</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">📋</div>
-          <div class="stat-num" id="statTotalEvents">—</div>
+          <div class="stat-num" id="statTotalEvents">-</div>
           <div class="stat-label">總事件數</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">💎</div>
-          <div class="stat-num" id="statPaid">—</div>
+          <div class="stat-num" id="statPaid">-</div>
           <div class="stat-label">付費會員</div>
         </div>
       </div>
@@ -484,7 +484,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
     <div class="md-header">
       <div class="md-avatar" id="mdAvatar">👑</div>
       <div>
-        <div class="md-name" id="mdName">—</div>
+        <div class="md-name" id="mdName">-</div>
         <div class="md-email" id="mdEmail"></div>
         <div class="md-chips" id="mdChips"></div>
       </div>
@@ -498,7 +498,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
         更改後立即生效。此會員下次使用工具頁時，系統將依新身分決定可用功能。
       </p>
       <select class="assign-role-select" id="mdRoleSelect">
-        <option value="">— 選擇身分 —</option>
+        <option value="">請選擇身分</option>
       </select>
       <div id="mdRolePreview" style="margin-top:10px;font-size:0.78rem;color:var(--text3);min-height:20px;"></div>
       <button class="btn-save-role" onclick="applyMemberRole()">✅ 確認更新身分</button>
@@ -627,7 +627,7 @@ function renderRecentEvents(events){
   el.innerHTML = events.map(function(ev){
     var type = ev.toolType || ev.eventType || 'page';
     var name = ev.email ? ev.email.split('@')[0] : '訪客';
-    var tool = ev.toolName || ev.toolId || '—';
+    var tool = ev.toolName || ev.toolId || '｜';
     var timeStr = ev.ts ? fmtTime(ev.ts.seconds*1000) : '剛剛';
     return '<div class="event-log-item">'
       +'<div class="el-dot '+escT(type)+'"></div>'
@@ -859,8 +859,8 @@ function renderMembers(list){
   el.innerHTML = list.map(function(m){
     var name = m.displayName || (m.email?m.email.split('@')[0]:'未知');
     var plan = PLAN_INFO[m.plan||'free']||PLAN_INFO.free;
-    var joined = m.createdAt ? fmtDate(m.createdAt.seconds*1000) : '—';
-    var seen   = m.lastSeen  ? fmtTime(m.lastSeen.seconds*1000)  : '—';
+    var joined = m.createdAt ? fmtDate(m.createdAt.seconds*1000) : '｜';
+    var seen   = m.lastSeen  ? fmtTime(m.lastSeen.seconds*1000)  : '｜';
     return '<div class="member-card" onclick="openMemberDetail(\''+m.id+'\')">'
       +'<div class="member-avatar">👑</div>'
       +'<div class="member-info">'
@@ -933,7 +933,7 @@ async function openMemberDetail(uid){
 
   // 填充角色選擇器
   var sel = document.getElementById('mdRoleSelect');
-  sel.innerHTML = '<option value="">— 選擇身分 —</option>';
+  sel.innerHTML = '<option value="">請選擇身分</option>';
   Object.entries(roles).forEach(function(entry){
     var rk = entry[0], ri = entry[1];
     var opt = document.createElement('option');
@@ -950,7 +950,7 @@ async function openMemberDetail(uid){
         : '';
       document.getElementById('mdRolePreview').innerHTML =
         '<span style="background:'+selected.badge+';color:'+selected.badgeText+';padding:3px 12px;border-radius:999px;font-size:0.72rem;">'+selected.icon+' '+selected.name+'</span>'
-        +' — '+selected.desc + note;
+        +' ｜ '+selected.desc + note;
     } else {
       document.getElementById('mdRolePreview').textContent = '';
     }
@@ -980,7 +980,7 @@ async function openMemberDetail(uid){
         var t = h.type||'page';
         return '<tr>'
           +'<td>'+typeBadge(t)+'</td>'
-          +'<td class="td-tool">'+escHtml(h.title||h.toolId||'—')+'</td>'
+          +'<td class="td-tool">'+escHtml(h.title||h.toolId||'-')+'</td>'
           +'<td class="td-email" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+escHtml(h.detail||'')+'</td>'
           +'<td class="td-time">'+fmtTime(h.timestamp?h.timestamp.seconds*1000:Date.now())+'</td>'
           +'</tr>';
@@ -1069,12 +1069,12 @@ function renderEventsTable(events){
     +'<tbody>'
     +filtered.map(function(ev){
       var type = ev.toolType||'page';
-      var email = ev.email ? ev.email.split('@')[0] : '—';
+      var email = ev.email ? ev.email.split('@')[0] : '｜';
       return '<tr>'
         +'<td>'+typeBadge(type)+'</td>'
         +'<td class="td-name">'+escHtml(email)+'</td>'
-        +'<td class="td-tool">'+escHtml(ev.toolName||ev.toolId||'—')+'</td>'
-        +'<td class="td-email">'+escHtml(ev.eventType||'—')+'</td>'
+        +'<td class="td-tool">'+escHtml(ev.toolName||ev.toolId||'-')+'</td>'
+        +'<td class="td-email">'+escHtml(ev.eventType||'-')+'</td>'
         +'<td class="td-email" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+escHtml(JSON.stringify(ev.detail||{}).substring(0,80))+'</td>'
         +'<td class="td-time">'+fmtTime(ev.ts?ev.ts.seconds*1000:Date.now())+'</td>'
         +'</tr>';
