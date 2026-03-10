@@ -3,7 +3,7 @@
  * 專案：hourlight-key
  */
 
-const FIREBASE_CONFIG = {
+var FIREBASE_CONFIG = {
   apiKey: "AIzaSyAbVr_CtMw1d8b1RBGuJ27tQsZFRwyzpvM",
   authDomain: "hourlight-key.firebaseapp.com",
   projectId: "hourlight-key",
@@ -18,7 +18,7 @@ const FIREBASE_CONFIG = {
 //  由馥靈管理員在後台統一調整各身分的工具開放權限
 // ═══════════════════════════════════════════════════════════
 
-const HL_ROLES = {
+var HL_ROLES = {
 
   // ── 層級 1：最高權限 ──
   admin: {
@@ -162,7 +162,7 @@ const HL_ROLES = {
 // ─────────────────────────────────────────────────────────────
 //  所有可控制的工具功能（管理員可逐一開關每個身分的存取）
 // ─────────────────────────────────────────────────────────────
-const HL_TOOL_PERMISSIONS = {
+var HL_TOOL_PERMISSIONS = {
   // 抽牌工具
   'draw-hl':              { name: '馥靈牌陣抽牌',    type: 'draw',       en: 'HL Card Spread',   freeAccess: true  },
   'draw-light':           { name: '馥靈單牌抽牌',    type: 'draw',       en: 'Single Draw',       freeAccess: true  },
@@ -199,7 +199,7 @@ const HL_TOOL_PERMISSIONS = {
 //  否則依等級決定
 //  馥靈輕盈（abundance*）= 高階會員（Lv.5）以上才開放
 // ─────────────────────────────────────────────────────────────
-const HL_DEFAULT_PERMISSIONS = (function(){
+var HL_DEFAULT_PERMISSIONS = (function(){
   var matrix = {};
   var roles  = Object.keys(HL_ROLES);
   var tools  = Object.keys(HL_TOOL_PERMISSIONS);
@@ -248,7 +248,7 @@ const HL_DEFAULT_PERMISSIONS = (function(){
 
 // 向後相容：保留 MEMBER_PLANS 給舊的 dashboard 使用
 // 新代碼請改用 HL_ROLES
-const MEMBER_PLANS = {
+var MEMBER_PLANS = {
   free: {
     name: "馥靈訪客",
     nameEn: "Guest",

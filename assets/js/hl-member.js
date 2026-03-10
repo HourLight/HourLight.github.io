@@ -185,7 +185,7 @@
     if (navLogin) {
       const name = user.displayName || user.email.split('@')[0];
       navLogin.textContent = '👑 ' + name;
-      navLogin.href = '/member-dashboard.html';
+      navLogin.href = 'app.html';
     }
   }
 
@@ -194,7 +194,7 @@
     const navLogin = document.getElementById('hl-nav-login');
     if (navLogin) {
       navLogin.textContent = '登入';
-      navLogin.href = '/member-login.html';
+      navLogin.href = 'app.html';
     }
   }
 
