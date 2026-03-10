@@ -23,7 +23,7 @@
     { icon: SVG_CARD,    label: '抽牌',  tip: '馥靈牌卡抽牌',  href: 'draw-hl.html' },
     { icon: SVG_CODE,    label: '秘碼',  tip: '馥靈秘碼解析',  href: 'fuling-mima.html' },
     { icon: SVG_DESTINY, label: '命盤',  tip: '十大命理系統',  href: 'destiny-engine.html' },
-    { icon: SVG_QUIZ,    label: '測驗',  tip: '五大心理測驗',  href: 'quiz-mbti.html' },
+    { icon: SVG_QUIZ,    label: '測驗',  tip: '覺察測驗中心',  href: 'quiz-hub.html' },
     { icon: SVG_MAP,     label: '地圖',  tip: '完整網站地圖',  href: 'hourlight-sitemap.html' },
     { icon: SVG_MUSIC,   label: '音樂',  tip: '背景音樂開關',  href: '#', id: 'hl-bn-music' }
   ];
