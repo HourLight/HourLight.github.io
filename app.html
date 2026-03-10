@@ -618,6 +618,23 @@ input,select,textarea{font-family:var(--body)}
 .title-name{font-family:var(--serif);font-size:.95rem;color:var(--text)}
 
 /* ── 勳章解鎖動畫 Modal ── */
+
+/* ── 身體覺察日誌 ── */
+.ba-dim{text-align:center;background:rgba(0,0,0,.02);border:1px solid rgba(201,160,96,.08);border-radius:12px;padding:10px 6px 8px}
+.ba-dim-icon{font-size:1.1rem;margin-bottom:2px}
+.ba-dim-label{font-size:.65rem;color:var(--light);margin-bottom:6px}
+.ba-dim-btns{display:flex;gap:3px;justify-content:center}
+.ba-dot{width:24px;height:24px;border-radius:50%;border:1.5px solid rgba(201,160,96,.12);background:transparent;cursor:pointer;font-size:.6rem;display:flex;align-items:center;justify-content:center;color:var(--light);transition:all .2s;padding:0}
+.ba-dot:hover{border-color:rgba(201,160,96,.3)}
+.ba-dot.on{border-color:var(--gold);background:rgba(201,160,96,.1);color:var(--gold)}
+.ba-dot.on-1{border-color:#e85050;background:rgba(232,80,80,.08);color:#e85050}
+.ba-dot.on-2{border-color:#f4a340;background:rgba(244,163,64,.08);color:#f4a340}
+.ba-dot.on-3{border-color:#e9c27d;background:rgba(233,194,125,.08);color:#e9c27d}
+.ba-dot.on-4{border-color:#5dba8a;background:rgba(93,186,138,.08);color:#5dba8a}
+.ba-dot.on-5{border-color:#5dba8a;background:rgba(93,186,138,.12);color:#5dba8a}
+.ba-part{padding:5px 10px;border:1px solid rgba(201,160,96,.1);border-radius:8px;font-size:.72rem;color:var(--light);cursor:pointer;transition:all .2s;background:transparent}
+.ba-part:hover{border-color:rgba(201,160,96,.25)}
+.ba-part.on{border-color:rgba(201,160,96,.35);background:rgba(201,160,96,.06);color:var(--gold)}
 .badge-unlock-box{
   background:linear-gradient(135deg,#2d2418,#3d2e1a);
   border:1px solid rgba(201,160,96,.3);border-radius:20px;
@@ -870,6 +887,26 @@ input,select,textarea{font-family:var(--body)}
             </div>
           </div>
         </div>
+
+        <!-- 身體覺察日誌 -->
+        <div class="card mt-16" id="body-checkin-card">
+          <div class="card-head">
+            <span class="card-title">🌿 身體覺察日誌</span>
+            <span class="card-action" id="body-streak" style="color:var(--gold);font-size:.78rem"></span>
+          </div>
+          <div class="card-body" id="body-checkin-area">
+            <div id="body-not-done" style="text-align:center;padding:8px 0">
+              <p style="font-size:.85rem;color:var(--mid);line-height:1.6;margin-bottom:12px">每天花 2 分鐘，跟身體說說話。<br>你的覺察紀錄會成為導師解讀的珍貴資料。</p>
+              <button onclick="showPage('mine');setTimeout(()=>{const el=document.getElementById('body-awareness-section');if(el)el.scrollIntoView({behavior:'smooth'});},300)" style="padding:10px 28px;background:linear-gradient(135deg,#5dba8a,#3d8a5a);border:none;border-radius:12px;color:#fff;font-size:.88rem;cursor:pointer;font-family:inherit">✦ 今日身體打卡</button>
+            </div>
+            <div id="body-done" style="display:none;padding:8px 0">
+              <div style="text-align:center;font-size:.85rem;color:var(--mid);margin-bottom:10px">✅ 今日已完成身體覺察</div>
+              <button onclick="showPage('mine');setTimeout(()=>{const el=document.getElementById('body-awareness-section');if(el)el.scrollIntoView({behavior:'smooth'});},300)" style="margin-top:10px;padding:8px 20px;background:transparent;border:1px solid rgba(201,160,96,.2);border-radius:8px;color:var(--light);font-size:.78rem;cursor:pointer;font-family:inherit">修改今日紀錄</button>
+            </div>
+          </div>
+        </div>
+
+
         <div class="card mt-16">
           <div class="card-head"><span class="card-title">最近足跡</span><button class="card-action" onclick="showPage('history')">全部記錄 ›</button></div>
           <div class="card-body card-body-pt0">
@@ -980,6 +1017,103 @@ input,select,textarea{font-family:var(--body)}
             <span class="card-action" id="badges-unlocked-count" style="color:var(--gold);font-size:.78rem">0 枚解鎖</span>
           </div>
           <div class="badge-grid" id="badge-grid"></div>
+        </div>
+
+        <!-- 覺察全景圖 -->
+        <div class="card" id="panorama-section">
+          <div class="card-head">
+            <span class="card-title">覺察全景圖</span>
+            <span class="card-action" id="pano-pct" style="color:var(--gold);font-size:.78rem">0%</span>
+          </div>
+          <div style="padding:0 16px 6px">
+            <div style="height:6px;background:rgba(201,160,96,.08);border-radius:3px;overflow:hidden">
+              <div id="pano-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#e9c27d,#5dba8a);border-radius:3px;transition:width .8s ease"></div>
+            </div>
+            <div style="font-size:.68rem;color:var(--light);margin-top:6px;text-align:center" id="pano-text">已完成 0 / 20 項覺察測驗</div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 16px 14px;justify-content:center" id="pano-badges"></div>
+          <div style="padding:0 16px 16px;text-align:center">
+            <button onclick="exportAIReport()" style="width:100%;padding:12px;background:linear-gradient(135deg,var(--gold),#cda86e);border:none;border-radius:12px;color:#1a1008;font-size:.88rem;font-weight:500;cursor:pointer;font-family:inherit">📋 匯出覺察全景報告給 AI</button>
+          </div>
+          <div id="pano-export" style="display:none;padding:0 16px 16px">
+            <div style="max-height:240px;overflow-y:auto;background:rgba(0,0,0,.04);border:1px solid rgba(201,160,96,.12);border-radius:10px;padding:12px;font-size:.75rem;color:var(--mid);line-height:1.65;white-space:pre-wrap" id="pano-export-text"></div>
+          </div>
+        </div>
+
+        <!-- 身體覺察日誌 -->
+        <div class="card" id="body-awareness-section">
+          <div class="card-head">
+            <span class="card-title">身體覺察日誌</span>
+            <span class="card-action" id="ba-streak" style="color:var(--gold);font-size:.78rem"></span>
+          </div>
+          <!-- 今日快速紀錄 -->
+          <div style="padding:0 16px 14px" id="ba-today">
+            <div style="font-size:.82rem;color:var(--mid);margin-bottom:10px" id="ba-today-label">今日身體狀態打卡</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+              <div class="ba-dim" data-dim="energy">
+                <div class="ba-dim-icon">⚡</div>
+                <div class="ba-dim-label">能量</div>
+                <div class="ba-dim-btns" id="ba-energy"></div>
+              </div>
+              <div class="ba-dim" data-dim="sleep">
+                <div class="ba-dim-icon">🌙</div>
+                <div class="ba-dim-label">睡眠</div>
+                <div class="ba-dim-btns" id="ba-sleep"></div>
+              </div>
+              <div class="ba-dim" data-dim="digestion">
+                <div class="ba-dim-icon">🫁</div>
+                <div class="ba-dim-label">消化</div>
+                <div class="ba-dim-btns" id="ba-digestion"></div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+              <div class="ba-dim" data-dim="mood">
+                <div class="ba-dim-icon">💭</div>
+                <div class="ba-dim-label">情緒</div>
+                <div class="ba-dim-btns" id="ba-mood"></div>
+              </div>
+              <div class="ba-dim" data-dim="tension">
+                <div class="ba-dim-icon">💪</div>
+                <div class="ba-dim-label">肌肉</div>
+                <div class="ba-dim-btns" id="ba-tension"></div>
+              </div>
+              <div class="ba-dim" data-dim="craving">
+                <div class="ba-dim-icon">🍫</div>
+                <div class="ba-dim-label">渴望</div>
+                <div class="ba-dim-btns" id="ba-craving"></div>
+              </div>
+            </div>
+            <!-- 身體訊號區 -->
+            <div style="font-size:.75rem;color:var(--light);margin-bottom:6px">身體在哪裡說話？（可多選）</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px" id="ba-body-parts"></div>
+            <!-- 一句話覺察 -->
+            <div style="position:relative;margin-bottom:12px">
+              <input type="text" id="ba-note" placeholder="一句話覺察：今天身體想告訴你什麼？" style="width:100%;padding:10px 14px;background:rgba(0,0,0,.03);border:1px solid rgba(201,160,96,.12);border-radius:10px;font-size:.82rem;color:var(--dark);font-family:inherit;box-sizing:border-box">
+            </div>
+            <button onclick="saveBodyLog()" id="ba-save-btn" style="width:100%;padding:11px;background:linear-gradient(135deg,var(--gold),#cda86e);border:none;border-radius:10px;color:#1a1008;font-size:.85rem;font-weight:500;cursor:pointer;font-family:inherit">💾 儲存今日身體紀錄</button>
+            <div id="ba-saved-msg" style="display:none;text-align:center;font-size:.78rem;color:var(--gold);margin-top:8px"></div>
+          </div>
+          <!-- 七日趨勢 -->
+          <div style="padding:0 16px 14px" id="ba-trend">
+            <div style="font-size:.75rem;letter-spacing:1px;color:var(--gold);margin-bottom:10px">七日趨勢</div>
+            <div style="display:flex;gap:4px;justify-content:space-between;margin-bottom:10px" id="ba-week-dots"></div>
+            <div style="font-size:.78rem;color:var(--mid);line-height:1.6" id="ba-trend-text"></div>
+          </div>
+          <!-- 馥靈輕盈連結 -->
+          <div style="padding:0 16px 16px">
+            <div style="background:linear-gradient(135deg,rgba(93,186,138,.06),rgba(201,160,96,.04));border:1px solid rgba(93,186,138,.15);border-radius:14px;padding:16px;text-align:center">
+              <div style="font-size:.72rem;letter-spacing:1px;color:#5dba8a;margin-bottom:6px">馥靈輕盈 × 身體覺察</div>
+              <div style="font-family:'LXGW WenKai TC',serif;font-size:.92rem;color:var(--dark);margin-bottom:6px;line-height:1.6">你的身體每天都在跟你說話。<br>這份紀錄就是翻譯。</div>
+              <div style="font-size:.78rem;color:var(--mid);margin-bottom:12px;line-height:1.6" id="ba-pattern-hint">持續記錄 7 天以上，系統會自動分析你的身體模式。</div>
+              <button onclick="exportBodyReport()" style="padding:10px 24px;background:linear-gradient(135deg,#5dba8a,#3d8a5a);border:none;border-radius:10px;color:#fff;font-size:.82rem;cursor:pointer;font-family:inherit;margin-bottom:8px">📋 匯出身體覺察報告</button>
+              <div style="margin-top:8px">
+                <a href="https://lin.ee/OQDB5t6" target="_blank" style="display:inline-block;padding:10px 24px;background:linear-gradient(135deg,var(--gold),#cda86e);border-radius:10px;color:#1a1008;font-size:.82rem;font-weight:500;text-decoration:none">預約馥靈覺察導師解讀 ✦</a>
+              </div>
+            </div>
+          </div>
+          <div id="ba-export-area" style="display:none;padding:0 16px 16px">
+            <div style="max-height:200px;overflow-y:auto;background:rgba(0,0,0,.04);border:1px solid rgba(201,160,96,.12);border-radius:10px;padding:12px;font-size:.72rem;color:var(--mid);line-height:1.6;white-space:pre-wrap" id="ba-export-text"></div>
+          </div>
         </div>
 
         <div class="mine-menu">
@@ -2174,6 +2308,35 @@ const BADGES=[
   {id:'b_task10',icon:'✅',name:'任務達人',desc:'完成 10 個每日任務',cond:u=>(u.totalTasks||0)>=10},
   {id:'b_solar',icon:'🌸',name:'節氣守護者',desc:'連續 3 個節氣都有使用',cond:u=>(u.solarStreak||0)>=3},
   {id:'b_total100',icon:'💎',name:'百次覺察',desc:'累積使用工具達 100 次',cond:u=>u.totalTools>=100},
+  // ── 覺察測驗勳章（localStorage 檢查）──
+  {id:'q_bigfive',icon:'🌊',name:'大五探索者',desc:'完成大五人格測驗',cond:()=>!!localStorage.getItem('hl_quiz_bigfive')},
+  {id:'q_mbti',icon:'🧠',name:'人格解碼者',desc:'完成 MBTI 測驗',cond:()=>!!localStorage.getItem('hl_quiz_mbti')},
+  {id:'q_disc',icon:'🦅',name:'風格辨識者',desc:'完成 DISC 測驗',cond:()=>!!localStorage.getItem('hl_quiz_disc')},
+  {id:'q_enneagram',icon:'🌀',name:'九型覺察者',desc:'完成九型人格測驗',cond:()=>!!localStorage.getItem('hl_quiz_enneagram')},
+  {id:'q_bloodtype',icon:'🩸',name:'血型觀察者',desc:'完成血型解析',cond:()=>!!localStorage.getItem('hl_quiz_bloodtype')},
+  {id:'q_attachment',icon:'🔗',name:'關係覺察者',desc:'完成依附型態測驗',cond:()=>!!localStorage.getItem('hl_quiz_attachment')},
+  {id:'q_lovelang',icon:'💕',name:'愛語翻譯官',desc:'完成愛之語測驗',cond:()=>!!localStorage.getItem('hl_quiz_lovelang')},
+  {id:'q_relationship',icon:'💑',name:'關係儀表員',desc:'完成關係儀表板',cond:()=>!!localStorage.getItem('hl_quiz_relationship')},
+  {id:'q_eq',icon:'🧭',name:'情緒智者',desc:'完成 EQ 情緒智商測驗',cond:()=>!!localStorage.getItem('hl_quiz_eq')},
+  {id:'q_hsp',icon:'🦋',name:'敏感覺知者',desc:'完成高敏感測驗',cond:()=>!!localStorage.getItem('hl_quiz_hsp')},
+  {id:'q_emotion',icon:'🎨',name:'情緒調色師',desc:'完成情緒顆粒度測驗',cond:()=>!!localStorage.getItem('hl_quiz_emotion')},
+  {id:'q_stress',icon:'⚡',name:'壓力解讀者',desc:'完成壓力反應 4F 測驗',cond:()=>!!localStorage.getItem('hl_quiz_stress')},
+  {id:'q_innerchild',icon:'🧸',name:'內在守護者',desc:'完成內在小孩測驗',cond:()=>!!localStorage.getItem('hl_quiz_innerchild')},
+  {id:'q_via',icon:'✦',name:'品格燈塔',desc:'完成 VIA 品格優勢測驗',cond:()=>!!localStorage.getItem('hl_quiz_via')},
+  {id:'q_strengths',icon:'💎',name:'天賦發掘者',desc:'完成天賦優勢測驗',cond:()=>!!localStorage.getItem('hl_quiz_strengths')},
+  {id:'q_riasec',icon:'🧭',name:'職涯定位者',desc:'完成 RIASEC 職業測驗',cond:()=>!!localStorage.getItem('hl_quiz_riasec')},
+  {id:'q_burnout',icon:'🔥',name:'防護罩檢測員',desc:'完成情緒勞動倦怠測驗',cond:()=>!!localStorage.getItem('hl_quiz_beauty_burnout')},
+  {id:'q_client',icon:'🤝',name:'客情解碼者',desc:'完成客情依附分析',cond:()=>!!localStorage.getItem('hl_quiz_beauty_client')},
+  {id:'q_savior',icon:'🦸',name:'邊界覺察者',desc:'完成拯救者情結檢測',cond:()=>!!localStorage.getItem('hl_quiz_beauty_savior')},
+  {id:'q_locus',icon:'🎮',name:'掌舵覺察者',desc:'完成控制點指數測驗',cond:()=>!!localStorage.getItem('hl_quiz_beauty_locus')},
+  // ── 身體覺察勳章 ──
+  {id:'b_body1',icon:'🫀',name:'身體傾聽者',desc:'完成第一次身體覺察紀錄',cond:()=>{try{const s=localStorage.getItem('hl_body_log');return s&&JSON.parse(s).length>=1;}catch(e){return false;}}},
+  {id:'b_body7',icon:'📊',name:'七日覺察者',desc:'連續記錄身體覺察 7 天',cond:()=>{try{const s=localStorage.getItem('hl_body_log');return s&&JSON.parse(s).length>=7;}catch(e){return false;}}},
+  {id:'b_body30',icon:'🌟',name:'身體翻譯官',desc:'累積 30 天身體覺察紀錄',cond:()=>{try{const s=localStorage.getItem('hl_body_log');return s&&JSON.parse(s).length>=30;}catch(e){return false;}}},
+  // ── 全景圖大師 ──
+  {id:'q_body7',icon:'🌿',name:'七日身體覺察',desc:'連續 7 天完成身體覺察',cond:()=>parseInt(localStorage.getItem('hl_body_streak')||'0')>=7},
+  {id:'q_body30',icon:'🏆',name:'月度身體大師',desc:'連續 30 天完成身體覺察',cond:()=>parseInt(localStorage.getItem('hl_body_streak')||'0')>=30},
+  {id:'q_master',icon:'👑',name:'覺察全圖譜大師',desc:'完成所有 20 項覺察測驗',cond:()=>{const ks=['hl_quiz_bigfive','hl_quiz_mbti','hl_quiz_disc','hl_quiz_enneagram','hl_quiz_bloodtype','hl_quiz_attachment','hl_quiz_lovelang','hl_quiz_relationship','hl_quiz_eq','hl_quiz_hsp','hl_quiz_emotion','hl_quiz_stress','hl_quiz_innerchild','hl_quiz_via','hl_quiz_strengths','hl_quiz_riasec','hl_quiz_beauty_burnout','hl_quiz_beauty_client','hl_quiz_beauty_savior','hl_quiz_beauty_locus'];return ks.every(k=>!!localStorage.getItem(k));}},
 ];
 
 /* ── 24 節氣資料 ── */
@@ -2226,6 +2389,17 @@ const TASK_POOL=[
   {id:'enneagram1',name:'探索九型人格',url:'https://hourlightkey.com/quiz-enneagram.html',type:'quiz'},
   {id:'draw7',name:'抽七張深層課題導航',url:'https://hourlightkey.com/draw-hl.html',type:'draw'},
   {id:'bigfive1',name:'做 Big Five 人格測驗',url:'https://hourlightkey.com/quiz-bigfive.html',type:'quiz'},
+  {id:'attachment1',name:'測測你的依附型態',url:'https://hourlightkey.com/quiz-attachment.html',type:'quiz'},
+  {id:'stress1',name:'你的壓力反應模式是？',url:'https://hourlightkey.com/quiz-stress.html',type:'quiz'},
+  {id:'lovelang1',name:'你的愛之語是什麼',url:'https://hourlightkey.com/quiz-lovelang.html',type:'quiz'},
+  {id:'hsp1',name:'高敏感族群測驗',url:'https://hourlightkey.com/quiz-hsp.html',type:'quiz'},
+  {id:'eq1',name:'EQ 情緒智商測驗',url:'https://hourlightkey.com/quiz-eq.html',type:'quiz'},
+  {id:'innerchild1',name:'城堡裡的內在小孩',url:'https://hourlightkey.com/quiz-innerchild.html',type:'quiz'},
+  {id:'via1',name:'VIA 品格優勢旗艦測驗',url:'https://hourlightkey.com/quiz-via.html',type:'quiz'},
+  {id:'aroma1',name:'調一瓶今日精油配方',url:'https://hourlightkey.com/quiz-aroma.html',type:'quiz'},
+  {id:'relationship1',name:'你的關係儀表板',url:'https://hourlightkey.com/quiz-relationship.html',type:'quiz'},
+  {id:'strengths1',name:'找到你的天賦優勢',url:'https://hourlightkey.com/quiz-strengths.html',type:'quiz'},
+  {id:'burnout1',name:'美業人情緒倦怠檢測',url:'https://hourlightkey.com/quiz-beauty-burnout.html',type:'quiz'},
 ];
 function getDailyTasks(dateStr){
   // 用日期字串做種子，讓每天固定三個任務
@@ -2405,6 +2579,201 @@ function renderBadges(){
   if(cnt) cnt.textContent=`${unlocked} 枚解鎖`;
 }
 
+/* ── 覺察全景圖 ── */
+const QUIZ_KEYS=[
+  {id:'bigfive',key:'hl_quiz_bigfive',icon:'🌊',name:'大五人格'},
+  {id:'mbti',key:'hl_quiz_mbti',icon:'🧠',name:'MBTI'},
+  {id:'disc',key:'hl_quiz_disc',icon:'🦅',name:'DISC'},
+  {id:'enneagram',key:'hl_quiz_enneagram',icon:'🌀',name:'九型人格'},
+  {id:'bloodtype',key:'hl_quiz_bloodtype',icon:'🩸',name:'血型'},
+  {id:'attachment',key:'hl_quiz_attachment',icon:'🔗',name:'依附型態'},
+  {id:'lovelang',key:'hl_quiz_lovelang',icon:'💕',name:'愛之語'},
+  {id:'relationship',key:'hl_quiz_relationship',icon:'💑',name:'關係儀表板'},
+  {id:'eq',key:'hl_quiz_eq',icon:'🧭',name:'EQ'},
+  {id:'hsp',key:'hl_quiz_hsp',icon:'🦋',name:'HSP'},
+  {id:'emotion',key:'hl_quiz_emotion',icon:'🎨',name:'情緒顆粒度'},
+  {id:'stress',key:'hl_quiz_stress',icon:'⚡',name:'壓力 4F'},
+  {id:'innerchild',key:'hl_quiz_innerchild',icon:'🧸',name:'內在小孩'},
+  {id:'via',key:'hl_quiz_via',icon:'✦',name:'VIA 品格'},
+  {id:'strengths',key:'hl_quiz_strengths',icon:'💎',name:'天賦優勢'},
+  {id:'riasec',key:'hl_quiz_riasec',icon:'🧭',name:'RIASEC'},
+  {id:'burnout',key:'hl_quiz_beauty_burnout',icon:'🔥',name:'情緒倦怠'},
+  {id:'client',key:'hl_quiz_beauty_client',icon:'🤝',name:'客情依附'},
+  {id:'savior',key:'hl_quiz_beauty_savior',icon:'🦸',name:'拯救者'},
+  {id:'locus',key:'hl_quiz_beauty_locus',icon:'🎮',name:'控制點'},
+];
+
+function renderQuizPanorama(){
+  const container=document.getElementById('pano-badges');
+  if(!container)return;
+  let done=0;
+  container.innerHTML='';
+  QUIZ_KEYS.forEach(q=>{
+    const has=!!localStorage.getItem(q.key);
+    if(has)done++;
+    const el=document.createElement('div');
+    el.style.cssText='width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;border:1.5px solid '+(has?'rgba(201,160,96,.4)':'rgba(201,160,96,.1)')+';background:'+(has?'rgba(201,160,96,.06)':'transparent')+';opacity:'+(has?'1':'.3')+';transition:all .3s';
+    el.title=q.name+(has?' ✓':'');
+    el.textContent=q.icon;
+    container.appendChild(el);
+  });
+  const total=QUIZ_KEYS.length;
+  const pct=Math.round(done/total*100);
+  const pctEl=document.getElementById('pano-pct');
+  if(pctEl) pctEl.textContent=pct+'%';
+  const bar=document.getElementById('pano-bar');
+  if(bar) bar.style.width=pct+'%';
+  const txt=document.getElementById('pano-text');
+  if(txt){
+    if(pct>=100) txt.innerHTML='<span style="color:var(--gold)">👑 覺察全圖譜大師！全部完成！</span>';
+    else txt.textContent='已完成 '+done+' / '+total+' 項覺察測驗';
+  }
+}
+
+function exportAIReport(){
+  let r='═══ 馥靈之鑰 ✦ 覺察全景報告 ═══\n';
+  r+='產生時間：'+new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'})+'\n\n';
+  let count=0;
+  QUIZ_KEYS.forEach(q=>{
+    const raw=localStorage.getItem(q.key);
+    if(!raw)return;
+    count++;
+    try{
+      const d=JSON.parse(raw);
+      r+='【'+q.name+'】\n';
+      if(d.type)r+='  類型：'+(d.label||d.type)+'\n';
+      if(d.code)r+='  代碼：'+d.code+'\n';
+      if(d.pct!==undefined)r+='  分數：'+d.pct+'%\n';
+      if(d.total!==undefined)r+='  總分：'+d.total+'%\n';
+      if(d.internal!==undefined)r+='  內控：'+d.internal+'% / 外控：'+d.external+'%\n';
+      if(d.burnoutIndex!==undefined)r+='  倦怠指數：'+d.burnoutIndex+'%\n';
+      if(d.status)r+='  狀態：'+d.status+'\n';
+      if(d.level)r+='  等級：'+d.level+'\n';
+      if(d.avg!==undefined)r+='  平均：'+d.avg+'%\n';
+      if(d.pcts){
+        const entries=typeof d.pcts==='object'?Object.entries(d.pcts):[];
+        if(entries.length>0) r+='  維度：'+entries.map(e=>e[0]+'='+e[1]+'%').join(' / ')+'\n';
+      }
+      if(d.top5){
+        r+='  前五：'+d.top5.map(s=>s.name||s.str).join(' · ')+'\n';
+      }
+      if(d.topDim)r+='  最強領域：'+d.topDim+'\n';
+      if(d.topVirtue)r+='  最強美德：'+d.topVirtue+'\n';
+      if(d.strongest)r+='  最穩：'+d.strongest+'\n';
+      if(d.weakest)r+='  待關注：'+d.weakest+'\n';
+      r+='\n';
+    }catch(e){r+='  [資料異常]\n\n';}
+  });
+  if(count===0){
+    r+='尚未完成任何測驗。\n請先到覺察評估中心（quiz-hub.html）完成測驗。\n\n';
+  }
+  // Body awareness data
+  try{const bh=JSON.parse(localStorage.getItem('hl_body_log')||'[]');
+    if(bh.length>0){r+='【身體覺察日誌】近 '+bh.length+' 天紀錄\n';
+      const r7=bh.slice(-7);r7.forEach(l=>{r+='  '+l.date+'：';const ds=Object.entries(l.dims||{}).map(([k,v])=>k+'='+v).join(' ');r+=ds;if(l.parts&&l.parts.length)r+=' 身體：'+l.parts.join(',');if(l.note)r+=' 覺察：'+l.note;r+='\n';});r+='\n';}}catch(e){}
+  r+='═══ 建議搭配資料 ═══\n';
+  r+='► 命盤座標：請到 destiny-engine.html 運算你的紫微/八字/西洋占星/人類圖\n';
+  r+='► 馥靈秘碼：請到 fuling-mima.html 查詢你的農曆生日數字\n';
+  r+='► 精油配方：請到 quiz-aroma.html 取得今日精油建議\n\n';
+  r+='將以上資料提供給 AI 或馥靈之鑰覺察師，\n';
+  r+='可以得到更精準的覺察建議和行動方案。\n\n';
+  r+='馥靈之鑰 hourlightkey.com\n';
+  r+='座標哲學：看見設定，自己決定怎麼升級。\n';
+
+  const el=document.getElementById('pano-export-text');
+  const wrap=document.getElementById('pano-export');
+  if(el&&wrap){
+    el.textContent=r;
+    wrap.style.display='block';
+  }
+  try{
+    navigator.clipboard.writeText(r).then(()=>{
+      const btn=wrap.previousElementSibling.querySelector('button');
+      if(btn){btn.textContent='✅ 已複製到剪貼簿！';setTimeout(()=>{btn.textContent='📋 匯出覺察全景報告給 AI';},2500);}
+    });
+  }catch(e){}
+}
+
+/* ── 身體覺察日誌系統 ── */
+const BA_DIMS=['energy','sleep','digestion','mood','tension','craving'];
+const BA_LABELS={energy:'能量',sleep:'睡眠',digestion:'消化',mood:'情緒',tension:'肌肉緊繃',craving:'食物渴望'};
+const BA_PARTS=['頭部','眼睛','肩頸','胸口','上背','下背','腰部','腹部','手臂','手掌','大腿','小腿','腳底','全身沉重','全身緊繃'];
+const BA_PATTERNS={
+  emotional:{name:'情緒填充型',icon:'💔',dims:{mood:'low',craving:'high'},desc:'身體可能在用食物填補情緒空洞',hour:'Heal'},
+  stress:{name:'壓力倉儲型',icon:'⚡',dims:{tension:'high',sleep:'low'},desc:'長期高壓讓肩頸和睡眠都在抗議',hour:'Own'},
+  trauma:{name:'創傷保護型',icon:'🛡️',dims:{tension:'high',craving:'high'},desc:'身體可能在用厚度保護你',hour:'Unlock'},
+  neural:{name:'神經失調型',icon:'🔌',dims:{energy:'low',sleep:'low',digestion:'low'},desc:'身體訊號斷線了',hour:'Heal'},
+  metabolic:{name:'代謝受損型',icon:'🔥',dims:{energy:'low',craving:'high'},desc:'過去的節食讓代謝記憶受創',hour:'Rise'},
+  worth:{name:'自我價值型',icon:'💎',dims:{mood:'low',craving:'high',tension:'high'},desc:'被數字綁架了',hour:'Own'},
+};
+let baToday={},baHistory=[];
+function initBodyAwareness(){
+  try{const s=localStorage.getItem('hl_body_log');if(s)baHistory=JSON.parse(s);}catch(e){}
+  BA_DIMS.forEach(dim=>{const el=document.getElementById('ba-'+dim);if(!el)return;el.innerHTML=[1,2,3,4,5].map(v=>`<button class="ba-dot" onclick="setBA('${dim}',${v},this)" title="${v}">${v}</button>`).join('');});
+  const pp=document.getElementById('ba-body-parts');
+  if(pp) pp.innerHTML=BA_PARTS.map(p=>`<button class="ba-part" onclick="togglePart(this)" data-part="${p}">${p}</button>`).join('');
+  const today=new Date().toISOString().slice(0,10);
+  const todayLog=baHistory.find(h=>h.date===today);
+  if(todayLog) showTodaySaved(todayLog);
+  renderWeekTrend();analyzePattern();updateBAStreak();
+}
+function setBA(dim,val,btn){baToday[dim]=val;btn.parentElement.querySelectorAll('.ba-dot').forEach((b,i)=>{b.className='ba-dot'+(i<val?' on-'+val:'');});}
+function togglePart(btn){btn.classList.toggle('on');}
+function saveBodyLog(){
+  const today=new Date().toISOString().slice(0,10);
+  const parts=[];document.querySelectorAll('.ba-part.on').forEach(b=>parts.push(b.dataset.part));
+  const note=document.getElementById('ba-note')?.value||'';
+  const filled=BA_DIMS.filter(d=>baToday[d]);
+  if(filled.length<3){const msg=document.getElementById('ba-saved-msg');if(msg){msg.textContent='至少填三個維度喔';msg.style.display='block';msg.style.color='#e85050';setTimeout(()=>{msg.style.display='none';},2000);}return;}
+  const log={date:today,dims:{...baToday},parts,note,ts:Date.now()};
+  baHistory=baHistory.filter(h=>h.date!==today);baHistory.push(log);baHistory=baHistory.slice(-90);
+  try{localStorage.setItem('hl_body_log',JSON.stringify(baHistory));}catch(e){}
+  showTodaySaved(log);renderWeekTrend();analyzePattern();updateBAStreak();
+  if(typeof addXP==='function')addXP('quiz');if(typeof checkBadges==='function')checkBadges();
+}
+function showTodaySaved(log){
+  const label=document.getElementById('ba-today-label');if(label)label.innerHTML='<span style="color:var(--gold)">✅ 今日已記錄</span>';
+  const btn=document.getElementById('ba-save-btn');if(btn){btn.textContent='✅ 今日已打卡';btn.style.opacity='.5';}
+  BA_DIMS.forEach(dim=>{const v=log.dims[dim];if(!v)return;const el=document.getElementById('ba-'+dim);if(el)el.querySelectorAll('.ba-dot').forEach((b,i)=>{b.className='ba-dot'+(i<v?' on-'+v:'');});});
+  if(log.parts)log.parts.forEach(p=>{const b=document.querySelector('.ba-part[data-part="'+p+'"]');if(b)b.classList.add('on');});
+  if(log.note){const n=document.getElementById('ba-note');if(n)n.value=log.note;}
+  const msg=document.getElementById('ba-saved-msg');if(msg){msg.textContent='已儲存！持續記錄可以看見身體的模式';msg.style.display='block';msg.style.color='var(--gold)';}
+}
+function renderWeekTrend(){
+  const c=document.getElementById('ba-week-dots');if(!c)return;const today=new Date();let h='';
+  for(let i=6;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);const ds=d.toISOString().slice(0,10);const log=baHistory.find(l=>l.date===ds);const dn=['日','一','二','三','四','五','六'][d.getDay()];const avg=log?Math.round(Object.values(log.dims).reduce((a,b)=>a+b,0)/Object.values(log.dims).length):0;const cl=avg>=4?'#5dba8a':avg>=3?'#e9c27d':avg>=2?'#f4a340':avg>=1?'#e85050':'rgba(201,160,96,.1)';h+=`<div style="text-align:center;flex:1"><div style="width:28px;height:28px;border-radius:50%;background:${log?cl:'rgba(201,160,96,.06)'};border:1.5px solid ${log?cl:'rgba(201,160,96,.1)'};margin:0 auto 3px;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:${log?'#fff':'rgba(201,160,96,.2)'}">${log?avg:'·'}</div><div style="font-size:.58rem;color:var(--light)">${dn}</div></div>`;}
+  c.innerHTML=h;
+  const tt=document.getElementById('ba-trend-text');
+  if(tt){const wl=baHistory.filter(l=>{const d=new Date(l.date);return(today-d)<7*86400000;});if(wl.length>=3){const da={};BA_DIMS.forEach(dim=>{const vs=wl.map(l=>l.dims[dim]).filter(Boolean);if(vs.length>0)da[dim]=vs.reduce((a,b)=>a+b,0)/vs.length;});const so=Object.entries(da).sort((a,b)=>a[1]-b[1]);if(so.length>0)tt.textContent='本週「'+BA_LABELS[so[0][0]]+'」平均 '+so[0][1].toFixed(1)+' 分，是目前最需關注的維度。';}else{tt.textContent='記錄滿 3 天以上就能看到趨勢分析。';}}
+}
+function analyzePattern(){
+  const hint=document.getElementById('ba-pattern-hint');if(!hint)return;
+  const recent=baHistory.slice(-7);if(recent.length<5){hint.textContent='持續記錄 '+(7-recent.length)+' 天以上，系統會分析你的身體模式。';return;}
+  const avgs={};BA_DIMS.forEach(dim=>{const vs=recent.map(l=>l.dims[dim]).filter(Boolean);avgs[dim]=vs.length>0?vs.reduce((a,b)=>a+b,0)/vs.length:3;});
+  let best=null,bs=0;Object.entries(BA_PATTERNS).forEach(([k,p])=>{let sc=0;Object.entries(p.dims).forEach(([d,ex])=>{if(ex==='high'&&avgs[d]>=3.5)sc++;if(ex==='low'&&avgs[d]<=2.5)sc++;});if(sc>bs){bs=sc;best={key:k,...p};}});
+  if(best&&bs>=2)hint.innerHTML=best.icon+' 你的身體模式偏向「<strong style="color:var(--gold)">'+best.name+'</strong>」<br>'+best.desc+'<br><span style="font-size:.72rem;color:var(--light)">建議搭配 H.O.U.R. 的 '+best.hour+' 階段深入覺察</span>';
+  else hint.textContent='持續記錄中，模式正在形成⋯';
+}
+function updateBAStreak(){const el=document.getElementById('ba-streak');if(!el)return;let s=0;const t=new Date();for(let i=0;i<90;i++){const d=new Date(t);d.setDate(d.getDate()-i);if(baHistory.find(h=>h.date===d.toISOString().slice(0,10)))s++;else if(i>0)break;}el.textContent=s>0?'🔥 連續 '+s+' 天':'';}
+function exportBodyReport(){
+  let r='═══ 馥靈之鑰 ✦ 身體覺察報告 ═══\n產生時間：'+new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'})+'\n紀錄天數：'+baHistory.length+' 天\n\n';
+  if(baHistory.length===0){r+='尚無紀錄。\n';}else{
+    r+='【近七日紀錄】\n';baHistory.slice(-7).forEach(log=>{r+=log.date+'\n';Object.entries(log.dims).forEach(([k,v])=>{r+='  '+BA_LABELS[k]+'：'+v+'/5\n';});if(log.parts&&log.parts.length>0)r+='  身體訊號：'+log.parts.join('、')+'\n';if(log.note)r+='  覺察：'+log.note+'\n';r+='\n';});
+    const avgs={};BA_DIMS.forEach(dim=>{const vs=baHistory.slice(-14).map(l=>l.dims[dim]).filter(Boolean);if(vs.length>0)avgs[dim]=(vs.reduce((a,b)=>a+b,0)/vs.length).toFixed(1);});
+    r+='【兩週平均】\n';Object.entries(avgs).forEach(([k,v])=>{r+='  '+BA_LABELS[k]+'：'+v+'/5\n';});
+    const pf={};baHistory.slice(-14).forEach(l=>{(l.parts||[]).forEach(p=>{pf[p]=(pf[p]||0)+1;});});
+    const tp=Object.entries(pf).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    if(tp.length>0){r+='\n【常見身體訊號】\n';tp.forEach(([p,c])=>{r+='  '+p+'（'+c+' 次）\n';});}
+    r+='\n【馥靈輕盈模式分析】\n';
+    const r7=baHistory.slice(-7);if(r7.length>=5){const ra={};BA_DIMS.forEach(dim=>{const vs=r7.map(l=>l.dims[dim]).filter(Boolean);ra[dim]=vs.length>0?vs.reduce((a,b)=>a+b,0)/vs.length:3;});Object.entries(BA_PATTERNS).forEach(([k,p])=>{let sc=0;Object.entries(p.dims).forEach(([d,ex])=>{if(ex==='high'&&ra[d]>=3.5)sc++;if(ex==='low'&&ra[d]<=2.5)sc++;});if(sc>=2)r+='  '+p.icon+' '+p.name+'：'+p.desc+'\n';});}else{r+='  紀錄不足 5 天。\n';}
+  }
+  r+='\n═══ 建議 ═══\n將此報告搭配覺察全景報告和 28 張鑰盤解讀，\n提供給馥靈覺察導師做完整解讀。\n\n預約覺察導師：lin.ee/OQDB5t6\n馥靈之鑰 hourlightkey.com\n';
+  const el=document.getElementById('ba-export-text');const wrap=document.getElementById('ba-export-area');
+  if(el&&wrap){el.textContent=r;wrap.style.display='block';}
+  try{navigator.clipboard.writeText(r).then(()=>{alert('身體覺察報告已複製到剪貼簿！');});}catch(e){}
+}
+
+
 /* ── 勳章檢查 & 解鎖動畫 ── */
 function checkBadges(){
   const newlyUnlocked=[];
@@ -2416,6 +2785,8 @@ function checkBadges(){
   });
   if(newlyUnlocked.length>0){
     renderBadges();
+    renderQuizPanorama();
+    renderBodyCard();
     renderTitle();
     // 顯示第一個解鎖動畫，queue 後續
     showBadgeUnlock(newlyUnlocked[0]);
@@ -2546,6 +2917,9 @@ function renderAllGameUI(){
   renderCastleProgress();
   renderTitle();
   renderBadges();
+  renderQuizPanorama();
+  initBodyAwareness();
+  renderBodyCard();
 }
 
 /* ── 掛勾到現有 initApp ── */
