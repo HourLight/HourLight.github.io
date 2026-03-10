@@ -272,6 +272,27 @@ body{font-family:var(--sans);color:var(--ink);background:var(--ink);-webkit-font
 .rb-book-cover-img{background-size:cover;background-position:center top;background-repeat:no-repeat;}
 .rb-book-cover-img .rb-book-cover-fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;padding:24px;opacity:0;}
 .rb-book-cover-img[style*="url"]{position:relative;}
+
+/* ─── 每日幸運籤 ─── */
+.hl-sign-section{background:var(--ink);padding:72px 80px;position:relative;overflow:hidden;}
+.hl-sign-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(212,168,83,.07),transparent);pointer-events:none;}
+.hl-sign-inner{max-width:760px;margin:0 auto;position:relative;z-index:1;}
+.hl-sign-eyebrow{display:flex;align-items:center;justify-content:center;gap:12px;font-size:.65rem;color:var(--gold);letter-spacing:5px;text-transform:uppercase;font-family:var(--italic);margin-bottom:32px;opacity:.7;}
+.hl-sign-eyebrow::before,.hl-sign-eyebrow::after{content:'';flex:none;width:40px;height:1px;background:var(--gold);opacity:.4;}
+.hl-sign-card{border:1px solid rgba(212,168,83,.22);border-radius:16px;padding:48px 44px;background:rgba(255,255,255,.03);backdrop-filter:blur(8px);}
+.hl-sign-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+.hl-sign-date{font-size:.7rem;color:rgba(255,255,255,.35);letter-spacing:2px;}
+.hl-sign-tag{font-size:.68rem;color:var(--gold);letter-spacing:2px;opacity:.75;font-family:var(--italic);}
+.hl-sign-name{font-family:var(--serif);font-size:1.05rem;color:var(--gold);letter-spacing:4px;margin-bottom:20px;font-weight:300;}
+.hl-sign-open{font-family:var(--sans);font-size:1.08rem;color:#fff;line-height:1.9;font-weight:300;margin-bottom:20px;letter-spacing:.5px;}
+.hl-sign-body{font-family:var(--sans);font-size:.93rem;color:rgba(255,255,255,.62);line-height:2.1;font-weight:300;margin-bottom:28px;letter-spacing:.3px;}
+.hl-sign-divider{width:40px;height:1px;background:rgba(212,168,83,.3);margin:0 0 20px;}
+.hl-sign-cta{font-family:var(--italic);font-style:italic;font-size:1rem;color:var(--gold);line-height:1.8;font-weight:300;letter-spacing:.5px;}
+.hl-sign-footer{display:flex;align-items:center;justify-content:space-between;margin-top:32px;padding-top:24px;border-top:1px solid rgba(255,255,255,.07);}
+.hl-sign-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border:1px solid rgba(212,168,83,.35);border-radius:999px;font-size:.78rem;color:var(--gold);text-decoration:none;letter-spacing:1.5px;transition:all .25s;background:transparent;}
+.hl-sign-btn:hover{background:rgba(212,168,83,.1);border-color:var(--gold);}
+.hl-sign-note{font-size:.65rem;color:rgba(255,255,255,.2);letter-spacing:1px;}
+@media(max-width:680px){.hl-sign-section{padding:56px 24px;}.hl-sign-card{padding:32px 24px;}.hl-sign-open{font-size:.98rem;}.hl-sign-footer{flex-direction:column;gap:12px;align-items:flex-start;}}
 </style>
 </head>
 <body>
@@ -349,6 +370,40 @@ body{font-family:var(--sans);color:var(--ink);background:var(--ink);-webkit-font
     <span class="rb-stat-desc">健康產業管理</span>
   </div>
 </div>
+
+<!-- ─── 每日幸運籤 ─── -->
+<section class="hl-sign-section fade-in">
+  <div class="hl-sign-inner">
+    <div class="hl-sign-eyebrow">馥靈馥語 · 每日幸運籤</div>
+    <div class="hl-sign-card" id="hl-sign-card">
+      <div class="hl-sign-meta">
+        <span class="hl-sign-date" id="hl-sign-date">載入中</span>
+        <span class="hl-sign-tag">今日 · 專屬於你</span>
+      </div>
+      <div class="hl-sign-name" id="hl-sign-name">✦</div>
+      <div class="hl-sign-open" id="hl-sign-open"></div>
+      <div class="hl-sign-body" id="hl-sign-body"></div>
+      <div class="hl-sign-divider"></div>
+      <div class="hl-sign-cta" id="hl-sign-cta"></div>
+      <div class="hl-sign-footer">
+        <a href="draw-hl.html" class="hl-sign-btn">抽完整牌陣 →</a>
+        <span class="hl-sign-note">每人每天不同 · 明日自動更換</span>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+(function(){
+  if(typeof getHLDailySign !== 'function') return;
+  var s = getHLDailySign();
+  document.getElementById('hl-sign-date').textContent = s.date + '  ·  ' + s.name;
+  document.getElementById('hl-sign-name').textContent = '✦ 馥靈馥語 · ' + s.name;
+  document.getElementById('hl-sign-open').textContent = s.open;
+  document.getElementById('hl-sign-body').textContent = s.body;
+  document.getElementById('hl-sign-cta').textContent = '「' + s.cta + '」';
+})();
+</script>
+
 
 <!-- ─── 三大入口 ─── -->
 <section id="free-tools" class="rb-section rb-section-cream fade-in">
@@ -659,5 +714,7 @@ function toggleLegalContent(){
 </script>
 
 <script src="assets/js/hl-bottomnav.js"></script>
+
+<script src="js/hl-yuyu.js"></script>
 </body>
 </html>

@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-BXP7K53QG6');</script>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>西洋星盤計算｜Placidus宮位｜相位格局｜馥靈之鑰</title>
+<meta name="description" content="輸入出生時間地點，即時生成西洋占星盤，包含行星星座宮位、Placidus宮位制、相位格局、元素模式統計。馥靈之鑰。">
+<link rel="icon" href="favicon.ico"/>
+<link rel="stylesheet" href="assets/css/hourlight-global.css">
+<link rel="stylesheet" href="assets/css/hl-music.css">
+<style>
+:root{--gold:#e9c27d;--gold2:#c9954a;--deep:#08050f;--panel:rgba(12,8,22,0.93);--text:#f0e8d8;--sub:#c4b7a6;--border:rgba(233,194,125,0.18);}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;font-family:'LXGW WenKai TC','Noto Serif TC',serif;color:var(--text);background:var(--deep);padding:20px 16px 120px;}
+.wrap{max-width:920px;margin:0 auto;}
+.hero{text-align:center;padding:36px 0 24px;}
+.hero h1{font-size:1.85rem;font-weight:300;color:var(--gold);letter-spacing:.1em;margin-bottom:8px;}
+.hero p{font-size:.88rem;color:var(--sub);line-height:1.7;}
+.hero-badge{display:inline-block;font-size:.72rem;color:var(--gold2);border:1px solid rgba(201,149,74,0.35);border-radius:20px;padding:3px 14px;margin-bottom:14px;letter-spacing:.1em;}
+.engine-link{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;color:var(--sub);border:1px solid var(--border);border-radius:20px;padding:5px 14px;text-decoration:none;margin-top:10px;transition:.2s;}
+.engine-link:hover{border-color:var(--gold);color:var(--gold);}
+.input-card{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:28px 24px;margin-bottom:24px;backdrop-filter:blur(12px);}
+.input-label{font-size:.82rem;color:var(--gold);letter-spacing:.06em;margin-bottom:10px;display:block;}
+.field-row{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.fi{flex:1;min-width:70px;background:rgba(233,194,125,0.06);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-family:inherit;font-size:.9rem;outline:none;transition:.2s;text-align:center;}
+.fi:focus{border-color:var(--gold);}
+select.fi{text-align:left;}
+select.fi option{background:#1a1030;color:var(--text);}
+.load-msg{font-size:.78rem;color:var(--gold);text-align:center;min-height:18px;margin-bottom:6px;}
+.calc-btn{width:100%;margin-top:10px;padding:14px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1a1208;font-family:inherit;font-size:1rem;font-weight:600;border:none;border-radius:12px;cursor:pointer;letter-spacing:.06em;transition:.2s;}
+.calc-btn:hover{opacity:.9;transform:translateY(-1px);}
+.result{display:none;}.result.show{display:block;}
+/* Chart layout */
+.chart-layout{display:grid;grid-template-columns:1fr 300px;gap:16px;margin-bottom:18px;align-items:start;}
+@media(max-width:700px){.chart-layout{grid-template-columns:1fr;}}
+.chart-wrap{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:16px;backdrop-filter:blur(12px);}
+.chart-title{font-size:.85rem;color:var(--gold);margin-bottom:12px;}
+#astroSvg{width:100%;max-width:460px;display:block;margin:0 auto;}
+/* Planet table */
+.planet-list{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:16px;backdrop-filter:blur(12px);}
+.p-row{display:flex;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid rgba(233,194,125,0.06);font-size:.82rem;}
+.p-row:last-child{border-bottom:none;}
+.p-sym{width:20px;text-align:center;font-size:1rem;}
+.p-name{width:52px;color:var(--sub);}
+.p-pos{flex:1;color:var(--text);}
+.p-house{width:30px;text-align:right;color:#5588e0;font-size:.76rem;}
+.p-retro{color:#e05555;font-size:.72rem;}
+/* Sections */
+.section{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;backdrop-filter:blur(12px);}
+.sec-title{font-size:.85rem;color:var(--gold);margin-bottom:12px;}
+.house-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+@media(max-width:480px){.house-grid{grid-template-columns:1fr;}}
+.h-item{font-size:.79rem;color:var(--sub);padding:5px 8px;background:rgba(233,194,125,0.03);border-radius:8px;line-height:1.5;}
+.h-item strong{color:var(--text);}
+.asp-item{font-size:.8rem;color:var(--sub);padding:4px 0;border-bottom:1px solid rgba(233,194,125,0.05);}
+.stat-bars{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;}
+.stat-group{flex:1;min-width:120px;}
+.sg-title{font-size:.72rem;color:var(--gold);margin-bottom:6px;letter-spacing:.06em;}
+.sg-item{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.sg-bar-wrap{flex:1;background:rgba(233,194,125,0.08);border-radius:4px;height:6px;overflow:hidden;}
+.sg-bar{height:6px;border-radius:4px;background:var(--gold2);}
+.sg-label{font-size:.74rem;color:var(--sub);width:24px;}
+.ai-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px;backdrop-filter:blur(12px);}
+.ai-pre{white-space:pre-wrap;font-size:.74rem;color:var(--sub);line-height:1.6;font-family:inherit;max-height:280px;overflow-y:auto;}
+.cp-btn{margin-top:10px;padding:9px 20px;background:rgba(233,194,125,0.08);border:1px solid var(--border);border-radius:8px;color:var(--gold);font-family:inherit;font-size:.8rem;cursor:pointer;transition:.2s;}
+.cp-btn:hover{background:rgba(233,194,125,0.16);}
+.cta-block{background:linear-gradient(135deg,rgba(233,194,125,0.07),rgba(92,58,128,0.07));border:1px solid var(--border);border-radius:16px;padding:22px;text-align:center;margin-top:20px;}
+.cta-block h3{font-size:.95rem;color:var(--gold);margin-bottom:8px;}
+.cta-block p{font-size:.82rem;color:var(--sub);margin-bottom:14px;line-height:1.6;}
+.cta-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.cta-btn{padding:9px 20px;border-radius:24px;font-family:inherit;font-size:.83rem;cursor:pointer;text-decoration:none;border:none;}
+.cta-btn.p{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1a1208;font-weight:600;}
+.cta-btn.s{background:transparent;border:1px solid var(--gold);color:var(--gold);}
+</style>
+</head>
+<body>
+<div class="hl-cosmos">
+  <div class="hl-stars-layer hl-stars-1"></div><div class="hl-stars-layer hl-stars-2"></div><div class="hl-stars-layer hl-stars-3"></div>
+  <div class="hl-meteors"><div class="hl-meteor"></div><div class="hl-meteor"></div><div class="hl-meteor"></div><div class="hl-meteor"></div></div>
+  <div class="hl-aura hl-aura-1"></div><div class="hl-aura hl-aura-2"></div>
+</div>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-badge">WESTERN ASTROLOGY</div>
+    <h1>🔭 西洋星盤</h1>
+    <p>Placidus 宮位制｜行星星座宮位｜相位格局｜元素模式統計<br>圓形星盤視覺化，完整呈現你的天宮圖</p>
+    <a href="destiny-engine.html" class="engine-link">✦ 前往十合一命盤引擎（含八字、紫微等十系統）</a>
+  </div>
+
+  <div class="input-card">
+    <span class="input-label">✦ 出生資訊（需要時間與地點才能計算宮位）</span>
+    <div class="field-row">
+      <input class="fi" type="number" id="by" placeholder="年 YYYY" min="1920" max="2060">
+      <input class="fi" type="number" id="bm" placeholder="月" min="1" max="12">
+      <input class="fi" type="number" id="bd" placeholder="日" min="1" max="31">
+      <input class="fi" type="number" id="bh" placeholder="時 HH" min="0" max="23">
+      <input class="fi" type="number" id="bmin" placeholder="分" min="0" max="59">
+    </div>
+    <div class="field-row">
+      <select class="fi" id="btz" style="flex:1;text-align:left;">
+        <option value="8">台灣／中國／馬來西亞（UTC+8）</option>
+        <option value="9">日本／韓國（UTC+9）</option>
+        <option value="7">泰國／越南（UTC+7）</option>
+        <option value="0">英國（UTC+0）</option>
+        <option value="-5">美東（UTC-5）</option>
+        <option value="-8">美西（UTC-8）</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <input class="fi" type="number" id="blat" placeholder="緯度（如：25.04）" step="0.01">
+      <input class="fi" type="number" id="blon" placeholder="經度（如：121.56）" step="0.01">
+    </div>
+    <div style="font-size:.76rem;color:var(--sub);margin-bottom:8px;">📍 台北：緯度 25.04，經度 121.56　｜　高雄：22.63，120.32　｜　台中：24.15，120.67<br>不輸入地點只算行星不算宮位</div>
+    <div class="load-msg" id="loadMsg"></div>
+    <button class="calc-btn" onclick="doCalc()">🔭 計算我的星盤</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="chart-layout">
+      <div class="chart-wrap">
+        <div class="chart-title">✦ 圓形星盤</div>
+        <svg id="astroSvg" viewBox="0 0 460 460" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="planet-list">
+        <div class="chart-title">✦ 行星位置</div>
+        <div id="planetList"></div>
+      </div>
+    </div>
+    <!-- Houses -->
+    <div class="section" id="housesSection" style="display:none">
+      <div class="sec-title">🏠 十二宮位（Placidus）</div>
+      <div class="house-grid" id="houseGrid"></div>
+    </div>
+    <!-- Aspects -->
+    <div class="section">
+      <div class="sec-title">⚡ 主要相位</div>
+      <div id="aspectList"></div>
+    </div>
+    <!-- Patterns -->
+    <div class="section" id="patternSection" style="display:none">
+      <div class="sec-title">✦ 格局</div>
+      <div id="patternList"></div>
+    </div>
+    <!-- Stats -->
+    <div class="section">
+      <div class="sec-title">📊 元素 ｜ 模式 ｜ 陰陽 統計</div>
+      <div class="stat-bars" id="statBars"></div>
+    </div>
+    <!-- AI -->
+    <div class="ai-card">
+      <div class="chart-title">📜 AI 深度解讀指令</div>
+      <pre class="ai-pre" id="aiPre"></pre>
+      <button class="cp-btn" onclick="copyAI()">📋 複製 AI 指令</button>
+    </div>
+    <div class="cta-block">
+      <h3>星盤照見你的天賦，牌卡幫你在當下選擇</h3>
+      <p>太陽是靈魂的方向，月亮是情緒的語言。馥靈之鑰把星盤智慧轉化成每天都用得上的覺察工具。</p>
+      <div class="cta-btns">
+        <a href="draw-hl.html" class="cta-btn p">抽牌問今天</a>
+        <a href="destiny-engine.html" class="cta-btn s">十合一完整命盤</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var EPH=null,EPH_LOADING=false;
+var SIGNS=['牡羊','金牛','雙子','巨蟹','獅子','處女','天秤','天蠍','射手','摩羯','水瓶','雙魚'];
+var SIGN_SYM=['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
+var P_ORDER=['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','node','chiron'];
+var P_NAMES=['太陽','月亮','水星','金星','火星','木星','土星','天王星','海王星','冥王星','北交點','凱龍'];
+var P_SYMS=['☉','☽','☿','♀','♂','♃','♄','♅','♆','♇','☊','⚷'];
+var P_COLS=['#FFD700','#C8C8D4','#A8D8A8','#FFB4C8','#FF8888','#B8A4F4','#A4B8D4','#88CCFF','#88AAFF','#D4A4D4','#AADDCC','#D4C8A4'];
+var SIGN_ELEMENT={牡羊:'火',金牛:'土',雙子:'風',巨蟹:'水',獅子:'火',處女:'土',天秤:'風',天蠍:'水',射手:'火',摩羯:'土',水瓶:'風',雙魚:'水'};
+var SIGN_MODE={牡羊:'開創',金牛:'固定',雙子:'變動',巨蟹:'開創',獅子:'固定',處女:'變動',天秤:'開創',天蠍:'固定',射手:'變動',摩羯:'開創',水瓶:'固定',雙魚:'變動'};
+var SIGN_POLAR={牡羊:'陽',金牛:'陰',雙子:'陽',巨蟹:'陰',獅子:'陽',處女:'陰',天秤:'陽',天蠍:'陰',射手:'陽',摩羯:'陰',水瓶:'陽',雙魚:'陰'};
+var SIGN_RULER={牡羊:'火星',金牛:'金星',雙子:'水星',巨蟹:'月亮',獅子:'太陽',處女:'水星',天秤:'金星',天蠍:'冥王星',射手:'木星',摩羯:'土星',水瓶:'天王星',雙魚:'海王星'};
+var HN=['自我完成宮','賺錢價值宮','學習運氣宮','原生家庭宮','才藝戀愛宮','職場菁英宮','婚姻合作宮','資源權勢宮','高遠目標宮','責任貴人宮','社群人氣宮','神祕心靈宮'];
+var ASP_TYPES=[{name:'合相',angle:0,orb:8,sym:'☌',col:'#FFD700'},{name:'對分相',angle:180,orb:8,sym:'☍',col:'#FF8888'},{name:'三分相',angle:120,orb:7,sym:'△',col:'#88FF88'},{name:'四分相',angle:90,orb:6,sym:'□',col:'#FF8888'},{name:'六分相',angle:60,orb:5,sym:'⚹',col:'#88CCFF'},{name:'五分相',angle:72,orb:2,sym:'Q',col:'#DDAAFF'},{name:'補十二分相',angle:150,orb:2,sym:'⚻',col:'#DDDD88'}];
+
+function loadEphemeris(){
+  return new Promise(function(res,rej){
+    if(EPH){res(EPH);return}
+    if(EPH_LOADING){var iv=setInterval(function(){if(EPH){clearInterval(iv);res(EPH)}},200);return}
+    EPH_LOADING=true;
+    document.getElementById('loadMsg').textContent='正在載入星曆資料（約4MB）...';
+    fetch('js/ephemeris-1920-2060.json').then(function(r){return r.json()}).then(function(d){EPH=d;EPH_LOADING=false;document.getElementById('loadMsg').textContent='星曆載入完成 ✓';setTimeout(function(){document.getElementById('loadMsg').textContent=''},2000);res(d)}).catch(function(e){EPH_LOADING=false;document.getElementById('loadMsg').textContent='星曆載入失敗';rej(e)});
+  });
+}
+
+function ephLookup(Y,M,D,H,min,tz){
+  if(!EPH)return null;
+  var utcH=(H||0)-(tz||8)+(min||0)/60;
+  var uD=D,uM=M,uY=Y;
+  if(utcH<0){utcH+=24;uD--}if(utcH>=24){utcH-=24;uD++}
+  if(uD<1){uM--;if(uM<1){uM=12;uY--}uD=new Date(uY,uM,0).getDate()}
+  if(uD>28){var dm=new Date(uY,uM,0).getDate();if(uD>dm){uD=1;uM++;if(uM>12){uM=1;uY++}}}
+  var key=String(uY).padStart(4,'0')+String(uM).padStart(2,'0')+String(uD).padStart(2,'0');
+  var row=EPH[key];if(!row)return null;
+  var nd=new Date(uY,uM-1,uD+1),nk=String(nd.getFullYear()).padStart(4,'0')+String(nd.getMonth()+1).padStart(2,'0')+String(nd.getDate()).padStart(2,'0');
+  var nr=EPH[nk];var frac=utcH/24,result={};
+  P_ORDER.forEach(function(k,i){
+    var v0=row[i],v1=nr?nr[i]:v0;var dd=v1-v0;if(dd>180)dd-=360;if(dd<-180)dd+=360;
+    var lon=(v0+dd*frac+360)%360;
+    var si=Math.floor(lon/30),deg=lon-si*30;
+    result[k]={lon:lon,sign:SIGNS[si],deg:Math.floor(deg),min:Math.round((deg%1)*60),retro:dd<0};
+  });
+  result.earth={lon:(result.sun.lon+180)%360,sign:SIGNS[Math.floor(((result.sun.lon+180)%360)/30)]};
+  result.snode={lon:(result.node.lon+180)%360,sign:SIGNS[Math.floor(((result.node.lon+180)%360)/30)]};
+  return result;
+}
+
+function calcPlacidus(lat,geo_lon,jd_val){
+  var T=(jd_val-2451545.0)/36525;
+  var GMST=(280.46061837+360.98564736629*(jd_val-2451545.0)+0.000387933*T*T)%360;
+  if(GMST<0)GMST+=360;
+  var RAMC=(GMST+geo_lon)%360;
+  var eps=23.4393-0.013*T,er=eps*Math.PI/180,lr=lat*Math.PI/180,ramc_r=RAMC*Math.PI/180;
+  var asc_val=(Math.atan2(-Math.cos(ramc_r),Math.sin(ramc_r)*Math.cos(er)+Math.tan(lr)*Math.sin(er))*180/Math.PI+180)%360;
+  var mc_val=(Math.atan2(Math.sin(ramc_r),Math.cos(ramc_r)*Math.cos(er))*180/Math.PI+360)%360;
+  function ecl_to_dec(lon_deg){return Math.asin(Math.sin(er)*Math.sin(lon_deg*Math.PI/180))*180/Math.PI}
+  function ra_dec_to_ecl(ra_d,dec_d){var ra=ra_d*Math.PI/180,dec=dec_d*Math.PI/180;return(Math.atan2(Math.sin(ra)*Math.cos(er)+Math.tan(dec)*Math.sin(er),Math.cos(ra))*180/Math.PI+360)%360}
+  function placCusp(frac,above){
+    var lam=above?(mc_val+frac*((asc_val-mc_val+360)%360))%360:((asc_val+frac*(((mc_val+180)%360-asc_val+360)%360))%360);
+    for(var it=0;it<80;it++){var dec=ecl_to_dec(lam),dec_r=dec*Math.PI/180;var arg=Math.max(-1,Math.min(1,-Math.tan(lr)*Math.tan(dec_r)));var DSA=Math.acos(arg)*180/Math.PI;var tra=above?(RAMC+frac*DSA)%360:(RAMC+DSA+frac*(180-DSA))%360;var nl=ra_dec_to_ecl(tra,dec);if(Math.abs(nl-lam)<0.0001)break;lam=nl;}
+    return lam;
+  }
+  var c11=placCusp(1/3,true),c12=placCusp(2/3,true),c2=placCusp(1/3,false),c3=placCusp(2/3,false);
+  var cusps=[asc_val,c2,c3,(mc_val+180)%360,(c11+180)%360,(c12+180)%360,(asc_val+180)%360,(c2+180)%360,(c3+180)%360,mc_val,c11,c12];
+  return{asc:asc_val,mc:mc_val,cusps:cusps};
+}
+function planetHouse(plon,cusps){
+  plon=((plon%360)+360)%360;
+  for(var i=0;i<12;i++){var c1=cusps[i],c2=cusps[(i+1)%12];if(c2<c1){if(plon>=c1||plon<c2)return i+1}else{if(plon>=c1&&plon<c2)return i+1}}
+  return 1;
+}
+function degToStr(lon){var si=Math.floor(((lon%360)+360)%360/30);var d=((lon%360)+360)%360-si*30;return SIGNS[si]+Math.floor(d)+'°'+Math.round((d%1)*60).toString().padStart(2,"0")+"'"}
+function calcAspects(pData){
+  var keys=Object.keys(pData),res=[];
+  for(var i=0;i<keys.length;i++)for(var j=i+1;j<keys.length;j++){
+    var p1=pData[keys[i]],p2=pData[keys[j]];if(!p1||!p2)continue;
+    var diff=Math.abs(p1.lon-p2.lon);if(diff>180)diff=360-diff;
+    ASP_TYPES.forEach(function(at){var orb=Math.abs(diff-at.angle);if(orb<=at.orb)res.push({p1:keys[i],p2:keys[j],type:at.name,sym:at.sym,orb:orb.toFixed(1),col:at.col,lon1:p1.lon,lon2:p2.lon})});
+  }
+  return res.sort(function(a,b){return a.orb-b.orb});
+}
+
+// ═══ SVG 星盤圖 ═══
+function drawAstroChart(planets,houses){
+  var svg=document.getElementById('astroSvg');
+  svg.innerHTML='';
+  var W=460,CX=230,CY=230,R=200,R2=170,R3=140,R4=120;
+  function add(tag,attrs,parent){var el=document.createElementNS('http://www.w3.org/2000/svg',tag);for(var k in attrs)el.setAttribute(k,attrs[k]);(parent||svg).appendChild(el);return el}
+  function lonToXY(lon,r){var a=(270-lon)*Math.PI/180;return{x:CX+r*Math.cos(a),y:CY+r*Math.sin(a)}}
+
+  // Background
+  add('circle',{cx:CX,cy:CY,r:R+18,fill:'rgba(8,5,15,0)',stroke:'rgba(233,194,125,0.15)','stroke-width':'1'});
+  // Sign ring
+  add('circle',{cx:CX,cy:CY,r:R,fill:'none',stroke:'rgba(233,194,125,0.1)','stroke-width':'1'});
+  add('circle',{cx:CX,cy:CY,r:R2,fill:'none',stroke:'rgba(233,194,125,0.08)','stroke-width':'1'});
+  add('circle',{cx:CX,cy:CY,r:R3,fill:'none',stroke:'rgba(233,194,125,0.06)','stroke-width':'1'});
+  add('circle',{cx:CX,cy:CY,r:R4,fill:'none',stroke:'rgba(233,194,125,0.05)','stroke-width':'1'});
+  add('circle',{cx:CX,cy:CY,r:26,fill:'rgba(233,194,125,0.05)',stroke:'rgba(233,194,125,0.12)','stroke-width':'1'});
+
+  // 12 sign divisions (every 30°)
+  var SIGN_COLS=['#FF8888','#CCAA88','#88CCDD','#88AACC','#FFAA44','#AACC88','#DDAACC','#8899CC','#FFCC66','#99AABB','#88BBDD','#AABBCC'];
+  var EL_COLS={火:'rgba(255,100,80,0.15)',土:'rgba(180,160,100,0.15)',風:'rgba(130,190,210,0.15)',水:'rgba(80,120,200,0.15)'};
+  var EL_MAP=['火','土','風','水','火','土','風','水','火','土','風','水'];
+  for(var s=0;s<12;s++){
+    var startLon=s*30,endLon=(s+1)*30;
+    var p1=lonToXY(startLon,R),p2=lonToXY(endLon,R),p3=lonToXY(endLon,R2),p4=lonToXY(startLon,R2);
+    add('path',{d:'M'+p1.x+','+p1.y+' A'+R+','+R+' 0 0,0 '+p2.x+','+p2.y+' L'+p3.x+','+p3.y+' A'+R2+','+R2+' 0 0,1 '+p4.x+','+p4.y+' Z',fill:EL_COLS[EL_MAP[s]]||'rgba(233,194,125,0.04)',stroke:'rgba(233,194,125,0.08)','stroke-width':'0.5'});
+    // Sign symbol
+    var midLon=s*30+15;
+    var mp=lonToXY(midLon,(R+R2)/2);
+    var txt=add('text',{x:mp.x,y:mp.y,'text-anchor':'middle','dominant-baseline':'middle','font-size':'11',fill:SIGN_COLS[s]||'rgba(233,194,125,0.6)','font-family':'serif'});
+    txt.textContent=SIGN_SYM[s];
+  }
+
+  // House cusps (if available)
+  if(houses){
+    for(var h=0;h<12;h++){
+      var cLon=houses.cusps[h];
+      var cp1=lonToXY(cLon,R2),cp2=lonToXY(cLon,R4);
+      var isAngle=(h===0||h===3||h===6||h===9);
+      add('line',{x1:cp1.x,y1:cp1.y,x2:cp2.x,y2:cp2.y,stroke:isAngle?'rgba(233,194,125,0.6)':'rgba(233,194,125,0.18)','stroke-width':isAngle?'1.5':'0.8','stroke-dasharray':isAngle?'':'3,3'});
+      // House number
+      var nextCusp=houses.cusps[(h+1)%12];
+      var midAngle=(cLon+nextCusp)/2;if(nextCusp<cLon)midAngle=(cLon+nextCusp+360)/2;
+      var hp=lonToXY(midAngle%360,(R3+R4)/2);
+      var htxt=add('text',{x:hp.x,y:hp.y,'text-anchor':'middle','dominant-baseline':'middle','font-size':'9',fill:'rgba(196,183,166,0.5)'});
+      htxt.textContent=h+1;
+    }
+  }
+
+  // Aspect lines (inner)
+  var pData={};
+  P_ORDER.slice(0,10).forEach(function(k,i){if(planets[k])pData[P_NAMES[i]]={lon:planets[k].lon}});
+  if(houses){pData['上升']={lon:houses.asc};pData['天頂']={lon:houses.mc}}
+  var asps=calcAspects(pData);
+  asps.slice(0,25).forEach(function(a){
+    var p1=lonToXY(a.lon1,R4-15),p2=lonToXY(a.lon2,R4-15);
+    add('line',{x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,stroke:a.col||'rgba(233,194,125,0.15)','stroke-width':'0.7','stroke-opacity':'0.4'});
+  });
+
+  // Planets
+  var placedAngles=[];
+  P_ORDER.forEach(function(k,i){
+    var p=planets[k];if(!p)return;
+    var lon=p.lon;
+    // Avoid overlap
+    var finalLon=lon;
+    for(var tries=0;tries<12;tries++){
+      var clash=placedAngles.some(function(a){var d=Math.abs(finalLon-a);return Math.min(d,360-d)<8});
+      if(!clash)break;finalLon=(finalLon+8)%360;
+    }
+    placedAngles.push(finalLon);
+    var pp=lonToXY(finalLon,R3-15);
+    // Planet circle
+    add('circle',{cx:pp.x,cy:pp.y,r:9,fill:'rgba(8,5,15,0.7)',stroke:P_COLS[i]||'rgba(233,194,125,0.5)','stroke-width':'1.2'});
+    var ptxt=add('text',{x:pp.x,y:pp.y,'text-anchor':'middle','dominant-baseline':'middle','font-size':'9',fill:P_COLS[i]||'rgba(233,194,125,0.9)'});
+    ptxt.textContent=P_SYMS[i];
+    if(p.retro){var rt=add('text',{x:pp.x+8,y:pp.y-6,'font-size':'7',fill:'#e05555'});rt.textContent='℞';}
+  });
+
+  // ASC line
+  if(houses){
+    var ap=lonToXY(houses.asc,R-5),ap2=lonToXY(houses.asc,R2+5);
+    add('line',{x1:ap.x,y1:ap.y,x2:ap2.x,y2:ap2.y,stroke:'rgba(233,194,125,0.9)','stroke-width':'2'});
+    var atxt=add('text',{x:ap.x+(ap.x>CX?8:-8),y:ap.y,'text-anchor':ap.x>CX?'start':'end','dominant-baseline':'middle','font-size':'10',fill:'rgba(233,194,125,0.9)'});
+    atxt.textContent='ASC';
+  }
+  // Center label
+  var ct=add('text',{x:CX,y:CY,'text-anchor':'middle','dominant-baseline':'middle','font-size':'9',fill:'rgba(233,194,125,0.3)','font-family':'serif'});
+  ct.textContent='♈';
+}
+
+async function doCalc(){
+  var Y=parseInt(document.getElementById('by').value);
+  var M=parseInt(document.getElementById('bm').value);
+  var D=parseInt(document.getElementById('bd').value);
+  var H=parseInt(document.getElementById('bh').value)||12;
+  var Min=parseInt(document.getElementById('bmin').value)||0;
+  var tz=parseFloat(document.getElementById('btz').value)||8;
+  var lat=parseFloat(document.getElementById('blat').value);
+  var lon=parseFloat(document.getElementById('blon').value);
+  if(!Y||!M||!D){alert('請輸入出生年月日');return;}
+  await loadEphemeris();
+  var planets=ephLookup(Y,M,D,H,Min,tz);
+  if(!planets){alert('找不到星曆，請確認年份在1920-2060之間');return;}
+
+  var houses=null;
+  if(!isNaN(lat)&&!isNaN(lon)){
+    var utcH=H-tz+Min/60;
+    var jd=367*Y-Math.floor(7*(Y+Math.floor((M+9)/12))/4)+Math.floor(275*M/9)+D+1721013.5+utcH/24;
+    houses=calcPlacidus(lat,lon,jd);
+  }
+
+  // Draw SVG
+  drawAstroChart(planets,houses);
+
+  // Planet list
+  var plHTML='';
+  P_ORDER.forEach(function(k,i){
+    var p=planets[k];if(!p)return;
+    var hNum=houses?planetHouse(p.lon,houses.cusps):'—';
+    plHTML+='<div class="p-row">'
+      +'<span class="p-sym" style="color:'+P_COLS[i]+'">'+P_SYMS[i]+'</span>'
+      +'<span class="p-name">'+P_NAMES[i]+'</span>'
+      +'<span class="p-pos">'+p.sign+' '+p.deg+'°'+String(p.min).padStart(2,'0')+"'"+(p.retro?' <span class=\"p-retro\">℞</span>':'')+'</span>'
+      +'<span class="p-house">'+(houses?hNum+'宮':'')+'</span>'
+      +'</div>';
+  });
+  if(houses){
+    plHTML+='<div class="p-row"><span class="p-sym" style="color:#FFD700">↑</span><span class="p-name">上升ASC</span><span class="p-pos">'+degToStr(houses.asc)+'</span><span class="p-house">1宮</span></div>';
+    plHTML+='<div class="p-row"><span class="p-sym" style="color:#FFD700">↑</span><span class="p-name">天頂MC</span><span class="p-pos">'+degToStr(houses.mc)+'</span><span class="p-house">10宮</span></div>';
+  }
+  document.getElementById('planetList').innerHTML=plHTML;
+
+  // Houses
+  if(houses){
+    document.getElementById('housesSection').style.display='block';
+    var pShort={};P_NAMES.forEach(function(n,i){var p=planets[P_ORDER[i]];if(p)pShort[n]={sign:p.sign,house:houses?planetHouse(p.lon,houses.cusps):0}});
+    var hHTML='';
+    for(var hi=0;hi<12;hi++){
+      var cS=SIGNS[Math.floor(((houses.cusps[hi]%360)+360)%360/30)];
+      var rul=SIGN_RULER[cS]||'';var rH=pShort[rul]?'→飛入'+pShort[rul].sign+' '+pShort[rul].house+'宮':'';
+      hHTML+='<div class="h-item"><strong>'+(hi+1)+'宮</strong>（'+HN[hi]+'）'+cS+' '+SIGN_SYM[SIGNS.indexOf(cS)]+' 守護'+rul+' '+rH+'</div>';
+    }
+    document.getElementById('houseGrid').innerHTML=hHTML;
+  }
+
+  // Aspects
+  var allP={};P_NAMES.forEach(function(n,i){if(planets[P_ORDER[i]])allP[n]={lon:planets[P_ORDER[i]].lon}});
+  if(houses){allP['上升']={lon:houses.asc};allP['天頂']={lon:houses.mc}}
+  var asps=calcAspects(allP);
+  var aspHTML=asps.slice(0,20).map(function(a){return'<div class="asp-item" style="color:'+a.col+'">'+a.sym+' '+a.p1+' '+a.type+' '+a.p2+' （±'+a.orb+'°）</div>'}).join('');
+  document.getElementById('aspectList').innerHTML=aspHTML||'<div style="color:var(--sub);font-size:.82rem">無明顯相位資料</div>';
+
+  // Stats
+  var elCnt={火:0,土:0,風:0,水:0},modeCnt={開創:0,固定:0,變動:0},polCnt={陽:0,陰:0};
+  var total=0;
+  var statNames=['太陽','月亮','水星','金星','火星','木星','土星','天王星','海王星','冥王星'];
+  if(houses)statNames.push('上升','天頂');
+  statNames.forEach(function(n){
+    var p=allP[n];if(!p)return;
+    var s=SIGNS[Math.floor(((p.lon%360)+360)%360/30)];total++;
+    if(SIGN_ELEMENT[s])elCnt[SIGN_ELEMENT[s]]++;
+    if(SIGN_MODE[s])modeCnt[SIGN_MODE[s]]++;
+    if(SIGN_POLAR[s])polCnt[SIGN_POLAR[s]]++;
+  });
+  function barHTML(label,cnt,tot,col){return'<div class="sg-item"><span class="sg-label" style="font-size:.72rem;color:var(--sub);width:28px">'+label+'</span><div class="sg-bar-wrap"><div class="sg-bar" style="width:'+(tot?cnt/tot*100:0)+'%;background:'+col+'"></div></div><span style="font-size:.72rem;color:var(--sub)">'+cnt+'</span></div>'}
+  document.getElementById('statBars').innerHTML=
+    '<div class="stat-group"><div class="sg-title">元素</div>'+barHTML('火',elCnt.火,total,'#FF8888')+barHTML('土',elCnt.土,total,'#CCAA88')+barHTML('風',elCnt.風,total,'#88CCDD')+barHTML('水',elCnt.水,total,'#88AACC')+'</div>'
+    +'<div class="stat-group"><div class="sg-title">模式</div>'+barHTML('開創',modeCnt.開創,total,'#FFAA44')+barHTML('固定',modeCnt.固定,total,'#AACC88')+barHTML('變動',modeCnt.變動,total,'#DDAACC')+'</div>'
+    +'<div class="stat-group"><div class="sg-title">陰陽</div>'+barHTML('陽',polCnt.陽,total,'#FFCC66')+barHTML('陰',polCnt.陰,total,'#88AACC')+'</div>';
+
+  // AI
+  var ai='【AI解讀指令】請依據托勒密《占星四書》、Liz Greene、Howard Sasportas做深度解讀：\n\n';
+  P_ORDER.forEach(function(k,i){var p=planets[k];if(!p)return;ai+=P_NAMES[i]+'：'+p.sign+' '+p.deg+'°'+(p.retro?' ℞':'')+(houses?' 第'+planetHouse(p.lon,houses.cusps)+'宮':'')+'\n'});
+  if(houses){ai+='上升：'+degToStr(houses.asc)+'\n天頂：'+degToStr(houses.mc)+'\n\n宮位守護：\n';for(var hi=0;hi<12;hi++){var cS=SIGNS[Math.floor(((houses.cusps[hi]%360)+360)%360/30)];ai+=(hi+1)+'宮 '+cS+' 守護'+SIGN_RULER[cS]+'\n'}}
+  ai+='\n主要相位：\n'+asps.slice(0,15).map(function(a){return a.p1+' '+a.type+' '+a.p2+'（±'+a.orb+'°）'}).join('\n');
+  ai+='\n\n請分析：\n1. 日月升三重奏（日月升能量整合）\n2. 上升星座（外在形象與第一印象）\n3. 金星火星（愛情語言與欲望模式）\n4. 土星（人生功課與成就結構）\n5. 元素模式分佈偏重\n6. 主要相位格局（T三角、大三角等）\n7. 2026年行運建議';
+  document.getElementById('aiPre').textContent=ai;
+  window._ai=ai;
+  document.getElementById('result').className='result show';
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function copyAI(){navigator.clipboard.writeText(window._ai||'').then(function(){var b=event.target;b.textContent='✅ 已複製！';setTimeout(function(){b.textContent='📋 複製 AI 指令';},2000)});}
+setTimeout(function(){loadEphemeris().catch(function(){})},1000);
+</script>
+<script src="assets/js/hl-tracker.js" data-tool="astro-calculator" data-tool-name="西洋星盤" data-tool-type="calculator"></script>
+<script src="assets/js/hourlight-global.js?v=20260309"></script>
+<script src="assets/js/hl-music.js?v=20260309"></script>
+<script src="assets/js/firebase-config.js"></script>
+<footer class="hl-footer"><div class="hl-footer-inner">
+  <div class="hl-footer-brand"><div class="hl-footer-logo"><img src="LOGO-1.png" alt="" class="hl-logo-icon" aria-hidden="true" loading="lazy">馥靈之鑰 Hour Light</div><div class="hl-footer-tagline">讀懂自己，活對人生｜創辦人 王逸君</div></div>
+  <div class="hl-footer-links"><a href="destiny-engine.html">✦ 十合一命盤引擎</a><a href="bazi-calculator.html">八字</a><a href="ziwei-calculator.html">紫微斗數</a><a href="qizheng-calculator.html">七政四餘</a><a href="hd-calculator.html">人類圖</a><a href="app.html">會員工作台</a></div>
+  <div class="hl-footer-copyright">© 2026 馥靈之鑰國際有限公司 Hour Light International Co., Ltd. All Rights Reserved.</div>
+</div></footer>
+<script src="assets/js/hl-bottomnav.js"></script>
+</body></html>
