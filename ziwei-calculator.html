@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-BXP7K53QG6');</script>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>紫微斗數完整命盤｜十二宮星耀｜馥靈之鑰</title>
+<meta name="description" content="輸入農曆或陽曆生日自動計算紫微斗數命盤，十二宮主星、輔星、煞星、四化、大限全展開。馥靈之鑰。">
+<link rel="icon" href="favicon.ico"/>
+<link rel="stylesheet" href="assets/css/hourlight-global.css">
+<link rel="stylesheet" href="assets/css/hl-music.css">
+<style>
+:root{--gold:#e9c27d;--gold2:#c9954a;--deep:#08050f;--panel:rgba(12,8,22,0.93);--text:#f0e8d8;--sub:#c4b7a6;--border:rgba(233,194,125,0.18);}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;font-family:'LXGW WenKai TC','Noto Serif TC',serif;color:var(--text);background:var(--deep);padding:20px 16px 120px;}
+.wrap{max-width:960px;margin:0 auto;}
+.hero{text-align:center;padding:36px 0 24px;}
+.hero h1{font-size:1.85rem;font-weight:300;color:var(--gold);letter-spacing:.1em;margin-bottom:8px;}
+.hero p{font-size:.88rem;color:var(--sub);line-height:1.7;}
+.hero-badge{display:inline-block;font-size:.72rem;color:var(--gold2);border:1px solid rgba(201,149,74,0.35);border-radius:20px;padding:3px 14px;margin-bottom:14px;letter-spacing:.1em;}
+.engine-link{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;color:var(--sub);border:1px solid var(--border);border-radius:20px;padding:5px 14px;text-decoration:none;margin-top:10px;transition:.2s;}
+.engine-link:hover{border-color:var(--gold);color:var(--gold);}
+.input-card{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:28px 24px;margin-bottom:24px;backdrop-filter:blur(12px);}
+.input-label{font-size:.82rem;color:var(--gold);letter-spacing:.06em;margin-bottom:10px;display:block;}
+.field-row{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.fi{flex:1;min-width:70px;background:rgba(233,194,125,0.06);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-family:inherit;font-size:.9rem;outline:none;transition:.2s;text-align:center;}
+.fi:focus{border-color:var(--gold);}
+.fi-gender{display:flex;gap:8px;}
+.fi-gender label{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(233,194,125,0.06);border:1px solid var(--border);border-radius:10px;padding:11px 12px;cursor:pointer;transition:.2s;font-size:.9rem;}
+.fi-gender input[type=radio]{display:none;}
+.fi-gender label:has(input:checked){border-color:var(--gold);background:rgba(233,194,125,0.1);}
+.calc-btn{width:100%;margin-top:10px;padding:14px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1a1208;font-family:inherit;font-size:1rem;font-weight:600;border:none;border-radius:12px;cursor:pointer;letter-spacing:.06em;transition:.2s;}
+.calc-btn:hover{opacity:.9;transform:translateY(-1px);}
+.result{display:none;}.result.show{display:block;}
+
+/* 命盤 SVG 宮格圖 */
+.chart-wrap{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:16px;margin-bottom:18px;backdrop-filter:blur(12px);}
+.chart-title{font-size:.88rem;color:var(--gold);letter-spacing:.08em;margin-bottom:12px;}
+#zwSvg{width:100%;max-width:600px;display:block;margin:0 auto;}
+
+/* 宮格詳情 */
+.palaces-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
+@media(max-width:640px){.palaces-grid{grid-template-columns:repeat(2,1fr);}}
+.palace-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px;backdrop-filter:blur(12px);}
+.palace-card.highlight{border-color:rgba(233,194,125,0.45);background:rgba(233,194,125,0.05);}
+.pc-head{font-size:.8rem;font-weight:600;color:var(--gold);margin-bottom:6px;display:flex;justify-content:space-between;}
+.pc-dx{font-size:.68rem;color:#5588e0;}
+.pc-stars{font-size:.82rem;color:var(--text);margin-bottom:4px;line-height:1.5;}
+.pc-stars em{color:var(--gold);font-style:normal;}
+.pc-stars .s-hua{color:#e05555;font-size:.72rem;}
+.pc-aux{font-size:.74rem;color:var(--sub);line-height:1.5;}
+.pc-tg{font-size:.7rem;color:#55b888;margin-top:4px;}
+
+/* 基本資料 */
+.summary-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;backdrop-filter:blur(12px);}
+.sum-row{font-size:.84rem;color:var(--sub);padding:5px 0;line-height:1.6;border-bottom:1px solid rgba(233,194,125,0.06);}
+.sum-row:last-child{border-bottom:none;}
+.sum-row strong{color:var(--text);}
+.sum-row em{color:var(--gold);font-style:normal;}
+
+/* AI */
+.ai-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px;backdrop-filter:blur(12px);}
+.ai-title{font-size:.85rem;color:var(--gold);margin-bottom:12px;}
+.ai-pre{white-space:pre-wrap;font-size:.74rem;color:var(--sub);line-height:1.6;font-family:inherit;max-height:280px;overflow-y:auto;}
+.cp-btn{margin-top:10px;padding:9px 20px;background:rgba(233,194,125,0.08);border:1px solid var(--border);border-radius:8px;color:var(--gold);font-family:inherit;font-size:.8rem;cursor:pointer;transition:.2s;}
+.cp-btn:hover{background:rgba(233,194,125,0.16);}
+.cta-block{background:linear-gradient(135deg,rgba(233,194,125,0.07),rgba(92,58,128,0.07));border:1px solid var(--border);border-radius:16px;padding:22px;text-align:center;margin-top:20px;}
+.cta-block h3{font-size:.95rem;color:var(--gold);margin-bottom:8px;}
+.cta-block p{font-size:.82rem;color:var(--sub);margin-bottom:14px;line-height:1.6;}
+.cta-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.cta-btn{padding:9px 20px;border-radius:24px;font-family:inherit;font-size:.83rem;cursor:pointer;text-decoration:none;border:none;}
+.cta-btn.p{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1a1208;font-weight:600;}
+.cta-btn.s{background:transparent;border:1px solid var(--gold);color:var(--gold);}
+</style>
+</head>
+<body>
+<div class="hl-cosmos">
+  <div class="hl-stars-layer hl-stars-1"></div><div class="hl-stars-layer hl-stars-2"></div><div class="hl-stars-layer hl-stars-3"></div>
+  <div class="hl-meteors"><div class="hl-meteor"></div><div class="hl-meteor"></div><div class="hl-meteor"></div><div class="hl-meteor"></div></div>
+  <div class="hl-aura hl-aura-1"></div><div class="hl-aura hl-aura-2"></div>
+</div>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-badge">ZIWEI DOUSHU</div>
+    <h1>⭐ 紫微斗數</h1>
+    <p>輸入農曆生日，完整呈現十二宮星耀、四化飛星、大限走勢<br>帶宮格圖形，一眼看懂你的命盤全貌</p>
+    <a href="destiny-engine.html" class="engine-link">✦ 前往十合一命盤引擎（含八字、星盤等十系統）</a>
+  </div>
+
+  <div class="input-card">
+    <span class="input-label">✦ 農曆生日（請用農曆月日）</span>
+    <div class="field-row">
+      <input class="fi fi-wide" type="number" id="by" placeholder="陽曆年 YYYY" min="1920" max="2099" style="flex:2;text-align:left;">
+      <input class="fi" type="number" id="lm" placeholder="農曆月" min="1" max="12">
+      <input class="fi" type="number" id="ld" placeholder="農曆日" min="1" max="30">
+    </div>
+    <div class="field-row">
+      <input class="fi" type="number" id="bh" placeholder="時辰（時 HH）" min="0" max="23" style="flex:2;">
+    </div>
+    <div class="input-label" style="margin-top:4px;">✦ 性別</div>
+    <div class="fi-gender">
+      <label><input type="radio" name="gen" value="M" checked><span>♂ 乾造（男）</span></label>
+      <label><input type="radio" name="gen" value="F"><span>♀ 坤造（女）</span></label>
+    </div>
+    <div style="font-size:.76rem;color:var(--sub);margin-top:8px;">※ 若不知農曆日期，可先用陽曆查農曆轉換後再輸入。時辰影響命宮位置，建議填寫。</div>
+    <button class="calc-btn" onclick="doCalc()">⭐ 排出紫微斗數命盤</button>
+  </div>
+
+  <div class="result" id="result">
+    <!-- SVG 宮格圖 -->
+    <div class="chart-wrap">
+      <div class="chart-title">✦ 十二宮圖</div>
+      <svg id="zwSvg" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+    <!-- 命盤摘要 -->
+    <div class="summary-card" id="summaryCard"></div>
+    <!-- 十二宮詳細 -->
+    <div class="chart-title" style="font-size:.88rem;color:var(--gold);margin-bottom:12px;">✦ 十二宮完整星耀</div>
+    <div class="palaces-grid" id="palacesGrid"></div>
+    <!-- AI -->
+    <div class="ai-card">
+      <div class="ai-title">📜 AI 深度解讀指令</div>
+      <pre class="ai-pre" id="aiPre"></pre>
+      <button class="cp-btn" onclick="copyAI()">📋 複製 AI 指令</button>
+    </div>
+    <div class="cta-block">
+      <h3>紫微看結構，馥靈幫你活出來</h3>
+      <p>命宮的星耀是天賦底牌，大限是此刻的能量場。知道自己在什麼能量裡，才能做最對的選擇。</p>
+      <div class="cta-btns">
+        <a href="draw-hl.html" class="cta-btn p">抽牌問當下</a>
+        <a href="destiny-engine.html" class="cta-btn s">十合一完整命盤</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/lunar.min.js"></script>
+<script>
+var TG='甲乙丙丁戊己庚辛壬癸',DZ='子丑寅卯辰巳午未申酉戌亥';
+var GN=['命宮','兄弟宮','夫妻宮','子女宮','財帛宮','疾厄宮','遷移宮','交友宮','事業宮','田宅宮','福德宮','父母宮'];
+var SIHUA={甲:{祿:'廉貞',權:'破軍',科:'武曲',忌:'太陽'},乙:{祿:'天機',權:'天梁',科:'紫微',忌:'太陰'},丙:{祿:'天同',權:'天機',科:'文昌',忌:'廉貞'},丁:{祿:'太陰',權:'天同',科:'天機',忌:'巨門'},戊:{祿:'貪狼',權:'太陰',科:'右弼',忌:'天機'},己:{祿:'武曲',權:'貪狼',科:'天梁',忌:'文曲'},庚:{祿:'太陽',權:'武曲',科:'太陰',忌:'天同'},辛:{祿:'巨門',權:'太陽',科:'文曲',忌:'文昌'},壬:{祿:'天梁',權:'紫微',科:'左輔',忌:'武曲'},癸:{祿:'破軍',權:'巨門',科:'太陰',忌:'貪狼'}};
+var BRT={紫微:['旺','廟','廟','旺','旺','得','廟','旺','廟','旺','得','旺'],天機:['廟','得','廟','旺','平','旺','廟','得','廟','旺','陷','旺'],太陽:['廟','旺','廟','旺','廟','旺','旺','得','得','陷','陷','陷'],武曲:['旺','廟','利','廟','旺','得','旺','廟','利','廟','旺','利'],天同:['平','陷','旺','陷','得','廟','陷','陷','旺','陷','得','廟'],廉貞:['平','廟','得','陷','旺','平','廟','得','廟','陷','旺','平'],天府:['廟','旺','廟','得','廟','旺','旺','得','旺','旺','廟','得'],太陰:['廟','廟','陷','陷','陷','陷','陷','旺','旺','廟','廟','廟'],貪狼:['旺','廟','平','廟','得','陷','旺','廟','平','廟','得','陷'],巨門:['旺','廟','廟','旺','得','陷','旺','廟','廟','旺','得','陷'],天相:['廟','廟','得','陷','廟','旺','廟','廟','得','陷','廟','旺'],天梁:['廟','旺','廟','陷','旺','廟','旺','廟','廟','陷','旺','廟'],七殺:['旺','廟','廟','旺','廟','得','旺','廟','廟','旺','廟','得'],破軍:['旺','廟','陷','陷','旺','陷','旺','廟','陷','陷','旺','陷']};
+var ZWT={2:{1:1,2:2,3:2,4:3,5:3,6:4,7:4,8:5,9:5,10:6,11:6,12:7,13:7,14:8,15:8,16:9,17:9,18:10,19:10,20:11,21:11,22:0,23:0,24:1,25:1,26:2,27:2,28:3,29:3,30:4},3:{1:2,2:2,3:3,4:2,5:3,6:4,7:3,8:4,9:5,10:4,11:5,12:6,13:5,14:6,15:7,16:6,17:7,18:8,19:7,20:8,21:9,22:8,23:9,24:10,25:9,26:10,27:11,28:10,29:11,30:0},4:{1:3,2:2,3:3,4:2,5:4,6:3,7:3,8:4,9:3,10:5,11:4,12:4,13:5,14:4,15:6,16:5,17:5,18:6,19:5,20:7,21:6,22:6,23:7,24:6,25:8,26:7,27:7,28:8,29:7,30:9},5:{1:4,2:2,3:3,4:3,5:4,6:2,7:3,8:4,9:4,10:5,11:3,12:4,13:5,14:5,15:6,16:4,17:5,18:6,19:6,20:7,21:5,22:6,23:7,24:7,25:8,26:6,27:7,28:8,29:8,30:9},6:{1:5,2:2,3:3,4:3,5:4,6:4,7:5,8:2,9:3,10:3,11:4,12:4,13:5,14:5,15:6,16:3,17:4,18:4,19:5,20:5,21:6,22:6,23:7,24:4,25:5,26:5,27:6,28:6,29:7,30:7}};
+var NY60=['海中金','海中金','爐中火','爐中火','大林木','大林木','路旁土','路旁土','劍鋒金','劍鋒金','山頭火','山頭火','澗下水','澗下水','城頭土','城頭土','白蠟金','白蠟金','楊柳木','楊柳木','泉中水','泉中水','屋上土','屋上土','霹靂火','霹靂火','松柏木','松柏木','長流水','長流水','沙中金','沙中金','山下火','山下火','平地木','平地木','壁上土','壁上土','金箔金','金箔金','覆燈火','覆燈火','天河水','天河水','大驛土','大驛土','釵環金','釵環金','桑柘木','桑柘木','大溪水','大溪水','沙中土','沙中土','天上火','天上火','石榴木','石榴木','大海水','大海水'];
+var LUCUN={0:2,1:3,2:5,3:6,4:5,5:6,6:8,7:9,8:11,9:0};
+var WENCHANG={0:5,1:6,2:8,3:9,4:8,5:9,6:10,7:11,8:11,9:0};
+var WENQU={0:9,1:8,2:6,3:5,4:6,5:5,6:4,7:3,8:3,9:2};
+var TIANKUI={0:1,1:0,2:11,3:11,4:1,5:0,6:1,7:6,8:3,9:3};
+var TIANYUE={0:7,1:8,2:9,3:9,4:7,5:8,6:7,7:2,8:5,9:5};
+var TIANMA_T={0:8,4:8,8:8,2:2,6:2,10:2,5:11,9:11,1:11,11:5,3:5,7:5};
+var HX_B={2:1,6:1,10:1,8:2,0:2,4:2,5:3,9:3,1:3,11:9,3:9,7:9};
+var LX_B={2:3,6:3,10:3,8:10,0:10,4:10,5:10,9:10,1:10,11:10,3:10,7:10};
+var MINGZHU=['貪狼','巨門','祿存','文曲','廉貞','武曲','破軍','武曲','廉貞','文曲','祿存','巨門'];
+var SHENZHU=['火星','天相','天梁','天同','文昌','天機','火星','天相','天梁','天同','文昌','天機'];
+var CS12=['長生','沐浴','冠帶','臨官','帝旺','衰','病','死','墓','絕','胎','養'];
+var CS_START={2:8,3:11,4:5,5:8,6:2};
+var BS12=['博士','力士','青龍','小耗','將軍','奏書','飛廉','喜神','病符','大耗','伏兵','官府'];
+
+function calcZiwei(lm,ld,ytI,yzI,hzI,gen){
+  var ming=((lm+1-hzI)%12+24)%12;
+  var shen=(lm+1+hzI)%12;
+  function gTG(zi){var bm=[2,4,6,8,0,2,4,6,8,0];return(bm[ytI]+((zi-2)%12+12)%12)%10}
+  var mTG=gTG(ming);
+  var juN=0,juS='';
+  for(var i=0;i<60;i++){if(i%10==mTG&&i%12==ming){var ny=NY60[i],wx=ny[ny.length-1];juN={金:4,木:3,水:2,火:6,土:5}[wx];juS=wx+['','','二','三','四','五','六'][juN]+'局';break;}}
+  var zwP=ZWT[juN]?ZWT[juN][ld]:4;
+  var tfP=((4-zwP)%12+12)%12;
+  var pal={};for(var i=0;i<12;i++)pal[i]={ms:[],sh:[],lj:[],ls:[],lm:[],za:[],cs:'',bs:'',jl:false};
+  var ZWG={紫微:0,天機:-1,太陽:-3,武曲:-4,天同:-5,廉貞:4};
+  for(var s in ZWG){var p=((zwP+ZWG[s])%12+12)%12;pal[p].ms.push({n:s,b:BRT[s]?BRT[s][p]:''})}
+  var TFG={天府:0,太陰:1,貪狼:2,巨門:3,天相:4,天梁:5,七殺:6,破軍:10};
+  for(var s in TFG){var p=(tfP+TFG[s])%12;pal[p].ms.push({n:s,b:BRT[s]?BRT[s][p]:''})}
+  var ytg=TG[ytI],sh4=SIHUA[ytg];
+  for(var ht in sh4){var sn=sh4[ht];for(var i=0;i<12;i++){pal[i].ms.forEach(function(s){if(s.n==sn){s.h=ht;pal[i].sh.push('化'+ht)}})}}
+  var ljP={文昌:WENCHANG[ytI],文曲:WENQU[ytI],左輔:(lm+3)%12,右弼:((11-lm)%12+12)%12,天魁:TIANKUI[ytI],天鉞:TIANYUE[ytI]};
+  for(var n in ljP){pal[ljP[n]].lj.push(n);for(var ht in sh4)if(sh4[ht]==n)pal[ljP[n]].sh.push('化'+ht+'('+n+')')}
+  var lcP=LUCUN[ytI];pal[lcP].lm.push('祿存');
+  var tmP=TIANMA_T[yzI];if(tmP!=null)pal[tmP].lm.push('天馬');
+  var lsP={擎羊:(lcP+1)%12,陀羅:((lcP-1)%12+12)%12,火星:(HX_B[yzI]+hzI)%12,鈴星:(LX_B[yzI]+hzI)%12,地空:((11-hzI)%12+12)%12,地劫:(11+hzI)%12};
+  for(var n in lsP)pal[lsP[n]].ls.push(n);
+  var zaL=[['紅鸞',((3-yzI)%12+12)%12],['天喜',((9-yzI)%12+12)%12],['天刑',(9+yzI)%12],['天姚',(1+yzI)%12],['天哭',(6+yzI)%12],['天虛',((6-yzI)%12+12)%12],['咸池',[9,9,3,3,9,6,3,0,9,6,3,0][yzI]]];
+  zaL.forEach(function(z){pal[z[1]].za.push(z[0])});
+  var yY=ytI%2==0,gY=(yY&&gen=='F')||(!yY&&gen=='M');
+  var csS=CS_START[juN]||8;
+  for(var i=0;i<12;i++){
+    pal[i].cs=CS12[gY?((i-csS)%12+12)%12:((csS-i)%12+12)%12];
+    var bsY=(yY&&gen=='M')||(!yY&&gen=='F');
+    pal[i].bs=BS12[bsY?((i-lcP)%12+12)%12:((lcP-i)%12+12)%12];
+  }
+  var dxFwd=(yY&&gen=='M')||(!yY&&gen=='F');
+  var dx=[];
+  for(var i=0;i<12;i++){var sa=juN+i*10,gI=dxFwd?(ming+i)%12:((ming-i)%12+12)%12;dx.push({a:sa+'-'+(sa+9),g:gI})}
+  function gName(tI){return GN[((ming-tI)%12+12)%12]}
+  var palaces=[];
+  for(var i=0;i<12;i++){var gn=gName(i),gtI=gTG(i),gtN=TG[gtI],dxA='';dx.forEach(function(d){if(d.g==i)dxA=d.a});var gsh=SIHUA[gtN];palaces.push({idx:i,name:gn,tg:gtN,dz:DZ[i],dx:dxA,ms:pal[i].ms,sh:pal[i].sh,lj:pal[i].lj,ls:pal[i].ls,lm:pal[i].lm,za:pal[i].za,cs:pal[i].cs,bs:pal[i].bs,jl:pal[i].jl,gsh:gsh})}
+  return{ming:ming,shen:shen,shGN:gName(shen),juS:juS,juN:juN,mzhu:MINGZHU[ming],szhu:SHENZHU[yzI],sh4:sh4,palaces:palaces,dx:dx}
+}
+
+// ═══ SVG 宮格圖 ═══
+function drawZiweiChart(zw){
+  var svg=document.getElementById('zwSvg');
+  svg.innerHTML='';
+  var W=600,H=600,gW=W/4,gH=H/4;
+  function add(tag,attrs,parent){var el=document.createElementNS('http://www.w3.org/2000/svg',tag);for(var k in attrs)el.setAttribute(k,attrs[k]);(parent||svg).appendChild(el);return el;}
+  function txt(t,x,y,attrs,parent){var el=add('text',Object.assign({x:x,y:y,'text-anchor':'middle','dominant-baseline':'middle','font-family':'Noto Serif TC,serif','fill':'rgba(240,232,216,0.85)'},attrs),parent);el.textContent=t;return el;}
+
+  // 十二宮在圖中的位置（順時針，從寅宮左下開始）
+  // 傳統布局：子=下排中左，丑=下排左，寅=左排下...
+  // SVG 4x4 grid, center is empty (2x2)
+  // 宮位順序（地支）：亥子丑寅卯辰巳午未申酉戌（0-11 = 子丑寅...）
+  // 傳統宮格排列：
+  // 巳  午  未  申
+  // 辰 [    ] 酉
+  // 卯 [    ] 戌
+  // 寅  丑  子  亥
+  var GRID_POS={
+    4:[0,0],5:[1,0],6:[2,0],7:[3,0],// 巳午未申 (row 0)
+    3:[0,1],8:[3,1],                  // 辰 酉 (row 1)
+    2:[0,2],9:[3,2],                  // 卯 戌 (row 2)
+    1:[0,3],0:[1,3],11:[2,3],10:[3,3] // 寅丑子亥 (row 3)
+  };
+
+  // Background
+  add('rect',{x:0,y:0,width:W,height:H,fill:'rgba(8,5,15,0)',rx:12});
+  // Outer border
+  add('rect',{x:1,y:1,width:W-2,height:H-2,fill:'none',stroke:'rgba(233,194,125,0.22)','stroke-width':'1.5',rx:12});
+  // Center void
+  add('rect',{x:gW,y:gH,width:gW*2,height:gH*2,fill:'rgba(233,194,125,0.03)',stroke:'rgba(233,194,125,0.1)','stroke-width':'1'});
+  // Center text
+  txt('馥靈之鑰',W/2,H/2-14,{'font-size':'14','fill':'rgba(233,194,125,0.35)','font-weight':'300'});
+  txt('紫微斗數',W/2,H/2+6,{'font-size':'12','fill':'rgba(233,194,125,0.25)'});
+  txt('命盤',W/2,H/2+22,{'font-size':'11','fill':'rgba(233,194,125,0.2)'});
+
+  var currentDxPalace=-1;
+  var currentYear=new Date().getFullYear();
+  zw.dx.forEach(function(d){
+    var ages=d.a.split('-').map(Number);
+    // Rough check: base year of this chart unknown, just highlight ming palace
+  });
+
+  // Grid lines
+  for(var r=1;r<4;r++){add('line',{x1:0,y1:r*gH,x2:W,y2:r*gH,stroke:'rgba(233,194,125,0.12)','stroke-width':'1'})}
+  for(var c=1;c<4;c++){add('line',{x1:c*gW,y1:0,x2:c*gW,y2:H,stroke:'rgba(233,194,125,0.12)','stroke-width':'1'})}
+
+  // Draw each palace
+  for(var dz=0;dz<12;dz++){
+    var pos=GRID_POS[dz];if(!pos)continue;
+    var cx=pos[0]*gW,cy=pos[1]*gH;
+    var pal=null;zw.palaces.forEach(function(p){if(p.idx==dz)pal=p});
+    if(!pal)continue;
+    var isMing=pal.name=='命宮',isShen=pal.name==zw.shGN;
+    // Highlight bg
+    if(isMing)add('rect',{x:cx+1,y:cy+1,width:gW-2,height:gH-2,fill:'rgba(233,194,125,0.07)',rx:4});
+    if(isShen)add('rect',{x:cx+2,y:cy+2,width:gW-4,height:gH-4,fill:'rgba(85,136,224,0.04)',rx:4});
+    // Palace name
+    txt(pal.name,cx+gW/2,cy+14,{'font-size':'11','fill':isMing?'rgba(233,194,125,0.95)':'rgba(240,232,216,0.7)','font-weight':isMing?'600':'400'});
+    // DZ TG
+    txt(pal.tg+DZ[dz],cx+gW/2,cy+28,{'font-size':'10','fill':'rgba(196,183,166,0.6)'});
+    // Dx
+    if(pal.dx)txt('大限'+pal.dx,cx+gW/2,cy+42,{'font-size':'9','fill':'rgba(85,136,224,0.8)'});
+    // Main stars
+    var starY=cy+58;
+    pal.ms.forEach(function(s){
+      var sc=s.h?'rgba(224,85,85,0.9)':'rgba(233,194,125,0.85)';
+      txt(s.n+(s.h?'化'+s.h:''),cx+gW/2,starY,{'font-size':'11','fill':sc,'font-weight':'500'});
+      starY+=16;
+    });
+    // Aux stars
+    var allAux=[].concat(pal.lj,pal.ls,pal.lm).slice(0,4);
+    if(allAux.length){txt(allAux.join(' '),cx+gW/2,gH-14+cy,{'font-size':'9','fill':'rgba(85,184,136,0.75)'});}
+    // CS
+    txt(pal.cs,cx+gW-16,cy+gH-8,{'font-size':'8','fill':'rgba(196,183,166,0.4)','text-anchor':'end'});
+  }
+}
+
+function doCalc(){
+  var Y=parseInt(document.getElementById('by').value);
+  var lm=parseInt(document.getElementById('lm').value);
+  var ld=parseInt(document.getElementById('ld').value);
+  var H=parseInt(document.getElementById('bh').value)||12;
+  var gen=document.querySelector('input[name=gen]:checked').value;
+  if(!Y||!lm||!ld){alert('請輸入陽曆年份＋農曆月日');return;}
+
+  // 從陽曆年份推算天干地支年 (需要一個農曆年份)
+  // 用 lunar-javascript 從陽曆1月1日取農曆年
+  var solar=Solar.fromYmd(Y,1,1);
+  var lunarY=solar.getLunar();
+  var ytI=TG.indexOf(lunarY.getYearGan()),yzI=DZ.indexOf(lunarY.getYearZhi());
+  // 若月份>2，同年；若月份<=2，可能上一農曆年 - 用農曆月修正
+  // 直接用 lunar.getYearGan 從農曆月份對應陽曆日期
+  // 簡化：用陽曆年中（6月）的農曆年干支
+  var solar2=Solar.fromYmd(Y,6,1);
+  var lunar2=solar2.getLunar();
+  ytI=TG.indexOf(lunar2.getYearGan());yzI=DZ.indexOf(lunar2.getYearZhi());
+
+  var hzI=H===23?0:Math.floor((H+1)/2)%12;
+  var zw=calcZiwei(lm,ld,ytI,yzI,hzI,gen);
+
+  // SVG
+  drawZiweiChart(zw);
+
+  // Summary
+  var mingPal=null;zw.palaces.forEach(function(p){if(p.name=='命宮')mingPal=p});
+  var sHTML='';
+  sHTML+='<div class="sum-row"><strong>命宮：</strong><em>'+(mingPal?mingPal.tg+DZ[zw.ming]:'—')+'宮</em>　<strong>身宮：</strong><em>'+DZ[zw.shen]+'宮（'+zw.shGN+'）</em></div>';
+  sHTML+='<div class="sum-row"><strong>五行局：</strong><em>'+zw.juS+'</em>　<strong>命主：</strong>'+zw.mzhu+'　<strong>身主：</strong>'+zw.szhu+'</div>';
+  sHTML+='<div class="sum-row"><strong>生年四化：</strong>祿～<em>'+zw.sh4.祿+'</em>　權～<em>'+zw.sh4.權+'</em>　科～<em>'+zw.sh4.科+'</em>　忌～<em>'+zw.sh4.忌+'</em></div>';
+  // 命宮主星
+  if(mingPal&&mingPal.ms.length){
+    sHTML+='<div class="sum-row"><strong>命宮主星：</strong>'
+      +mingPal.ms.map(function(s){return '<em>'+s.n+'</em>（'+s.b+'）'+(s.h?'〔化'+s.h+'〕':'')}).join('　')+'</div>';
+  }
+  document.getElementById('summaryCard').innerHTML=sHTML;
+
+  // Palaces detail
+  var pgHTML='';
+  GN.forEach(function(gn){
+    var p=null;zw.palaces.forEach(function(x){if(x.name==gn)p=x});if(!p)return;
+    var isMing=(gn=='命宮');
+    var msStr=p.ms.length?p.ms.map(function(s){return'<em>'+s.n+'</em>（'+s.b+'）'+(s.h?'<span class="s-hua">化'+s.h+'</span>':'')}).join('、'):'空宮';
+    pgHTML+='<div class="palace-card'+(isMing?' highlight':'')+'">'
+      +'<div class="pc-head">'+p.name+' <span style="color:var(--sub);font-weight:400;font-size:.72rem">'+p.tg+p.dz+'</span>'+(p.dx?'<span class="pc-dx">大限'+p.dx+'</span>':'')+'</div>'
+      +'<div class="pc-stars">'+msStr+'</div>'
+      +(p.lj.length?'<div class="pc-aux">六吉：'+p.lj.join('、')+'</div>':'')
+      +(p.ls.length?'<div class="pc-aux" style="color:#e05555;">六煞：'+p.ls.join('、')+'</div>':'')
+      +(p.lm.length?'<div class="pc-aux">祿馬：'+p.lm.join('、')+'</div>':'')
+      +(p.za.length?'<div class="pc-aux">雜曜：'+p.za.join('、')+'</div>':'')
+      +'<div class="pc-tg">宮干'+p.tg+'四化：祿'+p.gsh.祿+' 權'+p.gsh.權+' 科'+p.gsh.科+' 忌'+p.gsh.忌+'</div>'
+      +'<div class="pc-aux">'+p.cs+' ｜ '+p.bs+'</div>'
+      +'</div>';
+  });
+  document.getElementById('palacesGrid').innerHTML=pgHTML;
+
+  // AI
+  var zwData='';
+  GN.forEach(function(gn){var p=null;zw.palaces.forEach(function(x){if(x.name==gn)p=x});if(!p)return;zwData+=p.name+'('+p.tg+p.dz+')大限'+p.dx+': '+(p.ms.length?p.ms.map(function(s){return s.n+'('+s.b+')'+(s.h?'化'+s.h:'')}).join(','):'空宮')+' | 吉:'+p.lj.join(',')+'|煞:'+p.ls.join(',')+' | '+p.cs+' '+p.bs+'\n'});
+  var ai='【AI解讀指令】請依據《紫微斗數全書》《斗數宣微》《飛星紫微》做深度解讀：\n\n';
+  ai+='命宮：'+DZ[zw.ming]+'宮 ｜ 身宮：'+DZ[zw.shen]+'宮（'+zw.shGN+'）\n';
+  ai+='五行局：'+zw.juS+' ｜ 命主：'+zw.mzhu+' 身主：'+zw.szhu+'\n';
+  ai+='生年四化：祿'+zw.sh4.祿+' 權'+zw.sh4.權+' 科'+zw.sh4.科+' 忌'+zw.sh4.忌+'\n\n十二宮完整資料：\n'+zwData;
+  ai+='\n請深度分析：\n1. 命宮主星特質與個性傾向\n2. 三方四正的格局判定（廟旺/煞忌）\n3. 財官線的事業財富潛力\n4. 夫妻宮感情特質與婚姻走向\n5. 當前大限吉凶與流年建議\n6. 福德宮精神特質與人生追求\n7. 2026年（丙午年）流年四化飛星論斷';
+  document.getElementById('aiPre').textContent=ai;
+  window._ai=ai;
+
+  document.getElementById('result').className='result show';
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function copyAI(){navigator.clipboard.writeText(window._ai||'').then(function(){var b=event.target;b.textContent='✅ 已複製！';setTimeout(function(){b.textContent='📋 複製 AI 指令';},2000);});}
+</script>
+<script src="assets/js/hl-tracker.js" data-tool="ziwei-calculator" data-tool-name="紫微斗數" data-tool-type="calculator"></script>
+<script src="assets/js/hourlight-global.js?v=20260309"></script>
+<script src="assets/js/hl-music.js?v=20260309"></script>
+<script src="assets/js/firebase-config.js"></script>
+<footer class="hl-footer"><div class="hl-footer-inner">
+  <div class="hl-footer-brand"><div class="hl-footer-logo"><img src="LOGO-1.png" alt="" class="hl-logo-icon" aria-hidden="true" loading="lazy">馥靈之鑰 Hour Light</div><div class="hl-footer-tagline">讀懂自己，活對人生｜創辦人 王逸君</div></div>
+  <div class="hl-footer-links"><a href="destiny-engine.html">✦ 十合一命盤引擎</a><a href="bazi-calculator.html">八字</a><a href="astro-calculator.html">西洋星盤</a><a href="qizheng-calculator.html">七政四餘</a><a href="hd-calculator.html">人類圖</a><a href="app.html">會員工作台</a></div>
+  <div class="hl-footer-copyright">© 2026 馥靈之鑰國際有限公司 Hour Light International Co., Ltd. All Rights Reserved.</div>
+</div></footer>
+<script src="assets/js/hl-bottomnav.js"></script>
+</body></html>

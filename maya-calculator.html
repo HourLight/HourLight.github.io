@@ -409,6 +409,18 @@
   filter: saturate(1.1) brightness(.72);
   pointer-events: none;
 }
+/* ── 新版結果區塊樣式 ── */
+.palace-wrap{background:rgba(12,8,24,0.88);border:1px solid rgba(233,194,125,0.2);border-radius:16px;padding:22px 22px 18px;margin-bottom:18px;backdrop-filter:blur(10px)}
+.palace-title{font-family:'LXGW WenKai TC',serif;font-size:1rem;color:#e9c27d;letter-spacing:.08em;margin-bottom:14px;font-weight:400}
+.palace-row{font-size:.88rem;color:#c4b7a6;line-height:1.9;padding:2px 0;border-bottom:1px solid rgba(233,194,125,0.06)}
+.palace-row:last-child{border-bottom:none}
+.palace-row strong{color:#e9c27d}
+.palace-row em{color:rgba(200,180,150,0.75);font-style:normal}
+.kin-number{font-family:'Cormorant Garamond',serif;font-size:2.2rem;color:#e9c27d;letter-spacing:.12em;margin-bottom:8px;font-weight:300}
+.totem-name{font-family:'LXGW WenKai TC',serif;font-size:1.5rem;color:#fbe6c2;margin-bottom:6px;font-weight:300}
+.totem-sub{font-size:.8rem;color:rgba(200,185,165,.6);letter-spacing:.06em;margin-bottom:12px}
+.totem-tags{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.tag{font-size:.75rem;padding:3px 12px;border-radius:20px;background:rgba(233,194,125,0.1);border:1px solid rgba(233,194,125,0.25);color:#e9c27d}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -602,40 +614,25 @@
     </div>
 
     <div class="result-section" id="resultSection">
-      <div class="maya-card">
-        <div class="kin-number" id="kinNumber">KIN -</div>
-        <div class="totem-icon" id="totemIcon">-</div>
-        <div class="totem-name" id="totemName">-</div>
-        <div class="tone-name" id="toneName">-</div>
-        <div class="totem-desc" id="totemDesc">-</div>
-      </div>
+      <!-- 主印記卡 -->
+      <div class="maya-card" id="mainCard"></div>
 
-      <div class="info-grid">
-        <div class="info-card">
-          <div class="info-card-title">波符</div>
-          <div class="info-card-value" id="waveSpell">-</div>
-        </div>
-        <div class="info-card">
-          <div class="info-card-title">調性</div>
-          <div class="info-card-value" id="toneValue">-</div>
-        </div>
-        <div class="info-card">
-          <div class="info-card-title">顏色</div>
-          <div class="info-card-value" id="colorValue">-</div>
-        </div>
-      </div>
+      <!-- 五大神諭 -->
+      <div class="palace-block" id="oracleBlock"></div>
 
-      <div class="detail-section">
-        <div class="detail-title">你的能量特質</div>
-        <div class="detail-text" id="energyText">-</div>
-      </div>
+      <!-- 13月亮曆 -->
+      <div class="palace-block" id="moonBlock"></div>
 
-      <div class="detail-section">
-        <div class="detail-title">給你的小提醒</div>
-        <div class="detail-text" id="messageText">-</div>
-      </div>
+      <!-- 波符 + 深層連結 -->
+      <div class="palace-block" id="waveBlock"></div>
 
-      <button class="copy-btn" onclick="copyResult()" id="copyBtn">一鍵複製結果</button>
+      <!-- 能量特質（原有描述保留） -->
+      <div class="palace-block" id="energyBlock"></div>
+
+      <!-- AI指令 -->
+      <div class="palace-block" id="aiBlock"></div>
+
+      <button class="copy-btn" onclick="copyResult()" id="copyBtn">📋 複製 AI 解讀指令</button>
 
       <!-- CTA區塊 -->
       <div class="cta-section">
@@ -652,184 +649,114 @@
   </div>
 
 <script>
-const totems = [
-  {name:'紅龍',icon:'🐉',desc:'生命的源頭，滋養與誕生的能量。',energy:'你擁有強大的滋養能量，天生是照顧者和創造者。你的存在本身就是一種祝福，能孕育新的可能性。',message:'相信你內在的創造力，你有能力誕生全新的自己。'},
-  {name:'白風',icon:'🌬️',desc:'內在呼吸，溝通與傳遞的能量。',energy:'你是訊息的橋樑，天生善於溝通與表達。你的話語能帶來安定與清明。',message:'說出你的真實，讓你的聲音成為讓人安心的風。'},
-  {name:'藍夜',icon:'🌙',desc:'夢想的守護者，豐盛與直覺的能量。',energy:'你擁有豐富的內在世界與敏銳直覺，天生是夢想家。你的想像力能創造出意想不到的可能。',message:'相信你的夢與靈感，它們是宇宙給你的藍圖。'},
-  {name:'黃種子',icon:'🌱',desc:'潛能覺醒，成長與開花的能量。',energy:'你是潛能的種子，天生帶著成長的動力。你的每一步都在為未來的綻放鋪路。',message:'耐心照顧自己，你正在往更完整的自己靠近。'},
-  {name:'紅蛇',icon:'🐍',desc:'生命力流動，蛻變與重生的能量。',energy:'你擁有強勁的生命力與重生能力，天生懂得在低潮中轉身。你的每一次蛻皮，都是一次升級。',message:'擁抱改變，每一次蛻變都讓你更接近真實的自己。'},
-  {name:'白世界橋',icon:'🌉',desc:'連結橋樑，放下與更新的能量。',energy:'你是連結不同世界的橋樑，天生能在差異之間找到共通點。你的存在幫助他人跨越。',message:'練習放下，空出來的位置自然會迎來新的開始。'},
-  {name:'藍手',icon:'✋',desc:'實作的雙手，完成與實現的能量。',energy:'你擁有安撫人心的雙手與實現事物的能力，天生是實踐家與照顧者。你的行動充滿穩定的力量。',message:'相信你的雙手，它們能把想像變成具體，也能讓人心安。'},
-  {name:'黃星星',icon:'⭐',desc:'藝術美感，和諧與優雅的能量。',energy:'你擁有藝術家的天賦與敏銳的美感，天生追求和諧與精緻。你的存在本身就是一種風景。',message:'活出你的美感標準，讓生活成為一件作品。'},
-  {name:'紅月',icon:'🌕',desc:'情感流動，淨化與釋放的能量。',energy:'你擁有深刻情感與整理能量的能力，天生適合陪伴釋放。你的敏感是一種天賦。',message:'允許情緒流動，每一次釋放都是一次覺察。'},
-  {name:'白狗',icon:'🐕',desc:'真心的愛，穩定與陪伴的能量。',energy:'你擁有純粹的真心與穩定的陪伴力，天生適合成為他人的支柱。你的溫度能軟化很多堅硬。',message:'記得把那份真心也留給自己，你值得同樣的在乎與溫柔。'},
-  {name:'藍猴',icon:'🐵',desc:'遊戲的魔法，喜悅與創造的能量。',energy:'你擁有玩心與創意，天生帶著調節氣氛的能力。你的幽默與靈感能讓空氣變輕。',message:'不要把人生過得太像考試，允許自己偶爾「玩一下」才有空間長出新點子。'},
-  {name:'黃人',icon:'🧑',desc:'自由意志，智慧與選擇的能量。',energy:'你擁有清晰的思考力與選擇力，天生是決策者與協調者。你的選擇會慢慢長成你的人生樣子。',message:'記得，你永遠有選擇權。不要把自己關在「只能這樣」裡。'},
-  {name:'紅天行者',icon:'🚶',desc:'探索勇氣，空間與移動的能量。',energy:'你是天生的探索者，對世界與內在都充滿好奇。你的路，不會只停在一個地方。',message:'敢走出去，答案多半不在原地，而在你願意踏出的那一步之後。'},
-  {name:'白巫師',icon:'🧙',desc:'專注的魔法，臨在與接收的能量。',energy:'你擁有專注與感應的能力，天生適合安靜地「聽見沒說出口的東西」。你的存在，讓空間變得比較有意識。',message:'當你把心收回來，很多答案會自己浮上來。安靜是一種力量。'},
-  {name:'藍鷹',icon:'🦅',desc:'遠見視野，心靈與願景的能量。',energy:'你擁有像鷹一樣的高度視角，天生能看見事情的全貌。你的洞察力對很多人來說都是關鍵提醒。',message:'不要只盯著眼前的一點，你看得見的，其實比你以為的更遠更廣。'},
-  {name:'黃戰士',icon:'⚔️',desc:'勇氣力量，質問與無懼的能量。',energy:'你是天生的提問者，敢於直視不舒服的地方。你的勇氣可以開啟很多被卡住的局。',message:'繼續問對的問題，不是為了挑戰，而是為了更靠近真相。'},
-  {name:'紅地球',icon:'🌍',desc:'導航智慧，共時與進化的能量。',energy:'你擁有很強的方向感，對「時機」特別敏銳。很多事情在你身上會剛好對點。',message:'相信那些看似巧合的安排，那是宇宙在對你眨眼。'},
-  {name:'白鏡',icon:'🪞',desc:'映照真實，清晰與秩序的能量。',energy:'你像一面鏡子，天生會讓人看見自己真正的樣子。你的清晰，對很多人來說既誠實又重要。',message:'先允許自己誠實，世界才有機會對你誠實。'},
-  {name:'藍風暴',icon:'⛈️',desc:'轉化力量，催化與更新的能量。',energy:'你帶著強烈的變動能量，常常是改變的引爆點。雖然常被捲進風暴，但你其實也在重組格局。',message:'不是每一場風暴都要抵抗，有些是來幫你把舊的東西搬走。'},
-  {name:'黃太陽',icon:'☀️',desc:'啟蒙光芒，普照與生命的能量。',energy:'你天生帶光，走到哪裡都會被看見。你的溫度和存在感，對世界來說是一份禮物。',message:'不要刻意把自己調暗，世界需要你這樣的亮度。'}
-];
-
-const tones = [
-  {name:'磁性',desc:'吸引'},
-  {name:'月亮',desc:'挑戰'},
-  {name:'電力',desc:'服務'},
-  {name:'自我存在',desc:'形式'},
-  {name:'超頻',desc:'賦權'},
-  {name:'韻律',desc:'平衡'},
-  {name:'共鳴',desc:'覺察'},
-  {name:'銀河',desc:'整合'},
-  {name:'太陽',desc:'意圖'},
-  {name:'行星',desc:'顯化'},
-  {name:'光譜',desc:'釋放'},
-  {name:'水晶',desc:'合作'},
-  {name:'宇宙',desc:'臨在'}
-];
-
-// Dreamspell 13月亮曆計算 (不計閏日)
-function isLeapYear(year) {
-  return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+var M_SEAL=['紅龍','白風','藍夜','黃種子','紅蛇','白世界橋','藍手','黃星星','紅月','白狗','藍猴','黃人','紅天行者','白巫師','藍鷹','黃戰士','紅地球','白鏡','藍風暴','黃太陽'];
+var M_TONE=['磁性的','月亮的','電力的','自我存在的','超頻的','韻律的','共鳴的','銀河的','太陽的','行星的','光譜的','水晶的','宇宙的'];
+var M_TONE_EN=['Magnetic','Lunar','Electric','Self-Existing','Overtone','Rhythmic','Resonant','Galactic','Solar','Planetary','Spectral','Crystal','Cosmic'];
+var M_SEAL_EN=['Red Dragon','White Wind','Blue Night','Yellow Seed','Red Serpent','White Worldbridger','Blue Hand','Yellow Star','Red Moon','White Dog','Blue Monkey','Yellow Human','Red Skywalker','White Wizard','Blue Eagle','Yellow Warrior','Red Earth','White Mirror','Blue Storm','Yellow Sun'];
+var M_PLN=['海王星','天王星','地球','冥王星','火星','冥王星','地球','金星','水星','水星','金星','地球','火星','木星','木星','土星','天王星','海王星','冥王星','太陽'];
+var M_FAM={0:'極性',1:'極性',4:'極性',7:'極性',8:'信號',9:'信號',12:'極性',13:'極性',14:'信號',17:'極性',18:'信號',19:'極性',2:'通道',3:'通道',5:'通道',6:'通道',10:'通道',11:'通道',15:'通道',16:'通道'};
+var MOON13=['磁性蝙蝠月','月亮蠍月','電力鹿月','自我存在貓頭鷹月','超頻孔雀月','韻律蜥蜴月','共鳴猴月','銀河鷹月','太陽美洲豹月','行星狗月','光譜蛇月','水晶兔月','宇宙海龜月'];
+var TOTEM_DESC={'紅龍':{e:'你擁有強大的滋養能量，天生是照顧者和創造者。你的存在本身就是一種祝福，能孕育新的可能性。',m:'相信你內在的創造力，你有能力誕生全新的自己。'},'白風':{e:'你是訊息的橋樑，天生善於溝通與表達。你的話語能帶來安定與清明。',m:'說出你的真實，讓你的聲音成為讓人安心的風。'},'藍夜':{e:'你擁有豐富的內在世界與敏銳直覺，天生是夢想家。你的想像力能創造出意想不到的可能。',m:'相信你的夢與靈感，它們是宇宙給你的藍圖。'},'黃種子':{e:'你是潛能的種子，天生帶著成長的動力。你的每一步都在為未來的綻放鋪路。',m:'耐心照顧自己，你正在往更完整的自己靠近。'},'紅蛇':{e:'你擁有強勁的生命力與重生能力，天生懂得在低潮中轉身。',m:'擁抱改變，每一次蛻變都讓你更接近真實的自己。'},'白世界橋':{e:'你是連結不同世界的橋樑，天生能在差異之間找到共通點。',m:'練習放下，空出來的位置自然會迎來新的開始。'},'藍手':{e:'你擁有安撫人心的雙手與實現事物的能力，天生是實踐家與照顧者。',m:'相信你的雙手，它們能把想像變成具體，也能讓人心安。'},'黃星星':{e:'你擁有藝術家的天賦與敏銳的美感，天生追求和諧與精緻。你的存在本身就是一種風景。',m:'活出你的美感標準，讓生活成為一件作品。'},'紅月':{e:'你擁有深刻情感與整理能量的能力，天生適合陪伴釋放。你的敏感是一種天賦。',m:'允許情緒流動，每一次釋放都是一次覺察。'},'白狗':{e:'你擁有純粹的真心與穩定的陪伴力，天生適合成為他人的支柱。你的溫度能軟化很多堅硬。',m:'記得把那份真心也留給自己，你值得同樣的在乎與溫柔。'},'藍猴':{e:'你擁有玩心與創意，天生帶著調節氣氛的能力。你的幽默與靈感能讓空氣變輕。',m:'不要把人生過得太像考試，允許自己偶爾玩一下才有空間長出新點子。'},'黃人':{e:'你擁有清晰的思考力與選擇力，天生是決策者與協調者。',m:'記得，你永遠有選擇權。不要把自己關在只能這樣的框框裡。'},'紅天行者':{e:'你是天生的探索者，對世界與內在都充滿好奇。你的路，不會只停在一個地方。',m:'敢走出去，答案多半不在原地，而在你願意踏出的那一步之後。'},'白巫師':{e:'你擁有專注與感應的能力，天生適合安靜地聽見沒說出口的東西。',m:'當你把心收回來，很多答案會自己浮上來。安靜是一種力量。'},'藍鷹':{e:'你擁有像鷹一樣的高度視角，天生能看見事情的全貌。你的洞察力對很多人來說都是關鍵提醒。',m:'不要只盯著眼前的一點，你看得見的，其實比你以為的更遠更廣。'},'黃戰士':{e:'你擁有清晰的問題意識與勇敢提問的能力。你的挑戰不是為了打架，是為了找到真正的答案。',m:'帶著你的問題繼續走，那些還沒答案的問題，才是讓你一直成長的理由。'},'紅地球':{e:'你擁有與地球頻率共鳴的能力，天生懂得在對的時機做對的事。',m:'信任你的直覺，它比你以為的更準。你天生就有辨識方向的能力。'},'白鏡':{e:'你擁有如鏡子般的覺察力，能清晰地反映真實。你的存在能幫助他人看見他們自己。',m:'你看見的真實，有時候需要時間被接受。繼續如實說，不是每個真相都需要即刻的認可。'},'藍風暴':{e:'你擁有強大的轉化能量，天生是催化劑。你出現的地方，事情就會開始改變。',m:'轉化會帶來混亂，但混亂是新秩序的前奏。相信你引發的風暴是必要的。'},'黃太陽':{e:'你擁有光的能量，天生帶著照亮他人的使命。你的熱情與光明感染力，讓身邊的人都覺得溫暖。',m:'記得回來照亮自己，太陽也需要有時候讓自己休息的夜晚。'}};
+function rdP(n){n=Math.abs(n);while(n>9){var s=0;String(n).split('').forEach(function(d){s+=+d});n=s}return n}
+function calcMaya(Y,M,D){
+  var base=new Date(1993,6,26),tgt=new Date(Y,M-1,D);
+  var diff=Math.floor((tgt-base)/86400000);
+  function cntLeap(y1,m1,d1,y2,m2,d2){var c=0,d=new Date(y1,m1-1,d1),e=new Date(y2,m2-1,d2);while(d<e){if(d.getMonth()==1&&d.getDate()==29)c++;d.setDate(d.getDate()+1)}return c}
+  var leaps=diff>=0?cntLeap(1993,7,26,Y,M,D):-cntLeap(Y,M,D,1993,7,26);
+  var disp=diff-leaps;
+  var kin=(((144-1+disp)%260)+260)%260+1;
+  var tone=((kin-1)%13)+1;
+  var seal=(kin-1)%20;
+  var analogSI=(17-seal+20)%20;
+  var antiSI=(seal+10)%20;
+  var occK=261-kin;if(occK<=0)occK+=260;
+  var occSeal=(occK-1)%20;
+  var sCI=[];for(var s=0;s<20;s++)if(s%4==seal%4)sCI.push(s);
+  var gIdx=tone%5==0?4:tone%5-1;
+  if(tone%5==1)gIdx=sCI.indexOf(seal);
+  var guideSI=sCI[gIdx];
+  var ws=Math.floor((kin-1)/13)+1,wsDay=((kin-1)%13)+1;
+  var wsSealIdx=((ws-1)*13)%20;
+  var yearStart=new Date(Y,6,26);
+  if(tgt<yearStart)yearStart=new Date(Y-1,6,26);
+  var dayOfYear=Math.floor((tgt-yearStart)/86400000);
+  var nsYear=yearStart.getFullYear()-1935;
+  var nsMoon,nsDay,nsWeek;
+  if(dayOfYear>=364){nsMoon=0;nsDay=0;nsWeek=0}
+  else{nsMoon=Math.floor(dayOfYear/28)+1;nsDay=(dayOfYear%28)+1;nsWeek=Math.ceil(nsDay/7)}
+  var psiKin=((kin+168-1)%260)+1;
+  var psiTone=((psiKin-1)%13)+1;var psiSeal=(psiKin-1)%20;
+  var igSeal=((seal+analogSI+guideSI+antiSI+((occK-1)%20))%20);
+  var igKin=((igSeal)*13+tone);igKin=((igKin-1)%260)+1;
+  var igTone=((igKin-1)%13)+1;var igSealIdx=(igKin-1)%20;
+  var PLASMA=['Dali','Seli','Gamma','Kali','Alpha','Limi','Silio'];
+  var CHAKRA=['頂輪','根輪','眉心輪','薦骨輪','喉輪','胃輪','心輪'];
+  var nsDayOfWeek=nsDay>0?((nsDay-1)%7):0;
+  var nsPlasma=PLASMA[nsDayOfWeek];var nsChakra=CHAKRA[nsDayOfWeek];
+  var WEEK_CLR=['紅色啟動週','白色精煉週','藍色轉化週','黃色成熟週'];
+  var nsWeekName=nsWeek>0?WEEK_CLR[nsWeek-1]:'';
+  var POWER=['蝙蝠','蠍','鹿','貓頭鷹','孔雀','蜥蜴','猴','鷹','美洲豹','狗','蛇','兔','海龜'];
+  var nsPowerAnimal=POWER[tone-1]||'鳳凰';
+  var yearBase=new Date(Y,6,26);
+  if(tgt<yearBase)yearBase=new Date(Y-1,6,26);
+  var yDiff=Math.floor((yearBase-base)/86400000);
+  var yLeaps=yDiff>=0?cntLeap(1993,7,26,yearBase.getFullYear(),7,26):-cntLeap(yearBase.getFullYear(),7,26,1993,7,26);
+  var yDisp=yDiff-yLeaps;
+  var yKin=(((144-1+yDisp)%260)+260)%260+1;
+  var yTone=((yKin-1)%13)+1;var ySeal=(yKin-1)%20;
+  var yearName=M_TONE[yTone-1].replace('\u7684','')+M_SEAL[ySeal]+'\u5e74';
+  var bdDigits=String(Y)+String(M).padStart(2,'0')+String(D).padStart(2,'0');
+  var bdSum=0,zeroCount=0;bdDigits.split('').forEach(function(d){bdSum+=+d;if(d=='0')zeroCount++;});
+  var kinPlusStr='+'+bdSum+'/'+rdP(bdSum)+'('+zeroCount+'\u500b\u96f6)';
+  var kinMinusStr='-'+bdSum+'/'+rdP(bdSum)+'('+zeroCount+'\u500b\u96f6)';
+  return{kin:kin,tone:tone,toneN:M_TONE[tone-1],toneEN:M_TONE_EN[tone-1],
+    seal:seal,sealN:M_SEAL[seal],sealEN:M_SEAL_EN[seal],
+    guide:M_SEAL[guideSI],analog:M_SEAL[analogSI],anti:M_SEAL[antiSI],
+    occK:occK,occSeal:M_SEAL[occSeal],
+    ws:ws,wsDay:wsDay,wsSeal:M_SEAL[wsSealIdx],planet:M_PLN[seal],family:M_FAM[seal]||'',
+    psi:{kin:psiKin,tone:M_TONE[psiTone-1],seal:M_SEAL[psiSeal]},
+    innerGoddess:{kin:igKin,tone:M_TONE[igTone-1],seal:M_SEAL[igSealIdx]},
+    ns:{year:nsYear,moon:nsMoon,day:nsDay,week:nsWeek,dayOfWeek:nsDayOfWeek+1,
+      plasma:nsPlasma,chakra:nsChakra,weekName:nsWeekName,
+      moonName:nsMoon>0?MOON13[nsMoon-1]:'\u6642\u9593\u5916\u4e4b\u65e5',
+      yearName:yearName,powerAnimal:nsPowerAnimal,
+      kinPlus:kinPlusStr,kinMinus:kinMinusStr},
+    nsCoord:'NS 1.'+nsYear+'.'+nsMoon+'.'+nsDay};
 }
-
-function getDaysInMonth(year, month) {
-  return new Date(year, month, 0).getDate();
+function pB(title,rows){
+  var h='<div class="palace-wrap"><div class="palace-title">'+title+'</div>';
+  rows.forEach(function(r){h+='<div class="palace-row">'+r+'</div>';});
+  return h+'</div>';
 }
-
-function dreamspellDayCount(targetYear, targetMonth, targetDay) {
-  const baseYear = 1987, baseMonth = 7, baseDay = 26;
-  let totalDays = 0;
-  
-  if(targetYear > baseYear || (targetYear === baseYear && (targetMonth > baseMonth || (targetMonth === baseMonth && targetDay >= baseDay)))) {
-    for(let y = baseYear; y <= targetYear; y++) {
-      const startMonth = (y === baseYear) ? baseMonth : 1;
-      const endMonth = (y === targetYear) ? targetMonth : 12;
-      
-      for(let m = startMonth; m <= endMonth; m++) {
-        const startDay = (y === baseYear && m === baseMonth) ? baseDay : 1;
-        const endDay = (y === targetYear && m === targetMonth) ? targetDay : getDaysInMonth(y, m);
-        
-        for(let d = startDay; d <= endDay; d++) {
-          if(y === baseYear && m === baseMonth && d === baseDay) continue;
-          if(m === 2 && d === 29 && isLeapYear(y)) continue;
-          totalDays++;
-        }
-      }
-    }
-  } else {
-    for(let y = targetYear; y <= baseYear; y++) {
-      const startMonth = (y === targetYear) ? targetMonth : 1;
-      const endMonth = (y === baseYear) ? baseMonth : 12;
-      
-      for(let m = startMonth; m <= endMonth; m++) {
-        const startDay = (y === targetYear && m === targetMonth) ? targetDay : 1;
-        const endDay = (y === baseYear && m === baseMonth) ? baseDay : getDaysInMonth(y, m);
-        
-        for(let d = startDay; d <= endDay; d++) {
-          if(y === baseYear && m === baseMonth && d === baseDay) continue;
-          if(m === 2 && d === 29 && isLeapYear(y)) continue;
-          totalDays++;
-        }
-      }
-    }
-    totalDays = -totalDays;
-  }
-  
-  return totalDays;
-}
-
-function calculateKIN(year, month, day){
-  const baseKIN = 34;
-  const dayDiff = dreamspellDayCount(year, month, day);
-  let kin = baseKIN + (dayDiff % 260);
-  while(kin > 260) kin -= 260;
-  while(kin < 1) kin += 260;
-  return kin;
-}
-
 function calculate(){
-  const dateInput = document.getElementById('birthDate').value;
-  if(!dateInput){
-    alert('請先輸入你的出生日期');
-    return;
-  }
-
-  const [year,month,day] = dateInput.split('-').map(Number);
-  const kin = calculateKIN(year,month,day);
-
-  const totemIndex = (kin - 1) % 20;
-  const toneIndex = (kin - 1) % 13;
-  const waveIndex = Math.floor((kin - 1) / 13) % 20;
-
-  const totem = totems[totemIndex];
-  const tone = tones[toneIndex];
-  const wave = totems[waveIndex];
-
-  const colors = ['紅','白','藍','黃'];
-  const colorIndex = totemIndex % 4;
-
-  document.getElementById('kinNumber').textContent = `KIN ${kin}`;
-  document.getElementById('totemIcon').textContent = totem.icon;
-  document.getElementById('totemName').textContent = totem.name;
-  document.getElementById('toneName').textContent = tone.name;
-  document.getElementById('totemDesc').textContent = totem.desc;
-  document.getElementById('waveSpell').textContent = wave.name;
-  document.getElementById('toneValue').textContent = tone.desc;
-  document.getElementById('colorValue').textContent = colors[colorIndex];
-  document.getElementById('energyText').textContent = totem.energy;
-  document.getElementById('messageText').textContent = totem.message;
-
+  var dateInput=document.getElementById('birthDate').value;
+  if(!dateInput){alert('\u8acb\u5148\u8f38\u5165\u4f60\u7684\u51fa\u751f\u65e5\u671f');return;}
+  var parts=dateInput.split('-').map(Number);
+  var Y=parts[0],M=parts[1],D=parts[2];
+  var my=calcMaya(Y,M,D);
+  var desc=TOTEM_DESC[my.sealN]||{e:'',m:''};
+  var CLR=['\u7d05','\u767d','\u85cd','\u9ec3'];
+  document.getElementById('mainCard').innerHTML='<div class="kin-number">KIN '+my.kin+'</div><div class="totem-name">'+my.toneN.replace('\u7684','')+'\u3000'+my.sealN+'</div><div class="totem-sub">'+my.sealEN+' \u00b7 '+my.toneEN+'</div><div class="totem-tags"><span class="tag">'+CLR[my.seal%4]+'\u8272</span><span class="tag">'+my.planet+'</span><span class="tag">'+(my.family||'')+'\u5bb6\u65cf</span></div>';
+  document.getElementById('oracleBlock').innerHTML=pB('\ud83c\udf00 \u4e94\u5927\u795e\u8ad6 Oracle',['\u2191 \u5f15\u5c0e\u529b\u91cf\uff1a<strong>'+my.guide+'</strong>','\u2190 \u6311\u6230\u64f4\u5c55\uff1a<strong>'+my.anti+'</strong>\u3000\ud83d\udd34 \u4e3b\u5370\u8a18\uff1a<strong>'+my.sealN+'</strong>\u3000\u2192 \u652f\u6301\u529b\u91cf\uff1a<strong>'+my.analog+'</strong>','\u2193 \u96b1\u85cf\u63a8\u52d5\uff1a<strong>'+my.occSeal+'</strong>\uff08KIN '+my.occK+'\uff09']);
+  var moonRows=['\ud83d\udccd '+my.nsCoord,'\ud83c\udff0 '+my.ns.yearName];
+  if(my.ns.moon>0){moonRows.push('\ud83c\udf19 '+my.ns.moon+' / 13 \u6708\uff08'+my.ns.moonName+'\uff09');moonRows.push('\ud83d\udcc5 '+my.ns.day+' / 28 \u65e5\uff08'+my.ns.chakra+'\uff09');moonRows.push('\ud83d\udcca '+my.ns.week+' / 4 \u9031\uff08'+my.ns.weekName+'\uff09');moonRows.push('\u26a1 '+my.ns.dayOfWeek+' / 7 \u5929\uff08'+my.ns.plasma+'\uff09');moonRows.push('\ud83e\udda5 \u529b\u91cf\u52d5\u7269\uff1a'+my.ns.powerAnimal);moonRows.push(my.ns.kinPlus+'\u3000'+my.ns.kinMinus);}
+  else{moonRows.push('\ud83c\udf00 \u6642\u9593\u5916\u4e4b\u65e5\uff08Day Out of Time\uff09');}
+  document.getElementById('moonBlock').innerHTML=pB('\ud83c\udf19 13\u6708\u4eae\u66c6',moonRows);
+  document.getElementById('waveBlock').innerHTML=pB('\u2726 \u6ce2\u7b26 \uff06 \u6df1\u5c64\u9023\u7d50',['\u6ce2\u7b26\uff1a<strong>'+my.wsSeal+'</strong>\u3000\u7b2c '+my.wsDay+' / 13 \u5929','\u8abf\u6027 '+my.tone+'\uff1a'+my.toneN+'\uff08'+my.toneEN+'\uff09','\u5716\u9a30 '+(my.seal+1)+'\uff1a'+my.sealN+'\uff08'+my.sealEN+'\uff09','PSI\uff1aKIN.'+my.psi.kin+' '+my.psi.tone+' '+my.psi.seal,'\u5167\u5728\u5973\u795e\u529b\uff1aKIN.'+my.innerGoddess.kin+' '+my.innerGoddess.tone+' '+my.innerGoddess.seal]);
+  document.getElementById('energyBlock').innerHTML=pB('\ud83d\udcab \u4f60\u7684\u80fd\u91cf\u7279\u8cea',[desc.e,'<em>'+desc.m+'</em>']);
+  var ai='\u300aAI\u89e3\u8b80\u6307\u4ee4\u300b\u8acb\u4f9d\u64daJose Arguelles\u300aThe Mayan Factor\u300b\u53caDreamspell\u7cfb\u7d71\u505a\u6df1\u5ea6\u89e3\u8b80\uff1a\n\nKIN.'+my.kin+' '+my.toneN.replace('\u7684','')+' '+my.sealN+'\n'+my.wsSeal+' \u6ce2\u7b26 '+my.wsDay+'/13\n\u8abf\u6027\uff1a'+my.tone+'\uff08'+my.toneN+'\uff09\n\u5716\u9a30\uff1a'+my.sealN+'\uff08'+my.sealEN+'\uff09\n\n\u4e94\u5927\u795e\u8ad6\uff1a\n  \u5f15\u5c0e\uff1a'+my.guide+'\n  \u652f\u6301\uff1a'+my.analog+'\n  \u6311\u6230\u64f4\u5c55\uff1a'+my.anti+'\n  \u96b1\u85cf\u63a8\u52d5\uff1a'+my.occSeal+'\uff08KIN '+my.occK+'\uff09\n\nPSI\uff1aKIN.'+my.psi.kin+' '+my.psi.tone+' '+my.psi.seal+'\n\u5167\u5728\u5973\u795e\u529b\uff1aKIN.'+my.innerGoddess.kin+' '+my.innerGoddess.tone+' '+my.innerGoddess.seal+'\n\n13\u6708\u4eae\u66c6\uff1a\n  '+my.ns.yearName+'\n  '+my.nsCoord+'\n'+(my.ns.moon>0?'  '+my.ns.moonName+' \u7b2c'+my.ns.day+'\u5929\n  '+my.ns.weekName+' \u7b2c'+my.ns.dayOfWeek+'\u5929\uff08'+my.ns.plasma+'\uff09\n  \u8108\u8f2a\uff1a'+my.ns.chakra+'\n  \u529b\u91cf\u52d5\u7269\uff1a'+my.ns.powerAnimal+'\n':'')+'\n\u8acb\u5206\u6790\uff1a\n1. \u4e3b\u5370\u8a18\u5716\u9a30\u7684\u6838\u5fc3\u80fd\u91cf\u8207\u5929\u8ce6\n2. \u8abf\u6027\u7684\u4eba\u751f\u76ee\u7684\u8207\u5b78\u7fd2\u65b9\u5411\n3. \u4e94\u5927\u795e\u8ad6\u7684\u529b\u91cf\u95dc\u4fc2\u8207\u555f\u52d5\u65b9\u5f0f\n4. \u6ce2\u7b2613\u5929\u7684\u4f4d\u7f6e\u610f\u7fa9\n5. PSI\u7684\u9ad8\u7dad\u5ea6\u8ab2\u984c\n6. 13\u6708\u4eae\u66c6\u7684\u80fd\u91cf\u9031\u671f\u8207\u8108\u8f2a\u5c0d\u61c9\n7. \u529b\u91cf\u52d5\u7269\u7684\u8c61\u5fb5\u610f\u7fa9\n8. \u8207\u5176\u4ed6\u547d\u7406\u7cfb\u7d71\u7684\u4ea4\u53c9\u5171\u632f';
+  document.getElementById('aiBlock').innerHTML='<div class="palace-wrap"><div class="palace-title">\ud83d\udcdc AI\u6df1\u5ea6\u89e3\u8b80\u6307\u4ee4</div><pre id="aiPre" style="white-space:pre-wrap;font-size:.82rem;color:#c4b7a6;line-height:1.7;margin:0;font-family:inherit">'+ai+'</pre></div>';
+  window._aiText=ai;
   document.getElementById('resultSection').classList.add('show');
-
-  window.currentResult = {
-    date: dateInput,
-    kin: kin,
-    totem: totem.name,
-    tone: tone.name,
-    wave: wave.name,
-    color: colors[colorIndex],
-    desc: totem.desc,
-    energy: totem.energy,
-    message: totem.message
-  };
+  document.getElementById('resultSection').scrollIntoView({behavior:'smooth',block:'start'});
 }
-
 function copyResult(){
-  if(!window.currentResult) return;
-  const btn = document.getElementById('copyBtn');
-  const r = window.currentResult;
-  const text = 
-`瑪雅曆計算結果
-
-出生日期：${r.date}
-KIN：${r.kin}
-圖騰：${r.totem}
-調性：${r.tone}
-波符：${r.wave}
-顏色：${r.color}
-
-核心特質：${r.desc}
-
-能量特質：${r.energy}
-
-給你的提醒：${r.message}
-
-源自台灣｜馥靈之鑰`;
-
-  navigator.clipboard.writeText(text).then(()=>{
-    btn.textContent = '已複製';
-    btn.classList.add('copied');
-    setTimeout(()=>{
-      btn.textContent = '一鍵複製結果';
-      btn.classList.remove('copied');
-    },2000);
-  }).catch(()=>{
-    alert('複製失敗，請手動複製：\n\n'+text);
-  });
+  var text=window._aiText||'\u5c1a\u672a\u8a08\u7b97';
+  navigator.clipboard.writeText(text).then(function(){
+    var btn=document.getElementById('copyBtn');
+    btn.textContent='\u2705 \u5df2\u8907\u88fd\uff01';
+    setTimeout(function(){btn.textContent='\ud83d\udccb \u8907\u88fd AI \u89e3\u8b80\u6307\u4ee4';},2000);
+  }).catch(function(){alert('\u8acb\u624b\u52d5\u8907\u88fd\u4e0a\u65b9\u6587\u5b57');});
 }
 </script>
 

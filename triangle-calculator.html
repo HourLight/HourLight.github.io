@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-BXP7K53QG6');</script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>三角生命密碼｜馥靈之鑰</title>
+<meta name="description" content="透過出生日期解析你的三角生命密碼，看見生命的完整藍圖。馥靈之鑰獨家計算工具。">
+<link rel="icon" href="favicon.ico"/>
+<link rel="stylesheet" href="assets/css/hourlight-global.css">
+<link rel="stylesheet" href="assets/css/hl-music.css">
+<style>
+:root{
+  --gold:#e9c27d;--gold2:#c9954a;--deep:#08050f;--panel:rgba(12,8,22,0.92);
+  --text:#f0e8d8;--sub:#c4b7a6;--border:rgba(233,194,125,0.18);
+  --red-node:#e05555;--blue-node:#5588e0;--green-node:#55b888;--purple-node:#9966cc;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;font-family:'LXGW WenKai TC','Noto Serif TC',serif;color:var(--text);background:var(--deep);padding:20px 16px 120px;}
+.wrap{max-width:700px;margin:0 auto;}
+
+/* HERO */
+.hero{text-align:center;padding:40px 0 32px;}
+.hero-icon{width:64px;height:64px;margin:0 auto 16px;background:radial-gradient(circle,rgba(233,194,125,0.25) 0%,transparent 70%);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;}
+.hero h1{font-size:1.8rem;font-weight:300;color:var(--gold);letter-spacing:.08em;margin-bottom:8px;}
+.hero p{font-size:.9rem;color:var(--sub);line-height:1.7;}
+
+/* INPUT */
+.input-card{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:28px 24px;margin-bottom:24px;backdrop-filter:blur(12px);}
+.input-label{font-size:.82rem;color:var(--gold);letter-spacing:.06em;margin-bottom:10px;display:block;}
+.date-row{display:flex;gap:12px;align-items:center;}
+.date-row input{flex:1;background:rgba(233,194,125,0.06);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:inherit;font-size:1rem;text-align:center;outline:none;transition:.2s;}
+.date-row input:focus{border-color:var(--gold);background:rgba(233,194,125,0.1);}
+.date-row span{color:var(--sub);font-size:.9rem;}
+.calc-btn{width:100%;margin-top:18px;padding:14px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1a1208;font-family:inherit;font-size:1rem;font-weight:600;border:none;border-radius:12px;cursor:pointer;letter-spacing:.06em;transition:.2s;}
+.calc-btn:hover{opacity:.9;transform:translateY(-1px);}
+
+/* RESULT */
+.result{display:none;}
+.result.show{display:block;}
+
+/* TRIANGLE SVG CONTAINER */
+.tri-container{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:32px 20px;margin-bottom:20px;text-align:center;backdrop-filter:blur(12px);}
+.tri-title{font-size:.88rem;color:var(--gold);letter-spacing:.1em;margin-bottom:24px;}
+#triSvg{max-width:100%;overflow:visible;}
+
+/* MEANING CARDS */
+.meaning-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+@media(max-width:480px){.meaning-grid{grid-template-columns:1fr;}}
+.meaning-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px 16px;backdrop-filter:blur(12px);}
+.mc-num{font-size:2rem;font-weight:300;color:var(--gold);line-height:1;margin-bottom:6px;}
+.mc-label{font-size:.72rem;color:var(--sub);letter-spacing:.08em;margin-bottom:8px;}
+.mc-desc{font-size:.83rem;color:var(--text);line-height:1.6;}
+
+/* NUMBER MEANINGS */
+.full-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px 20px;margin-bottom:14px;backdrop-filter:blur(12px);}
+.full-title{font-size:.82rem;color:var(--gold);letter-spacing:.08em;margin-bottom:12px;}
+.full-row{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start;}
+.full-n{min-width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:600;flex-shrink:0;}
+.full-text{font-size:.83rem;color:var(--sub);line-height:1.6;}
+
+.cta-block{background:linear-gradient(135deg,rgba(233,194,125,0.08),rgba(92,58,128,0.08));border:1px solid var(--border);border-radius:16px;padding:24px;text-align:center;margin-top:24px;}
+.cta-block h3{font-size:1rem;color:var(--gold);margin-bottom:8px;}
+.cta-block p{font-size:.83rem;color:var(--sub);margin-bottom:16px;line-height:1.6;}
+.cta-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.cta-btn{padding:10px 22px;border-radius:24px;font-family:inherit;font-size:.85rem;cursor:pointer;text-decoration:none;border:none;}
+.cta-btn.p{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1a1208;font-weight:600;}
+.cta-btn.s{background:transparent;border:1px solid var(--gold);color:var(--gold);}
+</style>
+</head>
+<body>
+<div class="hl-cosmos">
+  <div class="hl-stars-layer hl-stars-1"></div>
+  <div class="hl-stars-layer hl-stars-2"></div>
+  <div class="hl-stars-layer hl-stars-3"></div>
+  <div class="hl-meteors">
+    <div class="hl-meteor"></div><div class="hl-meteor"></div><div class="hl-meteor"></div>
+    <div class="hl-meteor"></div><div class="hl-meteor"></div><div class="hl-meteor"></div>
+  </div>
+  <div class="hl-aura hl-aura-1"></div><div class="hl-aura hl-aura-2"></div>
+</div>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-icon">🔺</div>
+    <h1>三角生命密碼</h1>
+    <p>以出生日期為座標，展開你的生命藍圖<br>看見每一個數字背後，藏著什麼訊息</p>
+  </div>
+
+  <div class="input-card">
+    <span class="input-label">✦ 輸入你的出生日期（西曆）</span>
+    <div class="date-row">
+      <input type="number" id="by" placeholder="年 YYYY" min="1900" max="2099">
+      <span>/</span>
+      <input type="number" id="bm" placeholder="月 MM" min="1" max="12">
+      <span>/</span>
+      <input type="number" id="bd" placeholder="日 DD" min="1" max="31">
+    </div>
+    <button class="calc-btn" onclick="doCalc()">✦ 展開我的三角密碼</button>
+  </div>
+
+  <div class="result" id="result">
+    <!-- Triangle SVG -->
+    <div class="tri-container">
+      <div class="tri-title">✦ 你的三角生命密碼圖</div>
+      <svg id="triSvg" viewBox="0 0 560 540" style="width:100%;max-width:560px;"></svg>
+    </div>
+
+    <!-- Key numbers -->
+    <div class="meaning-grid" id="keyGrid"></div>
+
+    <!-- Full interpretation -->
+    <div class="full-card" id="fullCard"></div>
+
+    <div class="cta-block">
+      <h3>想把這些數字，接到你的真實人生？</h3>
+      <p>三角密碼是座標，不是命運。馥靈之鑰結合牌卡與情緒覺察，讓每個數字都有地方落地。</p>
+      <div class="cta-btns">
+        <a href="draw-hl.html" class="cta-btn p">內在 GPS 定位</a>
+        <a href="numerology-calculator.html" class="cta-btn s">查西方生命靈數</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function rdP(n){n=Math.abs(n);while(n>9){var s=0;String(n).split('').forEach(function(d){s+=+d});n=s}return n}
+
+var NUM_MEANING={
+  1:{name:'領袖・開創',short:'獨立自主，勇於開拓',full:'你是先行者。不管走到哪裡，都會自然地站在最前面。功課是學會與人分享，而不是一人扛起所有。'},
+  2:{name:'橋樑・感受',short:'細膩感知，善於連結',full:'你是情感的感應器，能感受到別人說不出口的東西。功課是在照顧別人之前，先把自己接住。'},
+  3:{name:'表達・創造',short:'活潑創意，善於溝通',full:'你是表達者，世界需要你說出那些大家有感覺但說不出口的話。功課是允許自己表達「還沒完成」的想法。'},
+  4:{name:'秩序・穩固',short:'踏實建構，注重安全感',full:'你是建築師，把夢想建成一個住得進去的地方。功課是在系統之外，留一扇窗給靈感。'},
+  5:{name:'自由・體驗',short:'多元探索，打破框架',full:'你是探險家，一旦停下來就覺得窒息。功課是在所有的體驗中，學會在某個地方紮根。'},
+  6:{name:'責任・守護',short:'溫暖照顧，勇於承擔',full:'你是守護者，天生把別人排在自己前面。功課是理解：守護者也需要被守護。'},
+  7:{name:'真理・洞見',short:'深度思考，追尋本質',full:'你是觀察者，能看見別人沒注意到的事。功課是把洞見說出來，而不是留在心裡等別人猜到。'},
+  8:{name:'豐盛・承擔',short:'掌握資源，展現力量',full:'你是承重牆，被交付重任是因為大家知道你接得住。功課是學會說「我需要幫助」。'},
+  9:{name:'大愛・放下',short:'宏觀視野，服務眾人',full:'你是路標，把自己走過的路留給後來的人。功課是在給予之前，確認自己是滿的。'},
+  11:{name:'直覺・啟發（大師數）',short:'靈性感應，啟發他人',full:'11是2的更高表達。你帶著更強的感知能力來到這裡，是來喚醒人的。功課是在天賦與接地之間找到平衡。'},
+  22:{name:'夢想建築師（大師數）',short:'把理想化為現實',full:'22是4的更高表達。你有能力讓宏大的夢想真正落地。功課是不要因為太有遠見，而在人際關係裡讓人追不上你。'},
+  33:{name:'無私奉獻（大師數）',short:'以愛引領，終極服務',full:'33是6的更高表達。你是最深層的照顧者。功課是記得：奉獻不需要犧牲自己。'}
+};
+
+function getMeaning(n){
+  if(NUM_MEANING[n])return NUM_MEANING[n];
+  var s=rdP(n);
+  return NUM_MEANING[s]||{name:'數字'+n,short:'',full:''};
+}
+
+function calcTri(Y,M,D){
+  var dd=String(D).padStart(2,'0');
+  var mm=String(M).padStart(2,'0');
+  var yy=String(Y).padStart(4,'0');
+  var ds=dd+mm+yy;
+  var A=+ds[0],B=+ds[1],C=+ds[2],Dv=+ds[3],E=+ds[4],F=+ds[5],G=+ds[6],H=+ds[7];
+  var rr=rdP;
+  var I=rr(A+B),J=rr(C+Dv),K=rr(E+F),L=rr(G+H);
+  var M2=rr(I+J),N=rr(K+L),O=rr(M2+N);
+  var T=rr(I+M2),S=rr(J+M2),U=rr(T+S);
+  var V=rr(K+N),W=rr(L+N),X=rr(V+W);
+  var P=rr(M2+O),Q=rr(N+O),R=rr(P+Q);
+  return{A:A,B:B,C:C,D:Dv,E:E,F:F,G:G,H:H,
+    I:I,J:J,K:K,L:L,M:M2,N:N,O:O,
+    T:T,S:S,U:U,V:V,W:W,X:X,P:P,Q:Q,R:R,
+    ds:ds};
+}
+
+function drawTriangle(t){
+  var svg=document.getElementById('triSvg');
+  svg.innerHTML='';
+
+  // Color palette for node levels
+  var C={
+    bot:'#4a6fa5',   // bottom row (digits)
+    l2:'#5a8a5a',    // level 2
+    l3:'#8a5a9a',    // level 3
+    top:'#c9954a',   // top (life number)
+    side:'#5a7a9a',  // side numbers
+    center:'#7a5a4a' // center column
+  };
+
+  var nodes=[];
+  // BOTTOM ROW: A B C D E F G H  (y=480)
+  var bY=480, bXs=[30,100,170,240,310,380,450,520];
+  var letters=['A','B','C','D','E','F','G','H'];
+  var vals=[t.A,t.B,t.C,t.D,t.E,t.F,t.G,t.H];
+  for(var i=0;i<8;i++) nodes.push({x:bXs[i],y:bY,v:vals[i],label:letters[i],c:C.bot,r:20});
+
+  // LEVEL 2: I J K L  (y=390)
+  var l2Y=390, l2Xs=[65,205,345,485];
+  var l2v=[t.I,t.J,t.K,t.L], l2l=['I','J','K','L'];
+  for(var i=0;i<4;i++) nodes.push({x:l2Xs[i],y:l2Y,v:l2v[i],label:l2l[i],c:C.l2,r:22});
+
+  // LEVEL 3: M N  (y=300)
+  var l3Y=300, l3Xs=[135,415];
+  var l3v=[t.M,t.N], l3l=['M','N'];
+  for(var i=0;i<2;i++) nodes.push({x:l3Xs[i],y:l3Y,v:l3v[i],label:l3l[i],c:C.l3,r:24});
+
+  // TOP: O  (y=200)
+  nodes.push({x:275,y:200,v:t.O,label:'O',c:C.top,r:30});
+
+  // SIDE LEFT: T S U  
+  nodes.push({x:80,y:300,v:t.T,label:'T',c:C.side,r:18});
+  nodes.push({x:80,y:210,v:t.S,label:'S',c:C.side,r:18});
+  nodes.push({x:45,y:150,v:t.U,label:'U',c:C.side,r:20});
+
+  // SIDE RIGHT: V W X
+  nodes.push({x:470,y:300,v:t.V,label:'V',c:C.side,r:18});
+  nodes.push({x:470,y:210,v:t.W,label:'W',c:C.side,r:18});
+  nodes.push({x:510,y:150,v:t.X,label:'X',c:C.side,r:20});
+
+  // CENTER: P Q R
+  nodes.push({x:205,y:125,v:t.P,label:'P',c:C.center,r:18});
+  nodes.push({x:345,y:125,v:t.Q,label:'Q',c:C.center,r:18});
+  nodes.push({x:275,y:65,v:t.R,label:'R',c:C.center,r:22});
+
+  // Draw edges first
+  var edges=[
+    // Bottom to L2
+    [0,8],[1,8],[2,9],[3,9],[4,10],[5,10],[6,11],[7,11],
+    // L2 to L3
+    [8,12],[9,12],[10,13],[11,13],
+    // L3 to Top
+    [12,14],[13,14],
+    // Side left
+    [8,15],[12,15],[15,16],[12,16],[16,17],
+    // Side right
+    [10,18],[13,18],[18,19],[13,19],[19,20],
+    // Center
+    [12,21],[14,21],[13,22],[14,22],[21,23],[22,23]
+  ];
+
+  edges.forEach(function(e){
+    var a=nodes[e[0]],b=nodes[e[1]];
+    var line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',a.x);line.setAttribute('y1',a.y);
+    line.setAttribute('x2',b.x);line.setAttribute('y2',b.y);
+    line.setAttribute('stroke','rgba(233,194,125,0.15)');
+    line.setAttribute('stroke-width','1.5');
+    svg.appendChild(line);
+  });
+
+  // Draw nodes
+  nodes.forEach(function(nd){
+    var g=document.createElementNS('http://www.w3.org/2000/svg','g');
+
+    // Glow
+    var glow=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    glow.setAttribute('cx',nd.x);glow.setAttribute('cy',nd.y);glow.setAttribute('r',nd.r+6);
+    glow.setAttribute('fill',nd.c);glow.setAttribute('opacity','0.15');
+    g.appendChild(glow);
+
+    // Circle
+    var circ=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circ.setAttribute('cx',nd.x);circ.setAttribute('cy',nd.y);circ.setAttribute('r',nd.r);
+    circ.setAttribute('fill',nd.c);circ.setAttribute('fill-opacity','0.85');
+    circ.setAttribute('stroke',nd.c);circ.setAttribute('stroke-width','1.5');
+    g.appendChild(circ);
+
+    // Number
+    var txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x',nd.x);txt.setAttribute('y',nd.y+1);
+    txt.setAttribute('text-anchor','middle');txt.setAttribute('dominant-baseline','middle');
+    txt.setAttribute('fill','#fff');txt.setAttribute('font-size', nd.r>=24?'14':'12');
+    txt.setAttribute('font-weight','600');txt.setAttribute('font-family','Noto Sans TC,sans-serif');
+    txt.textContent=nd.v;
+    g.appendChild(txt);
+
+    // Label (small)
+    var lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',nd.x);lbl.setAttribute('y',nd.y+nd.r+12);
+    lbl.setAttribute('text-anchor','middle');
+    lbl.setAttribute('fill','rgba(233,194,125,0.55)');lbl.setAttribute('font-size','9');
+    lbl.setAttribute('font-family','Noto Sans TC,sans-serif');
+    lbl.textContent=nd.label;
+    g.appendChild(lbl);
+
+    svg.appendChild(g);
+  });
+}
+
+function buildKeyGrid(t){
+  var grid=document.getElementById('keyGrid');
+  var items=[
+    {n:t.O,label:'O｜核心生命數',desc:'你這輩子最核心的主題與人生方向'},
+    {n:t.R,label:'R｜頂點整合數',desc:'整合所有能量後，你最終的使命'},
+    {n:t.U,label:'U｜左側潛能',desc:'你的內在資源與未被完全開發的能量'},
+    {n:t.X,label:'X｜右側行動',desc:'推動你前進的外在動力'}
+  ];
+  grid.innerHTML='';
+  items.forEach(function(it){
+    var m=getMeaning(it.n);
+    var card=document.createElement('div');
+    card.className='meaning-card';
+    card.innerHTML='<div class="mc-num">'+it.n+'</div>'
+      +'<div class="mc-label">'+it.label+'</div>'
+      +'<div class="mc-desc"><strong>'+m.name+'</strong><br>'+m.short+'</div>';
+    grid.appendChild(card);
+  });
+}
+
+function buildFullCard(t){
+  var card=document.getElementById('fullCard');
+  var rowHTML='';
+
+  var keyNums=[
+    {n:t.O,label:'O 核心生命數'},
+    {n:t.M,label:'M 前半段主軸'},
+    {n:t.N,label:'N 後半段主軸'},
+    {n:t.P,label:'P 左行動'},
+    {n:t.Q,label:'Q 右行動'},
+    {n:t.R,label:'R 頂點整合'},
+    {n:t.U,label:'U 左潛能'},
+    {n:t.X,label:'X 右潛能'}
+  ];
+
+  var colors=['#4a6fa5','#5a8a5a','#5a8a5a','#7a5a4a','#7a5a4a','#c9954a','#5a7a9a','#5a7a9a'];
+
+  keyNums.forEach(function(it,idx){
+    var m=getMeaning(it.n);
+    rowHTML+='<div class="full-row">'
+      +'<div class="full-n" style="background:'+colors[idx]+';color:#fff;">'+it.n+'</div>'
+      +'<div class="full-text"><strong style="color:rgba(233,194,125,0.85)">'+it.label+'｜'+m.name+'</strong><br>'+m.full+'</div>'
+      +'</div>';
+  });
+
+  card.innerHTML='<div class="full-title">✦ 各節點完整解讀</div>'+rowHTML;
+}
+
+function doCalc(){
+  var Y=parseInt(document.getElementById('by').value);
+  var M=parseInt(document.getElementById('bm').value);
+  var D=parseInt(document.getElementById('bd').value);
+  if(!Y||!M||!D||Y<1900||M<1||M>12||D<1||D>31){
+    alert('請輸入正確的出生日期');return;
+  }
+  var t=calcTri(Y,M,D);
+  drawTriangle(t);
+  buildKeyGrid(t);
+  buildFullCard(t);
+  var r=document.getElementById('result');
+  r.className='result show';
+  r.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// Auto-focus chaining
+document.addEventListener('DOMContentLoaded',function(){
+  var by=document.getElementById('by'),bm=document.getElementById('bm'),bd=document.getElementById('bd');
+  by.addEventListener('input',function(){if(this.value.length===4)bm.focus();});
+  bm.addEventListener('input',function(){if(this.value.length===2)bd.focus();});
+});
+</script>
+
+<script src="assets/js/hourlight-global.js?v=20260309"></script>
+<script src="assets/js/hl-music.js?v=20260309"></script>
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-tracker.js" data-tool="triangle-calculator" data-tool-name="三角生命密碼" data-tool-type="calculator"></script>
+<footer class="hl-footer">
+  <div class="hl-footer-inner">
+    <div class="hl-footer-brand">
+      <div class="hl-footer-logo"><img src="LOGO-1.png" alt="" class="hl-logo-icon" aria-hidden="true" loading="lazy">馥靈之鑰 Hour Light</div>
+      <div class="hl-footer-tagline">讀懂自己，活對人生｜創辦人 王逸君</div>
+    </div>
+    <div class="hl-footer-links">
+      <a href="app.html">🔑 會員工作台</a><a href="index.html">首頁</a>
+      <a href="destiny-engine.html">命盤引擎</a><a href="hd-calculator.html">人類圖</a>
+      <a href="numerology-calculator.html">生命靈數</a><a href="maya-calculator.html">瑪雅曆</a>
+    </div>
+    <div class="hl-footer-copyright">© 2026 馥靈之鑰國際有限公司 Hour Light International Co., Ltd. All Rights Reserved.</div>
+  </div>
+</footer>
+<script src="assets/js/hl-bottomnav.js"></script>
+</body>
+</html>
