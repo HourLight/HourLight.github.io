@@ -1353,7 +1353,7 @@ const _authTimeout = setTimeout(() => {
     ls.classList.add("hide");
     if (li) li.classList.remove("hide");
   }
-}, 3000);
+}, 5000);
 
 auth.onAuthStateChanged(user => {
   clearTimeout(_authTimeout);
@@ -1361,8 +1361,9 @@ auth.onAuthStateChanged(user => {
     currentUser = user;
     document.getElementById("loading-screen").classList.add("hide");
     document.getElementById("login-screen").classList.add("hide");
-    // 強制顯示工作台，不等 Firestore
-    document.getElementById('app').style.display = 'flex';
+    // 強制顯示工作台，不等 Firestore（提升體感速度）
+    const appEl = document.getElementById('app');
+    if (appEl) { appEl.classList.add('show'); appEl.style.display = 'flex'; }
     showPage('home');
     initApp();
   } else {
@@ -1469,7 +1470,9 @@ async function initApp() {
   } catch(e) { userRole = 'guest'; }
 
   // 顯示 App
-  document.getElementById('app').style.display = 'flex';
+  const appEl = document.getElementById('app');
+  appEl.classList.add('show');
+  appEl.style.display = 'flex'; // fallback
 
   // 設定 Topbar
   const r = HL_ROLES[userRole]||HL_ROLES.guest;
@@ -1531,7 +1534,8 @@ function showPage(page) {
   if (page==='students')     loadStudents();
 
   window.scrollTo(0,0);
-  document.querySelector('.main').scrollTo(0,0);
+  const mainEl = document.querySelector('.main');
+  if (mainEl) mainEl.scrollTo(0,0);
 }
 
 function goBack() {
@@ -2555,5 +2559,5 @@ document.addEventListener('HL_USER_READY',async e=>{
   loadHistoryForCalendar(uid);
 });
 </script>
-
-
+</body>
+</html>
