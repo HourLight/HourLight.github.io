@@ -243,6 +243,7 @@
   <meta name="apple-mobile-web-app-title" content="馥靈之鑰">
 <link rel="stylesheet" href="assets/css/hl-music.css">
 <link rel="canonical" href="https://hourlightkey.com/quiz-bigfive.html">
+<link rel="stylesheet" href="css/hl-quiz-premium.css">
 </head>
 <body>
 
@@ -292,12 +293,12 @@
     <div class="result-section" id="rA"></div>
     <div class="result-section" id="rN"></div>
     <div class="result-hour-bridge" id="resultHour"></div>
-    <div style="background:rgba(10,6,20,0.8);border:1px solid rgba(233,194,125,0.15);border-radius:16px;padding:20px 16px;margin-bottom:16px;backdrop-filter:blur(12px);">
+    <div class="share-section">
     <div class="share-row">
-      <button class="share-btn" onclick="copyResult()" style="background:rgba(10,6,20,0.85)!important;border:1px solid rgba(233,194,125,0.4)!important;color:#e9c27d!important;">📋 複製結果</button>
-      <button class="share-btn" onclick="shareToLine()" style="background:rgba(10,6,20,0.85)!important;border:1px solid rgba(233,194,125,0.4)!important;color:#e9c27d!important;">💬 分享到 LINE</button>
+      <button class="share-btn" onclick="copyResult()">📋 複製結果</button>
+      <button class="share-btn" onclick="shareToLine()">💬 分享到 LINE</button>
     </div>
-    <button class="btn-retry" onclick="restartQuiz()" style="background:rgba(10,6,20,0.85)!important;border:1px solid rgba(233,194,125,0.3)!important;color:#c4b7a6!important;">🔄 重新測一次</button>
+    <button class="btn-retry" onclick="restartQuiz()">🔄 重新測一次</button>
     </div>
     <div class="more-quizzes">
       <h3>✨ 還想玩？這些也很好笑 ✨</h3>
@@ -318,35 +319,35 @@
 // 每題：{dim, q, scenario, reverse}  reverse=true表示反向計分
 const questions=[
   // O 開放性 x5
-  {dim:'O',q:'朋友說要去吃一間「生蠔配芒果冰淇淋」的餐廳，你的第一反應是「好啊！這什麼鬼組合，更好奇了！」',scenario:'（選越高代表越符合你的第一反應）'},
-  {dim:'O',q:'你上一次主動嘗試一個「完全不在你舒適圈」的東西，距離現在不超過一個月',scenario:'（新料理、新地方、新技能都算）'},
-  {dim:'O',q:'朋友說你講的話讓他「欸，我沒想過這個角度」｜這種事常常發生在你身上',scenario:''},
-  {dim:'O',q:'對「這件事為什麼會這樣」的追問，你常常比旁邊的人先到達第五層問題',scenario:''},
-  {dim:'O',q:'換新路線、試新餐廳、換個方法做同一件事｜這種「無謂的改變」讓你有趣的感覺大於麻煩',scenario:''},
+  {dim:'O',q:'沒聽過的東西，你的本能是好奇，不是閃躲。',scenario:''},
+  {dim:'O',q:'別人說你「想法很跳」，你心裡覺得那是讚美。',scenario:''},
+  {dim:'O',q:'「為什麼」這三個字，你永遠比旁邊的人問得多。',scenario:''},
+  {dim:'O',q:'換一條沒走過的路，你覺得有趣大於麻煩。',scenario:''},
+  {dim:'O',q:'你享受沒有標準答案的問題。',scenario:''},
   // C 盡責性 x5
-  {dim:'C',q:'你說「我明天會做」的事，通常真的明天會做｜不是躺平等別人催',scenario:''},
-  {dim:'C',q:'答應要做的事，你比較傾向提早搞定，而不是快到了才衝',scenario:'（選越高代表你真的很早就開始）'},
-  {dim:'C',q:'你的包包裡有什麼你大概都知道，不需要翻遍才能找到',scenario:''},
-  {dim:'C',q:'做完一件事之後，你很難不多確認一遍｜哪怕只是一封很普通的訊息',scenario:''},
-  {dim:'C',q:'「差不多就好了」這句話，你說出口的時候心裡其實有點不舒服',scenario:''},
+  {dim:'C',q:'你說明天做的事，明天真的會做。',scenario:''},
+  {dim:'C',q:'「差不多就好」這句話，你說出口心裡會刺一下。',scenario:''},
+  {dim:'C',q:'東西沒歸位，你會忍不住去動它。',scenario:''},
+  {dim:'C',q:'你寧可提早搞定，也不要壓線才衝。',scenario:''},
+  {dim:'C',q:'一封普通的訊息，你送出前也會回頭再看一眼。',scenario:''},
   // E 外向性 x5
-  {dim:'E',q:'你在一個有很多陌生人的派對待了兩小時，你離開時是充電狀態而不是放電狀態',scenario:'（誠實選，不要選你希望的那種）'},
-  {dim:'E',q:'排隊時旁邊的陌生人跟你說了一句話，你能自然接話聊起來',scenario:''},
-  {dim:'E',q:'連假三天完全一個人在家，第一天你會感到非常自在放鬆',scenario:'（注意：是問第一天，不是第三天）'},
-  {dim:'E',q:'你比較常是那個主動說「欸我們出去玩啊」的人，而不是等別人來找你',scenario:''},
-  {dim:'E',q:'你需要的是「人群充電」而不是「一個人才能充電」',scenario:'（外向者跟人在一起是充電，內向者獨處才是充電）'},
+  {dim:'E',q:'一屋子不認識的人，待兩小時後你是充電狀態。',scenario:'（誠實選，不是你希望的那種）'},
+  {dim:'E',q:'你比較常是揪人出門的那個，不是被揪的。',scenario:''},
+  {dim:'E',q:'排隊時陌生人跟你搭話，你能自然接下去聊。',scenario:''},
+  {dim:'E',q:'你需要的是人群充電，不是獨處充電。',scenario:''},
+  {dim:'E',q:'「你今天怎麼這麼安靜？」這句話你很少被問到。',scenario:''},
   // A 親和性 x5
-  {dim:'A',q:'朋友跟你說了一件讓他很難過的事，你的第一反應是讓他把話說完，而不是立刻給建議',scenario:''},
-  {dim:'A',q:'跟人起衝突之後，你比較容易先讓一步、先找共識，而不是繼續堅持',scenario:''},
-  {dim:'A',q:'你常常告訴自己「他可能不是故意的」，就算對方已經踩你好幾次了',scenario:'（選越高代表你真的很常這樣想）'},
-  {dim:'A',q:'有人在群組裡說要找人幫忙，你通常是最早回的那幾個',scenario:''},
-  {dim:'A',q:'你大部分時間相信人性本善，雖然你被踩過幾次了',scenario:''},
-  // N 神經質（低分=情緒穩定）x5，反向計分
-  {dim:'N',q:'訊息已讀不回，你不會在心裡預演對方是不是在生你的氣',scenario:'（選越高代表你越不會這樣想）',reverse:true},
-  {dim:'N',q:'昨天說過的一句話，今天還在腦子裡轉，想著「那樣說對嗎、對方怎麼解讀」',scenario:'',reverse:true},
-  {dim:'N',q:'壓力大的時候，你的身體會先反應：肩膀緊、睡不好、胃怪怪的',scenario:'',reverse:true},
-  {dim:'N',q:'你有時候莫名感到焦慮，說不上來為什麼，就是有點坐不住',scenario:'',reverse:true},
-  {dim:'N',q:'別人說的一句輕描淡寫的評論，你可能在心裡放了三天',scenario:'',reverse:true},
+  {dim:'A',q:'朋友跟你訴苦，你的本能是先聽完，不是先給建議。',scenario:''},
+  {dim:'A',q:'吵完架，你比較常先退一步。',scenario:''},
+  {dim:'A',q:'對方踩你三次了，你還在想「他可能不是故意的」。',scenario:''},
+  {dim:'A',q:'群組裡有人求助，你通常是最早回的那幾個。',scenario:''},
+  {dim:'A',q:'你大部分時間相信人是善意的，即使被踩過。',scenario:''},
+  // N 神經質（低分=穩定）x5，反向計分
+  {dim:'N',q:'已讀不回，你不會在心裡演小劇場。',scenario:'（選越高代表你越不會）',reverse:true},
+  {dim:'N',q:'昨天說的一句話，今天不會還在你腦子裡轉。',scenario:'',reverse:true},
+  {dim:'N',q:'壓力大的時候，你的身體不太會先出狀況。',scenario:'',reverse:true},
+  {dim:'N',q:'你很少莫名焦慮，那種說不上來的坐立不安。',scenario:'',reverse:true},
+  {dim:'N',q:'別人隨口一句評論，你不會放在心裡超過一天。',scenario:'',reverse:true},
 ];
 
 const likerLabels=['完全不是我','大概不是','中間人','大概是我','就是在說我'];
@@ -539,8 +540,23 @@ function showResult(){
   const titleKey2 = `${top2}-${top1}`;
   const titleData = hlTitles[titleKey1] || hlTitles[titleKey2] || hlTitles['O-C'];
 
+  // 截圖分享卡
   document.getElementById('hlTitleReveal').innerHTML = `
+    <div class="screenshot-card" id="screenshotCard">
+      <div class="ss-brand">HOUR LIGHT ✦ 馥靈之鑰</div>
+      <div class="ss-icon">${titleData.icon}</div>
+      <div class="ss-title">${titleData.title}</div>
+      <div class="ss-sub">${titleData.sub}</div>
+      <div class="ss-tags">
+        <span class="ss-tag">${titleData.castle}</span>
+        <span class="ss-tag">${titleData.hour}</span>
+      </div>
+      <div class="ss-quote">「${titleData.quote}」</div>
+      <div class="ss-footer">hourlightkey.com ✦ 你的城堡，你的鑰匙</div>
+    </div>
     <div class="hl-title-card">
+      <div class="corner-deco tl"></div><div class="corner-deco tr"></div>
+      <div class="corner-deco bl"></div><div class="corner-deco br"></div>
       <div class="hl-title-eyebrow">Hour Light ✦ 你的馥靈稱號</div>
       <span class="hl-title-icon">${titleData.icon}</span>
       <div class="hl-title-main">${titleData.title}</div>
@@ -568,7 +584,9 @@ function showResult(){
   if(window.HL_track) window.HL_track("quiz_complete", {quizName:"Big Five大五人格測驗", result: dominant.name+" "+dominant.label});
   window._resultText=`【馥靈之鑰 Big Five 五大人格】\n開放性 ${pct.O}% ・ 盡責性 ${pct.C}% ・ 外向性 ${pct.E}% ・ 親和性 ${pct.A}% ・ 情緒穩定 ${pct.N_stable}%\n最突出的特質：${names[topTrait[0]]||''}\n✦ 馥靈稱號：${titleData.title}\n\n測你的五種原力 👉 hourlightkey.com/quiz-bigfive.html`;
 
-  document.getElementById('quizResult').classList.add('active');
+  
+  try{localStorage.setItem('hl_quiz_bigfive',JSON.stringify({top:topTrait[0],pcts:pct,ts:Date.now()}));}catch(e){}
+document.getElementById('quizResult').classList.add('active');
   document.getElementById('quizResult').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
