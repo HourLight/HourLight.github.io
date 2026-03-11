@@ -30,7 +30,7 @@ var HL_ROLES = {
     badge:   'linear-gradient(135deg,#fff0a0,#e9c27d)',
     badgeText: '#1a1008',
     desc:    '系統最高權限，可調整所有會員身分與功能開放',
-    emails:  ['judyanee@gmail.com', 'info@hourlightkey.com'],
+    emails:  ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'],
     canAccessAdmin: true,
     unlimitedAll:   true,
     canManageRoles: true,
@@ -166,7 +166,6 @@ var HL_TOOL_PERMISSIONS = {
   // 抽牌工具
   'draw-hl':              { name: '馥靈牌陣抽牌',    type: 'draw',       en: 'HL Card Spread',   freeAccess: true  },
   'draw-light':           { name: '馥靈單牌抽牌',    type: 'draw',       en: 'Single Draw',       freeAccess: true  },
-  'draw-body':            { name: '身體能量抽牌',    type: 'draw',       en: 'Body Draw',          freeAccess: false },
   'draw-spa':             { name: 'SPA 抽牌',         type: 'draw',       en: 'SPA Draw',           freeAccess: false },
   'draw-nail':            { name: '美甲抽牌',         type: 'draw',       en: 'Nail Draw',          freeAccess: false },
   'tarot-draw':           { name: '塔羅抽牌',         type: 'draw',       en: 'Tarot Draw',         freeAccess: false },
@@ -189,7 +188,6 @@ var HL_TOOL_PERMISSIONS = {
   'quiz-enneagram':       { name: '九型人格測驗',    type: 'quiz',       en: 'Enneagram',           freeAccess: true  },
   'quiz-bloodtype':       { name: '血型測驗',         type: 'quiz',       en: 'Blood Type',          freeAccess: true  },
   // 高階專屬工具（馥靈輕盈系列）
-  'abundance-program':    { name: '馥靈輕盈課程',    type: 'premium',    en: 'Abundance Program',   freeAccess: false },
   'abundance':            { name: '馥靈輕盈系統',    type: 'premium',    en: 'Abundance System',    freeAccess: false },
 };
 
@@ -205,7 +203,7 @@ var HL_DEFAULT_PERMISSIONS = (function(){
   var tools  = Object.keys(HL_TOOL_PERMISSIONS);
 
   // 高階專屬工具清單
-  var PREMIUM_ONLY = ['abundance-program', 'abundance'];
+  var PREMIUM_ONLY = ['abundance'];
   // 免費引流工具清單（從 freeAccess:true 自動產生）
   var FREE_TOOLS = Object.entries(HL_TOOL_PERMISSIONS)
     .filter(function(e){ return e[1].freeAccess; })

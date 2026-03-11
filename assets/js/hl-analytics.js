@@ -141,8 +141,7 @@
         'CompleteRegistration',
         { content_name: 'Email訂閱', status: true }
       );
-      console.log('✅ 訂閱成功已追蹤');
-    }
+          }
   });
 
   // 備用：監聽訂閱按鈕點擊
@@ -167,5 +166,5 @@
     );
   };
 
-  console.log('✅ HL Analytics 已啟動 (GA4 + FB Pixel + MailerLite)');
+  ');
 })();

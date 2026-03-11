@@ -145,10 +145,7 @@
           const loadTime = timing.loadEventEnd - timing.navigationStart;
           const domReady = timing.domContentLoadedEventEnd - timing.navigationStart;
           
-          console.log('📊 馥靈之鑰效能報告：');
-          console.log(`  DOM 就緒：${domReady}ms`);
-          console.log(`  完整載入：${loadTime}ms`);
-        }, 0);
+                                      }, 0);
       });
     }
   }
