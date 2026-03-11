@@ -1,0 +1,114 @@
+/* ═══════════════════════════════════════
+   hl-visual-fx.css — 馥靈共用視覺特效
+   讓結果揭示的瞬間，觸動六感
+   ═══════════════════════════════════════ */
+
+/* ── 粒子畫布 ── */
+.fx-canvas{position:fixed;inset:0;z-index:9998;pointer-events:none;opacity:0;transition:opacity 1.5s}
+.fx-canvas.active{opacity:1}
+
+/* ── 結果揭示遮罩 ── */
+.fx-reveal-mask{position:fixed;inset:0;z-index:9997;pointer-events:none;
+  background:radial-gradient(circle at 50% 50%,transparent 0%,rgba(5,3,10,.95) 100%);
+  opacity:0;transition:opacity .6s}
+.fx-reveal-mask.active{opacity:1;animation:fx-reveal-pulse 2s ease-out forwards}
+
+@keyframes fx-reveal-pulse{
+  0%{background:radial-gradient(circle at 50% 50%,transparent 0%,rgba(5,3,10,.98) 0%)}
+  50%{background:radial-gradient(circle at 50% 50%,transparent 30%,rgba(5,3,10,.85) 60%)}
+  100%{background:radial-gradient(circle at 50% 50%,transparent 100%,rgba(5,3,10,0) 100%);opacity:0}
+}
+
+/* ── 數字翻轉動畫 ── */
+.fx-counter{display:inline-block;overflow:hidden;position:relative}
+.fx-counter-inner{animation:fx-count-roll .8s cubic-bezier(.23,1,.32,1) forwards}
+@keyframes fx-count-roll{
+  0%{transform:translateY(100%);opacity:0;filter:blur(8px)}
+  60%{filter:blur(0)}
+  100%{transform:translateY(0);opacity:1}
+}
+
+/* ── 交錯淡入 ── */
+.fx-stagger{opacity:0;transform:translateY(20px);transition:all .6s cubic-bezier(.23,1,.32,1)}
+.fx-stagger.visible{opacity:1;transform:translateY(0)}
+
+/* ── 光暈脈衝 ── */
+.fx-glow{position:relative}
+.fx-glow::after{content:'';position:absolute;inset:-4px;border-radius:inherit;
+  opacity:0;transition:opacity .6s;pointer-events:none}
+.fx-glow.pulse::after{opacity:1;animation:fx-glow-beat 2s ease-in-out 2}
+@keyframes fx-glow-beat{
+  0%,100%{box-shadow:0 0 20px var(--fx-color,rgba(233,194,125,.3)),inset 0 0 20px var(--fx-color,rgba(233,194,125,.1))}
+  50%{box-shadow:0 0 40px var(--fx-color,rgba(233,194,125,.5)),inset 0 0 30px var(--fx-color,rgba(233,194,125,.15)),0 0 80px var(--fx-color,rgba(233,194,125,.2))}
+}
+
+/* ── 漣漪擴散 ── */
+.fx-ripple{position:relative;overflow:hidden}
+.fx-ripple::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;
+  border-radius:50%;background:var(--fx-color,rgba(233,194,125,.15));
+  transform:translate(-50%,-50%);opacity:0;pointer-events:none}
+.fx-ripple.active::before{animation:fx-ripple-out 1.2s ease-out forwards}
+@keyframes fx-ripple-out{
+  0%{width:0;height:0;opacity:.6}
+  100%{width:600px;height:600px;opacity:0}
+}
+
+/* ── 呼吸光效 ── */
+.fx-breathe{animation:fx-breathe 4s ease-in-out infinite}
+@keyframes fx-breathe{
+  0%,100%{box-shadow:0 0 12px var(--fx-color,rgba(233,194,125,.1))}
+  50%{box-shadow:0 0 28px var(--fx-color,rgba(233,194,125,.25)),0 0 60px var(--fx-color,rgba(233,194,125,.08))}
+}
+
+/* ── 色彩流動背景 ── */
+.fx-color-flow{background-size:300% 300%;animation:fx-flow 8s ease infinite}
+@keyframes fx-flow{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+/* ── 星塵飄落 ── */
+.fx-dust{position:relative}
+.fx-dust::after{content:'✦';position:absolute;font-size:8px;color:var(--fx-color,rgba(233,194,125,.4));
+  animation:fx-dust-fall 3s linear infinite;pointer-events:none;top:-10px}
+@keyframes fx-dust-fall{
+  0%{opacity:0;transform:translateY(-10px) rotate(0deg)}
+  20%{opacity:1}
+  80%{opacity:.5}
+  100%{opacity:0;transform:translateY(60px) rotate(180deg)}
+}
+
+/* ── 文字逐字顯現 ── */
+.fx-typewrite .fx-char{opacity:0;display:inline-block;animation:fx-char-in .3s forwards}
+@keyframes fx-char-in{
+  0%{opacity:0;transform:translateY(8px);filter:blur(4px)}
+  100%{opacity:1;transform:translateY(0);filter:blur(0)}
+}
+
+/* ── 卡片懸浮微動 ── */
+.fx-float{animation:fx-float-bob 3s ease-in-out infinite}
+@keyframes fx-float-bob{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
+}
+
+/* ── 能量條充填 ── */
+.fx-fill-bar{width:0;transition:width 1.2s cubic-bezier(.23,1,.32,1)}
+.fx-fill-bar.filled{width:var(--fx-pct,100%)}
+
+/* ── 結果卡片入場 ── */
+.fx-card-enter{opacity:0;transform:translateY(30px) scale(.95);
+  transition:all .5s cubic-bezier(.23,1,.32,1)}
+.fx-card-enter.show{opacity:1;transform:translateY(0) scale(1)}
+
+/* ── 圓形擴張揭示 ── */
+.fx-circle-reveal{clip-path:circle(0% at 50% 50%);transition:clip-path 1s cubic-bezier(.23,1,.32,1)}
+.fx-circle-reveal.open{clip-path:circle(75% at 50% 50%)}
+
+/* ── 響應式微調 ── */
+@media(prefers-reduced-motion:reduce){
+  .fx-breathe,.fx-float,.fx-dust::after,.fx-counter-inner,.fx-stagger{animation:none!important}
+  .fx-stagger{opacity:1;transform:none}
+  .fx-circle-reveal{clip-path:none}
+}

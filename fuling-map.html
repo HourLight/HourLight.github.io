@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>馥靈地圖｜把你心裡的問題交給我｜馥靈之鑰 Hour Light</title>
+<meta name="description" content="把你心裡的問題交給我。馥靈地圖用四十種鏡子幫你看見自己站在哪裡，再用大自然的植物氣味帶你回到安定。">
+<meta property="og:title" content="馥靈地圖｜把你心裡的問題交給我">
+<meta property="og:description" content="四十種鏡子幫你看見座標，大自然的植物氣味帶你回到平衡。從你的問題開始，讓心安靜下來。">
+<link rel="icon" href="HOUR-LIGHT.png">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@400;600&family=LXGW+WenKai+TC:wght@300;400&family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/hl-visual-fx.css">
+<style>
+:root{--bg:#05030a;--ink:#f9f0e5;--ink2:rgba(249,240,229,.55);--ink3:rgba(249,240,229,.3);
+  --gold:#e9c27d;--gold2:#cda86e;--glass:rgba(249,240,229,.04);--border:rgba(233,194,125,.12);
+  --fo:'LXGW WenKai TC',serif;--fs:'Noto Sans TC',sans-serif;--fc:'Cormorant Garamond',serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--fs);font-weight:300;line-height:1.8;
+  min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:-2;
+  background:radial-gradient(ellipse at 30% 20%,rgba(92,58,99,.15),transparent 50%),
+  radial-gradient(ellipse at 70% 70%,rgba(107,143,189,.08),transparent 45%),var(--bg)}
+
+.container{max-width:780px;margin:0 auto;padding:24px 16px 80px}
+
+/* Hero */
+.hero{text-align:center;padding:40px 0 32px}
+.hero h1{font-family:var(--fo);font-size:clamp(1.6rem,5vw,2.4rem);font-weight:300;
+  color:var(--gold);letter-spacing:.15em;margin-bottom:12px}
+.hero .tagline{font-size:.95rem;color:var(--ink2);max-width:480px;margin:0 auto;line-height:2}
+.hero .tagline strong{color:var(--ink);font-weight:400}
+
+/* Question prompt */
+.prompt{text-align:center;margin:32px 0 24px}
+.prompt-text{font-family:var(--fo);font-size:1.15rem;color:var(--gold);letter-spacing:.08em}
+
+/* Category Grid */
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:24px}
+.cat-card{background:var(--glass);border:1px solid var(--border);border-radius:18px;
+  padding:22px 18px;cursor:pointer;transition:.3s;position:relative;overflow:hidden}
+.cat-card:hover{border-color:rgba(233,194,125,.35);transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.cat-card.active{border-color:var(--gold);background:rgba(233,194,125,.06)}
+.cat-card .cc-emoji{font-size:1.6rem;margin-bottom:8px}
+.cat-card .cc-q{font-family:var(--fo);font-size:.92rem;color:var(--ink);line-height:1.6;
+  letter-spacing:.02em}
+.cat-card .cc-hint{font-size:.72rem;color:var(--ink3);margin-top:6px}
+.cat-card .cc-count{position:absolute;top:14px;right:14px;font-size:.65rem;
+  color:var(--ink3);background:rgba(249,240,229,.05);padding:2px 8px;border-radius:6px}
+
+/* Tool List (expanded) */
+.tool-list{display:none;animation:fadeIn .3s}
+.tool-list.show{display:block}
+.tool-list-inner{padding:8px 0}
+.tool-item{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;margin:6px 0;
+  border-radius:14px;border:1px solid var(--border);background:var(--glass);
+  text-decoration:none;color:var(--ink);transition:.3s;cursor:pointer}
+.tool-item:hover{border-color:rgba(233,194,125,.3);background:rgba(233,194,125,.06);transform:translateX(4px)}
+.tool-item .ti-icon{font-size:1.3rem;flex-shrink:0;margin-top:2px}
+.tool-item .ti-body{flex:1;min-width:0}
+.tool-item .ti-name{font-size:.88rem;color:var(--gold);font-weight:400;margin-bottom:2px}
+.tool-item .ti-desc{font-size:.78rem;color:var(--ink2);line-height:1.7}
+.tool-item .ti-tag{display:inline-block;font-size:.62rem;padding:2px 8px;border-radius:4px;
+  margin-top:4px;background:rgba(233,194,125,.08);color:var(--ink3)}
+.tool-item .ti-arrow{color:var(--ink3);font-size:.82rem;flex-shrink:0;margin-top:4px;transition:.3s}
+.tool-item:hover .ti-arrow{color:var(--gold);transform:translateX(4px)}
+
+/* Back button */
+.back-btn{display:none;margin:16px 0;padding:10px 20px;border:1px solid var(--border);
+  border-radius:10px;background:none;color:var(--ink2);font-size:.82rem;cursor:pointer;
+  font-family:inherit;transition:.3s}
+.back-btn.show{display:inline-block}
+.back-btn:hover{border-color:var(--gold);color:var(--ink)}
+
+/* Quick Entry */
+.quick-entry{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:20px 0 32px}
+.qe-btn{padding:10px 20px;border-radius:999px;font-size:.82rem;cursor:pointer;
+  font-family:inherit;transition:.3s;text-decoration:none;text-align:center}
+.qe-btn.primary{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1008;
+  border:none;font-weight:500}
+.qe-btn.secondary{background:none;border:1px solid var(--border);color:var(--ink2)}
+.qe-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(233,194,125,.15)}
+
+/* Search */
+.search-wrap{max-width:400px;margin:0 auto 24px;position:relative}
+.search-wrap input{width:100%;padding:12px 16px 12px 40px;border-radius:12px;border:1px solid var(--border);
+  background:var(--glass);color:var(--ink);font-size:.88rem;font-family:inherit;outline:none;transition:.3s}
+.search-wrap input:focus{border-color:var(--gold)}
+.search-wrap input::placeholder{color:var(--ink3)}
+.search-wrap::before{content:'🔍';position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:.85rem}
+
+/* Stats */
+.stats{text-align:center;font-size:.72rem;color:var(--ink3);margin:24px 0}
+.stats span{color:var(--gold)}
+
+/* Footer */
+.ff-footer{text-align:center;padding:40px 16px 24px;font-size:.7rem;color:rgba(249,240,229,.2)}
+.ff-footer a{color:rgba(233,194,125,.4);text-decoration:none}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(max-width:600px){
+  .cat-grid{grid-template-columns:1fr}
+  .quick-entry{flex-direction:column;align-items:center}
+  .qe-btn{width:80%}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="hero">
+    <h1>把你心裡的問題交給我</h1>
+    <p class="tagline">
+      這裡有四十面鏡子，幫你看見自己站在哪個座標。<br>
+      看見之後，<strong>大自然的植物氣味會帶你回到安定。</strong><br>
+      <span style="font-size:.82rem;color:var(--ink3)">問一個問題，讓心安靜下來。</span>
+    </p>
+  </div>
+
+  <!-- Quick Entry -->
+  <div class="quick-entry">
+    <a class="qe-btn primary" href="fuling-mima.html">🌿 用生日聞見自己</a>
+    <a class="qe-btn secondary" href="draw-hl.html">🃏 抽一張，讓心安靜</a>
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <input type="text" id="searchInput" placeholder="想找什麼？輸入關鍵字..." oninput="filterTools()">
+  </div>
+
+  <div class="prompt">
+    <div class="prompt-text">你現在心裡裝著什麼？</div>
+  </div>
+
+  <!-- Category Grid -->
+  <div class="cat-grid" id="catGrid"></div>
+
+  <!-- Back button -->
+  <button class="back-btn" id="backBtn" onclick="showCategories()">← 回到所有分類</button>
+
+  <!-- Tool List (shown after category click) -->
+  <div class="tool-list" id="toolList"></div>
+
+  <!-- Search Results -->
+  <div class="tool-list" id="searchResults"></div>
+
+  <div class="stats">
+    <span id="toolCount">0</span> 面鏡子｜每一面都連結著一個氣味
+  </div>
+
+  <div style="text-align:center;margin:32px 0;padding:24px;border-radius:16px;border:1px solid var(--border);background:var(--glass)">
+    <div style="font-family:var(--fo);font-size:.95rem;color:var(--gold);margin-bottom:8px">鏡子幫你看見，香氣帶你回來。</div>
+    <div style="font-size:.82rem;color:var(--ink2);line-height:1.8">
+      所有的工具都是入口，不是終點。<br>
+      看見自己的座標之後，讓植物的氣味接住你。<br>
+      你的身體比腦袋更早知道答案。
+    </div>
+  </div>
+
+  <div class="ff-footer">
+    © 2026 馥靈之鑰國際有限公司 Hour Light International Co., Ltd.｜
+    <a href="https://hourlightkey.com">hourlightkey.com</a>｜
+    <a href="https://lin.ee/OQDB5t6">LINE 官方</a>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   馥靈地圖 — 問題導向工具分流
+   馥靈之鑰 Hour Light © 2026
+   ═══════════════════════════════════════ */
+
+var CATEGORIES = [
+  {id:'self',emoji:'🔍',q:'「我是誰？我適合什麼？」',hint:'性格探索、天賦發掘',
+   tools:[
+    {icon:'🧬',name:'MBTI 十六型人格',desc:'全球最多人做的性格分類，找到你的四個字母代號',url:'quiz-mbti.html',tag:'20分鐘'},
+    {icon:'🌊',name:'Big Five 大五人格',desc:'心理學界公認最科學的人格測量，五個維度精準定位',url:'quiz-bigfive.html',tag:'15分鐘'},
+    {icon:'💬',name:'DISC 溝通風格',desc:'你在團隊裡是哪種角色？了解你的溝通模式',url:'quiz-disc.html',tag:'10分鐘'},
+    {icon:'🔮',name:'九型人格',desc:'九種核心恐懼 × 九種核心渴望，看見最深層的動力',url:'quiz-enneagram.html',tag:'15分鐘'},
+    {icon:'💪',name:'VIA 性格優勢',desc:'24 種品格優勢中，你最強的是哪幾個？',url:'quiz-via.html',tag:'15分鐘'},
+    {icon:'🩸',name:'血型性格',desc:'輕鬆版性格分析，日式血型學的現代解讀',url:'quiz-bloodtype.html',tag:'3分鐘'},
+    {icon:'🧭',name:'RIASEC 職業興趣',desc:'六種職業性格類型，找到最適合你的工作方向',url:'quiz-riasec.html',tag:'10分鐘'},
+    {icon:'💎',name:'優勢識別器',desc:'34 項天賦主題中，你的前五強是什麼？',url:'quiz-strengths.html',tag:'15分鐘'}
+   ]},
+  {id:'stuck',emoji:'🗝️',q:'「我現在卡住了，怎麼辦？」',hint:'抽牌、卜卦、當下指引',
+   tools:[
+    {icon:'🃏',name:'馥靈之鑰牌卡',desc:'130 張智慧牌，抽一張聽聽自己的聲音。1-21 張自由選',url:'draw-hl.html',tag:'免費體驗'},
+    {icon:'🌙',name:'經典塔羅',desc:'78 張塔羅牌，用最古老的意象映照你的當下',url:'tarot-draw.html',tag:'免費'},
+    {icon:'☯️',name:'馥靈馥語易經',desc:'四種起卦方式（銅錢、梅花、文字、時間），六十四卦完整解讀',url:'fuling-fuyu.html',tag:'免費'},
+    {icon:'✨',name:'光之指引牌',desc:'溫柔版抽牌，適合需要一點光的時刻',url:'draw-light.html',tag:'免費'}
+   ]},
+  {id:'destiny',emoji:'📐',q:'「我的天生設定是什麼？」',hint:'命盤、數字、出生密碼',
+   tools:[
+    {icon:'🔢',name:'馥靈秘碼（農曆生日）',desc:'用農曆生日解碼你的 H.O.U.R. 四大主數，含雷達圖',url:'fuling-mima.html',tag:'免費・3分鐘'},
+    {icon:'🏛️',name:'十大命理運算引擎',desc:'八字、紫微、西洋占星、人類圖、瑪雅曆⋯⋯十個系統一次算完',url:'destiny-engine.html',tag:'需要出生時間'},
+    {icon:'🌳',name:'卡巴拉生命之樹',desc:'用你的英文名和生日，定位在生命之樹的座標',url:'kabbalah.html',tag:'需要英文名'},
+    {icon:'⭐',name:'九星氣學',desc:'源自洛書的風水命數，找到你的本命星和吉凶方位',url:'nine-star-ki.html',tag:'3分鐘'},
+    {icon:'🎨',name:'生日色彩能量',desc:'每個人出生帶著獨特的色彩頻率，找到你的靈魂主色',url:'color-energy.html',tag:'3分鐘'},
+    {icon:'🌑',name:'凱龍星與莉莉絲',desc:'你靈魂最深的傷口和最被壓抑的力量，暗星揭示',url:'chiron-lilith.html',tag:'需要載入星曆'},
+    {icon:'🔢',name:'生命靈數計算器',desc:'西洋畢達哥拉斯系統，快速看你的生命路徑數',url:'lifepath-calculator.html',tag:'1分鐘'},
+    {icon:'🌈',name:'彩虹數字三角',desc:'東方版數字三角密碼，看你的父母基因 × 流年',url:'rainbow-calculator.html',tag:'3分鐘'},
+    {icon:'🦅',name:'瑪雅曆計算器',desc:'找到你的星際印記 KIN、圖騰和調性',url:'maya-calculator.html',tag:'2分鐘'}
+   ]},
+  {id:'love',emoji:'💕',q:'「我的關係怎麼了？」',hint:'感情、溝通、依附模式',
+   tools:[
+    {icon:'💗',name:'愛之語測驗',desc:'五種愛的語言，你最需要哪一種被愛的方式？',url:'quiz-lovelang.html',tag:'10分鐘'},
+    {icon:'🔗',name:'依附風格測驗',desc:'安全型、焦慮型、逃避型⋯你在關係裡的模式是？',url:'quiz-attachment.html',tag:'10分鐘'},
+    {icon:'💑',name:'關係覺察測驗',desc:'你在關係中的角色、界線和溝通盲點',url:'quiz-relationship.html',tag:'12分鐘'}
+   ]},
+  {id:'work',emoji:'💼',q:'「工作讓我好累，怎麼辦？」',hint:'職場倦怠、美業轉型',
+   tools:[
+    {icon:'🔥',name:'美業倦怠指數',desc:'你的職業倦怠到了什麼程度？三分鐘見真章',url:'quiz-beauty-burnout.html',tag:'美業專用・3分鐘'},
+    {icon:'👤',name:'美業客戶辨識',desc:'快速判斷這位客人需要什麼，用對方式服務',url:'quiz-beauty-client.html',tag:'美業專用'},
+    {icon:'🦸',name:'拯救者傾向測驗',desc:'你是不是把自己累壞了？停止拯救，開始收費',url:'quiz-beauty-savior.html',tag:'美業專用'},
+    {icon:'🎯',name:'控制信念量表',desc:'你相信命運是自己掌控的，還是外在決定的？',url:'quiz-beauty-locus.html',tag:'5分鐘'},
+    {icon:'🧭',name:'RIASEC 職業興趣',desc:'如果你在考慮轉型，先看看自己適合什麼方向',url:'quiz-riasec.html',tag:'10分鐘'}
+   ]},
+  {id:'emotion',emoji:'😮‍💨',q:'「我壓力好大、情緒好亂」',hint:'情緒覺察、壓力管理',
+   tools:[
+    {icon:'🌡️',name:'壓力指數量表',desc:'你的壓力已經到了什麼等級？客觀評估',url:'quiz-stress.html',tag:'5分鐘'},
+    {icon:'🧠',name:'EQ 情緒商數',desc:'你管理情緒的能力有多高？四個維度精準測量',url:'quiz-eq.html',tag:'10分鐘'},
+    {icon:'🎭',name:'情緒覺察量表',desc:'你認得出自己當下的情緒嗎？辨識力測驗',url:'quiz-emotion.html',tag:'8分鐘'},
+    {icon:'🌸',name:'高敏感族測驗',desc:'你是 HSP 高敏感族嗎？敏感不是缺點，是天賦',url:'quiz-hsp.html',tag:'8分鐘'},
+    {icon:'👶',name:'內在小孩測驗',desc:'你的童年傷口還在影響現在的你嗎？',url:'quiz-innerchild.html',tag:'10分鐘'}
+   ]},
+  {id:'scent',emoji:'🌿',q:'「我想找到適合我的香氣」',hint:'芳療導航、精油推薦',
+   tools:[
+    {icon:'🌺',name:'芳療人格測驗',desc:'你的性格對應哪種精油家族？找到你的命定香氣',url:'quiz-aroma.html',tag:'8分鐘'},
+    {icon:'🧭',name:'氣味導航儀',desc:'回答幾個問題，AI 幫你配出今天最需要的香氣處方',url:'scent-navigator.html',tag:'3分鐘'}
+   ]},
+  {id:'decode',emoji:'🔢',q:'「解碼我的名字和號碼」',hint:'姓名、手機、生活數字',
+   tools:[
+    {icon:'📱',name:'手機號碼能量',desc:'你的手機號碼藏著什麼磁場？八星配對 + 五行分析',url:'phone-oracle.html',tag:'2分鐘'},
+    {icon:'✍️',name:'姓名學五格',desc:'用康熙筆畫分析你的天格、人格、地格、外格、總格',url:'name-oracle.html',tag:'2分鐘'},
+    {icon:'🔮',name:'數字能量分析器',desc:'任何數字背後的五行能量和振動頻率',url:'digital-energy-analyzer.html',tag:'1分鐘'}
+   ]},
+  {id:'deep',emoji:'🌑',q:'「我想看更深層的自己」',hint:'進階覺察、靈性探索',
+   tools:[
+    {icon:'🌑',name:'凱龍星與莉莉絲',desc:'你靈魂最深的傷口 × 最被壓抑的力量',url:'chiron-lilith.html',tag:'進階'},
+    {icon:'🌳',name:'卡巴拉生命之樹',desc:'古老的意識地圖，22 條路徑對應 22 張原型卡',url:'kabbalah.html',tag:'進階'},
+    {icon:'☯️',name:'馥靈馥語易經',desc:'六十四卦的馥靈現代解讀，含納甲六爻',url:'fuling-fuyu.html',tag:'進階'},
+    {icon:'🏛️',name:'十大命理運算引擎',desc:'十個東西方命理系統交叉比對，看見完整全貌',url:'destiny-engine.html',tag:'完整版'},
+    {icon:'🌈',name:'彩虹橋數字',desc:'生命靈數的彩虹能量層對應',url:'rainbow-bridge.html',tag:'進階'}
+   ]}
+];
+
+// Build page
+function init() {
+  renderCategories();
+  updateStats();
+}
+
+function renderCategories() {
+  var html = '';
+  CATEGORIES.forEach(function(cat){
+    html += '<div class="cat-card" onclick="showCategory(\''+cat.id+'\')" id="cat-'+cat.id+'">'
+      +'<div class="cc-count">'+cat.tools.length+' 種</div>'
+      +'<div class="cc-emoji">'+cat.emoji+'</div>'
+      +'<div class="cc-q">'+cat.q+'</div>'
+      +'<div class="cc-hint">'+cat.hint+'</div>'
+      +'</div>';
+  });
+  document.getElementById('catGrid').innerHTML = html;
+  document.getElementById('catGrid').style.display = '';
+  document.getElementById('toolList').className = 'tool-list';
+  document.getElementById('backBtn').className = 'back-btn';
+}
+
+function showCategory(id) {
+  var cat = CATEGORIES.find(function(c){return c.id === id});
+  if (!cat) return;
+
+  var html = '<div class="tool-list-inner">'
+    +'<div style="font-family:var(--fo);font-size:1.05rem;color:var(--gold);margin-bottom:16px;letter-spacing:.05em">'
+    +cat.emoji+' '+cat.q+'</div>';
+
+  cat.tools.forEach(function(t){
+    html += '<a class="tool-item" href="'+t.url+'">'
+      +'<div class="ti-icon">'+t.icon+'</div>'
+      +'<div class="ti-body">'
+      +'<div class="ti-name">'+t.name+'</div>'
+      +'<div class="ti-desc">'+t.desc+'</div>'
+      +(t.tag?'<span class="ti-tag">'+t.tag+'</span>':'')
+      +'</div>'
+      +'<div class="ti-arrow">→</div>'
+      +'</a>';
+  });
+  html += '</div>';
+
+  document.getElementById('toolList').innerHTML = html;
+  document.getElementById('toolList').className = 'tool-list show';
+  document.getElementById('catGrid').style.display = 'none';
+  document.getElementById('backBtn').className = 'back-btn show';
+
+  document.getElementById('toolList').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function showCategories() {
+  document.getElementById('catGrid').style.display = '';
+  document.getElementById('toolList').className = 'tool-list';
+  document.getElementById('backBtn').className = 'back-btn';
+  document.getElementById('searchResults').className = 'tool-list';
+  document.getElementById('searchInput').value = '';
+}
+
+// Search
+function filterTools() {
+  var q = document.getElementById('searchInput').value.trim().toLowerCase();
+  if (!q) {
+    document.getElementById('searchResults').className = 'tool-list';
+    document.getElementById('catGrid').style.display = '';
+    document.getElementById('backBtn').className = 'back-btn';
+    return;
+  }
+
+  var results = [];
+  CATEGORIES.forEach(function(cat){
+    cat.tools.forEach(function(t){
+      var haystack = (t.name + t.desc + cat.q + cat.hint).toLowerCase();
+      if (haystack.indexOf(q) >= 0) results.push(t);
+    });
+  });
+
+  // Deduplicate by url
+  var seen = {};
+  results = results.filter(function(t){
+    if (seen[t.url]) return false;
+    seen[t.url] = true; return true;
+  });
+
+  if (results.length === 0) {
+    document.getElementById('searchResults').innerHTML =
+      '<div style="text-align:center;padding:24px;color:var(--ink2)">找不到相關工具。試試其他關鍵字？</div>';
+  } else {
+    var html = '<div class="tool-list-inner">'
+      +'<div style="font-size:.82rem;color:var(--ink3);margin-bottom:12px">找到 '+results.length+' 個相關工具</div>';
+    results.forEach(function(t){
+      html += '<a class="tool-item" href="'+t.url+'">'
+        +'<div class="ti-icon">'+t.icon+'</div>'
+        +'<div class="ti-body"><div class="ti-name">'+t.name+'</div><div class="ti-desc">'+t.desc+'</div>'
+        +(t.tag?'<span class="ti-tag">'+t.tag+'</span>':'')+'</div>'
+        +'<div class="ti-arrow">→</div></a>';
+    });
+    html += '</div>';
+    document.getElementById('searchResults').innerHTML = html;
+  }
+  document.getElementById('searchResults').className = 'tool-list show';
+  document.getElementById('catGrid').style.display = 'none';
+  document.getElementById('backBtn').className = 'back-btn show';
+}
+
+function updateStats() {
+  var allTools = [];
+  CATEGORIES.forEach(function(cat){
+    cat.tools.forEach(function(t){
+      if (allTools.indexOf(t.url) < 0) allTools.push(t.url);
+    });
+  });
+  document.getElementById('toolCount').textContent = allTools.length;
+}
+
+init();
+</script>
+<script src="assets/js/hl-visual-fx.js"></script>
+<script>
+// 頁面載入：分類卡片逐一浮現
+setTimeout(function(){
+  if (!window.HLFX) return;
+  document.querySelectorAll('.cat-card').forEach(function(card, i){
+    card.style.opacity='0'; card.style.transform='translateY(16px)';
+    card.style.transition='all .5s cubic-bezier(.23,1,.32,1) '+(i*80+100)+'ms';
+    setTimeout(function(){ card.style.opacity='1'; card.style.transform='translateY(0)'; }, 50);
+  });
+  // 背景微光粒子
+  HLFX.particles({ color:'rgba(233,194,125,0.2)', count:15, spread:'float', duration:6000 });
+}, 200);
+</script>
+</body>
+</html>

@@ -1885,9 +1885,15 @@ restoreFromURL();
     const auth = firebase.auth();
     const db = firebase.firestore();
 
+    /* 管理員白名單：不受配額限制 */
+    const ADMIN_EMAILS = ['info@hourlightkey.com', 'judyanee@gmail.com', 'judyanee@hotmail.com'];
+
     window.HL_checkQuota = async function() {
       const user = auth.currentUser;
       if (!user) return true; // 未登入，放行（登入牆另設）
+
+      // 管理員直接放行
+      if (user.email && ADMIN_EMAILS.includes(user.email.toLowerCase())) return true;
 
       // 取用戶方案
       let plan = 'free';
