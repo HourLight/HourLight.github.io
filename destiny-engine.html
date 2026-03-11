@@ -704,7 +704,19 @@ button.cp-main:hover {
 
       <div class="form-group">
         <label>出生時間 <span class="hint">（不確定可跳過）</span></label>
-        <input type="time" id="btime" placeholder="不確定可留空">
+        <input type="time" id="btime" placeholder="不確定可留空" onchange="checkZiHour()">
+        <div id="ziToggle" style="display:none;margin-top:8px;padding:10px 14px;border-radius:12px;background:rgba(233,194,125,.08);border:1px solid rgba(233,194,125,.2)">
+          <div style="font-size:.78rem;color:#e9c27d;margin-bottom:6px">⚡ 子時流派選擇（23:00-00:59）</div>
+          <div style="display:flex;gap:8px">
+            <label style="flex:1;display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;border:1px solid rgba(233,194,125,.2);cursor:pointer;font-size:.8rem;color:#f9f0e5;transition:.2s" id="ziLabel0">
+              <input type="radio" name="ziSect" value="2" checked style="accent-color:#e9c27d"> 早子時（日柱不換日）
+            </label>
+            <label style="flex:1;display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;border:1px solid rgba(233,194,125,.2);cursor:pointer;font-size:.8rem;color:#f9f0e5;transition:.2s" id="ziLabel1">
+              <input type="radio" name="ziSect" value="1" style="accent-color:#e9c27d"> 晚子時（日柱進一天）
+            </label>
+          </div>
+          <div style="font-size:.68rem;color:rgba(249,240,229,.35);margin-top:6px">23:00-23:59 出生者，八字和紫微的日柱歸屬因流派而異。不確定選哪個？先用預設即可。</div>
+        </div>
       </div>
 
       <div class="form-group">
@@ -1848,6 +1860,20 @@ document.addEventListener('DOMContentLoaded', function(){
   });
 });
 
+/* ── 子時流派切換 ── */
+function checkZiHour(){
+  var bt=document.getElementById('btime').value;
+  var toggle=document.getElementById('ziToggle');
+  if(!bt){toggle.style.display='none';return}
+  var h=parseInt(bt.split(':')[0]);
+  toggle.style.display=(h===23||h===0)?'block':'none';
+}
+function getZiSect(){
+  var radios=document.getElementsByName('ziSect');
+  for(var i=0;i<radios.length;i++){if(radios[i].checked)return parseInt(radios[i].value)}
+  return 2;
+}
+
 function runAll(){
   var byear=document.getElementById('byear').value.trim();
   var bmonth=document.getElementById('bmonth').value.trim();
@@ -1864,37 +1890,53 @@ function runAll(){
   if(M<1||M>12){alert('月份請輸入1～12');return}
   if(D<1||D>31){alert('日期請輸入1～31');return}
   var tp=bt.split(':'),H=+tp[0]||0,min=+tp[1]||0;
+  var sect=getZiSect(); // 早子(2)/晚子(1)
 
   var btn=document.getElementById('calcBtn');
   btn.disabled=true;btn.textContent='⏳ 計算中...';
 
   // 先載入星曆（如果還沒載入）
   loadEphemeris().catch(function(){}).finally(function(){
-    try{ doCalc(Y,M,D,H,min,gen,lat,lon) }
+    try{ doCalc(Y,M,D,H,min,gen,lat,lon,sect) }
     catch(e){ alert('計算錯誤：'+e.message);console.error(e) }
     btn.disabled=false;btn.textContent='🔮 開始計算';
   });
 }
 
-function doCalc(Y,M,D,H,min,gen,lat,lon){
+function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
+  sect=sect||2; // 預設早子時
+  var isLateZi=(H===23&&sect===1); // 晚子時：23:00後日柱進一天
+
   // ── 農曆（lunar-javascript）──
   var solar=Solar.fromYmd(Y,M,D);
   var lunar=solar.getLunar();
   var lm=Math.abs(lunar.getMonth()),ld=lunar.getDay();
   var ytI=TG.indexOf(lunar.getYearGan()),yzI=DZ.indexOf(lunar.getYearZhi());
   var hzI=H==23?0:Math.floor((H+1)/2)%12;
-  var lunarStr=lunar.getYearGan()+lunar.getYearZhi()+'年'+lm+'月'+ld+'日（'+DZ[hzI]+'時）';
+
+  // 晚子時：紫微用下一天的農曆日
+  var zwLd=ld, zwLm=lm;
+  if(isLateZi){
+    var nextSolar=Solar.fromYmd(Y,M,D).next(1);
+    var nextLunar=nextSolar.getLunar();
+    zwLd=nextLunar.getDay();
+    zwLm=Math.abs(nextLunar.getMonth());
+  }
+
+  var ziNote=isLateZi?'（晚子時·日柱進一天）':'';
+  var lunarStr=lunar.getYearGan()+lunar.getYearZhi()+'年'+lm+'月'+ld+'日（'+DZ[hzI]+'時）'+ziNote;
   var solarStr=Y+'年'+M+'月'+D+'日 '+H+':'+String(min).padStart(2,'0');
 
   // ── ① 八字（lunar-javascript EightChar）──
   var lunarHms=Lunar.fromYmdHms(lunar.getYear(),lunar.getMonth(),ld,H,min,0);
   var ec=lunarHms.getEightChar();
+  ec.setSect(sect); // 設定早子(2)/晚子(1)流派
   var yun=ec.getYun(gen=='F'?0:1);
   var daYuns=yun.getDaYun();
   var dyArr=[];daYuns.forEach(function(d){if(d.getGanZhi())dyArr.push(d.getStartAge()+'歲 '+d.getGanZhi())});
 
-  // ── ② 紫微斗數 ──
-  var zw=calcZiwei(lm,ld,ytI,yzI,hzI,gen);
+  // ── ② 紫微斗數（晚子時用進一天的農曆日）──
+  var zw=calcZiwei(isLateZi?zwLm:lm, isLateZi?zwLd:ld, ytI,yzI,hzI,gen);
 
   // ── ③⑤ 占星 + 七政四餘 ──
   var planets=ephLookup(Y,M,D,H,min);
