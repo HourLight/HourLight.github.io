@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>馥靈投射卡｜馥靈之鑰 Hour Light</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="HOUR-LIGHT.png">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@400;600&family=LXGW+WenKai+TC:wght@300;400&family=Cormorant+Garamond:ital,wght@0,400;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/hl-visual-fx.css">
+<link rel="stylesheet" href="assets/css/hl-bridge.css">
+<style>
+:root{--bg:#05030a;--ink:#f9f0e5;--ink2:rgba(249,240,229,.55);--ink3:rgba(249,240,229,.3);
+  --gold:#e9c27d;--gold2:#cda86e;--glass:rgba(249,240,229,.04);--bdr:rgba(233,194,125,.12)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:'Noto Sans TC',sans-serif;font-weight:300;line-height:1.8;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;z-index:-2;
+  background:radial-gradient(ellipse at 50% 40%,rgba(92,58,99,.1),transparent 50%),
+  radial-gradient(ellipse at 50% 60%,rgba(233,194,125,.05),transparent 45%),var(--bg)}
+.container{max-width:720px;margin:0 auto;padding:24px 16px 80px}
+h1{font-family:'Noto Serif TC',serif;font-weight:600;font-size:clamp(1.4rem,4vw,1.8rem);
+  color:var(--gold);text-align:center;margin:24px 0 8px;letter-spacing:2px}
+.subtitle{text-align:center;font-size:.85rem;color:var(--ink2);margin-bottom:28px;
+  font-style:italic;font-family:'Cormorant Garamond',serif}
+.intro{font-family:'LXGW WenKai TC',serif;font-size:.92rem;color:var(--ink2);
+  max-width:600px;margin:0 auto 36px;line-height:2.2;text-align:center;font-weight:300}
+
+.ff-glass{background:var(--glass);border:1px solid var(--bdr);border-radius:20px;
+  padding:28px 24px;margin-bottom:24px;backdrop-filter:blur(12px)}
+.ff-glass h2{font-family:'Noto Serif TC',serif;font-size:1.05rem;color:var(--gold);
+  margin-bottom:16px;font-weight:600;letter-spacing:1px}
+
+/* 抽牌區 */
+.draw-area{text-align:center;padding:20px 0}
+.btn-draw{display:inline-block;padding:16px 40px;border:none;border-radius:999px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1008;
+  font-size:1rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.3s}
+.btn-draw:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(233,194,125,.25)}
+
+/* 牌面 */
+.card-pair{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin:24px 0}
+.proj-card{width:220px;border-radius:16px;overflow:hidden;
+  border:1px solid rgba(233,194,125,.15);transition:.5s;
+  opacity:0;transform:scale(0.8) rotateY(90deg)}
+.proj-card.show{opacity:1;transform:scale(1) rotateY(0)}
+
+/* 意象卡 */
+.img-card{background:rgba(5,3,10,.9);min-height:280px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;position:relative}
+.img-card canvas{border-radius:12px;margin:16px}
+.img-card .img-label{font-size:.65rem;color:var(--ink3);letter-spacing:2px;padding:8px;text-align:center}
+
+/* 文字卡 */
+.word-card{background:rgba(249,240,229,.04);padding:40px 20px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px}
+.word-card .wc-word{font-family:'Noto Serif TC',serif;font-size:1.8rem;color:var(--gold);
+  margin-bottom:8px;letter-spacing:4px}
+.word-card .wc-sub{font-family:'Cormorant Garamond',serif;font-size:.85rem;color:var(--ink3);
+  font-style:italic}
+.word-card .wc-prompt{font-family:'LXGW WenKai TC',serif;font-size:.82rem;color:var(--ink2);
+  margin-top:16px;line-height:1.8;font-weight:300}
+
+/* 投射區 */
+.proj-section{margin:24px 0}
+.proj-q{font-family:'LXGW WenKai TC',serif;font-size:.9rem;color:var(--gold);
+  margin-bottom:8px;font-weight:300}
+.proj-input{width:100%;min-height:100px;background:rgba(249,240,229,.04);
+  border:1px solid rgba(233,194,125,.15);border-radius:14px;padding:14px;
+  color:var(--ink);font-size:.88rem;font-family:'LXGW WenKai TC',serif;
+  resize:vertical;outline:none;transition:.3s;line-height:1.8}
+.proj-input:focus{border-color:var(--gold)}
+.proj-input::placeholder{color:rgba(249,240,229,.2)}
+
+/* H.O.U.R. 對應 */
+.hour-tag{display:inline-block;padding:6px 16px;border-radius:999px;
+  font-size:.75rem;border:1px solid;margin:4px}
+.hour-h{border-color:rgba(90,158,122,.3);color:rgba(90,158,122,.7)}
+.hour-o{border-color:rgba(107,143,189,.3);color:rgba(107,143,189,.7)}
+.hour-u{border-color:rgba(233,194,125,.3);color:rgba(233,194,125,.7)}
+.hour-r{border-color:rgba(212,105,74,.3);color:rgba(212,105,74,.7)}
+
+.aroma-landing{background:linear-gradient(135deg,rgba(90,158,122,.08),rgba(233,194,125,.06));
+  border:1px solid rgba(90,158,122,.2);border-radius:20px;padding:24px 22px;margin:20px 0}
+.aroma-landing .al-label{font-size:.72rem;letter-spacing:2px;color:rgba(122,171,109,.7);margin-bottom:10px}
+.aroma-landing .al-text{font-family:'LXGW WenKai TC',serif;font-size:.88rem;
+  color:rgba(249,240,229,.7);line-height:2.2;font-weight:300}
+
+.copy-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.cp-btn{flex:1;min-width:140px;padding:12px;border:1px solid rgba(233,194,125,.25);border-radius:12px;
+  background:rgba(233,194,125,.06);color:var(--ink);font-size:.82rem;cursor:pointer;
+  font-family:inherit;transition:.3s;text-align:center}
+.cp-btn:hover{background:rgba(233,194,125,.12)}
+.cp-btn.main{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1008;border:none;font-weight:500}
+
+.ff-footer{text-align:center;padding:40px 16px 24px;font-size:.7rem;color:rgba(249,240,229,.2)}
+.ff-footer a{color:rgba(233,194,125,.4);text-decoration:none}
+#resultArea{display:none}
+@media(max-width:500px){.proj-card{width:100%;max-width:260px}}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🪞 馥靈投射卡</h1>
+  <p class="subtitle">Projection Cards · 你看見的，都是你自己</p>
+  <p class="intro">
+    沒有標準答案。沒有「對」或「錯」的解讀。<br>
+    一張意象、一個詞——你看見的，就是你的潛意識想跟你說的話。<br>
+    這不是算命。這是一面比鏡子更誠實的東西。
+  </p>
+
+  <div class="ff-glass">
+    <h2>✦ 怎麼用</h2>
+    <p style="font-size:.85rem;color:var(--ink2);line-height:2">
+      1. 在心裡想一個你現在在意的事情（不用說出來）<br>
+      2. 按下「翻開」——你會看到一張意象和一個詞<br>
+      3. 不要急著「理解」。先感受：<em style="color:var(--gold)">這讓你想到什麼？</em><br>
+      4. 把你的第一反應寫下來——越快越好，不要修改
+    </p>
+  </div>
+
+  <div class="draw-area">
+    <button class="btn-draw" id="drawBtn" onclick="drawCards()">✦ 翻開一組投射卡</button>
+  </div>
+
+  <div id="resultArea">
+    <div class="card-pair" id="cardPair"></div>
+
+    <div class="ff-glass">
+      <h2>✦ 你的投射</h2>
+      <div class="proj-section">
+        <div class="proj-q">看到意象的第一秒，你想到了什麼？</div>
+        <textarea class="proj-input" id="projImg" placeholder="不用想太多，寫下腦海裡第一個浮現的畫面、感覺、回憶⋯⋯"></textarea>
+      </div>
+      <div class="proj-section">
+        <div class="proj-q">這個詞讓你聯想到什麼？</div>
+        <textarea class="proj-input" id="projWord" placeholder="它跟你現在在意的事情，有什麼連結？"></textarea>
+      </div>
+      <div class="proj-section">
+        <div class="proj-q">把意象和詞放在一起看——它們在告訴你什麼？</div>
+        <textarea class="proj-input" id="projBoth" placeholder="讓兩張卡對話。你聽見什麼？"></textarea>
+      </div>
+    </div>
+
+    <div class="ff-glass">
+      <h2>✦ H.O.U.R. 覺察定位</h2>
+      <p style="font-size:.82rem;color:var(--ink2);margin-bottom:12px">你的投射最可能觸動的覺察層：</p>
+      <div id="hourTags" style="text-align:center;margin:12px 0"></div>
+      <p id="hourText" style="font-size:.82rem;color:var(--ink2);line-height:1.8"></p>
+    </div>
+
+    <div class="aroma-landing" id="aromaArea"></div>
+
+    <div id="bridgeArea"></div>
+
+    <div class="ff-glass">
+      <div class="copy-row">
+        <button class="cp-btn main" onclick="copyAI()">🤖 複製 AI 深度解讀提示詞</button>
+        <button class="cp-btn" onclick="copyRecord()">📋 複製投射紀錄</button>
+        <button class="cp-btn" onclick="drawCards()">🔄 再抽一組</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ff-footer">
+    © 2026 馥靈之鑰國際有限公司 Hour Light International Co., Ltd.｜
+    <a href="https://hourlightkey.com">hourlightkey.com</a>｜
+    <a href="https://lin.ee/OQDB5t6">LINE 官方</a>
+  </div>
+</div>
+
+<script src="assets/js/hl-visual-fx.js"></script>
+<script src="assets/js/hl-bridge.js"></script>
+<script>
+/* ═══════════════════════════════════════
+   馥靈投射卡系統
+   概念源自 OH Cards 投射卡原理
+   意象為程式生成抽象藝術，非引用任何版權圖片
+   ═══════════════════════════════════════ */
+
+// ── 文字卡庫（88張）──
+var WORDS = [
+  // H 身心校準
+  {w:'安靜',en:'Stillness',hour:'H',aroma:'薰衣草',prompt:'你有多久沒有真正安靜過了？'},
+  {w:'疲倦',en:'Tiredness',hour:'H',aroma:'甜馬鬱蘭',prompt:'這份累，是身體的還是心的？'},
+  {w:'呼吸',en:'Breath',hour:'H',aroma:'尤加利',prompt:'你現在的呼吸是深的還是淺的？'},
+  {w:'邊界',en:'Boundary',hour:'H',aroma:'茶樹',prompt:'你最近有沒有讓誰越線？'},
+  {w:'溫暖',en:'Warmth',hour:'H',aroma:'甜橙',prompt:'最後一次感覺被溫暖包裹，是什麼時候？'},
+  {w:'歸屬',en:'Belonging',hour:'H',aroma:'岩蘭草',prompt:'哪裡讓你有「到家了」的感覺？'},
+  {w:'哭泣',en:'Tears',hour:'H',aroma:'洋甘菊',prompt:'如果現在可以哭，你會為什麼哭？'},
+  {w:'擁抱',en:'Embrace',hour:'H',aroma:'依蘭',prompt:'你需要被抱，還是需要抱住自己？'},
+  {w:'睡眠',en:'Sleep',hour:'H',aroma:'薰衣草',prompt:'你的睡眠在保護你，還是在逃避什麼？'},
+  {w:'根',en:'Root',hour:'H',aroma:'岩蘭草',prompt:'你的根扎在哪裡？夠深嗎？'},
+  {w:'傷口',en:'Wound',hour:'H',aroma:'乳香',prompt:'它在癒合，還是你假裝它不存在？'},
+  // O 智慧辨識
+  {w:'真相',en:'Truth',hour:'O',aroma:'迷迭香',prompt:'你最不想承認的事情是什麼？'},
+  {w:'面具',en:'Mask',hour:'O',aroma:'乳香',prompt:'你戴了幾層？最裡面的那張臉長什麼樣？'},
+  {w:'選擇',en:'Choice',hour:'O',aroma:'佛手柑',prompt:'你現在面前有幾條路？你為什麼不走？'},
+  {w:'鏡子',en:'Mirror',hour:'O',aroma:'薄荷',prompt:'你在別人身上看見的，其實是自己的什麼？'},
+  {w:'重複',en:'Pattern',hour:'O',aroma:'雪松',prompt:'這件事，你已經經歷過幾次了？'},
+  {w:'誠實',en:'Honesty',hour:'O',aroma:'茶樹',prompt:'你對自己說過最大的謊是什麼？'},
+  {w:'盲點',en:'Blind Spot',hour:'O',aroma:'尤加利',prompt:'別人都看得見，只有你看不見的東西是什麼？'},
+  {w:'矛盾',en:'Paradox',hour:'O',aroma:'廣藿香',prompt:'你同時想要的兩樣東西，真的衝突嗎？'},
+  {w:'恐懼',en:'Fear',hour:'O',aroma:'乳香',prompt:'你怕的那件事，最壞的結果是什麼？你承受得住嗎？'},
+  {w:'直覺',en:'Intuition',hour:'O',aroma:'橙花',prompt:'你心裡其實早就知道答案了，對吧？'},
+  {w:'拒絕',en:'Refusal',hour:'O',aroma:'黑胡椒',prompt:'你在拒絕什麼？它在敲哪扇門？'},
+  // U 潛能解鎖
+  {w:'天賦',en:'Gift',hour:'U',aroma:'佛手柑',prompt:'你做什麼事情的時候完全不費力？'},
+  {w:'可能',en:'Possibility',hour:'U',aroma:'甜橙',prompt:'如果不怕失敗，你會做什麼？'},
+  {w:'玩耍',en:'Play',hour:'U',aroma:'甜橙',prompt:'你上次純粹為了好玩而做一件事，是什麼時候？'},
+  {w:'創造',en:'Create',hour:'U',aroma:'佛手柑',prompt:'你手上現在有什麼材料，可以做出什麼？'},
+  {w:'冒險',en:'Adventure',hour:'U',aroma:'薑',prompt:'你最近做的最大膽的事是什麼？'},
+  {w:'自由',en:'Freedom',hour:'U',aroma:'尤加利',prompt:'你渴望的自由，具體長什麼樣子？'},
+  {w:'夢境',en:'Dream',hour:'U',aroma:'薰衣草',prompt:'你最近的夢在告訴你什麼？'},
+  {w:'蛻變',en:'Transform',hour:'U',aroma:'乳香',prompt:'你正在成為什麼？你願意嗎？'},
+  {w:'鑰匙',en:'Key',hour:'U',aroma:'迷迭香',prompt:'你一直在找的那把鑰匙，會不會就在你口袋裡？'},
+  {w:'門',en:'Door',hour:'U',aroma:'雪松',prompt:'你面前有一扇門。你是在等它開，還是你該推它？'},
+  {w:'翅膀',en:'Wings',hour:'U',aroma:'尤加利',prompt:'如果你有翅膀，你會飛去哪裡？為什麼？'},
+  // R 行動進化
+  {w:'第一步',en:'First Step',hour:'R',aroma:'迷迭香',prompt:'你一直拖延的那件事，最小的第一步是什麼？'},
+  {w:'承諾',en:'Commitment',hour:'R',aroma:'雪松',prompt:'你對自己最重要的承諾，你守住了嗎？'},
+  {w:'收穫',en:'Harvest',hour:'R',aroma:'廣藿香',prompt:'你種下的東西，到了收割的時候了嗎？'},
+  {w:'放手',en:'Release',hour:'R',aroma:'薰衣草',prompt:'你緊抓不放的東西，值得你的力氣嗎？'},
+  {w:'練習',en:'Practice',hour:'R',aroma:'迷迭香',prompt:'你願意為這件事，每天花十分鐘嗎？'},
+  {w:'完成',en:'Complete',hour:'R',aroma:'雪松',prompt:'你有多少事做到一半？哪一件最值得完成？'},
+  {w:'節奏',en:'Rhythm',hour:'R',aroma:'薑',prompt:'你目前的節奏太快還是太慢？'},
+  {w:'拐彎',en:'Turn',hour:'R',aroma:'薄荷',prompt:'你一直走的路，是不是該轉彎了？'},
+  {w:'傳遞',en:'Pass On',hour:'R',aroma:'天竺葵',prompt:'你學到的東西，誰最需要聽到？'},
+  {w:'感謝',en:'Gratitude',hour:'R',aroma:'玫瑰',prompt:'此刻你最感謝的一件事是什麼？'},
+  {w:'開始',en:'Begin',hour:'R',aroma:'佛手柑',prompt:'夠了。不用再準備了。開始。'}
+];
+
+// ── 意象生成（Canvas 抽象藝術）──
+function generateImage(canvas) {
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width = 180, h = canvas.height = 240;
+
+  // 隨機色彩方案
+  var palettes = [
+    ['#2d1b4e','#5c3a63','#e9c27d','#f0b5b3','#6b8fbd'],
+    ['#1a2a3a','#3d6b8f','#e9c27d','#7aab6d','#f9f0e5'],
+    ['#2a1520','#6b3a5c','#e9c27d','#d4694a','#f9f0e5'],
+    ['#0a1628','#2a4a6b','#e9c27d','#5a9e7a','#f0b5b3'],
+    ['#1a0a28','#4a2a6b','#e9c27d','#9c6edb','#f9f0e5']
+  ];
+  var pal = palettes[Math.floor(Math.random()*palettes.length)];
+
+  // 背景漸層
+  var grd = ctx.createLinearGradient(0,0,w,h);
+  grd.addColorStop(0, pal[0]);
+  grd.addColorStop(1, pal[1]);
+  ctx.fillStyle = grd;
+  ctx.fillRect(0,0,w,h);
+
+  // 隨機幾何
+  var shapes = Math.floor(Math.random()*4)+3;
+  for (var i=0; i<shapes; i++){
+    ctx.globalAlpha = 0.1 + Math.random()*0.3;
+    var type = Math.floor(Math.random()*4);
+    var x = Math.random()*w, y = Math.random()*h;
+    var s = 20+Math.random()*80;
+    ctx.fillStyle = pal[2+Math.floor(Math.random()*3)];
+
+    if (type===0) { // circle
+      ctx.beginPath(); ctx.arc(x,y,s,0,Math.PI*2); ctx.fill();
+    } else if (type===1) { // line
+      ctx.lineWidth = 1+Math.random()*3;
+      ctx.strokeStyle = pal[2+Math.floor(Math.random()*3)];
+      ctx.beginPath(); ctx.moveTo(x,y);
+      ctx.quadraticCurveTo(x+Math.random()*100-50, y+Math.random()*100-50, Math.random()*w, Math.random()*h);
+      ctx.stroke();
+    } else if (type===2) { // triangle
+      ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+s,y+s*0.8); ctx.lineTo(x-s*0.5,y+s); ctx.closePath(); ctx.fill();
+    } else { // rect
+      ctx.save(); ctx.translate(x,y); ctx.rotate(Math.random()*Math.PI);
+      ctx.fillRect(-s/2,-s/4,s,s/2); ctx.restore();
+    }
+  }
+
+  // 幾條流動線
+  ctx.globalAlpha = 0.15;
+  for(var j=0;j<3;j++){
+    ctx.strokeStyle = pal[2];
+    ctx.lineWidth = 0.5+Math.random();
+    ctx.beginPath();
+    ctx.moveTo(0, Math.random()*h);
+    for(var k=0;k<5;k++){
+      ctx.quadraticCurveTo(Math.random()*w, Math.random()*h, Math.random()*w, Math.random()*h);
+    }
+    ctx.stroke();
+  }
+
+  // 光點
+  ctx.globalAlpha = 0.4;
+  for(var m=0;m<8;m++){
+    var px=Math.random()*w, py=Math.random()*h;
+    var gr2 = ctx.createRadialGradient(px,py,0,px,py,3+Math.random()*8);
+    gr2.addColorStop(0,'rgba(249,240,229,0.8)');
+    gr2.addColorStop(1,'rgba(249,240,229,0)');
+    ctx.fillStyle=gr2;
+    ctx.fillRect(px-15,py-15,30,30);
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ── 抽牌 ──
+var currentWord = null;
+
+function drawCards(){
+  var idx = Math.floor(Math.random()*WORDS.length);
+  currentWord = WORDS[idx];
+
+  var html = '';
+
+  // 意象卡
+  html += '<div class="proj-card" id="imgCard">'
+    +'<div class="img-card">'
+    +'<canvas id="projCanvas"></canvas>'
+    +'<div class="img-label">HOUR LIGHT · 馥靈投射卡</div>'
+    +'</div></div>';
+
+  // 文字卡
+  html += '<div class="proj-card" id="wordCard">'
+    +'<div class="word-card">'
+    +'<div class="wc-word">'+currentWord.w+'</div>'
+    +'<div class="wc-sub">'+currentWord.en+'</div>'
+    +'<div class="wc-prompt">'+currentWord.prompt+'</div>'
+    +'</div></div>';
+
+  document.getElementById('cardPair').innerHTML = html;
+
+  // 生成意象
+  setTimeout(function(){
+    var canvas = document.getElementById('projCanvas');
+    if(canvas) generateImage(canvas);
+  }, 100);
+
+  // 動畫
+  setTimeout(function(){ document.getElementById('imgCard').classList.add('show'); }, 200);
+  setTimeout(function(){ document.getElementById('wordCard').classList.add('show'); }, 500);
+
+  // H.O.U.R. 標籤
+  var hourMap = {
+    H:{label:'H · Heal · 身心校準',color:'hour-h',text:'這張卡觸動的是你的身體和情緒層。不是要你「修理」什麼——是讓你感受到，哪裡需要被校準。'},
+    O:{label:'O · Own · 智慧辨識',color:'hour-o',text:'這張卡照出的是你的盲點和真相。看見不一定舒服，但看見了，你就自由了。'},
+    U:{label:'U · Unlock · 潛能解鎖',color:'hour-u',text:'這張卡指向的是你還沒打開的那扇門。不是你沒有能力——是你還沒有找到鑰匙。'},
+    R:{label:'R · Rise · 行動進化',color:'hour-r',text:'這張卡催促的是行動。不要再想了——做。最小的第一步就好。'}
+  };
+  var h = hourMap[currentWord.hour];
+  document.getElementById('hourTags').innerHTML =
+    '<span class="hour-tag '+h.color+'">'+h.label+'</span>';
+  document.getElementById('hourText').textContent = h.text;
+
+  // 香氣著陸
+  var aromaTexts = {
+    '薰衣草':'薰衣草的安寧像一條被太陽曬過的毛毯——蓋在你過度運轉的神經上。不是催眠，是允許你休息。',
+    '甜橙':'甜橙的明亮像有人在陰天拉開了窗簾。不是假裝開心——是提醒你，光一直都在。',
+    '乳香':'乳香的氣息從四千年前的神殿飄來。α-蒎烯降低你的交感神經活性——用白話說，就是讓你的「戰鬥模式」關機。',
+    '迷迭香':'迷迭香一秒打通你的鼻腔。那股清冽是你的腦袋在說：「好了，看清楚了，該動了。」',
+    '佛手柑':'佛手柑的陽光微苦。像一個很懂你的朋友說：「我知道你累了，但你看，天亮了。」',
+    '岩蘭草':'岩蘭草聞起來像下過雨的泥土——沉、穩、接地。它不會讓你飛起來，它會讓你站穩。',
+    '薄荷':'薄荷的涼意像有人在你發燒的額頭上放了一塊冰毛巾。清醒。然後你才能做出好的決定。',
+    '雪松':'雪松的氣味像一棵活了三百年的老樹。它什麼都見過。站在它旁邊，你會覺得自己的煩惱沒那麼大。',
+    '洋甘菊':'洋甘菊的甘甜像媽媽泡的一杯溫茶，放在你手邊。什麼都不用說，喝就好了。',
+    '依蘭':'依蘭的甜潤像一場不需要解釋的擁抱——你不用說話，它就懂了。',
+    '茶樹':'茶樹的清冽像手術刀——不是要傷你，是要把不屬於你的東西切乾淨。',
+    '廣藿香':'廣藿香帶著泥土和落葉的沉穩。它提醒你：再華麗的思考，最後都要落地。',
+    '黑胡椒':'黑胡椒辛辣的暖意從胃開始往上燒。不是攻擊——是喚醒你體內那股「夠了，該動了」的力量。',
+    '天竺葵':'天竺葵的花香平衡你永遠在給予的疲憊。這次，香氣是給你自己的。',
+    '玫瑰':'玫瑰的氣味不是甜的——是那種讓你覺得「被溫柔以待」的感覺。',
+    '橙花':'橙花在黎明時分綻放。它的氣息是「一切都會好的」的植物版本。',
+    '薑':'薑的暖意從胃開始往上走。不講道理，只管暖。像一碗你媽煮的湯。',
+    '甜馬鬱蘭':'甜馬鬱蘭像一雙溫暖的手，放在你緊繃的肩膀上。你的身體一直在替你扛著，讓它歇一下。'
+  };
+  var at = aromaTexts[currentWord.aroma] || '';
+  document.getElementById('aromaArea').innerHTML =
+    '<div class="al-label">🌿 馥靈香氣著陸 · '+currentWord.aroma+'</div>'
+    +'<div class="al-text">'+at+'</div>';
+
+  // 轉化橋
+  if(window.HLBridge) HLBridge.inject('bridgeArea','draw','medium');
+
+  // 顯示結果區
+  document.getElementById('resultArea').style.display = 'block';
+  document.getElementById('resultArea').scrollIntoView({behavior:'smooth',block:'start'});
+
+  // 粒子
+  if(window.HLFX) HLFX.particles({color:'rgba(233,194,125,0.3)',count:25,spread:'float',duration:3000});
+
+  // 清空投射欄
+  document.getElementById('projImg').value='';
+  document.getElementById('projWord').value='';
+  document.getElementById('projBoth').value='';
+}
+
+// ── 複製 ──
+function copyAI(){
+  var w=currentWord;if(!w)return;
+  var p1=document.getElementById('projImg').value||'（未填寫）';
+  var p2=document.getElementById('projWord').value||'（未填寫）';
+  var p3=document.getElementById('projBoth').value||'（未填寫）';
+
+  var txt='【AI 深度解讀指令｜馥靈投射卡 × 馥靈座標哲學】\n\n';
+  txt+='你是一位精通投射心理學（OH Cards / Projective Cards）、容格原型分析、敘事治療、以及馥靈 H.O.U.R. 座標哲學的覺察引導師。\n\n';
+  txt+='═══ 投射卡資料 ═══\n';
+  txt+='文字卡：「'+w.w+'」（'+w.en+'）\n';
+  txt+='提問：'+w.prompt+'\n';
+  txt+='H.O.U.R. 層：'+w.hour+'\n';
+  txt+='對應香氣：'+w.aroma+'\n\n';
+  txt+='═══ 使用者的投射 ═══\n';
+  txt+='看到意象想到：'+p1+'\n';
+  txt+='文字聯想：'+p2+'\n';
+  txt+='意象+文字合併解讀：'+p3+'\n\n';
+  txt+='═══ 請依以下框架解讀 ═══\n\n';
+  txt+='壹、投射分析：使用者看到的不是卡片——是自己的潛意識投影。分析他們的投射內容反映了什麼心理狀態。\n';
+  txt+='二、文字卡的深層含義：「'+w.w+'」這個詞對這個使用者來說，觸動了什麼？\n';
+  txt+='三、H.O.U.R. 定位：此次投射觸動的是 '+w.hour+' 層。具體來說，使用者在這個階段需要什麼？\n';
+  txt+='四、轉化行動：一個具體的、今天就能做的行動。不是「好好愛自己」，是可以馬上執行的事。\n\n';
+  txt+='═══ 參考框架 ═══\n';
+  txt+='· Moritz Egetmeyer：OH Cards 投射卡原理\n';
+  txt+='· 容格：Active Imagination & 原型投射\n';
+  txt+='· Murray：主題統覺測驗（TAT）投射分析\n\n';
+  txt+='【🔴 馥靈認知芳療——文字自帶香氣】\n';
+  txt+='此卡對應的香氣是'+w.aroma+'。在解讀中自然融入這個氣味的觸感——讓讀者在文字裡「聞到」轉化的方向。\n\n';
+  txt+='【座標哲學】投射卡是鏡子——你看見的都是自己。鏡子只負責照，轉化是你自己的事。但如果你想要有人陪你看得更深，馥靈之鑰在這裡。\n\n';
+  txt+='【🔴 請用溫暖精準的語言。像閨蜜說真話。結尾一定要有一個帶著氣味的具體行動。】';
+
+  copyText(txt,'🤖 AI 深度解讀提示詞');
+}
+
+function copyRecord(){
+  var w=currentWord;if(!w)return;
+  var p1=document.getElementById('projImg').value||'';
+  var p2=document.getElementById('projWord').value||'';
+  var p3=document.getElementById('projBoth').value||'';
+  var txt='🪞 馥靈投射卡紀錄｜馥靈之鑰\n';
+  txt+='日期：'+new Date().toLocaleDateString()+'\n\n';
+  txt+='文字卡：「'+w.w+'」（'+w.en+'）\n';
+  txt+='提問：'+w.prompt+'\n';
+  txt+='H.O.U.R.：'+w.hour+'\n';
+  txt+='香氣：'+w.aroma+'\n\n';
+  txt+='看到意象想到：'+p1+'\n';
+  txt+='文字聯想：'+p2+'\n';
+  txt+='合併解讀：'+p3+'\n\n';
+  txt+='hourlightkey.com/projection-cards.html';
+  copyText(txt,'📋 投射紀錄');
+}
+
+function copyText(t,l){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){showToast(l+' 已複製！')}).catch(function(){fbCopy(t,l)})}else{fbCopy(t,l)}}
+function fbCopy(t,l){var a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;left:-9999px';document.body.appendChild(a);a.select();try{document.execCommand('copy');showToast(l+' 已複製！')}catch(e){alert('複製失敗')}document.body.removeChild(a)}
+function showToast(m){var t=document.getElementById('toast');if(!t){t=document.createElement('div');t.id='toast';t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:rgba(233,194,125,.95);color:#1a1008;padding:12px 24px;border-radius:999px;font-size:.88rem;z-index:9999;transition:.3s;pointer-events:none;font-family:inherit';document.body.appendChild(t)}t.textContent=m;t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';setTimeout(function(){t.style.opacity='0';t.style.transform='translateX(-50%) translateY(20px)'},2200)}
+</script>
+</body>
+</html>

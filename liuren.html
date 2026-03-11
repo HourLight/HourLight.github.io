@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>大六壬｜馥靈之鑰 Hour Light</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="HOUR-LIGHT.png">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/hl-visual-fx.css">
+<style>
+:root{--bg:#05030a;--ink:#f9f0e5;--ink2:rgba(249,240,229,.55);--ink3:rgba(249,240,229,.3);
+  --gold:#e9c27d;--gold2:#cda86e;--glass:rgba(249,240,229,.04);--bdr:rgba(233,194,125,.12);
+  --water:#6b8fbd;--wood:#7aab6d;--fire:#d4694a;--earth:#b8956a;--metal:#c0c0c0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:'Noto Sans TC',sans-serif;font-weight:300;line-height:1.8;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;z-index:-2;
+  background:radial-gradient(ellipse at 30% 25%,rgba(107,143,189,.1),transparent 50%),
+  radial-gradient(ellipse at 70% 75%,rgba(92,58,99,.1),transparent 45%),var(--bg)}
+.container{max-width:900px;margin:0 auto;padding:24px 16px 80px}
+h1{font-family:'Noto Serif TC',serif;font-weight:600;font-size:clamp(1.4rem,4vw,1.9rem);
+  color:var(--gold);text-align:center;margin:24px 0 8px;letter-spacing:2px}
+.subtitle{text-align:center;font-size:.85rem;color:var(--ink2);margin-bottom:28px;
+  font-style:italic;font-family:'Cormorant Garamond',serif}
+.intro{text-align:center;font-size:.88rem;color:var(--ink2);max-width:640px;margin:0 auto 32px;line-height:1.9}
+.ff-glass{background:var(--glass);border:1px solid var(--bdr);border-radius:20px;padding:28px 24px;margin-bottom:24px;backdrop-filter:blur(12px)}
+.ff-glass h2{font-family:'Noto Serif TC',serif;font-size:1.05rem;color:var(--gold);margin-bottom:16px;font-weight:600;letter-spacing:1px}
+.form-row{display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.form-row label{font-size:.82rem;color:var(--ink2);min-width:80px}
+.form-row input,.form-row select{flex:1;min-width:140px;background:rgba(249,240,229,.06);
+  border:1px solid rgba(233,194,125,.2);border-radius:10px;padding:10px 14px;
+  color:var(--ink);font-size:.88rem;font-family:inherit;outline:none;transition:.3s}
+.form-row input:focus,.form-row select:focus{border-color:var(--gold)}
+.btn-calc{display:block;width:100%;padding:14px;border:none;border-radius:999px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1008;
+  font-size:1rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.3s;margin-top:8px}
+.btn-calc:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(233,194,125,.25)}
+
+.info-bar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:16px 0}
+.info-chip{padding:6px 14px;border-radius:999px;font-size:.75rem;background:rgba(233,194,125,.08);
+  border:1px solid rgba(233,194,125,.15);color:var(--gold)}
+
+/* 天地盤（圓形十二宮）*/
+.plate-wrap{display:flex;justify-content:center;margin:20px 0}
+.plate-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-width:500px;width:100%}
+.plate-cell{background:rgba(5,3,10,.8);border-radius:10px;padding:8px 6px;text-align:center;
+  min-height:60px;display:flex;flex-direction:column;justify-content:center;border:1px solid transparent;transition:.3s}
+.plate-cell:hover{border-color:rgba(233,194,125,.2)}
+.plate-cell .pc-tian{font-size:.95rem;color:var(--gold);font-family:'Noto Serif TC',serif}
+.plate-cell .pc-di{font-size:.72rem;color:var(--ink3)}
+.plate-cell .pc-jiang{font-size:.68rem;color:var(--water);margin-top:2px}
+.plate-cell.active{background:rgba(233,194,125,.08);border-color:var(--gold)}
+
+/* 四課 */
+.ke-grid{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:20px 0}
+.ke-card{min-width:70px;text-align:center;padding:16px 14px;border-radius:14px;
+  background:rgba(233,194,125,.04);border:1px solid var(--bdr)}
+.ke-card .ke-num{font-size:.62rem;color:var(--ink3);margin-bottom:4px}
+.ke-card .ke-top{font-size:1.1rem;color:var(--gold);font-family:'Noto Serif TC',serif}
+.ke-card .ke-bot{font-size:.82rem;color:var(--ink2);margin-top:2px}
+.ke-card .ke-rel{font-size:.62rem;color:var(--fire);margin-top:4px}
+
+/* 三傳 */
+.chuan-grid{display:flex;gap:20px;justify-content:center;margin:20px 0}
+.chuan-card{min-width:80px;text-align:center;padding:20px 16px;border-radius:16px;
+  border:1px solid var(--bdr);position:relative}
+.chuan-card .ch-label{font-size:.68rem;color:var(--ink3);margin-bottom:6px;letter-spacing:1px}
+.chuan-card .ch-zhi{font-size:1.8rem;color:var(--gold);font-family:'Noto Serif TC',serif}
+.chuan-card .ch-gan{font-size:.78rem;color:var(--ink2);margin-top:4px}
+.chuan-card .ch-jiang{font-size:.72rem;color:var(--water);margin-top:2px}
+
+.interp-block{margin-bottom:14px;padding:14px;border-radius:12px;border-left:3px solid;background:rgba(249,240,229,.02)}
+.interp-block .ib-title{font-size:.85rem;margin-bottom:6px;font-weight:400}
+.interp-block .ib-text{font-size:.8rem;color:var(--ink2);line-height:1.8}
+
+.aroma-landing{background:linear-gradient(135deg,rgba(90,158,122,.08),rgba(233,194,125,.06));
+  border:1px solid rgba(90,158,122,.2);border-radius:20px;padding:24px 22px;margin:20px 0}
+.aroma-landing .al-label{font-size:.72rem;letter-spacing:2px;color:rgba(122,171,109,.7);margin-bottom:10px}
+.aroma-landing .al-text{font-family:'LXGW WenKai TC','Noto Serif TC',serif;font-size:.9rem;
+  color:rgba(249,240,229,.75);line-height:2;font-weight:300}
+
+.copy-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.cp-btn{flex:1;min-width:140px;padding:12px;border:1px solid rgba(233,194,125,.25);border-radius:12px;
+  background:rgba(233,194,125,.06);color:var(--ink);font-size:.82rem;cursor:pointer;font-family:inherit;transition:.3s;text-align:center}
+.cp-btn:hover{background:rgba(233,194,125,.12);border-color:var(--gold)}
+.cp-btn.main{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1008;border:none;font-weight:500}
+
+.ff-footer{text-align:center;padding:40px 16px 24px;font-size:.7rem;color:rgba(249,240,229,.2)}
+.ff-footer a{color:rgba(233,194,125,.4);text-decoration:none}
+#result{display:none}
+@media(max-width:600px){
+  .plate-grid{grid-template-columns:repeat(3,1fr)}
+  .ke-card{min-width:60px;padding:12px 10px}
+  .chuan-card{min-width:70px;padding:16px 12px}
+  .chuan-card .ch-zhi{font-size:1.4rem}
+  .form-row{flex-direction:column;gap:6px}
+  .form-row label{min-width:unset}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🏛️ 大六壬</h1>
+  <p class="subtitle">Da Liu Ren · 三式之一 · 占卜之王</p>
+  <p class="intro">
+    大六壬被譽為「占卜之王」，主「人事」。<br>
+    月將加時排天盤，四課演化，三傳推衍——<br>
+    不是告訴你未來會怎樣，是讓你看見此刻的氣場正往哪個方向流。
+  </p>
+
+  <div class="ff-glass">
+    <h2>✦ 起課條件</h2>
+    <div class="form-row">
+      <label>日期</label>
+      <input type="date" id="lrDate" value="">
+    </div>
+    <div class="form-row">
+      <label>時辰</label>
+      <select id="lrHour">
+        <option value="0">子時（23:00-01:00）</option>
+        <option value="1">丑時（01:00-03:00）</option>
+        <option value="2">寅時（03:00-05:00）</option>
+        <option value="3">卯時（05:00-07:00）</option>
+        <option value="4">辰時（07:00-09:00）</option>
+        <option value="5">巳時（09:00-11:00）</option>
+        <option value="6" selected>午時（11:00-13:00）</option>
+        <option value="7">未時（13:00-15:00）</option>
+        <option value="8">申時（15:00-17:00）</option>
+        <option value="9">酉時（17:00-19:00）</option>
+        <option value="10">戌時（19:00-21:00）</option>
+        <option value="11">亥時（21:00-23:00）</option>
+      </select>
+    </div>
+    <button class="btn-calc" onclick="calculate()">🏛️ 起課排盤</button>
+  </div>
+
+  <div id="result">
+    <div class="ff-glass">
+      <h2>✦ 課象總覽</h2>
+      <div class="info-bar" id="infoBar"></div>
+    </div>
+
+    <div class="ff-glass">
+      <h2>✦ 天地盤</h2>
+      <p style="text-align:center;font-size:.78rem;color:var(--ink3);margin-bottom:12px">
+        上為天盤（動），下為地盤（靜）。月將加時，順布十二宮。
+      </p>
+      <div class="plate-wrap"><div class="plate-grid" id="plateGrid"></div></div>
+    </div>
+
+    <div class="ff-glass">
+      <h2>✦ 四課</h2>
+      <div class="ke-grid" id="keGrid"></div>
+    </div>
+
+    <div class="ff-glass">
+      <h2>✦ 三傳</h2>
+      <p style="text-align:center;font-size:.78rem;color:var(--ink3);margin-bottom:12px" id="chuanMethod"></p>
+      <div class="chuan-grid" id="chuanGrid"></div>
+    </div>
+
+    <div class="ff-glass">
+      <h2>✦ 課象解讀</h2>
+      <div id="interpArea"></div>
+    </div>
+
+    <div class="ff-glass">
+      <h2>✦ 馥靈香氣著陸</h2>
+      <div class="aroma-landing" id="aromaArea"></div>
+    </div>
+
+    <div class="ff-glass">
+      <h2>✦ 深度解讀</h2>
+      <div class="copy-row">
+        <button class="cp-btn main" onclick="copyAI()">🤖 複製 AI 深度解讀提示詞</button>
+        <button class="cp-btn" onclick="copyRecord()">📋 複製課象紀錄</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ff-footer">
+    © 2026 馥靈之鑰國際有限公司 Hour Light International Co., Ltd.｜
+    <a href="https://hourlightkey.com">hourlightkey.com</a>｜
+    <a href="https://lin.ee/OQDB5t6">LINE 官方</a>
+  </div>
+</div>
+
+<script src="js/lunar.min.js"></script>
+<script src="assets/js/hl-visual-fx.js"></script>
+<script>
+/* ═══════════════════════════════════════
+   大六壬排盤引擎
+   馥靈之鑰 Hour Light © 2026
+   ═══════════════════════════════════════ */
+
+var TG='甲乙丙丁戊己庚辛壬癸';
+var DZ='子丑寅卯辰巳午未申酉戌亥';
+var WX_DZ=['水','土','木','木','土','火','火','土','金','金','土','水']; // 地支五行
+var WX_TG=['木','木','火','火','土','土','金','金','水','水']; // 天干五行
+
+// ── 天干寄宮 ──
+// 甲→寅 乙→辰 丙戊→巳 丁己→午 庚→申 辛→戌 壬→亥 癸→丑
+var TG_JI = [2,4,5,6,5,6,8,10,11,1]; // 天干寄宮的地支 index
+
+// ── 月將表（過中氣換將）──
+// 雨水後→亥(登明) 春分後→戌(河魁) 穀雨後→酉(從魁) 小滿後→申(傳送)
+// 夏至後→未(小吉) 大暑後→午(勝光) 處暑後→巳(太乙) 秋分後→辰(天罡)
+// 霜降後→卯(太沖) 小雪後→寅(功曹) 冬至後→丑(大吉) 大寒後→子(神后)
+var JIANG_TABLE = {
+  '雨水':11,'春分':10,'谷雨':9,'小满':8,'夏至':7,'大暑':6,
+  '处暑':5,'秋分':4,'霜降':3,'小雪':2,'冬至':1,'大寒':0
+};
+var JIANG_NAMES = ['神后','大吉','功曹','太沖','天罡','太乙','勝光','小吉','傳送','從魁','河魁','登明'];
+var JIANG_ORDER = ['雨水','春分','谷雨','小满','夏至','大暑','处暑','秋分','霜降','小雪','冬至','大寒'];
+
+// ── 十二天將（貴神）──
+var TIAN_JIANG = ['貴人','騰蛇','朱雀','六合','勾陳','青龍','天空','白虎','太常','玄武','太陰','天后'];
+var JIANG_JI = ['吉','凶','凶','吉','凶','吉','凶','凶','吉','凶','吉','吉'];
+
+// ── 五行生剋 ──
+function wx(zhi){ return WX_DZ[zhi]; }
+function wxTg(gan){ return WX_TG[gan]; }
+var SHENG = {'木':'火','火':'土','土':'金','金':'水','水':'木'};
+var KE = {'木':'土','土':'水','水':'火','火':'金','金':'木'};
+function keGuan(a,b){ return KE[a]===b; } // a剋b
+
+// ══════ 計算函式 ══════
+
+function tgI(c){ return TG.indexOf(c); }
+function dzI(c){ return DZ.indexOf(c); }
+
+// 月將：根據前一個中氣確定
+function getYueJiang(lunar){
+  // 取前一個中氣（氣，不是節）
+  var prevQi = lunar.getPrevQi();
+  var qiName = prevQi.getName();
+  // 繁簡對照
+  var map = {'穀雨':'谷雨','處暑':'处暑','小滿':'小满'};
+  qiName = map[qiName] || qiName;
+  if (JIANG_TABLE[qiName] !== undefined) return JIANG_TABLE[qiName];
+  // fallback: 用月支六合
+  var monthZhi = dzI(lunar.getMonthZhi ? lunar.getMonthZhi() : DZ[0]);
+  // 月支六合: 子丑合 寅亥合 卯戌合 辰酉合 巳申合 午未合
+  var liuhe = [1,0,11,10,9,8,7,6,5,4,3,2];
+  return liuhe[monthZhi];
+}
+
+// 排天盤：月將加時支
+function buildTianPan(yueJiang, shiZhi){
+  // 月將放在時支位置，其餘順排
+  var tian = new Array(12);
+  var offset = (shiZhi - yueJiang + 12) % 12;
+  for (var i = 0; i < 12; i++){
+    tian[(i + offset) % 12] = i; // 地盤 i 位置上的天盤地支
+    // 換個方式：天盤[地盤位置] = 天盤地支
+  }
+  // 正確方式：月將加在時支上
+  // 即天盤的 shiZhi 位置 = yueJiang
+  // 然後順時針排
+  var tp = new Array(12);
+  for (var j = 0; j < 12; j++){
+    tp[(shiZhi + j) % 12] = (yueJiang + j) % 12;
+  }
+  return tp; // tp[diPan_index] = tianPan_zhi_index
+}
+
+// 查天盤：地盤某地支上面是什麼天盤地支
+function tianShang(tianPan, diZhi){
+  return tianPan[diZhi];
+}
+
+// 排四課
+function buildSiKe(tianPan, dayGan, dayZhi){
+  var ganJi = TG_JI[tgI(dayGan)]; // 日干寄宮地支
+  var k1_shang = tianShang(tianPan, ganJi); // 干上（第一課上）
+  var k2_shang = tianShang(tianPan, k1_shang); // 第一課上的天盤（第二課上）
+  var k3_shang = tianShang(tianPan, dayZhi); // 支上（第三課上）
+  var k4_shang = tianShang(tianPan, k3_shang); // 第三課上的天盤（第四課上）
+
+  return [
+    { top: k1_shang, bot: ganJi, label: '第一課' },
+    { top: k2_shang, bot: k1_shang, label: '第二課' },
+    { top: k3_shang, bot: dayZhi, label: '第三課' },
+    { top: k4_shang, bot: k3_shang, label: '第四課' }
+  ];
+}
+
+// 五行相剋判斷
+function isKe(topZhi, botZhi){
+  return keGuan(WX_DZ[topZhi], WX_DZ[botZhi]);
+}
+
+// 三傳（簡化版九宗門：賊克→比用→涉害→遙克→昴星→別責）
+function buildSanChuan(siKe, tianPan, dayGan, dayZhi){
+  var method = '';
+  var chu = -1, zhong = -1, mo = -1;
+
+  // 找四課中的上剋下（賊）和下剋上（克）
+  var zei = []; // 下賊上（天盤剋地盤）
+  var ke2 = [];  // 上克下（地盤剋天盤）
+
+  for (var i = 0; i < 4; i++){
+    var t = siKe[i].top, b = siKe[i].bot;
+    if (isKe(t, b)) zei.push({ idx: i, top: t, bot: b }); // 上剋下
+    if (isKe(b, t)) ke2.push({ idx: i, top: t, bot: b }); // 下剋上
+  }
+
+  // 九宗門第一法：賊克
+  if (zei.length === 1) {
+    chu = zei[0].top;
+    method = '賊克課（一上剋下）';
+  } else if (ke2.length === 1 && zei.length === 0) {
+    chu = ke2[0].bot; // 取被克的下方
+    method = '賊克課（一下剋上）';
+  } else if (zei.length > 1) {
+    // 比用：多個賊，取與日干陰陽相同者
+    var dayYY = tgI(dayGan) % 2; // 0陽 1陰
+    var match = zei.filter(function(z){ return z.top % 2 === dayYY; });
+    if (match.length === 1) {
+      chu = match[0].top;
+      method = '比用課';
+    } else if (match.length > 1) {
+      // 涉害：取涉害深者（簡化：取四課序號靠前的）
+      chu = match[0].top;
+      method = '涉害課';
+    } else {
+      chu = zei[0].top;
+      method = '比用課（無同陰陽，取先見）';
+    }
+  } else if (ke2.length > 1) {
+    var dayYY2 = tgI(dayGan) % 2;
+    var match2 = ke2.filter(function(z){ return z.bot % 2 === dayYY2; });
+    if (match2.length >= 1) { chu = match2[0].bot; method = '比用課（下剋上）'; }
+    else { chu = ke2[0].bot; method = '比用課'; }
+  } else if (zei.length === 0 && ke2.length === 0) {
+    // 遙克 / 昴星 / 別責
+    // 簡化：無克則取日干上神（第一課上）為初傳
+    chu = siKe[0].top;
+    // 判斷是否伏吟（天地盤同位）
+    if (tianPan[dayZhi] === dayZhi) {
+      // 伏吟課
+      chu = (dayZhi + 6) % 12; // 取沖
+      method = '伏吟課';
+    } else if (tianPan[0] === 6 && tianPan[6] === 0) {
+      // 反吟課
+      chu = siKe[0].top;
+      method = '反吟課';
+    } else {
+      method = '別責課';
+    }
+  }
+
+  if (chu < 0) chu = siKe[0].top;
+
+  // 中傳：初傳地盤上的天盤
+  zhong = tianShang(tianPan, chu);
+  // 末傳：中傳地盤上的天盤
+  mo = tianShang(tianPan, zhong);
+
+  return { chu: chu, zhong: zhong, mo: mo, method: method };
+}
+
+// 十二天將（貴人排法）
+function buildTianJiang(tianPan, dayGan, dayZhi, shiZhi){
+  // 貴人起點：依日干定
+  // 甲戊庚→丑未 乙己→子申 丙丁→亥酉 壬癸→巳卯 辛→午寅
+  var guiRen = {0:[1,7],4:[1,7],6:[1,7], 1:[0,8],5:[0,8], 2:[11,9],3:[11,9], 8:[5,3],9:[5,3], 7:[6,2]};
+  var gi = tgI(dayGan);
+  var gr = guiRen[gi] || [1,7];
+
+  // 白天用陽貴（gr[0]），夜晚用陰貴（gr[1]）
+  // 簡化：巳午時用陽貴，其他用陰貴
+  var isDay = shiZhi >= 5 && shiZhi <= 6;
+  var guiStart = isDay ? gr[0] : gr[1];
+
+  // 貴人在天盤某位置，然後順/逆排
+  // 貴人坐在 guiStart 地支位置
+  // 從巳到戌逆行，從亥到辰順行
+  // 即：如果貴人在巳~戌之間，逆行；在亥~辰之間，順行
+  var jiang = new Array(12);
+  jiang[guiStart] = 0; // 貴人
+
+  // 判斷順逆：貴人在巳(5)~戌(10)逆排，在亥(11)~辰(4)順排
+  var reverse = guiStart >= 5 && guiStart <= 10;
+
+  for (var n = 1; n < 12; n++){
+    var pos;
+    if (reverse) pos = (guiStart - n + 12) % 12;
+    else pos = (guiStart + n) % 12;
+    jiang[pos] = n < 12 ? n : 0;
+  }
+
+  return jiang; // jiang[diZhi] = 天將 index (0-11)
+}
+
+// 遁干：三傳地支的天干
+function dunGan(dayGan, zhi){
+  // 五鼠遁：甲己→甲 乙庚→丙 丙辛→戊 丁壬→庚 戊癸→壬
+  var base = [0,0,2,2,4,4,6,6,8,8]; // 日干對應的子時天干 index
+  var gi = tgI(dayGan);
+  var sub = Math.floor(gi / 2); // 0=甲己 1=乙庚 2=丙辛 3=丁壬 4=戊癸
+  var ziGan = sub * 2; // 子時天干
+  return TG[(ziGan + zhi) % 10];
+}
+
+// ══════ 主計算 ══════
+
+function calculate(){
+  var dateStr = document.getElementById('lrDate').value;
+  var hourIdx = parseInt(document.getElementById('lrHour').value);
+  if (!dateStr) { alert('請選擇日期'); return; }
+
+  var parts = dateStr.split('-');
+  var Y = parseInt(parts[0]), M = parseInt(parts[1]), D = parseInt(parts[2]);
+  var hourMap = [23,1,3,5,7,9,11,13,15,17,19,21];
+  var H = hourMap[hourIdx];
+
+  var solar = Solar.fromYmdHms(Y, M, D, H, 0, 0);
+  var lunar = solar.getLunar();
+  var ec = lunar.getEightChar();
+
+  var dayGZ = ec.getDay();
+  var timeGZ = ec.getTime();
+  var dayGan = dayGZ[0], dayZhi = dayGZ[1];
+  var dayGanI = tgI(dayGan), dayZhiI = dzI(dayZhi);
+  var shiZhi = hourIdx;
+
+  // 月將
+  var yueJiang = getYueJiang(lunar);
+
+  // 天地盤
+  var tianPan = buildTianPan(yueJiang, shiZhi);
+
+  // 四課
+  var siKe = buildSiKe(tianPan, dayGan, dayZhiI);
+
+  // 三傳
+  var sanChuan = buildSanChuan(siKe, tianPan, dayGan, dayZhiI);
+
+  // 十二天將
+  var tianJiang = buildTianJiang(tianPan, dayGan, dayZhiI, shiZhi);
+
+  var r = {
+    Y:Y,M:M,D:D,H:H,hourIdx:hourIdx,
+    yearGZ:ec.getYear(),monthGZ:ec.getMonth(),dayGZ:dayGZ,timeGZ:timeGZ,
+    dayGan:dayGan,dayZhi:dayZhi,dayGanI:dayGanI,dayZhiI:dayZhiI,
+    shiZhi:shiZhi,yueJiang:yueJiang,
+    tianPan:tianPan,siKe:siKe,sanChuan:sanChuan,tianJiang:tianJiang
+  };
+
+  renderAll(r);
+  document.getElementById('result').style.display='block';
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+  if(window.HLFX) HLFX.particles({color:'rgba(107,143,189,0.4)',count:35,spread:'float',duration:3500});
+  window._lrResult = r;
+}
+
+// ══════ 渲染 ══════
+
+function renderAll(r){
+  // Info bar
+  document.getElementById('infoBar').innerHTML =
+    '<div class="info-chip">四柱：'+r.yearGZ+' '+r.monthGZ+' '+r.dayGZ+' '+r.timeGZ+'</div>'
+    +'<div class="info-chip">月將：'+JIANG_NAMES[r.yueJiang]+'（'+DZ[r.yueJiang]+'）</div>'
+    +'<div class="info-chip">日干：'+r.dayGan+'（'+wxTg(r.dayGanI)+'）</div>'
+    +'<div class="info-chip">'+r.sanChuan.method+'</div>';
+
+  // 天地盤
+  var ph = '';
+  for (var i = 0; i < 12; i++){
+    var tian = r.tianPan[i];
+    var jiangIdx = r.tianJiang[tian]; // 天將在天盤地支位置
+    var isActive = i === r.dayZhiI || i === TG_JI[r.dayGanI];
+    ph += '<div class="plate-cell'+(isActive?' active':'')+'">'
+      +'<div class="pc-tian">'+DZ[tian]+'</div>'
+      +'<div class="pc-di">'+DZ[i]+'</div>'
+      +(jiangIdx!==undefined?'<div class="pc-jiang">'+TIAN_JIANG[jiangIdx]+'</div>':'')
+      +'</div>';
+  }
+  document.getElementById('plateGrid').innerHTML = ph;
+
+  // 四課
+  var kh = '';
+  r.siKe.forEach(function(k, i){
+    var rel = '';
+    if (isKe(k.top, k.bot)) rel = '上剋下';
+    else if (isKe(k.bot, k.top)) rel = '下剋上';
+    else rel = '無剋';
+    kh += '<div class="ke-card">'
+      +'<div class="ke-num">'+k.label+'</div>'
+      +'<div class="ke-top">'+DZ[k.top]+'</div>'
+      +'<div class="ke-bot">'+(i<2?r.dayGan:DZ[r.dayZhiI])+'（'+DZ[k.bot]+'）</div>'
+      +'<div class="ke-rel">'+rel+'</div>'
+      +'</div>';
+  });
+  document.getElementById('keGrid').innerHTML = kh;
+
+  // 三傳
+  document.getElementById('chuanMethod').textContent = '取課法：'+r.sanChuan.method;
+  var sc = r.sanChuan;
+  var chuans = [
+    {label:'初傳',zhi:sc.chu},
+    {label:'中傳',zhi:sc.zhong},
+    {label:'末傳',zhi:sc.mo}
+  ];
+  var ch = '';
+  chuans.forEach(function(c){
+    var g = dunGan(r.dayGan, c.zhi);
+    var jIdx = r.tianJiang[c.zhi];
+    ch += '<div class="chuan-card fx-card-enter">'
+      +'<div class="ch-label">'+c.label+'</div>'
+      +'<div class="ch-zhi">'+DZ[c.zhi]+'</div>'
+      +'<div class="ch-gan">遁干：'+g+'</div>'
+      +(jIdx!==undefined?'<div class="ch-jiang">'+TIAN_JIANG[jIdx]+'</div>':'')
+      +'</div>';
+  });
+  document.getElementById('chuanGrid').innerHTML = ch;
+  if(window.HLFX) setTimeout(function(){ HLFX.revealCards('.fx-card-enter',300); },500);
+
+  renderInterpretation(r);
+  renderAroma(r);
+}
+
+function renderInterpretation(r){
+  var sc = r.sanChuan;
+  var chuWX = WX_DZ[sc.chu];
+  var dayWX = wxTg(r.dayGanI);
+
+  var html = '';
+  html += '<div class="interp-block" style="border-color:var(--gold)"><div class="ib-title" style="color:var(--gold)">🏛️ '+r.sanChuan.method+'</div>'
+    +'<div class="ib-text">初傳 '+DZ[sc.chu]+'（'+chuWX+'）'
+    +(keGuan(chuWX, dayWX)?'剋日干——外在壓力正在作用。':
+      keGuan(dayWX, chuWX)?'受日干所剋——你掌控著局面。':
+      SHENG[dayWX]===chuWX?'洩日干之氣——需要留意精力消耗。':
+      SHENG[chuWX]===dayWX?'生助日干——有外來助力。':
+      '與日干比和——力量對等。')
+    +'</div></div>';
+
+  // 三傳走勢
+  var trend = WX_DZ[sc.chu]+'→'+WX_DZ[sc.zhong]+'→'+WX_DZ[sc.mo];
+  html += '<div class="interp-block" style="border-color:var(--water)"><div class="ib-title" style="color:var(--water)">📈 三傳走勢：'+trend+'</div>'
+    +'<div class="ib-text">初傳是事情的起因，中傳是過程的轉折，末傳是結果的歸宿。<br><br>'
+    +'初傳 '+DZ[sc.chu]+' → 中傳 '+DZ[sc.zhong]+' → 末傳 '+DZ[sc.mo]+'<br>'
+    +(WX_DZ[sc.chu]===WX_DZ[sc.mo]?'首尾五行相同，事情會回到原點，適合守不適合攻。':
+      SHENG[WX_DZ[sc.chu]]===WX_DZ[sc.mo]?'從初到末是相生的走勢，事情會越走越順。':
+      keGuan(WX_DZ[sc.chu],WX_DZ[sc.mo])?'初傳剋末傳，起始的力量能控制結局。':
+      '五行流轉，過程中會有明顯的轉折。')
+    +'</div></div>';
+
+  document.getElementById('interpArea').innerHTML = html;
+}
+
+function renderAroma(r){
+  var chuWX = WX_DZ[r.sanChuan.chu];
+  var aromaMap = {
+    '水':'初傳落在水的流域。像冬夜的河面——看似結冰，底下暗流在動。此刻不宜硬碰硬，宜以柔制剛。薰衣草能幫你在等待中保持清醒而不焦躁，佛手柑的微暖讓你知道：靜下來不是放棄，是蓄勢。',
+    '木':'初傳帶著木的能量破土而出。像春天第一道裂開泥土的芽——擋不住的。迷迭香清冽的衝勁就是此刻的節奏，尤加利能讓你在衝的同時保持方向感。該出手就出手，但先確認方向。',
+    '火':'初傳被火點燃了。像正午的光，什麼都藏不住。此刻的能量是「被看見」——好的壞的都攤在陽光下。甜橙的明亮是你的盟友，薄荷能在發熱時幫你保持一份清涼的判斷力。',
+    '土':'初傳沉入了土的穩重。像大地在季節轉換時的不動——不是沒有力量，是在等最好的時機。岩蘭草的泥土氣息就是你此刻需要的錨，檀香讓你在混沌中找到那個不動的中心點。',
+    '金':'初傳帶著金的鋒利。像秋天的第一道霜——覆蓋一切，分明而不留情。此刻適合做決斷、切割、收尾。茶樹的清冽是你的判斷力，雪松的沉穩讓果斷不會變成魯莽。'
+  };
+  var oilMap = {'水':'薰衣草 · 佛手柑','木':'迷迭香 · 尤加利','火':'甜橙 · 薄荷','土':'岩蘭草 · 檀香','金':'茶樹 · 雪松'};
+
+  document.getElementById('aromaArea').innerHTML =
+    '<div class="al-label">🌿 馥靈香氣著陸 · '+chuWX+'行能量</div>'
+    +'<div class="al-text">'+(aromaMap[chuWX]||'')+'</div>'
+    +'<div style="margin-top:12px;font-size:.78rem;color:rgba(122,171,109,.7)">🌿 '+(oilMap[chuWX]||'')+'</div>';
+}
+
+// ══════ 複製 ══════
+
+function copyAI(){
+  var r=window._lrResult;if(!r)return;
+  var sc=r.sanChuan;
+  var txt='【AI 深度解讀指令｜大六壬 × 馥靈座標哲學】\n\n';
+  txt+='你是一位精通大六壬神課、中國古典術數三式、六親神煞、以及馥靈 H.O.U.R. 座標哲學的深度覺察引導師。\n\n';
+  txt+='═══ 課象資料 ═══\n';
+  txt+='四柱：'+r.yearGZ+' '+r.monthGZ+' '+r.dayGZ+' '+r.timeGZ+'\n';
+  txt+='月將：'+JIANG_NAMES[r.yueJiang]+'（'+DZ[r.yueJiang]+'）加'+DZ[r.shiZhi]+'時\n';
+  txt+='日干：'+r.dayGan+'（'+wxTg(r.dayGanI)+'行）\n\n';
+  txt+='天地盤：\n';
+  for(var i=0;i<12;i++) txt+='地'+DZ[i]+'上'+DZ[r.tianPan[i]]+'  ';
+  txt+='\n\n四課：\n';
+  r.siKe.forEach(function(k,i){
+    txt+=k.label+'：'+DZ[k.top]+'/'+DZ[k.bot]+(isKe(k.top,k.bot)?'（上剋下）':isKe(k.bot,k.top)?'（下剋上）':'（無剋）')+'\n';
+  });
+  txt+='\n三傳（'+sc.method+'）：\n';
+  txt+='初傳：'+DZ[sc.chu]+'（'+dunGan(r.dayGan,sc.chu)+'遁）\n';
+  txt+='中傳：'+DZ[sc.zhong]+'（'+dunGan(r.dayGan,sc.zhong)+'遁）\n';
+  txt+='末傳：'+DZ[sc.mo]+'（'+dunGan(r.dayGan,sc.mo)+'遁）\n\n';
+
+  txt+='═══ 請依以下框架深度解讀 ═══\n\n';
+  txt+='壹、課體定性：此課屬於九宗門的哪一類？賊克/比用/涉害/遙克/昴星/別責/八專/伏吟/反吟？這個課體的本質特徵是什麼？\n';
+  txt+='二、三傳走勢：初傳（起因）→ 中傳（過程）→ 末傳（結果）的五行流轉邏輯。事情會如何發展？\n';
+  txt+='三、日干與三傳的生剋關係：日干代表求問者，三傳代表事件。誰在主導？誰在受制？\n';
+  txt+='四、天將介入：三傳上的貴神分別是什麼？帶來什麼助力或干擾？\n';
+  txt+='五、六親分析：以日干為我，三傳和四課的六親關係（官鬼/妻財/兄弟/子孫/父母）\n\n';
+
+  txt+='═══ 參考書目 ═══\n';
+  txt+='▍古典聖典\n';
+  txt+='·《大六壬指南》（明·陳公獻）→ 六壬斷課的核心經典\n';
+  txt+='·《六壬大全》→ 720 課完整課例資料庫\n';
+  txt+='·《壬歸》→ 三傳取用的判例集\n\n';
+  txt+='▍現代實戰\n';
+  txt+='· 徐偉剛《袖裡乾坤》→ 現代六壬實戰斷課第一書\n';
+  txt+='· 張志春《六壬神課金口訣》→ 簡化版快速起課法\n\n';
+
+  txt+='【🔴 馥靈認知芳療核心指令——文字自帶香氣】\n\n';
+  txt+='你的解讀文字必須「自帶香氣」。大六壬的每一傳都有五行能量，每一種五行都有對應的植物氣味。\n';
+  txt+='水→薰衣草的深沉 木→迷迭香的衝勁 火→甜橙的明亮 土→岩蘭草的沉穩 金→茶樹的銳利\n';
+  txt+='當你描述三傳走勢時，不只是說五行流轉——要讓讀者「聞到」那個轉折的氣味。\n\n';
+  txt+='【馥靈座標哲學】\n';
+  txt+='大六壬不是讓你逃避命運的後門，是讓你看清楚——此刻人事之間的氣場正往哪裡流。\n';
+  txt+='看見了，順流還是逆流，你決定。鑰匙是我遞給你的，但城堡是你的，門是你自己開的。\n\n';
+  txt+='【🔴 請用生活化語言。結尾給出：此事最可能的走向 + 最適合的行動策略 + 一個帶著氣味的行動建議】';
+
+  copyText(txt,'🤖 AI 深度解讀提示詞');
+}
+
+function copyRecord(){
+  var r=window._lrResult;if(!r)return;
+  var sc=r.sanChuan;
+  var txt='🏛️ 大六壬｜馥靈之鑰\n\n';
+  txt+=r.Y+'/'+r.M+'/'+r.D+' '+DZ[r.hourIdx]+'時\n';
+  txt+='四柱：'+r.yearGZ+' '+r.monthGZ+' '+r.dayGZ+' '+r.timeGZ+'\n';
+  txt+='月將：'+JIANG_NAMES[r.yueJiang]+'（'+DZ[r.yueJiang]+'）\n';
+  txt+=sc.method+'\n';
+  txt+='三傳：'+DZ[sc.chu]+'→'+DZ[sc.zhong]+'→'+DZ[sc.mo]+'\n\n';
+  txt+='hourlightkey.com/liuren.html';
+  copyText(txt,'📋 課象紀錄');
+}
+
+function copyText(t,l){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){showToast(l+' 已複製！')}).catch(function(){fbCopy(t,l)})}else{fbCopy(t,l)}}
+function fbCopy(t,l){var a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;left:-9999px';document.body.appendChild(a);a.select();try{document.execCommand('copy');showToast(l+' 已複製！')}catch(e){alert('複製失敗')}document.body.removeChild(a)}
+function showToast(m){var t=document.getElementById('toast');if(!t){t=document.createElement('div');t.id='toast';t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:rgba(233,194,125,.95);color:#1a1008;padding:12px 24px;border-radius:999px;font-size:.88rem;z-index:9999;transition:.3s;pointer-events:none;font-family:inherit';document.body.appendChild(t)}t.textContent=m;t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';setTimeout(function(){t.style.opacity='0';t.style.transform='translateX(-50%) translateY(20px)'},2200)}
+
+// 預設
+document.getElementById('lrDate').value=new Date().toISOString().split('T')[0];
+var nowH=new Date().getHours();
+var shi=nowH===23?0:Math.floor((nowH+1)/2)%12;
+document.getElementById('lrHour').value=shi;
+</script>
+</body>
+</html>

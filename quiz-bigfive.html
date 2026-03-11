@@ -235,6 +235,12 @@
   filter: saturate(1.1) brightness(.72);
   pointer-events: none;
 }
+
+.aroma-landing{background:linear-gradient(135deg,rgba(90,158,122,.08),rgba(233,194,125,.06));border:1px solid rgba(90,158,122,.2);border-radius:20px;padding:24px 22px;margin-bottom:20px;position:relative;overflow:hidden}
+.aroma-landing::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;background:radial-gradient(circle,rgba(90,158,122,.1),transparent 70%);pointer-events:none}
+.aroma-landing .al-label{font-size:.72rem;letter-spacing:2px;color:rgba(122,171,109,.7);margin-bottom:10px}
+.aroma-landing .al-text{font-family:'LXGW WenKai TC',serif;font-size:.92rem;color:rgba(249,240,229,.75);line-height:2;font-weight:300}
+.aroma-landing .al-oil{display:inline-block;margin-top:12px;padding:6px 16px;border-radius:999px;background:rgba(90,158,122,.1);border:1px solid rgba(90,158,122,.2);font-size:.78rem;color:rgba(122,171,109,.8)}
 </style>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#0a0612">
@@ -308,6 +314,7 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1" loa
     <div class="result-section" id="rA"></div>
     <div class="result-section" id="rN"></div>
     <div class="result-hour-bridge" id="resultHour"></div>
+    <div class="result-section" id="resultAroma" style="display:none"></div>
     <div class="share-section">
     <div class="share-row">
       <button class="share-btn" onclick="copyResult()">📋 複製結果</button>
@@ -519,6 +526,28 @@ function showResult(){
     A:`你的親和性讓你天生就懂得「Heal（身心校準）」｜讓別人感到安全。但你有沒有讓自己也感到安全的空間？馥靈之鑰的牌卡，邀請你先照顧自己的感受。`,
     N_stable:`你的情緒穩定度，讓你在任何情況下都能找到「Rise（行動進化）」的力量。馥靈之鑰的工具，幫你把這份穩定感，轉化成更清晰的自我認知。`
   };
+  
+  // ── 香氣著陸（按最高分維度）──
+  const bigfiveAroma = {
+    'O': {text:`你的好奇心像一扇永遠關不上的窗——風從四面八方吹進來，帶著你從沒想過的風景。尤加利的清涼就是你腦袋裡那股「如果是這樣呢？」的衝動。乳香的深沉則提醒你：最好的靈感，常常在你安靜下來的時候自己走過來。`, oil:'尤加利 · 乳香', title:'你的好奇心比天高'},
+    'C': {text:`你是那個會把抽屜分格、把清單全部打勾的人。茶樹的清冽跟你的紀律一樣——乾淨、有效、不囉嗦。但偶爾讓甜橙的隨性衝進你的系統裡：最好的計畫，有時候是那個你沒計畫到的意外。`, oil:'茶樹 · 甜橙', title:'你的可靠是別人的定心丸'},
+    'E': {text:`你的能量像一顆太陽——在場的人都會被你暖到。佛手柑是你走過之後空氣裡留下的餘韻，明亮但不刺眼。薰衣草則是你回到家關上門之後需要的——像一條涼被蓋住你過度放電的電池。`, oil:'佛手柑 · 薰衣草', title:'你是人群中的充電站'},
+    'A': {text:`你的心像一塊海綿，能吸收身邊所有人的情緒——快樂和痛苦都是。玫瑰的溫潤跟你的同理心同頻：你讓人覺得被接住。但你也需要雪松的硬度幫你撐住骨架：溫柔不代表沒有邊界。`, oil:'玫瑰 · 雪松', title:'你的溫柔是一種超能力'},
+    'N': {text:`你的情緒像天氣——變化很快，每一種都很真實。洋甘菊的安撫能幫你在暴風雨來的時候找到一個角落躲一下。岩蘭草則像一根錨，讓你的船不管浪多大都不會飄走。你不需要消滅情緒——你需要一個安全的港口。`, oil:'洋甘菊 · 岩蘭草', title:'你的敏感是深度的入口'},
+  };
+  const dims5 = ['O','C','E','A','N'];
+  let topDim5 = 'O', topPct5 = 0;
+  dims5.forEach(d => { if (pct[d] > topPct5) { topPct5 = pct[d]; topDim5 = d; }});
+  const aromaB = bigfiveAroma[topDim5];
+  if (aromaB) {
+    document.getElementById('resultAroma').style.display = 'block';
+    document.getElementById('resultAroma').innerHTML = `
+      <div class="aroma-landing">
+        <div class="al-label">🌿 馥靈香氣著陸 · AROMA ANCHOR</div>
+        <div class="al-text">${aromaB.text}</div>
+        <div class="al-oil">🌿 ${aromaB.oil}</div>
+      </div>`;
+  }
   document.getElementById('resultHour').innerHTML=`
     <div class="hour-bridge-label">✦ 馥靈之鑰 × 你的覺察密碼</div>
     <div class="hour-bridge-text">${bridgeMap[topTrait[0]]||bridgeMap['O']}</div>

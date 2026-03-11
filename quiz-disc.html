@@ -535,6 +535,12 @@
   filter: saturate(1.1) brightness(.72);
   pointer-events: none;
 }
+
+.aroma-landing{background:linear-gradient(135deg,rgba(90,158,122,.08),rgba(233,194,125,.06));border:1px solid rgba(90,158,122,.2);border-radius:20px;padding:24px 22px;margin-bottom:20px;position:relative;overflow:hidden}
+.aroma-landing::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;background:radial-gradient(circle,rgba(90,158,122,.1),transparent 70%);pointer-events:none}
+.aroma-landing .al-label{font-size:.72rem;letter-spacing:2px;color:rgba(122,171,109,.7);margin-bottom:10px}
+.aroma-landing .al-text{font-family:'LXGW WenKai TC',serif;font-size:.92rem;color:rgba(249,240,229,.75);line-height:2;font-weight:300}
+.aroma-landing .al-oil{display:inline-block;margin-top:12px;padding:6px 16px;border-radius:999px;background:rgba(90,158,122,.1);border:1px solid rgba(90,158,122,.2);font-size:.78rem;color:rgba(122,171,109,.8)}
 </style>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#0a0612">
@@ -641,6 +647,7 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1" loa
     <div class="result-section" id="resultCombo"></div>
 
     <div class="result-hour-bridge" id="resultHour"></div>
+    <div class="result-section" id="resultAroma" style="display:none"></div>
 
     <div style="background:rgba(10,6,20,0.8);border:1px solid rgba(233,194,125,0.15);border-radius:16px;padding:20px 16px;margin-bottom:16px;backdrop-filter:blur(12px);">
     <div class="share-row">
@@ -1115,6 +1122,25 @@ function showResult() {
 
   // 馥靈橋接
   renderHlTitle(topType, result.name);
+  
+  // ── 香氣著陸 ──
+  const discAroma = {
+    'D': {text:`你走進房間的方式就像一陣風——帶著方向感，不浪費一秒。黑胡椒的辛辣跟你的果斷同頻。但雪松沉穩的木質底調能幫你在全速衝刺的時候踩一下剎車：快不是唯一的力量，穩也是。`, oil:'黑胡椒 · 雪松'},
+    'I': {text:`你是人群裡那個讓空氣變暖的人。甜橙的明亮就是你走過之後留下的味道——讓人忍不住微笑。佛手柑能幫你在光芒四射之餘，找到一個安靜的角落問自己：今天的笑，有多少是真的？`, oil:'甜橙 · 佛手柑'},
+    'S': {text:`你的存在像一棵大樹——不出聲，但所有人都靠著你。岩蘭草的泥土氣息跟你一樣踏實可靠。但你也需要薄荷偶爾吹進來的那股涼意，提醒你：「穩」不代表你不能偶爾做一次出乎意料的事。`, oil:'岩蘭草 · 薄荷'},
+    'C': {text:`你的世界有一套精密的座標系統，每樣東西都有它該在的位置。茶樹的清冽跟你的邏輯一樣乾淨俐落。但試試在那份精確裡滴一點依蘭的甜——完美的事物不一定冰冷，可以有溫度的。`, oil:'茶樹 · 依蘭'},
+  };
+  const daKey = primary;
+  const aromaD = discAroma[daKey];
+  if (aromaD) {
+    document.getElementById('resultAroma').style.display = 'block';
+    document.getElementById('resultAroma').innerHTML = `
+      <div class="aroma-landing">
+        <div class="al-label">🌿 馥靈香氣著陸 · AROMA ANCHOR</div>
+        <div class="al-text">${aromaD.text}</div>
+        <div class="al-oil">🌿 ${aromaD.oil}</div>
+      </div>`;
+  }
   document.getElementById('resultHour').innerHTML = `
     <div class="hour-bridge-label">✦ 馥靈之鑰 × 你的覺察密碼</div>
     <div class="hour-bridge-text">${result.hour}</div>

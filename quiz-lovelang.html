@@ -73,6 +73,12 @@
 .more-card{padding:14px;border:1px solid rgba(233,194,125,0.2);border-radius:12px;text-align:center;text-decoration:none;color:#c4b7a6;font-size:0.82rem;transition:all 0.25s;background:rgba(10,6,20,0.5)}
 .more-card:hover{border-color:rgba(233,194,125,0.35);background:rgba(233,194,125,0.05);color:#f7efe1}
 .more-card-icon{font-size:1.5rem;display:block;margin-bottom:6px}
+
+.aroma-landing{background:linear-gradient(135deg,rgba(90,158,122,.08),rgba(233,194,125,.06));border:1px solid rgba(90,158,122,.2);border-radius:20px;padding:24px 22px;margin-bottom:20px;position:relative;overflow:hidden}
+.aroma-landing::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;background:radial-gradient(circle,rgba(90,158,122,.1),transparent 70%);pointer-events:none}
+.aroma-landing .al-label{font-size:.72rem;letter-spacing:2px;color:rgba(122,171,109,.7);margin-bottom:10px}
+.aroma-landing .al-text{font-family:'LXGW WenKai TC',serif;font-size:.92rem;color:rgba(249,240,229,.75);line-height:2;font-weight:300}
+.aroma-landing .al-oil{display:inline-block;margin-top:12px;padding:6px 16px;border-radius:999px;background:rgba(90,158,122,.1);border:1px solid rgba(90,158,122,.2);font-size:.78rem;color:rgba(122,171,109,.8)}
 </style>
 <!-- Facebook Pixel -->
 <script>!function(f,b,e,v,n,t,s)
@@ -135,6 +141,7 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1" loa
     <div class="ocean-bars" id="dimBars"></div>
     <div id="resultSections"></div>
     <div class="result-hour-bridge" id="resultHour"></div>
+    <div class="result-section" id="resultAroma" style="display:none"></div>
     <div class="share-row">
       <button class="share-btn" onclick="copyResult()">📋 複製結果</button>
       <button class="share-btn" onclick="shareToLine()">💬 分享到 LINE</button>
@@ -246,6 +253,26 @@ function showResult(){
     {label:'🤲 肢體接觸',color:'#9c6edb',score:pcts.touch}
   ].map(d=>`<div class="ocean-item"><div class="ocean-top"><span class="ocean-label"><strong>${d.label}</strong></span><span class="ocean-score">${d.score}%</span></div><div class="ocean-track"><div class="ocean-fill" style="width:${d.score}%;background:${d.color}"></div></div></div>`).join('');
   document.getElementById('resultSections').innerHTML=`<div class="result-section"><div class="result-section-title">💕 你的愛之語</div><div class="result-section-content">${r.desc}</div></div><div class="result-section"><div class="result-section-title">🌑 你的盲點與課題</div><div class="result-section-content">${r.shadow}</div></div>`;
+  
+  // ── 香氣著陸 ──
+  const loveAroma = {
+    'words': {text:`你的心有一雙耳朵，聽得見語言底下的溫度。玫瑰的馨香就是「我愛你」的氣味版本——不需要說出口，聞到就知道。橙花能在你覺得沒被看見的時候，像一隻手輕輕摸你的頭：有人記得你。`, oil:'玫瑰 · 橙花'},
+    'time': {text:`你要的不是禮物，不是服務——你要的是一段不被打斷的「全部都是你」。檀香燃燒的速度很慢，就像你最渴望的相處：不趕、不急、整個世界只剩下彼此。薰衣草讓那段時間安靜得剛剛好。`, oil:'檀香 · 薰衣草'},
+    'gifts': {text:`你看見的不是東西本身，是那個人「想到你了」的心意。茉莉像一份被精心包裝的禮物——打開的瞬間，你知道有人把你放在心上。佛手柑的溫暖提醒你：你值得被這樣珍惜著。`, oil:'茉莉 · 佛手柑'},
+    'service': {text:`你最心動的情話是「我來做」。廣藿香帶著泥土的厚重，像一雙替你承擔重量的手。天竺葵的溫和則提醒你：接受別人的照顧不是虧欠，是讓對方有機會表達愛。`, oil:'廣藿香 · 天竺葵'},
+    'touch': {text:`你的皮膚比你的腦袋更早知道答案——一個擁抱能抵過一千句話。依蘭的甜潤像肌膚相觸的溫度，暖暖的、柔柔的。岩蘭草的接地氣息讓那份溫度從皮膚一路沉進骨頭裡。`, oil:'依蘭 · 岩蘭草'},
+  };
+  const laKey = topKey;
+  const aromaL = loveAroma[laKey];
+  if (aromaL) {
+    document.getElementById('resultAroma').style.display = 'block';
+    document.getElementById('resultAroma').innerHTML = `
+      <div class="aroma-landing">
+        <div class="al-label">🌿 馥靈香氣著陸 · AROMA ANCHOR</div>
+        <div class="al-text">${aromaL.text}</div>
+        <div class="al-oil">🌿 ${aromaL.oil}</div>
+      </div>`;
+  }
   document.getElementById('resultHour').innerHTML=`<div class="hour-bridge-label">✦ 馥靈之鑰 × 你的覺察密碼</div><div class="hour-bridge-text">${r.bridge}</div><a href="draw-hl.html" class="hour-bridge-cta">抽一張牌，聽聽自己的聲音 ✨</a>`;
   
   try{localStorage.setItem('hl_quiz_lovelang',JSON.stringify({type:topType,pcts,ts:Date.now()}));}catch(e){}
