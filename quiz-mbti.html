@@ -139,6 +139,11 @@
   filter: saturate(1.1) brightness(.72);
   pointer-events: none;
 }
+.aroma-landing{background:linear-gradient(135deg,rgba(90,158,122,.08),rgba(233,194,125,.06));border:1px solid rgba(90,158,122,.2);border-radius:20px;padding:24px 22px;margin-bottom:20px;position:relative;overflow:hidden}
+.aroma-landing::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;background:radial-gradient(circle,rgba(90,158,122,.1),transparent 70%);pointer-events:none}
+.aroma-landing .al-label{font-size:.72rem;letter-spacing:2px;color:rgba(122,171,109,.7);margin-bottom:10px}
+.aroma-landing .al-text{font-family:'LXGW WenKai TC',serif;font-size:.92rem;color:rgba(249,240,229,.75);line-height:2;font-weight:300}
+.aroma-landing .al-oil{display:inline-block;margin-top:12px;padding:6px 16px;border-radius:999px;background:rgba(90,158,122,.1);border:1px solid rgba(90,158,122,.2);font-size:.78rem;color:rgba(122,171,109,.8)}
 </style>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#0a0612">
@@ -230,6 +235,7 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1" loa
     <div class="result-section" id="resultRelation"></div>
     <div class="result-section" id="resultShadow"></div>
     <div class="result-hour-bridge" id="resultHour"></div>
+    <div class="result-section" id="resultAroma" style="display:none"></div>
     <div style="background:rgba(10,6,20,0.8);border:1px solid rgba(233,194,125,0.15);border-radius:16px;padding:20px 16px;margin-bottom:16px;backdrop-filter:blur(12px);">
     <div class="share-row">
       <button class="share-btn" onclick="copyResult()" style="background:rgba(10,6,20,0.85)!important;border:1px solid rgba(233,194,125,0.4)!important;color:#e9c27d!important;">📋 複製結果</button>
@@ -353,6 +359,36 @@ const mbtiTitles = {
 };
 
 function renderHlTitle(type, typeName) {
+  // ── 16型香氣著陸 ──
+  const aromaLanding = {
+    INTJ:'你的腦袋永遠比世界快三步，但身體常常被你忘在後面。試著在深夜獨處的時候，把乳香滴在掌心搓熱，捧到鼻前——那股古老樹脂慢慢融開的沉靜，像是有人終於跟上了你的節奏，安靜地坐在你旁邊，什麼都不問。',
+    INTP:'你的腦袋像一台永動機，問題是它沒有暫停鍵。薄荷的涼意可以幫你的神經迴路降溫——不是要你停止思考，而是讓那些纏繞的思緒被一陣清風吹開。再配一點廣藿香的泥土氣息，提醒你：再深的思考，最後都要落地。',
+    ENTJ:'你的氣場像一把剛從火裡淬出來的刀，銳利、高效、不廢話。但刀也需要被擦拭。黑胡椒辛辣的暖意能維持你的行動力，而雪松沉穩的木質底調會在你衝得太快的時候，像一隻手按住你的肩膀：慢一拍，不會輸。',
+    ENTP:'你的腦袋像煙火工廠——永遠有新的點子在炸開。尤加利那股一秒打通鼻腔的清涼，就是你思維的速度感。但你也需要甜橙的圓潤把那些四散的火花收攏回來——不是要你收斂，是幫你選一朵最亮的，好好點燃。',
+    INFJ:'你的直覺像深海裡的聲納，能接收到別人聽不見的訊號。但接收太多，你也會累。洋甘菊的溫柔像一條被太陽曬過的毛毯，輕輕蓋在你過度敏感的天線上。而乳香會在你又開始為別人操心之前，提醒你：你自己也需要被接住。',
+    INFP:'你的世界比別人的世界多了好幾層濾鏡，每一層都是你的感受力在運作。玫瑰的氣味不是甜的——是那種讓你覺得「被溫柔以待」的感覺。而岩蘭草帶著泥土的沉穩，像一雙手扶住你飄忽的心：感受完了，現在可以落地了。',
+    ENFJ:'你是那種會把自己的傘借給別人，然後自己淋雨回家的人。天竺葵的香氣像你給出去的那份溫暖——但這次，是還給你自己的。讓依蘭的甜潤提醒你：照顧別人之前，先問一句「我今天還好嗎」，這不是自私，是必要。',
+    ENFP:'你的熱情像一顆剛擠出來的甜橙——汁液四濺、香氣噴發、全場都被你點亮。佛手柑能把你這份陽光再穩住一點，不讓它散得太快。當你又被十個新點子同時拉走的時候，聞一口，讓那股微苦的柑橘尾韻幫你選一個：這一個，先做完。',
+    ISTJ:'你是整個世界能正常運轉的原因，但你太少被感謝了。雪松的氣味像你本人——沉穩、可靠、不張揚，但少了你整棟樓都會歪。廣藿香帶著大地的厚重，不是要你改變什麼，只是想讓你知道：你已經夠好了，不需要再多做一點才配得上被愛。',
+    ISFJ:'你記得所有人的喜好，但沒有人記得問你喜歡什麼。薰衣草的安靜不是催眠——是終於有一個東西在照顧你，像你照顧所有人那樣。洋甘菊的甘甜像一杯微溫的茶，放在你手邊，提醒你：今天可以早一點休息，世界不會因為你少做一件事就垮掉。',
+    ESTJ:'你是那個讓混亂變成秩序的人，但你的肩膀承受的重量，你自己不一定知道。迷迭香能讓你的腦袋保持清醒——但這次不是為了效率，是為了讓你清楚地聽見自己說：我也累了。薑的暖意從胃開始往上走，像一碗你媽煮的湯，不講道理，只管暖。',
+    ESFJ:'你讓所有人都覺得被愛，但你自己呢？玫瑰不只是浪漫——它是心輪的頻率，是「我值得被愛」的氣味版本。天竺葵能平衡你永遠在給予的疲憊，在你又要問「他們需要什麼」之前，先讓香氣問你一次：你呢？你現在需要什麼？',
+    ISTP:'你不說廢話，你用手和行動解決一切。雪松的沉默跟你一樣——不需要被理解，但在場的人都會感覺到它的穩定。黑胡椒辛辣的勁道像你骨子裡的那股「少廢話，做就對了」——但偶爾讓這股辛辣軟化一下，對自己溫柔一次，不丟臉。',
+    ISFP:'你的五感天線永遠是全開的，這個世界在你的感知裡比較美，也比較累。依蘭的甜膩像一場不需要解釋的擁抱——你不用說話，它就懂了。廣藿香帶著泥土和落葉的氣息，提醒你：你的美感不需要被任何人認證，存在本身就是你的藝術。',
+    ESTP:'你活在這一秒，而且你讓這一秒燒得最旺。薑的辛辣像你的節奏——快、直接、不囉嗦。甜橙的爆發力跟你一樣，拿起來就是一陣香氣炸開。但這兩個氣味混在一起的時候，會有一個你不常允許自己感受的東西出現：溫暖。不是效率，是溫暖。',
+    ESFP:'你讓人覺得活著是值得慶祝的，光是你走進來，氣氛就不一樣了。甜橙是你——明亮、溫暖、讓人忍不住微笑。依蘭是你沒給別人看的那一面——比較安靜、比較深、比較需要被好好對待。兩個氣味疊在一起的時候，就是完整的你。'
+  };
+  const aromaText = aromaLanding[type] || '';
+  const oilName = (mbtiTitles[type]||{}).oil || '';
+  if (aromaText) {
+    document.getElementById('resultAroma').style.display = 'block';
+    document.getElementById('resultAroma').innerHTML = `
+      <div class="aroma-landing">
+        <div class="al-label">🌿 馥靈香氣著陸 · AROMA ANCHOR</div>
+        <div class="al-text">${aromaText}</div>
+        <div class="al-oil">🌿 ${oilName}</div>
+      </div>`;
+  }
   const t = mbtiTitles[type] || mbtiTitles['INFP'];
   document.getElementById('hlTitleReveal').innerHTML = `
     <div class="screenshot-card" id="screenshotCard">
