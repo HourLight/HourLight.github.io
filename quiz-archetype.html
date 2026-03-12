@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>榮格12原型測驗｜馥靈之鑰 Hour Light</title>
-<meta name="description" content="免費榮格12原型人格測驗｜24道題找出你的靈魂原型｜天真者、智者、探索者、英雄、魔術師、愛人⋯你的人生劇本，寫在原型裡。馥靈之鑰免費覺察工具。">
+<meta name="description" content="免費榮格12原型人格測驗｜24道題找出你的內在原型｜天真者、智者、探索者、英雄、魔術師、愛人⋯你的人生劇本，寫在原型裡。馥靈之鑰免費覺察工具。">
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="HOUR-LIGHT.png">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@400;600&family=LXGW+WenKai+TC:wght@300;400&family=Cormorant+Garamond:ital,wght@0,400;1,400;1,500&display=swap" rel="stylesheet">
@@ -14,6 +14,81 @@
 <style>
 .archetype-icon{font-size:3rem;margin-bottom:8px;animation:float 2.5s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* ── 答題頁核心CSS（修復黑塊問題）── */
+body{background:#05030a;color:#f9f0e5;font-family:'Noto Sans TC',sans-serif;font-weight:300;margin:0;min-height:100vh}
+.quiz-container{max-width:680px;margin:0 auto;padding:20px 16px 80px}
+.quiz-header{display:flex;justify-content:space-between;align-items:center;padding:12px 0;margin-bottom:8px}
+.quiz-logo{font-size:.75rem;letter-spacing:3px;color:rgba(233,194,125,.4)}
+.quiz-back{font-size:.78rem;color:rgba(233,194,125,.5);text-decoration:none}
+.quiz-badge{display:inline-block;padding:6px 16px;border-radius:999px;font-size:.75rem;
+  background:rgba(233,194,125,.08);border:1px solid rgba(233,194,125,.15);color:rgba(233,194,125,.7);margin-bottom:12px}
+.quiz-hero{text-align:center;padding:20px 0 30px}
+.quiz-title{font-family:'Noto Serif TC',serif;font-size:clamp(1.3rem,4vw,1.8rem);color:#e9c27d;
+  font-weight:600;letter-spacing:1px;margin-bottom:12px}
+.quiz-subtitle{font-size:.88rem;color:rgba(249,240,229,.5);margin-bottom:16px}
+.quiz-desc{font-family:'LXGW WenKai TC',serif;font-size:.88rem;color:rgba(249,240,229,.55);
+  line-height:2;max-width:520px;margin:0 auto 20px;font-weight:300}
+.quiz-start-btn{display:inline-block;padding:14px 36px;border:none;border-radius:999px;
+  background:linear-gradient(135deg,#e9c27d,#cda86e);color:#1a1008;font-size:.95rem;
+  font-weight:500;cursor:pointer;font-family:inherit;transition:.3s}
+.quiz-start-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(233,194,125,.25)}
+
+/* 進度條 */
+#progressWrap{display:none;margin-bottom:16px}
+.quiz-progress,.quiz-progress-bar{height:4px;background:rgba(249,240,229,.06);border-radius:99px;overflow:hidden;margin-bottom:8px}
+.quiz-progress-fill{height:100%;background:linear-gradient(90deg,#e9c27d,#cda86e);border-radius:99px;transition:width .4s ease;width:0}
+.quiz-progress-text{font-size:.72rem;color:rgba(249,240,229,.3);text-align:center}
+
+/* 題目卡片 */
+#questionsArea{display:none}
+.quiz-question-card{background:rgba(249,240,229,.04);border:1px solid rgba(233,194,125,.1);
+  border-radius:20px;padding:28px 24px;backdrop-filter:blur(8px)}
+.quiz-q-number{font-size:.7rem;color:rgba(233,194,125,.4);margin-bottom:10px;text-align:center}
+.quiz-q-text{font-family:'LXGW WenKai TC',serif;font-size:1rem;color:rgba(249,240,229,.85);
+  line-height:1.9;text-align:center;margin-bottom:20px;font-weight:300}
+.quiz-options{display:flex;flex-direction:column;gap:10px}
+.quiz-option{display:block;width:100%;padding:14px 20px;border:1px solid rgba(233,194,125,.12);
+  border-radius:14px;background:rgba(249,240,229,.04);color:rgba(249,240,229,.75);
+  font-size:.88rem;font-family:'LXGW WenKai TC','Noto Sans TC',serif;font-weight:300;
+  cursor:pointer;transition:all .3s;text-align:left;line-height:1.6}
+.quiz-option:hover{background:rgba(233,194,125,.1);border-color:rgba(233,194,125,.3);color:#e9c27d;
+  transform:translateX(4px)}
+.quiz-option:active{transform:scale(.98)}
+
+/* 結果區 */
+.quiz-result{display:none;padding-top:20px}
+.quiz-result.active{display:block}
+.result-hero{text-align:center;padding:24px 0}
+.result-hero-icon{font-size:3.5rem;margin-bottom:8px}
+.result-type-label{font-size:.72rem;letter-spacing:2px;color:rgba(233,194,125,.4)}
+.result-combo-name{font-family:'Noto Serif TC',serif;font-size:1.5rem;color:#e9c27d;margin:8px 0;font-weight:600;letter-spacing:1px}
+.result-subtitle{font-family:'LXGW WenKai TC',serif;font-size:.9rem;color:rgba(249,240,229,.6);font-weight:300}
+.result-section{background:rgba(249,240,229,.04);border:1px solid rgba(233,194,125,.1);
+  border-radius:16px;padding:22px 20px;margin-bottom:16px}
+.result-section-title{font-family:'Noto Serif TC',serif;font-size:.95rem;color:#e9c27d;
+  margin-bottom:12px;font-weight:600}
+.result-section-content{font-family:'LXGW WenKai TC',serif;font-size:.88rem;
+  color:rgba(249,240,229,.65);line-height:2.2;font-weight:300}
+.result-section-content strong{color:rgba(249,240,229,.85);font-weight:400}
+.result-hour-bridge{background:rgba(233,194,125,.04);border:1px solid rgba(233,194,125,.1);
+  border-radius:16px;padding:22px 20px;margin-bottom:16px;text-align:center}
+.hour-bridge-label{font-size:.72rem;letter-spacing:2px;color:rgba(233,194,125,.4);margin-bottom:8px}
+.hour-bridge-text{font-family:'LXGW WenKai TC',serif;font-size:.88rem;
+  color:rgba(249,240,229,.6);line-height:2;font-weight:300;margin-bottom:14px}
+.hour-bridge-cta{display:inline-block;padding:12px 28px;border-radius:999px;
+  background:linear-gradient(135deg,#e9c27d,#cda86e);color:#1a1008;font-size:.85rem;
+  font-weight:500;text-decoration:none;transition:.3s}
+.hour-bridge-cta:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(233,194,125,.2)}
+.quiz-dims{margin-bottom:16px}
+.quiz-footer{text-align:center;padding:30px 16px;font-size:.7rem;color:rgba(249,240,229,.15)}
+.quiz-footer a{color:rgba(233,194,125,.3);text-decoration:none}
+.quiz-actions{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
+.quiz-actions button{flex:1;min-width:100px;padding:10px;border:1px solid rgba(233,194,125,.2);
+  border-radius:12px;background:rgba(233,194,125,.06);color:#f9f0e5;font-size:.78rem;
+  cursor:pointer;font-family:inherit;transition:.3s}
+.quiz-actions button:hover{background:rgba(233,194,125,.12)}
+
 .card-mapping{margin-top:20px;padding:18px;border-radius:14px;background:rgba(233,194,125,.06);border:1px solid rgba(233,194,125,.15)}
 .card-mapping .cm-title{font-size:.78rem;color:rgba(233,194,125,.6);letter-spacing:2px;margin-bottom:8px}
 .card-mapping .cm-cards{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
@@ -22,6 +97,13 @@
 .aroma-landing{background:linear-gradient(135deg,rgba(90,158,122,.08),rgba(233,194,125,.06));border:1px solid rgba(90,158,122,.2);border-radius:20px;padding:24px 22px;margin-bottom:20px;position:relative;overflow:hidden}
 .aroma-landing .al-label{font-size:.72rem;letter-spacing:2px;color:rgba(122,171,109,.7);margin-bottom:10px}
 .aroma-landing .al-text{font-family:'LXGW WenKai TC',serif;font-size:.9rem;color:rgba(249,240,229,.75);line-height:2;font-weight:300}
+
+/* 分享按鈕 */
+.quiz-share-row{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0}
+.share-btn{flex:1;min-width:100px;padding:12px;border:1px solid rgba(233,194,125,.2);
+  border-radius:12px;background:rgba(233,194,125,.06);color:rgba(249,240,229,.75);
+  font-size:.8rem;cursor:pointer;font-family:inherit;transition:.3s;text-align:center}
+.share-btn:hover{background:rgba(233,194,125,.12);color:#e9c27d}
 </style>
 </head>
 <body>
@@ -33,7 +115,7 @@
 
   <div class="quiz-hero">
     <div class="quiz-badge">🎭 榮格 12 原型</div>
-    <h1 class="quiz-title">你的靈魂原型是什麼？</h1>
+    <h1 class="quiz-title">你的內在原型是什麼？</h1>
     <p class="quiz-subtitle">24 道題，找出你此生最深層的驅動力</p>
     <p class="quiz-desc">
       榮格（Carl Jung）說，每個人的潛意識裡都住著幾個「原型」｜它們是你做選擇的隱形劇本。<br>
@@ -318,7 +400,7 @@ function showResult(){
   document.getElementById('cardMap').innerHTML='<div class="card-mapping">'
     +'<div class="cm-title">✦ 你的原型 × 馥靈 22 張原型卡</div>'
     +'<div style="font-size:.82rem;color:rgba(249,240,229,.6);margin-bottom:10px;line-height:1.8">'
-    +'你的靈魂原型「'+r.name+'」對應以下馥靈原型卡。<br>這不是巧合｜130 張牌卡的前 22 張，就是根據榮格原型設計的。</div>'
+    +'你的內在原型「'+r.name+'」對應以下馥靈原型卡。<br>這不是巧合｜130 張牌卡的前 22 張，就是根據榮格原型設計的。</div>'
     +'<div class="cm-cards">'+r.cards.map(function(c){return '<span class="cm-chip">'+c+'</span>'}).join('')+'</div>'
     +'<div style="margin-top:14px"><a href="draw-hl.html" style="color:rgba(233,194,125,.8);font-size:.82rem">→ 去抽你的原型卡，聽聽它現在想對你說什麼</a></div>'
     +'</div>';
@@ -343,7 +425,7 @@ function showResult(){
   if(window.HLFX) HLFX.particles({color:'rgba(233,194,125,0.4)',count:35,spread:'radial',duration:3000});
 
   window._archetype=top;
-  window._resultText='【馥靈之鑰 榮格原型測驗】\n我是 '+r.icon+' '+r.name+' '+r.en+'\n「'+r.sub+'」\n\n測測你的靈魂原型 👉 hourlightkey.com/quiz-archetype.html';
+  window._resultText='【馥靈之鑰 榮格原型測驗】\n我是 '+r.icon+' '+r.name+' '+r.en+'\n「'+r.sub+'」\n\n測測你的內在原型 👉 hourlightkey.com/quiz-archetype.html';
 }
 
 function copyResult(){if(window._resultText)navigator.clipboard.writeText(window._resultText).then(function(){alert('已複製！')})}
