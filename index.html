@@ -329,8 +329,7 @@ body{font-family:var(--sans);color:var(--ink);background:var(--ink);-webkit-font
       
     </span>
     <p class="rb-hero-desc">
-      日子過得去，但好像少了什麼。<br>想找方向，卻不知道問題出在哪裡。<br><strong>停下來，先聽聽自己說什麼。</strong><br>馥靈之鑰不是算命，不餵雞湯，不替你做決定。<br>只是陪你看清楚自己這張地圖。
-      
+      你上一次清楚說出「我需要什麼」，是什麼時候？<br>不是別人需要你做什麼。是你自己，你，需要什麼。<br><strong>很多人想不起來了。</strong><br>馥靈之鑰不是算命，不餵雞湯，不替你做決定。<br>只幫你回答這一個問題。
     </p>
     <div class="rb-hero-btns">
       <a href="draw-hl.html" class="rb-btn-primary">
@@ -374,6 +373,7 @@ body{font-family:var(--sans);color:var(--ink);background:var(--ink);-webkit-font
 
 <!-- ─── 每日幸運籤 ─── -->
 <script src="js/hl-yuyu.js"></script>
+<script src="assets/js/hl-oil-dna.js"></script>
 <section class="hl-sign-section fade-in">
   <div class="hl-sign-inner">
     <div class="hl-sign-eyebrow">馥靈馥語 · 每日幸運籤</div>
@@ -387,6 +387,12 @@ body{font-family:var(--sans);color:var(--ink);background:var(--ink);-webkit-font
       <div class="hl-sign-body" id="hl-sign-body"></div>
       <div class="hl-sign-divider"></div>
       <div class="hl-sign-cta" id="hl-sign-cta"></div>
+      <!-- 馥光宣言：精油的聲音 -->
+      <div id="hl-sign-oil" style="margin-top:24px;padding:18px 20px;border-radius:14px;background:linear-gradient(135deg,rgba(90,158,122,.06),rgba(212,168,83,.04));border:1px solid rgba(90,158,122,.15);display:none">
+        <div style="font-size:.6rem;letter-spacing:3px;color:rgba(122,171,109,.6);margin-bottom:8px">🌿 馥光宣言 · 今日精油</div>
+        <div id="hl-sign-oil-name" style="font-family:'Cormorant Garamond',serif;font-size:.92rem;color:rgba(212,168,83,.85);margin-bottom:8px;font-style:italic"></div>
+        <div id="hl-sign-oil-voice" style="font-family:'LXGW WenKai TC',serif;font-size:.88rem;color:rgba(255,255,255,.5);line-height:2;font-weight:300"></div>
+      </div>
       <div class="hl-sign-footer">
         <a href="draw-hl.html" class="hl-sign-btn">抽完整牌陣 →</a>
         <div style="display:flex;align-items:center;gap:20px;">
@@ -399,6 +405,15 @@ body{font-family:var(--sans);color:var(--ink);background:var(--ink);-webkit-font
 </section>
 <script>
 (function(){
+  // A00-A21 原型卡對應精油
+  var ARCHETYPE_OIL={
+    'A00':'050','A01':'044','A02':'048','A03':'059','A04':'061',
+    'A05':'035','A06':'055','A07':'003','A08':'054','A09':'046',
+    'A10':'060','A11':'005','A12':'053','A13':'069','A14':'039',
+    'A15':'080','A16':'008','A17':'042','A18':'071','A19':'057',
+    'A20':'031','A21':'070'
+  };
+
   function fillSign(){
     if(typeof getHLDailySign !== 'function') return;
     var s = getHLDailySign();
@@ -407,6 +422,21 @@ body{font-family:var(--sans);color:var(--ink);background:var(--ink);-webkit-font
     document.getElementById('hl-sign-open').textContent = s.open;
     document.getElementById('hl-sign-body').textContent = s.body;
     document.getElementById('hl-sign-cta').textContent = '「' + s.cta + '」';
+
+    // 馥光宣言：接上精油DNA
+    if(window.HL_OILS){
+      var oilId = s.key; // 牌卡 KEY
+      // 原型卡用對應精油，精油卡直接用
+      if(oilId && oilId.charAt(0)==='A') oilId = ARCHETYPE_OIL[oilId] || '053';
+      // 去掉前導零
+      var oil = HL_OILS[oilId] || HL_OILS.get(oilId);
+      if(oil && oil.voice){
+        var el = document.getElementById('hl-sign-oil');
+        el.style.display = 'block';
+        document.getElementById('hl-sign-oil-name').textContent = oil.name;
+        document.getElementById('hl-sign-oil-voice').textContent = oil.voice;
+      }
+    }
   }
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', fillSign);
@@ -463,45 +493,43 @@ body{font-family:var(--sans);color:var(--ink);background:var(--ink);-webkit-font
     <div class="rb-what-grid">
       <div>
         <p class="rb-what-quote">
-          馥靈之鑰是一套幫你<strong>看懂自己</strong>的工具系統。<br>不算命、不貼標籤、不替你做決定。<br>用你的生日和 130 張芳香牌卡，<br>幫你看清個性、盲點，和接下來可以怎麼走。
-          
+          你不是不了解自己。<br>你只是沒有機會<strong>好好問過自己</strong>。<br><br>馥靈之鑰用你的生日、130 張芳香牌卡，<br>把你這個人攤開來看一遍。<br>不是叫你改變，是幫你先搞清楚：<strong>你現在在哪裡。</strong>
         </p>
         <div class="rb-what-divider"></div>
         <p class="rb-p">
-          馥靈之鑰是你的內在 GPS。<br><strong>不告訴你該走哪條路，只幫你看清楚地圖。</strong>
-          
+          就像你的手機有 GPS，但你從來沒有打開過。<br><strong>地圖一直都在，只是沒人陪你看。</strong>
         </p>
       </div>
-      <div class="rb-what-attrs">
-        <div class="rb-what-attr">
-          <span class="rb-what-attr-letter">H</span>
-          <div class="rb-what-attr-text">
-            <strong>身心校準</strong>
-            創造安全空間，讓情緒被看見
+        <div class="rb-what-attrs">
+          <div class="rb-what-attr">
+            <span class="rb-what-attr-letter">H</span>
+            <div class="rb-what-attr-text">
+              <strong>先讓自己停一下</strong>
+              不是要你改變，是先把你現在的感覺說清楚。很多人跳過這一步，所以一直原地轉。
+            </div>
+          </div>
+          <div class="rb-what-attr">
+            <span class="rb-what-attr-letter">O</span>
+            <div class="rb-what-attr-text">
+              <strong>看清楚你是哪種人</strong>
+              你為什麼會這樣反應？卡在哪裡？這不是在找你的問題，是在認識你的設定。
+            </div>
+          </div>
+          <div class="rb-what-attr">
+            <span class="rb-what-attr-letter">U</span>
+            <div class="rb-what-attr-text">
+              <strong>找到你做得到的那個點</strong>
+              不是叫你大改變。是找到那個你現在就能走的一步，比什麼都實在。
+            </div>
+          </div>
+          <div class="rb-what-attr">
+            <span class="rb-what-attr-letter">R</span>
+            <div class="rb-what-attr-text">
+              <strong>真的走起來</strong>
+              知道了，還要有人陪你確認：有沒有真的動。這才是從「懂了」到「變了」的距離。
+            </div>
           </div>
         </div>
-        <div class="rb-what-attr">
-          <span class="rb-what-attr-letter">O</span>
-          <div class="rb-what-attr-text">
-            <strong>智慧辨識</strong>
-            快速引導情緒洞察與需求挖掘
-          </div>
-        </div>
-        <div class="rb-what-attr">
-          <span class="rb-what-attr-letter">U</span>
-          <div class="rb-what-attr-text">
-            <strong>潛能解鎖</strong>
-            從洞察轉化為具體行動方案
-          </div>
-        </div>
-        <div class="rb-what-attr">
-          <span class="rb-what-attr-letter">R</span>
-          <div class="rb-what-attr-text">
-            <strong>行動進化</strong>
-            持續追蹤，確保轉化落地
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </section>
@@ -538,8 +566,22 @@ body{font-family:var(--sans);color:var(--ink);background:var(--ink);-webkit-font
         <div class="rb-founder-name-en">馥靈之鑰國際有限公司 創辦人暨執行長</div>
         <span class="rb-founder-rule"></span>
         <p class="rb-founder-story">
-          15 歲入行，26 歲離婚獨自養兩個女兒，走過十幾年迷霧，把黃金賣光、保險解光。一瓶精油的氣味，敲醒了她整個人生。45 歲碩士論文，她終於找到那個讓她困惑了三十多年的答案。
-          
+          她不是一開始就想做這些的。
+        </p>
+        <p class="rb-founder-story">
+          有很長一段時間，她每天去工作，回到家，繼續撐著。兩個女兒、一堆帳、和一個她說不清楚的悶。她把家裡能賣的都賣了，把能解的都解了，還是不知道問題出在哪裡。
+        </p>
+        <p class="rb-founder-story">
+          43 歲那年，她坐在朋友車裡，車窗縫飄進一個氣味。她現在也說不清楚那一秒發生了什麼，只知道三十年沒有出口的東西，突然找到了缺口。
+        </p>
+        <p class="rb-founder-story">
+          後來她去念了碩士。寫論文、訪談、翻資料，某一天她突然看清楚了：她們來到美容沙龍，想放鬆想漂亮，但其實只是想找個出口。她愣了很久，因為那也是她自己一直在找的東西。
+        </p>
+        <p class="rb-founder-story">
+          49 歲那個下午，她在路上腦子停不下來。那些年累積的東西，突然知道怎麼放在一起了。馥靈之鑰就這樣開始。
+        </p>
+        <p class="rb-founder-story">
+          不是因為她什麼都懂。是因為她什麼都走過了。
         </p>
         <div class="rb-founder-pills">
           <span class="rb-founder-pill">🎓 健康產業管理碩士</span>
@@ -602,9 +644,8 @@ body{font-family:var(--sans);color:var(--ink);background:var(--ink);-webkit-font
       <h2 class="rb-h2">你的溫柔，值得被付費</h2>
       <span class="rb-rule"></span>
       <p class="rb-p">
-        美業不只是技術，是你每天用雙手撐起別人的情緒。這裡有兩條路，一條讓你的覺察能力變現，一條讓你的技術更值錢。
-        
-      </p>
+          你每天用雙手撐起別人的情緒，回到家卻沒有人問你「你還好嗎」。美業不缺技術，缺的是一套方法讓你的細膩被看見、被付費。這裡有兩條路，一條讓你的覺察能力變成服務收費，一條讓你的技術再升一級。
+        </p>
     </div>
     <div class="rb-partner-grid">
       <a href="hour-training.html" class="rb-partner-card fade-in">
@@ -644,8 +685,7 @@ body{font-family:var(--sans);color:var(--ink);background:var(--ink);-webkit-font
     
   </h2>
   <p class="rb-ending-sub">
-    浩瀚宇宙中，你我都只是一粒微塵。<br>但即使是微塵，也能憑自己的力量，成為一顆閃耀的金沙。
-    
+    你不需要一次想通所有事。<br>只需要今天，給自己五分鐘。<br>先聽聽看，你自己說什麼。
   </p>
   <div class="rb-ending-btns">
     <a href="draw-hl.html" class="rb-btn-primary">免費抽一張試試</a>
