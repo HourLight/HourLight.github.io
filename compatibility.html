@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>合盤配對｜馥靈之鑰 Hour Light</title>
+<meta name="description" content="免費合盤配對｜輸入兩個人的生日，馥靈秘碼×生命靈數×血型×九星氣學多維度比對。不是告訴你合不合｜是讓你看見，你們各自站在什麼座標。">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="HOUR-LIGHT.png">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@400;600&family=LXGW+WenKai+TC:wght@300;400&family=Cormorant+Garamond:ital,wght@0,400;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/hl-visual-fx.css">
+<link rel="stylesheet" href="assets/css/hl-bridge.css">
+<style>
+:root{--bg:#05030a;--ink:#f9f0e5;--ink2:rgba(249,240,229,.55);--ink3:rgba(249,240,229,.3);
+  --gold:#e9c27d;--gold2:#cda86e;--glass:rgba(249,240,229,.04);--bdr:rgba(233,194,125,.12);
+  --rose:rgba(240,181,179,.7);--plum:rgba(92,58,99,.7)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:'Noto Sans TC',sans-serif;font-weight:300;line-height:1.8;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;z-index:-2;
+  background:radial-gradient(ellipse at 30% 40%,rgba(240,181,179,.06),transparent 50%),
+  radial-gradient(ellipse at 70% 60%,rgba(92,58,99,.08),transparent 50%),var(--bg)}
+.container{max-width:780px;margin:0 auto;padding:24px 16px 80px}
+h1{font-family:'Noto Serif TC',serif;font-weight:600;font-size:clamp(1.4rem,4vw,1.8rem);
+  color:var(--gold);text-align:center;margin:24px 0 8px;letter-spacing:2px}
+.subtitle{text-align:center;font-size:.85rem;color:var(--ink2);margin-bottom:28px;
+  font-style:italic;font-family:'Cormorant Garamond',serif}
+.intro{font-family:'LXGW WenKai TC',serif;font-size:.9rem;color:var(--ink2);
+  max-width:600px;margin:0 auto 36px;line-height:2;text-align:center;font-weight:300}
+
+.ff-glass{background:var(--glass);border:1px solid var(--bdr);border-radius:20px;
+  padding:28px 24px;margin-bottom:24px;backdrop-filter:blur(12px)}
+.ff-glass h2{font-family:'Noto Serif TC',serif;font-size:1.05rem;color:var(--gold);
+  margin-bottom:16px;font-weight:600;letter-spacing:1px}
+
+.pair-input{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.person-col{padding:16px;border-radius:16px;border:1px solid var(--bdr)}
+.person-col h3{font-size:.88rem;color:var(--rose);margin-bottom:12px;font-weight:400;text-align:center}
+.person-col:nth-child(2) h3{color:var(--plum)}
+.person-col label{font-size:.78rem;color:var(--ink3);display:block;margin-bottom:4px}
+.person-col input,.person-col select{width:100%;background:rgba(249,240,229,.06);
+  border:1px solid rgba(233,194,125,.15);border-radius:8px;padding:8px 12px;
+  color:var(--ink);font-size:.85rem;font-family:inherit;outline:none;margin-bottom:10px;transition:.3s}
+.person-col input:focus,.person-col select:focus{border-color:var(--gold)}
+.btn-calc{display:block;width:100%;padding:14px;border:none;border-radius:999px;
+  background:linear-gradient(135deg,var(--rose),var(--plum));color:#fff;
+  font-size:1rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.3s;margin-top:12px}
+.btn-calc:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(240,181,179,.2)}
+
+/* 結果 */
+.pair-hero{text-align:center;padding:24px 0}
+.pair-hero .ph-score{font-family:'Cormorant Garamond',serif;font-size:3.5rem;color:var(--gold);font-style:italic}
+.pair-hero .ph-label{font-size:.72rem;color:var(--ink3);letter-spacing:2px;margin-bottom:4px}
+.pair-hero .ph-word{font-family:'LXGW WenKai TC',serif;font-size:1.1rem;color:var(--ink2);margin-top:8px}
+
+/* 維度條 */
+.dim-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(233,194,125,.05)}
+.dim-row:last-child{border:none}
+.dim-label{width:80px;font-size:.78rem;color:var(--ink2);flex-shrink:0}
+.dim-bar-wrap{flex:1;height:10px;background:rgba(249,240,229,.06);border-radius:99px;overflow:hidden;position:relative}
+.dim-bar{height:100%;border-radius:99px;transition:width 1s ease .3s}
+.dim-pct{width:40px;font-size:.75rem;color:var(--gold);text-align:right;font-family:'Cormorant Garamond',serif}
+
+/* 雙人對比卡 */
+.vs-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin:16px 0}
+.vs-card{text-align:center;padding:12px;border-radius:12px;background:rgba(249,240,229,.03);border:1px solid var(--bdr)}
+.vs-card .vc-val{font-family:'Noto Serif TC',serif;font-size:1.2rem;color:var(--gold)}
+.vs-card .vc-label{font-size:.7rem;color:var(--ink3);margin-top:2px}
+.vs-mid{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:rgba(233,194,125,.2);font-style:italic}
+
+.interp{font-family:'LXGW WenKai TC',serif;font-size:.88rem;color:var(--ink2);line-height:2;font-weight:300;padding:12px 0}
+
+.aroma-landing{background:linear-gradient(135deg,rgba(90,158,122,.08),rgba(233,194,125,.06));
+  border:1px solid rgba(90,158,122,.2);border-radius:20px;padding:24px 22px;margin:20px 0}
+.aroma-landing .al-label{font-size:.72rem;letter-spacing:2px;color:rgba(122,171,109,.7);margin-bottom:10px}
+.aroma-landing .al-text{font-family:'LXGW WenKai TC',serif;font-size:.88rem;
+  color:rgba(249,240,229,.7);line-height:2.2;font-weight:300}
+
+.copy-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.cp-btn{flex:1;min-width:120px;padding:12px;border:1px solid rgba(233,194,125,.25);border-radius:12px;
+  background:rgba(233,194,125,.06);color:var(--ink);font-size:.82rem;cursor:pointer;
+  font-family:inherit;transition:.3s;text-align:center}
+.cp-btn:hover{background:rgba(233,194,125,.12)}
+.cp-btn.main{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1008;border:none;font-weight:500}
+
+.ff-footer{text-align:center;padding:40px 16px 24px;font-size:.7rem;color:rgba(249,240,229,.2)}
+.ff-footer a{color:rgba(233,194,125,.4);text-decoration:none}
+#result{display:none}
+@media(max-width:600px){
+  .pair-input{grid-template-columns:1fr}
+  .vs-grid{grid-template-columns:1fr auto 1fr;gap:4px}
+  .vs-card .vc-val{font-size:1rem}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>💞 合盤配對</h1>
+  <p class="subtitle">Compatibility Reading · 兩個座標之間的距離</p>
+  <p class="intro">
+    不是告訴你「合不合」｜沒有任何系統有資格替你決定這件事。<br>
+    這只是讓你看見：你們各自站在什麼座標，<br>
+    兩個座標之間的距離，需要什麼來連接。
+  </p>
+
+  <div class="ff-glass">
+    <h2>✦ 輸入兩個人的資料</h2>
+    <div class="pair-input">
+      <div class="person-col">
+        <h3>🌹 第一個人</h3>
+        <label>暱稱</label><input id="name1" placeholder="A" maxlength="10">
+        <label>西元生日</label><input type="date" id="date1">
+      </div>
+      <div class="person-col">
+        <h3>🌙 第二個人</h3>
+        <label>暱稱</label><input id="name2" placeholder="B" maxlength="10">
+        <label>西元生日</label><input type="date" id="date2">
+      </div>
+    </div>
+    <button class="btn-calc" onclick="calculate()">💞 開始配對分析</button>
+  </div>
+
+  <div id="result">
+    <div class="ff-glass" id="heroSection"></div>
+    <div class="ff-glass" id="dimsSection"><h2>✦ 六維度分析</h2><div id="dimsGrid"></div></div>
+    <div class="ff-glass" id="vsSection"><h2>✦ 座標對照</h2><div id="vsGrid"></div></div>
+    <div class="ff-glass" id="interpSection"><h2>✦ 馥靈馥語</h2><div id="interpText" class="interp"></div></div>
+    <div class="aroma-landing" id="aromaArea"></div>
+    <div id="bridgeArea"></div>
+    <div class="ff-glass">
+      <div class="copy-row">
+        <button class="cp-btn main" onclick="copyAI()">🤖 複製 AI 深度解讀</button>
+        <button class="cp-btn" onclick="copyShare()">💬 複製分享</button>
+        <button class="cp-btn" onclick="location.reload()">🔄 重新配對</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ff-footer">
+    © 2026 馥靈之鑰國際有限公司 Hour Light International Co., Ltd.｜
+    <a href="https://hourlightkey.com">hourlightkey.com</a>｜
+    <a href="https://lin.ee/OQDB5t6">LINE 官方</a>
+  </div>
+</div>
+
+<script src="assets/js/hl-visual-fx.js"></script>
+<script src="assets/js/hl-bridge.js"></script>
+<script>
+/* ═══════════════════════════════════════
+   合盤配對引擎
+   馥靈之鑰 Hour Light © 2026
+   六維度：生命靈數×日柱相性×九星×色彩×元素×節奏
+   ═══════════════════════════════════════ */
+
+// ── 生命靈數 ──
+function lifePath(y,m,d){
+  var s=String(y)+String(m)+String(d);
+  var sum=0;
+  for(var i=0;i<s.length;i++) sum+=parseInt(s[i]);
+  while(sum>9&&sum!==11&&sum!==22&&sum!==33) sum=Math.floor(sum/10)+sum%10;
+  return sum;
+}
+
+// ── 日柱天干（簡化：用萬年曆公式）──
+function dayGan(y,m,d){
+  // 蔡勒公式變體求日干支序號
+  if(m<=2){y--;m+=12;}
+  var C=Math.floor(y/100),Y2=y%100;
+  var g=4*C+Math.floor(C/4)+5*Y2+Math.floor(Y2/4)+Math.floor(3*(m+1)/5)+d-3;
+  return ((g%10)+10)%10; // 0=甲 1=乙 ... 9=癸
+}
+function dayZhi(y,m,d){
+  if(m<=2){y--;m+=12;}
+  var C=Math.floor(y/100),Y2=y%100;
+  var z=8*C+Math.floor(C/4)+5*Y2+Math.floor(Y2/4)+Math.floor(3*(m+1)/5)+d+7+1;
+  return ((z%12)+12)%12;
+}
+
+var TG='甲乙丙丁戊己庚辛壬癸';
+var DZ='子丑寅卯辰巳午未申酉戌亥';
+var WX_TG=['木','木','火','火','土','土','金','金','水','水'];
+
+// ── 九星（年星）──
+function nineStarYear(y){
+  // 男：11-年份數字和，立春前用前一年
+  var s=String(y);var sum=0;for(var i=0;i<s.length;i++)sum+=parseInt(s[i]);
+  while(sum>9)sum=Math.floor(sum/10)+sum%10;
+  var star=(11-sum);
+  while(star>9)star-=9;
+  if(star<=0)star+=9;
+  return star;
+}
+var STAR_NAMES=['','一白水星','二黑土星','三碧木星','四綠木星','五黃土星','六白金星','七赤金星','八白土星','九紫火星'];
+
+// ── 色彩能量（簡化）──
+function colorNum(y,m,d){
+  var lp=lifePath(y,m,d);
+  return lp>9?Math.floor(lp/10)+lp%10:lp;
+}
+var COLORS=['','紅','橙','黃','綠','藍','靛','紫','金','白'];
+var COLOR_HEX=['','#d4694a','#e8a04a','#e9c27d','#5a9e7a','#6b8fbd','#5c5c9e','#9c6edb','#cda86e','#f9f0e5'];
+
+// ── 元素 ──
+function element(y,m,d){
+  var g=dayGan(y,m,d);
+  return WX_TG[g];
+}
+
+// ══════ 配對算法 ══════
+
+function compatLP(a,b){
+  // 生命靈數相容性
+  var compat = {
+    '1-1':65,'1-2':70,'1-3':85,'1-4':60,'1-5':90,'1-6':55,'1-7':80,'1-8':75,'1-9':85,
+    '2-2':70,'2-3':55,'2-4':80,'2-5':60,'2-6':90,'2-7':65,'2-8':85,'2-9':75,
+    '3-3':70,'3-4':55,'3-5':85,'3-6':75,'3-7':60,'3-8':65,'3-9':90,
+    '4-4':70,'4-5':60,'4-6':85,'4-7':75,'4-8':80,'4-9':55,
+    '5-5':70,'5-6':65,'5-7':85,'5-8':60,'5-9':80,
+    '6-6':70,'6-7':55,'6-8':75,'6-9':85,
+    '7-7':70,'7-8':60,'7-9':65,
+    '8-8':70,'8-9':80,
+    '9-9':75
+  };
+  var key=Math.min(a,b)+'-'+Math.max(a,b);
+  return compat[key]||70;
+}
+
+function compatWX(a,b){
+  // 五行相生相剋
+  if(a===b) return 80; // 比和
+  var sheng={'木':'火','火':'土','土':'金','金':'水','水':'木'};
+  var ke={'木':'土','土':'水','水':'火','火':'金','金':'木'};
+  if(sheng[a]===b||sheng[b]===a) return 90; // 相生
+  if(ke[a]===b||ke[b]===a) return 50; // 相剋
+  return 70;
+}
+
+function compatStar(a,b){
+  // 九星相性（同組高、剋組低）
+  var diff=Math.abs(a-b);
+  if(diff===0) return 85;
+  if(diff<=2) return 80;
+  if(diff>=6) return 65;
+  return 70;
+}
+
+// ══════ 主計算 ══════
+
+function calculate(){
+  var n1=document.getElementById('name1').value||'A';
+  var n2=document.getElementById('name2').value||'B';
+  var d1=document.getElementById('date1').value;
+  var d2=document.getElementById('date2').value;
+  if(!d1||!d2){alert('請輸入兩個人的生日');return}
+
+  var p1=d1.split('-').map(Number), p2=d2.split('-').map(Number);
+  var y1=p1[0],m1=p1[1],d1v=p1[2], y2=p2[0],m2=p2[1],d2v=p2[2];
+
+  // 計算各維度
+  var lp1=lifePath(y1,m1,d1v), lp2=lifePath(y2,m2,d2v);
+  var wx1=element(y1,m1,d1v), wx2=element(y2,m2,d2v);
+  var dg1=dayGan(y1,m1,d1v), dg2=dayGan(y2,m2,d2v);
+  var st1=nineStarYear(y1), st2=nineStarYear(y2);
+  var c1=colorNum(y1,m1,d1v), c2=colorNum(y2,m2,d2v);
+
+  // 節奏差（生命靈數差距反映節奏差異）
+  var rhythmDiff=Math.abs(lp1-lp2);
+  var rhythmScore=100-rhythmDiff*8;if(rhythmScore<40)rhythmScore=40;
+
+  // 六維度得分
+  var dims=[
+    {name:'生命靈數',score:compatLP(lp1>9?lp1%10||1:lp1, lp2>9?lp2%10||1:lp2),color:'var(--gold)'},
+    {name:'五行相性',score:compatWX(wx1,wx2),color:'var(--gold)'},
+    {name:'日柱共振',score:dg1===dg2?90:Math.abs(dg1-dg2)<=2?80:dg1%2===dg2%2?75:60,color:'var(--gold)'},
+    {name:'九星磁場',score:compatStar(st1,st2),color:'var(--gold)'},
+    {name:'色彩頻率',score:c1===c2?90:Math.abs(c1-c2)<=1?85:Math.abs(c1-c2)<=3?70:55,color:'var(--gold)'},
+    {name:'節奏同步',score:rhythmScore,color:'var(--gold)'}
+  ];
+
+  // 總分
+  var total=Math.round(dims.reduce(function(s,d){return s+d.score;},0)/dims.length);
+
+  var r={
+    n1:n1,n2:n2,d1:d1,d2:d2,
+    lp1:lp1,lp2:lp2,wx1:wx1,wx2:wx2,
+    dg1:TG[dg1],dg2:TG[dg2],dz1:DZ[dayZhi(y1,m1,d1v)],dz2:DZ[dayZhi(y2,m2,d2v)],
+    st1:st1,st2:st2,c1:c1,c2:c2,
+    dims:dims,total:total
+  };
+
+  renderAll(r);
+  document.getElementById('result').style.display='block';
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+  if(window.HLFX) HLFX.particles({color:'rgba(240,181,179,0.4)',count:30,spread:'float',duration:3000});
+  window._pairResult=r;
+}
+
+// ══════ 渲染 ══════
+
+function renderAll(r){
+  // Hero
+  var word='';
+  if(r.total>=85) word='你們之間有一種不需要解釋的懂。';
+  else if(r.total>=75) word='不完美，但互補。差異是你們最好的禮物。';
+  else if(r.total>=65) word='需要多一點理解，但值得。';
+  else word='挑戰很大，但成長也最大。';
+
+  document.getElementById('heroSection').innerHTML=
+    '<div class="pair-hero">'
+    +'<div class="ph-label">'+r.n1+' × '+r.n2+'</div>'
+    +'<div class="ph-score">'+r.total+'</div>'
+    +'<div class="ph-label">COMPATIBILITY</div>'
+    +'<div class="ph-word">'+word+'</div></div>';
+
+  // 維度條
+  var dh='';
+  r.dims.forEach(function(d,i){
+    dh+='<div class="dim-row" style="opacity:0;transform:translateX(-10px);transition:all .5s ease '+(i*150)+'ms">'
+      +'<div class="dim-label">'+d.name+'</div>'
+      +'<div class="dim-bar-wrap"><div class="dim-bar" style="width:0;background:linear-gradient(90deg,rgba(240,181,179,.6),rgba(92,58,99,.6))"></div></div>'
+      +'<div class="dim-pct">'+d.score+'</div></div>';
+  });
+  document.getElementById('dimsGrid').innerHTML=dh;
+  // Animate bars
+  setTimeout(function(){
+    document.querySelectorAll('.dim-row').forEach(function(el,i){
+      el.style.opacity='1';el.style.transform='translateX(0)';
+    });
+    document.querySelectorAll('.dim-bar').forEach(function(bar,i){
+      bar.style.width=r.dims[i].score+'%';
+    });
+  },300);
+
+  // VS 對照
+  var vsData=[
+    {a:r.lp1,b:r.lp2,l:'生命靈數'},
+    {a:r.dg1+r.dz1,b:r.dg2+r.dz2,l:'日柱'},
+    {a:r.wx1,b:r.wx2,l:'五行'},
+    {a:STAR_NAMES[r.st1],b:STAR_NAMES[r.st2],l:'九星'},
+    {a:COLORS[r.c1]||'白',b:COLORS[r.c2]||'白',l:'色彩'}
+  ];
+  var vh='';
+  vsData.forEach(function(v){
+    vh+='<div class="vs-grid">'
+      +'<div class="vs-card"><div class="vc-val">'+v.a+'</div><div class="vc-label">'+r.n1+'</div></div>'
+      +'<div class="vs-mid">'+v.l+'</div>'
+      +'<div class="vs-card"><div class="vc-val">'+v.b+'</div><div class="vc-label">'+r.n2+'</div></div>'
+      +'</div>';
+  });
+  document.getElementById('vsGrid').innerHTML=vh;
+
+  // 解讀
+  var text='';
+  var wxRel=r.wx1===r.wx2?'比和':compatWX(r.wx1,r.wx2)>=90?'相生':'有張力';
+  text+='<strong>'+r.n1+'</strong> 的生命靈數是 '+r.lp1+'，<strong>'+r.n2+'</strong> 是 '+r.lp2+'。';
+  if(r.lp1===r.lp2) text+='同頻。你們用相似的頻率在感知世界，默契天生就有｜但也容易陷入同樣的盲區。';
+  else if(Math.abs(r.lp1-r.lp2)<=2) text+='頻率相近。你們的節奏不完全一樣，但能互相跟上。差異剛好是調味料，不是障礙。';
+  else text+='頻率差距明顯。一個快一個慢、一個深一個廣｜這不是問題，是互補的起點。但你們需要更多耐心去「翻譯」對方的語言。';
+  text+='<br><br>';
+  text+='五行上，'+r.n1+' 是 '+r.wx1+'，'+r.n2+' 是 '+r.wx2+'｜'+wxRel+'的關係。';
+  if(wxRel==='相生') text+='一個人自然地在滋養另一個人。注意不要只有單向的給予。';
+  else if(wxRel==='比和') text+='同類相聚。力量加倍，但盲點也加倍。';
+  else text+='這股張力不是壞事｜它讓你們不會太舒服、太懶惰。是磨刀石，不是絆腳石。';
+  document.getElementById('interpText').innerHTML=text;
+
+  // 香氣著陸
+  var oilPairs={'木木':'兩瓶迷迭香面對面。太衝了。加一瓶薰衣草在中間。',
+    '木火':'迷迭香點燃甜橙。相生，但別讓火燒太旺。',
+    '木土':'迷迭香遇見岩蘭草。一個往上一個往下，中間那段才是你們的交集。',
+    '木金':'迷迭香碰到茶樹。清冽撞清冽｜很乾淨，但少了一點溫度。加依蘭。',
+    '木水':'迷迭香和薰衣草。一個清醒一個安定。你們是彼此最好的平衡。',
+    '火火':'兩顆甜橙。整個房間都是陽光味。很暖，但記得開窗｜不然會悶。',
+    '火土':'甜橙和岩蘭草。一個在天上一個在地下。你們需要的是中間那層｜佛手柑。',
+    '火金':'甜橙遇到茶樹。明亮碰上銳利。可以很好，也可以很傷。用雪松緩衝。',
+    '火水':'甜橙和薰衣草。白天和黑夜。你們輪流照顧對方｜一個亮的時候另一個休息。',
+    '土土':'兩瓶岩蘭草。穩到不行。但也可能悶到不行。需要薄荷的透氣感。',
+    '土金':'岩蘭草和茶樹。沉穩遇上果斷。很好的搭配，但別忘了柔軟｜加玫瑰。',
+    '土水':'岩蘭草和薰衣草。大地和流水。最古老的搭配。根深水長。',
+    '金金':'兩瓶茶樹。清澈但冷。需要依蘭的甜把溫度帶回來。',
+    '金水':'茶樹和薰衣草。一把刀和一條河。銳利被柔軟包裹。很美的組合。',
+    '水水':'兩瓶薰衣草。安靜到極致。太沉了｜需要甜橙把你們拉回地面上的陽光裡。'
+  };
+  var wxKey=[r.wx1,r.wx2].sort().join('');
+  var aromaText=oilPairs[wxKey]||'你們的能量組合像一首還沒有人寫過的配方。把兩個人各自的香氣放在擴香石上，聞一聞｜你的鼻子比任何配對系統都準。';
+
+  document.getElementById('aromaArea').innerHTML=
+    '<div class="al-label">🌿 馥靈香氣著陸 · '+r.wx1+'×'+r.wx2+'</div>'
+    +'<div class="al-text">'+aromaText+'</div>';
+
+  // 轉化橋
+  if(window.HLBridge) HLBridge.inject('bridgeArea','calc','medium');
+}
+
+// ══════ 複製 ══════
+
+function copyAI(){
+  var r=window._pairResult;if(!r)return;
+  var txt='【AI 深度解讀指令｜合盤配對 × 馥靈座標哲學】\n\n';
+  txt+='你是一位精通數字命理、五行生剋、九星氣學、以及馥靈 H.O.U.R. 座標哲學的關係覺察引導師。\n\n';
+  txt+='═══ 配對資料 ═══\n';
+  txt+=r.n1+'：生日 '+r.d1+'｜靈數 '+r.lp1+'｜日柱 '+r.dg1+r.dz1+'｜五行 '+r.wx1+'｜九星 '+STAR_NAMES[r.st1]+'\n';
+  txt+=r.n2+'：生日 '+r.d2+'｜靈數 '+r.lp2+'｜日柱 '+r.dg2+r.dz2+'｜五行 '+r.wx2+'｜九星 '+STAR_NAMES[r.st2]+'\n';
+  txt+='整體共振度：'+r.total+'\n\n';
+  txt+='六維度：\n';
+  r.dims.forEach(function(d){txt+=d.name+'：'+d.score+'\n';});
+  txt+='\n═══ 請依以下框架解讀 ═══\n\n';
+  txt+='壹、核心頻率：兩人的生命靈數代表什麼？它們之間的互動是共振、互補、還是拉扯？\n';
+  txt+='二、五行動力：兩人的五行關係如何影響相處模式？誰在「生」誰？有沒有「剋」的張力？\n';
+  txt+='三、日柱化學：天干的陰陽和五行，揭示兩人在日常互動中的能量交換方式\n';
+  txt+='四、最大的禮物：這段關係能給彼此帶來什麼成長？\n';
+  txt+='五、最大的挑戰：哪裡最容易產生摩擦？具體的應對策略是什麼？\n';
+  txt+='六、香氣處方：根據兩人的五行組合，推薦一個「關係精油配方」\n\n';
+  txt+='【馥靈座標哲學】配對不是定論。兩個座標之間的距離，可以被理解、被跨越、被轉化。看見不是為了判斷｜是為了更懂。\n';
+  txt+='【🔴 文字自帶香氣。用溫暖精準的語言，像閨蜜說真話。結尾給一個兩人可以一起做的具體行動。】';
+  copyText(txt,'🤖 AI 深度解讀');
+}
+
+function copyShare(){
+  var r=window._pairResult;if(!r)return;
+  var txt='💞 '+r.n1+' × '+r.n2+' 合盤配對\n';
+  txt+='共振度：'+r.total+'\n';
+  txt+='靈數：'+r.lp1+' × '+r.lp2+'\n';
+  txt+='五行：'+r.wx1+' × '+r.wx2+'\n\n';
+  txt+='你也來測測看 👉 hourlightkey.com/compatibility.html';
+  copyText(txt,'💬 分享');
+}
+
+function copyText(t,l){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){showToast(l+' 已複製！')}).catch(function(){fbCopy(t,l)})}else{fbCopy(t,l)}}
+function fbCopy(t,l){var a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;left:-9999px';document.body.appendChild(a);a.select();try{document.execCommand('copy');showToast(l+' 已複製！')}catch(e){alert('複製失敗')}document.body.removeChild(a)}
+function showToast(m){var t=document.getElementById('toast');if(!t){t=document.createElement('div');t.id='toast';t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:rgba(233,194,125,.95);color:#1a1008;padding:12px 24px;border-radius:999px;font-size:.88rem;z-index:9999;transition:.3s;pointer-events:none;font-family:inherit';document.body.appendChild(t)}t.textContent=m;t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';setTimeout(function(){t.style.opacity='0';t.style.transform='translateX(-50%) translateY(20px)'},2200)}
+</script>
+<script src="assets/js/hl-announce.js"></script>
+</body>
+</html>
