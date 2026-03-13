@@ -185,7 +185,7 @@
     if(path.indexOf('admin') !== -1 || path.indexOf('app.html') !== -1) return;
 
     var btn = document.createElement('a');
-    btn.href = 'https://lin.ee/OQDB5t6';
+    btn.href = 'https://lin.ee/p5tBihbe';
     btn.target = '_blank';
     btn.rel = 'noopener';
     btn.setAttribute('aria-label', 'LINE 聊聊');

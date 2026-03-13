@@ -66,14 +66,14 @@
   -webkit-tap-highlight-color: transparent;
 }
 .hl-bn-item:hover, .hl-bn-item.active {
-  color: #e9c27d;
+  color: #f2d494;
 }
 .hl-bn-item.active::after {
   content: '';
   position: absolute;
   top: 0; left: 25%; right: 25%;
   height: 2px;
-  background: #e9c27d;
+  background: #f2d494;
   border-radius: 0 0 2px 2px;
 }
 .hl-bn-icon {
@@ -100,7 +100,7 @@
 }
 /* 音樂播放中動態 */
 .hl-bn-item.music-playing .hl-bn-icon {
-  color: #e9c27d;
+  color: #f2d494;
   animation: hl-bn-pulse 1.4s ease-in-out infinite;
 }
 @keyframes hl-bn-pulse {
@@ -114,7 +114,7 @@
   left: 50%;
   transform: translateX(-50%);
   background: rgba(14,9,28,0.95);
-  color: #e9c27d;
+  color: #f2d494;
   font-size: 0.72rem;
   padding: 5px 10px;
   border-radius: 6px;

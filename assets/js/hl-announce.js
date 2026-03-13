@@ -50,7 +50,7 @@ overlay.innerHTML = `
       <div class="hla-text">
         <strong>目前為開放測試階段</strong><br>
         如遇到任何問題、錯誤或建議，歡迎回報！<br>
-        <span style="color:#e9c27d">LINE ID：judyanee</span>
+        <span style="color:#f2d494">LINE ID：judyanee</span>
       </div>
     </div>
     
@@ -68,7 +68,7 @@ overlay.innerHTML = `
     <button class="hla-btn" onclick="document.getElementById('hlAnnounce').remove();try{sessionStorage.setItem('${DISMISS_KEY}','1')}catch(e){}">
       我知道了，開始探索 ✨
     </button>
-    <a href="https://lin.ee/OQDB5t6" class="hla-link" target="_blank">💬 LINE 聊聊</a>
+    <a href="https://lin.ee/p5tBihbe" class="hla-link" target="_blank">💬 LINE 聊聊</a>
   </div>
 </div>
 `;
@@ -89,7 +89,7 @@ style.textContent = `
 .hla-close:hover{background:rgba(249,240,229,.12);color:rgba(249,240,229,.8)}
 .hla-header{text-align:center;padding:28px 24px 16px;border-bottom:1px solid rgba(233,194,125,.08)}
 .hla-brand{font-size:.65rem;letter-spacing:3px;color:rgba(233,194,125,.3);margin-bottom:8px}
-.hla-title{font-family:'Noto Serif TC',serif;font-size:1.2rem;color:#e9c27d;font-weight:600;letter-spacing:1px}
+.hla-title{font-family:'Noto Serif TC',serif;font-size:1.2rem;color:#f2d494;font-weight:600;letter-spacing:1px}
 .hla-body{padding:20px 24px}
 .hla-section{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid rgba(233,194,125,.05)}
 .hla-section:last-child{border:none}
@@ -99,11 +99,11 @@ style.textContent = `
 .hla-highlight{background:rgba(233,194,125,.04);margin:8px -12px;padding:14px 12px;border-radius:12px;border:1px solid rgba(233,194,125,.1)}
 .hla-footer{padding:8px 24px 24px;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
 .hla-btn{width:100%;padding:14px;border:none;border-radius:999px;
-  background:linear-gradient(135deg,#e9c27d,#cda86e);color:#1a1008;
+  background:linear-gradient(135deg,#f2d494,#e0be82);color:#1a1008;
   font-size:.92rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.3s}
 .hla-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(233,194,125,.25)}
 .hla-link{font-size:.78rem;color:rgba(233,194,125,.5);text-decoration:none;transition:.2s}
-.hla-link:hover{color:#e9c27d}
+.hla-link:hover{color:#f2d494}
 @media(max-width:480px){.hla-modal{border-radius:18px}.hla-body{padding:16px 18px}}
 `;
 

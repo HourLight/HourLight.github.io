@@ -72,7 +72,7 @@ window.HLBridge = function(type, intensity){
   } else if (type === 'quiz') {
     // 心理測驗：引向牌卡體驗
     mainCTA = { text:'測驗看見的是輪廓，牌卡看見的是紋理', btn:'抽一張，聽聽自己的聲音', url:'draw-hl.html' };
-    secondCTA = { text:'想要有人陪你解讀', btn:'LINE 聊聊', url:'https://lin.ee/OQDB5t6' };
+    secondCTA = { text:'想要有人陪你解讀', btn:'LINE 聊聊', url:'https://lin.ee/p5tBihbe' };
   } else if (type === 'guide') {
     // 觀想引導：引向一對一（最深層需求）
     mainCTA = { text:'觀想是鑰匙，但有些門需要有人陪你推開', btn:'了解一對一調頻', url:'services.html' };
