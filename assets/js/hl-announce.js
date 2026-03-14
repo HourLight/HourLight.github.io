@@ -33,7 +33,7 @@ overlay.innerHTML = `
       <div class="hla-text">
         <strong>所有測驗與工具皆附有簡易解讀</strong><br>
         想看更詳細的分析？每個結果頁都有「複製 AI 深度解讀提示詞」按鈕，<br>
-        貼到 ChatGPT、Claude、Gemini 等任一 AI 工具，即可獲得完整深度解讀。
+        貼到 Claude、Gemini、Perplexity、Grok、Manus 等任一 AI 工具，即可獲得完整深度解讀。
       </div>
     </div>
     

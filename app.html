@@ -2903,10 +2903,11 @@ async function loadGamifyData(uid){
       gData.solarStreak=data.solarStreak||0;
       gData.lastCheckIn=data.lastCheckIn||null;
     }
-    // 連續天數（每日登入即視為簽到）
-    await handleDailyCheckIn(uid);
-    renderAllGameUI();
+    try{ await handleDailyCheckIn(uid); }catch(e2){ console.warn('checkin error',e2); }
   }catch(e){ console.warn('gamify load',e); }
+  // 不管上面成功或失敗，UI 一定要渲染
+  renderAllGameUI();
+}
 }
 async function saveGamifyData(){
   if(!auth.currentUser)return;
