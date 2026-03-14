@@ -104,22 +104,33 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.86);point
 .spread-card .price{display:inline-block;margin-top:10px;padding:4px 16px;border-radius:50px;font-size:.95rem;letter-spacing:1px;background:linear-gradient(135deg,rgba(240,181,179,.2),rgba(155,124,182,.15));color:var(--paw);border:1px solid rgba(240,181,179,.15)}
 .rainbow-tag{display:inline-block;padding:2px 10px;border-radius:50px;font-size:.95rem;background:linear-gradient(135deg,var(--rainbow),#7c5a9e);color:#fff;margin-left:6px;letter-spacing:1px}
 
-/* ═══ Card draw ═══ */
-#cardGrid{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:20px 0}
-.card-slot{width:74px;height:110px;background:rgba(240,181,179,.03);border:1.5px solid rgba(240,181,179,.1);border-radius:12px;cursor:pointer;transition:all .4s var(--ease);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.58rem;color:var(--ink-s);overflow:hidden;position:relative;padding:6px;letter-spacing:.3px;line-height:1.3;text-align:center}
-.card-slot:hover{border-color:rgba(240,181,179,.3);transform:scale(1.06);background:rgba(240,181,179,.05)}
-.card-slot.filled{border-color:var(--gold);background:rgba(233,194,125,.04);animation:slotGlow .6s ease}
-@keyframes slotGlow{0%{box-shadow:0 0 0 rgba(233,194,125,0)}50%{box-shadow:0 0 20px rgba(233,194,125,.3)}100%{box-shadow:0 0 0 rgba(233,194,125,0)}}
+/* ═══ Card draw（塔羅翻牌風格）═══ */
+#cardGrid{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:20px 0;perspective:1000px}
+.card-slot{width:80px;height:120px;position:relative;cursor:default;perspective:800px}
+.card-slot .card-inner{position:relative;width:100%;height:100%;transition:transform .8s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d;transform:rotateY(0deg)}
+.card-slot.flipped .card-inner{transform:rotateY(180deg)}
+.card-back,.card-face{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+/* 牌背：寵物元素 */
+.card-back{background:linear-gradient(135deg,rgba(92,58,99,.6),rgba(18,13,28,.9));border:1.5px solid rgba(240,181,179,.2);z-index:2}
+.card-back::before{content:'🐾';font-size:1.6rem;opacity:.5;display:block}
+.card-back::after{content:'✦';position:absolute;top:8px;right:10px;font-size:.6rem;color:var(--paw);opacity:.4}
+.card-back .card-pos{font-size:.5rem;color:var(--ink-dim);margin-top:6px;text-align:center;line-height:1.3;padding:0 4px}
+/* 牌面 */
+.card-face{transform:rotateY(180deg);border:1.5px solid rgba(233,194,125,.3);padding:8px 6px;text-align:center}
+.card-face .card-icon{font-size:1.3rem;margin-bottom:4px}
+.card-face .card-code{font-size:.85rem;font-weight:600;color:var(--gold);letter-spacing:1px}
+.card-face .card-name{font-size:.5rem;color:var(--ink-s);line-height:1.3;margin-top:3px;word-break:break-all}
+.card-face .card-type{font-size:.42rem;color:var(--ink-dim);margin-top:auto;padding-top:4px;letter-spacing:.5px}
+/* 四種牌類型的配色 */
+.card-face.type-archetype{background:linear-gradient(160deg,#2d1b4e,#1a0e30);border-color:rgba(155,124,182,.4)}
+.card-face.type-oil{background:linear-gradient(160deg,#0d2618,#0a1a12);border-color:rgba(120,180,140,.3)}
+.card-face.type-base{background:linear-gradient(160deg,#2a1f0d,#1a1408);border-color:rgba(233,194,125,.3)}
+.card-face.type-blend{background:linear-gradient(160deg,#2d1020,#1a0a14);border-color:rgba(240,181,179,.3)}
+/* 翻牌光暈 */
+.card-slot.flipped{animation:cardReveal .6s ease}
+@keyframes cardReveal{0%{filter:brightness(1)}50%{filter:brightness(1.5)}100%{filter:brightness(1)}}
 
-/* ═══ Picker ═══ */
-.picker-overlay{display:none;position:fixed;inset:0;z-index:99990;background:rgba(5,3,10,.97);overflow-y:auto;padding:20px}
-.picker-overlay.show{display:block}
-.picker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(50px,1fr));gap:6px;max-width:680px;margin:70px auto 20px}
-.picker-card{width:100%;aspect-ratio:2/3;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .25s;opacity:0.70;background:linear-gradient(135deg,rgba(240,181,179,.08),rgba(155,124,182,.06));display:flex;align-items:center;justify-content:center;font-size:.55rem;color:var(--ink-s)}
-.picker-card:hover{opacity:1;border-color:var(--paw);transform:scale(1.1);box-shadow:0 0 16px rgba(240,181,179,.2)}
-.picker-card.used{opacity:0.60;pointer-events:none}
-.picker-hint{text-align:center;color:var(--paw);font-size:.92rem;margin-top:70px;letter-spacing:1.5px;font-family:var(--kai);line-height:2}
-.picker-close{position:fixed;top:16px;right:20px;background:none;border:none;color:var(--ink-s);font-size:1.4rem;cursor:pointer;z-index:99991}
+/* ── 解讀結果 ── */
 
 /* ═══ Reading result ═══ */
 .reading-box{background:rgba(240,181,179,.02);border:1px solid rgba(240,181,179,.08);border-radius:16px;padding:32px 28px;line-height:2.4;white-space:pre-wrap;font-size:.94rem;color:var(--ink-s);font-family:var(--kai)}
@@ -253,23 +264,23 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.86);point
   <div class="scene" id="scene6">
     <div class="transition-screen">
       <div class="msg" id="preDrawMsg">
-        在您選牌之前。<br><br>
+        在牌卡翻開之前。<br><br>
         把手放在胸口。<br>
         在心裡叫一聲牠的名字。<br><br>
-        <em style="color:var(--paw)">然後讓手自己動。</em><br>
-        您選的每一張牌，<br>
-        都是您替牠翻譯出來的字。
+        <em style="color:var(--paw)">然後，讓牌卡自己來。</em><br>
+        130 張牌裡，<br>
+        牠會替自己選好要說的話。
       </div>
       <div class="breath-circle"></div>
       <div class="btn-row" style="margin-top:12px"><button class="btn-p" onclick="goScene(7)">🐾 我準備好了</button></div>
     </div>
   </div>
 
-  <!-- ═══ SCENE 7：抽牌 ═══ -->
+  <!-- ═══ SCENE 7：自動抽牌 ═══ -->
   <div class="scene" id="scene7">
     <section class="glass">
-      <h2 id="drawTitle">選擇牌卡</h2>
-      <p id="drawHint" style="font-size:.9rem;color:var(--ink-s)">點擊牌位，從 130 張牌中選牌。不要想，讓直覺帶路。</p>
+      <h2 id="drawTitle">🔮 為牠抽牌中</h2>
+      <p id="drawHint" style="font-size:.9rem;color:var(--ink-s)">牌卡正在回應牠的訊號...</p>
       <div id="cardGrid"></div>
       <div class="btn-row" id="drawBtnRow" style="display:none">
         <button class="btn-p" id="aiReadBtn" onclick="requestAIReading()">🐾 聽聽牠想說什麼</button>
@@ -302,13 +313,6 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.86);point
 
 </div>
 
-<!-- 牌卡選擇器 -->
-<div class="picker-overlay" id="pickerOverlay">
-  <button class="picker-close" onclick="closePicker()">✕</button>
-  <div class="picker-hint" id="pickerHint">想著牠，選一張</div>
-  <div class="picker-grid" id="pickerGrid"></div>
-</div>
-
 <script src="js/cardData-protected.js"></script>
 <script src="js/awareness-modules.js"></script>
 <script>
@@ -322,7 +326,7 @@ const PET_SPREADS={
 const allFiles=["A00.png","A01.png","A02.png","A03.png","A04.png","A05.png","A06.png","A07.png","A08.png","A09.png","A10.png","A11.png","A12.png","A13.png","A14.png","A15.png","A16.png","A17.png","A18.png","A19.png","A20.png","A21.png",...Array.from({length:108},(_,i)=>String(i+1).padStart(3,'0')+'.png')];
 
 let currentScene=0,currentSpread=0,quizIndex=0;
-let selectedCards=[],currentSlot=-1,usedIndices=new Set();
+let selectedCards=[];
 let quizAnswers={};
 const petModule=typeof AWARENESS_MODULES!=='undefined'&&AWARENESS_MODULES.pet?AWARENESS_MODULES.pet:null;
 const quizQs=petModule?petModule.qs:[];
@@ -378,28 +382,69 @@ function quizNav(dir){
 
 // ══════ Spread ══════
 function selectSpread(n){
-  currentSpread=n;selectedCards=[];usedIndices.clear();
-  // 個人化抽牌前訊息
+  currentSpread=n;selectedCards=[];
   var pn=document.getElementById('petName').value||'牠';
   var msg=document.getElementById('preDrawMsg');
-  if(msg) msg.innerHTML='在你選牌之前。<br><br>把手放在胸口。<br>在心裡叫一聲「'+pn+'」。<br><br><em style="color:var(--paw)">然後讓手自己動。</em><br>你選的每一張牌，<br>都是你替'+pn+'翻譯出來的字。';
+  if(msg) msg.innerHTML='在牌卡翻開之前。<br><br>把手放在胸口。<br>在心裡叫一聲「'+pn+'」。<br><br><em style="color:var(--paw)">然後，讓牌卡自己來。</em><br>130 張牌裡，<br>'+pn+'會替自己選好要說的話。';
   goScene(6);
 }
 
 function initDraw(){
   var sp=PET_SPREADS[currentSpread];
   var pn=document.getElementById('petName').value||'牠';
-  document.getElementById('drawTitle').textContent=sp.name+'｜為 '+pn+' 選 '+currentSpread+' 張牌';
-  document.getElementById('drawHint').textContent='點擊牌位，想著'+pn+'，讓手自己動。';
+  document.getElementById('drawTitle').textContent='🔮 為 '+pn+' 抽牌中';
+  document.getElementById('drawHint').textContent='牌卡正在回應'+pn+'的訊號...';
+  // 自動隨機抽牌
+  selectedCards=[];
+  var usedSet=new Set();
+  while(selectedCards.length<currentSpread){
+    var idx=Math.floor(Math.random()*allFiles.length);
+    if(!usedSet.has(idx)){
+      usedSet.add(idx);
+      var code=allFiles[idx].replace('.png','');
+      var info=window.cardData?window.cardData[code]:{};
+      selectedCards.push({index:idx,file:allFiles[idx],code:code,name:info.name||info.title||code});
+    }
+  }
+  // 建立翻牌卡片
   var grid=document.getElementById('cardGrid');grid.innerHTML='';
-  selectedCards=new Array(currentSpread).fill(null);
   sp.positions.forEach(function(pos,i){
-    var s=document.createElement('div');s.className='card-slot';s.id='slot-'+i;
-    s.innerHTML='<span>'+pos.label+'</span>';
-    s.onclick=function(){openPicker(i)};grid.appendChild(s);
+    var card=selectedCards[i];
+    var codeNum=parseInt(card.code);
+    var isA=card.code.startsWith('A');
+    var typeClass=isA?'type-archetype':(codeNum<=90?'type-oil':(codeNum<=95?'type-base':'type-blend'));
+    var typeIcon=isA?'🔮':(codeNum<=90?'🌿':(codeNum<=95?'💧':'✨'));
+    var typeLabel=isA?'覺察指引':(codeNum<=90?'精油訊息':(codeNum<=95?'基底支撐':'能量主題'));
+
+    var slot=document.createElement('div');
+    slot.className='card-slot';
+    slot.id='slot-'+i;
+    slot.innerHTML=
+      '<div class="card-inner">'+
+        '<div class="card-back"><div class="card-pos">'+pos.label+'</div></div>'+
+        '<div class="card-face '+typeClass+'">'+
+          '<div class="card-icon">'+typeIcon+'</div>'+
+          '<div class="card-code">'+card.code+'</div>'+
+          '<div class="card-name">'+card.name+'</div>'+
+          '<div class="card-type">'+typeLabel+'</div>'+
+        '</div>'+
+      '</div>';
+    grid.appendChild(slot);
   });
   document.getElementById('drawBtnRow').style.display='none';
-  buildPickerGrid();
+  // 逐張翻牌
+  selectedCards.forEach(function(card,i){
+    setTimeout(function(){
+      document.getElementById('slot-'+i).classList.add('flipped');
+      if(i===selectedCards.length-1){
+        setTimeout(function(){
+          document.getElementById('drawTitle').textContent='✨ '+pn+' 的牌已就位';
+          document.getElementById('drawHint').innerHTML='<span style="color:var(--paw)">這是'+pn+'想對您說的。</span><br>點下方按鈕，聽聽牠的話。';
+          document.getElementById('drawBtnRow').style.display='';
+        },600);
+      }
+    },(i+1)*800);
+  });
 }
 
 // Override goScene(7) to also init draw
@@ -408,41 +453,6 @@ goScene=function(n){
   _origGoScene(n);
   if(n===7) setTimeout(initDraw,500);
 };
-
-// ══════ Picker ══════
-function buildPickerGrid(){
-  var g=document.getElementById('pickerGrid');g.innerHTML='';
-  allFiles.forEach(function(f,idx){
-    var c=document.createElement('div');
-    c.className='picker-card'+(usedIndices.has(idx)?' used':'');
-    c.textContent=f.replace('.png','');
-    c.onclick=function(){pickCard(idx)};g.appendChild(c);
-  });
-}
-function openPicker(si){
-  currentSlot=si;
-  var sp=PET_SPREADS[currentSpread];
-  document.getElementById('pickerHint').innerHTML='想著牠，選一張<br><span style="font-size:.95rem;color:var(--ink-s)">'+sp.positions[si].label+'</span>';
-  document.querySelectorAll('.picker-card').forEach(function(el,idx){el.classList.toggle('used',usedIndices.has(idx))});
-  document.getElementById('pickerOverlay').classList.add('show');document.body.style.overflow='hidden';
-}
-function closePicker(){document.getElementById('pickerOverlay').classList.remove('show');document.body.style.overflow='';}
-function pickCard(idx){
-  if(usedIndices.has(idx)||currentSlot<0)return;
-  var file=allFiles[idx],code=file.replace('.png','');
-  var info=window.cardData?window.cardData[code]:{};
-  if(selectedCards[currentSlot])usedIndices.delete(selectedCards[currentSlot].index);
-  selectedCards[currentSlot]={index:idx,file:file,code:code,name:info.name||info.title||code};
-  usedIndices.add(idx);
-  var slot=document.getElementById('slot-'+currentSlot);
-  slot.classList.add('filled');
-  slot.innerHTML='<div style="font-size:1.1rem;color:var(--gold);font-weight:500">'+code+'</div><div style="font-size:.52rem;color:var(--ink-s);text-align:center;line-height:1.2;margin-top:2px">'+(info.name||info.title||'')+'</div>';
-  closePicker();
-  if(selectedCards.every(function(c){return c!==null})){
-    document.getElementById('drawBtnRow').style.display='';
-    document.getElementById('drawHint').innerHTML='<span style="color:var(--paw)">✨ 全部選完了。</span><br>點下方按鈕，聽聽牠想對你說什麼。';
-  }
-}
 
 // ══════ AI Reading ══════
 async function requestAIReading(){
