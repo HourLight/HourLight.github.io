@@ -167,7 +167,7 @@ var HL_TOOL_PERMISSIONS = {
   'draw-hl':              { name: '馥靈牌陣抽牌',    type: 'draw',       en: 'HL Card Spread',   freeAccess: true  },
   'draw-light':           { name: '馥靈單牌抽牌',    type: 'draw',       en: 'Single Draw',       freeAccess: true  },
   'draw-spa':             { name: 'SPA 抽牌',         type: 'draw',       en: 'SPA Draw',           freeAccess: false },
-  'draw-nail':            { name: '美甲抽牌',         type: 'draw',       en: 'Nail Draw',          freeAccess: false },
+  'draw-nail':             { name: '指尖能量覺察',     type: 'draw',       en: 'Nail Reading',       freeAccess: true },
   'tarot-draw':           { name: '塔羅抽牌',         type: 'draw',       en: 'Tarot Draw',         freeAccess: false },
   'tarot':                { name: '塔羅牌庫',         type: 'explore',    en: 'Tarot Library',      freeAccess: false },
   // 計算工具
