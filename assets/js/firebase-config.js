@@ -168,6 +168,8 @@ var HL_TOOL_PERMISSIONS = {
   'draw-light':           { name: '馥靈單牌抽牌',    type: 'draw',       en: 'Single Draw',       freeAccess: true  },
   'draw-spa':             { name: 'SPA 抽牌',         type: 'draw',       en: 'SPA Draw',           freeAccess: false },
   'draw-nail':             { name: '指尖能量覺察',     type: 'draw',       en: 'Nail Reading',       freeAccess: true },
+  'draw-family':           { name: '家族星圖',         type: 'draw',       en: 'Family Reading',     freeAccess: false },
+  'family-reading':        { name: '家族覺察',         type: 'draw',       en: 'Family Free',        freeAccess: false },
   'tarot-draw':           { name: '塔羅抽牌',         type: 'draw',       en: 'Tarot Draw',         freeAccess: false },
   'tarot':                { name: '塔羅牌庫',         type: 'explore',    en: 'Tarot Library',      freeAccess: false },
   // 計算工具

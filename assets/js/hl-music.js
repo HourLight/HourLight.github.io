@@ -37,6 +37,8 @@
     'draw-light':            'stardust',
     'draw-spa':              'stardust',
     'draw-nail':             'stardust',
+    'draw-family':           'stardust',
+    'family-reading':        'stardust',
     'tarot':                 'stardust',
     'tarot-draw':            'stardust',
     'tarot-widget':          'stardust',

@@ -128,7 +128,7 @@
   // ══════════════════════════════════════════
 
   // ── 馥靈牌陣抽牌（draw-hl / draw-nail / draw-spa）──
-  if (page === 'draw-hl.html' || page === 'draw-nail.html' || page === 'draw-spa.html') {
+  if (page === 'draw-hl.html' || page === 'draw-nail.html' || page === 'draw-spa.html' || page === 'draw-family.html' || page === 'family-reading.html') {
     watchForContent('#grid', function(el){
       if (!el.children.length) return;
       var n = el.querySelectorAll('.hl-v2-card-item, .hl-v2-card-thumb').length || '?';
