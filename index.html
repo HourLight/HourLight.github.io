@@ -322,7 +322,7 @@ body{font-family:var(--sans);color:var(--ink);background:var(--ink);-webkit-font
     <span class="rb-topbar-sep"></span>
     <span class="rb-topbar-tagline">Hour Light International</span>
   </a>
-  <button class="rb-hamburger" onclick="document.querySelector('.rb-topbar-nav').classList.toggle('open')" aria-label="選單">☰</button>
+  <button class="rb-hamburger" id="hlHamburger" aria-label="選單">☰</button>
   <div class="rb-topbar-nav">
     <div class="rb-dd"><a href="system.html" class="rb-topbar-link">認識系統</a>
       <div class="rb-dd-menu"><a href="hour.html">H.O.U.R. 理論</a><a href="philosophy.html">座標哲學</a><a href="castle.html">內在城堡</a><a href="cognitive-aroma.html">認知芳療</a><a href="worldview.html">世界觀</a></div>
@@ -343,6 +343,24 @@ body{font-family:var(--sans);color:var(--ink);background:var(--ink);-webkit-font
   </div>
 </nav>
 <script>
+// Hamburger menu
+(function(){
+  var btn = document.getElementById('hlHamburger');
+  var nav = document.querySelector('.rb-topbar-nav');
+  if(btn && nav){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      nav.classList.toggle('open');
+    }, false);
+    // 點選單外的地方關閉
+    document.addEventListener('click', function(e){
+      if(nav.classList.contains('open') && !nav.contains(e.target) && e.target !== btn){
+        nav.classList.remove('open');
+      }
+    });
+  }
+})();
 // Mobile dropdown toggle
 document.querySelectorAll('.rb-dd > .rb-topbar-link').forEach(link => {
   link.addEventListener('click', function(e) {

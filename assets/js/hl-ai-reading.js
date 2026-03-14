@@ -26,8 +26,8 @@
     btn.innerHTML = '🤖 AI 即時深度解讀';
     btn.style.cssText = 'display:inline-flex;align-items:center;gap:8px;padding:12px 24px;'
       + 'background:linear-gradient(135deg,rgba(233,194,125,.18),rgba(92,58,99,.12));'
-      + 'border:1.5px solid rgba(233,194,125,.45);border-radius:12px;color:#f2d494;'
-      + 'font-size:.85rem;cursor:pointer;font-family:inherit;letter-spacing:.08em;'
+      + 'border:1.5px solid rgba(233,194,125,.45);border-radius:12px;color:#f8dfa5;'
+      + 'font-size:.92rem;cursor:pointer;font-family:inherit;letter-spacing:.08em;'
       + 'transition:all .3s;margin:8px;';
     btn.onmouseenter = function(){ this.style.borderColor='rgba(233,194,125,.7)';this.style.background='linear-gradient(135deg,rgba(233,194,125,.25),rgba(92,58,99,.18))'; };
     btn.onmouseleave = function(){ this.style.borderColor='rgba(233,194,125,.45)';this.style.background='linear-gradient(135deg,rgba(233,194,125,.18),rgba(92,58,99,.12))'; };
@@ -41,13 +41,13 @@
     box.style.cssText = 'display:none;margin:24px 0;';
     box.innerHTML = '<div id="hlAIBox" style="background:rgba(233,194,125,.03);border:1px solid rgba(233,194,125,.1);'
       + 'border-radius:16px;padding:28px 24px;line-height:2.3;white-space:pre-wrap;font-size:.87rem;'
-      + 'color:#e8dcc8;font-family:\'LXGW WenKai TC\',\'Noto Serif TC\',serif;max-height:80vh;overflow-y:auto"></div>'
+      + 'color:#f0e8d8;font-family:\'LXGW WenKai TC\',\'Noto Serif TC\',serif;max-height:80vh;overflow-y:auto"></div>'
       + '<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px">'
       + '<button onclick="window._hlCopyResult()" style="padding:10px 20px;background:none;border:1px solid rgba(233,194,125,.2);'
-      + 'border-radius:50px;color:#f2d494;font-size:.8rem;cursor:pointer;font-family:inherit">📋 複製解讀結果</button>'
+      + 'border-radius:50px;color:#f8dfa5;font-size:.9rem;cursor:pointer;font-family:inherit">📋 複製解讀結果</button>'
       + '<a href="https://lin.ee/p5tBihbe" target="_blank" rel="noopener" style="padding:10px 20px;'
-      + 'background:none;border:1px solid rgba(233,194,125,.2);border-radius:50px;color:#f2d494;'
-      + 'font-size:.8rem;text-decoration:none;font-family:inherit">💬 預約覺察師深度陪伴</a></div>';
+      + 'background:none;border:1px solid rgba(233,194,125,.2);border-radius:50px;color:#f8dfa5;'
+      + 'font-size:.9rem;text-decoration:none;font-family:inherit">💬 預約覺察師深度陪伴</a></div>';
 
     // 找位置插入
     var container = target.closest('.ai-box') || target.closest('.ff-actions') || target.closest('.hl-v2-btn-row') || target.closest('.btn-row') || target.parentNode;
@@ -99,7 +99,7 @@
     var rd=document.getElementById('hlAIResult');
     var rb=document.getElementById('hlAIBox');
     rd.style.display='block';
-    rb.innerHTML='<div style="text-align:center;color:#f5c8c6;font-family:\'LXGW WenKai TC\',serif;line-height:2.4">'
+    rb.innerHTML='<div style="text-align:center;color:#fad5d3;font-family:\'LXGW WenKai TC\',serif;line-height:2.4">'
       +'<div style="width:40px;height:40px;border-radius:50%;border:1px solid rgba(240,181,179,.2);margin:0 auto 16px;animation:hlAIB 4s ease-in-out infinite"></div>'
       +'正在為你整合解讀中⋯⋯<br>大約需要 30-60 秒</div>';
     rd.scrollIntoView({behavior:'smooth',block:'center'});

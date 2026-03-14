@@ -178,48 +178,6 @@
     });
   };
 
-  // ==================== 浮動 LINE 聊聊按鈕 ====================
-  (function initFloatingLine(){
-    // 排除後台頁面
-    var path = location.pathname;
-    if(path.indexOf('admin') !== -1 || path.indexOf('app.html') !== -1) return;
-
-    var btn = document.createElement('a');
-    btn.href = 'https://lin.ee/p5tBihbe';
-    btn.target = '_blank';
-    btn.rel = 'noopener';
-    btn.setAttribute('aria-label', 'LINE 聊聊');
-    btn.className = 'hl-floating-line';
-    btn.innerHTML = '<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M12 2C6.48 2 2 5.89 2 10.54c0 2.82 1.67 5.33 4.28 6.96-.15.54-.53 2.01-.6 2.32-.1.4.14.4.3.29.12-.08 1.89-1.28 2.66-1.8.86.13 1.76.2 2.68.2h.68c5.52 0 10-3.89 10-8.54C22 5.89 17.52 2 12 2z"/></svg><span>LINE 聊聊</span>';
-
-    // 樣式
-    var s = btn.style;
-    s.position = 'fixed';
-    s.bottom = '90px';
-    s.right = '20px';
-    s.zIndex = '9990';
-    s.display = 'flex';
-    s.alignItems = 'center';
-    s.gap = '8px';
-    s.padding = '12px 18px';
-    s.borderRadius = '50px';
-    s.background = 'linear-gradient(135deg,#d4a853,#c49a40)';
-    s.color = '#1a0e00';
-    s.fontFamily = 'var(--sans,"Noto Serif TC",sans-serif)';
-    s.fontSize = '0.82rem';
-    s.fontWeight = '500';
-    s.letterSpacing = '1px';
-    s.textDecoration = 'none';
-    s.boxShadow = '0 4px 20px rgba(212,168,83,.35)';
-    s.transition = 'all .3s ease';
-    s.opacity = '0';
-    s.transform = 'translateY(20px)';
-
-    btn.onmouseenter = function(){ s.boxShadow='0 6px 28px rgba(212,168,83,.5)'; s.transform='translateY(-2px)'; };
-    btn.onmouseleave = function(){ s.boxShadow='0 4px 20px rgba(212,168,83,.35)'; s.transform='translateY(0)'; };
-
-    document.body.appendChild(btn);
-    setTimeout(function(){ s.opacity='1'; s.transform='translateY(0)'; }, 800);
-  })();
+  // ==================== 浮動 LINE 聊聊按鈕（已移除，改用小馥客服）====================
 
 })();

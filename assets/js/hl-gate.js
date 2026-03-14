@@ -82,9 +82,9 @@
 
     overlayEl.innerHTML = '<div style="text-align:center;max-width:420px;padding:48px 32px;animation:hlGF .5s ease">'
       + '<div style="font-size:48px;margin-bottom:16px;opacity:.8">🔑</div>'
-      + '<div style="font-size:20px;color:#f2d494;letter-spacing:.12em;margin-bottom:10px;font-weight:300">登入後，這些工具都是你的</div>'
+      + '<div style="font-size:20px;color:#f8dfa5;letter-spacing:.12em;margin-bottom:10px;font-weight:300">登入後，這些工具都是你的</div>'
       + '<div style="font-size:13px;color:#a89878;line-height:2;margin-bottom:28px;letter-spacing:.05em">免費帳號即可使用所有覺察工具<br>一鍵 Google 登入，30 秒搞定</div>'
-      + '<button id="hlGG" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px 20px;background:rgba(233,194,125,.12);border:1px solid rgba(233,194,125,.4);border-radius:12px;color:#f2d494;font-size:15px;cursor:pointer;font-family:inherit;letter-spacing:.08em;transition:all .25s;margin-bottom:12px">'
+      + '<button id="hlGG" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px 20px;background:rgba(233,194,125,.12);border:1px solid rgba(233,194,125,.4);border-radius:12px;color:#f8dfa5;font-size:15px;cursor:pointer;font-family:inherit;letter-spacing:.08em;transition:all .25s;margin-bottom:12px">'
       +   '<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>'
       +   'Google 快速登入'
       + '</button>'
