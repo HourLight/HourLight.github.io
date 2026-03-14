@@ -63,19 +63,19 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.92);z-ind
 .spread-name{font-size:.82rem;color:var(--ink-s)}
 
 /* ── 抽牌（塔羅翻牌）── */
-#cardGrid{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:20px 0;perspective:1000px}
-.card-slot{width:76px;height:114px;position:relative;perspective:800px}
+#cardGrid{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:20px 0;perspective:1000px}
+.card-slot{width:96px;height:140px;position:relative;perspective:800px}
 .card-slot .card-inner{position:relative;width:100%;height:100%;transition:transform .8s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d}
 .card-slot.flipped .card-inner{transform:rotateY(180deg)}
 .card-back,.card-face{position:absolute;inset:0;border-radius:10px;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
 .card-back{background:linear-gradient(135deg,rgba(92,58,99,.5),rgba(18,13,28,.9));border:1.5px solid rgba(212,165,116,.2);z-index:2}
-.card-back::before{content:'🌳';font-size:1.4rem;opacity:.4}
-.card-back .card-pos{font-size:.46rem;color:var(--ink-dim);margin-top:5px;text-align:center;line-height:1.3;padding:0 4px}
+.card-back::before{content:'🌳';font-size:1.8rem;opacity:.4}
+.card-back .card-pos{font-size:.54rem;color:var(--ink-dim);margin-top:5px;text-align:center;line-height:1.3;padding:0 4px}
 .card-face{transform:rotateY(180deg);border:1.5px solid rgba(212,165,116,.3);padding:7px 5px;text-align:center}
-.card-face .card-icon{font-size:1.2rem;margin-bottom:3px}
-.card-face .card-code{font-size:.8rem;font-weight:600;color:var(--gold);letter-spacing:1px}
-.card-face .card-name{font-size:.46rem;color:var(--ink-s);line-height:1.3;margin-top:2px}
-.card-face .card-type{font-size:.4rem;color:var(--ink-dim);margin-top:auto;padding-top:3px}
+.card-face .card-icon{font-size:1.5rem;margin-bottom:3px}
+.card-face .card-code{font-size:1rem;font-weight:600;color:var(--gold);letter-spacing:1px}
+.card-face .card-name{font-size:.56rem;color:var(--ink-s);line-height:1.3;margin-top:2px}
+.card-face .card-type{font-size:.48rem;color:var(--ink-dim);margin-top:auto;padding-top:3px}
 .card-face.type-archetype{background:linear-gradient(160deg,#2d1b4e,#1a0e30);border-color:rgba(155,124,182,.4)}
 .card-face.type-oil{background:linear-gradient(160deg,#0d2618,#0a1a12);border-color:rgba(120,180,140,.3)}
 .card-face.type-base{background:linear-gradient(160deg,#2a1f0d,#1a1408);border-color:rgba(212,165,116,.3)}
@@ -93,6 +93,19 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.92);z-ind
 .reading-actions{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap}
 .reading-actions button,.reading-actions a{padding:10px 20px;border-radius:999px;font-size:.82rem;cursor:pointer;text-decoration:none;font-weight:600;letter-spacing:1px;transition:all .25s;display:inline-block}
 .fm-disclaimer{margin-top:28px;padding:14px;background:rgba(10,6,20,.5);border:1px solid rgba(212,165,116,.06);border-radius:8px;font-size:.72rem;color:var(--ink-dim);line-height:1.9;text-align:center}
+
+/* ── 手機適配 ── */
+@media(max-width:480px){
+  .card-slot,.draw-slot{width:72px;height:105px}
+  .card-face .card-code{font-size:.82rem}
+  .card-face .card-name{font-size:.48rem}
+  .card-face .card-icon{font-size:1.2rem}
+  .card-back::before{font-size:1.3rem}
+  .card-back .card-pos{font-size:.42rem;padding:0 2px}
+}
+@media(min-width:481px) and (max-width:768px){
+  .card-slot,.draw-slot{width:88px;height:128px}
+}
 </style>
 </head>
 <body>
@@ -172,18 +185,25 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.92);z-ind
       <input type="date" id="solarBday" class="fm-input">
     </div>
     <div>
-      <label class="fm-label">農曆生日（月/日）</label>
-      <div style="display:flex;gap:6px">
-        <select id="lunarMonth" class="fm-input fm-select" style="flex:1"><option value="">月</option><option value="1">正月</option><option value="2">二月</option><option value="3">三月</option><option value="4">四月</option><option value="5">五月</option><option value="6">六月</option><option value="7">七月</option><option value="8">八月</option><option value="9">九月</option><option value="10">十月</option><option value="11">十一月</option><option value="12">十二月</option></select>
-        <select id="lunarDay" class="fm-input fm-select" style="flex:1"><option value="">日</option></select>
-      </div>
-    </div>
+            <label style="font-size:.75rem;color:var(--gold);display:block;margin-bottom:4px">出生時辰（選填）</label>
+      <select id="birthHour" style="width:100%;padding:10px;background:rgba(255,255,255,.04);border:1px solid rgba(233,194,125,.15);border-radius:8px;color:var(--ink);font-size:.85rem;font-family:inherit">
+        <option value="">不確定</option>
+        <option value="23">子時（23:00-01:00）</option>
+        <option value="1">丑時（01:00-03:00）</option>
+        <option value="3">寅時（03:00-05:00）</option>
+        <option value="5">卯時（05:00-07:00）</option>
+        <option value="7">辰時（07:00-09:00）</option>
+        <option value="9">巳時（09:00-11:00）</option>
+        <option value="11">午時（11:00-13:00）</option>
+        <option value="13">未時（13:00-15:00）</option>
+        <option value="15">申時（15:00-17:00）</option>
+        <option value="17">酉時（17:00-19:00）</option>
+        <option value="19">戌時（19:00-21:00）</option>
+        <option value="21">亥時（21:00-23:00）</option>
+      </select>
   </div>
-  <div style="max-width:400px;margin:10px auto 0">
-    <label class="fm-label">身分證字號（選填）</label>
-    <input type="text" id="clientIdno" maxlength="10" placeholder="A123456789" class="fm-input" style="letter-spacing:2px">
-    <div style="font-size:.65rem;color:var(--ink-dim);margin-top:4px;text-align:center">🔒 所有計算在裝置端完成，不傳送至伺服器</div>
   </div>
+
 
   <button class="fm-btn" onclick="goScene(2)" id="infoNext">進入問卷 →</button>
 </div>
@@ -241,6 +261,7 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.92);z-ind
 
 <!-- ═══ Scripts ═══ -->
 <script src="js/cardData-protected.js"></script>
+<script src="js/lunar.min.js"></script>
 <script>
 // ══════ 鑰盤定義 ══════
 const FAMILY_SPREADS={
@@ -327,16 +348,22 @@ let currentScene=0,currentSpread=0,quizIndex=0;
 let selectedCards=[],quizAnswers={},selectedTags=[];
 
 // Lunar day dropdown
-(function(){var s=document.getElementById('lunarDay');for(var i=1;i<=30;i++){var o=document.createElement('option');o.value=i;o.textContent='初'+['一','二','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'][i-1];s.appendChild(o)}})();
+
 
 // ══════ 數字引擎（共用）══════
+// ══════ 農曆自動轉換 ══════
+function autoLunar(dateStr){
+  if(!dateStr)return null;
+  try{var d=new Date(dateStr);var solar=Solar.fromYmd(d.getFullYear(),d.getMonth()+1,d.getDate());var lunar=solar.getLunar();return{month:Math.abs(lunar.getMonth()),day:lunar.getDay()}}catch(e){return null}
+}
+
 function digitSum(n){n=Math.abs(n);while(n>9&&n!==11&&n!==22&&n!==33)n=String(n).split('').reduce((a,b)=>a+Number(b),0);return n}
 function digitSumSimple(n){n=Math.abs(n);while(n>9)n=String(n).split('').reduce((a,b)=>a+Number(b),0);return n}
 function calcLifePath(d){if(!d)return null;var x=new Date(d);var t=String(x.getFullYear())+String(x.getMonth()+1)+String(x.getDate());return digitSum(t.split('').reduce((a,b)=>a+Number(b),0))}
 function calcTriangle(d){if(!d)return null;var x=new Date(d);var D=x.getDate(),M=x.getMonth()+1,Y=x.getFullYear();var y=String(Y);var I=digitSumSimple(D),J=digitSumSimple(M),K=digitSumSimple(Number(y.substring(0,2))),L=digitSumSimple(Number(y.substring(2)));var M2=digitSumSimple(I+J),N=digitSumSimple(K+L),O=digitSumSimple(M2+N);var sub=digitSumSimple(I+L+O),ext=digitSumSimple(digitSumSimple(M2+O)+digitSumSimple(N+O)+digitSumSimple(digitSumSimple(M2+O)+digitSumSimple(N+O)));return{I:I,J:J,K:K,L:L,M:M2,N:N,O:O,sub:sub,ext:ext}}
 function calcFulingHOUR(m,d){if(!m||!d)return null;m=Number(m);d=Number(d);return{H:digitSumSimple(m),O:digitSumSimple(d),U:digitSumSimple(digitSumSimple(m)+digitSumSimple(d)),R:digitSumSimple(m+d)}}
 function calcNineGrid(d){if(!d)return null;var x=new Date(d);var all=String(x.getFullYear())+String(x.getMonth()+1)+String(x.getDate());var g={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};all.split('').forEach(function(c){var n=Number(c);if(n>=1&&n<=9)g[n]++});var m=[];for(var k=1;k<=9;k++)if(g[k]===0)m.push(k);return{grid:g,missing:m}}
-function calcIdTriangle(id){if(!id||id.length!==10)return null;var lm={A:10,B:11,C:12,D:13,E:14,F:15,G:16,H:17,I:34,J:18,K:19,L:20,M:21,N:22,O:35,P:23,Q:24,R:25,S:26,T:27,U:28,V:29,W:32,X:30,Y:31,Z:33};var f=id.charAt(0).toUpperCase();if(!lm[f])return null;var nums=String(lm[f])+id.substring(1);var digs=nums.split('').map(Number);var inner=digs.slice(1,digs.length-1);while(inner.length>4){var n=[];for(var i=0;i<inner.length-1;i++)n.push(digitSumSimple(inner[i]+inner[i+1]));inner=n}if(inner.length<4)return null;var l2=[digitSumSimple(inner[0]+inner[1]),digitSumSimple(inner[2]+inner[3])];return{top:digitSumSimple(l2[0]+l2[1]),layer2:l2,layer1:inner,tail:digs[digs.length-1]}}
+;var f=id.charAt(0).toUpperCase();if(!lm[f])return null;var nums=String(lm[f])+id.substring(1);var digs=nums.split('').map(Number);var inner=digs.slice(1,digs.length-1);while(inner.length>4){var n=[];for(var i=0;i<inner.length-1;i++)n.push(digitSumSimple(inner[i]+inner[i+1]));inner=n}if(inner.length<4)return null;var l2=[digitSumSimple(inner[0]+inner[1]),digitSumSimple(inner[2]+inner[3])];return{top:digitSumSimple(l2[0]+l2[1]),layer2:l2,layer1:inner,tail:digs[digs.length-1]}}
 
 // ══════ Scene Nav ══════
 function goScene(n){
@@ -417,12 +444,11 @@ function buildPrompt(){
   var ca=document.getElementById('clientAge').value;
   var cq=document.getElementById('clientQuestion').value.trim();
   var solar=document.getElementById('solarBday').value;
-  var lunarM=document.getElementById('lunarMonth').value;
-  var lunarD=document.getElementById('lunarDay').value;
-  var idno=document.getElementById('clientIdno').value.trim();
+  var lunar=autoLunar(solar);var lunarM=lunar?lunar.month:null;
+  var lunarD=lunar?lunar.day:null;
 
   var lp=calcLifePath(solar),tri=calcTriangle(solar),ng=calcNineGrid(solar);
-  var fl=calcFulingHOUR(lunarM,lunarD),idTri=calcIdTriangle(idno);
+  var fl=calcFulingHOUR(lunarM,lunarD);
 
   var p='【M03 家族星圖｜覺察師個案報告生成】\n\n';
   p+='覺察師完成了案主資料收集 + 家族狀態標記 + 20 題 HOUR 四軸問卷 + '+currentSpread+' 張牌卡抽牌';
@@ -436,14 +462,13 @@ function buildPrompt(){
   p+='核心提問：'+(cq||'想了解家族對自己的影響')+'\n';
   p+='家族狀態標記：'+(selectedTags.length?selectedTags.join('、'):'未標記')+'\n';
 
-  if(lp||fl||tri||idTri){
+  if(lp||fl||tri){
     p+='\n══════ 數字命理資料 ══════\n';
     if(solar)p+='西曆生日：'+solar+'\n';
     if(lunarM&&lunarD)p+='農曆生日：'+lunarM+'月'+lunarD+'日\n';
     if(lp){p+='\n▸ 生命靈數：'+lp+(lp>=11?' (大師數)':'')+'\n';if(ng){p+='  九宮格：';for(var k=1;k<=9;k++)p+=k+'='+ng.grid[k]+' ';p+='\n  空缺數：'+(ng.missing.length?ng.missing.join(','):'無')+'\n'}}
     if(tri)p+='\n▸ 三角生命密碼：主性格 O='+tri.O+' 潛意識='+tri.sub+' 外心='+tri.ext+'\n';
     if(fl)p+='\n▸ 馥靈秘碼：H='+fl.H+' O='+fl.O+' U='+fl.U+' R='+fl.R+'\n';
-    if(idTri)p+='\n▸ 身分證秘碼：核心使命數='+idTri.top+' 根基層='+idTri.layer1.join(',')+' 匯流層='+idTri.layer2.join(',')+'\n';
   }
 
   p+='\n══════ HOUR 四軸問卷（20題）══════\n';
