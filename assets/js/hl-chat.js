@@ -18,7 +18,7 @@
     // CSS
     var s = document.createElement('style');
     s.textContent = `
-.hlc-bubble{position:fixed;bottom:24px;right:90px;z-index:9997;width:56px;height:56px;border-radius:50%;
+.hlc-bubble{position:fixed;bottom:78px;right:90px;z-index:9997;width:56px;height:56px;border-radius:50%;
   background:linear-gradient(135deg,rgba(155,124,182,.3),rgba(233,194,125,.2));cursor:pointer;display:flex;align-items:center;justify-content:center;
   box-shadow:0 4px 24px rgba(155,124,182,.35);transition:all .35s cubic-bezier(.4,0,.2,1);overflow:hidden;border:2px solid rgba(233,194,125,.3)}
 .hlc-bubble img{width:48px;height:48px;object-fit:cover;border-radius:50%;pointer-events:none}
@@ -27,7 +27,7 @@
 .hlc-pulse{position:absolute;inset:-4px;border-radius:50%;border:2px solid rgba(233,194,125,.3);animation:hlcPulse 3s ease-in-out infinite}
 @keyframes hlcPulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.15);opacity:0}}
 
-.hlc-panel{position:fixed;bottom:86px;right:24px;z-index:9997;width:360px;max-height:520px;
+.hlc-panel{position:fixed;bottom:142px;right:24px;z-index:9997;width:360px;max-height:520px;
   background:rgba(14,12,20,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   border:1px solid rgba(233,194,125,.15);border-radius:20px;overflow:hidden;
   display:none;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.6);
@@ -35,7 +35,7 @@
   animation:hlcSlideUp .4s cubic-bezier(.4,0,.2,1)}
 @keyframes hlcSlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 .hlc-panel.show{display:flex}
-@media(max-width:480px){.hlc-panel{right:8px;left:8px;width:auto;bottom:80px;max-height:70vh}}
+@media(max-width:480px){.hlc-panel{right:8px;left:8px;width:auto;bottom:142px;max-height:60vh}}
 
 .hlc-header{padding:16px 20px;border-bottom:1px solid rgba(233,194,125,.1);display:flex;align-items:center;gap:12px}
 .hlc-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,rgba(155,124,182,.2),rgba(233,194,125,.15));display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden;border:1px solid rgba(233,194,125,.2)}
