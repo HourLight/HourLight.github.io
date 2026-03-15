@@ -1730,8 +1730,32 @@ function calcTri(Y,M,D){
   var T=rr(I+M2),S=rr(J+M2),U=rr(T+S);
   var V=rr(K+N),W=rr(L+N),X=rr(V+W);
   var P=rr(M2+O),Q=rr(N+O),R=rr(P+Q);
-  return{I:I,J:J,K:K,L:L,M:M2,N:N,O:O,T:T,S:S,U:U,V:V,W:W,X:X,P:P,Q:Q,R:R,sub:rr(I+L+O),ext:rr(U+R+X)};
+  return{I:I,J:J,K:K,L:L,M:M2,N:N,O:O,T:T,S:S,U:U,V:V,W:W,X:X,P:P,Q:Q,R:R,sub:rr(I+L+O),ext:rr(U+R+X),inner:rr(O+M2+N)};
 }
+
+// ═══ 三角形輔助：流年 / 五行 / 特殊密碼 ═══
+function calcFlowYear(M,D,yr){var s=0;String(M).split('').forEach(function(d){s+=+d});String(D).split('').forEach(function(d){s+=+d});String(yr).split('').forEach(function(d){s+=+d});return rdP(s)}
+var WUXING={1:'金',2:'水',3:'火',4:'木',5:'土',6:'金',7:'水',8:'火',9:'木'};
+function getWuxing(n){return WUXING[rdP(n)]||''}
+var FLOW_KW={1:'播種開新局',2:'合作鞏固關係',3:'表達創意輸出',4:'打地基穩固',5:'變動體驗冒險',6:'家庭責任承擔',7:'內省深化學習',8:'收割成就擴張',9:'放手完結清理'};
+// 常見特殊聯合密碼標籤
+var SPECIAL_CODE={
+'123':'演講碼／講師碼：語言魅力強，能說服群眾並快速變現','132':'演講碼變體：先行動再溝通，適合實戰型講師',
+'156':'驛馬創富碼：移動產生價值，跨區域發展財富','165':'驛馬碼變體：方向明確後快速行動開拓','516':'驛馬碼：自由驅動的跨域財富擴張',
+'235':'洗腦專家碼／夢想家：語言感染力極強，能短時間改變他人認知','325':'洗腦碼變體：行動力帶動說服力',
+'246':'結構化銷售碼：系統性建構客戶關係，穩定高轉化','426':'銷售高手碼：規劃先行的服務型銷售王者',
+'281':'銷售冠軍碼（批發型）：極強抗壓＋解決問題能力，適合大宗商業','821':'銷售冠軍碼（草根型）：白手起家，做事有手腕但感情多變',
+'369':'投資家碼／以錢生錢：對商業氣氛極度敏感，好惡分明','639':'資本運作碼：財富感知＋快速行動＋宏觀遠見',
+'573':'貴人碼＋義氣碼：身邊常有高淨值人士，極重朋友義氣',
+'696':'點石成金碼：能將平凡資源轉化為驚人利潤','966':'願景整合碼：依靠宏大社會願景創造財富',
+'729':'桃花碼：天生異性緣強，女性貴人旺事業','279':'桃花碼變體：溝通力帶動人際吸引力',
+'483':'專業碼／老二命：專業深厚但需明師指引方向，婚姻需磨合','843':'高壓專業碼：責任重壓下的專業執行者',
+'887':'泰山壓頂碼：責任大壓力大情緒大，建議晚婚','898':'窮忙焦慮碼：忙碌卻找不到突破口，注意健康',
+'977':'高管碼：人緣好位高權重，但需防身邊小人','988':'壓力創富碼：靠正財一分耕耘一分收穫',
+'999':'天堂地獄碼：機會極多但最忌貪心，堅持一個方向可獲巨大回報',
+'213':'溫和領袖碼：以柔克剛的高EQ統御術','393':'心靈手巧碼：工匠精神但感情易鑽牛角尖'
+};
+function getSpecialLabel(a,b,c){var k1=''+a+b+c;var k2=''+a+c+b;var k3=''+b+a+c;return SPECIAL_CODE[k1]||SPECIAL_CODE[k2]||SPECIAL_CODE[k3]||''}
 
 // ═══════════════════════════════════════
 // 主控台
@@ -2347,43 +2371,162 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
   addP(ps,h8);
 
   // ⑨ 三角形
+  var fy26=calcFlowYear(M,D,2026);
+  var fy25=calcFlowYear(M,D,2025);
+  var wxO=getWuxing(tri.O);
+  // 六組聯合密碼
+  var cFather=''+tri.I+tri.J+tri.M, cMother=''+tri.K+tri.L+tri.N, cCore=''+tri.M+tri.N+tri.O;
+  var cAge1=''+tri.T+tri.S+tri.U, cAge2=''+tri.P+tri.Q+tri.R, cAge3=''+tri.V+tri.W+tri.X;
+  var spF=getSpecialLabel(tri.I,tri.J,tri.M),spM=getSpecialLabel(tri.K,tri.L,tri.N),spC=getSpecialLabel(tri.M,tri.N,tri.O);
+  var spA1=getSpecialLabel(tri.T,tri.S,tri.U),spA2=getSpecialLabel(tri.P,tri.Q,tri.R),spA3=getSpecialLabel(tri.V,tri.W,tri.X);
+
   var h9='<h3>🔺 生命數字</h3>';
   h9+='<div class="item"><b>底部（日月年）：</b>'+String(D).padStart(2,'0')+' '+String(M).padStart(2,'0')+' '+String(Y)+'</div>';
-  h9+='<div class="item" style="margin-top:8px"><b>內三角：</b></div>';
+  h9+='<div class="item" style="margin-top:8px"><b>內三角（先天）：</b></div>';
   h9+='<div class="item">　I(日)='+tri.I+'　J(月)='+tri.J+'　K(年前)='+tri.K+'　L(年後)='+tri.L+'</div>';
-  h9+='<div class="item">　<b>父親基因（左邊三數 I·J·M）</b>：I='+tri.I+' · J='+tri.J+' · M='+tri.M+'</div>';
-  h9+='<div class="item">　<b>母親基因（右邊三數 K·L·N）</b>：K='+tri.K+' · L='+tri.L+' · N='+tri.N+'</div>';
-  h9+='<div class="item">　M（I+J）+N（K+L）= '+tri.M+'+'+tri.N+' → <b>O（命數/主性格）= '+tri.O+'</b>　主宰近60%行為模式</div>';
-  h9+='<div class="item" style="margin-top:8px"><b>外三角：</b></div>';
-  h9+='<div class="item">　工作朋友（21～40歲）：T='+tri.T+' S='+tri.S+' U='+tri.U+'</div>';
-  h9+='<div class="item">　下屬兒女（41～60歲）：P='+tri.P+' Q='+tri.Q+' R='+tri.R+'</div>';
-  h9+='<div class="item">　晚年家庭（61歲後）：V='+tri.V+' W='+tri.W+' X='+tri.X+'</div>';
-  h9+='<div class="item" style="margin-top:8px"><b>密碼算式：</b></div>';
-  h9+='<div class="item">　I+L+O = '+tri.I+'+'+tri.L+'+'+tri.O+' = '+tri.sub+'　<b>潛意識密碼</b>（主宰大部分舉動）</div>';
-  h9+='<div class="item">　U+R+X = '+tri.U+'+'+tri.R+'+'+tri.X+' = '+tri.ext+'　<b>外心密碼</b></div>';
+  h9+='<div class="item">　<b>父親基因（I·J·M）</b>：'+cFather+(spF?' → <em style="color:var(--g)">'+spF.split('：')[0]+'</em>':'')+'</div>';
+  h9+='<div class="item">　<b>母親基因（K·L·N）</b>：'+cMother+(spM?' → <em style="color:var(--g)">'+spM.split('：')[0]+'</em>':'')+'</div>';
+  h9+='<div class="item">　M（I+J）+N（K+L）= '+tri.M+'+'+tri.N+' → <b>O（命數/主性格）= '+tri.O+'</b>（'+wxO+'）　主宰近60%行為模式</div>';
+  h9+='<div class="item" style="margin-top:8px"><b>外三角（後天）：</b></div>';
+  h9+='<div class="item">　工作朋友（21～40歲）：'+cAge1+(spA1?' → <em style="color:var(--g)">'+spA1.split('：')[0]+'</em>':'')+'</div>';
+  h9+='<div class="item">　下屬兒女（41～60歲）：'+cAge2+(spA2?' → <em style="color:var(--g)">'+spA2.split('：')[0]+'</em>':'')+'</div>';
+  h9+='<div class="item">　晚年家庭（61歲後）：'+cAge3+(spA3?' → <em style="color:var(--g)">'+spA3.split('：')[0]+'</em>':'')+'</div>';
+  h9+='<div class="item" style="margin-top:8px"><b>四大密碼：</b></div>';
+  h9+='<div class="item">　<b>內心密碼</b>（O+M+N）= '+tri.inner+'　性格矯正器，棉被裡的真實渴望</div>';
+  h9+='<div class="item">　<b>潛意識密碼</b>（I+L+O）= '+tri.sub+'　危機時的自動駕駛模式</div>';
+  h9+='<div class="item">　<b>外心密碼</b>（U+R+X）= '+tri.ext+'　陌生人對你的第一印象</div>';
+  h9+='<div class="item">　<b>核心聯合密碼</b>（M·N·O）= '+cCore+(spC?' → <em style="color:var(--g)">'+spC.split('：')[0]+'</em>':'')+'</div>';
+  h9+='<div class="item" style="margin-top:8px"><b>流年：</b></div>';
+  h9+='<div class="item">　2025年流年數 = '+fy25+'（'+FLOW_KW[fy25]+'）</div>';
+  h9+='<div class="item">　2026年流年數 = '+fy26+'（'+FLOW_KW[fy26]+'）</div>';
   h9+='<div class="item" style="margin-top:8px"><b>七魄（妊娠期）：</b></div>';
   h9+='<div class="item">　I='+tri.I+'(喜)　J='+tri.J+'(怒)　K='+tri.K+'(哀)　L='+tri.L+'(懼)　M='+tri.M+'(愛)　N='+tri.N+'(欲)　O='+tri.O+'(惡)</div>';
   h9+='<div class="mkt-hook">💡 你的行為模式主宰了你60%的決定｜而那個「O值」從你出生那天就刻在裡面了。了解它，不是接受命運，是讓你不再被它偷偷牽著走。</div>';
   h9+='<div class="detail-link-bar" style="margin:16px 0"><a href="triangle-calculator.html" target="_blank" class="detail-nav-link">🔺 前往「生命數字三角形」完整測算（含三角圖＋各節點解讀）→</a></div>';
-  h9+='<div class="copy-section"><pre id="tri-result" style="display:none">生命數字\n' +
-       '命數 O = '+tri.O+'（主宰近60%行為模式）\n\n' +
-       '★ 星位密碼（三角形三頂點）\n' +
-       '  命數 O = '+tri.O+'　日數 I = '+tri.I+'　年尾 L = '+tri.L+'\n\n' +
-       '▷ 三角形（內）\n' +
-       '  日數 I = '+tri.I+'　月數 J = '+tri.J+'　年頭 K = '+tri.K+'　年尾 L = '+tri.L+'\n' +
-       '  父親基因（I·J·M）= '+tri.I+' · '+tri.J+' · '+tri.M+'\n' +
-       '  母親基因（K·L·N）= '+tri.K+' · '+tri.L+' · '+tri.N+'\n\n' +
-       '▷ 三角形（外）\n' +
-       '  工作・朋友（21-40歲）：S='+tri.S+' T='+tri.T+' U='+tri.U+'\n' +
-       '  下屬・兒女（41-60歲）：P='+tri.P+' Q='+tri.Q+' R='+tri.R+'\n' +
-       '  晚年・家庭（61歲以後）：V='+tri.V+' W='+tri.W+' X='+tri.X+'\n\n' +
-       '▷ 特殊密碼\n' +
-       '  潛意識密碼（I+L+O）= '+tri.sub+'\n' +
-       '  外心密碼（U+R+X）= '+tri.ext+'\n\n' +
-       '▷ 七魄（妊娠期）\n' +
-       '  喜(I)='+tri.I+' | 怒(J)='+tri.J+' | 哀(K)='+tri.K+' | 懼(L)='+tri.L+'\n' +
-       '  愛(M)='+tri.M+' | 欲(N)='+tri.N+' | 惡(O)='+tri.O+
-       '\n\n【各位置白話解讀】\n\n► 主性格（O）→ 你的核心執行長\n  佔60%行為模式，最外顯、不費力。過度使用變致命傷。\n\n► 內心密碼 → 棉被裡的真實渴望\n  最深的驅動力，壓抑太久會扭曲爆發。\n\n► 外心密碼 → 社交面具\n  3＝賣夢想體驗　6＝滋養型和諧　9＝使命感博愛\n  內外心數字衝突＝表面雲淡風輕，內心戲超多。\n\n► 潛意識密碼 → 危機自動駕駛\n  被逼急時防禦機制自動切換的反應模式。\n\n► 父親基因（I·J·M）→ 事業軸\n  對「賺錢、權威、成就」的潛意識態度。\n\n► 母親基因（K·L·N）→ 情感軸\n  對「安全感、親密關係」的直覺反應。\n\n► 21-40歲 → 社會化碰撞期（職場武器＋人脈磁鐵）\n► 41-60歲 → 掌舵傳承期（給予＋放權）\n► 61歲後 → 終極成績單\n\n► 流年口訣：出生月＋出生日＋當年西元年各位數，化到個位。\n\n▍參考書目\n· Dan Millman《生命數字全書》· 藍寧仕《生命靈數》\n· 蘇醒《生命密碼》· 天賦優勢心理學系列\n· 王逸君《藏在農曆生日裡的秘碼》ISBN 978-626-01-5769-2\n\n▍馥靈座標哲學\n這張三角形是你人生這台車的線路圖。\n密碼告訴你門在哪裡，走過去的人還是你自己。\n\n</pre><button class="cp-main" onclick="copyResult(\'tri-result\',this)">📋 複製生命數字結果</button></div>';
+
+  // ── 建構完整 AI 複製文字 ──
+  var aiTri = '生命數字三角形完整測算結果\n' +
+    '══════════════════════════\n\n' +
+    '▍主性格（O）= '+tri.O+'（五行屬'+wxO+'）\n' +
+    '  主宰近60%行為模式，最外顯的行為基模。過度使用變致命傷。\n\n' +
+    '▍內心密碼 = '+tri.inner+'（O+M+N = '+tri.O+'+'+tri.M+'+'+tri.N+'）\n' +
+    '  棉被裡的真實渴望，主性格的矯正器。\n' +
+    '  當外在表現與主性格出現矛盾時，內心密碼提供最精準的心理學解釋。\n' +
+    '  主'+tri.O+'內'+tri.inner+'的組合 = 此人的核心人格衝突與深層驅動力。\n\n' +
+    '▍潛意識密碼 = '+tri.sub+'（I+L+O = '+tri.I+'+'+tri.L+'+'+tri.O+'）\n' +
+    '  平時完全沒意識到的隱性能量。在極端壓力或絕對放鬆時才會流露的真實心理底色。\n\n' +
+    '▍外心密碼 = '+tri.ext+'（U+R+X = '+tri.U+'+'+tri.R+'+'+tri.X+'）\n' +
+    '  陌生人對你的第一印象，職場社交面具。\n' +
+    '  3=賣夢想體驗　6=滋養型和諧　9=使命感博愛\n' +
+    '  內心密碼('+tri.inner+') vs 外心密碼('+tri.ext+') → 落差越大，內心戲越多。\n\n' +
+    '══════════════════════════\n' +
+    '▍六組聯合密碼（三位數 = A起因 + B手段 + C目標）\n\n' +
+    '► 父親基因（動機/起心動念）：'+cFather+'\n' +
+    '  A='+tri.I+'(起因) → B='+tri.J+'(手段) → C='+tri.M+'(目標)\n' +
+    (spF?'  ★ 特殊標籤：'+spF+'\n':'') +
+    '  影響：對「賺錢、權威、成就」的潛意識態度，事業軸。\n\n' +
+    '► 母親基因（能量/親密距離）：'+cMother+'\n' +
+    '  A='+tri.K+'(起因) → B='+tri.L+'(手段) → C='+tri.N+'(目標)\n' +
+    (spM?'  ★ 特殊標籤：'+spM+'\n':'') +
+    '  影響：對「安全感、親密關係」的直覺反應，情感軸。\n\n' +
+    '► 核心密碼（最深沉的自我）：'+cCore+'\n' +
+    '  A='+tri.M+'(起因) → B='+tri.N+'(手段) → C='+tri.O+'(目標)\n' +
+    (spC?'  ★ 特殊標籤：'+spC+'\n':'') +
+    '\n► 21-40歲（工作與朋友・社會化碰撞期）：'+cAge1+'\n' +
+    '  A='+tri.T+'(起因) → B='+tri.S+'(手段) → C='+tri.U+'(目標)\n' +
+    (spA1?'  ★ 特殊標籤：'+spA1+'\n':'') +
+    '  父親基因的延伸。這個階段別人透過你的職場表現與交友來評價你。\n\n' +
+    '► 41-60歲（下屬與兒女・掌舵傳承期）：'+cAge2+'\n' +
+    '  A='+tri.P+'(起因) → B='+tri.Q+'(手段) → C='+tri.R+'(目標)\n' +
+    (spA2?'  ★ 特殊標籤：'+spA2+'\n':'') +
+    '  核心議題從自我奮鬥轉向資源分配、權力支配與傳承。\n\n' +
+    '► 61歲後（晚年與家庭・終極成績單）：'+cAge3+'\n' +
+    '  A='+tri.V+'(起因) → B='+tri.W+'(手段) → C='+tri.X+'(目標)\n' +
+    (spA3?'  ★ 特殊標籤：'+spA3+'\n':'') +
+    '  母親基因的延伸。外界透過你對待家庭的態度為你一生做最終評價。\n\n' +
+    '══════════════════════════\n' +
+    '▍流年能量\n' +
+    '  2025年流年數 = '+fy25+'（'+FLOW_KW[fy25]+'）\n' +
+    '  2026年流年數 = '+fy26+'（'+FLOW_KW[fy26]+'）\n' +
+    '  口訣：出生月日各位＋當年西元年各位，全部化到個位。\n' +
+    '  九年一循環：1播種→2合作→3表達→4穩固→5變動→6責任→7內省→8收割→9放手\n\n' +
+    '══════════════════════════\n' +
+    '▍七魄（妊娠期七個月已定型的性格）\n' +
+    '  喜(I)='+tri.I+' | 怒(J)='+tri.J+' | 哀(K)='+tri.K+' | 懼(L)='+tri.L+'\n' +
+    '  愛(M)='+tri.M+' | 欲(N)='+tri.N+' | 惡(O)='+tri.O+'\n\n' +
+    '▍五行分佈\n' +
+    '  主性格O='+tri.O+'('+wxO+') 內心='+tri.inner+'('+getWuxing(tri.inner)+') 潛意識='+tri.sub+'('+getWuxing(tri.sub)+') 外心='+tri.ext+'('+getWuxing(tri.ext)+')\n' +
+    '  1,6=金 2,7=水 3,8=火 4,9=木 5=土　→ 看哪個元素過多或缺失\n\n' +
+    '▍星位密碼（三角形三頂點，能量最強）\n' +
+    '  O='+tri.O+' I='+tri.I+' L='+tri.L+'\n\n' +
+    '══════════════════════════\n' +
+    '【AI解讀指令】請依下列七步驟做完整深度解讀：\n\n' +
+    '壹、主性格深析\n' +
+    '  O='+tri.O+'的建設性（高能量）表現 vs 破壞性（低能量）表現\n' +
+    '  佔60%行為模式的具體生活場景（對人、對事、對錢、對感情）\n' +
+    '  五行屬'+wxO+'的身體對應部位與情緒特質\n\n' +
+    '貳、內心密碼與主性格的矛盾分析\n' +
+    '  主'+tri.O+'內'+tri.inner+'的組合：外在盔甲 vs 內在軟肋\n' +
+    '  這組矛盾在職場決策、親密關係、壓力下的具體表現\n' +
+    '  潛意識密碼'+tri.sub+'在危機時刻的防禦機制\n\n' +
+    '叁、父母基因與原生家庭印記\n' +
+    '  父親基因'+cFather+'的A-B-C行為邏輯 → 對事業/金錢/權威的影響\n' +
+    '  母親基因'+cMother+'的A-B-C行為邏輯 → 對親密關係/安全感/能量的影響\n' +
+    '  父母基因的互補或衝突 → 此人原生家庭帶來的心理基石與裂縫\n\n' +
+    '肆、三段人生演化路徑\n' +
+    '  21-40歲'+cAge1+'：職場武器、人脈磁鐵、財富策略\n' +
+    '  41-60歲'+cAge2+'：管理風格、統御術、對下屬/兒女的教育方式\n' +
+    '  61歲後'+cAge3+'：晚年生活模式、家庭角色、精神寄託\n' +
+    '  三段之間的能量蛻變軌跡（前一段如何孕育下一段）\n\n' +
+    '伍、外心密碼與社交面具\n' +
+    '  外心'+tri.ext+'的A-B-C社交邏輯 → 職場定位與個人品牌\n' +
+    '  外心('+tri.ext+') vs 內心('+tri.inner+') 的落差 → 「表面雲淡風輕，內心戲超多」的程度\n\n' +
+    '陸、流年與當下建議\n' +
+    '  2025流年'+fy25+'('+FLOW_KW[fy25]+') → 2026流年'+fy26+'('+FLOW_KW[fy26]+')\n' +
+    '  當前最值得把握的機會 + 最需警惕的地雷\n' +
+    '  具體行動建議（本月可以做的第一步）\n\n' +
+    '柒、提款密碼與商業應用\n' +
+    '  1,8,9高能量 → 賺地位、權威、快速解決方案的錢\n' +
+    '  2,6高能量 → 賺專屬照顧、情緒價值的錢\n' +
+    '  3,5高能量 → 靠顛覆框架、表達理念、販賣體驗變現\n' +
+    '  4,7高能量 → 靠系統化、深度專業、稀缺知識變現\n' +
+    '  此人的數字組合最適合的變現路徑\n\n' +
+    '══════════════════════════\n' +
+    '▍1-9數字速查（建設性↑ / 破壞性↓）\n' +
+    '1↑獨立開創自信 1↓自我孤獨固執\n' +
+    '2↑協調共情連結 2↓猶豫依附內耗\n' +
+    '3↑熱情行動表達 3↓衝動虎頭蛇尾\n' +
+    '4↑秩序穩固理財 4↓僵化恐懼失控\n' +
+    '5↑自由方向堅持 5↓固執鑽牛角尖\n' +
+    '6↑完美忠誠財富 6↓吹毛求疵焦慮\n' +
+    '7↑深度研究真理 7↓多疑難以信任\n' +
+    '8↑權力野心承擔 8↓工作狂壓力爆表\n' +
+    '9↑遠見博愛機遇 9↓過度善良被利用\n\n' +
+    '▍聯合密碼A-B-C行為邏輯公式\n' +
+    '  三位數 = A(起因/動機) → B(手段/方法) → C(目標/狀態)\n' +
+    '  例：123 = 因領導力(1)去合作溝通(2)快速達標(3)\n' +
+    '  例：369 = 因熱情行動(3)追求完美財富(6)實現宏大遠見(9)\n' +
+    '  例：281 = 因溝通需求(2)承擔沉重責任(8)走向獨立孤獨(1)\n\n' +
+    '▍常見特殊密碼速查\n' +
+    '  123/132 演講碼　156/516 驛馬創富碼　235/325 洗腦專家碼\n' +
+    '  246/426 結構銷售碼　281 銷售冠軍碼(批發) 821 銷售冠軍碼(草根)\n' +
+    '  369 投資家碼　573 貴人義氣碼　696/966 點石成金碼\n' +
+    '  729/279 桃花碼　483/843 專業碼/老二命　887 泰山壓頂碼\n' +
+    '  898 窮忙焦慮碼　977 高管碼　988 壓力創富碼　999 天堂地獄碼\n' +
+    '  213 溫和領袖碼　393 心靈手巧碼\n\n' +
+    '▍參考書目\n' +
+    '· Dan Millman《生命數字全書》（25周年典藏版）\n' +
+    '· 藍寧仕 Dimitrios Lenis《新生命密碼》《生命靈數》\n' +
+    '· Tad 林呈祥《彩虹數字學》系列\n' +
+    '· Hans Decoz《數字心靈導引》\n' +
+    '· 蘇醒《生命密碼》· 天賦優勢心理學系列\n' +
+    '· 王逸君《藏在農曆生日裡的秘碼》ISBN 978-626-01-5769-2\n\n' +
+    '▍馥靈座標哲學\n' +
+    '這張三角形是你人生這台車的線路圖。\n' +
+    '密碼告訴你門在哪裡，走過去的人還是你自己。\n' +
+    '命盤不是命定劇本，是你的人生藏寶圖。\n';
+
+  h9+='<div class="copy-section"><pre id="tri-result" style="display:none">'+aiTri+'</pre><button class="cp-main" onclick="copyResult(\'tri-result\',this)">📋 複製生命數字結果</button></div>';
   addP(ps,h9);
 
   // ⑩ 身分證秘碼
