@@ -163,6 +163,20 @@ body{min-height:100vh;font-family:var(--ff-font);color:var(--ff-ink);line-height
     💡 複製「AI 深度解讀提示詞」後，貼到任一 AI 即可獲得完整解讀
   </div>
 
+  <!-- AI 字形字義分析 -->
+  <div class="ff-glass" style="text-align:center;padding:28px 24px">
+    <div style="font-family:var(--ff-oracle);font-size:1rem;color:#B08CE0;margin-bottom:8px;letter-spacing:.1em">🔮 AI 字形字義深度分析</div>
+    <div style="font-size:.88rem;color:var(--ff-ink-soft);max-width:460px;margin:0 auto 16px;line-height:1.9">
+      即時分析每個字的字形結構、部首五行、字義能量，並給出五行補足建議
+    </div>
+    <button id="nameAiBtn2" class="ff-btn" onclick="runNameAi()" style="background:linear-gradient(135deg,rgba(176,140,224,.15),rgba(107,184,176,.1));color:#B08CE0;border:1px solid rgba(176,140,224,.25);padding:13px 32px">🔮 開始 AI 分析</button>
+    <div id="nameAiResult2" style="display:none;margin-top:20px;text-align:left;background:rgba(176,140,224,.04);border:1px solid rgba(176,140,224,.12);border-radius:16px;padding:22px;position:relative">
+      <div style="position:absolute;top:-1px;left:15%;right:15%;height:1px;background:linear-gradient(to right,transparent,#B08CE0,#6BB8B0,transparent)"></div>
+      <div id="nameAiContent2" style="font-size:.88rem;color:var(--ff-ink);line-height:2;white-space:pre-wrap;word-break:break-word"></div>
+      <div style="margin-top:14px;text-align:center"><button class="ff-btn ff-btn-outline" onclick="copyNameAi2()">📋 複製分析結果</button></div>
+    </div>
+  </div>
+
   <div class="ff-glass" style="text-align:center;padding:28px 24px">
     <div style="font-family:var(--ff-oracle);font-size:1rem;color:var(--ff-gold);margin-bottom:10px;letter-spacing:.1em">名字是座標，不是枷鎖</div>
     <div style="font-size:.92rem;color:var(--ff-ink-soft);max-width:460px;margin:0 auto 16px;line-height:1.9">
@@ -355,6 +369,46 @@ function copyResult(){
   navigator.clipboard.writeText(txt).then(function(){showToast('分析結果已複製！')});
 }
 
+
+// ── AI 字形字義分析 ──
+function runNameAi(){
+  var sEl=document.getElementById('surnameInput'),nEl=document.getElementById('nameInput');
+  if(!sEl||!nEl||(!sEl.value.trim()&&!nEl.value.trim())){alert('請先輸入姓名');return}
+  var name=(sEl.value.trim()+nEl.value.trim());
+  var btn=document.getElementById('nameAiBtn2');
+  var result=document.getElementById('nameAiResult2');
+  var content=document.getElementById('nameAiContent2');
+  btn.disabled=true;btn.textContent='⏳ AI 分析中...';btn.style.opacity='.6';
+  content.textContent='正在分析「'+name+'」的字形字義，請稍候約 5-10 秒...';
+  result.style.display='block';
+  // 收集五格數據
+  var fiveGrid='',sancai='';
+  try{
+    var grids=document.getElementById('gridsDisplay');
+    if(grids)fiveGrid=grids.textContent.replace(/\s+/g,' ').trim().substring(0,200);
+    var sc=document.getElementById('sancaiDisplay');
+    if(sc)sancai=sc.textContent.replace(/\s+/g,' ').trim().substring(0,100);
+  }catch(e){}
+  fetch('https://app.hourlightkey.com/api/name-analysis',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name:name,fiveGrid:fiveGrid,sancai:sancai})
+  }).then(function(r){return r.json()}).then(function(data){
+    if(data.success&&data.analysis){
+      content.textContent=data.analysis;
+    }else{
+      content.textContent='❌ '+(data.error||'分析失敗，請稍後再試');
+    }
+    btn.disabled=false;btn.textContent='🔮 開始 AI 分析';btn.style.opacity='1';
+  }).catch(function(e){
+    content.textContent='❌ 網路錯誤，請稍後再試';
+    btn.disabled=false;btn.textContent='🔮 開始 AI 分析';btn.style.opacity='1';
+  });
+}
+function copyNameAi2(){
+  var el=document.getElementById('nameAiContent2');if(!el)return;
+  navigator.clipboard.writeText(el.textContent).then(function(){showToast('分析結果已複製！')});
+}
 function copyAIPrompt(){
   if(!analysisData) return;
   var d = analysisData;
