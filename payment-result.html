@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5"/>
+<meta name="robots" content="noindex,nofollow"/>
+<title>付款結果｜馥靈之鑰 Hour Light</title>
+<link rel="icon" href="favicon.ico"/>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#0a0612"/>
+<link rel="stylesheet" href="assets/css/hourlight-global.css?v=20260316"/>
+<link rel="stylesheet" href="assets/css/hl-cosmos.css?v=20260316"/>
+<style>
+.result-wrap{max-width:520px;margin:80px auto 40px;padding:32px 24px;text-align:center}
+.result-icon{font-size:3.5rem;margin-bottom:16px}
+.result-title{font-family:'Noto Serif TC',serif;font-size:1.4rem;color:#f0d48a;letter-spacing:.15em;margin-bottom:12px}
+.result-msg{font-size:.95rem;color:rgba(244,240,235,.8);line-height:1.8;margin-bottom:24px}
+.result-detail{background:rgba(255,255,255,.03);border:1px solid rgba(233,194,125,.1);border-radius:12px;padding:16px 20px;margin-bottom:24px;text-align:left}
+.result-detail .row{display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem;border-bottom:1px solid rgba(255,255,255,.04)}
+.result-detail .row:last-child{border-bottom:none}
+.result-detail .label{color:rgba(244,240,235,.6)}
+.result-detail .value{color:#f0d48a;font-weight:500}
+.result-btn{display:inline-block;padding:14px 36px;border-radius:40px;background:linear-gradient(135deg,#c9985e,#f0d48a);color:#0a0714;font-size:.95rem;font-weight:600;letter-spacing:.12em;text-decoration:none;transition:all .3s}
+.result-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(240,212,138,.25)}
+.result-btn-outline{display:inline-block;padding:12px 28px;border-radius:40px;border:1px solid rgba(240,212,138,.2);color:rgba(244,240,235,.7);font-size:.85rem;text-decoration:none;margin-left:12px;transition:all .3s}
+.result-btn-outline:hover{border-color:rgba(240,212,138,.4);color:#f0d48a}
+</style>
+</head>
+<body>
+
+<div class="result-wrap" id="resultWrap">
+  <div class="result-icon" id="resultIcon">⏳</div>
+  <h1 class="result-title" id="resultTitle">載入中⋯⋯</h1>
+  <div class="result-msg" id="resultMsg"></div>
+  <div class="result-detail" id="resultDetail" style="display:none">
+    <div class="row"><span class="label">訂單編號</span><span class="value" id="detailOrder"></span></div>
+    <div class="row"><span class="label">付款金額</span><span class="value" id="detailAmount"></span></div>
+  </div>
+  <div id="resultActions"></div>
+</div>
+
+<script>
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var status = params.get('status') || 'unknown';
+  var order = params.get('order') || '';
+  var amount = params.get('amount') || '';
+
+  var icon = document.getElementById('resultIcon');
+  var title = document.getElementById('resultTitle');
+  var msg = document.getElementById('resultMsg');
+  var detail = document.getElementById('resultDetail');
+  var actions = document.getElementById('resultActions');
+
+  if (status === 'success') {
+    icon.textContent = '✨';
+    title.textContent = '付款成功';
+    msg.innerHTML = '感謝您的支持！您的服務已經開通。<br>如有任何問題，歡迎透過 LINE 聯繫我們。';
+    if (order || amount) {
+      detail.style.display = 'block';
+      document.getElementById('detailOrder').textContent = order;
+      document.getElementById('detailAmount').textContent = amount ? 'NT$ ' + Number(amount).toLocaleString() : '';
+    }
+    actions.innerHTML = '<a href="index.html" class="result-btn">回到首頁</a><a href="https://lin.ee/p5tBihbe" class="result-btn-outline" target="_blank">LINE 聯繫</a>';
+
+  } else if (status === 'fail') {
+    icon.textContent = '😔';
+    title.textContent = '付款未完成';
+    msg.innerHTML = '付款過程中遇到問題。<br>您可以重新嘗試，或透過 LINE 聯繫我們協助處理。';
+    actions.innerHTML = '<a href="javascript:history.back()" class="result-btn">重新嘗試</a><a href="https://lin.ee/p5tBihbe" class="result-btn-outline" target="_blank">LINE 聯繫</a>';
+
+  } else {
+    icon.textContent = '🔍';
+    title.textContent = '查詢付款狀態';
+    msg.innerHTML = '正在確認您的付款結果⋯⋯<br>如果已完成付款，系統會在幾分鐘內自動開通。<br>若有問題，歡迎透過 LINE 聯繫我們。';
+    actions.innerHTML = '<a href="index.html" class="result-btn">回到首頁</a><a href="https://lin.ee/p5tBihbe" class="result-btn-outline" target="_blank">LINE 聯繫</a>';
+  }
+})();
+</script>
+
+<script src="assets/js/hourlight-global.js?v=20260316"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-topnav.js"></script>
+<script src="assets/js/hl-bottomnav.js"></script>
+<script src="assets/js/hl-chat.js"></script>
+</body>
+</html>
