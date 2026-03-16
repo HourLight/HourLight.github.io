@@ -229,7 +229,7 @@ function buildPersonData(prefix,name){
 
   // 紫微
   var hzI=Math.floor((H+1)/2)%12;
-  var ytI=TG.indexOf(ec.getYearGan())*12+DZ.indexOf(ec.getYearZhi());
+  var ytI=TG.indexOf(ec.getYearGan());
   var yzI=DZ.indexOf(ec.getYearZhi());
   var zw=calcZiwei(lm,ld,ytI,yzI,hzI,gen);
   var GN=['命宮','兄弟宮','夫妻宮','子女宮','財帛宮','疾厄宮','遷移宮','交友宮','事業宮','田宅宮','福德宮','父母宮'];
@@ -268,7 +268,7 @@ function buildPersonData(prefix,name){
 
   // 組合
   var txt='';
-  txt+='▍姓名：'+(name||'未提供')+'\n';
+  var enName=toWG(name);txt+='▍姓名：'+(name||'未提供')+(enName?' ('+enName+')':'')+'\n';
   txt+='▍出生：'+Y+'/'+M+'/'+D+' '+H+':'+String(min).padStart(2,'0')+'\n';
   txt+='▍農曆：'+lunar.getYearGan()+lunar.getYearZhi()+'年'+lm+'月'+ld+'日\n\n';
   txt+='【八字】'+bazi+'\n日主：'+dayGan+'（'+dayWx+'）\n大運：'+dyStr+'\n\n';
@@ -282,6 +282,32 @@ function buildPersonData(prefix,name){
 
   return{txt:txt,name:name||'未提供',dayGan:dayGan,dayWx:dayWx,bazi:bazi,zw:zw,fl:fl,num:num,nsk:nsk};
 }
+
+
+// ══ 威妥瑪拼音自動轉換 ══
+var WG_MAP=(function(){var m={};
+'王Wang,李Lee,張Chang,劉Liu,陳Chen,楊Yang,黃Huang,趙Chao,吳Wu,周Chou,徐Hsu,孫Sun,馬Ma,朱Chu,胡Hu,郭Kuo,何Ho,林Lin,羅Lo,梁Liang,宋Sung,鄭Cheng,謝Hsieh,韓Han,唐Tang,馮Feng,于Yu,董Tung,蕭Hsiao,程Cheng,曹Tsao,袁Yuan,鄧Teng,許Hsu,傅Fu,沈Shen,曾Tseng,彭Peng,呂Lu,蘇Su,盧Lu,蔣Chiang,蔡Tsai,賈Chia,丁Ting,魏Wei,薛Hsueh,葉Yeh,余Yu,潘Pan,杜Tu,戴Tai,夏Hsia,鐘Chung,汪Wang,田Tien,任Jen,姜Chiang,范Fan,方Fang,石Shih,姚Yao,譚Tan,廖Liao,鄒Tsou,熊Hsiung,金Chin,陸Lu,孔Kung,白Pai,崔Tsui,康Kang,毛Mao,邱Chiu,秦Chin,江Chiang,史Shih,侯Hou,邵Shao,孟Meng,龍Lung,萬Wan,段Tuan,雷Lei,錢Chien,湯Tang,尹Yin,黎Li,易Yi,常Chang,武Wu,喬Chiao,賀Ho,賴Lai,龔Kung,文Wen,殷Yin,施Shih,陶Tao,洪Hung,安An,顏Yen,倪Ni,嚴Yen,溫Wen,季Chi,俞Yu,章Chang,葛Ko,韋Wei,申Shen,尤Yu,柳Liu,路Lu,岳Yueh,梅Mei,莊Chuang,辛Hsin,管Kuan,祝Chu,左Tso,谷Ku,時Shih,舒Shu,卜Pu,詹Chan,關Kuan,苗Miao,凌Ling,費Fei,盛Sheng,童Tung,歐Ou,席Hsi,衛Wei,查Cha,花Hua,穆Mu,蘭Lan,包Pao,司Ssu,柏Po,寧Ning,郎Lang,區Ou,翁Weng'.split(',').forEach(function(p){m[p[0]]=p.substring(1)});
+'逸Yi,君Chun,瑋Wei,雅Ya,琪Chi,婷Ting,芳Fang,惠Hui,玲Ling,珍Chen,美Mei,麗Li,華Hua,英Ying,秀Hsiu,淑Shu,貞Chen,慧Hui,娟Chuan,雲Yun,萍Ping,敏Min,儀Yi,如Ju,佳Chia,怡Yi,雯Wen,妍Yen,欣Hsin,琳Lin,靜Ching,潔Chieh,瑩Ying,芬Fen,蓉Jung,嘉Chia,茹Ju,倩Chien,思Ssu,詩Shih,涵Han,璇Hsuan,瑜Yu,彤Tung,瑤Yao,薇Wei,萱Hsuan,韻Yun,宜Yi,真Chen,柔Jou,穎Ying,心Hsin,羽Yu,菲Fei,晴Ching,紫Tzu,若Jo,馨Hsin,妮Ni,蕾Lei,翠Tsui,蘭Lan'.split(',').forEach(function(p){m[p[0]]=p.substring(1)});
+'文Wen,明Ming,志Chih,偉Wei,建Chien,國Kuo,東Tung,海Hai,平Ping,強Chiang,軍Chun,正Cheng,德Te,生Sheng,忠Chung,慶Ching,輝Hui,勇Yung,誠Cheng,達Ta,學Hsueh,祥Hsiang,勝Sheng,天Tien,宏Hung,傑Chieh,仁Jen,義Yi,禮Li,智Chih,信Hsin,榮Jung,昌Chang,興Hsing,振Chen,清Ching,福Fu,喜Hsi,寶Pao,吉Chi,壽Shou,富Fu,貴Kuei,成Cheng,龍Lung,鳳Feng,家Chia,豪Hao,峰Feng,翔Hsiang,宇Yu,浩Hao,博Po,維Wei,中Chung,山Shan,光Kuang,大Ta,永Yung,俊Chun,哲Che,賢Hsien,鑫Hsin,威Wei,政Cheng,彥Yen,廷Ting,毅Yi,恆Heng,聖Sheng,凱Kai,瑞Jui,銘Ming,裕Yu,源Yuan,澤Tse,小Hsiao,子Tzu,世Shih,民Min,仕Shih,承Cheng,立Li,全Chuan,有Yu,守Shou,同Tung,至Chih,宗Tsung,尚Shang,和Ho,昊Hao,松Sung,治Chih,亮Liang,奕Yi,昱Yu,秋Chiu,科Ko,冠Kuan,品Pin,泉Chuan,昭Chao,相Hsiang,盈Ying,致Chih,剛Kang,原Yuan,庭Ting,桂Kuei,修Hsiu,容Jung,恩En,書Shu,根Ken,益Yi,高Kao,素Su,淳Chun,堯Yao,揚Yang,景Ching,超Chao,琦Chi,新Hsin,業Yeh,睿Jui,群Chun,鼎Ting,愛Ai,敬Ching,照Chao,嘉Chia,碩Shuo,齊Chi,儒Ju,錦Chin,霖Lin,鴻Hung'.split(',').forEach(function(p){if(!m[p[0]])m[p[0]]=p.substring(1)});
+'珮Pei,蘋Ping,誼Yi,瑢Jung,博Po,伊Yi,芸Yun,丹Tan,妤Yu,旻Min,昕Hsin,語Yu,恬Tien,可Ko,沁Chin,瑄Hsuan,甯Ning,愷Kai,勳Hsun,杰Chieh,翰Han,廷Ting,霆Ting,棋Chi,皓Hao,晨Chen,煜Yu,晟Cheng,璋Chang,瀚Han,騰Teng'.split(',').forEach(function(p){if(!m[p[0]])m[p[0]]=p.substring(1)});
+return m})();
+
+function toWG(name){
+  if(!name)return '';
+  var chars=name.split(''),parts=[];
+  for(var i=0;i<chars.length;i++){if(WG_MAP[chars[i]])parts.push(WG_MAP[chars[i]])}
+  if(parts.length>=2)return parts[0]+' '+parts.slice(1).join('');
+  if(parts.length===1)return parts[0];
+  return '';
+}
+// 自動轉換兩人的姓名
+['a_name','b_name'].forEach(function(id){
+  var el=document.getElementById(id);if(!el)return;
+  var composing=false;
+  el.addEventListener('compositionstart',function(){composing=true});
+  el.addEventListener('compositionend',function(){composing=false});
+  el.addEventListener('input',function(){if(!composing){}});
+});
 
 function runMatch(){
   var btn=document.getElementById('matchBtn');
