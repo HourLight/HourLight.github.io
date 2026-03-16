@@ -29,7 +29,7 @@
   font-family:'Noto Serif TC','Cormorant Garamond',serif;
 }
 #hl-top-nav a{text-decoration:none;transition:all .25s cubic-bezier(.4,0,.2,1)}
-.htn-logo{display:flex;align-items:center;gap:8px;color:#f0d48a;font-size:.92rem;letter-spacing:.12em;font-weight:500}
+.htn-logo{display:flex;align-items:center;gap:8px;color:#f0d48a;font-size:.92rem;letter-spacing:.12em;font-weight:500;white-space:nowrap;flex-shrink:0}
 .htn-logo img{width:28px;height:28px;border-radius:50%;object-fit:cover}
 .htn-links{display:flex;align-items:center;gap:6px}
 .htn-link{color:rgba(244,240,235,.65);font-size:.72rem;letter-spacing:.06em;padding:6px 10px;border-radius:16px;border:1px solid transparent;white-space:nowrap}
@@ -88,7 +88,7 @@
   var logo = document.createElement('a');
   logo.className = 'htn-logo';
   logo.href = 'index.html';
-  logo.innerHTML = '<img src="LOGO-1.png" alt="" loading="lazy">馥靈之鑰';
+  logo.innerHTML = '<img src="LOGO-1.png" alt="" loading="lazy"><span class="htn-logo-text">馥靈之鑰</span>';
   nav.appendChild(logo);
 
   // Desktop links
