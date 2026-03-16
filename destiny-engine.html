@@ -3264,6 +3264,7 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
   if(nameZh&&nameZh.length>=2){
     var surname=nameZh.charAt(0),given=nameZh.substring(1);
     var ng=calcNameGrid(surname,given);
+    window._nameForAi={name:nameZh,surname:surname,given:given,sancai:ng.sancai,tian:ng.tian,ren:ng.ren,di:ng.di,wai:ng.wai,zong:ng.zong};
 
     // 字形展示
     hF+='<div class="item" style="text-align:center;margin:16px 0">';
@@ -3372,6 +3373,17 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
     aiF+='而你每天聽見自己的名字被叫，就是在不斷接收這個願望的振動。\n';
     aiF+='讀懂它，不是要改名，是讓你知道：這個聲音一直在替你做什麼。\n';
     hF+='<div class="ai-box"><h4>📜 AI深度解讀指令</h4><pre id="aiF">'+aiF+'</pre><button class="cp" onclick="copyText(\'aiF\')">📋 複製AI指令</button></div>';
+    // AI 字形字義分析按鈕
+    hF+='<div style="margin:20px 0;text-align:center">';
+    hF+='<button id="nameAiBtn" onclick="runNameAnalysis()" style="padding:12px 28px;border:1px solid rgba(176,140,224,.25);border-radius:28px;background:linear-gradient(135deg,rgba(176,140,224,.08),rgba(107,184,176,.05));color:var(--plum);font-family:var(--body);font-size:.85rem;letter-spacing:.1em;cursor:pointer;transition:all .3s">🔮 AI 字形字義深度分析</button>';
+    hF+='<div style="font-size:.72rem;color:var(--inkm);margin-top:8px">即時呼叫 AI 分析每個字的字形結構、部首五行、字義能量、五行補足建議</div>';
+    hF+='</div>';
+    hF+='<div id="nameAiResult" style="display:none;margin:16px 0;border:1px solid rgba(176,140,224,.15);border-radius:16px;padding:22px;background:linear-gradient(135deg,rgba(176,140,224,.03),rgba(107,184,176,.02));position:relative;overflow:hidden">';
+    hF+='<div style="position:absolute;top:-1px;left:15%;right:15%;height:1px;background:linear-gradient(to right,transparent,#B08CE0,#6BB8B0,transparent)"></div>';
+    hF+='<h4 style="font-family:var(--serif);font-size:.88rem;color:var(--plum);letter-spacing:.08em;margin-bottom:14px">🔮 字形字義分析結果</h4>';
+    hF+='<div id="nameAiContent" style="font-size:.88rem;color:var(--inks);line-height:2;white-space:pre-wrap;word-break:break-word"></div>';
+    hF+='<div style="margin-top:14px"><button class="cp" onclick="copyNameAi()">📋 複製分析結果</button></div>';
+    hF+='</div>';
   }else{
     hF+='<div class="item" style="color:var(--inkm);text-align:center;padding:20px">請在上方輸入中文姓名即可計算</div>';
   }
@@ -3543,6 +3555,55 @@ function addP(c,h){var d=document.createElement('div');d.className='panel';d.inn
     }
   },{passive:true});
 })();
+
+// ── AI 字形字義分析 ──
+function runNameAnalysis(){
+  var d=window._nameForAi;
+  if(!d||!d.name){alert('請先輸入姓名並按「十六大系統完整解析」');return}
+  var btn=document.getElementById('nameAiBtn');
+  var result=document.getElementById('nameAiResult');
+  var content=document.getElementById('nameAiContent');
+  if(!btn||!result||!content)return;
+  btn.disabled=true;btn.textContent='⏳ AI 分析中...';btn.style.opacity='.6';
+  content.textContent='正在分析「'+d.name+'」的字形字義，請稍候約 5-10 秒...';
+  result.style.display='block';
+  var bodyData={
+    name:d.name,
+    dayMaster:'',
+    fiveGrid:'天格'+d.tian.v+'('+d.tian.wx+') 人格'+d.ren.v+'('+d.ren.wx+') 地格'+d.di.v+'('+d.di.wx+') 外格'+d.wai.v+'('+d.wai.wx+') 總格'+d.zong.v+'('+d.zong.wx+')',
+    sancai:d.sancai
+  };
+  // 嘗試取八字日主
+  try{
+    var ecEl=document.querySelector('.panel .item b');
+    if(ecEl){
+      var allItems=document.querySelectorAll('.panel .item');
+      allItems.forEach(function(it){if(it.textContent.indexOf('日主')>=0||it.textContent.indexOf('四柱')>=0)bodyData.dayMaster=it.textContent.substring(0,20)});
+    }
+  }catch(e){}
+  fetch('https://app.hourlightkey.com/api/name-analysis',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(bodyData)
+  }).then(function(r){return r.json()}).then(function(data){
+    if(data.success&&data.analysis){
+      content.textContent=data.analysis;
+    }else{
+      content.textContent='❌ '+(data.error||'分析失敗，請稍後再試');
+    }
+    btn.disabled=false;btn.textContent='🔮 AI 字形字義深度分析';btn.style.opacity='1';
+  }).catch(function(e){
+    content.textContent='❌ 網路錯誤，請稍後再試';
+    btn.disabled=false;btn.textContent='🔮 AI 字形字義深度分析';btn.style.opacity='1';
+  });
+}
+function copyNameAi(){
+  var el=document.getElementById('nameAiContent');if(!el)return;
+  navigator.clipboard.writeText(el.textContent).then(function(){
+    var btns=el.parentNode.querySelectorAll('.cp');
+    if(btns.length){var b=btns[btns.length-1];b.textContent='✅ 已複製';setTimeout(function(){b.textContent='📋 複製分析結果'},1500)}
+  });
+}
 
 </script>
 
