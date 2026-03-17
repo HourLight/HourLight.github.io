@@ -1123,7 +1123,6 @@
   <section class="hl-v2-glass">
     <div class="hl-v2-toolbar">
       <button class="hl-v2-btn hl-v2-btn-secondary" id="copyBtn" disabled>📋 複製抽牌結果</button>
-      <button class="hl-v2-btn hl-v2-btn-secondary" id="copyAIBtn" disabled style="background:linear-gradient(135deg,rgba(233,194,125,0.15),rgba(92,58,99,0.1));border-color:rgba(233,194,125,0.7)">🤖 複製 AI 解讀提示詞</button>
       <button class="hl-v2-btn hl-v2-btn-secondary" id="shareBtn" disabled>🔗 產生連結</button>
       <button class="hl-v2-btn hl-v2-btn-secondary" id="clearBtn">🔄 清除重抽</button>
       <a class="hl-v2-btn hl-v2-btn-primary" href="https://lin.ee/p5tBihbe" target="_blank" rel="noopener">🌿 LINE 預約</a>
@@ -1250,7 +1249,6 @@ let selected = [];
 let userQuestion = '';
 const grid = document.getElementById('grid');
 const copyBtn = document.getElementById('copyBtn');
-const copyAIBtn = document.getElementById('copyAIBtn');
 const shareBtn = document.getElementById('shareBtn');
 const clearBtn = document.getElementById('clearBtn');
 const guideHint = document.getElementById('guideHint');
@@ -1293,7 +1291,6 @@ function drawCards(n) {
   selected = pool.slice(0, n);
   renderCards(n === 1);
   copyBtn.disabled = false;
-  copyAIBtn.disabled = false;
   shareBtn.disabled = false;
   updateURL(selected.map(i => allFiles[i].replace('.png', '')).join(','));
 }
@@ -1582,132 +1579,6 @@ copyBtn.addEventListener('click', () => {
 
   txt += `\n💫 想了解牌卡的深層訊息？\n預約馥靈覺察師為你完整解讀 👉 https://lin.ee/p5tBihbe`;
 
-  // AI 解讀提示詞（進階版）
-  let aiTxt = `你是「馥靈之鑰 Hour Light」的覺察師，請根據以下抽牌結果進行深度解讀。
-
-══════ 你的身份與語氣設定 ══════
-
-【品牌】馥靈之鑰 Hour Light（hourlightkey.com）
-【系統】130 張智慧牌卡系統（22 張核心原型卡 A00-A21 + 108 張精油能量卡 001-108）
-【核心哲學】座標哲學。牌卡讓你看清「你現在站在哪個座標」，算的是方向，幫你做出更對的判斷。
-【方法論】H.O.U.R.（H 身心校準 → O 智慧辨識 → U 潛能解鎖 → R 行動進化）
-
-【語氣要求】
-► 像一個很懂你的閨蜜在跟你說真話，溫暖但不軟弱
-► 帶有香氣意象（精油、花草、自然元素的比喻）
-► 不使用「梳理」「治療」「內在」「節奏」等詞彙，不使用雙破折號
-► 用「校準」代替「梳理」，用「座標」代替「命運」
-► 結尾必須是賦能語言：鑰匙是我給的，門是你自己開的
-
-══════ 抽牌資料 ══════
-
-抽牌張數：${n} 張\n`;
-
-  if (userQuestion && userQuestion.trim()) {
-    aiTxt += `問事者的問題：${userQuestion}\n`;
-  }
-  aiTxt += '\n';
-
-  if (layouts[n]) {
-    layouts[n].forEach((label, i) => {
-      if (i < selected.length) {
-        const code = allFiles[selected[i]].replace('.png','');
-        const info = window.cardData ? window.cardData[code] : {};
-        aiTxt += `▸ ${label}：${code} ${info.title || ''}\n`;
-      }
-    });
-  } else {
-    selected.forEach((idx, i) => {
-      const code = allFiles[idx].replace('.png','');
-      const info = window.cardData ? window.cardData[code] : {};
-      aiTxt += `${i+1}. ${code}${info.title ? ' ' + info.title : ''}\n`;
-    });
-  }
-
-  aiTxt += `
-══════ 牌陣位置解讀架構 ══════
-`;
-
-  if(n===1) aiTxt += `這是「今日一語」單張抽牌。請解讀這張牌作為今天的核心訊息，包含：正面能量、需要注意的盲點、一個具體的行動建議。\n`;
-  else if(n===3) aiTxt += `三張牌陣「水面三層」：
-① 浮出水面：你意識到的表層狀態
-② 水面之下：你沒察覺但正在影響你的潛流
-③ 那把鑰匙：展開這個局面的關鍵行動
-請先逐張解讀，再做三張的交叉分析，找出「①和②之間的矛盾」以及「③如何化解它」。\n`;
-  else if(n===5) aiTxt += `五張牌陣「鏡像深潛」：
-① 鏡中倒影：你目前呈現給外界的樣子
-② 根源密碼：造成這個狀態的根本原因
-③ 視線死角：你刻意迴避或沒看見的面向
-④ 隱藏王牌：你手上其實握有但還沒使用的資源
-⑤ 下一步棋：最適合你的下一步行動
-請先逐張解讀，再以②（根源）為核心串聯所有牌的因果關係。\n`;
-  else if(n===7) aiTxt += `七張牌陣「全景掃描」：
-① 全景掃描：整體局勢的鳥瞰圖
-② 表層故事：你以為的情況
-③ 暗流湧動：檯面下正在發生的事
-④ 視線之外：你沒注意到的人、事、或能量
-⑤ 手中王牌：你最大的優勢或資源
-⑥ 啟動指令：觸發改變的關鍵行動
-⑦ 深處密語：整個牌陣的核心訊息（潛意識最深處要告訴你的話）
-請先逐張解讀，再以⑦（深處密語）為最終結論做整體串聯，並給出 H.O.U.R. 四構面的行動建議。\n`;
-  else if(n===9) aiTxt += `九張牌陣「H.O.U.R.L.I.G.H.T. 全息解讀」：
-H｜身體在說什麼 → O｜關係照妖鏡 → U｜跟錢的真實關係 → R｜來這一趟的目的
-L｜最深處的根源 → I｜不敢面對的信念 → G｜重複上演的模式 → H*｜假裝沒看見的 → T｜這一切的禮物
-請先做 H→O→U→R 四構面解讀（外在生活層面），再做 L→I→G→H*→T 深層解讀（內在心理層面），最後以 T（禮物）收束整個解讀。\n`;
-  else if(n===12) aiTxt += `十二張牌陣「十二道門」（完整生命藍圖）：
-第1門｜你站在哪裡（現狀）→ 第2門｜什麼在召喚你（渴望）→ 第3門｜你在保護什麼（防禦機制）→ 第4門｜誰在撐著你（支持系統）→ 第5門｜不敢跨的那一步（恐懼）→ 第6門｜考驗在教你什麼（功課）→ 第7門｜關係映照出的你（鏡像）→ 第8門｜最深的那道坎（核心議題）→ 第9門｜獎賞在哪裡等你（潛在收穫）→ 第10門｜帶著什麼回來（成就）→ 第11門｜脫胎換骨的契機（轉化點）→ 第12門｜你拿到的寶物（禮物）
-請以「愚者之旅」的敘事弧線串聯十二張牌，第8門為轉折點，第12門為最終整合。\n`;
-  else if(n===15) aiTxt += `十五張牌陣「天賦覺醒」（五組三角）：
-A組（天賦三角）：A1 天生就會的事 → A2 天賦的證據 → A3 天賦的邊界
-B組（潛能三角）：B1 還沒啟動的潛能 → B2 潛能的養分 → B3 加速啟動的捷徑
-C組（根源三角）：C1 一切的起點 → C2 根源歸因 → C3 一直迴避的真相
-D組（卡點三角）：D1 卡住你的信念 → D2 不自覺的習慣 → D3 正在付出的代價
-E組（破局三角）：E1 破局策略 → E2 現在就能做的 → E3 需要的支援力量
-請先做五組各自的三角解讀，再做 A+B（能量面）vs C+D（阻力面）的對照分析，最後以 E 組給出具體的破局方案。\n`;
-  else if(n===21) aiTxt += `二十一張牌陣「H.O.U.R. × L.I.G.H.T. 全息掃描」（馥靈之鑰最高階牌陣）：
-四大構面（H身心/O關係/U財富/R天命）× 五層深度（L根源/I信念/G行為/H覺察/T禮物）= 20 張 + 第 21 張核心訊息
-請以矩陣方式解讀，先橫向（每個構面的五層深度），再縱向（同一深度在四個構面的共通主題），最後以第 21 張核心訊息統合全局。\n`;
-
-  aiTxt += `
-══════ 解讀要求 ══════
-1. 先逐張解讀每張牌的核心訊息（結合牌陣位置的意義）
-2. 再做整體串聯分析（牌與牌之間的交互影響，特別是相鄰牌的關係）
-3. 連牌交互分析：相鄰的牌訊息是疊加還是抵消？找出重複出現的元素或主題，那是整組牌的主旋律
-4. 以 H.O.U.R. 四構面給出具體行動建議
-5. 最後用一段帶有香氣意象的「馥靈馥語」收束（馥語 = 賦予/腹語/付與/復與/富予/富羽）
-6. 注意：A00-A21 為核心原型卡（類似塔羅大牌的核心課題），001-108 為精油能量卡（日常校準工具）
-
-══════ 參考書目與解讀邏輯 ══════
-
-請依據以下書籍的解讀邏輯進行交叉引用：
-
-▍連牌與交互作用
-· Josephine Ellershaw《塔羅組合解牌思路》
-  → A 牌遇到 B 牌時，訊息疊加還是抵消？用組合邏輯串聯整組牌
-· LUA《塔羅解牌研究所 4：跳脫單張思維》
-  → 兩張牌的組合情境對讀，具體且接地氣
-
-▍結構化深度解析
-· Benebell Wen《整體塔羅 Holistic Tarot》
-  → 占星、元素、數字、卡巴拉對應表，萬教歸宗的系統化解讀
-  → 元素強弱對比：全火象＝行動力爆表但缺思考，全水象＝情緒滿載需要出口
-· Rachel Pollack《78 度的智慧》
-  → 塔羅界聖經，深度心理學口吻，賦予解讀「餘韻」和「戳心感」
-
-▍實戰查閱
-· 丹尼爾《塔羅解牌字典》
-  → 台灣本土化，同一張牌在不同場景（工作/愛情/健康）的差異化解讀
-
-▍馥靈座標哲學
-牌卡照出的是「現在站在哪個座標」。算的是方向，幫你做出更好的判斷。
-鑰匙我遞給你，城堡自己開。
-
-🔗 馥靈之鑰官網：hourlightkey.com
-🔗 預約一對一覺察：hourlightkey.com/services.html`;
-
-  // 存到 window 供其他按鈕使用
-  window._lastCopyTxt = txt;
-  window._lastAITxt = aiTxt;
 
   navigator.clipboard.writeText(txt).then(() => showToast('已複製！可貼到 LINE 預約解讀'));
 });
@@ -1719,28 +1590,12 @@ shareBtn.addEventListener('click', () => {
   navigator.clipboard.writeText(url.toString()).then(() => showToast('連結已複製！'));
 });
 
-// ========== 複製 AI 解讀提示詞 ==========
-copyAIBtn.addEventListener('click', () => {
-  if(window._lastAITxt){
-    navigator.clipboard.writeText(window._lastAITxt).then(() => showToast('AI 解讀提示詞已複製！貼到任一 AI 即可深度解讀'));
-  } else {
-    // 先觸發一次 copyBtn 的邏輯來生成 _lastAITxt
-    copyBtn.click();
-    setTimeout(() => {
-      if(window._lastAITxt){
-        navigator.clipboard.writeText(window._lastAITxt).then(() => showToast('AI 解讀提示詞已複製！貼到任一 AI 即可深度解讀'));
-      }
-    }, 200);
-  }
-});
-
 // ========== 清除 ==========
 clearBtn.addEventListener('click', () => {
   selected = [];
   userQuestion = '';
   grid.innerHTML = '';
   copyBtn.disabled = true;
-  copyAIBtn.disabled = true;
   shareBtn.disabled = true;
   updateURL(null);
   guideHint.innerHTML = '💫 抽牌後會顯示卡圖與卡號<br><strong>1張免費</strong>顯示牌卡涵義，<strong>3張以上請複製結果預約解讀</strong>';
@@ -1777,8 +1632,7 @@ function restoreFromURL() {
     selected = idxs;
     renderCards(idxs.length <= 3);
     copyBtn.disabled = false;
-    copyAIBtn.disabled = false;
-    shareBtn.disabled = false;
+      shareBtn.disabled = false;
   }
 }
 
