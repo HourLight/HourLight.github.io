@@ -233,17 +233,17 @@ var STARS9 = ['','天蓬','天芮','天沖','天輔','天禽','天心','天柱',
 // 蓬1=坎 芮2=坤 沖3=震 輔4=巽 禽5=中 心6=乾 柱7=兌 任8=艮 英9=離
 var STAR_GONG = [0,7,2,3,0,4,8,5,6,1]; // star[i]的原始宮位(grid index)
 var STAR_WX = ['','水','土','木','木','土','金','金','土','火'];
-var STAR_JI = ['','凶','凶','吉','吉','中','吉','凶','吉','吉'];
+var STAR_JI = ['','挑戰','挑戰','吉','吉','中','吉','挑戰','吉','吉'];
 
 // ── 八門（按宮位序 1-9，5=死門歸坤2）──
 var DOORS8 = ['','休門','死門','傷門','杜門','','開門','驚門','生門','景門'];
 // 休1=坎 死2=坤 傷3=震 杜4=巽 中5無 開6=乾 驚7=兌 生8=艮 景9=離
 var DOOR_GONG = [0,7,2,3,0,4,8,5,6,1]; // 同星
-var DOOR_JI = ['','吉','凶','凶','中','','吉','凶','吉','中'];
+var DOOR_JI = ['','吉','挑戰','挑戰','中','','吉','挑戰','吉','中'];
 
 // ── 八神（陽遁順排，陰遁逆排）──
 var GODS8 = ['值符','騰蛇','太陰','六合','白虎','玄武','九地','九天'];
-var GOD_JI = ['吉','凶','吉','吉','凶','凶','吉','吉'];
+var GOD_JI = ['吉','挑戰','吉','吉','挑戰','挑戰','吉','吉'];
 
 // ── 飛宮順序（從某宮開始順時針環排8宮，跳過中5）──
 // 洛書順時針: 坎1→坤2→震3→巽4→(中5)→乾6→兌7→艮8→離9→坎1
@@ -576,12 +576,12 @@ function renderAll(r){
     var godIdx=r.godPan[i];
     var godName=godIdx!==undefined?GODS8[godIdx]:'';
 
-    // 格局吉凶標記
+    // 格局吉利順逆標記
     var tag='';
     if(starNum && STAR_JI[starNum]==='吉' && doorNum && DOOR_JI[doorNum]==='吉')
       tag='<span class="cell-tag tag-ji">吉</span>';
-    else if(starNum && STAR_JI[starNum]==='凶' && doorNum && DOOR_JI[doorNum]==='凶')
-      tag='<span class="cell-tag tag-xiong">凶</span>';
+    else if(starNum && STAR_JI[starNum]==='挑戰' && doorNum && DOOR_JI[doorNum]==='挑戰')
+      tag='<span class="cell-tag tag-xiong">挑戰</span>';
     if(godIdx===0) tag+='<span class="cell-tag tag-zhifu">值符</span>';
 
     html+='<div class="qm-cell'+(isCenter?' center':'')+'">'
@@ -622,7 +622,7 @@ function renderInterpretation(r){
     var dn=r.menPan[i]||0;
     if(sn && STAR_JI[sn]==='吉' && dn && DOOR_JI[dn]==='吉')
       jiGong.push(GONG_DIR[i].split('｜')[0]+'（'+STARS9[sn]+'+'+DOORS8[dn]+'）');
-    if(sn && STAR_JI[sn]==='凶' && dn && DOOR_JI[dn]==='凶')
+    if(sn && STAR_JI[sn]==='挑戰' && dn && DOOR_JI[dn]==='挑戰')
       xiongGong.push(GONG_DIR[i].split('｜')[0]);
   }
 
@@ -631,8 +631,8 @@ function renderInterpretation(r){
       +'<div class="ib-text">'+jiGong.join('、')+'<br>這些方位星門皆吉，是此刻最適合行動、開展、出發的方向。</div></div>';
   }
   if(xiongGong.length){
-    html+='<div class="interp-block" style="border-color:var(--fire)"><div class="ib-title" style="color:var(--fire)">⚠️ 凶方</div>'
-      +'<div class="ib-text">'+xiongGong.join('、')+'<br>此方位能量受阻，宜避開或延後。不是永遠凶，是此刻不宜。</div></div>';
+    html+='<div class="interp-block" style="border-color:var(--fire)"><div class="ib-title" style="color:var(--fire)">⚠️ 挑戰方位</div>'
+      +'<div class="ib-text">'+xiongGong.join('、')+'<br>此方位能量受阻，宜避開或延後。不是永遠挑戰，是此刻不宜。</div></div>';
   }
 
   document.getElementById('interpArea').innerHTML=html;
@@ -679,7 +679,7 @@ function copyAI(){
 
   txt+='\n═══ 請依以下框架深度解讀 ═══\n\n';
   txt+='壹、大局定性：此局是攻局、守局、還是等待局？值符值使的星門組合說明什麼？\n';
-  txt+='二、吉凶方位：哪些宮位星門皆吉？哪些有格局衝突？適合往哪個方向行動？\n';
+  txt+='二、方位吉利與挑戰：哪些宮位星門皆吉？哪些有格局衝突？適合往哪個方向行動？\n';
   txt+='三、奇儀格局：天地盤干的組合有無特殊格局（如乙奇得使、庚格、天遁、地遁等）？\n';
   txt+='四、九星能量：值符星的五行特質如何影響此刻的能量品質？\n';
   txt+='五、八門開合：哪扇門開著？這扇門對應什麼樣的行動策略？\n';
