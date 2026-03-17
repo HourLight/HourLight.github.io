@@ -1226,17 +1226,21 @@ function buildData(prefix){
 /* ══ 主計算入口 ══ */
 function runMatch(){
   var btn=document.getElementById('matchBtn');
-  btn.disabled=true;btn.textContent='⏳ 運算中...';
-  setTimeout(function(){
-    try{
-      var a=buildData('a'),b=buildData('b');
-      if(!a||!b){alert('請填寫雙方的出生日期');btn.disabled=false;btn.textContent='✦ 雙人合盤解析';return}
-      renderMatch(a,b);
-      document.getElementById('matchResult').style.display='block';
-      document.getElementById('matchResult').scrollIntoView({behavior:'smooth',block:'start'});
-    }catch(e){alert('計算錯誤：'+e.message);console.error(e)}
-    btn.disabled=false;btn.textContent='✦ 雙人合盤解析';
-  },80);
+  btn.disabled=true;btn.textContent='⏳ 載入星曆中...';
+  // 先載入星曆（占星/人類圖/七政四餘/凱龍/吠陀都需要）
+  loadEphemeris().catch(function(){}).finally(function(){
+    btn.textContent='⏳ 運算中...';
+    setTimeout(function(){
+      try{
+        var a=buildData('a'),b=buildData('b');
+        if(!a||!b){alert('請填寫雙方的出生日期');btn.disabled=false;btn.textContent='✦ 雙人合盤解析';return}
+        renderMatch(a,b);
+        document.getElementById('matchResult').style.display='block';
+        document.getElementById('matchResult').scrollIntoView({behavior:'smooth',block:'start'});
+      }catch(e){alert('計算錯誤：'+e.message);console.error(e)}
+      btn.disabled=false;btn.textContent='✦ 雙人合盤解析';
+    },80);
+  });
 }
 
 /* ══ 輔助：複製（含 fallback）══ */
@@ -2350,7 +2354,27 @@ function renderMatch(a,b){
   function xiu_ai(d,pn){
     if(!d.xiuyao) return '';
     var x=d.xiuyao;
-    return '【'+pn+' 宿曜占星】\n本命宿：'+x.name+'宿 | 宮位：'+x.palace+' | 守護：'+x.guard+'\n特質：'+x.trait+'\n天賦：'+x.lucky+'\n';
+    var QIYAO={'角':'木','亢':'金','氐':'土','房':'日','心':'月','尾':'火','箕':'水','斗':'木','牛':'金','女':'土','虛':'日','危':'月','室':'火','壁':'水','奎':'木','婁':'金','胃':'土','昴':'日','畢':'月','觜':'火','參':'水','井':'木','鬼':'金','柳':'土','星':'日','張':'月','翼':'火','軫':'水'};
+    var q=QIYAO[x.name]||'';
+    var t='【'+pn+'·宿曜占星（二十八星宿）】\n';
+    t+='本命宿：'+x.name+'宿\n宮位：'+x.palace+'\n七曜所屬：'+q+'\n守護獸：'+x.guard+'\n';
+    t+='核心特質：'+x.trait+'\n天賦關鍵字：'+x.lucky+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、'+x.name+'宿的人格深析\n';
+    t+='・核心性格特徵在工作/感情/社交中的具體展現\n';
+    t+='・七曜'+q+'的能量如何影響日常行為模式\n';
+    t+='・'+x.palace+'四象宮位的能量高峰期（季節/時辰/方位）\n\n';
+    t+='貳、天賦與課題\n';
+    t+='・天賦「'+x.lucky+'」在現代職場中最適合的角色\n';
+    t+='・守護獸「'+x.guard+'」的象徵意義與行為傾向\n\n';
+    t+='叁、宿曜相性十二型速查\n';
+    t+='・哪些宿是命宿（天生緣分）？\n';
+    t+='・哪些宿是壞宿/危宿（需要用心經營）？\n\n';
+    t+='【參考書目】\n';
+    t+='▍不空三藏（唐代）《宿曜經》｜宿曜占星原典\n';
+    t+='▍皆藤茂夫《宿曜占星術》｜現代日本宿曜系統\n';
+    t+='▍關口真大《宿曜占星：二十八宿の秘密》\n';
+    return t;
   }
 
   // ═══ ⑱ 梅花易數 ═══
@@ -2373,7 +2397,31 @@ function renderMatch(a,b){
   function mei_ai(d,pn){
     if(!d.meihua) return '';
     var m=d.meihua;
-    return '【'+pn+' 梅花易數終身卦】\n第'+m.hexNum+'卦 '+m.hexName+'\n上卦：'+m.upperName+'（'+m.upperTrait+'） 下卦：'+m.lowerName+'（'+m.lowerTrait+'）\n動爻：第'+m.move+'爻\n體用：'+(m.move<=3?'體='+m.upperName+' 用='+m.lowerName:'體='+m.lowerName+' 用='+m.upperName)+'\n';
+    var TRI_SYM={1:'☰',2:'☱',3:'☲',4:'☳',5:'☴',6:'☵',7:'☶',8:'☷'};
+    var t='【'+pn+'·梅花易數終身卦】\n';
+    t+='終身卦：第'+m.hexNum+'卦 '+m.hexName+' '+(TRI_SYM[m.upper]||'')+(TRI_SYM[m.lower]||'')+'\n';
+    t+='上卦（外）：'+m.upperName+'（'+m.upperNature+'·'+m.upperTrait+'）\n';
+    t+='下卦（內）：'+m.lowerName+'（'+m.lowerNature+'·'+m.lowerTrait+'）\n';
+    t+='動爻：第'+m.move+'爻\n';
+    t+='體用：'+(m.move<=3?'體=上卦'+m.upperName+'（核心）用=下卦'+m.lowerName+'（行動）':'體=下卦'+m.lowerName+'（核心）用=上卦'+m.upperName+'（行動）')+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、卦象深析\n';
+    t+='・'+m.hexName+'卦的原始卦辭與彖傳意涵\n';
+    t+='・外卦'+m.upperName+'（處世方式）與內卦'+m.lowerName+'（內在性格）的辯證張力\n';
+    t+='・此人天生的內外矛盾在日常生活中如何展現？\n\n';
+    t+='貳、體用關係\n';
+    t+='・體卦是核心價值（不變），用卦是與世界互動的工具（變化）\n';
+    t+='・體用五行相生=天然順暢；相剋=需要學習調和\n\n';
+    t+='叁、動爻深析：第'+m.move+'爻\n';
+    t+='・動爻位置的意義（初爻=地基/二爻=覺醒/三爻=跨界/四爻=環境/五爻=領導/上爻=完成）\n';
+    t+='・動爻變化後的變卦方向暗示什麼人生轉化？\n\n';
+    t+='肆、互卦（過程卦）\n';
+    t+='・從現狀到結果之間最常經歷的內在掙扎模式\n\n';
+    t+='【參考書目】\n';
+    t+='▍邵雍《梅花易數》（宋代）｜終身卦起卦原典\n';
+    t+='▍黃鑑《梅花易數：預測案例詳解》\n';
+    t+='▍周易本義·序卦傳｜六十四卦序列邏輯\n';
+    return t;
   }
 
   // ═══ ⑲ 基因天命 ═══
@@ -2394,7 +2442,29 @@ function renderMatch(a,b){
     var bgate=hdGates.length>0?hdGates[0]:((d.M*30+d.D)%64+1);
     var gk=GK_DATA[bgate];
     if(!gk) return '';
-    return '【'+pn+' 基因天命】\n生命閘門：GK'+bgate+' 陰影「'+gk.s+'」→ 天賦「'+gk.g+'」→ 悉地「'+gk.d+'」\n已定義閘門：'+(hdGates.length?hdGates.join(','):'未知')+'\n';
+    var earthGate=(bgate+32-1)%64+1;
+    var eGK=GK_DATA[earthGate]||{s:'',g:'',d:''};
+    var t='【'+pn+'·基因天命 Gene Keys】\n';
+    t+='生命功課（太陽）：GK'+bgate+' 陰影「'+gk.s+'」→ 天賦「'+gk.g+'」→ 悉地「'+gk.d+'」\n';
+    t+='進化方向（地球）：GK'+earthGate+' 天賦「'+eGK.g+'」\n';
+    t+='已定義閘門：'+(hdGates.length?hdGates.join(', '):'未知')+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、生命閘門三層旅程\n';
+    t+='・陰影「'+gk.s+'」在日常生活中的具體表現場景\n';
+    t+='・天賦「'+gk.g+'」甦醒的觸發條件\n';
+    t+='・悉地「'+gk.d+'」的生命最高可能性\n\n';
+    t+='貳、Hologenetic Profile\n';
+    t+='・Life\'s Work（GK'+bgate+'）：這輩子來做的事\n';
+    t+='・Evolution（GK'+earthGate+'）：成長扎根的方向\n\n';
+    t+='叁、與 H.O.U.R. 整合\n';
+    t+='・H：哪個閘門的陰影需要先覺察？\n';
+    t+='・O：哪個天賦已經在運用但還沒完全承認？\n';
+    t+='・U：哪個悉地是此生的潛能方向？\n';
+    t+='・R：整合後的行動使命是什麼？\n\n';
+    t+='【參考書目】\n';
+    t+='▍Richard Rudd《Gene Keys》｜64條路徑的陰影/天賦/悉地完整系統\n';
+    t+='▍Ane Vium《The Gene Keys Path》｜基因天命冥想引導\n';
+    return t;
   }
 
   // ═══ ⑳ 彩虹數字 ═══
@@ -2416,7 +2486,30 @@ function renderMatch(a,b){
   function rb_ai(d,pn){
     if(!d.rainbow) return '';
     var rb=d.rainbow;
-    return '【'+pn+' 彩虹數字九宮格】\n分佈：'+Object.keys(rb.counts).map(function(k){return k+'×'+rb.counts[k]}).join(' ')+'\n缺少：'+(rb.missing.length?rb.missing.join('、'):'無')+'\n箭頭：'+(rb.activeArrows.length?rb.activeArrows.map(function(a){return a.name}).join('、'):'無')+'\n';
+    var ARROWS_ALL=[{n:[1,2,3],nm:'心靈箭'},{n:[4,5,6],nm:'意志箭'},{n:[7,8,9],nm:'智識箭'},{n:[1,4,7],nm:'行動箭'},{n:[2,5,8],nm:'決心箭'},{n:[3,6,9],nm:'智慧箭'},{n:[1,5,9],nm:'決斷箭'},{n:[3,5,7],nm:'靈性箭'}];
+    var miss=[];ARROWS_ALL.forEach(function(a){if(!a.n.every(function(x){return rb.counts[x]>0}))miss.push(a.nm)});
+    var overload=[];for(var i=1;i<=9;i++){if(rb.counts[i]>=2)overload.push(i+'×'+rb.counts[i])}
+    var t='【'+pn+'·彩虹數字九宮格】\n';
+    t+='數字分佈：'+Object.keys(rb.counts).map(function(k){return k+'×'+rb.counts[k]}).join(' ')+'\n';
+    t+='缺少數字：'+(rb.missing.length?rb.missing.join('、'):'無')+'\n';
+    t+='天賦箭頭：'+(rb.activeArrows.length?rb.activeArrows.map(function(a){return a.name}).join('、'):'無')+'\n';
+    t+='缺失箭頭：'+(miss.length<8?miss.join('、'):'幾乎全缺')+'\n';
+    if(overload.length) t+='能量超載區：'+overload.join('、')+'\n';
+    t+='\n【請依以下框架解讀】\n';
+    t+='壹、數字頻率分層\n';
+    t+='・出現1次=穩定基礎；2次=天賦熱區；3次+=超載（從天賦變壓力）\n';
+    t+='・每個重複數字在日常生活中的具體展現\n\n';
+    t+='貳、缺失數字的成長課題\n';
+    t+='・每個缺失數字代表的人生課題，以及可在日常練習的具體建議\n\n';
+    t+='叁、箭頭的天賦與課題\n';
+    t+='・有的箭頭：核心優勢如何在事業和關係中運用\n';
+    t+='・缺的箭頭：需要鍛煉的能力和具體練習方法\n\n';
+    t+='肆、九宮格三條橫線\n';
+    t+='・頂行（3-6-9）思維線；中行（2-5-8）情感線；底行（1-4-7）行動線\n\n';
+    t+='【參考書目】\n';
+    t+='▍David A. Phillips《彩虹數字學》｜畢達哥拉斯九宮格原始系統\n';
+    t+='▍紫衣格格《讓人生更順利的生命靈數》｜九宮格連線台灣實務應用\n';
+    return t;
   }
 
   // ═══ ㉑ 撲克牌 ═══
@@ -2434,7 +2527,26 @@ function renderMatch(a,b){
   function poker_ai(d,pn){
     if(!d.cardology) return '';
     var cd=d.cardology;
-    return '【'+pn+' 撲克牌命理】\n本命牌：'+cd.display+' 花色：'+cd.suitName+' 元素：'+cd.suitElement+'\n';
+    var t='【'+pn+'·撲克牌命理 Cardology】\n';
+    t+='本命牌：'+cd.display+'\n花色：'+cd.suitName+'\n元素：'+cd.suitElement+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、本命牌原型意義\n';
+    t+='・這張牌在52張牌系統中的位置和角色\n';
+    t+='・花色元素（♥火情感/♣土行動/♦氣思維/♠水轉化）的生命主題\n';
+    t+='・數值的週期意義（A起點→K完成的13階段）\n\n';
+    t+='貳、行星排列牌框架（生命七階段）\n';
+    t+='・☿水星牌（0-12歲）→ ♀金星牌（13-25歲）→ ♂火星牌（26-38歲）\n';
+    t+='・♃木星牌（39-51歲）→ ♄土星牌（52-64歲）→ ♅天王牌（65-77歲）→ ♆海王牌（78+歲）\n\n';
+    t+='叁、業力牌與守護牌\n';
+    t+='・業力牌代表前世未完成的功課\n';
+    t+='・守護牌代表困難時刻的保護能量\n\n';
+    t+='肆、精油對應建議\n';
+    t+='・♥紅心→玫瑰/橙花　♣梅花→迷迭香/薄荷　♦方塊→乳香/廣藿香　♠黑桃→雪松/沒藥\n\n';
+    t+='【參考書目】\n';
+    t+='▍Robert Camp《The Cards of Your Destiny》｜生命牌聖經\n';
+    t+='▍Sharon Jeffers《Love Cards》｜關係Cardology\n';
+    t+='▍Olney Richmond《The Mystic Test Book》（1893）｜原始系統\n';
+    return t;
   }
 
   // ═══ ㉒ 居爾特樹曆 ═══
@@ -2454,7 +2566,31 @@ function renderMatch(a,b){
   function tree_ai(d,pn){
     if(!d.celtic) return '';
     var ct=d.celtic;
-    return '【'+pn+' 居爾特樹曆】\n對應樹：'+ct.name+'（'+ct.celtic+'）\n精油：'+ct.oil+'\n天賦：'+ct.gift+'\n課題：'+ct.challenge+'\n';
+    var OGHAM={'Birch':'ᚁ Beith','Rowan':'ᚂ Luis','Ash':'ᚃ Nion','Alder':'ᚄ Fearn','Willow':'ᚅ Saille','Hawthorn':'ᚆ Huath','Oak':'ᚇ Duir','Holly':'ᚈ Tinne','Hazel':'ᚉ Coll','Vine':'ᚊ Muin','Ivy':'ᚋ Gort','Reed':'ᚌ Ngetal','Elder':'ᚍ Ruis'};
+    var DEITY={'Birch':'Brigid 布莉乾德','Rowan':'Brigantia 布莉安','Ash':'Gwydion 乘風者','Alder':'Bran 布蘭','Willow':'Cerridwen 刻瑞杜溫','Hawthorn':'Olwen 歐文','Oak':'Dagda 達格達','Holly':'Lugh 盧格','Hazel':'Manannan 麥南','Vine':'Diana 黛安娜','Ivy':'Arianrhod 阿莉安蘿德','Reed':'Pwyll 普維爾','Elder':'Cailleach 卡里芯'};
+    var t='【'+pn+'·居爾特樹曆 Celtic Tree Astrology】\n';
+    t+='對應樹：'+ct.name+'（'+ct.celtic+'）\n';
+    t+='歐甘符文：'+(OGHAM[ct.celtic]||'')+'\n';
+    t+='守護神：'+(DEITY[ct.celtic]||'')+'\n';
+    t+='精油：'+ct.oil+'\n';
+    t+='天賦：'+ct.gift+'\n課題：'+ct.challenge+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、'+ct.name+'的自然智慧\n';
+    t+='・這種樹在自然界中的生長特性如何映射到人格\n';
+    t+='・德魯伊文化中的神聖象徵\n';
+    t+='・歐甘符文的刻寫傳統\n\n';
+    t+='貳、守護神的原型能量\n';
+    t+='・祂代表的原型如何展現在日常生活中\n\n';
+    t+='叁、精油與樹木的深度連結\n';
+    t+='・'+ct.oil+'精油的使用場景與情緒功能\n';
+    t+='・白天/夜晚/壓力時的三時精油建議\n\n';
+    t+='肆、課題與行動\n';
+    t+='・「'+ct.challenge+'」這個課題在現階段的具體展現\n\n';
+    t+='【參考書目】\n';
+    t+='▍Liz & Colin Murray《The Celtic Tree Oracle》｜居爾特樹曆原始系統\n';
+    t+='▍John Michael Greer《The Celtic Golden Dawn》｜德魯伊傳統與歐甘符文\n';
+    t+='▍Robert Graves《The White Goddess》｜樹曆的神話學根源\n';
+    return t;
   }
 
   // ═══ ㉓ 鐵板神數 ═══
@@ -2473,7 +2609,34 @@ function renderMatch(a,b){
   function tb_ai(d,pn){
     if(!d.tieban) return '';
     var tb=d.tieban;
-    return '【'+pn+' 鐵板神數】\n四柱：'+tb.yearStem+tb.yearBranch+' '+tb.monthStem+tb.monthBranch+' '+tb.dayStem+tb.dayBranch+' '+tb.hourStem+tb.hourBranch+'\n納音：'+tb.yearNY+'/'+tb.monthNY+'/'+tb.dayNY+'/'+tb.hourNY+'\n日主：'+tb.dayStem+'（'+tb.dayEl+' '+tb.dayYY+'）\n十神：年'+tb.yearSS+' 月'+tb.monthSS+' 時'+tb.hourSS+'\n格局：'+tb.type.title+'\n神煞：'+tb.shensha.map(function(s){return s.name}).join('、')+'\n';
+    var t='【'+pn+'·鐵板神數】\n';
+    t+='四柱：'+tb.yearStem+tb.yearBranch+' '+tb.monthStem+tb.monthBranch+' '+tb.dayStem+tb.dayBranch+' '+tb.hourStem+tb.hourBranch+'\n';
+    t+='納音：'+tb.yearNY+' / '+tb.monthNY+' / '+tb.dayNY+' / '+tb.hourNY+'\n';
+    t+='日主：'+tb.dayStem+'（'+tb.dayEl+' '+tb.dayYY+'）\n';
+    t+='十神：年'+tb.yearSS+' 月'+tb.monthSS+' 時'+tb.hourSS+'\n';
+    t+='格局：'+tb.type.title+'\n';
+    t+='神煞：'+tb.shensha.map(function(s){return s.name}).join('、')+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、逐柱分析\n';
+    t+='・年柱（祖業）'+tb.yearStem+tb.yearBranch+'，納音'+tb.yearNY+'\n';
+    t+='・月柱（事業）'+tb.monthStem+tb.monthBranch+'，納音'+tb.monthNY+'，十神'+tb.monthSS+'\n';
+    t+='・日柱（自我/婚姻）'+tb.dayStem+tb.dayBranch+'，納音'+tb.dayNY+'\n';
+    t+='・時柱（子女/晚年）'+tb.hourStem+tb.hourBranch+'，納音'+tb.hourNY+'，十神'+tb.hourSS+'\n\n';
+    t+='貳、格局深析：'+tb.type.title+'\n';
+    t+='・事業面/感情面/財富面的具體展現\n\n';
+    t+='叁、神煞實戰\n';
+    tb.shensha.forEach(function(s){ t+='・'+s.name+'：在現代生活中的具體影響\n'; });
+    t+='\n肆、納音五行交叉\n';
+    t+='・四柱納音之間的生剋關係如何影響人生節奏\n\n';
+    t+='伍、十神心理學\n';
+    t+='・年柱'+tb.yearSS+'（與家族的心理動態）\n';
+    t+='・月柱'+tb.monthSS+'（事業驅動力來源）\n';
+    t+='・時柱'+tb.hourSS+'（晚年心理傾向）\n\n';
+    t+='【參考書目】\n';
+    t+='▍邵雍（北宋）｜鐵板神數原始系統\n';
+    t+='▍梁湘潤《子平基礎概要》｜四柱十神基礎框架\n';
+    t+='▍何建忠《八字心理學》｜十神對應心理原型\n';
+    return t;
   }
 
   // ═══ ⑰ 宿曜合盤 ═══
@@ -2505,7 +2668,18 @@ function renderMatch(a,b){
   // ═══ ⑲ 基因天命合盤 ═══
   var gkA=gk_ai(a,nameA),gkB=gk_ai(b,nameB);
   var gkC='【基因天命合盤·'+nameA+'×'+nameB+'】\n'+gkA+gkB;
-  gkC+='\n【合盤分析】\n兩人的生命閘門（陰影/天賦/悉地）是否形成互補或共振？\n甲的陰影是否是乙的天賦（反之亦然）？這代表什麼樣的成長動態？\n';
+  gkC+='\n【基因天命合盤深度解讀指令】\n\n';
+  gkC+='壹、陰影/天賦互補分析\n';
+  gkC+='・甲的陰影是否恰好是乙的天賦？這代表乙能幫甲轉化什麼？\n';
+  gkC+='・反之亦然——甲能幫乙轉化什麼？\n';
+  gkC+='・兩人的陰影是否相同？共同的陰影代表這段關係容易觸發什麼模式？\n\n';
+  gkC+='貳、Codon Ring 共振\n';
+  gkC+='・兩人的生命閘門是否在同一個密碼子環？\n';
+  gkC+='・同環=DNA層面的深度共振，這段關係有靈魂契約的品質\n\n';
+  gkC+='叁、成長動態\n';
+  gkC+='・這段關係最可能觸發雙方從陰影走向天賦的路徑是什麼？\n';
+  gkC+='・關係中最需要覺察的「共同陰影陷阱」\n\n';
+  gkC+='【參考書目】\n▍Richard Rudd《Gene Keys》｜合盤閘門的靈魂層次解讀\n';
   var hG3=mkDual(nameA,gk_html(a),nameB,gk_html(b));
   hG3+=mkPre('gk_a',gkA);hG3+=mkPre('gk_b',gkB);
   hG3+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="gk_c">'+escHtml(gkC)+'</pre></div>';
@@ -2517,7 +2691,22 @@ function renderMatch(a,b){
   // ═══ ⑳ 彩虹數字合盤 ═══
   var rbA=rb_ai(a,nameA),rbB=rb_ai(b,nameB);
   var rbC='【彩虹數字合盤·'+nameA+'×'+nameB+'】\n'+rbA+rbB;
-  rbC+='\n【合盤分析】\n甲缺少的數字，乙是否擁有（互補）？\n兩人的箭頭是否形成交叉互補？共同缺失的數字代表這段關係的共同課題。\n';
+  rbC+='\n【彩虹數字合盤深度解讀指令】\n\n';
+  rbC+='壹、數字互補分析\n';
+  rbC+='・甲缺少的數字，乙是否擁有？這代表乙能補足甲什麼能力？\n';
+  rbC+='・反之亦然\n';
+  rbC+='・共同缺失的數字=這段關係的共同盲區和課題\n\n';
+  rbC+='貳、箭頭交叉配對\n';
+  rbC+='・甲有的箭頭 vs 乙有的箭頭：是否形成互補的能力矩陣？\n';
+  rbC+='・共同擁有的箭頭=兩人的核心共振領域\n';
+  rbC+='・共同缺失的箭頭=需要一起鍛煉的方向\n\n';
+  rbC+='叁、超載數字交叉\n';
+  rbC+='・兩人是否有相同的超載數字？如果有，這個能量在關係中會被放大到什麼程度？\n\n';
+  rbC+='肆、三條橫線比較\n';
+  rbC+='・思維線（3-6-9）：兩人的思考方式相容嗎？\n';
+  rbC+='・情感線（2-5-8）：兩人的感受方式同步嗎？\n';
+  rbC+='・行動線（1-4-7）：兩人的做事節奏合拍嗎？\n\n';
+  rbC+='【參考書目】\n▍David A. Phillips《彩虹數字學》\n▍紫衣格格《讓人生更順利的生命靈數》\n';
   var hG4=mkDual(nameA,rb_html(a),nameB,rb_html(b));
   hG4+=mkPre('rb_a',rbA);hG4+=mkPre('rb_b',rbB);
   hG4+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="rb_c">'+escHtml(rbC)+'</pre></div>';
@@ -2529,7 +2718,18 @@ function renderMatch(a,b){
   // ═══ ㉑ 撲克牌合盤 ═══
   var pkA=poker_ai(a,nameA),pkB=poker_ai(b,nameB);
   var pkC='【撲克牌合盤·'+nameA+'×'+nameB+'】\n'+pkA+pkB;
-  pkC+='\n【合盤分析】\n兩人花色的元素互動（火/土/氣/水）？\n本命牌數值差距代表的關係動態？是否互為業力牌或守護牌？\n';
+  pkC+='\n【撲克牌合盤深度解讀指令】\n\n';
+  pkC+='壹、花色元素互動\n';
+  pkC+='・甲花色（'+((a.cardology&&a.cardology.suitName)||'?')+'）× 乙花色（'+((b.cardology&&b.cardology.suitName)||'?')+'）\n';
+  pkC+='・同花色=同頻共振但可能放大缺點；不同花色=互補但溝通方式不同\n';
+  pkC+='・♥×♠=情感與轉化的深度碰撞；♣×♦=行動與思維的實用組合\n\n';
+  pkC+='貳、數值配對動態\n';
+  pkC+='・A=起始能量；K=完成能量。數值差距代表能量落差還是互補？\n';
+  pkC+='・相同數值=同步但缺變化；差距大=刺激但需要調適\n\n';
+  pkC+='叁、業力牌與守護牌交叉\n';
+  pkC+='・甲是否是乙的業力牌（前世連結）？\n';
+  pkC+='・是否互為守護牌（天然保護能量）？\n\n';
+  pkC+='【參考書目】\n▍Robert Camp《The Cards of Your Destiny》\n▍Sharon Jeffers《Love Cards》\n';
   var hG5=mkDual(nameA,poker_html(a),nameB,poker_html(b));
   hG5+=mkPre('pk_a',pkA);hG5+=mkPre('pk_b',pkB);
   hG5+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="pk_c">'+escHtml(pkC)+'</pre></div>';
@@ -2541,7 +2741,20 @@ function renderMatch(a,b){
   // ═══ ㉒ 居爾特樹曆合盤 ═══
   var trA=tree_ai(a,nameA),trB=tree_ai(b,nameB);
   var trC='【居爾特樹曆合盤·'+nameA+'×'+nameB+'】\n'+trA+trB;
-  trC+='\n【合盤分析】\n兩棵樹在自然界中的共生關係？精油組合是否形成和諧的香氣調性？\n守護神的神話故事中是否有交集？\n';
+  trC+='\n【居爾特樹曆合盤深度解讀指令】\n\n';
+  trC+='壹、兩棵樹的自然生態\n';
+  trC+='・甲'+((a.celtic&&a.celtic.name)||'?')+' × 乙'+((b.celtic&&b.celtic.name)||'?')+'在自然界中是否共生？\n';
+  trC+='・森林生態中的位階關係：誰是主幹，誰是攀附，還是並肩？\n\n';
+  trC+='貳、精油調香配對\n';
+  trC+='・甲精油'+((a.celtic&&a.celtic.oil)||'?')+' × 乙精油'+((b.celtic&&b.celtic.oil)||'?')+'調在一起的香氣調性\n';
+  trC+='・前調/中調/後調的搭配建議（共同空間擴香用）\n\n';
+  trC+='叁、守護神的神話交叉\n';
+  trC+='・兩位守護神在凱爾特神話中是否有故事交集？\n';
+  trC+='・祂們代表的原型能量在這段關係中如何展現？\n\n';
+  trC+='肆、課題互補\n';
+  trC+='・甲的課題「'+((a.celtic&&a.celtic.challenge)||'?')+'」和乙的課題「'+((b.celtic&&b.celtic.challenge)||'?')+'」是否互補？\n';
+  trC+='・一方的天賦是否恰好能幫助另一方面對課題？\n\n';
+  trC+='【參考書目】\n▍Liz & Colin Murray《The Celtic Tree Oracle》\n▍Robert Graves《The White Goddess》\n';
   var hG6=mkDual(nameA,tree_html(a),nameB,tree_html(b));
   hG6+=mkPre('tr_a',trA);hG6+=mkPre('tr_b',trB);
   hG6+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="tr_c">'+escHtml(trC)+'</pre></div>';
@@ -2553,7 +2766,27 @@ function renderMatch(a,b){
   // ═══ ㉓ 鐵板神數合盤 ═══
   var tbxA=tb_ai(a,nameA),tbxB=tb_ai(b,nameB);
   var tbxC='【鐵板神數合盤·'+nameA+'×'+nameB+'】\n'+tbxA+tbxB;
-  tbxC+='\n【合盤分析】\n兩人四柱的天干合化、地支六合/三合/沖刑？\n納音五行是否互生互助？格局互補性分析。\n神煞交叉：甲的貴人是否落在乙的位置（反之亦然）？\n';
+  tbxC+='\n【鐵板神數合盤深度解讀指令】\n\n';
+  tbxC+='壹、天干合化分析\n';
+  tbxC+='・甲日主'+((a.tieban&&a.tieban.dayStem)||'?')+' × 乙日主'+((b.tieban&&b.tieban.dayStem)||'?')+'是否構成天干五合？\n';
+  tbxC+='・甲己合土/乙庚合金/丙辛合水/丁壬合木/戊癸合火\n';
+  tbxC+='・合化代表天然的化學反應，是這段關係最核心的能量動態\n\n';
+  tbxC+='貳、地支六合/三合/沖刑\n';
+  tbxC+='・四柱八個地支之間有哪些六合/三合/三會？\n';
+  tbxC+='・六沖代表什麼領域的張力？刑害代表什麼潛在摩擦？\n\n';
+  tbxC+='叁、納音五行配對\n';
+  tbxC+='・甲年柱納音'+((a.tieban&&a.tieban.yearNY)||'?')+' × 乙年柱納音'+((b.tieban&&b.tieban.yearNY)||'?')+'\n';
+  tbxC+='・納音相生=根基互補；納音相剋=價值觀衝突的根源\n\n';
+  tbxC+='肆、格局互補\n';
+  tbxC+='・甲格局'+((a.tieban&&a.tieban.type.title)||'?')+' × 乙格局'+((b.tieban&&b.tieban.type.title)||'?')+'\n';
+  tbxC+='・兩種格局在事業/感情/財富面的互補或衝突\n\n';
+  tbxC+='伍、神煞交叉\n';
+  tbxC+='・甲的天乙貴人是否落在乙的地支位置？（甲是乙的貴人？）\n';
+  tbxC+='・乙的驛馬/桃花是否落在甲的位置？\n\n';
+  tbxC+='陸、十神關係動態\n';
+  tbxC+='・甲對乙的十神關係 vs 乙對甲的十神關係\n';
+  tbxC+='・正財/正官=穩定型關係；七殺/傷官=刺激型關係\n\n';
+  tbxC+='【參考書目】\n▍梁湘潤《合婚實務》\n▍何建忠《八字心理學》\n▍鍾義明《命理鑑定學》\n';
   var hG7=mkDual(nameA,tb_html(a),nameB,tb_html(b));
   hG7+=mkPre('tb_a',tbxA);hG7+=mkPre('tb_b',tbxB);
   hG7+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="tb_c">'+escHtml(tbxC)+'</pre></div>';
