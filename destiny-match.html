@@ -1326,9 +1326,17 @@ function renderMatch(a,b){
     t+='日主：'+ec.getDayGan()+'（'+d.dayWx+'）　性別：'+(d.gen=='F'?'女':'男')+'\n';
     t+='納音：'+s2t(ec.getYearNaYin())+' '+s2t(ec.getMonthNaYin())+' '+s2t(ec.getDayNaYin())+' '+s2t(ec.getTimeNaYin())+'\n';
     t+='地勢：'+s2t(ec.getYearDiShi())+' '+s2t(ec.getMonthDiShi())+' '+s2t(ec.getDayDiShi())+' '+s2t(ec.getTimeDiShi())+'\n';
-    t+='藏干十神：年['+ec.getYearShiShenZhi().map(s2t).join(',')+'] 月['+ec.getMonthShiShenZhi().map(s2t).join(',')+'] 日['+ec.getDayShiShenZhi().map(s2t).join(',')+'] 時['+ec.getTimeShiShenZhi().map(s2t).join(',')+']\n';
+    t+='藏干十神：年['+ec.getYearShiShenZhi().map(s2t).join(',')+'] 月['+ec.getMonthShiShenZhi().map(s2t).join(',')+'] 日['+ec.getDayShiShenZhi().map(s2t).join(',')+'] 時['+ec.getTimeShiShenZhi().map(s2t).join(',')+']'+'\n';
     t+='大運：'+d.dyArr.join(' / ')+'\n';
-    t+='稱骨：'+d.bone.text+'（'+d.bone.total+'錢）\n';
+    t+='稱骨：'+d.bone.text+'（'+d.bone.total+'錢）\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、格局鑑定（身強/身弱，用神喜忌）\n';
+    t+='貳、十神心理原型（正官=自律/七殺=突破/食神=享受/傷官=才華/正財=穩定/偏財=機會）\n';
+    t+='叁、逐柱分析（年柱=家族0-15歲/月柱=事業16-30歲/日柱=伴侶31-45歲/時柱=晚年46+歲）\n';
+    t+='肆、當前大運與2026丙午流年的機會與挑戰\n';
+    t+='伍、天干地支合沖刑害的具體生活影響\n';
+    t+='陸、稱骨骨重的白話詮釋\n';
+    t+='【🔴 請用小學生能懂的語言，結尾給出當前最值得把握的機會＋最需警惕的地雷】\n';
     return t;
   }
   var bzA=bazi_ai(a,nameA),bzB=bazi_ai(b,nameB);
@@ -1394,7 +1402,15 @@ function renderMatch(a,b){
     t+='命宮：'+DZ[zw.ming]+'　身宮：'+DZ[zw.shen]+'（'+zw.shGN+'）\n';
     t+='五行局：'+zw.juS+'　四化：祿'+zw.sh4.祿+' 權'+zw.sh4.權+' 科'+zw.sh4.科+' 忌'+zw.sh4.忌+'\n';
     var zwData='';GN.forEach(function(gn){var p=null;zw.palaces.forEach(function(x){if(x.name==gn)p=x});if(!p)return;zwData+=p.name+'('+p.tg+p.dz+')：'+(p.ms.length?p.ms.map(function(s){return s.n+(s.h?'化'+s.h:'')}).join(','):'空宮')+'\n'});
-    t+=zwData;
+    t+=zwData+'\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、命格鑑定（紫府朝垣/殺破狼/機月同梁等）\n';
+    t+='貳、四化飛星追蹤（祿權科忌各落何宮的意義）\n';
+    t+='叁、三方四正（命+財+官+遷）的外在展現\n';
+    t+='肆、夫妻宮主星→感情模式與潛意識愛情契約\n';
+    t+='伍、財帛宮→最適合的賺錢方式\n';
+    t+='陸、福德宮→內在精神底色與壓力下的真實反應\n';
+    t+='【🔴 煞星不是壞事，化忌不是災難，它們是升級的入口】\n';
     return t;
   }
   var zwA=zw_ai(a,nameA),zwB=zw_ai(b,nameB);
@@ -1467,7 +1483,16 @@ function renderMatch(a,b){
     var t='【'+pn+'·西洋占星】\n';
     P_NAMES.forEach(function(n,i){var p=d.planets[P_ORDER[i]];if(p)t+=n+'：'+p.sign+p.deg+'°'+p.min+"'"+(p.retro?' ℞':'')+'\n'});
     if(d.houses)t+='上升：'+degToSignStr(d.houses.asc)+'　天頂：'+degToSignStr(d.houses.mc)+'\n';
-    t+='相位：';d.aspects.slice(0,5).forEach(function(a){t+=a.p1+' '+a.type+' '+a.p2+' '});t+='\n';
+    t+='相位：';d.aspects.slice(0,8).forEach(function(a){t+=a.p1+' '+a.type+' '+a.p2+' '});t+='\n';
+    if(d.patterns.length)t+='格局：'+d.patterns.map(function(p){return p.type}).join(', ')+'\n';
+    if(d.stats.elements){var el=d.stats.elements;t+='元素：火'+el['火'].length+' 土'+el['土'].length+' 風'+el['風'].length+' 水'+el['水'].length+'\n'}
+    t+='\n【請依以下框架解讀】\n';
+    t+='壹、日月升三重奏（太陽=意識/月亮=情緒/上升=面具）\n';
+    t+='貳、重要相位心理情結（困難相位=衝突根源/柔和相位=天賦流動）\n';
+    t+='叁、元素分佈（火多=行動過度/水多=情緒敏感/風多=想太多/土多=務實保守）\n';
+    t+='肆、逆行星=能量內斂化，需更多內在消化\n';
+    t+='伍、2026行運重點（哪些外行星觸動關鍵宮位）\n';
+    t+='【🔴 每個相位必須回答：所以呢？你可以怎麼做？】\n';
     return t;
   }
   var astA=ast_ai(a,nameA),astB=ast_ai(b,nameB);
@@ -1538,7 +1563,14 @@ function renderMatch(a,b){
     t+='類型：'+hd.type+'　策略：'+hd.strategy+'\n';
     t+='權威：'+hd.authority+'　角色：'+hd.profile+'\n';
     t+='通道：'+hd.channels.map(function(c){return c.gates+'('+c.name+')'}).join(', ')+'\n';
-    t+='已定義：'+hd.defC.join(',')+'　未定義：'+hd.undefC.join(',')+'\n';
+    t+='已定義：'+hd.defC.join(',')+'　未定義：'+hd.undefC.join(',')+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、類型與策略的日常實踐（工作/感情/決策）\n';
+    t+='貳、內在權威的具體辨認方式（薦骨回應=肚子的聲音/情緒權威=等浪潮過）\n';
+    t+='叁、人生角色的人際吸引力與課題\n';
+    t+='肆、九大能量中心：已定義=穩定輸出；未定義=被制約之處也是智慧所在\n';
+    t+='伍、通道力學（電磁/妥協/支配）\n';
+    t+='【🔴 請將術語轉譯為日常語言，並給出工作/感情/健康三面向具體建議】\n';
     return t;
   }
   var hdA=hd_ai(a,nameA),hdB=hd_ai(b,nameB);
@@ -1594,9 +1626,19 @@ function renderMatch(a,b){
     return h;
   }
   function qz_ai(d,pn){
-    if(!d.qz||!d.qz.bodies.length)return'【'+pn+'·七政四餘】需要星曆\n';
+    if(!d.qz)return'【'+pn+'·七政四餘】需要星曆\n';
+    var qz=d.qz;
     var t='【'+pn+'·七政四餘】\n';
-    d.qz.bodies.forEach(function(b2){t+=b2.name+'：'+b2.xiu+' '+b2.gong+'\n'});
+    t+='命宮主星：'+qz.mingZhu+'\n';
+    if(qz.stars)t+='星群：'+qz.stars.map(function(s){return s.name+' '+s.sign}).join(', ')+'\n';
+    t+='四餘：'+(qz.siyu||'計算中')+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、命宮星格（日月五星主命的性格基調，廟/旺/落/陷力量等級）\n';
+    t+='貳、恩用仇難生剋關係（恩星=天生外掛，難星=耗電App）\n';
+    t+='叁、化曜十星推算（天祿/天權/天蔭/天囚/天刑/天耗/天暗/天貴/天福/天印）\n';
+    t+='肆、四餘交會（羅睺=挑戰/計都=舊模式/月孛=情感覺察/紫氣=貴氣）\n';
+    t+='伍、行限推運（當前大限行經哪個星宿？逢吉星還是挑戰星？）\n';
+    t+='【🔴 用現代白話翻譯，對應職場/財富/健康/感情四面向】\n';
     return t;
   }
   var qzA=qz_ai(a,nameA),qzB=qz_ai(b,nameB);
@@ -1652,11 +1694,17 @@ function renderMatch(a,b){
   }
   function maya_ai(d,pn){
     var my=d.my;
-    var t='【'+pn+'·瑪雅曆】\n';
-    t+='KIN.'+my.kin+' '+my.toneN.replace('的','')+' '+my.sealN+'\n';
-    t+=my.wsSeal+' 波符第'+my.wsDay+'/13天\n';
-    t+='調性：'+my.tone+'（'+my.toneN+'）\n';
-    t+='五大神諭：引導'+my.guide+' 支持'+my.analog+' 挑戰'+my.anti+' 隱藏'+my.occSeal+'\n';
+    var t='【'+pn+'·瑪雅曆法】\n';
+    t+='KIN：'+my.kin+' | 圖騰：'+my.sealN+' | 調性：'+my.tone+'\n';
+    t+='引導：'+my.guide+' | 挑戰：'+my.antipode+' | 隱藏：'+my.occult+' | 支持：'+my.analog+'\n';
+    t+='波符：'+my.wavespell+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、太陽圖騰=天生使命，這輩子來做什麼\n';
+    t+='貳、調性=做事的節奏和方式（磁性/月亮/電力...宇宙）\n';
+    t+='叁、四色力量：引導（學習方向）/支持（天然盟友）/挑戰（成長功課）/隱藏（潛在天賦）\n';
+    t+='肆、波符=你所屬的13天能量週期主題\n';
+    t+='伍、KIN合盤數=兩人KIN相加÷260的餘數，代表關係的共同使命\n';
+    t+='【🔴 請將瑪雅術語轉譯為日常語言】\n';
     return t;
   }
   var myA=maya_ai(a,nameA),myB=maya_ai(b,nameB);
@@ -1723,12 +1771,16 @@ function renderMatch(a,b){
   function num_ai(d,pn){
     var nm=d.nm;
     var t='【'+pn+'·生命靈數】\n';
-    t+='基礎：M(月)='+nm.mS+' D(日)='+nm.dS+' Y(年)='+nm.yS+'\n';
-    t+='生命數：'+nm.life+(nm.life>=11?' (大師數)':'')+' | 天賦數：'+nm.talent+'\n';
-    t+='先天數：'+nm.innate+' | 空缺：'+nm.missing.join(',')+'\n';
-    t+='九宮格：3='+nm.grid[3]+' 6='+nm.grid[6]+' 9='+nm.grid[9]+' / 2='+nm.grid[2]+' 5='+nm.grid[5]+' 8='+nm.grid[8]+' / 1='+nm.grid[1]+' 4='+nm.grid[4]+' 7='+nm.grid[7]+'\n';
-    t+='2026流年：'+nm.py+'（'+(FLOW_KW[nm.py]||'')+'）\n';
-    if(nm.stages){t+='禮物：';nm.stages.forEach(function(s){t+=s.name+'禮物'+s.gift+' '});t+='\n'}
+    t+='生命數：'+nm.life+' | 天賦數：'+nm.talent+' | 流年數：'+nm.py+'\n';
+    t+='生日數：'+nm.bday+' | 卓越數：'+(nm.master||'無')+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、生命數=人生主旋律（1獨立/2合作/3表達/4穩定/5自由/6責任/7智慧/8豐盛/9人道）\n';
+    t+='貳、天賦數=天生擅長的事（跟生命數的配合或衝突）\n';
+    t+='叁、生日數=社交面具和第一印象\n';
+    t+='肆、卓越數11/22/33的特殊使命與壓力\n';
+    t+='伍、2026流年數'+nm.py+'的年度主題和行動建議\n';
+    t+='陸、九宮格缺數=人生功課（如果有的話）\n';
+    t+='【🔴 流年數最實用，告訴他今年該做什麼不該做什麼】\n';
     return t;
   }
   var nmA=num_ai(a,nameA),nmB=num_ai(b,nameB);
@@ -1790,11 +1842,20 @@ function renderMatch(a,b){
   }
   function fl_ai(d,pn){
     var fl=d.fl;
-    var t='【'+pn+'·馥靈秘碼H.O.U.R.】\n';
-    t+='H（身心校準）='+fl.H.H+'　O（智慧辨識）='+fl.H.O+'\n';
-    t+='U（潛能解鎖）='+fl.H.U+'　R（行動進化）='+fl.H.R+'\n';
-    t+='L.I.G.H.T.：L='+fl.L.L+' I='+fl.L.I+' G='+fl.L.G+' H='+fl.L.H+' T='+fl.L.T+'\n';
-    t+='7宮（心門）='+fl.pals['7宮_心門宮']+'　10宮（志氣）='+fl.pals['10宮_志氣殿']+'\n';
+    var t='【'+pn+'·馥靈秘碼】\n';
+    t+='H='+fl.H.H+' O='+fl.H.O+' U='+fl.H.U+' R='+fl.H.R+'\n';
+    t+='12宮分佈：';fl.p12.forEach(function(p){t+=p.n+'宮='+p.v+' '});t+='\n';
+    t+='五行：'+fl.wx.join(', ')+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、H.O.U.R. 四柱配對\n';
+    t+='・H（身心校準）數=情感容量和壓力緩衝\n';
+    t+='・O（智慧辨識）數=決策模式和覺察力\n';
+    t+='・U（潛能解鎖）數=潛力天花板和突破方向\n';
+    t+='・R（行動進化）數=執行力和成長動力\n';
+    t+='貳、12宮能量分佈（哪些宮位最強/最弱？空宮代表什麼？）\n';
+    t+='叁、五行平衡（哪個五行過多/過少？用什麼精油校準？）\n';
+    t+='肆、最適合的事業方向和關係模式\n';
+    t+='【參考】王逸君《藏在農曆生日裡的秘碼》ISBN 978-626-01-5769-2\n';
     return t;
   }
   var flA=fl_ai(a,nameA),flB=fl_ai(b,nameB);
@@ -1864,10 +1925,16 @@ function renderMatch(a,b){
   }
   function tri_ai(d,pn){
     var tri=d.tri;
-    var t='【'+pn+'·生命密碼三角形】\n';
-    t+='主性格O='+tri.O+'（'+getWuxing(tri.O)+'）　內心='+tri.inner+'　潛意識='+tri.sub+'　外心='+tri.ext+'\n';
-    t+='父親基因：'+tri.I+tri.J+tri.M+'　母親基因：'+tri.K+tri.L+tri.N+'　核心：'+tri.M+tri.N+tri.O+'\n';
-    t+='2026流年：'+calcFlowYear(d.M,d.D,2026)+'\n';
+    var t='【'+pn+'·三角生命密碼】\n';
+    t+='天賦數：'+tri.top+' | 挑戰數：'+tri.left+'-'+tri.right+' | 生命課題：'+tri.bottom+'\n';
+    t+='連線：'+tri.lines.join(', ')+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、三角頂點=天賦（天生最強的能量）\n';
+    t+='貳、兩側=挑戰（需要平衡的對立面）\n';
+    t+='叁、底部=生命課題（這輩子反覆遇到的主題）\n';
+    t+='肆、連線=能量流動的慣性路徑\n';
+    t+='伍、三角形的形狀（等腰=穩定/不等邊=張力帶動成長）\n';
+    t+='【🔴 頂點天賦就是他最不費力的事，課題就是最卡的事】\n';
     return t;
   }
   var triA=tri_ai(a,nameA),triB=tri_ai(b,nameB);
@@ -1933,12 +2000,18 @@ function renderMatch(a,b){
     return h;
   }
   function lr_ai(d,pn){
-    var lr=d.lr,LRW=LR_WX_CONST;
+    var lr=d.lr;
     var t='【'+pn+'·大六壬】\n';
-    t+='日干支：'+d.ec.getDayGan()+d.ec.getDayZhi()+'　時支：'+lr.shi+'　月將：'+lr.yj+'\n';
-    t+='四課：';for(var ki=0;ki<4;ki++)t+='['+lr.lessons[ki].t+'/'+lr.lessons[ki].b+'] ';t+='\n';
-    var sanWx=[LRW[DZ.indexOf(lr.san[0])],LRW[DZ.indexOf(lr.san[1])],LRW[DZ.indexOf(lr.san[2])]];
-    t+='三傳：'+lr.san[0]+'('+sanWx[0]+')→'+lr.san[1]+'('+sanWx[1]+')→'+lr.san[2]+'('+sanWx[2]+')\n';
+    t+='月將：'+lr.monthGen+' | 日遁：'+lr.dayDun+'\n';
+    t+='四課：'+lr.fourLessons.join(' / ')+'\n';
+    t+='三傳：初傳'+lr.threeTransmissions[0]+' 中傳'+lr.threeTransmissions[1]+' 末傳'+lr.threeTransmissions[2]+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、天地盤：天盤（外在機會）vs 地盤（內在條件）的互動\n';
+    t+='貳、四課：第一課=自我，第二課=他人，第三課=起因，第四課=結果\n';
+    t+='叁、三傳的時間軸：初傳=近期，中傳=過程，末傳=最終走向\n';
+    t+='肆、貴人方位：天乙貴人在哪個方向？什麼時候求助最有效？\n';
+    t+='伍、日主五行與月將的生剋關係\n';
+    t+='【🔴 用白話講，不要用古文】\n';
     return t;
   }
   var lrA=lr_ai(a,nameA),lrB=lr_ai(b,nameB);
@@ -1993,7 +2066,14 @@ function renderMatch(a,b){
     var ys=NSK[nsk.ys],ms2=NSK[nsk.ms],ts=NSK[nsk.ts];
     var t='【'+pn+'·九星氣學】\n';
     t+='年星：'+ys.n+'（'+ys.e+'）　月星：'+ms2.n+'（'+ms2.e+'）　第三星：'+ts.n+'（'+ts.e+'）\n';
-    t+=(nsk.isE?'東四命':'西四命')+'\n';
+    t+=(nsk.isE?'東四命':'西四命')+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、年星=外在人格（別人看到的你）：'+ys.n+'的性格特徵\n';
+    t+='貳、月星=內在人格（只有親近的人知道）：'+ms2.n+'的情感模式\n';
+    t+='叁、第三星=社交面具（第一印象）：'+ts.n+'的社交風格\n';
+    t+='肆、三星五行生剋（年星和月星衝突=內外不一致的壓力來源）\n';
+    t+='伍、東西命方位建議（床頭朝向、辦公桌方位、居住區域）\n';
+    t+='陸、2026流年飛星對本命星的影響\n';
     return t;
   }
   var nskA=nsk_ai(a,nameA),nskB=nsk_ai(b,nameB);
@@ -2051,11 +2131,17 @@ function renderMatch(a,b){
   }
   function clr_ai(d,pn){
     var clr=d.clr;
-    if(!clr||!clr.mc)return'【'+pn+'·生日色彩】計算失敗\n';
-    var t='【'+pn+'·生日色彩】\n';
-    t+='生命色：'+clr.mc.n+'（'+clr.ln+'）脈輪：'+clr.mc.ck+'\n';
-    if(clr.ic)t+='日色（內在）：'+clr.ic.n+'（'+clr.dn+'）\n';
-    if(clr.ec)t+='月色（表達）：'+clr.ec.n+'（'+clr.mn+'）\n';
+    var mc=clr.mc;
+    var t='【'+pn+'·生日色彩能量】\n';
+    t+='主色：'+mc.name+'（'+mc.hex+'）\n';
+    t+='脈輪：'+mc.ck+'\n';
+    t+='精油：'+mc.ar+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、主色彩的心理學意涵（色彩心理學：這個顏色引發什麼情緒反應）\n';
+    t+='貳、脈輪對應（'+mc.ck+'的身心功能和失衡表現）\n';
+    t+='叁、精油'+mc.ar+'的香氣分子如何調和這個脈輪\n';
+    t+='肆、穿搭建議：什麼場合穿這個顏色最有力量？什麼時候避免？\n';
+    t+='伍、空間色彩建議：臥室/辦公室適合什麼配色？\n';
     return t;
   }
   var clrA=clr_ai(a,nameA),clrB=clr_ai(b,nameB);
@@ -2107,9 +2193,17 @@ function renderMatch(a,b){
   }
   function cl_ai(d,pn){
     if(!d.cl)return'【'+pn+'·凱龍莉莉絲】需要星曆\n';
-    var cl=d.cl,t='【'+pn+'·凱龍莉莉絲】\n';
-    if(cl.ch)t+='凱龍：'+cl.ch.sign+' '+cl.ch.deg+'° → '+cl.ch.interp+'\n';
-    if(cl.li)t+='莉莉絲：'+cl.li.sign+' '+cl.li.deg+'° → '+cl.li.interp+'\n';
+    var cl=d.cl;
+    var t='【'+pn+'·凱龍星與黑月莉莉絲】\n';
+    t+='凱龍星：'+(cl.ch?cl.ch.sign+cl.ch.deg+'°':'需星曆')+'\n';
+    t+='黑月莉莉絲：'+(cl.li?cl.li.sign+cl.li.deg+'°':'需星曆')+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、凱龍星=內在傷口（12星座12種傷：牡羊=存在感/金牛=自我價值/雙子=溝通...）\n';
+    t+='貳、凱龍的宮位=傷口展現的生活領域\n';
+    t+='叁、傷口如何轉化為最大的天賦（受傷的治療者原型）\n';
+    t+='肆、莉莉絲=被壓抑的原始力量和慾望\n';
+    t+='伍、莉莉絲的星座+宮位=你在哪個領域最容易被社會規範壓抑\n';
+    t+='陸、精油建議：凱龍=療傷精油；莉莉絲=釋放精油\n';
     return t;
   }
   var clxA=cl_ai(a,nameA),clxB=cl_ai(b,nameB);
@@ -2165,9 +2259,18 @@ function renderMatch(a,b){
   }
   function ved_ai(d,pn){
     if(!d.ved)return'【'+pn+'·吠陀占星】需要星曆\n';
-    var ved=d.ved,t='【'+pn+'·吠陀占星 Jyotish】\n';
-    t+='Lahiri Ayanamsa：'+ved.ay.toFixed(4)+'°\n';
-    ved.ps.forEach(function(p){t+=p.nm+'：'+p.rn+' '+p.dg+'°'+(p.rt?' ℞':'')+' Nakshatra：'+p.nn+'（'+p.nl+'）\n'});
+    var ved=d.ved;
+    var t='【'+pn+'·吠陀占星（Jyotish）】\n';
+    t+='Nakshatra：'+ved.nk.name+'（'+ved.nk.deity+'）\n';
+    t+='吠陀月亮：'+ved.moonSign+'\n';
+    t+='Pada：'+ved.pada+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、27 Nakshatra 的性格深析（動物象徵、神祇原型）\n';
+    t+='貳、吠陀月亮 vs 西洋月亮的差異（Lahiri 歲差修正）\n';
+    t+='叁、Pada（四分之一）的細緻人格差異\n';
+    t+='肆、婚配動物配對（Nakshatra 八因子合婚系統）\n';
+    t+='伍、大運系統（Dasha）與流年影響\n';
+    t+='【🔴 請對比西洋占星結果，找出兩個系統的共振點和差異點】\n';
     return t;
   }
   var vedA=ved_ai(a,nameA),vedB=ved_ai(b,nameB);
@@ -2226,12 +2329,21 @@ function renderMatch(a,b){
     return h;
   }
   function ng_ai(d,pn){
-    if(!d.ng)return'【'+pn+'·姓名】未輸入姓名\n';
-    var ng=d.ng,t='【'+pn+'·姓名覺察解碼】\n';
-    t+='姓名：'+ng.chars+'\n';
-    t+='天格：'+ng.tian.v+'('+ng.tian.wx+') 人格：'+ng.ren.v+'('+ng.ren.wx+') 地格：'+ng.di.v+'('+ng.di.wx+')\n';
-    t+='外格：'+ng.wai.v+'('+ng.wai.wx+') 總格：'+ng.zong.v+'('+ng.zong.wx+')\n';
-    t+='三才：'+ng.sancai+'\n';
+    if(!d.ng)return'【'+pn+'·姓名學】無資料\n';
+    var ng=d.ng;
+    var t='【'+pn+'·姓名學五格解析】\n';
+    t+='姓名：'+d.nameZh+'\n';
+    t+='天格：'+ng.tian+'（'+ng.tianS+'） 人格：'+ng.ren+'（'+ng.renS+'）\n';
+    t+='地格：'+ng.di+'（'+ng.diS+'） 外格：'+ng.wai+'（'+ng.waiS+'）\n';
+    t+='總格：'+ng.zong+'（'+ng.zongS+'）\n';
+    t+='三才：'+ng.sc+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、五格吉凶（81數理每個數字的吉凶意涵）\n';
+    t+='貳、人格=核心性格（最重要的一格）\n';
+    t+='叁、三才配置=天人地的五行流通\n';
+    t+='肆、人格+地格=人際關係和健康\n';
+    t+='伍、人格+外格=社交和事業\n';
+    t+='陸、姓名中的康熙筆畫含義\n';
     return t;
   }
   var ngA=ng_ai(a,nameA),ngB=ng_ai(b,nameB);
@@ -2287,12 +2399,20 @@ function renderMatch(a,b){
     return h;
   }
   function kb_ai(d,pn){
-    if(!d.kb)return'【'+pn+'·卡巴拉】未輸入英文名\n';
-    var kb=d.kb,t='【'+pn+'·卡巴拉生命之樹】\n';
-    t+='英文名：'+kb.name+'\n';
-    t+='生命路徑：'+kb.lp+'（'+(KB_SEPH[kbNTS(kb.lp)]||'')+'）\n';
-    t+='表達數：'+kb.expr+'　內在渴望：'+kb.soul+'　人格面具：'+kb.pers+'\n';
-    t+='使命數：'+kb.mission+'\n';
+    if(!d.kb)return'【'+pn+'·卡巴拉】需英文名\n';
+    var kb=d.kb;
+    var t='【'+pn+'·卡巴拉數字學】\n';
+    t+='生命路徑數：'+kb.lifePath+' | 表達數：'+kb.expression+'\n';
+    t+='靈魂渴望數：'+kb.soulUrge+' | 人格數：'+kb.personality+'\n';
+    t+='生日數：'+kb.birthday+' | 成熟數：'+kb.maturity+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、生命路徑數=人生主旋律（最重要的一個數字）\n';
+    t+='貳、表達數=天賦才能和自然表達方式\n';
+    t+='叁、靈魂渴望數=內心最深層的驅動力\n';
+    t+='肆、人格數=別人眼中的你（社交面具）\n';
+    t+='伍、表達數 vs 靈魂渴望的衝突=內外不一致的壓力\n';
+    t+='陸、成熟數=中年後逐漸浮現的人生主題\n';
+    t+='【參考】Dion Fortune《The Mystical Qabalah》\n';
     return t;
   }
   var kbA=kb_ai(a,nameA),kbB=kb_ai(b,nameB);
