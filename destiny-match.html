@@ -85,13 +85,14 @@ a{color:var(--gd3);text-decoration:none}
 .mr-title{font-family:var(--serif);font-size:1.3rem;color:var(--gd);letter-spacing:.1em}
 .mr-sub{font-size:.82rem;color:var(--inkm);margin-top:6px}
 
-/* ── Tab Bar ── */
-.tab-bar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;justify-content:center;position:sticky;top:0;z-index:50;background:rgba(3,2,8,.92);backdrop-filter:blur(16px);padding:10px 8px;border-bottom:1px solid var(--border);border-radius:0 0 12px 12px}
-.tab-btn{padding:6px 12px;border:1px solid var(--border);border-radius:20px;background:rgba(240,212,138,.03);color:var(--inkm);font-family:var(--body);font-size:.76rem;letter-spacing:.04em;cursor:pointer;transition:all .3s;white-space:nowrap}
+/* ── Tab Bar（棋盤格）── */
+.tab-bar{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:16px;position:sticky;top:0;z-index:50;background:rgba(3,2,8,.94);backdrop-filter:blur(16px);padding:10px 8px;border-bottom:1px solid var(--border);border-radius:0 0 12px 12px}
+.tab-btn{padding:7px 4px;border:1px solid var(--border);border-radius:10px;background:rgba(240,212,138,.03);color:var(--inkm);font-family:var(--body);font-size:.72rem;letter-spacing:.02em;cursor:pointer;transition:all .3s;white-space:nowrap;text-align:center;line-height:1.3}
 .tab-btn:hover{border-color:var(--border2);color:var(--gd)}
-.tab-btn.on{background:rgba(240,212,138,.1);border-color:var(--gd);color:var(--gd)}
-.tab-btn.combined-btn{border-color:rgba(160,124,220,.3);color:var(--plum)}
+.tab-btn.on{background:rgba(240,212,138,.12);border-color:var(--gd);color:var(--gd);font-weight:500}
+.tab-btn.combined-btn{grid-column:span 2;border-color:rgba(160,124,220,.3);color:var(--plum);font-size:.78rem}
 .tab-btn.combined-btn.on{background:rgba(160,124,220,.12);border-color:var(--plum);color:#c9a8f0}
+@media(max-width:480px){.tab-bar{grid-template-columns:repeat(4,1fr);gap:4px}.tab-btn{font-size:.68rem;padding:6px 3px}}
 
 /* ── 面板 ── */
 .panel{display:none}
@@ -256,7 +257,7 @@ a{color:var(--gd3);text-decoration:none}
 
   <div style="text-align:center;margin:28px 0">
     <div style="font-size:.83rem;color:var(--inkm);line-height:1.9;max-width:520px;margin:0 auto">
-      💡 複製「整合合盤 AI 指令」後貼入 Claude 或 ChatGPT，即可獲得完整雙人命理交叉分析。
+      💡 複製「整合合盤 AI 指令」後貼入 Claude 或 ChatGPT，即可獲得完整雙人命理交叉分析。<br>📧 也可以點「寄到信箱」把完整合盤報告存起來。
     </div>
     <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
       <a href="destiny-engine.html" style="color:var(--gd3);font-size:.82rem;border:1px solid var(--border);padding:8px 18px;border-radius:20px">→ 個人命盤引擎</a>
@@ -305,7 +306,7 @@ function calcXiuYao(year,month,day){
   // Compatibility: 宿曜の安壞表 (12種關係)
   var COMPAT_NAME=['命','業','胎','友','親','壞','危','成','制','率','廢','衰'];
   var COMPAT_OFFSET=[0,1,2,3,4,5,6,7,8,9,10,11];
-  var COMPAT_GRADE=['命宿相合——天生緣分，命中注定的相遇','業宿——彼此牽引，帶來重要課題','胎宿——純粹友誼，如親人般可信賴','友宿——志同道合，長久的好友','親宿——親密溫暖，如家人般的情感','壞宿——需要用心經營，有成長空間','危宿——互相挑戰，刺激對方成長','成宿——互相成就，合作共贏','制宿——張力存在，需彼此包容','率宿——彼此率性，真實相處','廢宿——模式需調整，學習課題','衰宿——需要更多努力經營'];
+  var COMPAT_GRADE=['命宿相合。天生緣分，命中注定的相遇','業宿。彼此牽引，帶來重要課題','胎宿。純粹友誼，如親人般可信賴','友宿。志同道合，長久的好友','親宿。親密溫暖，如家人般的情感','壞宿。需要用心經營，有成長空間','危宿。互相挑戰，刺激對方成長','成宿。互相成就，合作共贏','制宿。張力存在，需彼此包容','率宿。彼此率性，真實相處','廢宿。模式需調整，學習課題','衰宿。需要更多努力經營'];
   var REF_JD=2451545,REF_XIU=10; // Jan 1.5, 2000 = 虛宿
   var idx=((jd-REF_JD)%28+28+REF_XIU)%28;
   return{idx:idx,name:XIU[idx],palace:PALACE[idx],guard:GUARD[idx],trait:TRAIT[idx],lucky:LUCKY[idx],compatName:COMPAT_NAME,compatGrade:COMPAT_GRADE};
@@ -448,17 +449,17 @@ var GK_DATA=[
   {s:'不耐',g:'耐心',d:'永恆',desc:'你對時間有特別的感知。當你學會等待，你會發現有些事情根本不需要你去追。'},
   {s:'衝突',g:'外交',d:'和平',desc:'你天生就是調解者。你能看到衝突背後的本質，但你要先讓自己平靜，才能讓場域平靜。'},
   {s:'獨裁',g:'引導',d:'美德',desc:'你有天生的領導特質。真正的引導是啟發，不是掌控。當你放開控制，人們反而更願意跟隨你。'},
-  {s:'平庸',g:'風格',d:'卓越',desc:'你有獨特的美學眼光和品味。別為了討好他人而放棄你的風格——那個風格正是你的標誌。'},
+  {s:'平庸',g:'風格',d:'卓越',desc:'你有獨特的美學眼光和品味。別為了討好他人而放棄你的風格，那個風格正是你的標誌。'},
   {s:'惰性',g:'投入',d:'不朽',desc:'你的意志力是長跑型的。一旦你真正投入，沒有什麼能讓你停下來。'},
   {s:'自我迷失',g:'自然流露',d:'存在',desc:'你最真實的樣子就是你最有力量的樣子。停止演戲，開始存在。'},
   {s:'黑暗',g:'理想主義',d:'光明',desc:'你是天生的夢想家。你看得見還沒有人看到的可能性。讓那個願景指引你，但也讓它落地。'},
-  {s:'虛榮',g:'甄別',d:'純淨',desc:'你有精準的品味和甄別能力。真正的美不需要偽裝——你學會了，你就變成那個美。'},
+  {s:'虛榮',g:'甄別',d:'純淨',desc:'你有精準的品味和甄別能力。真正的美不需要偽裝，你學會了，你就變成那個美。'},
   {s:'不諧調',g:'同理心',d:'同感共應',desc:'你感受他人的能力是你最大的天賦。但先確保你感受到的是對方的感受，不是你的投射。'},
   {s:'妥協',g:'勝任',d:'豐盛',desc:'你有把資源轉化為豐盛的天賦。當你停止妥協自己的標準，豐盛才真的到來。'},
   {s:'沉悶',g:'磁力',d:'光暈',desc:'你有天生的人格魅力，但它來自你全然在場的時候。越活在當下，你就越有吸引力。'},
   {s:'冷漠',g:'多才多藝',d:'高超技藝',desc:'你的天才在於你能在很多不同領域融會貫通。專注一件事，把它做到你能做的最好。'},
   {s:'固執己見',g:'遠見',d:'全知',desc:'你有看穿表面、洞見本質的能力。當你放開「我才是對的」，你就能真正看到全局。'},
-  {s:'評判',g:'完整性',d:'完美',desc:'你對完美的渴望是一種天賦。但完整性不是完美，而是誠實——包括誠實面對自己的不完美。'},
+  {s:'評判',g:'完整性',d:'完美',desc:'你對完美的渴望是一種天賦。但完整性不是完美，而是誠實。包括誠實面對自己的不完美。'},
   {s:'共依存',g:'敏感',d:'犧牲',desc:'你的敏感是超能力，不是弱點。學會感受而不被淹沒，你就成了情感的翻譯者。'},
   {s:'表淺',g:'自我確定',d:'當下',desc:'你有讓自己完全在場的能力。當你停止表演，真正活在這一刻，你的影響力讓人無法忽視。'},
   {s:'控制',g:'權威',d:'勇敢',desc:'你的天生權威感讓人信服，但前提是你的行動來自勇氣，不是恐懼。'},
@@ -469,7 +470,7 @@ var GK_DATA=[
   {s:'自大',g:'狡黠',d:'隱形',desc:'你有天生的智謀和策略思維。最聰明的人往往讓對方覺得是他們想到的。'},
   {s:'自私',g:'利他',d:'無私',desc:'你有強大的照顧他人的天賦，但要先確保自己的油箱是滿的。'},
   {s:'無目的',g:'毅力',d:'永生',desc:'你的毅力是傳奇等級的。找到你真正相信的事，然後就別停下來。'},
-  {s:'半途而廢',g:'奉獻',d:'虔誠',desc:'當你全心投入，你的能量場讓人震撼。你不是優柔寡斷——你只是在等那件值得你全部的事。'},
+  {s:'半途而廢',g:'奉獻',d:'虔誠',desc:'當你全心投入，你的能量場讓人震撼。你不是優柔寡斷，你只是在等那件值得你全部的事。'},
   {s:'慾望',g:'輕盈',d:'狂喜',desc:'你有體驗生命喜悅的天賦。當你放下抓取，喜悅自然流入你的生活。'},
   {s:'傲慢',g:'領導力',d:'謙遜',desc:'你有天生的領袖特質。真正讓人追隨你的不是你的自信，而是你的謙遜。'},
   {s:'失敗恐懼',g:'保護',d:'崇敬',desc:'你有守護和保存珍貴事物的本能。不要讓對失敗的恐懼阻止你去保護真正重要的東西。'},
@@ -483,7 +484,7 @@ var GK_DATA=[
   {s:'精疲力竭',g:'決心',d:'神聖意志',desc:'你有超越自我的能力。當你連結到比個人更大的目的，你會發現用不完的力量。'},
   {s:'幻想',g:'期待',d:'發射',desc:'你有感知未來可能性的天賦。讓那種「有什麼好事要來了」的感覺引導你。'},
   {s:'期待',g:'放下',d:'慶典',desc:'你有慶祝和感恩的天賦。當你接受當下所有的樣子，每一刻都成為慶典。'},
-  {s:'冷漠',g:'洞察',d:'頓悟',desc:'你有突破性思維的天賦。那些「突然想通了」的時刻不是意外——那是你的天賦運作的方式。'},
+  {s:'冷漠',g:'洞察',d:'頓悟',desc:'你有突破性思維的天賦。那些「突然想通了」的時刻不是意外，那是你的天賦運作的方式。'},
   {s:'干擾',g:'協作',d:'共治',desc:'你有整合不同人才和能量的天賦。你能看到每個人的長處，並讓它們協同運作。'},
   {s:'統治',g:'協同',d:'共融',desc:'你有凝聚社群和資源的天賦。最大的影響力來自讓每個人都感到被需要。'},
   {s:'嚴肅',g:'喜悅',d:'狂喜',desc:'你有體現純粹喜悅的天賦。當你放鬆，你就成為別人也想靠近的那種快樂。'},
@@ -495,13 +496,13 @@ var GK_DATA=[
   {s:'壓力',g:'節制',d:'靜止',desc:'你有讓自己深度靜定的能力。在最深的靜止中，你能接收到最清晰的訊息。'},
   {s:'停滯',g:'擴展',d:'豐盛',desc:'你有巨大的成長和擴展潛力。別讓對失敗的恐懼阻止你踏出那一步。'},
   {s:'貪婪',g:'抱負',d:'升華',desc:'你有強大的上升志向和抱負。當這股能量轉化為服務，你的成就會讓自己都驚訝。'},
-  {s:'受害者心態',g:'自由',d:'解脫',desc:'你有突破所有限制的潛力。自由不是外在給你的——它是你選擇的方式。'},
+  {s:'受害者心態',g:'自由',d:'解脫',desc:'你有突破所有限制的潛力。自由不是外在給你的，它是你選擇的方式。'},
   {s:'分心',g:'豐盛',d:'陶醉',desc:'你有讓生活充滿豐盛體驗的天賦。當你全心在場，每一個當下都是禮物。'},
-  {s:'不安',g:'直覺',d:'清澈',desc:'你的直覺是最可靠的GPS。那種「莫名其妙的感覺」不是多疑——那是你的天賦在說話。'},
+  {s:'不安',g:'直覺',d:'清澈',desc:'你的直覺是最可靠的GPS。那種「莫名其妙的感覺」不是多疑，那是你的天賦在說話。'},
   {s:'不滿足',g:'活力',d:'極喜',desc:'你有無窮的生命活力。當你學會感謝當下，那種喜悅不需要任何理由就會出現。'},
-  {s:'不誠實',g:'親密',d:'透明',desc:'你有建立深度連結的能力。真正的親密從誠實開始——包括對自己誠實。'},
+  {s:'不誠實',g:'親密',d:'透明',desc:'你有建立深度連結的能力。真正的親密從誠實開始。包括對自己誠實。'},
   {s:'限制',g:'現實主義',d:'正義',desc:'你有腳踏實地的天賦。你比任何人都清楚什麼是可能的，什麼是空想。'},
-  {s:'心理壓力',g:'靈感',d:'神聖',desc:'你有接收靈感的天賦。那些突如其來的想法不是異想天開——它們來自一個更深的地方。'},
+  {s:'心理壓力',g:'靈感',d:'神聖',desc:'你有接收靈感的天賦。那些突如其來的想法不是異想天開，它們來自一個更深的地方。'},
   {s:'過度思考',g:'精準',d:'無懈可擊',desc:'你的思維精準度是頂尖的。當你學會信任那個精準度，而不是用它來批判自己，你就無敵了。'},
   {s:'疑慮',g:'探究',d:'真理',desc:'你有尋找真相的強烈驅動力。每一個問號後面都藏著你下一個突破。'},
   {s:'混亂',g:'想像力',d:'光明',desc:'你天生活在比現實更豐富的宇宙裡。讓那個想像力成為你的禮物，而不是你的困擾。'}
@@ -914,7 +915,7 @@ function calcTieBan(year,month,day,hour,minute){
   var TIANDE=[9,8,11,10,1,0,3,2,5,4,7,6];
   if(allBranches.indexOf(TIANDE[mBranchIdx])>=0) shensha.push({name:'天德',icon:'🛡️',desc:'有天然的保護傘，災厄來時往往能減輕。'});
 
-  if(shensha.length===0) shensha.push({name:'無顯著神煞',icon:'◯',desc:'四柱中沒有特別顯著的神煞。不是壞事——代表你的命盤更靠個人選擇驅動。'});
+  if(shensha.length===0) shensha.push({name:'無顯著神煞',icon:'◯',desc:'四柱中沒有特別顯著的神煞。不是壞事。代表你的命盤更靠個人選擇驅動。'});
 
   // ── 格局（9種，依主命數1-9）──
   var TYPES=[
@@ -926,12 +927,12 @@ function calcTieBan(year,month,day,hour,minute){
     {n:2,title:'月映雙輝格',
      desc:'你的四柱藏著「合作」的密碼。你天生就知道怎麼讓兩個不同的東西放在一起變好看。是橋梁型的人。',
      career:'適合中介、媒合、顧問、教育。你不是那個站在最前面的人，你是那個讓舞台不塌的人。幕後推手比台前明星更適合你。',
-     love:'你在感情裡是投射型——容易把自己沒活出來的那一面寄託在伴侶身上。學會分清楚「我喜歡他」和「我想成為他」，感情就通了。',
+     love:'你在感情裡是投射型。容易把自己沒活出來的那一面寄託在伴侶身上。學會分清楚「我喜歡他」和「我想成為他」，感情就通了。',
      wealth:'偏財運比正財運好。跟人合作比自己獨幹賺得多。找到對的合作對象，比努力十年還有效。'},
     {n:3,title:'木火通明格',
      desc:'你的四柱有強烈的創造力。你需要舞台，不管那個舞台是講台、螢幕還是一張餐桌。沒有觀眾的日子，你會枯萎。',
      career:'適合教學、演藝、創作、行銷、任何需要「表達」的領域。你說話有感染力，做事有煽動力。唯一的問題是你有時候燒太快，還沒到終點就把油燒完了。',
-     love:'你的愛情像篝火——溫暖、亮眼，但如果不持續加柴就會熄。你需要一個懂得給你空間又持續在場的人。',
+     love:'你的愛情像篝火。溫暖、亮眼，但如果不持續加柴就會熄。你需要一個懂得給你空間又持續在場的人。',
      wealth:'財富跟名氣掛勾。你賺的不是苦力錢，是影響力的錢。先把名字做響，錢自然來。'},
     {n:4,title:'文曲華蓋格',
      desc:'你看起來溫和好相處，但你的腦子裡有一整個宇宙。你想事情的深度，是同齡人的三倍。',
@@ -985,7 +986,7 @@ function calcTieBan(year,month,day,hour,minute){
       r.reading=yy+''+el+'坐'+branches[bi]+'，納音'+ny+'。'+base[0]+' 在祖業層面，這代表你的家族給你的底色是「'+base[1]+'」。不管你喜不喜歡這個底色，它已經在你血液裡了。';
     }else if(context==='month'){
       r.title='事業與父母緣';
-      r.reading=yy+''+el+'坐'+branches[bi]+'，納音'+ny+'。你的事業密碼是'+el+'性的——'+base[0]+' 父母給你最大的影響是對「'+base[1]+'」的認知方式。';
+      r.reading=yy+''+el+'坐'+branches[bi]+'，納音'+ny+'。你的事業密碼是'+el+'性的。'+base[0]+' 父母給你最大的影響是對「'+base[1]+'」的認知方式。';
     }else if(context==='day'){
       r.title='自我與婚姻觀';
       r.reading='日主'+stems[si]+''+el+'（'+yy+'），納音'+ny+'。這是你最核心的自我。你骨子裡就是一個'+el+'型的人：'+base[0]+' 在親密關係中，你追求的是「'+base[1]+'」的感覺。';
@@ -1043,7 +1044,7 @@ function calcTieBan(year,month,day,hour,minute){
   turnYears=turnYears.filter(function(t){return t.age>=10&&t.age<=80});
   turnYears.sort(function(a,b){return a.age-b.age});
 
-  var NOTE='【馥靈提醒】鐵板神數是最嚴格的傳統命理系統，要求出生時間精確到分鐘。本工具為教學示範版，提供方向性參考。真正的鐵板神數需要配合精確的刻數（每刻15分鐘）才能查出完整條文。命盤是座標，不是劇本——看完這些，你要做的不是「信」，而是「對照」。哪一段說的不像你？那個部分才是你最有選擇空間的地方。';
+  var NOTE='【馥靈提醒】鐵板神數是最嚴格的傳統命理系統，要求出生時間精確到分鐘。本工具為教學示範版，提供方向性參考。真正的鐵板神數需要配合精確的刻數（每刻15分鐘）才能查出完整條文。命盤是座標，不是劇本。看完這些，你要做的不是「信」，而是「對照」。哪一段說的不像你？那個部分才是你最有選擇空間的地方。';
 
   return{
     yearStem:yearStem,yearBranch:yearBranch,monthStem:monthStem,monthBranch:monthBranch,
@@ -1238,16 +1239,26 @@ function runMatch(){
   },80);
 }
 
-/* ══ 輔助：複製 ══ */
-function cpText(id,btn){
+/* ══ 輔助：複製（含 fallback）══ */
+function _doCopy(text){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    return navigator.clipboard.writeText(text).catch(function(){_fbCopy(text)});
+  } else {_fbCopy(text)}
+}
+function _fbCopy(text){
+  var ta=document.createElement('textarea');
+  ta.value=text;ta.style.cssText='position:fixed;opacity:0;top:0;left:0';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy')}catch(e){}
+  document.body.removeChild(ta);
+}
+function copyText(id,btn){
   var el=document.getElementById(id);if(!el)return;
-  navigator.clipboard.writeText(el.textContent||el.innerText).then(function(){
-    var t=btn.textContent;btn.textContent='✅ 已複製';setTimeout(function(){btn.textContent=t},1500);
-  });
+  _doCopy(el.textContent||el.innerText);
+  if(btn){var t=btn.textContent;btn.textContent='✅ 已複製';setTimeout(function(){btn.textContent=t},1500);}
 }
-function cpEl(el){
-  navigator.clipboard.writeText(el.textContent||el.innerText).then(function(){});
-}
+var cpText=copyText;
+function cpEl(el){_doCopy(el.textContent||el.innerText)}
 
 /* ══ 切換 Tab ══ */
 function switchTab(idx){
@@ -1336,24 +1347,24 @@ function renderMatch(a,b){
   +'肆、用神喜忌互補\n'
   +'・甲方用神五行？乙方日主是甲方的喜神還是忌神？\n'
   +'・乙方用神五行？甲方日主是乙方的喜神還是忌神？\n'
-  +'・最佳情境：雙方互為彼此的用神喜神——天然旺夫/旺妻格局\n\n'
+  +'・最佳情境：雙方互為彼此的用神喜神。天然旺夫/旺妻格局\n\n'
   +'伍、大運流年同步\n'
   +'・甲當前大運：'+( a.dyArr[0]||'未知')+'；乙當前大運：'+( b.dyArr[0]||'未知')+'\n'
   +'・兩人能量節奏差距幾年？是否同步走入好運/逆境期？\n'
   +'・2026丙午流年：丙火對兩人日主各自的意義與衝擊\n\n'
   +'【參考書目·八字合盤】\n'
-  +'▍梁湘潤《子平基礎概要》《實務論命》——用神喜忌判斷、格局鑑定標準版本\n'
-  +'▍何建忠《八字心理學》——日主五行互動的心理學解讀，十神對應人格原型\n'
-  +'▍鍾義明《命理鑑定學》《合婚實務》——六親宮位交叉、合婚判斷實務\n'
-  +'▍《三命通會》（明·萬民英）——六合六沖六刑原始斷訣，傳統案例庫\n'
-  +'▍張盛舒《閱人有術》造命系列——十神對接大五人格/MBTI，日主互動的現代心理語言\n';
+  +'▍梁湘潤《子平基礎概要》《實務論命》｜用神喜忌判斷、格局鑑定標準版本\n'
+  +'▍何建忠《八字心理學》｜日主五行互動的心理學解讀，十神對應人格原型\n'
+  +'▍鍾義明《命理鑑定學》《合婚實務》｜六親宮位交叉、合婚判斷實務\n'
+  +'▍《三命通會》（明·萬民英）｜六合六沖六刑原始斷訣，傳統案例庫\n'
+  +'▍張盛舒《閱人有術》造命系列｜十神對接大五人格/MBTI，日主互動的現代心理語言\n';
   var h0=mkDual(nameA,bazi_html(a),nameB,bazi_html(b));
   var preIdA='bz_ai_a',preIdB='bz_ai_b',preIdC='bz_ai_c';
   h0+=mkPre(preIdA,bzA);h0+=mkPre(preIdB,bzB);
   h0+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="'+preIdC+'">'+escHtml(bzCombined)+'</pre></div>';
-  h0+=mkCpBtn('📋 複製甲方','',  'function(b){cpText("'+preIdA+'",b)}');
-  h0+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("'+preIdB+'",b)}');
-  h0+=mkCpBtn('📋 複製合盤指令','combined','function(b){cpText("'+preIdC+'",b)}');
+  h0+=mkCpBtn('📋 複製甲方','',  'function(b){copyText("'+preIdA+'",b)}');
+  h0+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("'+preIdB+'",b)}');
+  h0+=mkCpBtn('📋 複製合盤指令','combined','function(b){copyText("'+preIdC+'",b)}');
   mkPanel(h0);
 
   /* ── ② 紫微 ── */
@@ -1411,17 +1422,17 @@ function renderMatch(a,b){
     +'・是否形成「日月同宮」「紫府朝垣」等強力合盤格局？\n'
     +'・化科的知音加持：甲方化科落乙方哪宮（互相欣賞的點）\n\n'
     +'【參考書目·紫微合盤】\n'
-    +'▍StarQode《紫微合盤全解析：用命盤找出最佳人生夥伴》——飛化互動結構化判斷，完整詮釋框架\n'
-    +'▍大耕老師《紫微攻略3：星曜我們與真實自己的距離》——對宮鏡像效應，關係中的投射心理\n'
-    +'▍周星飛《飛星紫微斗數，這樣學最快懂》——宮干四化因果飛化邏輯，最清晰的現代白話版\n'
-    +'▍陳俊宏《靜觀天機：紫微斗數現代量化分析》——飛化互動量化，AI判盤架構\n'
-    +'▍張凱元《紫微斗數之迷與悟》——星曜本質與宮位互動的現代詮釋，打破宿命論\n';
+    +'▍StarQode《紫微合盤全解析：用命盤找出最佳人生夥伴》｜飛化互動結構化判斷，完整詮釋框架\n'
+    +'▍大耕老師《紫微攻略3：星曜我們與真實自己的距離》｜對宮鏡像效應，關係中的投射心理\n'
+    +'▍周星飛《飛星紫微斗數，這樣學最快懂》｜宮干四化因果飛化邏輯，最清晰的現代白話版\n'
+    +'▍陳俊宏《靜觀天機：紫微斗數現代量化分析》｜飛化互動量化，AI判盤架構\n'
+    +'▍張凱元《紫微斗數之迷與悟》｜星曜本質與宮位互動的現代詮釋，打破宿命論\n';
   var h1=mkDual(nameA,zw_html(a),nameB,zw_html(b));
   h1+=mkPre('zw_a',zwA);h1+=mkPre('zw_b',zwB);
   h1+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="zw_c">'+escHtml(zwC)+'</pre></div>';
-  h1+=mkCpBtn('📋 複製甲方','','function(b){cpText("zw_a",b)}');
-  h1+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("zw_b",b)}');
-  h1+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("zw_c",b)}');
+  h1+=mkCpBtn('📋 複製甲方','','function(b){copyText("zw_a",b)}');
+  h1+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("zw_b",b)}');
+  h1+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("zw_c",b)}');
   mkPanel(h1);
 
   /* ── ③ 占星 ── */
@@ -1457,13 +1468,13 @@ function renderMatch(a,b){
   }
   var astA=ast_ai(a,nameA),astB=ast_ai(b,nameB);
   var astC=astA+'\n'+astB+'\n\n【西洋占星合盤深度解讀指令（Synastry + Composite）】\n\n'
-    +'壹、比對盤 Synastry——行星對行星\n'
+    +'壹、比對盤 Synastry。行星對行星\n'
     +'・甲太陽 vs 乙太陽：意識目標是否朝同一方向？同元素=同頻，互補=動態加分\n'
-    +'・甲月亮 vs 乙月亮：情緒底色共鳴——同元素=天然安慰彼此，相剋=容易「不懂對方為什麼這樣」\n'
-    +'・甲金星 vs 乙火星：吸引力化學——合相/六分/三分=天然吸引；四分/對分=強烈但有張力\n'
+    +'・甲月亮 vs 乙月亮：情緒底色共鳴。同元素=天然安慰彼此，相剋=容易「不懂對方為什麼這樣」\n'
+    +'・甲金星 vs 乙火星：吸引力化學。合相/六分/三分=天然吸引；四分/對分=強烈但有張力\n'
     +'・甲火星 vs 乙金星：反向吸引力，兩組金火相位是否互相呼應？\n'
-    +'・甲土星落乙個人行星：土星的規範效應——合相月亮=情緒被管控，合相金星=愛被限制\n'
-    +'・甲冥王落乙個人行星：深度轉化主題——合相太陽=改變對方自我認同，合相月亮=情緒掌控議題\n\n'
+    +'・甲土星落乙個人行星：土星的規範效應。合相月亮=情緒被管控，合相金星=愛被限制\n'
+    +'・甲冥王落乙個人行星：深度轉化主題。合相太陽=改變對方自我認同，合相月亮=情緒掌控議題\n\n'
     +'貳、宮位交叉（行星落對方哪宮）\n'
     +'・甲太陽落乙哪宮→第7宮=看見對方整體/第4宮=家庭滋養/第10宮=支持事業/第8宮=深度轉化\n'
     +'・甲月亮落乙哪宮→第4宮=最溫暖的家/第8宮=深度情感/第12宮=內在深層連結\n'
@@ -1473,9 +1484,9 @@ function renderMatch(a,b){
     +'・合相(☌)：能量融合，最強連結，但界線可能模糊\n'
     +'・對分相(☍)：強烈相吸需要整合，最容易在關係中「投射」自己不認識的面向到對方身上\n'
     +'・三分相(△)：天然流動和諧，但可能太安逸缺乏成長動力\n'
-    +'・四分相(□)：最有成長動力的張力，也最容易爆發衝突——轉化後變成最強支柱\n'
+    +'・四分相(□)：最有成長動力的張力，也最容易爆發衝突。轉化後變成最強支柱\n'
     +'・每個相位必須給出：這個相位在感情/事業/日常的具體場景是什麼樣子？\n\n'
-    +'肆、組合盤 Composite——「這段關係本身」的星盤\n'
+    +'肆、組合盤 Composite。「這段關係本身」的星盤\n'
     +'・組合盤太陽在哪宮？→這段關係的共同使命在哪個領域\n'
     +'・組合盤月亮在哪宮？→這段關係最需要什麼才能感到安全\n'
     +'・組合盤金星 vs 火星相位：關係中的愛與慾望是否流暢\n'
@@ -1486,17 +1497,17 @@ function renderMatch(a,b){
     +'・天雷勾地火型（金火連結）：激情但需要管理\n'
     +'・成長搭檔型（木星連結）：互相擴展視野與機會\n\n'
     +'【參考書目·占星合盤】\n'
-    +'▍韓良露《人際相位聖經：占星合盤的個人緣、社會緣與宿命緣》——十大行星合盤互動詳解，最完整中文合盤教材\n'
-    +'▍Liz Greene《Relating: An Astrological Guide to Living with Others》——占星合盤心理學聖經，投射與陰影\n'
-    +'▍Sue Tompkins《Aspects in Astrology》——相位情結必讀，各相位的心理學場景拆解\n'
-    +'▍Robert Hand《Planets in Composite》——組合盤聖經，關係本身的命盤如何閱讀\n'
-    +'▍Stephen Arroyo《Astrology, Karma and Transformation》——業力占星，關係中的靈魂功課\n';
+    +'▍韓良露《人際相位聖經：占星合盤的個人緣、社會緣與宿命緣》｜十大行星合盤互動詳解，最完整中文合盤教材\n'
+    +'▍Liz Greene《Relating: An Astrological Guide to Living with Others》，占星合盤心理學聖經，投射與陰影\n'
+    +'▍Sue Tompkins《Aspects in Astrology》，相位情結必讀，各相位的心理學場景拆解\n'
+    +'▍Robert Hand《Planets in Composite》，組合盤聖經，關係本身的命盤如何閱讀\n'
+    +'▍Stephen Arroyo《Astrology, Karma and Transformation》，業力占星，關係中的靈魂功課\n';
   var h2=mkDual(nameA,ast_html(a),nameB,ast_html(b));
   h2+=mkPre('ast_a',astA);h2+=mkPre('ast_b',astB);
   h2+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="ast_c">'+escHtml(astC)+'</pre></div>';
-  h2+=mkCpBtn('📋 複製甲方','','function(b){cpText("ast_a",b)}');
-  h2+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("ast_b",b)}');
-  h2+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("ast_c",b)}');
+  h2+=mkCpBtn('📋 複製甲方','','function(b){copyText("ast_a",b)}');
+  h2+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("ast_b",b)}');
+  h2+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("ast_c",b)}');
   mkPanel(h2);
 
   /* ── ④ 人類圖 ── */
@@ -1556,17 +1567,17 @@ function renderMatch(a,b){
     +'・甲非自己主題：'+((a.hd&&a.hd.nst)||'?')+' 乙非自己主題：'+((b.hd&&b.hd.nst)||'?')+'\n'
     +'・雙方的陰影主題在什麼場景互相觸發？如何打破「互相激活陰影」的迴圈？\n\n'
     +'【參考書目·人類圖合盤】\n'
-    +'▍Ra Uru Hu《The Rave BodyGraph》——Connection Chart原始理論，電磁/妥協/支配通道完整定義\n'
-    +'▍Lynda Bunnell《The Definitive Book of Human Design》——四大類型互動策略，邀請機制與能量場邊界\n'
-    +'▍喬宜思 Joyce Huang《人類圖去制約之旅》系列——台灣本土生活案例，制約在關係中的具體展現\n'
-    +'▍Karen Curry Parker《Understanding Human Design》——開放中心制約效應，關係中被誤解的能量動態\n'
-    +'▍Richard Rudd《Gene Keys》——64閘門的關係面向，合盤閘門的靈魂層次解讀\n';
+    +'▍Ra Uru Hu《The Rave BodyGraph》，Connection Chart原始理論，電磁/妥協/支配通道完整定義\n'
+    +'▍Lynda Bunnell《The Definitive Book of Human Design》，四大類型互動策略，邀請機制與能量場邊界\n'
+    +'▍喬宜思 Joyce Huang《人類圖去制約之旅》系列，台灣本土生活案例，制約在關係中的具體展現\n'
+    +'▍Karen Curry Parker《Understanding Human Design》，開放中心制約效應，關係中被誤解的能量動態\n'
+    +'▍Richard Rudd《Gene Keys》，64閘門的關係面向，合盤閘門的靈魂層次解讀\n';
   var h3=mkDual(nameA,hd_html(a),nameB,hd_html(b));
   h3+=mkPre('hd_a',hdA);h3+=mkPre('hd_b',hdB);
   h3+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="hd_c">'+escHtml(hdC)+'</pre></div>';
-  h3+=mkCpBtn('📋 複製甲方','','function(b){cpText("hd_a",b)}');
-  h3+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("hd_b",b)}');
-  h3+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("hd_c",b)}');
+  h3+=mkCpBtn('📋 複製甲方','','function(b){copyText("hd_a",b)}');
+  h3+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("hd_b",b)}');
+  h3+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("hd_c",b)}');
   mkPanel(h3);
 
   /* ── ⑤ 七政四餘 ── */
@@ -1586,14 +1597,14 @@ function renderMatch(a,b){
   }
   var qzA=qz_ai(a,nameA),qzB=qz_ai(b,nameB);
   var qzC=qzA+'\n'+qzB+'\n\n【七政四餘合盤深度解讀指令】\n\n'
-    +'壹、命主星合盤——恩用仇難體系\n'
+    +'壹、命主星合盤。恩用仇難體系\n'
     +'・甲方命度主（日命主）× 乙方命度主的五行生剋關係\n'
     +'・恩星：對方命度主生甲方命度主→對甲方最有助益，貴人角色\n'
     +'・仇星：對方命度主剋甲方命度主→無意識消耗，需注意的能量流向\n'
     +'・用星：甲方命度主生對方命度主→甲方是乙方的工具/資源\n'
     +'・難星：甲方命度主剋對方命度主→甲方無意識對乙方造成壓力\n'
     +'・完整的恩用仇難雙向分析：A對B + B對A，誰是誰的恩星？\n\n'
-    +'貳、化曜交叉——十神感情應用\n'
+    +'貳、化曜交叉。十神感情應用\n'
     +'・甲方的「天貴[正財]」落乙方哪個宮位方向？\n'
     +'・甲方的「天福[食神]」代表甲方帶給乙方的享受與藝術滋養\n'
     +'・甲方的「天刑[七殺]」對乙方的破壞與重建影響\n'
@@ -1601,24 +1612,24 @@ function renderMatch(a,b){
     +'叁、四餘交會的關係影響\n'
     +'・羅睺（挑戰）：若落入對方的感情/財富方位→隱藏的人際挑戰\n'
     +'・計都：舊模式/累積課題→是否雙方計都方位相近（同世代課題）？\n'
-    +'・月孛（情感能量）：甲方月孛 vs 乙方月亮宿度——感情中的隱微連結\n'
+    +'・月孛（情感能量）：甲方月孛 vs 乙方月亮宿度。感情中的隱微連結\n'
     +'・紫氣（吉，文化/靈性貴氣）：雙方紫氣是否形成交會？\n\n'
-    +'肆、行限合盤——時間節點同步\n'
+    +'肆、行限合盤。時間節點同步\n'
     +'・當前行限宿度對兩人的影響是否同步？\n'
     +'・哪個年份兩人的行限同時走到有利宿度（共同的好運窗口）？\n'
     +'・2026年流年七政入宮對兩人關係的交叉影響\n\n'
     +'【參考書目·七政四餘合盤】\n'
-    +'▍唐代張果《果老星宗》——恩用仇難生剋體系聖經，化曜十星完整推算\n'
-    +'▍秦瑞生老師《古典占星學》——七政四餘與西方行星尊貴力量完美對接\n'
-    +'▍Chris Brennan《希臘古典占星學》——法達星限法（Firdaria）與行限的跨文化對照\n'
-    +'▍《三辰通載》《星學大成》——化曜系統原始文獻根據\n'
-    +'▍Robert Hand《Planets in Transit》——西方行運邏輯與七政四餘流年形成對照驗證\n';
+    +'▍唐代張果《果老星宗》｜恩用仇難生剋體系聖經，化曜十星完整推算\n'
+    +'▍秦瑞生老師《古典占星學》｜七政四餘與西方行星尊貴力量完美對接\n'
+    +'▍Chris Brennan《希臘古典占星學》，法達星限法（Firdaria）與行限的跨文化對照\n'
+    +'▍《三辰通載》《星學大成》｜化曜系統原始文獻根據\n'
+    +'▍Robert Hand《Planets in Transit》，西方行運邏輯與七政四餘流年形成對照驗證\n';
   var h4=mkDual(nameA,qz_html(a),nameB,qz_html(b));
   h4+=mkPre('qz_a',qzA);h4+=mkPre('qz_b',qzB);
   h4+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="qz_c">'+escHtml(qzC)+'</pre></div>';
-  h4+=mkCpBtn('📋 複製甲方','','function(b){cpText("qz_a",b)}');
-  h4+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("qz_b",b)}');
-  h4+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("qz_c",b)}');
+  h4+=mkCpBtn('📋 複製甲方','','function(b){copyText("qz_a",b)}');
+  h4+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("qz_b",b)}');
+  h4+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("qz_c",b)}');
   mkPanel(h4);
 
   /* ── ⑥ 瑪雅 ── */
@@ -1672,17 +1683,17 @@ function renderMatch(a,b){
     +'・兩人的月份/週期的等離子體（Plasma）是否同步？\n'
     +'・共同的最佳合作時機窗口（兩人能量都在高點的月份）\n\n'
     +'【參考書目·瑪雅合盤】\n'
-    +'▍José Argüelles《The Mayan Factor》——13月亮曆祖師爺，合盤KIN計算的原始理論\n'
-    +'▍Ariel Spilsbury《The Mayan Oracle: Return Path to the Stars》——20圖騰心理學原型，合盤神諭關係解讀\n'
-    +'▍陳盈君老師《星際馬雅13月亮曆法實踐書》——台灣最白話普及版，波符共時性實踐\n'
-    +'▍Sergio Nebo《Mayan Calendar Co-creative Almanac》——合盤KIN與共同使命的進階應用\n'
-    +'▍朱衍舞 Rafeeka《時間法則》系列——身體共振與感受，精油與月亮曆的同頻應用\n';
+    +'▍José Argüelles《The Mayan Factor》，13月亮曆祖師爺，合盤KIN計算的原始理論\n'
+    +'▍Ariel Spilsbury《The Mayan Oracle: Return Path to the Stars》，20圖騰心理學原型，合盤神諭關係解讀\n'
+    +'▍陳盈君老師《星際馬雅13月亮曆法實踐書》｜台灣最白話普及版，波符共時性實踐\n'
+    +'▍Sergio Nebo《Mayan Calendar Co-creative Almanac》，合盤KIN與共同使命的進階應用\n'
+    +'▍朱衍舞 Rafeeka《時間法則》系列｜身體共振與感受，精油與月亮曆的同頻應用\n';
   var h5=mkDual(nameA,maya_html(a),nameB,maya_html(b));
   h5+=mkPre('my_a',myA);h5+=mkPre('my_b',myB);
   h5+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="my_c">'+escHtml(myC)+'</pre></div>';
-  h5+=mkCpBtn('📋 複製甲方','','function(b){cpText("my_a",b)}');
-  h5+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("my_b",b)}');
-  h5+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("my_c",b)}');
+  h5+=mkCpBtn('📋 複製甲方','','function(b){copyText("my_a",b)}');
+  h5+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("my_b",b)}');
+  h5+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("my_c",b)}');
   mkPanel(h5);
 
   /* ── ⑦ 靈數 ── */
@@ -1739,23 +1750,23 @@ function renderMatch(a,b){
     +'肆、流年能量節奏配合\n'
     +'・甲2026流年：'+a.nm.py+'（'+(FLOW_KW[a.nm.py]||'')+'）乙2026流年：'+b.nm.py+'（'+(FLOW_KW[b.nm.py]||'')+'）\n'
     +'・兩人流年是否同步（同一個九年循環節點）？\n'
-    +'・1流年=播種新局；5流年=變動冒險；9流年=放手結束——對這段關係意味著什麼？\n'
+    +'・1流年=播種新局；5流年=變動冒險；9流年=放手結束。對這段關係意味著什麼？\n'
     +'・找出未來3年兩人流年數最「合拍」的年份\n\n'
     +'伍、天賦數的工作夥伴分析\n'
     +'・甲天賦數（'+a.nm.talent+'）× 乙天賦數（'+b.nm.talent+'）的工作合作風格\n'
     +'・兩人的「提款密碼」：誰賺什麼錢最省力？合作的最大槓桿點在哪裡？\n\n'
     +'【參考書目·靈數合盤】\n'
-    +'▍Dan Millman《生命數字全書》（25周年紀念典藏版）——靈數配對聖經，命途相容性分析框架\n'
-    +'▍Hans Decoz《Numerology: Key to Your Inner Self》——數字間的交互關係，兩個數字的節奏碰撞\n'
-    +'▍紫衣格格《讓人生更順利的生命靈數》——農陽曆雙軌，家族業力+個人命途的立體框架\n'
-    +'▍藍寧仕 Dimitrios Lenis《生命靈數：新世紀全方位身心靈解析》——九宮格連線分析，空缺數心理補位\n'
-    +'▍Glynis McCants《Glynis Has Your Number》——數字特質在人際關係中的配對應用\n';
+    +'▍Dan Millman《生命數字全書》（25周年紀念典藏版），靈數配對聖經，命途相容性分析框架\n'
+    +'▍Hans Decoz《Numerology: Key to Your Inner Self》，數字間的交互關係，兩個數字的節奏碰撞\n'
+    +'▍紫衣格格《讓人生更順利的生命靈數》｜農陽曆雙軌，家族業力+個人命途的立體框架\n'
+    +'▍藍寧仕 Dimitrios Lenis《生命靈數：新世紀全方位身心靈解析》，九宮格連線分析，空缺數心理補位\n'
+    +'▍Glynis McCants《Glynis Has Your Number》，數字特質在人際關係中的配對應用\n';
   var h6=mkDual(nameA,num_html(a),nameB,num_html(b));
   h6+=mkPre('nm_a',nmA);h6+=mkPre('nm_b',nmB);
   h6+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="nm_c">'+escHtml(nmC)+'</pre></div>';
-  h6+=mkCpBtn('📋 複製甲方','','function(b){cpText("nm_a",b)}');
-  h6+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("nm_b",b)}');
-  h6+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("nm_c",b)}');
+  h6+=mkCpBtn('📋 複製甲方','','function(b){copyText("nm_a",b)}');
+  h6+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("nm_b",b)}');
+  h6+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("nm_c",b)}');
   mkPanel(h6);
 
   /* ── ⑧ 馥靈秘碼 ── */
@@ -1787,25 +1798,25 @@ function renderMatch(a,b){
     +'▍核心參考依據：王逸君《藏在農曆生日裡的秘碼》ISBN 978-626-01-5769-2\n\n'
     +'甲：H='+a.fl.H.H+' O='+a.fl.H.O+' U='+a.fl.H.U+' R='+a.fl.H.R+'\n'
     +'乙：H='+b.fl.H.H+' O='+b.fl.H.O+' U='+b.fl.H.U+' R='+b.fl.H.R+'\n\n'
-    +'壹、H（身心校準）配對——「我夠好嗎？」\n'
+    +'壹、H（身心校準）配對，「我夠好嗎？」\n'
     +'・甲H='+a.fl.H.H+' 乙H='+b.fl.H.H+'\n'
     +'・相同H數：兩人在壓力下的身心修復方式相同→容易理解彼此但可能同時崩潰\n'
     +'・不同H數：各自有不同的「充電方式」→最需要溝通「各自需要什麼才能復原」\n'
     +'・H數的核心問題：當甲感到「不夠好」時，乙方的存在是放大還是舒緩這個感受？\n\n'
-    +'貳、O（智慧辨識）配對——「我值得被愛嗎？」\n'
+    +'貳、O（智慧辨識）配對。「我值得被愛嗎？」\n'
     +'・甲O='+a.fl.H.O+' 乙O='+b.fl.H.O+'\n'
-    +'・O數決定認知模式與需求辨識方式——兩人的O數差異在決策上如何呈現？\n'
+    +'・O數決定認知模式與需求辨識方式。兩人的O數差異在決策上如何呈現？\n'
     +'・「辨識真實的自己 vs 討好版的自己」：哪一方更容易在這段關係中失去自我？\n'
     +'・O數相近：認知模式同頻，但可能互相強化盲點\n'
     +'・O數差異大：視角互補，但容易在「問題的定義」上各說各話\n\n'
-    +'叁、U（潛能解鎖）配對——「我配擁有嗎？」\n'
+    +'叁、U（潛能解鎖）配對。「我配擁有嗎？」\n'
     +'・甲U='+a.fl.H.U+' 乙U='+b.fl.H.U+'\n'
     +'・U數是從洞察轉化為行動的能量門\n'
     +'・誰是推動者？誰是穩定者？兩人的U數如何分工？\n'
     +'・U數衝突場景：甲方想快速行動，乙方需要更多準備時間（或反之）\n\n'
-    +'肆、R（行動進化）配對——「我為何而來？」\n'
+    +'肆、R（行動進化）配對。「我為何而來？」\n'
     +'・甲R='+a.fl.H.R+' 乙R='+b.fl.H.R+'\n'
-    +'・R數是人生版本升級密碼——兩人的成長方向是否朝同一個座標前進？\n'
+    +'・R數是人生版本升級密碼。兩人的成長方向是否朝同一個座標前進？\n'
     +'・相同R數：共同的使命感，容易彼此激勵\n'
     +'・不同R數：各自有不同的人生主線，如何既保持各自成長又不分道揚鑣？\n\n'
     +'伍、L.I.G.H.T. 合盤\n'
@@ -1813,24 +1824,24 @@ function renderMatch(a,b){
     +'・乙LIGHT：L='+b.fl.L.L+' I='+b.fl.L.I+' G='+b.fl.L.G+' H='+b.fl.L.H+' T='+b.fl.L.T+'\n'
     +'・L（愛之力）配對：兩人的自我疼惜方式是否互相支撐？\n'
     +'・G（根基力）配對：安全感的根基是否相容（一人靠關係/另一人靠獨立）？\n'
-    +'・T（蛻變力）配對：兩人突破成長的方式——是共同突破還是各自需要空間？\n\n'
+    +'・T（蛻變力）配對：兩人突破成長的方式，是共同突破還是各自需要空間？\n\n'
     +'陸、12宮關鍵宮位合盤\n'
     +'・甲7宮（心門/感情）='+a.fl.pals['7宮_心門宮']+'　乙7宮='+b.fl.pals['7宮_心門宮']+'\n'
     +'・甲10宮（事業/志氣）='+a.fl.pals['10宮_志氣殿']+'　乙10宮='+b.fl.pals['10宮_志氣殿']+'\n'
     +'・7宮共振：是否形成「心門開啟」的共鳴？\n'
     +'・10宮能量方向是否一致？（決定合作/同行的核心動力）\n\n'
     +'【參考書目·馥靈秘碼合盤】\n'
-    +'▍王逸君《藏在農曆生日裡的秘碼：馥靈秘碼·聞香識人的生命數字學》ISBN 978-626-01-5769-2——H.O.U.R.四柱配對的原始框架，12宮合盤的最終標準\n'
-    +'▍Dan Millman《生命數字全書》——各數字建設性/破壞性雙軌，H.O.U.R.各數字正反面特質對照參考\n'
-    +'▍紫衣格格《讓人生更順利的生命靈數》——農陽曆雙軌合盤，家族業力與個人命途的立體框架\n'
-    +'▍Glynis McCants《Glynis Has Your Number》——數字相容性的人際關係應用\n'
-    +'▍Hans Decoz《Numerology: Key to Your Inner Self》——兩人數字的「交互關係」與節奏碰撞框架\n';
+    +'▍王逸君《藏在農曆生日裡的秘碼：馥靈秘碼·聞香識人的生命數字學》ISBN 978-626-01-5769-2｜H.O.U.R.四柱配對的原始框架，12宮合盤的最終標準\n'
+    +'▍Dan Millman《生命數字全書》，各數字建設性/破壞性雙軌，H.O.U.R.各數字正反面特質對照參考\n'
+    +'▍紫衣格格《讓人生更順利的生命靈數》｜農陽曆雙軌合盤，家族業力與個人命途的立體框架\n'
+    +'▍Glynis McCants《Glynis Has Your Number》，數字相容性的人際關係應用\n'
+    +'▍Hans Decoz《Numerology: Key to Your Inner Self》，兩人數字的「交互關係」與節奏碰撞框架\n';
   var h7=mkDual(nameA,fl_html(a),nameB,fl_html(b));
   h7+=mkPre('fl_a',flA);h7+=mkPre('fl_b',flB);
   h7+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="fl_c">'+escHtml(flC)+'</pre></div>';
-  h7+=mkCpBtn('📋 複製甲方','','function(b){cpText("fl_a",b)}');
-  h7+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("fl_b",b)}');
-  h7+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("fl_c",b)}');
+  h7+=mkCpBtn('📋 複製甲方','','function(b){copyText("fl_a",b)}');
+  h7+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("fl_b",b)}');
+  h7+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("fl_c",b)}');
   mkPanel(h7);
 
   /* ── ⑨ 生命密碼（三角形）── */
@@ -1858,46 +1869,46 @@ function renderMatch(a,b){
   var triA=tri_ai(a,nameA),triB=tri_ai(b,nameB);
   var triC=triA+'\n'+triB+'\n\n【生命數字三角形合盤深度解讀指令】\n'
     +'甲O（主性格）='+a.tri.O+'（'+getWuxing(a.tri.O)+'）乙O='+b.tri.O+'（'+getWuxing(b.tri.O)+'）\n\n'
-    +'壹、主性格（O值）五行生剋——關係能量的核心動態\n'
+    +'壹、主性格（O值）五行生剋。關係能量的核心動態\n'
     +'・甲O('+a.tri.O+'/'+getWuxing(a.tri.O)+') × 乙O('+b.tri.O+'/'+getWuxing(b.tri.O)+')\n'
-    +'・主宰近60%行為模式的核心——兩人的O值五行如何互動？\n'
+    +'・主宰近60%行為模式的核心。兩人的O值五行如何互動？\n'
     +'・相生：一方自然滋養另一方的主性格，是天然支持型夥伴\n'
     +'・相剋：一方無意識壓制另一方，需要覺察避免「消耗型互動」\n'
     +'・比和：同五行屬性，高度理解但可能放大彼此的盲點\n\n'
-    +'貳、內心密碼配對——棉被裡的真實渴望\n'
+    +'貳、內心密碼配對。棉被裡的真實渴望\n'
     +'・甲內心='+a.tri.inner+' 乙內心='+b.tri.inner+'\n'
     +'・甲方內心（'+a.tri.inner+'）vs 乙方主性格（'+b.tri.O+'）：乙方的「外在盔甲」是否能容納甲方的「內在軟肋」？\n'
     +'・乙方內心（'+b.tri.inner+'）vs 甲方主性格（'+a.tri.O+'）：同理反向分析\n'
     +'・「棉被裡的真實渴望」是否在這段關係中有安全感被表達？\n\n'
     +'叁、父母基因的交叉影響\n'
-    +'・甲父親基因（'+a.tri.I+a.tri.J+a.tri.M+'）的A-B-C邏輯——甲方對「金錢/權威/成就」的潛意識態度\n'
+    +'・甲父親基因（'+a.tri.I+a.tri.J+a.tri.M+'）的A-B-C邏輯。甲方對「金錢/權威/成就」的潛意識態度\n'
     +'・乙父親基因（'+b.tri.I+b.tri.J+b.tri.M+'）的A-B-C邏輯\n'
-    +'・甲母親基因（'+a.tri.K+a.tri.L+a.tri.N+'）——甲方對「安全感/親密關係」的直覺反應模式\n'
+    +'・甲母親基因（'+a.tri.K+a.tri.L+a.tri.N+'）。甲方對「安全感/親密關係」的直覺反應模式\n'
     +'・乙母親基因（'+b.tri.K+b.tri.L+b.tri.N+'）\n'
     +'・雙方父母基因相似→帶著相近的原生家庭模式進入關係（可能形成共同課題）\n'
     +'・雙方父母基因差異大→原生家庭底色不同，容易在「什麼叫做正常家庭」上產生衝突\n\n'
-    +'肆、外心密碼——社交面具的相容度\n'
+    +'肆、外心密碼。社交面具的相容度\n'
     +'・甲外心='+a.tri.ext+' 乙外心='+b.tri.ext+'\n'
     +'・甲外心('+a.tri.ext+') vs 乙內心('+b.tri.inner+')：陌生人看到的甲 vs 乙的私下面貌\n'
     +'・外心差距：兩人「對外展現」是否協調？一起出席社交場合的能量配合度\n'
     +'・落差大的外心：容易在「要不要展現真實自我」上有不同的速度\n\n'
-    +'伍、人生階段同步——共同的節點\n'
+    +'伍、人生階段同步。共同的節點\n'
     +'・甲2026流年='+calcFlowYear(a.M,a.D,2026)+'（'+(FLOW_KW[calcFlowYear(a.M,a.D,2026)]||'')+'）乙='+calcFlowYear(b.M,b.D,2026)+'（'+(FLOW_KW[calcFlowYear(b.M,b.D,2026)]||'')+'）\n'
     +'・兩人目前各處於哪個人生階段（21-40/41-60/61+）？\n'
     +'・階段相近：共同的人生主題，容易有共鳴\n'
     +'・階段差距大：可能帶來「各自優先關注不同事」的隔閡，也可能形成互補視野\n\n'
     +'【參考書目·生命密碼合盤】\n'
-    +'▍紫衣格格《讓人生更順利的生命靈數》——三角形六組聯合密碼的合盤應用，農陽曆雙軌\n'
-    +'▍藍寧仕 Dimitrios Lenis《生命靈數：新世紀全方位身心靈解析》——格網圖連線分析，五行+原型+身體對應\n'
-    +'▍Dan Millman《生命數字全書》——命途數字的建設性/破壞性雙軌，各組合的天然張力\n'
-    +'▍Hans Decoz《Numerology: Key to Your Inner Self》——專攻數字間「交互關係」的配對分析架構\n'
-    +'▍王逸君《藏在農曆生日裡的秘碼》——三角形系統在農曆視角下的業力連結與家族傳承\n';
+    +'▍紫衣格格《讓人生更順利的生命靈數》｜三角形六組聯合密碼的合盤應用，農陽曆雙軌\n'
+    +'▍藍寧仕 Dimitrios Lenis《生命靈數：新世紀全方位身心靈解析》，格網圖連線分析，五行+原型+身體對應\n'
+    +'▍Dan Millman《生命數字全書》，命途數字的建設性/破壞性雙軌，各組合的天然張力\n'
+    +'▍Hans Decoz《Numerology: Key to Your Inner Self》，專攻數字間「交互關係」的配對分析架構\n'
+    +'▍王逸君《藏在農曆生日裡的秘碼》｜三角形系統在農曆視角下的業力連結與家族傳承\n';
   var h8=mkDual(nameA,tri_html(a),nameB,tri_html(b));
   h8+=mkPre('tri_a',triA);h8+=mkPre('tri_b',triB);
   h8+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="tri_c">'+escHtml(triC)+'</pre></div>';
-  h8+=mkCpBtn('📋 複製甲方','','function(b){cpText("tri_a",b)}');
-  h8+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("tri_b",b)}');
-  h8+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("tri_c",b)}');
+  h8+=mkCpBtn('📋 複製甲方','','function(b){copyText("tri_a",b)}');
+  h8+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("tri_b",b)}');
+  h8+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("tri_c",b)}');
   mkPanel(h8);
 
   /* ── ⑩ 大六壬 ── */
@@ -1944,20 +1955,20 @@ function renderMatch(a,b){
     +'・月將相異：兩人的「降臨時空」不同，各自的先天裝備如何互補？\n\n'
     +'肆、四課力量對比（感情應用）\n'
     +'・甲第三課（對方/環境）vs 乙第三課：兩人各自理解「對方/外部世界」的方式\n'
-    +'・四課整體：甲方能量（一二課）vs 乙方能量（三四課）的合盤版本——誰主動誰配合？\n'
+    +'・四課整體：甲方能量（一二課）vs 乙方能量（三四課）的合盤版本。誰主動誰配合？\n'
     +'・與八字合盤互相驗證：六壬上神的五行生剋是否呼應八字日主的能量流向？\n\n'
     +'【參考書目·大六壬合盤】\n'
-    +'▍陳公獻《大六壬指南》——四課三傳判斷邏輯的標準出處，人際六壬的完整應用\n'
-    +'▍徐養浩《六壬大全》——體系最完整的六壬百科，九宗門三傳取法的權威依據\n'
-    +'▍邵彥和《六壬斷案》——實戰案例集，六壬在感情/合作關係中的判斷過程\n'
-    +'▍伍劍虹《大六壬精義講解》——現代語言詮釋，心理學式解讀角度\n'
-    +'▍張志春《六壬神課金口訣》——簡化版快速起課法，適合入門理解框架\n';
+    +'▍陳公獻《大六壬指南》｜四課三傳判斷邏輯的標準出處，人際六壬的完整應用\n'
+    +'▍徐養浩《六壬大全》｜體系最完整的六壬百科，九宗門三傳取法的權威依據\n'
+    +'▍邵彥和《六壬斷案》｜實戰案例集，六壬在感情/合作關係中的判斷過程\n'
+    +'▍伍劍虹《大六壬精義講解》｜現代語言詮釋，心理學式解讀角度\n'
+    +'▍張志春《六壬神課金口訣》｜簡化版快速起課法，適合入門理解框架\n';
   var h9=mkDual(nameA,lr_html(a),nameB,lr_html(b));
   h9+=mkPre('lr_a',lrA);h9+=mkPre('lr_b',lrB);
   h9+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="lr_c">'+escHtml(lrC)+'</pre></div>';
-  h9+=mkCpBtn('📋 複製甲方','','function(b){cpText("lr_a",b)}');
-  h9+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("lr_b",b)}');
-  h9+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("lr_c",b)}');
+  h9+=mkCpBtn('📋 複製甲方','','function(b){copyText("lr_a",b)}');
+  h9+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("lr_b",b)}');
+  h9+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("lr_c",b)}');
   mkPanel(h9);
 
   /* ── ⑪ 九星氣學 ── */
@@ -1985,9 +1996,9 @@ function renderMatch(a,b){
   var nskC=nskA+'\n'+nskB+'\n\n【九星氣學合盤深度解讀指令】\n'
     +'甲年星：'+(NSK[a.nsk.ys]&&NSK[a.nsk.ys].n||'?')+'　乙年星：'+(NSK[b.nsk.ys]&&NSK[b.nsk.ys].n||'?')+'\n\n'
     +'壹、三星完整配對分析\n'
-    +'・年星（本命/外在）配對：甲'+( NSK[a.nsk.ys]&&NSK[a.nsk.ys].n||'?')+' × 乙'+( NSK[b.nsk.ys]&&NSK[b.nsk.ys].n||'?')+'——這是別人看到的兩人互動\n'
-    +'・月星（內在/私下）配對：甲'+( NSK[a.nsk.ms]&&NSK[a.nsk.ms].n||'?')+' × 乙'+( NSK[b.nsk.ms]&&NSK[b.nsk.ms].n||'?')+'——這是只有親近的人才能感受到的兩人化學反應\n'
-    +'・第三星（表面/社交）配對：甲'+( NSK[a.nsk.ts]&&NSK[a.nsk.ts].n||'?')+' × 乙'+( NSK[b.nsk.ts]&&NSK[b.nsk.ts].n||'?')+'——第一印象的相容度\n\n'
+    +'・年星（本命/外在）配對：甲'+( NSK[a.nsk.ys]&&NSK[a.nsk.ys].n||'?')+' × 乙'+( NSK[b.nsk.ys]&&NSK[b.nsk.ys].n||'?')+'，這是別人看到的兩人互動\n'
+    +'・月星（內在/私下）配對：甲'+( NSK[a.nsk.ms]&&NSK[a.nsk.ms].n||'?')+' × 乙'+( NSK[b.nsk.ms]&&NSK[b.nsk.ms].n||'?')+'，這是只有親近的人才能感受到的兩人化學反應\n'
+    +'・第三星（表面/社交）配對：甲'+( NSK[a.nsk.ts]&&NSK[a.nsk.ts].n||'?')+' × 乙'+( NSK[b.nsk.ts]&&NSK[b.nsk.ts].n||'?')+'。第一印象的相容度\n\n'
     +'貳、五行生剋深度詮釋\n'
     +'・甲年星五行（'+( NSK[a.nsk.ys]&&NSK[a.nsk.ys].e||'?')+'）× 乙年星五行（'+( NSK[b.nsk.ys]&&NSK[b.nsk.ys].e||'?')+'）\n'
     +'・相生（如木生火）：一方自然滋養另一方，但長期可能一方過於依賴\n'
@@ -2009,17 +2020,17 @@ function renderMatch(a,b){
     +'・甲乙兩人的本命星今年分別飛入哪個宮位（方位）？\n'
     +'・哪個月份是兩人能量都在高點的「共同黃金窗口」？\n\n'
     +'【參考書目·九星氣學合盤】\n'
-    +'▍Michio Kushi《Nine Star Ki》——九星氣學西方傳播鼻祖，自然醫學×風水×命理三合一體系\n'
-    +'▍Rex Lassalle《Nine Star Ki: Feng Shui Astrology》——三星組合的心理學解讀，月星與表面星的人格層次\n'
-    +'▍Bob Sachs《The Complete Guide to Nine Star Ki》——三星→五行→方位→健康的完整應用\n'
-    +'▍西谷泰人《氣學入門》——日本風水氣學核心教材，東西命方位判定標準\n'
-    +'▍田口二州《九星術秘傳》——方位移轉與流年飛星的進階應用，合住方位的精密系統\n';
+    +'▍Michio Kushi《Nine Star Ki》，九星氣學西方傳播鼻祖，自然醫學×風水×命理三合一體系\n'
+    +'▍Rex Lassalle《Nine Star Ki: Feng Shui Astrology》，三星組合的心理學解讀，月星與表面星的人格層次\n'
+    +'▍Bob Sachs《The Complete Guide to Nine Star Ki》，三星→五行→方位→健康的完整應用\n'
+    +'▍西谷泰人《氣學入門》｜日本風水氣學核心教材，東西命方位判定標準\n'
+    +'▍田口二州《九星術秘傳》｜方位移轉與流年飛星的進階應用，合住方位的精密系統\n';
   var hA=mkDual(nameA,nsk_html(a),nameB,nsk_html(b));
   hA+=mkPre('nsk_a',nskA);hA+=mkPre('nsk_b',nskB);
   hA+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="nsk_c">'+escHtml(nskC)+'</pre></div>';
-  hA+=mkCpBtn('📋 複製甲方','','function(b){cpText("nsk_a",b)}');
-  hA+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("nsk_b",b)}');
-  hA+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("nsk_c",b)}');
+  hA+=mkCpBtn('📋 複製甲方','','function(b){copyText("nsk_a",b)}');
+  hA+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("nsk_b",b)}');
+  hA+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("nsk_c",b)}');
   mkPanel(hA);
 
   /* ── ⑫ 生日色彩 ── */
@@ -2046,7 +2057,7 @@ function renderMatch(a,b){
   var clrA=clr_ai(a,nameA),clrB=clr_ai(b,nameB);
   var clrC=clrA+'\n'+clrB+'\n\n【生日色彩合盤深度解讀指令】\n'
     +'甲生命色：'+( a.clr&&a.clr.mc&&a.clr.mc.n||'?')+'（'+a.clr.ln+'）　乙生命色：'+( b.clr&&b.clr.mc&&b.clr.mc.n||'?')+'（'+b.clr.ln+'）\n\n'
-    +'壹、生命色配對——色彩語言的相容性\n'
+    +'壹、生命色配對。色彩語言的相容性\n'
     +'・甲'+( a.clr&&a.clr.mc&&a.clr.mc.n||'?')+'（'+a.clr.ln+'）× 乙'+( b.clr&&b.clr.mc&&b.clr.mc.n||'?')+'（'+b.clr.ln+'）\n'
     +'・互補色（色輪對面）：強烈對比，視覺上相互突出，關係充滿活力但需要刻意調和\n'
     +'・近似色（色輪相鄰）：和諧自然，容易相處，但可能缺乏刺激感\n'
@@ -2059,7 +2070,7 @@ function renderMatch(a,b){
     +'叁、日色（內在）× 月色（表達）的交叉\n'
     +'・甲日色'+( a.clr&&a.clr.ic&&a.clr.ic.n||'?')+'（內在） vs 乙日色'+( b.clr&&b.clr.ic&&b.clr.ic.n||'?')+'（內在）：私下的真實底色相容度\n'
     +'・甲月色'+( a.clr&&a.clr.ec&&a.clr.ec.n||'?')+'（溝通）vs 乙月色'+( b.clr&&b.clr.ec&&b.clr.ec.n||'?')+'（溝通）：說話方式的頻率是否相近？\n'
-    +'・甲方的「外在展現（生命色）」vs 乙方的「內在需求（日色）」——甲呈現給世界的樣子，是否剛好是乙私下最需要的那種能量？\n\n'
+    +'・甲方的「外在展現（生命色）」vs 乙方的「內在需求（日色）」。甲呈現給世界的樣子，是否剛好是乙私下最需要的那種能量？\n\n'
     +'肆、共同空間配色與精油建議\n'
     +'・臥室配色：結合兩人生命色的睡眠空間方案（哪個顏色用在主牆/哪個用在軟裝）\n'
     +'・工作空間：兩人共用辦公區域的最佳配色（提升兩人都高效的環境設計）\n'
@@ -2069,17 +2080,17 @@ function renderMatch(a,b){
     +'・甲穿乙的生命色：甲穿上這個顏色對乙方有什麼心理影響？\n'
     +'・重要日子（第一次約會/簽約/家庭聚會）的共同配色儀式感建議\n\n'
     +'【參考書目·色彩合盤】\n'
-    +'▍Faber Birren《Color Psychology and Color Therapy》——色彩心理學鼻祖，色彩對神經系統與情緒的科學影響\n'
-    +'▍Eva Heller《色彩的性格》（Wie Farben wirken）——2000人問卷，每個顏色在不同文化中的心理意涵\n'
-    +'▍Inna Segal《The Secret Language of Your Body》——色彩+身體+情緒三角，脈輪色彩調理\n'
-    +'▍藍寧仕 Dimitrios Lenis《新生命密碼：9個數字的能量》——1-9數字×色彩×身體×精油的日常應用\n'
-    +'▍Theo Gimbel《Healing with Colour and Light》——色光療法的人際關係應用，互補色在空間設計中的能量平衡\n';
+    +'▍Faber Birren《Color Psychology and Color Therapy》，色彩心理學鼻祖，色彩對神經系統與情緒的科學影響\n'
+    +'▍Eva Heller《色彩的性格》（Wie Farben wirken）｜2000人問卷，每個顏色在不同文化中的心理意涵\n'
+    +'▍Inna Segal《The Secret Language of Your Body》，色彩+身體+情緒三角，脈輪色彩調理\n'
+    +'▍藍寧仕 Dimitrios Lenis《新生命密碼：9個數字的能量》，1-9數字×色彩×身體×精油的日常應用\n'
+    +'▍Theo Gimbel《Healing with Colour and Light》，色光療法的人際關係應用，互補色在空間設計中的能量平衡\n';
   var hB=mkDual(nameA,clr_html(a),nameB,clr_html(b));
   hB+=mkPre('clr_a',clrA);hB+=mkPre('clr_b',clrB);
   hB+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="clr_c">'+escHtml(clrC)+'</pre></div>';
-  hB+=mkCpBtn('📋 複製甲方','','function(b){cpText("clr_a",b)}');
-  hB+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("clr_b",b)}');
-  hB+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("clr_c",b)}');
+  hB+=mkCpBtn('📋 複製甲方','','function(b){copyText("clr_a",b)}');
+  hB+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("clr_b",b)}');
+  hB+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("clr_c",b)}');
   mkPanel(hB);
 
   /* ── ⑬ 凱龍莉莉絲 ── */
@@ -2099,7 +2110,7 @@ function renderMatch(a,b){
   }
   var clxA=cl_ai(a,nameA),clxB=cl_ai(b,nameB);
   var clxC=clxA+'\n'+clxB+'\n\n【凱龍星與黑月莉莉絲合盤深度解讀指令】\n\n'
-    +'壹、凱龍星合盤——傷口的共鳴與修復\n'
+    +'壹、凱龍星合盤。傷口的共鳴與修復\n'
     +'・甲凱龍星座：'+((a.cl&&a.cl.ch&&a.cl.ch.sign)||'需星曆')+'　乙凱龍星座：'+((b.cl&&b.cl.ch&&b.cl.ch.sign)||'需星曆')+'\n'
     +'・兩人凱龍星是否同星座（同世代的集體傷口共鳴）？\n'
     +'・甲凱龍 × 乙個人行星的相位：甲方的傷口是否觸碰乙方的哪顆星？\n'
@@ -2108,7 +2119,7 @@ function renderMatch(a,b){
     +'  →合相太陽：甲方的傷口挑戰乙方的自我認同\n'
     +'・乙凱龍 × 甲個人行星的相位（反向分析）\n'
     +'・「傷口成為橋樑」的轉化可能：兩人的凱龍連結是否暗示這段關係有互相修復的深層使命？\n\n'
-    +'貳、莉莉絲合盤——被壓抑力量的釋放\n'
+    +'貳、莉莉絲合盤，被壓抑力量的釋放\n'
     +'・甲莉莉絲星座：'+((a.cl&&a.cl.li&&a.cl.li.sign)||'需星曆')+'　乙莉莉絲星座：'+((b.cl&&b.cl.li&&b.cl.li.sign)||'需星曆')+'\n'
     +'・甲莉莉絲 × 乙個人行星的相位\n'
     +'  →合相太陽：甲方最原始的力量/性吸引力直接衝擊乙方的自我形象\n'
@@ -2122,19 +2133,19 @@ function renderMatch(a,b){
     +'肆、凱龍回歸的共同轉折\n'
     +'・誰即將進入或剛走過凱龍回歸（約49-51歲）？\n'
     +'・凱龍回歸期間，這段關係對當事人的轉化意義\n'
-    +'・「先覺察自己的傷，才能不讓傷繼續傷害彼此」——給出具體的日常覺察練習\n\n'
+    +'・「先覺察自己的傷，才能不讓傷繼續傷害彼此」。給出具體的日常覺察練習\n\n'
     +'【參考書目·凱龍莉莉絲合盤】\n'
-    +'▍Melanie Reinhart《Chiron and the Healing Journey》——凱龍解讀聖經，12星座×12宮位完整分析，凱龍回歸的轉化準備\n'
-    +'▍Barbara Hand Clow《Chiron: Rainbow Bridge》——凱龍作為內外行星橋樑，個人傷痛與集體覺醒的連結\n'
-    +'▍Demetra George《Mysteries of the Dark Moon》——黑月莉莉絲的神話學、天文學與心理學完整解析\n'
-    +'▍Tom Jacobs《Lilith: Healing the Wild》——莉莉絲在12星座的具體表現與調理方式\n'
-    +'▍Liz Greene《The Astrology of Fate》——業力占星，深層心理情結在關係中的投射與整合\n';
+    +'▍Melanie Reinhart《Chiron and the Healing Journey》，凱龍解讀聖經，12星座×12宮位完整分析，凱龍回歸的轉化準備\n'
+    +'▍Barbara Hand Clow《Chiron: Rainbow Bridge》，凱龍作為內外行星橋樑，個人傷痛與集體覺醒的連結\n'
+    +'▍Demetra George《Mysteries of the Dark Moon》，黑月莉莉絲的神話學、天文學與心理學完整解析\n'
+    +'▍Tom Jacobs《Lilith: Healing the Wild》，莉莉絲在12星座的具體表現與調理方式\n'
+    +'▍Liz Greene《The Astrology of Fate》，業力占星，深層心理情結在關係中的投射與整合\n';
   var hC=mkDual(nameA,cl_html(a),nameB,cl_html(b));
   hC+=mkPre('cl_a',clxA);hC+=mkPre('cl_b',clxB);
   hC+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="cl_c">'+escHtml(clxC)+'</pre></div>';
-  hC+=mkCpBtn('📋 複製甲方','','function(b){cpText("cl_a",b)}');
-  hC+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("cl_b",b)}');
-  hC+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("cl_c",b)}');
+  hC+=mkCpBtn('📋 複製甲方','','function(b){copyText("cl_a",b)}');
+  hC+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("cl_b",b)}');
+  hC+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("cl_c",b)}');
   mkPanel(hC);
 
   /* ── ⑭ 吠陀 ── */
@@ -2160,7 +2171,7 @@ function renderMatch(a,b){
     +'壹、月亮 Nakshatra 傳統婚配\n'
     +'・甲月亮Nakshatra：'+((a.ved&&a.ved.ps.length>1)?a.ved.ps[1].nn:'需星曆')+'（主星：'+((a.ved&&a.ved.ps.length>1)?a.ved.ps[1].nl:'?')+'）\n'
     +'・乙月亮Nakshatra：'+((b.ved&&b.ved.ps.length>1)?b.ved.ps[1].nn:'需星曆')+'（主星：'+((b.ved&&b.ved.ps.length>1)?b.ved.ps[1].nl:'?')+'）\n'
-    +'・傳統印度婚配八因子（Ashtakoot）：星宿之間的「動物配對」「能量配對」「主星配對」——28分滿分的相容度評估\n'
+    +'・傳統印度婚配八因子（Ashtakoot）：星宿之間的「動物配對」「能量配對」「主星配對」。28分滿分的相容度評估\n'
     +'・動物象徵：每個Nakshatra對應一個動物，動物間的友善/中性/敵意關係決定最基礎的相容度\n\n'
     +'貳、Rashi（星座）配對\n'
     +'・甲月亮Rashi × 乙月亮Rashi：情感底色的相容性（吠陀最重視月亮）\n'
@@ -2181,17 +2192,17 @@ function renderMatch(a,b){
     +'・甲的Navamsa月亮×乙的Navamsa月亮：深層次的連結深度\n'
     +'・Pushkara Navamsa：雙方是否有任何行星落在此吉祥分盤位置？\n\n'
     +'【參考書目·吠陀合盤】\n'
-    +'▍K.N. Rao《Planets and Education》——印度國寶占星師，吠陀合盤的傳統婚配八因子詳解\n'
-    +'▍Dennis Harness《The Nakshatras》——27星宿完整解讀，星宿動物配對與婚配應用\n'
-    +'▍Komilla Sutton《The Nakshatras: The Stars Beyond the Zodiac》——月亮星宿的心理學原型，合盤應用\n'
-    +'▍Brendan Feeley《Jyotish: The Hindu System of Astrology》——Navamsa分盤的婚姻解讀\n'
-    +'▍Hart deFouw & Robert Svoboda《Light on Relationships》——吠陀合盤聖經，東西方橋樑\n';
+    +'▍K.N. Rao《Planets and Education》，印度國寶占星師，吠陀合盤的傳統婚配八因子詳解\n'
+    +'▍Dennis Harness《The Nakshatras》，27星宿完整解讀，星宿動物配對與婚配應用\n'
+    +'▍Komilla Sutton《The Nakshatras: The Stars Beyond the Zodiac》，月亮星宿的心理學原型，合盤應用\n'
+    +'▍Brendan Feeley《Jyotish: The Hindu System of Astrology》，Navamsa分盤的婚姻解讀\n'
+    +'▍Hart deFouw & Robert Svoboda《Light on Relationships》，吠陀合盤聖經，東西方橋樑\n';
   var hD=mkDual(nameA,ved_html(a),nameB,ved_html(b));
   hD+=mkPre('ved_a',vedA);hD+=mkPre('ved_b',vedB);
   hD+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="ved_c">'+escHtml(vedC)+'</pre></div>';
-  hD+=mkCpBtn('📋 複製甲方','','function(b){cpText("ved_a",b)}');
-  hD+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("ved_b",b)}');
-  hD+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("ved_c",b)}');
+  hD+=mkCpBtn('📋 複製甲方','','function(b){copyText("ved_a",b)}');
+  hD+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("ved_b",b)}');
+  hD+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("ved_c",b)}');
   mkPanel(hD);
 
   /* ── ⑮ 姓名 ── */
@@ -2226,11 +2237,11 @@ function renderMatch(a,b){
     +(b.ng?('・乙人格：'+b.ng.ren.v+'（'+b.ng.ren.wx+'·'+b.ng.ren.lk+'）'):'・乙方未輸入姓名')+'\n'
     +'・人格是五格中影響力最大，決定主要性格特質與一生運勢基調\n'
     +'・甲人格五行 × 乙人格五行：相生=自然支撐，相剋=無意識壓力，比和=同調但可能放大彼此的盲點\n'
-    +'・33歲前後是人格能量高峰——兩人若處在這個年齡段，人格互動的感受最明顯\n\n'
+    +'・33歲前後是人格能量高峰。兩人若處在這個年齡段，人格互動的感受最明顯\n\n'
     +'貳、五格完整交叉分析\n'
     +(a.ng&&b.ng?('・甲天格（'+a.ng.tian.wx+'）× 乙天格（'+b.ng.tian.wx+'）：祖先遺傳能量的相容性，家族氣場是否和諧\n'
     +'・甲地格（'+a.ng.di.wx+'）× 乙地格（'+b.ng.di.wx+'）：兩人的根基五行，35歲前的基礎運是否互補\n'
-    +'・甲外格（'+a.ng.wai.wx+'）× 乙外格（'+b.ng.wai.wx+'）：人際磁場的吸引力——社交面貌是否互補？\n'
+    +'・甲外格（'+a.ng.wai.wx+'）× 乙外格（'+b.ng.wai.wx+'）：人際磁場的吸引力。社交面貌是否互補？\n'
     +'・甲總格（'+a.ng.zong.wx+'）× 乙總格（'+b.ng.zong.wx+'）：兩人「後半輩子」的能量方向是否同步？\n'):'・請輸入雙方姓名以進行完整分析\n')
     +'\n貳、三才配置的相容性\n'
     +(a.ng&&b.ng?('・甲三才：'+a.ng.sancai+'　乙三才：'+b.ng.sancai+'\n'
@@ -2246,17 +2257,17 @@ function renderMatch(a,b){
     +'・乙人格五行（'+b.ng.ren.wx+'）最擅長：'+( b.ng.ren.wx=='木'?'開創、成長、文藝': b.ng.ren.wx=='火'?'表達、激勵、建立能見度': b.ng.ren.wx=='土'?'穩定、服務、長期經營': b.ng.ren.wx=='金'?'決斷、精準、紀律執行':'適應、溝通、人際潤滑')+'\n'
     +'・合作分工建議：誰擅長開創、誰擅長執行、誰擅長維繫？\n'):'・輸入姓名後分析\n')
     +'\n【參考書目·姓名合盤】\n'
-    +'▍熊崎健翁《姓名之研究》——五格剖象法鼻祖，81數理吉利順逆原始出處\n'
-    +'▍梁湘潤《納音姓名學》——聲音節奏（宮商角徵羽）對神經系統與人際氣場的影響\n'
-    +'▍白惠文《姓名學入門》——康熙筆畫查詢標準、三才配置吉利順逆表，台灣最普及教材\n'
-    +'▍陳哲毅《新姓名學》——結合八字喜用神的補強式姓名學，合盤姓名與命盤的交叉驗證\n'
-    +'▍何榮柱《姓名學大全》——整合五格+生肖+音韻的現代版合盤應用\n';
+    +'▍熊崎健翁《姓名之研究》｜五格剖象法鼻祖，81數理吉利順逆原始出處\n'
+    +'▍梁湘潤《納音姓名學》｜聲音節奏（宮商角徵羽）對神經系統與人際氣場的影響\n'
+    +'▍白惠文《姓名學入門》｜康熙筆畫查詢標準、三才配置吉利順逆表，台灣最普及教材\n'
+    +'▍陳哲毅《新姓名學》｜結合八字喜用神的補強式姓名學，合盤姓名與命盤的交叉驗證\n'
+    +'▍何榮柱《姓名學大全》｜整合五格+生肖+音韻的現代版合盤應用\n';
   var hE=mkDual(nameA,ng_html(a),nameB,ng_html(b));
   hE+=mkPre('ng_a',ngA);hE+=mkPre('ng_b',ngB);
   hE+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="ng_c">'+escHtml(ngC)+'</pre></div>';
-  hE+=mkCpBtn('📋 複製甲方','','function(b){cpText("ng_a",b)}');
-  hE+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("ng_b",b)}');
-  hE+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("ng_c",b)}');
+  hE+=mkCpBtn('📋 複製甲方','','function(b){copyText("ng_a",b)}');
+  hE+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("ng_b",b)}');
+  hE+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("ng_c",b)}');
   mkPanel(hE);
 
   /* ── ⑯ 卡巴拉 ── */
@@ -2285,7 +2296,7 @@ function renderMatch(a,b){
     +'壹、生命路徑數配對（核心質點）\n'
     +(a.kb&&b.kb?('・甲生命路徑：'+a.kb.lp+'（'+(KB_SEPH[kbNTS(a.kb.lp)]||'')+'）乙生命路徑：'+b.kb.lp+'（'+(KB_SEPH[kbNTS(b.kb.lp)]||'')+'）\n'):('・請輸入雙方英文名以計算\n'))
     +'・兩人各在生命之樹的哪個質點？這兩個質點之間的22條路徑是否直接相連？\n'
-    +'・相連路徑：直接的深層連結，對應一張塔羅大牌——這張牌就是這段關係的核心課題\n'
+    +'・相連路徑：直接的深層連結，對應一張塔羅大牌，這張牌就是這段關係的核心課題\n'
     +'・不直接相連：需要跨越多個質點才能連接，意味著這段關係是「高層次的功課型連結」\n\n'
     +'貳、三重數字張力的合盤\n'
     +(a.kb&&b.kb?('・甲表達數('+a.kb.expr+') vs 乙內在渴望('+b.kb.soul+')：甲展現給世界的能力，是否剛好是乙內心深處最渴望的？\n'
@@ -2301,23 +2312,23 @@ function renderMatch(a,b){
     +'・原型界（Atziluth）：兩人的最高層次連結是什麼？\n'
     +'・創造界（Briah）：兩人各自的天賦如何在關係中互相啟動？\n'
     +'・形成界（Yetzirah）：兩人的「生存策略」是否互補？\n'
-    +'・行動界（Assiah）：兩人在現實物質層的互動模式——錢、家、日常決策\n\n'
+    +'・行動界（Assiah）：兩人在現實物質層的互動模式。錢、家、日常決策\n\n'
     +'伍、塔羅大牌的深層功課\n'
     +(a.kb&&b.kb?('・甲路徑'+a.kb.lp+'對應塔羅A'+(String(a.kb.lp-1).padStart(2,'0'))+' 乙路徑'+b.kb.lp+'對應塔羅A'+(String(b.kb.lp-1).padStart(2,'0'))+'\n'):('・輸入英文名後對應\n'))
     +'・兩張大牌在生命之樹上的路徑關係：共振（相鄰路徑）還是對立（對面路徑）？\n'
-    +'・「對立路徑」不是衝突，是互補——兩人的深層課題剛好是彼此的影子面\n\n'
+    +'・「對立路徑」不是衝突，是互補。兩人的深層課題剛好是彼此的影子面\n\n'
     +'【參考書目·卡巴拉合盤】\n'
-    +'▍Dion Fortune《The Mystical Qabalah》——現代西方卡巴拉入門聖典，十質點與四界心理學解讀\n'
-    +'▍Israel Regardie《A Garden of Pomegranates》——Golden Dawn體系，22路徑與塔羅完整對應\n'
-    +'▍Faith Javane & Dusty Bunker《Numerology and the Divine Triangle》——數字+塔羅+占星三角交叉，卡巴拉數值進階應用\n'
-    +'▍Z\'ev ben Shimon Halevi《Kabbalistic Universe》——猶太傳統卡巴拉宇宙觀，四界層次靈性地圖\n'
-    +'▍Hans Decoz《Numerology: Key to Your Inner Self》——表達數/內在渴望/人格面具三角分析，最清晰的數字卡巴拉入門\n';
+    +'▍Dion Fortune《The Mystical Qabalah》，現代西方卡巴拉入門聖典，十質點與四界心理學解讀\n'
+    +'▍Israel Regardie《A Garden of Pomegranates》，Golden Dawn體系，22路徑與塔羅完整對應\n'
+    +'▍Faith Javane & Dusty Bunker《Numerology and the Divine Triangle》，數字+塔羅+占星三角交叉，卡巴拉數值進階應用\n'
+    +'▍Z\'ev ben Shimon Halevi《Kabbalistic Universe》，猶太傳統卡巴拉宇宙觀，四界層次靈性地圖\n'
+    +'▍Hans Decoz《Numerology: Key to Your Inner Self》，表達數/內在渴望/人格面具三角分析，最清晰的數字卡巴拉入門\n';
   var hF=mkDual(nameA,kb_html(a),nameB,kb_html(b));
   hF+=mkPre('kb_a',kbA);hF+=mkPre('kb_b',kbB);
   hF+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="kb_c">'+escHtml(kbC)+'</pre></div>';
-  hF+=mkCpBtn('📋 複製甲方','','function(b){cpText("kb_a",b)}');
-  hF+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("kb_b",b)}');
-  hF+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("kb_c",b)}');
+  hF+=mkCpBtn('📋 複製甲方','','function(b){copyText("kb_a",b)}');
+  hF+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("kb_b",b)}');
+  hF+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("kb_c",b)}');
   mkPanel(hF);
 
 
@@ -2473,9 +2484,9 @@ function renderMatch(a,b){
   var hG1=mkDual(nameA,xiu_html(a),nameB,xiu_html(b));
   hG1+=mkPre('xiu_a',xiuA);hG1+=mkPre('xiu_b',xiuB);
   hG1+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="xiu_c">'+escHtml(xiuC)+'</pre></div>';
-  hG1+=mkCpBtn('📋 複製甲方','','function(b){cpText("xiu_a",b)}');
-  hG1+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("xiu_b",b)}');
-  hG1+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("xiu_c",b)}');
+  hG1+=mkCpBtn('📋 複製甲方','','function(b){copyText("xiu_a",b)}');
+  hG1+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("xiu_b",b)}');
+  hG1+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("xiu_c",b)}');
   mkPanel(hG1);
 
   // ═══ ⑱ 梅花合盤 ═══
@@ -2486,9 +2497,9 @@ function renderMatch(a,b){
   var hG2=mkDual(nameA,mei_html(a),nameB,mei_html(b));
   hG2+=mkPre('mei_a',meiA);hG2+=mkPre('mei_b',meiB);
   hG2+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="mei_c">'+escHtml(meiC)+'</pre></div>';
-  hG2+=mkCpBtn('📋 複製甲方','','function(b){cpText("mei_a",b)}');
-  hG2+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("mei_b",b)}');
-  hG2+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("mei_c",b)}');
+  hG2+=mkCpBtn('📋 複製甲方','','function(b){copyText("mei_a",b)}');
+  hG2+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("mei_b",b)}');
+  hG2+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("mei_c",b)}');
   mkPanel(hG2);
 
   // ═══ ⑲ 基因天命合盤 ═══
@@ -2498,9 +2509,9 @@ function renderMatch(a,b){
   var hG3=mkDual(nameA,gk_html(a),nameB,gk_html(b));
   hG3+=mkPre('gk_a',gkA);hG3+=mkPre('gk_b',gkB);
   hG3+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="gk_c">'+escHtml(gkC)+'</pre></div>';
-  hG3+=mkCpBtn('📋 複製甲方','','function(b){cpText("gk_a",b)}');
-  hG3+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("gk_b",b)}');
-  hG3+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("gk_c",b)}');
+  hG3+=mkCpBtn('📋 複製甲方','','function(b){copyText("gk_a",b)}');
+  hG3+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("gk_b",b)}');
+  hG3+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("gk_c",b)}');
   mkPanel(hG3);
 
   // ═══ ⑳ 彩虹數字合盤 ═══
@@ -2510,9 +2521,9 @@ function renderMatch(a,b){
   var hG4=mkDual(nameA,rb_html(a),nameB,rb_html(b));
   hG4+=mkPre('rb_a',rbA);hG4+=mkPre('rb_b',rbB);
   hG4+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="rb_c">'+escHtml(rbC)+'</pre></div>';
-  hG4+=mkCpBtn('📋 複製甲方','','function(b){cpText("rb_a",b)}');
-  hG4+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("rb_b",b)}');
-  hG4+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("rb_c",b)}');
+  hG4+=mkCpBtn('📋 複製甲方','','function(b){copyText("rb_a",b)}');
+  hG4+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("rb_b",b)}');
+  hG4+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("rb_c",b)}');
   mkPanel(hG4);
 
   // ═══ ㉑ 撲克牌合盤 ═══
@@ -2522,9 +2533,9 @@ function renderMatch(a,b){
   var hG5=mkDual(nameA,poker_html(a),nameB,poker_html(b));
   hG5+=mkPre('pk_a',pkA);hG5+=mkPre('pk_b',pkB);
   hG5+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="pk_c">'+escHtml(pkC)+'</pre></div>';
-  hG5+=mkCpBtn('📋 複製甲方','','function(b){cpText("pk_a",b)}');
-  hG5+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("pk_b",b)}');
-  hG5+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("pk_c",b)}');
+  hG5+=mkCpBtn('📋 複製甲方','','function(b){copyText("pk_a",b)}');
+  hG5+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("pk_b",b)}');
+  hG5+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("pk_c",b)}');
   mkPanel(hG5);
 
   // ═══ ㉒ 居爾特樹曆合盤 ═══
@@ -2534,9 +2545,9 @@ function renderMatch(a,b){
   var hG6=mkDual(nameA,tree_html(a),nameB,tree_html(b));
   hG6+=mkPre('tr_a',trA);hG6+=mkPre('tr_b',trB);
   hG6+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="tr_c">'+escHtml(trC)+'</pre></div>';
-  hG6+=mkCpBtn('📋 複製甲方','','function(b){cpText("tr_a",b)}');
-  hG6+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("tr_b",b)}');
-  hG6+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("tr_c",b)}');
+  hG6+=mkCpBtn('📋 複製甲方','','function(b){copyText("tr_a",b)}');
+  hG6+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("tr_b",b)}');
+  hG6+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("tr_c",b)}');
   mkPanel(hG6);
 
   // ═══ ㉓ 鐵板神數合盤 ═══
@@ -2546,9 +2557,9 @@ function renderMatch(a,b){
   var hG7=mkDual(nameA,tb_html(a),nameB,tb_html(b));
   hG7+=mkPre('tb_a',tbxA);hG7+=mkPre('tb_b',tbxB);
   hG7+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="tb_c">'+escHtml(tbxC)+'</pre></div>';
-  hG7+=mkCpBtn('📋 複製甲方','','function(b){cpText("tb_a",b)}');
-  hG7+=mkCpBtn('📋 複製乙方','teal','function(b){cpText("tb_b",b)}');
-  hG7+=mkCpBtn('📋 複製合盤','combined','function(b){cpText("tb_c",b)}');
+  hG7+=mkCpBtn('📋 複製甲方','','function(b){copyText("tb_a",b)}');
+  hG7+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("tb_b",b)}');
+  hG7+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("tb_c",b)}');
   mkPanel(hG7);
 
   /* ── 🔮 整合合盤 AI 指令 ── */
@@ -2595,7 +2606,7 @@ function renderMatch(a,b){
   mega+='拾貳、凱龍與莉莉絲的傷口整合\n';
   mega+='甲凱龍：'+((a.cl&&a.cl.ch)?a.cl.ch.sign:'需星曆')+' 乙凱龍：'+((b.cl&&b.cl.ch)?b.cl.ch.sign:'需星曆')+'\n';
   mega+='甲凱龍×乙個人行星的相位？乙凱龍×甲個人行星的相位？\n';
-  mega+='兩人是否有「傷口共鳴」——各自的凱龍在同一個主題上？\n';
+  mega+='兩人是否有「傷口共鳴」。各自的凱龍在同一個主題上？\n';
   mega+='莉莉絲的原始力量如何在這段關係中被釋放或壓抑？\n\n';
   mega+='拾叁、五行互補精油調香建議\n';
   mega+='甲日主五行：'+a.dayWx+'（推薦精油：'+( NSK[a.nsk.ys]&&NSK[a.nsk.ys].ar||'?')+'）\n';
@@ -2628,58 +2639,58 @@ function renderMatch(a,b){
   mega+='════════════════════════════════════\n';
   mega+='【完整參考書目·解讀時交叉引用（依系統）】\n\n';
   mega+='▍八字合盤\n';
-  mega+='· 梁湘潤《子平基礎概要》《實務論命》——用神喜忌、格局鑑定標準版本\n';
-  mega+='· 何建忠《八字心理學》——十神對應心理原型，日主五行互動心理學解讀\n';
-  mega+='· 鍾義明《命理鑑定學》《合婚實務》——六親宮位交叉、合婚判斷實務\n';
-  mega+='· 《三命通會》（明·萬民英）——六合六沖六刑原始斷訣，傳統案例庫\n';
-  mega+='· 張盛舒《閱人有術》——十神對接大五人格/MBTI，日主互動的現代心理語言\n\n';
+  mega+='· 梁湘潤《子平基礎概要》《實務論命》，用神喜忌、格局鑑定標準版本\n';
+  mega+='· 何建忠《八字心理學》。十神對應心理原型，日主五行互動心理學解讀\n';
+  mega+='· 鍾義明《命理鑑定學》《合婚實務》。六親宮位交叉、合婚判斷實務\n';
+  mega+='· 《三命通會》（明·萬民英）。六合六沖六刑原始斷訣，傳統案例庫\n';
+  mega+='· 張盛舒《閱人有術》。十神對接大五人格/MBTI，日主互動的現代心理語言\n\n';
   mega+='▍紫微合盤\n';
-  mega+='· StarQode《紫微合盤全解析》——飛化互動結構化判斷，最完整合盤教材\n';
-  mega+='· 大耕老師《紫微攻略3》——對宮鏡像效應，關係中的投射心理\n';
-  mega+='· 周星飛《飛星紫微斗數，這樣學最快懂》——宮干四化因果邏輯\n';
-  mega+='· 陳俊宏《靜觀天機》——飛化互動量化，AI判盤架構\n';
-  mega+='· 張凱元《紫微斗數之迷與悟》——星曜本質與宮位互動現代詮釋\n\n';
+  mega+='· StarQode《紫微合盤全解析》，飛化互動結構化判斷，最完整合盤教材\n';
+  mega+='· 大耕老師《紫微攻略3》。對宮鏡像效應，關係中的投射心理\n';
+  mega+='· 周星飛《飛星紫微斗數，這樣學最快懂》。宮干四化因果邏輯\n';
+  mega+='· 陳俊宏《靜觀天機》。飛化互動量化，AI判盤架構\n';
+  mega+='· 張凱元《紫微斗數之迷與悟》。星曜本質與宮位互動現代詮釋\n\n';
   mega+='▍西洋占星合盤\n';
-  mega+='· 韓良露《人際相位聖經》——十大行星合盤互動詳解，台灣最完整教材\n';
-  mega+='· Liz Greene《Relating》——占星合盤心理學聖經，投射與陰影\n';
-  mega+='· Sue Tompkins《Aspects in Astrology》——相位情結必讀\n';
-  mega+='· Robert Hand《Planets in Composite》——組合盤聖經\n';
-  mega+='· Stephen Arroyo《Astrology, Karma and Transformation》——業力關係\n\n';
+  mega+='· 韓良露《人際相位聖經》，十大行星合盤互動詳解，台灣最完整教材\n';
+  mega+='· Liz Greene《Relating》。占星合盤心理學聖經，投射與陰影\n';
+  mega+='· Sue Tompkins《Aspects in Astrology》。相位情結必讀\n';
+  mega+='· Robert Hand《Planets in Composite》。組合盤聖經\n';
+  mega+='· Stephen Arroyo《Astrology, Karma and Transformation》。業力關係\n\n';
   mega+='▍人類圖合盤\n';
-  mega+='· Ra Uru Hu《The Rave BodyGraph》——Connection Chart原始理論\n';
-  mega+='· Lynda Bunnell《The Definitive Book of Human Design》——類型互動與邀請機制\n';
-  mega+='· 喬宜思 Joyce Huang《人類圖去制約之旅》——台灣本土生活案例\n';
-  mega+='· Karen Curry Parker《Understanding Human Design》——開放中心制約效應\n';
-  mega+='· Richard Rudd《Gene Keys》——64閘門的靈魂層次關係解讀\n\n';
+  mega+='· Ra Uru Hu《The Rave BodyGraph》，Connection Chart原始理論\n';
+  mega+='· Lynda Bunnell《The Definitive Book of Human Design》。類型互動與邀請機制\n';
+  mega+='· 喬宜思 Joyce Huang《人類圖去制約之旅》。台灣本土生活案例\n';
+  mega+='· Karen Curry Parker《Understanding Human Design》。開放中心制約效應\n';
+  mega+='· Richard Rudd《Gene Keys》。64閘門的靈魂層次關係解讀\n\n';
   mega+='▍馥靈秘碼（最高優先級）\n';
-  mega+='· 王逸君《藏在農曆生日裡的秘碼》ISBN 978-626-01-5769-2——H.O.U.R.四柱配對框架，12宮合盤最終標準\n\n';
+  mega+='· 王逸君《藏在農曆生日裡的秘碼》ISBN 978-626-01-5769-2｜H.O.U.R.四柱配對框架，12宮合盤最終標準\n\n';
   mega+='▍生命靈數合盤\n';
-  mega+='· Dan Millman《生命數字全書》（25周年版）——命途配對，各組合天然張力\n';
-  mega+='· Hans Decoz《Numerology: Key to Your Inner Self》——數字間的交互關係\n';
-  mega+='· 紫衣格格《讓人生更順利的生命靈數》——農陽曆雙軌合盤\n';
-  mega+='· 藍寧仕 Dimitrios Lenis《生命靈數：新世紀全方位身心靈解析》——九宮格連線\n';
-  mega+='· Glynis McCants《Glynis Has Your Number》——人際關係配對應用\n\n';
+  mega+='· Dan Millman《生命數字全書》（25周年版），命途配對，各組合天然張力\n';
+  mega+='· Hans Decoz《Numerology: Key to Your Inner Self》。數字間的交互關係\n';
+  mega+='· 紫衣格格《讓人生更順利的生命靈數》。農陽曆雙軌合盤\n';
+  mega+='· 藍寧仕 Dimitrios Lenis《生命靈數：新世紀全方位身心靈解析》。九宮格連線\n';
+  mega+='· Glynis McCants《Glynis Has Your Number》。人際關係配對應用\n\n';
   mega+='▍瑪雅曆合盤\n';
-  mega+='· José Argüelles《The Mayan Factor》——合盤KIN計算原始理論\n';
-  mega+='· Ariel Spilsbury《The Mayan Oracle》——20圖騰心理學原型，神諭關係\n';
-  mega+='· 陳盈君老師《星際馬雅13月亮曆法實踐書》——波符共時性，最白話普及版\n\n';
+  mega+='· José Argüelles《The Mayan Factor》，合盤KIN計算原始理論\n';
+  mega+='· Ariel Spilsbury《The Mayan Oracle》。20圖騰心理學原型，神諭關係\n';
+  mega+='· 陳盈君老師《星際馬雅13月亮曆法實踐書》。波符共時性，最白話普及版\n\n';
   mega+='▍九星氣學合盤\n';
-  mega+='· Michio Kushi《Nine Star Ki》——九星西方傳播鼻祖，三星合盤體系\n';
-  mega+='· Rex Lassalle《Nine Star Ki: Feng Shui Astrology》——月星/表面星人格層次\n';
-  mega+='· 西谷泰人《氣學入門》——日本風水氣學核心，東西命方位判定\n\n';
+  mega+='· Michio Kushi《Nine Star Ki》，九星西方傳播鼻祖，三星合盤體系\n';
+  mega+='· Rex Lassalle《Nine Star Ki: Feng Shui Astrology》。月星/表面星人格層次\n';
+  mega+='· 西谷泰人《氣學入門》。日本風水氣學核心，東西命方位判定\n\n';
   mega+='▍凱龍莉莉絲合盤\n';
-  mega+='· Melanie Reinhart《Chiron and the Healing Journey》——凱龍解讀聖經\n';
-  mega+='· Demetra George《Mysteries of the Dark Moon》——莉莉絲完整解析\n';
-  mega+='· Tom Jacobs《Lilith: Healing the Wild》——莉莉絲12星座表現與調理\n\n';
+  mega+='· Melanie Reinhart《Chiron and the Healing Journey》，凱龍解讀聖經\n';
+  mega+='· Demetra George《Mysteries of the Dark Moon》。莉莉絲完整解析\n';
+  mega+='· Tom Jacobs《Lilith: Healing the Wild》。莉莉絲12星座表現與調理\n\n';
   mega+='▍吠陀占星合盤\n';
-  mega+='· Dennis Harness《The Nakshatras》——27星宿完整，婚配動物配對\n';
-  mega+='· Hart deFouw & Robert Svoboda《Light on Relationships》——吠陀合盤聖經\n\n';
+  mega+='· Dennis Harness《The Nakshatras》，27星宿完整，婚配動物配對\n';
+  mega+='· Hart deFouw & Robert Svoboda《Light on Relationships》。吠陀合盤聖經\n\n';
   mega+='▍姓名合盤\n';
-  mega+='· 熊崎健翁《姓名之研究》——五格剖象法鼻祖，81數理吉利順逆\n';
-  mega+='· 梁湘潤《納音姓名學》——聲音節奏對人際氣場的影響\n\n';
+  mega+='· 熊崎健翁《姓名之研究》，五格剖象法鼻祖，81數理吉利順逆\n';
+  mega+='· 梁湘潤《納音姓名學》。聲音節奏對人際氣場的影響\n\n';
   mega+='▍卡巴拉合盤\n';
-  mega+='· Dion Fortune《The Mystical Qabalah》——現代卡巴拉入門聖典\n';
-  mega+='· Faith Javane & Dusty Bunker《Numerology and the Divine Triangle》——數字×塔羅×卡巴拉三角\n\n';
+  mega+='· Dion Fortune《The Mystical Qabalah》，現代卡巴拉入門聖典\n';
+  mega+='· Faith Javane & Dusty Bunker《Numerology and the Divine Triangle》。數字×塔羅×卡巴拉三角\n\n';
   mega+='════════════════════════════════════\n';
   mega+='【馥靈座標哲學】\n';
   mega+='合盤不是判斷「合不合適」，是讓你看見：你們各自站在什麼座標。\n';
@@ -2691,7 +2702,7 @@ function renderMatch(a,b){
   hMega+='<p style="font-size:.82rem;color:var(--inkm);text-align:center;margin-bottom:16px">複製下方完整指令，貼入 Claude 或 ChatGPT 即可獲得二十三大系統深度合盤解讀。</p>';
   hMega+='<pre id="mega_ai" class="combined-pre">'+escHtml(mega)+'</pre>';
   hMega+='<div style="text-align:center;margin-top:14px">';
-  hMega+=mkCpBtn('📋 複製整合合盤AI指令（推薦）','combined','function(b){cpText("mega_ai",b)}');
+  hMega+=mkCpBtn('📋 複製整合合盤AI指令（推薦）','combined','function(b){copyText("mega_ai",b)}');
   hMega+='</div>';
   mkPanel(hMega);
 
