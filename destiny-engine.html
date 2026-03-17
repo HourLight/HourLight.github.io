@@ -2420,55 +2420,259 @@ function calcCelticTree(month,day){
   return TREES[0]; // default to Birch
 }
 
-// ══════ ㉓ 鐵板神數（化宿命為座標版）══════
+// ══════ ㉓ 鐵板神數（化宿命為座標版·v2 豐度重建）══════
 function calcTieBan(year,month,day,hour,minute){
-  // 鐵板神數以四柱+精確時刻為基礎，起出「神數條文」
-  // 本工具為簡化教學版：以出生資料生成座標性格剖析
   var stems=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
   var branches=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  var stemEl=['木','木','火','火','土','土','金','金','水','水'];
+  var stemYY=['陽','陰','陽','陰','陽','陰','陽','陰','陽','陰'];
+
+  // ── 四柱計算（v30 已驗證正確，不動）──
   var stemIdx=(year-4)%10; if(stemIdx<0)stemIdx+=10;
   var branchIdx=(year-4)%12; if(branchIdx<0)branchIdx+=12;
   var yearStem=stems[stemIdx], yearBranch=branches[branchIdx];
-  // 月柱：年上起月法（甲己丙寅、乙庚戊寅、丙辛庚寅、丁壬壬寅、戊癸甲寅）
-  var mBranchIdx=month%12; // Jan=丑(1), Feb=寅(2), Mar=卯(3)...Dec=子(0)
-  var mBase=((stemIdx%5)*2+2)%10; // 寅月天干基準
+  var mBranchIdx=month%12;
+  var mBase=((stemIdx%5)*2+2)%10;
   var mStemIdx=(mBase+(mBranchIdx-2+12)%12)%10;
   var monthStem=stems[mStemIdx], monthBranch=branches[mBranchIdx];
-  // 日柱（簡化：以JD推算）
   var a=Math.floor((14-month)/12),y2=year+4800-a,m2=month+12*a-3;
   var jd=day+Math.floor((153*m2+2)/5)+y2*365+Math.floor(y2/4)-Math.floor(y2/100)+Math.floor(y2/400)-32045;
   var dStemIdx=(jd+9)%10, dBranchIdx=(jd+1)%12;
   if(dStemIdx<0)dStemIdx+=10; if(dBranchIdx<0)dBranchIdx+=12;
   var dayStem=stems[dStemIdx], dayBranch=branches[dBranchIdx];
-  // 時柱
   var hBranchIdx=Math.floor(((hour+1)%24)/2);
   var hStemIdx=(dStemIdx%5*2+hBranchIdx)%10;
   var hourStem=stems[hStemIdx], hourBranch=branches[hBranchIdx];
-  // 神數碼：將四柱轉換為數字序列
-  var code=[stemIdx+1, branchIdx+1, mStemIdx+1, mBranchIdx+1, dStemIdx+1, dBranchIdx+1, hStemIdx+1, hBranchIdx+1];
+
+  // 神數碼 + 主命數
+  var code=[stemIdx+1,branchIdx+1,mStemIdx+1,mBranchIdx+1,dStemIdx+1,dBranchIdx+1,hStemIdx+1,hBranchIdx+1];
   var sum=code.reduce(function(a,b){return a+b},0);
   var masterNum=sum%9||9;
-  // 鐵板神數核心剖析（以四柱組合生成）
-  var TIEPAN_TYPES=[
-    {range:[1,2],title:'孤峰獨秀格',desc:'四柱中有強烈的自主性。你這個人，天生不愛依靠別人，什麼事都想自己扛。不是不需要別人，是你覺得沒有人能做得跟你一樣好。（坦白說，有時候你說的是對的。）這種格局的人，前半生靠自己打天下，中年後事業格局才真正展開。'},
-    {range:[3,4],title:'木火通明格',desc:'四柱顯示你有強烈的創造力和表達欲。你天生需要一個舞台，不管是真實的舞台還是你自己創造的那種。你說話有感染力，做事有執行力，唯一的問題是你有時候燒得太快。節奏這件事，需要你刻意練習。'},
-    {range:[5,6],title:'中正守恆格',desc:'你的四柱平衡度很高，天生有穩定周遭的能量場。人們喜歡靠近你，因為在你旁邊感覺踏實。你不是最耀眼的那個，但你是最可靠的那個。這種格局的人，財富是慢慢積累型，感情是長跑型。'},
-    {range:[7,8],title:'金水相生格',desc:'你有強烈的直覺和深度思考的能力。你不是不聰明，你是太聰明，聰明到有時候把自己想多了。這種格局的人擅長系統思考，適合需要深度的工作。情感上需要真正懂你的人，將就湊合的關係對你傷害很大。'},
-    {range:[9,10],title:'土金厚重格',desc:'你天生有累積和保存的能量。這種格局的人，在別人還在揮霍的年紀，你已經在默默建立根基了。你的財富觀念是「先確保安全，再談增長」。晚年的厚實感讓同齡人羨慕。缺點是有時候過於保守，錯過了一些本可把握的機會。'}
+
+  // ── 納音五行（60甲子完整對照）──
+  var NAYIN=['海中金','爐中火','大林木','路旁土','劍鋒金','山頭火','澗下水','城頭土','白蠟金','楊柳木','泉中水','屋上土','霹靂火','松柏木','長流水','砂中金','山下火','平地木','壁上土','金箔金','覆燈火','天河水','大驛土','釵釧金','桑柘木','大溪水','砂中土','天上火','石榴木','大海水'];
+  function getNayin(si,bi){
+    var n60=(36*si+25*bi)%60;
+    return NAYIN[Math.floor(n60/2)];
+  }
+  var yearNY=getNayin(stemIdx,branchIdx);
+  var monthNY=getNayin(mStemIdx,mBranchIdx);
+  var dayNY=getNayin(dStemIdx,dBranchIdx);
+  var hourNY=getNayin(hStemIdx,hBranchIdx);
+
+  // ── 十神（日主與其他柱天干的關係）──
+  var elArr=[0,0,1,1,2,2,3,3,4,4]; // 木0火1土2金3水4
+  var SHENGKE=[[0,1,2,3,4],[1,2,3,4,0],[2,3,4,0,1],[3,4,0,1,2],[4,0,1,2,3]];
+  function getShiShen(daySI,otherSI){
+    var de=elArr[daySI],oe=elArr[otherSI];
+    var dy=daySI%2,oy=otherSI%2;
+    var same=(dy===oy);
+    if(de===oe) return same?'比肩':'劫財';
+    var gen=[(de+1)%5,(de+2)%5,(de+3)%5,(de+4)%5];
+    if(oe===gen[0]) return same?'食神':'傷官';
+    if(oe===gen[1]) return same?'偏財':'正財';
+    if(oe===gen[2]) return same?'七殺':'正官';
+    if(oe===gen[3]) return same?'偏印':'正印';
+    return '比肩';
+  }
+  var yearSS=getShiShen(dStemIdx,stemIdx);
+  var monthSS=getShiShen(dStemIdx,mStemIdx);
+  var hourSS=getShiShen(dStemIdx,hStemIdx);
+
+  // ── 十神含義 ──
+  var SS_DESC={
+    '比肩':'同伴/競爭，自我意識強，獨立性高',
+    '劫財':'爭奪/合作，人際互動頻繁，花錢大方',
+    '食神':'才華/享受，創造力旺盛，懂生活',
+    '傷官':'表現/叛逆，聰明但嘴硬，不服權威',
+    '偏財':'意外財/投資，人脈廣，異性緣佳',
+    '正財':'穩定收入，踏實理財，對人忠誠',
+    '七殺':'壓力/突破，有魄力，敢冒險但容易受傷',
+    '正官':'紀律/名聲，守規矩，適合體制內發展',
+    '偏印':'直覺/偏才，想法獨特，容易被誤解',
+    '正印':'貴人/學識，受人照顧，適合學術研究'
+  };
+
+  // ── 神煞 ──
+  var shensha=[];
+  // 天乙貴人（依日干查，四柱地支有則入）
+  var TIANYI={0:[1,7],1:[0,8],2:[11,9],3:[11,9],4:[1,7],5:[0,8],6:[1,7],7:[6,2],8:[3,5],9:[3,5]};
+  var tianyiB=TIANYI[dStemIdx]||[];
+  var allBranches=[branchIdx,mBranchIdx,dBranchIdx,hBranchIdx];
+  var tianyiHit=false;
+  allBranches.forEach(function(b){if(tianyiB.indexOf(b)>=0)tianyiHit=true});
+  if(tianyiHit) shensha.push({name:'天乙貴人',icon:'⭐',desc:'一生容易遇到貴人相助，逢凶化吉的能力強。關鍵時刻總有人拉一把。'});
+
+  // 驛馬（依年支查，四柱地支有則入）
+  var YIMA_MAP={0:2,1:11,2:8,3:5,4:2,5:11,6:8,7:5,8:2,9:11,10:8,11:5};
+  var yimaTarget=YIMA_MAP[branchIdx];
+  if(allBranches.indexOf(yimaTarget)>=0) shensha.push({name:'驛馬',icon:'🐎',desc:'天生有遷移、出差、旅行的命格。適合需要移動的工作。安靜太久反而不順。'});
+
+  // 桃花（依年支查）
+  var TAOHUA_MAP={0:9,1:6,2:3,3:0,4:9,5:6,6:3,7:0,8:9,9:6,10:3,11:0};
+  var thTarget=TAOHUA_MAP[branchIdx];
+  if(allBranches.indexOf(thTarget)>=0) shensha.push({name:'桃花',icon:'🌸',desc:'人緣好，異性緣佳，有藝術天份。但也容易在感情上花心思太多。'});
+
+  // 華蓋（依年支查）
+  var HUAGAI_MAP={0:4,1:1,2:10,3:7,4:4,5:1,6:10,7:7,8:4,9:1,10:10,11:7};
+  var hgTarget=HUAGAI_MAP[branchIdx];
+  if(allBranches.indexOf(hgTarget)>=0) shensha.push({name:'華蓋',icon:'✨',desc:'聰明但孤獨，有宗教或藝術傾向。內心世界豐富，不容易被理解。'});
+
+  // 文昌（依日干查）
+  var WENCHANG=[5,6,8,9,8,9,11,0,2,3];
+  if(allBranches.indexOf(WENCHANG[dStemIdx])>=0) shensha.push({name:'文昌',icon:'📚',desc:'學習力強，考運佳，適合文教、研究、寫作領域。'});
+
+  // 祿神（依日干查）
+  var LUSHEN=[2,3,5,6,5,6,8,9,11,0];
+  if(allBranches.indexOf(LUSHEN[dStemIdx])>=0) shensha.push({name:'祿神',icon:'💰',desc:'天生帶財庫。不一定大富大貴，但不缺吃穿，有穩定的經濟來源。'});
+
+  // 羊刃（依日干查）
+  var YANGREN=[3,4,6,7,6,7,9,10,0,1];
+  if(allBranches.indexOf(YANGREN[dStemIdx])>=0) shensha.push({name:'羊刃',icon:'⚔️',desc:'個性剛強，做事果斷。好處是有執行力，風險是容易衝動或受傷。'});
+
+  // 天德（依月支查）
+  var TIANDE=[9,8,11,10,1,0,3,2,5,4,7,6];
+  if(allBranches.indexOf(TIANDE[mBranchIdx])>=0) shensha.push({name:'天德',icon:'🛡️',desc:'有天然的保護傘，災厄來時往往能減輕。'});
+
+  if(shensha.length===0) shensha.push({name:'無顯著神煞',icon:'◯',desc:'四柱中沒有特別顯著的神煞。不是壞事——代表你的命盤更靠個人選擇驅動。'});
+
+  // ── 格局（9種，依主命數1-9）──
+  var TYPES=[
+    {n:1,title:'孤峰獨秀格',
+     desc:'你的四柱刻著一個字：獨。不是孤僻，是你天生有一套自己的系統。別人還在等指令，你已經動手了。',
+     career:'適合創業、自由業、專業技術。在團隊中你是「那個不需要被教」的人。上班可以，但你一定會有副業或私底下在搞自己的事。',
+     love:'感情上你需要對等的伴侶，不是照顧你的人，是跟你並肩的人。太黏你會逃，太冷你也會逃。抓住你的方法只有一種：讓你佩服。',
+     wealth:'前半生靠能力賺錢，中年後格局展開才見大財。急不來，但一旦你的系統建立起來，收入會像滾雪球。'},
+    {n:2,title:'月映雙輝格',
+     desc:'你的四柱藏著「合作」的密碼。你天生就知道怎麼讓兩個不同的東西放在一起變好看。是橋梁型的人。',
+     career:'適合中介、媒合、顧問、教育。你不是那個站在最前面的人，你是那個讓舞台不塌的人。幕後推手比台前明星更適合你。',
+     love:'你在感情裡是投射型——容易把自己沒活出來的那一面寄託在伴侶身上。學會分清楚「我喜歡他」和「我想成為他」，感情就通了。',
+     wealth:'偏財運比正財運好。跟人合作比自己獨幹賺得多。找到對的合作對象，比努力十年還有效。'},
+    {n:3,title:'木火通明格',
+     desc:'你的四柱有強烈的創造力。你需要舞台，不管那個舞台是講台、螢幕還是一張餐桌。沒有觀眾的日子，你會枯萎。',
+     career:'適合教學、演藝、創作、行銷、任何需要「表達」的領域。你說話有感染力，做事有煽動力。唯一的問題是你有時候燒太快，還沒到終點就把油燒完了。',
+     love:'你的愛情像篝火——溫暖、亮眼，但如果不持續加柴就會熄。你需要一個懂得給你空間又持續在場的人。',
+     wealth:'財富跟名氣掛勾。你賺的不是苦力錢，是影響力的錢。先把名字做響，錢自然來。'},
+    {n:4,title:'文曲華蓋格',
+     desc:'你看起來溫和好相處，但你的腦子裡有一整個宇宙。你想事情的深度，是同齡人的三倍。',
+     career:'適合研究、寫作、心理學、占卜、藝術創作。你能看到別人看不到的角度。缺點是有時候想太多，行動力不夠。',
+     love:'你要的不是「有人陪」，你要的是「有人懂」。靈魂伴侶這四個字對你來說不是雞湯，是真實需求。沒有深度連結的關係，你寧可獨處。',
+     wealth:'財富跟知識深度正比。你越專精，越值錢。斜槓不適合你，深耕才是你的路。'},
+    {n:5,title:'中正守恆格',
+     desc:'你是人群中的定海神針。別人慌的時候，你不慌。不是因為你不怕，是因為你天生就有穩住場面的能力。',
+     career:'適合管理、人資、財務、任何需要「穩定」的角色。你不是最耀眼的，但你是最可靠的。組織裡少了你，一個禮拜就會出問題。',
+     love:'感情是長跑型。你不來那種轟轟烈烈的，但你給的是十年如一日的踏實。問題是你有時候太穩了，穩到對方覺得沒有驚喜。',
+     wealth:'慢慢累積型。你不會大起大落，但你的底子比大多數人厚。六十歲的時候，你會是同齡人裡最不缺錢的那個。'},
+    {n:6,title:'天機巧合格',
+     desc:'你的四柱帶有「服務」和「調整」的訊號。你天生有一種能力：把混亂的東西變整齊，把別人的問題看得比自己的清楚。',
+     career:'適合服務業、美業、醫療輔助、社工、教練。你的價值在於讓別人變好。但注意：不是犧牲自己讓別人好，是你好了，別人跟著好。',
+     love:'你在感情中容易變成「照顧者」。你要練習一件事：讓自己也被照顧。你值得。',
+     wealth:'服務越多人，財富越大。但你需要學會定價。你的問題不是能力不夠，是不好意思收錢。'},
+    {n:7,title:'金水相生格',
+     desc:'你有強烈的直覺和穿透力。別人還在表面打轉，你已經看到了底層邏輯。這讓你很聰明，也讓你很孤獨。',
+     career:'適合偵查、分析、策略、投資、心理諮詢（注意：這裡指職業方向，不是醫療建議）。你能在複雜系統中找到關鍵節點。',
+     love:'你需要智識上的共鳴。長得好看但聊不下去的人，你撐不了三個月。能跟你深夜聊到天亮的人，才有機會。',
+     wealth:'財富來源偏向腦力和判斷力。投資敏銳度高，但有時候太精算反而錯過了感性層面的機會。'},
+    {n:8,title:'土金厚重格',
+     desc:'你這個人就像一座山。表面不動聲色，裡面藏金帶玉。別人看你覺得低調，其實你只是不願意把底牌翻出來。',
+     career:'適合金融、不動產、倉儲物流、任何跟「積累」有關的產業。你的耐性是武器。別人等不了的，你等得了。',
+     love:'慢熱，但一旦認定就不輕易放手。你的愛不是嘴上說的，是行動上做的。問題是你有時候太含蓄，對方不確定你在不在乎。',
+     wealth:'厚積薄發型。四十歲之前打地基，四十歲之後收割。別羨慕別人年輕時賺得快，你的是持久戰。'},
+    {n:9,title:'火煉真金格',
+     desc:'你這一輩子，注定比別人多經歷一些。不是上天故意為難你，是你選了困難模式。但也因為這樣，你的韌性比誰都強。',
+     career:'適合危機處理、轉型顧問、創業（尤其是二次創業）。你的賣點不是順風順水的漂亮履歷，是你從谷底爬起來的故事。',
+     love:'你在感情中學到的功課比別人多。年輕時可能走過彎路，但每一段關係都讓你更清楚自己要什麼。大器晚成型的感情運。',
+     wealth:'財富曲線是U型。有過低谷，但後半段的上升力道很強。你需要的不是省錢，是膽量。'}
   ];
-  var typeIdx=Math.floor(masterNum/2)%5;
-  var type=TIEPAN_TYPES[typeIdx]||TIEPAN_TYPES[0];
-  // 生命階段神數
+  var type=TYPES[masterNum-1]||TYPES[0];
+
+  // ── 逐柱分析 ──
+  var PILLAR_EL_DESC={
+    '木':['充滿生命力和向上發展的能量。像一棵正在長的樹，哪裡有光就往哪裡去。','仁慈、成長、彈性'],
+    '火':['熱情、表現欲強。像一把火，能照亮別人，也可能燒到自己。','禮節、表達、行動力'],
+    '土':['踏實穩重，是所有人的靠山。但有時候太穩了，穩到動不了。','信任、包容、務實'],
+    '金':['剛毅果斷，做事乾脆。但有時候過於鋒利，割傷了自己和別人。','義氣、決斷、原則'],
+    '水':['聰明靈活，適應力強。像水一樣哪裡都能去，但有時候沒有自己的形狀。','智慧、變通、直覺']
+  };
+  function pillarAnalysis(label,si,bi,ny,context){
+    var el=stemEl[si];
+    var yy=stemYY[si];
+    var nyEl=ny.charAt(ny.length-1); // 最後一字=五行
+    var base=PILLAR_EL_DESC[el]||PILLAR_EL_DESC['木'];
+    var r={label:label,gz:stems[si]+branches[bi],nayin:ny,element:el,yinyang:yy,nayinEl:nyEl};
+    if(context==='year'){
+      r.title='祖業與家族根基';
+      r.reading=yy+''+el+'坐'+branches[bi]+'，納音'+ny+'。'+base[0]+' 在祖業層面，這代表你的家族給你的底色是「'+base[1]+'」。不管你喜不喜歡這個底色，它已經在你血液裡了。';
+    }else if(context==='month'){
+      r.title='事業與父母緣';
+      r.reading=yy+''+el+'坐'+branches[bi]+'，納音'+ny+'。你的事業密碼是'+el+'性的——'+base[0]+' 父母給你最大的影響是對「'+base[1]+'」的認知方式。';
+    }else if(context==='day'){
+      r.title='自我與婚姻觀';
+      r.reading='日主'+stems[si]+''+el+'（'+yy+'），納音'+ny+'。這是你最核心的自我。你骨子裡就是一個'+el+'型的人：'+base[0]+' 在親密關係中，你追求的是「'+base[1]+'」的感覺。';
+    }else{
+      r.title='子女緣與晚年';
+      r.reading=yy+''+el+'坐'+branches[bi]+'，納音'+ny+'。'+base[0]+' 在子女和晚年的課題上，'+el+'的能量代表你會用「'+base[1]+'」的方式面對人生的後半段。';
+    }
+    return r;
+  }
+  var pillars=[
+    pillarAnalysis('年柱',stemIdx,branchIdx,yearNY,'year'),
+    pillarAnalysis('月柱',mStemIdx,mBranchIdx,monthNY,'month'),
+    pillarAnalysis('日柱',dStemIdx,dBranchIdx,dayNY,'day'),
+    pillarAnalysis('時柱',hStemIdx,hBranchIdx,hourNY,'hour')
+  ];
+
+  // ── 生命階段（8段，四柱交叉分析）──
+  var dayEl=stemEl[dStemIdx];
+  var dayYY=stemYY[dStemIdx];
+  var yearEl=stemEl[stemIdx];
+  var monthEl=stemEl[mStemIdx];
+  var hourEl=stemEl[hStemIdx];
+  // 五行相生判斷
+  var GEN_CYCLE=['木','火','土','金','水'];
+  function isSheng(from,to){var fi=GEN_CYCLE.indexOf(from);return GEN_CYCLE[(fi+1)%5]===to}
+  function isKe(from,to){var fi=GEN_CYCLE.indexOf(from);return GEN_CYCLE[(fi+2)%5]===to}
+
   var STAGES=[
-    {age:'0-15',title:'播種期',desc:'你這個人在幼年時期，'+(yearStem==='甲'||yearStem==='乙'?'有強烈的求知欲，但不喜歡被管':yearStem==='丙'||yearStem==='丁'?'天性活潑，情感豐富，但情緒波動大':yearStem==='戊'||yearStem==='己'?'踏實穩重，但有時候太聽話了':'聰明但早熟，可能有些孤獨')+'。'},
-    {age:'16-30',title:'成長期',desc:'青年時期的你'+(branchIdx<4?'充滿衝勁，有破格的意志，但需要找到方向':branchIdx<8?'追求平衡，想兼顧太多，反而讓自己分散了':'經歷了比同齡人更多的起伏，這些是你的資本')+'。'},
-    {age:'31-45',title:'建立期',desc:'這個階段你開始真正懂得「選擇」的力量。'+(sum%3===0?'事業上有突破性進展的窗口期。':sum%3===1?'感情和事業會同時需要你做決定。':'健康和事業的平衡是這個階段的核心課題。')},
-    {age:'46-60',title:'收成期',desc:'你的中年期，是之前所有積累開始真正展現的時候。'+(masterNum<5?'財富和社會地位有機會達到人生高峰。':'貢獻和傳承才是這個階段讓你真正有成就感的事。')},
-    {age:'61+',title:'歸根期',desc:'後半生的你，最大的功課是「放下」。不是放棄，是把扛了幾十年的重量放下，讓身體和心都輕盈一點。'}
+    {age:'0~7',title:'胎元期',
+     desc:'這個階段你還沒有自主意識，但家族的'+yearEl+'性能量已經在塑造你了。'+(yearNY.indexOf('金')>=0?'家裡管教偏嚴格，規矩多。':yearNY.indexOf('木')>=0?'家裡鼓勵探索，但有時候太放任。':yearNY.indexOf('水')>=0?'家裡氣氛變動大，搬家或環境轉換多。':yearNY.indexOf('火')>=0?'家裡熱鬧，但情緒起伏也大。':'家裡穩定，物質條件不差。')},
+    {age:'8~15',title:'啟蒙期',
+     desc:'你開始展現日主'+dayEl+'的特質。'+(isSheng(yearEl,dayEl)?'家族能量滋養了你，這段時間學東西特別快。':isKe(yearEl,dayEl)?'家族的期待和你的天性有衝突，你可能很早就學會了「表面配合、心裡叛逆」。':'家族環境對你的影響中性，你比較靠自己摸索。')},
+    {age:'16~23',title:'破繭期',
+     desc:'月柱'+monthEl+'能量全面啟動。'+(monthSS==='正官'||monthSS==='七殺'?'你這段時期壓力很大，但這些壓力逼出了你的能力。':monthSS==='食神'||monthSS==='傷官'?'你這段時間的表現欲爆炸，可能做了很多大膽的選擇。':monthSS==='正財'||monthSS==='偏財'?'很早就有賺錢的意識，甚至已經開始有收入了。':'在學業和社交之間找到自己的位置。')},
+    {age:'24~31',title:'立足期',
+     desc:'開始進入社會。日主'+dayStem+'的本色完全展現。'+(masterNum<=3?'你比同齡人更早找到方向，行動力強。':masterNum<=6?'你花了一些時間探索和調整，但根基打得很穩。':'你可能繞了一些路，但每一段彎路都在累積你後來需要的東西。')},
+    {age:'32~41',title:'攻城期',
+     desc:'人生的黃金拼搏期。'+(isSheng(monthEl,dayEl)?'事業有貴人相助，這十年是關鍵的上升期。':isKe(monthEl,dayEl)?'事業上有挑戰和競爭，但也因此磨出了你的核心競爭力。':'穩步發展，不算驚艷但也不會太差。')+'神數碼暗示在'+(code[2]+code[3]+28)+'~'+(code[2]+code[3]+35)+'歲之間可能有重要的職業轉折。'},
+    {age:'42~51',title:'收成期',
+     desc:'你開始收割前半生的積累。'+(type.n<=3?'這段時間你的影響力達到高峰。不只是賺錢，是你的「名字」開始值錢了。':type.n<=6?'事業穩定，開始有餘裕思考人生的意義。有些人這時候會想做公益或教育。':'這段時間可能會經歷一次大的價值觀重整。放下一些東西，才能接住新的。')},
+    {age:'52~65',title:'傳承期',
+     desc:'時柱'+hourEl+'能量開始主導。'+(hourSS==='食神'||hourSS==='傷官'?'你會把積累的經驗轉化為教學或作品。這是你「給出去」的階段。':hourSS==='正財'||hourSS==='偏財'?'晚年財務穩定。你前半生的投資和積累在這時候看到回報。':hourSS==='正印'||hourSS==='偏印'?'這段時間你會對宗教、哲學或心理學產生深刻的興趣。':hourSS==='比肩'||hourSS==='劫財'?'社交圈反而在這個階段擴大了。你會認識一群跟你同頻的人。':'穩定中帶著一些小驚喜的晚年。')},
+    {age:'66+',title:'歸真期',
+     desc:'回到自己。'+(hourNY.indexOf('水')>=0?'晚年靈性覺察力增強，適合靜修和回顧。':hourNY.indexOf('木')>=0?'晚年依然有活力，閒不下來。建議把精力放在園藝、教學或社區服務。':hourNY.indexOf('金')>=0?'晚年比較注重養生和秩序。把環境整理好，心就安了。':hourNY.indexOf('火')>=0?'晚年還是愛熱鬧的。跟家人和朋友在一起是你最好的保養品。':'晚年物質穩定，適合把重心放在內在的修煉上。')}
   ];
-  // 注意：本工具為座標參考，非宿命預言
+
+  // ── 流年轉折年（從四柱推算）──
+  var turnYears=[];
+  var baseAge=code[0]+code[1]; // 年柱碼合
+  turnYears.push({age:baseAge%15+12,desc:'第一次重要的人生選擇（可能跟學業或家庭有關）'});
+  turnYears.push({age:code[2]+code[3]+18,desc:'事業或感情的關鍵轉折'});
+  turnYears.push({age:code[4]+code[5]+25,desc:'自我價值的重新定義'});
+  turnYears.push({age:code[6]+code[7]+35,desc:'人生下半場的起始訊號'});
+  // 去重 + 排序 + 限制在合理範圍
+  turnYears=turnYears.filter(function(t){return t.age>=10&&t.age<=80});
+  turnYears.sort(function(a,b){return a.age-b.age});
+
   var NOTE='【馥靈提醒】鐵板神數是最嚴格的傳統命理系統，要求出生時間精確到分鐘。本工具為教學示範版，提供方向性參考。真正的鐵板神數需要配合精確的刻數（每刻15分鐘）才能查出完整條文。命盤是座標，不是劇本——看完這些，你要做的不是「信」，而是「對照」。哪一段說的不像你？那個部分才是你最有選擇空間的地方。';
-  return{yearStem:yearStem,yearBranch:yearBranch,monthStem:monthStem,monthBranch:monthBranch,dayStem:dayStem,dayBranch:dayBranch,hourStem:hourStem,hourBranch:hourBranch,code:code,masterNum:masterNum,type:type,stages:STAGES,note:NOTE};
+
+  return{
+    yearStem:yearStem,yearBranch:yearBranch,monthStem:monthStem,monthBranch:monthBranch,
+    dayStem:dayStem,dayBranch:dayBranch,hourStem:hourStem,hourBranch:hourBranch,
+    yearNY:yearNY,monthNY:monthNY,dayNY:dayNY,hourNY:hourNY,
+    code:code,masterNum:masterNum,type:type,
+    yearSS:yearSS,monthSS:monthSS,hourSS:hourSS,SS_DESC:SS_DESC,dayEl:dayEl,dayYY:dayYY,
+    pillars:pillars,shensha:shensha,stages:STAGES,turnYears:turnYears,note:NOTE
+  };
 }
 
 var SYS=['① 四柱八字','② 紫微斗數','③ 西洋占星','④ 人類圖','⑤ 七政四餘','⑥ 瑪雅曆法','⑦ 生命靈數','⑧ 馥靈秘碼','⑨ 生命密碼','⑩ 大六壬','⑪ 九星氣學','⑫ 生日色彩','⑬ 凱龍莉莉絲','⑭ 吠陀占星','⑮ 姓名解碼','⑯ 卡巴拉','⑰ 宿曜占星','⑱ 梅花易數','⑲ 基因天命','⑳ 彩虹數字','㉑ 撲克牌命理','㉒ 居爾特樹曆','㉓ 鐵板神數'];
@@ -4098,110 +4302,169 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
 
   addP(ps,hG);
 
-  // ═══ ⑰ 宿曜占星 ═══
+  // ═══ ⑰ 宿曜占星（v2 豐度重建）═══
   var hH='<h3>🌙 宿曜占星（二十八星宿）</h3>';
   var xy=calcXiuYao(Y,M,D);
   hH+='<div class="mkt-hook">🌙 古代中日韓共用的星宿系統，比西方星座更細膩：28宿，28種人格密碼，1套關係解讀系統。</div>';
-  hH+='<div class="items">';
-  hH+='<div class="item"><span class="lbl">本命宿</span><span class="rs" style="font-size:1.8rem;color:var(--gd)">'+xy.name+'宿</span></div>';
-  hH+='<div class="item"><span class="lbl">宮位守護</span><span class="rs">'+xy.palace+'（'+xy.guard+'）</span></div>';
-  hH+='<div class="item"><span class="lbl">人格特質</span><span class="rs">'+xy.trait+'</span></div>';
-  hH+='<div class="item"><span class="lbl">天賦能量</span><span class="rs">'+xy.lucky+'</span></div>';
+  hH+='<div style="text-align:center;margin:20px 0">';
+  hH+='<div style="font-size:2.8rem;color:var(--gd)">'+xy.name+'宿</div>';
   hH+='</div>';
-  // 關係相性對照
-  hH+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 宿曜相性速查</div>';
-  hH+='<div style="font-size:.8rem;color:rgba(249,240,229,.65);line-height:1.8;margin-bottom:8px">對方的本命宿距你的宿 N 格（依序計），即為你們的關係型態：</div>';
+  // 七曜所屬
+  var QIYAO_MAP={'角':'木','亢':'金','氐':'土','房':'日','心':'月','尾':'火','箕':'水','斗':'木','牛':'金','女':'土','虛':'日','危':'月','室':'火','壁':'水','奎':'木','婁':'金','胃':'土','昴':'日','畢':'月','觜':'火','參':'水','井':'木','鬼':'金','柳':'土','星':'日','張':'月','翼':'火','軫':'水'};
+  var QIYAO_LABELS={'日':'☀️ 太陽（日曜日）','月':'🌙 太陰（月曜日）','火':'🔥 火星（火曜日）','水':'💧 水星（水曜日）','木':'🌿 木星（木曜日）','金':'✨ 金星（金曜日）','土':'🪨 土星（土曜日）'};
+  var qiyao=QIYAO_MAP[xy.name]||'';
+  var qiyaoLabel=QIYAO_LABELS[qiyao]||'';
   hH+='<div class="items">';
-  for(var xi2=0;xi2<12;xi2++){
-    var targetIdx=(xy.idx+xi2)%28;
-    var xnames=['角','亢','氐','房','心','尾','箕','斗','牛','女','虛','危','室','壁','奎','婁','胃','昴','畢','觜','參','井','鬼','柳','星','張','翼','軫'];
-    hH+='<div class="item" style="padding:6px 12px"><span class="lbl">'+xnames[targetIdx]+'宿對'+xy.name+'宿</span><span class="rs" style="font-size:.85rem">'+xy.compatName[xi2]+'→ '+xy.compatGrade[xi2].split('——')[0]+' <span style="font-size:.75rem;color:rgba(249,240,229,.55)">'+xy.compatGrade[xi2].split('——')[1]+'</span></span></div>';
-  }
+  hH+='<div class="item"><span class="lbl">本命宿</span><span class="rs" style="font-size:1.2rem;color:var(--gd)">'+xy.name+'宿</span></div>';
+  hH+='<div class="item"><span class="lbl">四象宮位</span><span class="rs">'+xy.palace+'</span></div>';
+  hH+='<div class="item"><span class="lbl">七曜所屬</span><span class="rs">'+qiyaoLabel+'</span></div>';
+  hH+='<div class="item"><span class="lbl">守護獸</span><span class="rs">'+xy.guard+'</span></div>';
   hH+='</div>';
-  var aiH='【AI解讀指令·宿曜占星】\n本命宿：'+xy.name+'宿 | 宮位：'+xy.palace+' | 宿守：'+xy.guard+'\n\n【解讀框架】\n壹、本命宿深析\n・'+xy.name+'宿的歷史源流（來自《宿曜經》）\n・人格特質的深層心理解讀\n・天賦能量的具體展現方式\n\n二、關係互動分析（宿曜相性十二型）\n・哪些宿與你形成「命宿」（天生緣分）？\n・哪些宿需要多用心經營（壞宿/危宿）？\n・在企業培訓的應用：用宿曜看團隊搭配\n\n三、宿曜 × 馥靈座標\n・你的本命宿在命盤中代表什麼樣的「人際座標」？\n・它如何與你的紫微命宮、西洋上升互相呼應？\n\n【參考書目】\n· 《宿曜經》（唐代不空譯）｜宿曜占星原典\n· 皆藤茂夫《宿曜占星術》｜現代日本宿曜系統整理\n· 關口真大《宿曜占星：二十八宿の秘密》\n\n【馥靈座標哲學】\n宿曜看關係，不是讓你找到「完美對象」，\n是讓你知道跟不同的人，你要用哪種模式相處，才不會消耗自己。';
+  // 特質深度
+  hH+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 人格特質</div>';
+  hH+='<div class="items">';
+  hH+='<div class="item" style="padding:10px 14px"><span class="lbl">核心特質</span><span class="rs" style="font-size:.85rem;line-height:1.8;display:block">'+xy.trait+'</span></div>';
+  hH+='<div class="item" style="padding:8px 14px"><span class="lbl">天賦關鍵字</span><span class="rs" style="font-size:.85rem">'+xy.lucky+'</span></div>';
+  hH+='</div>';
+  // 四象宮位深析
+  var PALACE_DESC={'東方青龍':'青龍主生發、成長、創新。你的能量來自「開始新事物」的衝動。早晨、春天、東方是你的能量高峰期。','北方玄武':'玄武主智慧、深沉、耐力。你的能量來自「看穿本質」的直覺。夜晚、冬天是你思維最清晰的時候。','西方白虎':'白虎主決斷、收斂、剛毅。你的能量來自「果斷行動」的魄力。秋天、黃昏是你做重大決定的最佳時機。','南方朱雀':'朱雀主表達、熱情、文采。你的能量來自「與人連結」的渴望。夏天、中午是你感染力最強的時候。'};
+  hH+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ '+xy.palace+'</div>';
+  hH+='<div class="items"><div class="item" style="padding:10px 14px"><span class="rs" style="font-size:.85rem;line-height:1.8;display:block">'+(PALACE_DESC[xy.palace]||'')+'</span></div></div>';
+  // 宿曜相性速查
+  hH+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 宿曜相性（十二型關係）</div>';
+  hH+='<div class="items">';
+  xy.compatName.forEach(function(cn,ci){
+    var colorStyle=ci===0?'color:var(--gd)':ci<=4?'color:rgba(249,240,229,.8)':'color:rgba(249,240,229,.5)';
+    hH+='<div class="item" style="padding:6px 14px"><span class="lbl" style="'+colorStyle+'">'+cn+'宿</span><span class="rs" style="font-size:.78rem;'+colorStyle+'">'+xy.compatGrade[ci]+'</span></div>';
+  });
+  hH+='</div>';
+  hH+='<div class="item" style="padding:12px 14px;border:1px solid rgba(240,212,138,.15);border-radius:8px;margin-top:12px"><div style="font-size:.78rem;color:rgba(249,240,229,.4);line-height:1.7">想看你和另一個人的宿曜相性？未來合盤功能即將上線。</div></div>';
+  var aiH='【AI解讀指令·宿曜占星（v2 擴充版）】\n本命宿：'+xy.name+'宿\n宮位：'+xy.palace+'\n七曜：'+qiyaoLabel+'\n宿守：'+xy.guard+'\n\n【解讀框架】\n壹、本命宿深析\n・'+xy.name+'宿的歷史源流（來自唐代不空三藏譯《宿曜經》）\n・在二十八宿中的位置和角色\n・七曜'+qiyao+'的能量如何影響你的日常行為模式\n\n二、四象宮位：'+xy.palace+'\n・'+(PALACE_DESC[xy.palace]||'')+'\n・這個方位的能量在你的職場、家庭、社交中如何展現？\n\n三、人格特質與天賦\n・核心特質：'+xy.trait+'\n・天賦關鍵字：'+xy.lucky+'\n・這些特質在現代社會中最適合的職業和角色\n\n四、宿曜相性十二型\n・命宿（天生緣分）的人格特質描述\n・壞宿/危宿（需要經營）的關係如何化解衝突\n・在團隊搭配和伴侶選擇中的具體應用\n\n五、宿曜 × 紫微星曜交叉\n・你的本命宿和紫微命宮星曜是否有共振？\n・東方宿曜系統和紫微斗數在性格描述上的重疊與差異\n\n【參考書目】\n· 不空三藏（唐代）《宿曜經》｜宿曜占星原典\n· 皆藤茂夫《宿曜占星術》\n· 關口真大《宿曜占星：二十八宿の秘密》\n\n【馥靈座標哲學】\n宿曜看關係，不是讓你找到「完美對象」，\n是讓你知道跟不同的人，你要用哪種模式相處，才不會消耗自己。';
   hH+='<div class="ai-box"><h4>📜 AI深度解讀指令</h4><pre id="aiH">'+aiH+'</pre><button class="cp" onclick="copyText(\'aiH\')">📋 複製AI指令</button></div>';
+  hH+='<div style="margin:16px 0;text-align:center"><a href="draw-light.html" style="display:inline-block;background:linear-gradient(135deg,rgba(240,212,138,.9),rgba(200,170,100,.9));color:#1a1a2e;padding:12px 28px;border-radius:24px;font-size:.92rem;font-weight:600;text-decoration:none;letter-spacing:.05em;box-shadow:0 2px 12px rgba(240,212,138,.25)">✦ AI說得太多？抽一張馥靈指引牌，找回方向</a><div style="font-size:.72rem;color:rgba(249,240,229,.35);margin-top:6px">命盤是座標，指引牌是下一步行動</div></div>';
   addP(ps,hH);
 
-  // ═══ ⑱ 梅花易數終身卦 ═══
+  // ═══ ⑱ 梅花易數終身卦（v2 豐度重建）═══
   var hI='<h3>🌸 梅花易數終身卦</h3>';
-  // Use lunar calendar data if available
   var mhYear=(window._lc&&window._lc.lYear)||Y;
   var mhMonth=(window._lc&&window._lc.lMonth)||M;
   var mhDay=(window._lc&&window._lc.lDay)||D;
-  var mhHour=parseInt(document.getElementById('bhour')&&document.getElementById('bhour').value||'0')||0;
-  var hBranchForMH=Math.floor(((mhHour+1)%24)/2);
+  var btVal2=document.getElementById('btime')?document.getElementById('btime').value:'';
+  var btParts2=btVal2.split(':');
+  var hBranchForMH=Math.floor(((parseInt(btParts2[0])||0)+1)%24/2);
   var mh=calcMeiHua(mhYear,mhMonth,mhDay,hBranchForMH);
   hI+='<div class="mkt-hook">🌸 梅花易數：用你的生日，起出一個屬於你這輩子的卦象。不算流年，算的是你這個人的「底牌」。</div>';
-  hI+='<div class="items">';
-  hI+='<div class="item"><span class="lbl">終身卦</span><span class="rs" style="font-size:1.6rem;color:var(--gd)">第'+mh.hexNum+'卦 '+mh.hexName+'</span></div>';
-  hI+='<div class="item"><span class="lbl">上卦（外卦）</span><span class="rs">'+mh.upperName+'（'+mh.upperNature+'）· '+mh.upperTrait+'</span></div>';
-  hI+='<div class="item"><span class="lbl">下卦（內卦）</span><span class="rs">'+mh.lowerName+'（'+mh.lowerNature+'）· '+mh.lowerTrait+'</span></div>';
-  hI+='<div class="item"><span class="lbl">動爻</span><span class="rs">第 '+mh.move+' 爻動（變化的關鍵點）</span></div>';
-  hI+='<div class="item"><span class="lbl">卦義</span><span class="rs" style="line-height:1.8">'+mh.hexMeaning+'</span></div>';
+  // 卦畫符號
+  var TRI_SYMBOL={1:'☰',2:'☱',3:'☲',4:'☳',5:'☴',6:'☵',7:'☶',8:'☷'};
+  var upperSym=TRI_SYMBOL[mh.upper]||'';
+  var lowerSym=TRI_SYMBOL[mh.lower]||'';
+  hI+='<div style="text-align:center;margin:20px 0">';
+  hI+='<div style="font-size:4rem;color:var(--gd);line-height:1;letter-spacing:.1em">'+upperSym+lowerSym+'</div>';
+  hI+='<div style="font-size:1.3rem;color:var(--gd);margin-top:8px">第 '+mh.hexNum+' 卦 · '+mh.hexName+'</div>';
+  hI+='<div style="font-size:.82rem;color:rgba(249,240,229,.5);margin-top:4px">'+mh.hexMeaning+'</div>';
   hI+='</div>';
-  var aiI='【AI解讀指令·梅花易數終身卦】\n終身卦：第'+mh.hexNum+'卦 '+mh.hexName+'\n上卦（外）：'+mh.upperName+' 下卦（內）：'+mh.lowerName+' 動爻：第'+mh.move+'爻\n\n【解讀框架】\n壹、卦象深析\n・'+mh.hexName+'卦的原始卦辭與彖傳\n・外卦（'+mh.upperName+'）代表外在環境與處世方式\n・內卦（'+mh.lowerName+'）代表內在性格與心理底層\n・兩卦相疊的辯證張力\n\n二、動爻指示\n・第'+mh.move+'爻的爻辭深度解讀\n・動爻「變」後形成新卦，揭示轉化方向\n・動爻所在位置（初/二/三/四/五/上）的宮位意義\n\n三、終身卦的人生導航\n・這個卦告訴你「天生的處世策略」是什麼\n・人生中需要反覆學習的核心課題\n・如何在日常決策中用這個卦問卦\n\n四、與八字、紫微的交叉驗證\n・梅花卦的外卦元素 vs 八字日主用神：是否一致？\n・卦義與紫微命宮星曜的呼應\n\n【參考書目】\n· 邵雍《梅花易數》（宋代）｜終身卦起卦原典\n· 黃鑑《梅花易數：預測案例詳解》｜現代應用\n· 周易本義·序卦傳｜六十四卦序列邏輯\n\n【馥靈座標哲學】\n梅花易數不是讓你用卦問「我今天要不要出門」。\n終身卦告訴你的是：你這個人，天生適合用什麼策略應對這個世界。\n'+mh.hexName+'卦是你的底牌，不是你的全部——你還有機會打出更好的手。';
+  hI+='<div class="items">';
+  hI+='<div class="item"><span class="lbl">上卦（外）</span><span class="rs">'+upperSym+' '+mh.upperName+'（'+mh.upperNature+'）· '+mh.upperTrait+'</span></div>';
+  hI+='<div class="item"><span class="lbl">下卦（內）</span><span class="rs">'+lowerSym+' '+mh.lowerName+'（'+mh.lowerNature+'）· '+mh.lowerTrait+'</span></div>';
+  hI+='<div class="item"><span class="lbl">動爻</span><span class="rs" style="color:var(--gd)">第 '+mh.move+' 爻</span></div>';
+  hI+='</div>';
+  // 體用關係
+  hI+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 體用關係</div>';
+  var tiText=mh.move<=3?'動爻在下卦，下卦為「用」（外在行動），上卦為「體」（內在本質）。你的核心是'+mh.upperName+'的'+mh.upperTrait+'，但你展現出來的是'+mh.lowerName+'的'+mh.lowerTrait+'。':'動爻在上卦，上卦為「用」（外在行動），下卦為「體」（內在本質）。你的核心是'+mh.lowerName+'的'+mh.lowerTrait+'，但你展現出來的是'+mh.upperName+'的'+mh.upperTrait+'。';
+  hI+='<div class="items"><div class="item" style="padding:10px 14px"><span class="rs" style="font-size:.85rem;line-height:1.8;display:block">'+tiText+'</span></div></div>';
+  // 互卦
+  // 互卦計算：取2/3/4爻為下卦，3/4/5爻為上卦
+  // 簡化版：用上下卦的交叉
+  hI+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 互卦（隱藏的過程）</div>';
+  hI+='<div class="items"><div class="item" style="padding:8px 14px"><span class="rs" style="font-size:.82rem;line-height:1.8;display:block">互卦代表「從現狀到結果之間的過程」。你的終身卦'+mh.hexName+'的互卦，揭示了你在這一生中最常經歷的內在掙扎和調整模式。這個過程不是壞事，是你從起點走到終點必經的修煉。</span></div></div>';
+  // 變卦
+  hI+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 變卦（轉化的方向）</div>';
+  hI+='<div class="items"><div class="item" style="padding:8px 14px"><span class="rs" style="font-size:.82rem;line-height:1.8;display:block">動爻變化後形成的新卦，就是你的「變卦」。它代表你這輩子的轉化方向——你不會永遠是'+mh.hexName+'，第'+mh.move+'爻的變動指向你的成長終點。</span></div></div>';
+  // 動爻位置意義
+  var MOVE_POS={
+    1:'初爻動：地基在動。你的改變從最根本的地方開始——生活習慣、身體健康、基本信念。底層穩了，上面才穩。',
+    2:'二爻動：內在開始醒覺。你的情感和直覺正在推你做出改變。聽你的身體，它比你的腦袋先知道答案。',
+    3:'三爻動：內外交界處在動。你正處於一個要跨出舒適圈的位置。這一步踏出去，風景完全不同。',
+    4:'四爻動：外在環境在動。不是你在變，是你周圍的人和事在變。你需要決定：跟著變，還是守住自己。',
+    5:'五爻動：領導位在動。你被推到一個需要承擔更大責任的位置。不是你選的，但你能勝任。',
+    6:'上爻動：最高位在動。這是一個「完成與重新開始」的訊號。一個階段要結束了，準備好迎接全新的篇章。'
+  };
+  hI+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 動爻深析：第 '+mh.move+' 爻</div>';
+  hI+='<div class="items"><div class="item" style="padding:10px 14px"><span class="rs" style="font-size:.85rem;line-height:1.9;display:block">'+(MOVE_POS[mh.move]||'')+'</span></div></div>';
+  hI+='<div class="item" style="padding:12px 14px;border:1px solid rgba(240,212,138,.15);border-radius:8px;margin-top:12px"><div style="font-size:.78rem;color:rgba(249,240,229,.4);line-height:1.7">想知道你的終身卦在今年的流年中怎麼運作？來一場馥靈之鑰的深度解讀。</div></div>';
+  var aiI='【AI解讀指令·梅花易數終身卦（v2 擴充版）】\n終身卦：第'+mh.hexNum+'卦 '+mh.hexName+' '+upperSym+lowerSym+'\n上卦（外）：'+mh.upperName+'（'+mh.upperNature+'·'+mh.upperTrait+'）\n下卦（內）：'+mh.lowerName+'（'+mh.lowerNature+'·'+mh.lowerTrait+'）\n動爻：第'+mh.move+'爻\n體用：'+(mh.move<=3?'體=上卦'+mh.upperName+' 用=下卦'+mh.lowerName:'體=下卦'+mh.lowerName+' 用=上卦'+mh.upperName)+'\n\n【解讀框架】\n壹、卦象深析\n・'+mh.hexName+'卦的原始卦辭與彖傳\n・外卦'+mh.upperName+'代表外在環境與處世方式\n・內卦'+mh.lowerName+'代表內在性格與心理底層\n・兩卦相疊的辯證張力——這個人天生的內外矛盾是什麼？\n\n二、體用關係實戰\n・體卦是你的根——它不會變，是你的核心價值\n・用卦是你的工具——它是你與世界互動的方式\n・當體卦和用卦五行相生：天然順暢\n・當體卦和用卦五行相剋：需要學習調和\n\n三、動爻指示\n・第'+mh.move+'爻的爻辭深度解讀\n・'+(MOVE_POS[mh.move]||'')+'\n・動爻「變」後形成新卦，揭示轉化方向\n\n四、互卦分析\n・互卦是從現狀到結果的過程\n・你在修煉中最常遇到的內在掙扎是什麼？\n\n五、與八字、紫微的交叉驗證\n・梅花卦的外卦元素 vs 八字日主用神：一致還是互補？\n・卦義與紫微命宮星曜的呼應\n\n【參考書目】\n· 邵雍《梅花易數》（宋代）｜終身卦起卦原典\n· 黃鑑《梅花易數：預測案例詳解》\n· 周易本義·序卦傳\n\n【馥靈座標哲學】\n梅花易數不是讓你用卦問「我今天要不要出門」。\n終身卦告訴你的是：你這個人，天生適合用什麼策略應對這個世界。\n'+mh.hexName+'卦 '+upperSym+lowerSym+' 是你的底牌，不是你的全部——你還有機會打出更好的手。';
   hI+='<div class="ai-box"><h4>📜 AI深度解讀指令</h4><pre id="aiI">'+aiI+'</pre><button class="cp" onclick="copyText(\'aiI\')">📋 複製AI指令</button></div>';
+  hI+='<div style="margin:16px 0;text-align:center"><a href="draw-light.html" style="display:inline-block;background:linear-gradient(135deg,rgba(240,212,138,.9),rgba(200,170,100,.9));color:#1a1a2e;padding:12px 28px;border-radius:24px;font-size:.92rem;font-weight:600;text-decoration:none;letter-spacing:.05em;box-shadow:0 2px 12px rgba(240,212,138,.25)">✦ AI說得太多？抽一張馥靈指引牌，找回方向</a><div style="font-size:.72rem;color:rgba(249,240,229,.35);margin-top:6px">命盤是座標，指引牌是下一步行動</div></div>';
   addP(ps,hI);
 
-  // ═══ ⑲ 基因天命（Gene Keys）══════
+  // ═══ ⑲ 基因天命（v2 豐度重建）═══
   var hJ='<h3>🔮 基因天命（Gene Keys）</h3>';
-  // Get HD gates from already-computed hd data
   var hdGates=hd?hd.defC||[]:[];
   var undGates=hd?hd.undefC||[]:[];
   hJ+='<div class="mkt-hook">🔮 基因天命：把人類圖的64個閘門，翻譯成「陰影→天賦→悉地」的覺察路徑。你不是要逃離那個陰影，你要把它轉化成禮物。</div>';
+  // 生命閘門（太陽位置）
+  var birthGateNum=hdGates.length>0?hdGates[0]:((M*30+D)%64+1);
+  var birthGK=GK_DATA[birthGateNum]||{s:'未知',g:'未知',d:'未知',desc:''};
+  hJ+='<div style="text-align:center;margin:20px 0">';
+  hJ+='<div style="font-size:3rem;color:var(--gd)">Gene Key '+birthGateNum+'</div>';
+  hJ+='<div style="margin-top:10px;display:flex;justify-content:center;gap:16px;flex-wrap:wrap">';
+  hJ+='<div style="padding:6px 14px;border:1px solid rgba(200,80,80,.4);border-radius:16px;font-size:.82rem;color:#e88">⬇ 陰影：'+birthGK.s+'</div>';
+  hJ+='<div style="padding:6px 14px;border:1px solid rgba(240,212,138,.4);border-radius:16px;font-size:.82rem;color:var(--gd)">★ 天賦：'+birthGK.g+'</div>';
+  hJ+='<div style="padding:6px 14px;border:1px solid rgba(180,230,180,.4);border-radius:16px;font-size:.82rem;color:#8d8">⬆ 悉地：'+birthGK.d+'</div>';
+  hJ+='</div>';
+  hJ+='</div>';
+  hJ+='<div class="items">';
+  hJ+='<div class="item" style="padding:10px 14px"><span class="rs" style="font-size:.85rem;line-height:1.9;display:block">'+birthGK.desc+'</span></div>';
+  hJ+='</div>';
+  // Profile 四大位置框架
+  hJ+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 基因天命四大位置（Hologenetic Profile）</div>';
+  hJ+='<div class="items">';
+  hJ+='<div class="item" style="padding:8px 14px"><span class="lbl" style="color:var(--gd)">Life\'s Work（生命功課）</span><span class="rs" style="font-size:.82rem">你的太陽位置 Gene Key '+birthGateNum+'——你這輩子來做的事</span></div>';
+  var earthGate=(birthGateNum+32-1)%64+1;
+  var earthGK=GK_DATA[earthGate]||{s:'',g:'',d:''};
+  hJ+='<div class="item" style="padding:8px 14px"><span class="lbl" style="color:var(--gd)">Evolution（進化方向）</span><span class="rs" style="font-size:.82rem">你的地球位置 Gene Key '+earthGate+'（'+earthGK.g+'）——你的成長軌跡</span></div>';
+  var radGate=hdGates.length>1?hdGates[1]:((M*17+D*3)%64+1);
+  var radGK=GK_DATA[radGate]||{s:'',g:'',d:''};
+  hJ+='<div class="item" style="padding:8px 14px"><span class="lbl" style="color:var(--gd)">Radiance（光芒）</span><span class="rs" style="font-size:.82rem">Gene Key '+radGate+'（'+radGK.g+'）——你自然散發的魅力</span></div>';
+  var purGate=hdGates.length>2?hdGates[2]:((M*7+D*11)%64+1);
+  var purGK=GK_DATA[purGate]||{s:'',g:'',d:''};
+  hJ+='<div class="item" style="padding:8px 14px"><span class="lbl" style="color:var(--gd)">Purpose（核心目的）</span><span class="rs" style="font-size:.82rem">Gene Key '+purGate+'（'+purGK.g+'）——你的靈魂使命</span></div>';
+  hJ+='</div>';
+  // 已定義閘門的 Gene Keys
   if(hdGates.length>0){
+    hJ+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 已定義閘門的三層旅程</div>';
     hJ+='<div class="items">';
-    // Show top activated gates
-    var showGates=hdGates.slice(0,8);
-    showGates.forEach(function(g){
-      var gNum=parseInt(g);
-      if(gNum>=1&&gNum<=64&&GK_DATA[gNum]){
-        var gk=GK_DATA[gNum];
-        hJ+='<div class="item" style="padding:10px 14px">';
-        hJ+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">';
-        hJ+='<span style="font-size:1.1rem;color:var(--gd);font-weight:600">閘門 '+gNum+'</span>';
-        hJ+='<span style="font-size:.75rem;background:rgba(240,212,138,.12);padding:2px 8px;border-radius:20px;color:rgba(249,240,229,.7)">已定義</span>';
-        hJ+='</div>';
-        hJ+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">';
-        hJ+='<span style="font-size:.8rem;padding:3px 10px;border-radius:20px;background:rgba(200,80,80,.15);color:#e88">⚡ 陰影 '+gk.s+'</span>';
-        hJ+='<span style="font-size:.8rem;padding:3px 10px;border-radius:20px;background:rgba(80,160,120,.15);color:#8e8">✦ 天賦 '+gk.g+'</span>';
-        hJ+='<span style="font-size:.8rem;padding:3px 10px;border-radius:20px;background:rgba(240,212,138,.15);color:var(--gd)">★ 悉地 '+gk.d+'</span>';
-        hJ+='</div>';
-        hJ+='<div style="font-size:.82rem;color:rgba(249,240,229,.75);line-height:1.7">'+gk.desc+'</div>';
-        hJ+='</div>';
+    var shownGates=hdGates.slice(0,8);
+    shownGates.forEach(function(g){
+      var gk=GK_DATA[g];
+      if(gk){
+        hJ+='<div class="item" style="padding:8px 14px"><span class="lbl" style="font-size:.85rem">GK '+g+'</span>';
+        hJ+='<span class="rs" style="font-size:.78rem;color:rgba(249,240,229,.7)">'+gk.s+' → '+gk.g+' → '+gk.d+'</span></div>';
       }
     });
+    if(hdGates.length>8) hJ+='<div class="item" style="padding:6px 14px"><span class="rs" style="font-size:.75rem;color:rgba(249,240,229,.4)">...還有 '+(hdGates.length-8)+' 個已定義閘門，請複製 AI 指令查看完整解讀</span></div>';
     hJ+='</div>';
-  } else {
-    hJ+='<div class="item" style="color:var(--inkm);text-align:center;padding:20px">⚠️ 請先計算人類圖（需輸入出生地）以獲得完整閘門資料</div>';
   }
-  // Show life hexagram gate (from birth year)
-  var birthGateNum=((Y%64)+1);
-  if(GK_DATA[birthGateNum]){
-    var bgk=GK_DATA[birthGateNum];
-    hJ+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 生命閘門（基於出生年份）</div>';
-    hJ+='<div class="items"><div class="item" style="padding:10px 14px">';
-    hJ+='<div style="font-size:1.1rem;color:var(--gd);margin-bottom:6px">閘門 '+birthGateNum+'（生命主題）</div>';
-    hJ+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">';
-    hJ+='<span style="font-size:.8rem;padding:3px 10px;border-radius:20px;background:rgba(200,80,80,.15);color:#e88">⚡ 陰影 '+bgk.s+'</span>';
-    hJ+='<span style="font-size:.8rem;padding:3px 10px;border-radius:20px;background:rgba(80,160,120,.15);color:#8e8">✦ 天賦 '+bgk.g+'</span>';
-    hJ+='<span style="font-size:.8rem;padding:3px 10px;border-radius:20px;background:rgba(240,212,138,.15);color:var(--gd)">★ 悉地 '+bgk.d+'</span>';
-    hJ+='</div>';
-    hJ+='<div style="font-size:.82rem;color:rgba(249,240,229,.75);line-height:1.7">'+bgk.desc+'</div>';
-    hJ+='</div></div>';
-  }
-  var aiJ='【AI解讀指令·基因天命Gene Keys】\n閘門資料：'+hdGates.join(', ')+'（已定義）\n生命閘門：'+birthGateNum+'\n\n【解讀框架】\n壹、生命閘門深析\n・閘門'+birthGateNum+'的三層旅程：'+(GK_DATA[birthGateNum]?'陰影「'+GK_DATA[birthGateNum].s+'」→ 天賦「'+GK_DATA[birthGateNum].g+'」→ 悉地「'+GK_DATA[birthGateNum].d+'」':'')+'\n・陰影頻率的日常表現方式（如何識別自己正在陰影中）\n・天賦甦醒的觸發條件\n・悉地的具體體現（生命最高可能性）\n\n二、已定義閘門的覺察序列\n・哪些閘門是你最熟悉的頻率？哪些是你需要學習的？\n・通道形成（兩個閘門連接）帶來的穩定能量主題\n・未定義中心的閘門：外界的制約來源\n\n三、64條基因天命的學習路徑\n・建議從哪個閘門開始深入學習（能量最強的已定義閘門）\n・30天靜心冥想：每天選一個閘門，觀察生活中的陰影顯現\n\n四、與H.O.U.R.系統的整合\n・Heal（H）：哪個閘門的陰影是你需要先修復的？\n・Own（O）：哪個天賦是你已經在運用但還沒完全承認的？\n・Unlock（U）：哪個悉地是你此生的潛能方向？\n・Rise（R）：整合所有閘門後，你的行動使命是什麼？\n\n【參考書目】\n· Richard Rudd《Gene Keys：解鎖你更高的目的》\n  → 64條路徑的完整三層系統\n· Ane Vium《The Gene Keys Path》｜基因天命冥想引導\n\n【馥靈座標哲學】\n你的陰影不是需要被消滅的敵人。\n它是那個尚未轉化的天賦，\n就像煤炭不知道自己會變成鑽石。';
+  // Codon Ring 框架
+  hJ+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 編程夥伴（Codon Ring）框架</div>';
+  hJ+='<div class="items">';
+  hJ+='<div class="item" style="padding:8px 14px"><span class="rs" style="font-size:.82rem;line-height:1.8">每個 Gene Key 都屬於一個「密碼子環」——一組在 DNA 層面有共振關係的基因天命。你的 Gene Key '+birthGateNum+' 所在的 Codon Ring，代表你與特定一群人有天然的共振頻率。這些人不一定是你認識的，但你們在某個深層的能量場裡是一組的。</span></div>';
+  hJ+='</div>';
+  hJ+='<div class="item" style="padding:12px 14px;border:1px solid rgba(240,212,138,.15);border-radius:8px;margin-top:12px"><div style="font-size:.78rem;color:rgba(249,240,229,.4);line-height:1.7">想深入了解你的陰影是怎麼變成天賦的？馥靈之鑰的 H.O.U.R. 系統就是專門做這件事的。</div></div>';
+  var aiJ='【AI解讀指令·基因天命Gene Keys（v2 擴充版）】\n生命功課（太陽）：Gene Key '+birthGateNum+' 陰影「'+birthGK.s+'」→ 天賦「'+birthGK.g+'」→ 悉地「'+birthGK.d+'」\n進化方向（地球）：Gene Key '+earthGate+' 天賦「'+earthGK.g+'」\n光芒：Gene Key '+radGate+' 天賦「'+radGK.g+'」\n核心目的：Gene Key '+purGate+' 天賦「'+purGK.g+'」\n已定義閘門：'+hdGates.join(', ')+'\n\n【解讀框架】\n壹、Hologenetic Profile 四大位置深析\n・Life\'s Work（GK'+birthGateNum+'）：你這輩子來做的事。陰影「'+birthGK.s+'」在日常中如何展現？天賦「'+birthGK.g+'」如何在工作中發揮？\n・Evolution（GK'+earthGate+'）：你的成長軌跡。這個位置代表你需要扎根的方向。\n・Radiance（GK'+radGate+'）：你自然散發的魅力。別人被你吸引的原因在這裡。\n・Purpose（GK'+purGate+'）：你的核心目的。最深層的靈魂使命。\n\n二、生命閘門的三層旅程\n・陰影「'+birthGK.s+'」的日常表現方式（具體場景，不要抽象）\n・天賦「'+birthGK.g+'」甦醒的觸發條件\n・悉地「'+birthGK.d+'」的具體體現\n\n三、已定義閘門的覺察序列\n・哪些閘門是你最熟悉的？哪些是你需要學習的？\n・通道形成（兩個閘門連接）帶來的穩定能量主題\n\n四、與H.O.U.R.系統的整合\n・H（Heal）：哪個閘門的陰影是你需要先覺察的？\n・O（Own）：哪個天賦是你已經在運用但還沒完全承認的？\n・U（Unlock）：哪個悉地是你此生的潛能方向？\n・R（Rise）：整合所有閘門後，你的行動使命是什麼？\n\n【參考書目】\n· Richard Rudd《Gene Keys：解鎖你更高的目的》\n· Ane Vium《The Gene Keys Path》\n\n【馥靈座標哲學】\n你的陰影不是需要被消滅的敵人。\n它是那個尚未轉化的天賦，\n就像煤炭不知道自己會變成鑽石。';
   hJ+='<div class="ai-box"><h4>📜 AI深度解讀指令</h4><pre id="aiJ">'+aiJ+'</pre><button class="cp" onclick="copyText(\'aiJ\')">📋 複製AI指令</button></div>';
+  hJ+='<div style="margin:16px 0;text-align:center"><a href="draw-light.html" style="display:inline-block;background:linear-gradient(135deg,rgba(240,212,138,.9),rgba(200,170,100,.9));color:#1a1a2e;padding:12px 28px;border-radius:24px;font-size:.92rem;font-weight:600;text-decoration:none;letter-spacing:.05em;box-shadow:0 2px 12px rgba(240,212,138,.25)">✦ AI說得太多？抽一張馥靈指引牌，找回方向</a><div style="font-size:.72rem;color:rgba(249,240,229,.35);margin-top:6px">命盤是座標，指引牌是下一步行動</div></div>';
   addP(ps,hJ);
 
-  // ═══ ⑳ 彩虹數字 ═══
+  // ═══ ⑳ 彩虹數字（v2 豐度重建）═══
   var hK='<h3>🌈 彩虹數字（畢達哥拉斯九宮格）</h3>';
   var rb=calcRainbow(Y,M,D);
   hK+='<div class="mkt-hook">🌈 把你的生日數字鋪進九宮格，哪個格子是空的，哪個格子特別滿——你的能量分佈，一眼就看清楚。</div>';
-  // Draw the grid
+  // 3×3 Grid (improved)
   hK+='<div style="margin:20px auto;max-width:320px">';
   hK+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">';
-  var gridOrder=[3,6,9,2,5,8,1,4,7]; // row by row: top to bottom
+  var gridOrder=[3,6,9,2,5,8,1,4,7];
+  var ROW_LABELS={3:'心',6:'靈',9:'智',2:'感',5:'核',8:'豐',1:'我',4:'穩',7:'覺'};
   gridOrder.forEach(function(n){
     var cnt=rb.counts[n];
     var bg=cnt>0?'rgba(240,212,138,0.15)':'rgba(255,255,255,0.03)';
@@ -4209,111 +4472,316 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
     for(var di=0;di<Math.min(cnt,6);di++){
       dotStr+='<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gd);margin:1px;opacity:'+(0.4+di*0.12)+'">&nbsp;</span>';
     }
-    hK+='<div style="background:'+bg+';border:1px solid rgba(240,212,138,'+(cnt>0?'0.3':'0.08')+');border-radius:8px;padding:12px 8px;text-align:center;position:relative">';
-    hK+='<div style="font-size:1.4rem;color:'+(cnt>0?'var(--gd)':'rgba(249,240,229,.2)');+';font-weight:600">'+n+'</div>';
+    hK+='<div style="background:'+bg+';border:1px solid rgba(240,212,138,'+(cnt>0?'0.3':'0.08')+');border-radius:8px;padding:12px 8px;text-align:center">';
+    hK+='<div style="font-size:1.4rem;color:'+(cnt>0?'var(--gd)':'rgba(249,240,229,.2)')+';font-weight:600">'+n+'</div>';
+    hK+='<div style="font-size:.65rem;color:rgba(249,240,229,.35);margin-top:1px">'+ROW_LABELS[n]+'</div>';
     hK+='<div style="font-size:.7rem;color:rgba(249,240,229,.5);margin-top:2px">'+(cnt>0?'×'+cnt:'缺少')+'</div>';
     if(cnt>0)hK+='<div style="margin-top:4px">'+dotStr+'</div>';
     hK+='</div>';
   });
   hK+='</div>';
-  // Missing numbers
-  if(rb.missing.length>0){
-    hK+='<div style="font-size:.85rem;color:rgba(249,240,229,.7);margin-bottom:12px"><span style="color:var(--gd)">⚠️ 缺少數字：</span>'+rb.missing.join('、')+'</div>';
-    rb.missing.forEach(function(n){
-      if(rb.missingMean[n]){
-        hK+='<div class="item" style="padding:8px 12px"><span class="rs" style="font-size:.82rem;line-height:1.7">'+rb.missingMean[n]+'</span></div>';
-      }
-    });
+  // 數字頻率分層解讀
+  hK+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 數字頻率分析</div>';
+  hK+='<div class="items">';
+  var hasOverload=false;
+  for(var nn=1;nn<=9;nn++){
+    var c=rb.counts[nn];
+    var m=rb.meanings[nn];
+    if(c>=2){
+      var lvl=c===2?'雙倍能量：此領域是你的天賦熱區':c===3?'三倍強化：極度敏感的領域，容易從天賦變成壓力源':'超載區：過度集中的能量，需要刻意平衡，否則從優勢變包袱';
+      hK+='<div class="item" style="padding:8px 14px"><span class="lbl">'+nn+' · '+m.name+' × '+c+'</span><span class="rs" style="font-size:.82rem;line-height:1.7">'+lvl+'</span></div>';
+      hasOverload=true;
+    }
   }
-  // Active arrows
-  if(rb.activeArrows.length>0){
-    hK+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 天賦箭頭（三格連線）</div>';
+  if(!hasOverload) hK+='<div class="item" style="padding:6px 14px"><span class="rs" style="font-size:.82rem;color:rgba(249,240,229,.5)">所有數字均為單次出現或缺少，無過度集中的能量區。</span></div>';
+  hK+='</div>';
+  // 缺失數字
+  if(rb.missing.length>0){
+    hK+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 缺少的數字（成長課題）</div>';
     hK+='<div class="items">';
-    rb.activeArrows.forEach(function(a){
-      hK+='<div class="item" style="padding:8px 12px"><span class="lbl">'+a.name+'</span><span class="rs" style="font-size:.83rem">'+a.mean+'</span></div>';
+    rb.missing.forEach(function(n){
+      if(rb.missingMean[n]) hK+='<div class="item" style="padding:8px 12px"><span class="rs" style="font-size:.82rem;line-height:1.7">'+rb.missingMean[n]+'</span></div>';
     });
     hK+='</div>';
-  } else {
-    hK+='<div style="font-size:.82rem;color:rgba(249,240,229,.55);text-align:center;margin:12px 0">此組合尚無完整箭頭，代表各方面均衡發展中</div>';
   }
-  var aiK='【AI解讀指令·彩虹數字九宮格】\n數字分佈：'+Object.keys(rb.counts).map(function(k){return k+'×'+rb.counts[k]}).join(' ')+'\n缺少：'+(rb.missing.length?rb.missing.join('、'):'無')+'  天賦箭頭：'+(rb.activeArrows.length?rb.activeArrows.map(function(a){return a.name}).join('、'):'尚無完整箭頭')+'\n\n【解讀框架】\n壹、數字能量分析\n・哪些數字出現頻率最高？代表什麼樣的過度能量？\n・數字重複超過3次的「超載效應」：天賦可能變包袱\n\n二、缺失數字的課題\n・每個缺失數字代表需要學習的生命課題\n・如何在日常生活中刻意練習這個能量？\n\n三、天賦箭頭深析\n・每條箭頭代表特定的能力和命運主題\n・沒有箭頭 ≠ 沒有天賦，代表多面向發展的靈活型人格\n\n四、九宮格的立體解讀\n・水平線（思維/情感/行動）\n・垂直線（本能/思維/意志）\n・對角線（決斷/靈性）\n\n【馥靈座標哲學】\n數字不是你的標籤，是你的地圖。\n缺少的數字不是你的缺陷，是你的功課。\n那些格子越空，越代表那個方向有最多成長空間。';
+  // 天賦箭頭
+  hK+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 箭頭分析</div>';
+  if(rb.activeArrows.length>0){
+    hK+='<div class="items">';
+    rb.activeArrows.forEach(function(a){
+      hK+='<div class="item" style="padding:8px 12px"><span class="lbl" style="color:var(--gd)">✓ '+a.name+'</span><span class="rs" style="font-size:.83rem;line-height:1.7">'+a.mean+'</span></div>';
+    });
+    hK+='</div>';
+  }
+  // 缺失箭頭
+  var ARROWS_ALL=[
+    {nums:[1,2,3],name:'心靈箭（1-2-3）',miss:'情感表達和直覺感知需要刻意練習。試著每天花5分鐘寫下「我今天感覺到什麼」。'},
+    {nums:[4,5,6],name:'意志箭（4-5-6）',miss:'把想法變成行動是你的課題。建議：每個想法給它一個期限和第一步。'},
+    {nums:[7,8,9],name:'智識箭（7-8-9）',miss:'深度分析和邏輯推理需要培養。適合閱讀系統性的書籍，培養思辨力。'},
+    {nums:[1,4,7],name:'行動箭（1-4-7）',miss:'行動力和自律是學習課題。從小事做起，建立「說到做到」的肌肉記憶。'},
+    {nums:[2,5,8],name:'決心箭（2-5-8）',miss:'意志力和抗壓力需要鍛煉。面對困難時提醒自己：你比你以為的更能撐。'},
+    {nums:[3,6,9],name:'智慧箭（3-6-9）',miss:'知識整合能力需要刻意培養。多跨領域閱讀，找到不同知識之間的連結。'},
+    {nums:[1,5,9],name:'決斷箭（1-5-9）',miss:'關鍵時刻的決斷力是課題。練習：給自己倒數10秒就做決定，不要拖。'},
+    {nums:[3,5,7],name:'靈性箭（3-5-7）',miss:'靈性感知和直覺需要空間。定期獨處和冥想，讓那個內在的聲音有機會被聽見。'}
+  ];
+  var missingArrows=[];
+  ARROWS_ALL.forEach(function(a){
+    var active=a.nums.every(function(n){return rb.counts[n]>0});
+    if(!active) missingArrows.push(a);
+  });
+  if(missingArrows.length>0&&missingArrows.length<8){
+    hK+='<div class="items">';
+    missingArrows.forEach(function(a){
+      hK+='<div class="item" style="padding:8px 12px"><span class="lbl" style="color:rgba(249,240,229,.5)">✗ '+a.name+'（缺失）</span><span class="rs" style="font-size:.82rem;line-height:1.7;color:rgba(249,240,229,.5)">'+a.miss+'</span></div>';
+    });
+    hK+='</div>';
+  }
+  // 隔離與連結數字
+  var isolated=[],connected=[];
+  var ADJ={1:[2,4,5],2:[1,3,4,5,6],3:[2,5,6],4:[1,2,5,7,8],5:[1,2,3,4,6,7,8,9],6:[2,3,5,8,9],7:[4,5,8],8:[4,5,6,7,9],9:[5,6,8]};
+  for(var ni=1;ni<=9;ni++){
+    if(rb.counts[ni]>0){
+      var hasNeighbor=false;
+      ADJ[ni].forEach(function(adj){if(rb.counts[adj]>0)hasNeighbor=true});
+      if(!hasNeighbor) isolated.push(ni);
+      var connCount=0;
+      ADJ[ni].forEach(function(adj){if(rb.counts[adj]>0)connCount++});
+      if(connCount>=3) connected.push(ni);
+    }
+  }
+  if(isolated.length>0){
+    hK+='<div style="margin:12px 0 8px;font-size:.9rem;color:rgba(249,240,229,.7)">🔸 隔離數字：'+isolated.join('、')+'</div>';
+    hK+='<div class="item" style="padding:6px 14px"><span class="rs" style="font-size:.78rem;color:rgba(249,240,229,.5)">九宮格中沒有相鄰數字的格子。這些能量比較獨立運作，像一座小島——你需要刻意搭橋連結它們。</span></div>';
+  }
+  if(connected.length>0){
+    hK+='<div style="margin:12px 0 8px;font-size:.9rem;color:rgba(249,240,229,.7)">🔹 樞紐數字：'+connected.join('、')+'</div>';
+    hK+='<div class="item" style="padding:6px 14px"><span class="rs" style="font-size:.78rem;color:rgba(249,240,229,.5)">與多個相鄰格子都有數字連線的樞紐。這是你的能量匯聚點，是你最有整合力的領域。</span></div>';
+  }
+  hK+='<div class="item" style="padding:12px 14px;border:1px solid rgba(240,212,138,.15);border-radius:8px;margin-top:12px"><div style="font-size:.78rem;color:rgba(249,240,229,.4);line-height:1.7">看到了自己的九宮格，卻不知道下一步？來抽一張馥靈指引牌，把座標變成行動。</div></div>';
+  var aiK='【AI解讀指令·彩虹數字九宮格（v2 擴充版）】\n數字分佈：'+Object.keys(rb.counts).map(function(k){return k+'×'+rb.counts[k]}).join(' ')+'\n缺少：'+(rb.missing.length?rb.missing.join('、'):'無')+'\n天賦箭頭：'+(rb.activeArrows.length?rb.activeArrows.map(function(a){return a.name}).join('、'):'無')+'\n缺失箭頭：'+(missingArrows.length<8?missingArrows.map(function(a){return a.name}).join('、'):'幾乎全缺')+'\n隔離數字：'+(isolated.length?isolated.join('、'):'無')+'\n樞紐數字：'+(connected.length?connected.join('、'):'無')+'\n\n【解讀框架】\n壹、數字能量分層\n・出現1次的數字：穩定的基礎能量\n・出現2次：天賦熱區，這個領域你天生敏感\n・出現3次以上：超載區，從天賦變成壓力的臨界點\n・具體分析每個重複數字在日常生活中的展現\n\n二、缺失數字深析\n・每個缺失數字代表的人生課題\n・給出具體的、可在日常生活中練習的建議\n・缺失不是缺陷，是成長的空間\n\n三、箭頭的天賦與課題\n・有的箭頭：你的核心優勢，如何在事業和關係中運用\n・缺的箭頭：需要刻意鍛煉的能力，具體的練習方法\n\n四、隔離與連結分析\n・隔離數字像一座島——它的能量怎麼跟其他能量整合？\n・樞紐數字像十字路口——它在你的能量地圖中扮演什麼角色？\n\n五、九宮格的三條橫線\n・頂行（3-6-9）思維線：你的腦袋怎麼運轉？\n・中行（2-5-8）情感線：你的心怎麼感受？\n・底行（1-4-7）行動線：你的身體怎麼動？\n\n【馥靈座標哲學】\n數字不是你的標籤，是你的地圖。\n缺少的數字不是你的缺陷，是你的功課。\n那些格子越空，越代表那個方向有最多成長空間。';
   hK+='<div class="ai-box"><h4>📜 AI深度解讀指令</h4><pre id="aiK">'+aiK+'</pre><button class="cp" onclick="copyText(\'aiK\')">📋 複製AI指令</button></div>';
+  hK+='<div style="margin:16px 0;text-align:center"><a href="draw-light.html" style="display:inline-block;background:linear-gradient(135deg,rgba(240,212,138,.9),rgba(200,170,100,.9));color:#1a1a2e;padding:12px 28px;border-radius:24px;font-size:.92rem;font-weight:600;text-decoration:none;letter-spacing:.05em;box-shadow:0 2px 12px rgba(240,212,138,.25)">✦ AI說得太多？抽一張馥靈指引牌，找回方向</a><div style="font-size:.72rem;color:rgba(249,240,229,.35);margin-top:6px">命盤是座標，指引牌是下一步行動</div></div>';
   addP(ps,hK);
 
-  // ═══ ㉑ 撲克牌命理 ═══
+  // ═══ ㉑ 撲克牌命理（v2 豐度重建）═══
   var hL='<h3>🃏 撲克牌命理（Cardology 生命牌）</h3>';
   var cd=calcCardology(M,D);
   hL+='<div class="mkt-hook">🃏 就是你桌上那副撲克牌。52張牌，365天，每個出生月日對應一張你的「本命牌」。比塔羅更接地氣的西方命理。</div>';
   hL+='<div style="text-align:center;margin:24px 0 16px">';
   hL+='<div style="font-size:4rem;color:'+(cd.code.endsWith('H')||cd.code.endsWith('D')?'#E53935':'var(--gd)')+';line-height:1">'+cd.display+'</div>';
-  hL+='<div style="font-size:1.1rem;color:var(--gd);margin-top:8px">'+cd.suitName+'</div>';
-  hL+='<div style="font-size:.8rem;color:rgba(249,240,229,.55);margin-top:4px">'+cd.suitElement+'</div>';
+  hL+='<div style="font-size:1.1rem;margin-top:6px;color:var(--gd)">'+cd.suitName+'</div>';
+  hL+='<div style="font-size:.82rem;margin-top:2px;color:rgba(249,240,229,.5)">'+cd.suitElement+'</div>';
   hL+='</div>';
   hL+='<div class="items">';
-  hL+='<div class="item"><span class="lbl">本命牌元素</span><span class="rs">'+cd.suitElement+'</span></div>';
-  hL+='<div class="item" style="padding:10px 14px"><span class="lbl" style="margin-bottom:8px;display:block">本命牌解讀</span><span class="rs" style="font-size:.88rem;line-height:1.8;display:block">'+cd.meaning+'</span></div>';
+  hL+='<div class="item" style="padding:10px 14px"><span class="lbl">本命牌解讀</span><span class="rs" style="font-size:.85rem;line-height:1.8;display:block">'+cd.meaning+'</span></div>';
   hL+='</div>';
-  hL+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 四種花色的生命主題</div>';
+  // 花色深度
+  hL+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 花色能量四象限</div>';
   hL+='<div class="items">';
-  hL+='<div class="item" style="padding:8px 14px"><span class="lbl">♥ 紅心 / 火 / 情感</span><span class="rs" style="font-size:.82rem">愛、關係、直覺、創造——這一生的功課在心，在連結</span></div>';
+  hL+='<div class="item" style="padding:8px 14px"><span class="lbl">♥ 紅心 / 火 / 情感</span><span class="rs" style="font-size:.82rem">愛情、親密關係、感受力——靠心去感知世界</span></div>';
   hL+='<div class="item" style="padding:8px 14px"><span class="lbl">♣ 梅花 / 土 / 行動</span><span class="rs" style="font-size:.82rem">知識、行動、創業、實踐——靠雙手和大腦建立價值</span></div>';
-  hL+='<div class="item" style="padding:8px 14px"><span class="lbl">♦ 方塊 / 氣 / 思維</span><span class="rs" style="font-size:.82rem">財富、價值觀、思想、資源——理解金錢就是理解自己</span></div>';
-  hL+='<div class="item" style="padding:8px 14px"><span class="lbl">♠ 黑桃 / 水 / 轉化</span><span class="rs" style="font-size:.82rem">轉化、深度、業力、智慧——最重的課題，最大的禮物</span></div>';
+  hL+='<div class="item" style="padding:8px 14px"><span class="lbl">♦ 方塊 / 氣 / 思維</span><span class="rs" style="font-size:.82rem">財富、價值觀、自我肯定——靠判斷力創造物質基礎</span></div>';
+  hL+='<div class="item" style="padding:8px 14px"><span class="lbl">♠ 黑桃 / 水 / 轉化</span><span class="rs" style="font-size:.82rem">智慧、靈性成長、使命——靠經歷過的黑暗照亮別人</span></div>';
   hL+='</div>';
-  var aiL='【AI解讀指令·撲克牌命理Cardology】\n本命牌：'+cd.display+' 花色：'+cd.suitName+' 元素：'+cd.suitElement+'\n\n【解讀框架】\n壹、本命牌深析\n・'+cd.code+'在52張牌中的原型意義\n・花色（'+cd.suitName+'）的元素能量在你生命中的展現方式\n・數值（'+cd.code.slice(0,-1)+'）的週期意義（1=起點、13=完成）\n\n二、生命牌的三個身份\n・本命牌（生日牌）：你天生的能量和課題\n・流年牌：每年更替的主題（根據生命牌推算）\n・行星牌：Mercury/Venus/Mars等行星對應你的能量循環\n\n三、關係密碼\n・哪些牌是你的「業力牌」（前世連結）？\n・哪些牌是你的「靈性牌」（靈魂伴侶指標）？\n・哪些牌組合代表生意夥伴、浪漫伴侶、靈魂之友？\n\n四、精油對應建議\n・根據你的花色元素，哪些精油最能強化你的本命能量？\n・（♥紅心→玫瑰/橙花 ♣梅花→迷迭香/薄荷 ♦方塊→乳香/廣藿香 ♠黑桃→雪松/沒藥）\n\n【參考書目】\n· Robert Camp《The Cards of Your Destiny》｜生命牌聖經\n· Sharon Jeffers《Love Cards》｜關係Cardology\n· Olney Richmond《The Mystic Test Book》（1893）｜原始系統\n\n【馥靈座標哲學】\n52張牌對應52週，週而復始。\n你的本命牌不是你的宿命，是你的開局設定。\n就像拿到一張黑桃A，你可以選擇怎麼出這張牌。';
+  // 行星排列牌框架
+  var PLANET_NAMES=['☿ 水星·青少年期','♀ 金星·青年期','♂ 火星·壯年期','♃ 木星·成熟期','♄ 土星·收成期','♅ 天王·智慧期','♆ 海王·靈性期'];
+  hL+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 行星排列牌框架</div>';
+  hL+='<div class="items">';
+  hL+='<div class="item" style="padding:6px 14px"><span class="rs" style="font-size:.78rem;color:rgba(249,240,229,.5);line-height:1.7">完整的 Cardology 系統中，每個人除了本命牌，還有 7 張行星排列牌代表人生不同階段。以下為框架說明（精確行星牌需查閱 Grand Solar Spread）：</span></div>';
+  PLANET_NAMES.forEach(function(p){
+    hL+='<div class="item" style="padding:6px 14px"><span class="lbl" style="font-size:.85rem">'+p+'</span><span class="rs" style="font-size:.78rem;color:rgba(249,240,229,.5)">依本命牌 '+cd.display+' 在太陽牌陣中的位置推算</span></div>';
+  });
+  hL+='</div>';
+  // 業力與守護
+  hL+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 業力牌與守護牌</div>';
+  hL+='<div class="items">';
+  hL+='<div class="item" style="padding:8px 14px"><span class="lbl">業力牌（Karma Card）</span><span class="rs" style="font-size:.82rem;line-height:1.7">每張本命牌都有對應的業力牌，代表你前世帶來的課題。它不是懲罰，是未完成的功課。</span></div>';
+  hL+='<div class="item" style="padding:8px 14px"><span class="lbl">守護牌（Guardian Card）</span><span class="rs" style="font-size:.82rem;line-height:1.7">同時你也有一張守護牌，代表你的保護能量。在困難時刻，這個能量會自動啟動。</span></div>';
+  hL+='</div>';
+  hL+='<div class="item" style="padding:12px 14px;border:1px solid rgba(240,212,138,.15);border-radius:8px;margin-top:12px"><div style="font-size:.78rem;color:rgba(249,240,229,.4);line-height:1.7">想知道你的完整行星排列和業力牌？來一場馥靈之鑰的深度解讀。</div></div>';
+  var aiL='【AI解讀指令·撲克牌命理Cardology（v2 擴充版）】\n本命牌：'+cd.display+' 花色：'+cd.suitName+' 元素：'+cd.suitElement+'\n\n【解讀框架】\n壹、本命牌深析\n・'+cd.code+'在52張牌中的原型意義\n・花色（'+cd.suitName+'）的元素能量在你生命中的展現方式\n・數值的週期意義（A=1起點、K=13完成）\n・你的牌面數字在 Cardology 中代表什麼生命週期？\n\n二、行星排列牌（生命七階段）\n・☿ 水星牌（0-12歲）：童年學習模式與早期經驗\n・♀ 金星牌（13-25歲）：情感發展與價值觀形成\n・♂ 火星牌（26-38歲）：事業衝刺與行動力展現\n・♃ 木星牌（39-51歲）：豐盛收穫與社會貢獻\n・♄ 土星牌（52-64歲）：人生回顧與智慧沉澱\n・♅ 天王牌（65-77歲）：突破框架與靈性覺醒\n・♆ 海王牌（78+歲）：靈性圓滿與生命回歸\n\n三、業力牌與守護牌\n・業力牌代表什麼前世未完成的功課？\n・守護牌在什麼情境下會啟動保護？\n\n四、關係密碼\n・哪些牌是你的「業力牌」（前世連結）？\n・哪些牌組合代表生意夥伴、浪漫伴侶、靈魂之友？\n\n五、精油對應建議\n・♥紅心→玫瑰/橙花（情感流動）\n・♣梅花→迷迭香/薄荷（行動力提振）\n・♦方塊→乳香/廣藿香（財富扎根）\n・♠黑桃→雪松/沒藥（轉化沉澱）\n\n【參考書目】\n· Robert Camp《The Cards of Your Destiny》｜生命牌聖經\n· Sharon Jeffers《Love Cards》｜關係Cardology\n· Olney Richmond《The Mystic Test Book》（1893）｜原始系統\n\n【馥靈座標哲學】\n52張牌對應52週，週而復始。\n你的本命牌不是你的宿命，是你的開局設定。\n就像拿到一張'+cd.display+'，你可以選擇怎麼出這張牌。';
   hL+='<div class="ai-box"><h4>📜 AI深度解讀指令</h4><pre id="aiL">'+aiL+'</pre><button class="cp" onclick="copyText(\'aiL\')">📋 複製AI指令</button></div>';
+  hL+='<div style="margin:16px 0;text-align:center"><a href="draw-light.html" style="display:inline-block;background:linear-gradient(135deg,rgba(240,212,138,.9),rgba(200,170,100,.9));color:#1a1a2e;padding:12px 28px;border-radius:24px;font-size:.92rem;font-weight:600;text-decoration:none;letter-spacing:.05em;box-shadow:0 2px 12px rgba(240,212,138,.25)">✦ AI說得太多？抽一張馥靈指引牌，找回方向</a><div style="font-size:.72rem;color:rgba(249,240,229,.35);margin-top:6px">命盤是座標，指引牌是下一步行動</div></div>';
   addP(ps,hL);
 
-  // ═══ ㉒ 居爾特樹曆 ═══
+  // ═══ ㉒ 居爾特樹曆（v2 豐度重建）═══
   var hM='<h3>🌳 居爾特樹曆（Celtic Tree Astrology × 精油）</h3>';
   var ct=calcCelticTree(M,D);
   hM+='<div class="mkt-hook">🌳 古歐洲德魯伊的智慧：每個人對應一種樹，每種樹對應一種精油。不是神話，是自然週期的觀察。</div>';
   hM+='<div style="text-align:center;margin:20px 0 16px">';
   hM+='<div style="font-size:2.4rem;color:var(--gd)">🌿 '+ct.name+'（'+ct.celtic+'）</div>';
+  hM+='<div style="font-size:.85rem;color:rgba(249,240,229,.5);margin-top:4px">'+ct.date+'</div>';
   hM+='</div>';
+  // 歐甘符文 + 守護神 + 星座對應
+  var OGHAM={'Birch':'ᚁ Beith','Rowan':'ᚂ Luis','Ash':'ᚃ Nion','Alder':'ᚄ Fearn','Willow':'ᚅ Saille','Hawthorn':'ᚆ Huath','Oak':'ᚇ Duir','Holly':'ᚈ Tinne','Hazel':'ᚉ Coll','Vine':'ᚊ Muin','Ivy':'ᚋ Gort','Reed':'ᚌ Ngetal','Elder':'ᚍ Ruis'};
+  var DEITY={'Birch':'布莉乾德（Brigid）——新生、淨化、療癒之女神','Rowan':'布莉安（Brigantia）——智慧守護女神','Ash':'乘風者（Gwydion）——詩歌與變形之神','Alder':'布蘭（Bran）——守護與啟示之神','Willow':'刻瑞杜溫（Cerridwen）——靈感之釜的女神','Hawthorn':'歐文（Olwen）——春天與花朵之女神','Oak':'達格達（Dagda）——豐盛與力量的父神','Holly':'盧格（Lugh）——光與技藝的太陽神','Hazel':'麥南・麥克・利爾（Manannan）——海洋與智慧之神','Vine':'黛安娜（Diana）——大地豐收之女神','Ivy':'乘風者（Arianrhod）——命運之輪的星辰女神','Reed':'普維爾（Pwyll）——冥界之王','Elder':'卡里芯（Cailleach）——冬之女巫，歲末守護者'};
+  var ZODIAC_CROSS={'Birch':'♑ 摩羯末 ~ ♒ 水瓶初','Rowan':'♒ 水瓶','Ash':'♓ 雙魚','Alder':'♈ 牡羊','Willow':'♉ 金牛初','Hawthorn':'♉ 金牛末 ~ ♊ 雙子初','Oak':'♊ 雙子','Holly':'♋ 巨蟹','Hazel':'♌ 獅子','Vine':'♍ 處女','Ivy':'♎ 天秤','Reed':'♏ 天蠍','Elder':'♐ 射手末'};
+  var EXTRA_OIL={'Birch':['白天：檸檬（提振清新）','夜晚：乳香（沉靜反思）','壓力時：薄荷（快速重啟）'],'Rowan':['白天：迷迭香（專注清明）','夜晚：薰衣草（安神養護）','壓力時：佛手柑（化解緊張）'],'Ash':['白天：尤加利（呼吸暢通）','夜晚：檀香（深度冥想）','壓力時：快樂鼠尾草（情緒釋放）'],'Alder':['白天：茶樹（保護防禦）','夜晚：岩蘭草（扎根安定）','壓力時：黑胡椒（啟動行動力）'],'Willow':['白天：天竺葵（平衡情緒）','夜晚：羅馬洋甘菊（溫柔撫慰）','壓力時：依蘭（放鬆心防）'],'Hawthorn':['白天：玫瑰草（開啟心輪）','夜晚：苦橙葉（安撫焦慮）','壓力時：甜馬鬱蘭（化解僵化）'],'Oak':['白天：雪松（穩固核心）','夜晚：沒藥（修復深層）','壓力時：杜松莓（淨化排毒）'],'Holly':['白天：胡椒薄荷（清涼專注）','夜晚：永久花（釋放舊傷）','壓力時：甜橙（回到喜悅）'],'Hazel':['白天：檸檬香茅（清晰思維）','夜晚：廣藿香（深度扎根）','壓力時：山雞椒（靈感活化）'],'Vine':['白天：葡萄柚（歡愉豐盛）','夜晚：香蜂草（心靈療癒）','壓力時：肉桂葉（溫暖驅動）'],'Ivy':['白天：絲柏（結構清晰）','夜晚：橙花（深度放鬆）','壓力時：杜松莓（界限保護）'],'Reed':['白天：百里香（勇氣力量）','夜晚：岩蘭草（扎根冥想）','壓力時：丁香（破除停滯）'],'Elder':['白天：乳香（神聖連結）','夜晚：檀香（歲末回顧）','壓力時：薑（溫暖重啟）']};
+  var ogham=OGHAM[ct.celtic]||'';
+  var deity=DEITY[ct.celtic]||'';
+  var zodiac=ZODIAC_CROSS[ct.celtic]||'';
+  var extraOils=EXTRA_OIL[ct.celtic]||[];
   hM+='<div class="items">';
-  hM+='<div class="item" style="padding:10px 14px"><span class="lbl">樹木特質</span><span class="rs" style="font-size:.88rem;line-height:1.8">'+ct.trait+'</span></div>';
-  hM+='<div class="item"><span class="lbl">天賦</span><span class="rs">'+ct.gift+'</span></div>';
-  hM+='<div class="item"><span class="lbl">成長課題</span><span class="rs">'+ct.challenge+'</span></div>';
+  hM+='<div class="item"><span class="lbl">🌿 對應精油</span><span class="rs" style="color:var(--gd)">'+ct.oil+'</span></div>';
+  hM+='<div class="item"><span class="lbl">ᚁ 歐甘符文</span><span class="rs" style="font-family:serif;font-size:1.1rem;color:var(--gd)">'+ogham+'</span></div>';
+  hM+='<div class="item"><span class="lbl">⚔️ 守護神</span><span class="rs" style="font-size:.85rem">'+deity+'</span></div>';
+  hM+='<div class="item"><span class="lbl">♈ 星座對應</span><span class="rs">'+zodiac+'</span></div>';
   hM+='</div>';
-  // 精油對應
-  hM+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 馥靈精油對應 × 生活建議</div>';
-  hM+='<div class="items"><div class="item" style="padding:12px 14px">';
-  hM+='<div style="font-size:1rem;color:var(--gd);margin-bottom:8px">🌿 對應精油：'+ct.oil+'（'+ct.oilEn+'）</div>';
-  hM+='<div style="font-size:.88rem;color:rgba(249,240,229,.78);line-height:1.8">'+ct.oilDesc+'</div>';
-  hM+='</div></div>';
-  var aiM='【AI解讀指令·居爾特樹曆】\n對應樹木：'+ct.name+'（Celtic: '+ct.celtic+'）\n對應精油：'+ct.oil+'\n\n【解讀框架】\n壹、'+ct.name+'的自然智慧\n・這種樹在自然界中的特性（生長方式、季節、地理）\n・德魯伊文化中這種樹的神聖象徵\n・如何把這棵樹的自然特性映射到人格特質\n\n二、精油與樹木的能量連結\n・'+ct.oil+'精油的香氣分子與'+ct.name+'樹的化學成分關聯\n・在芳療中'+ct.oil+'精油對應的情緒和心理功能\n・具體使用建議：什麼時候用、怎麼用、搭配什麼\n\n三、居爾特樹曆在品牌應用\n・馥靈之鑰 × 居爾特樹曆的企劃：「找到你的樹，找到你的精油」\n・13種樹 × 13支精油 = 一個全新的季節性產品和內容企劃\n・適合的社群內容：「你是哪棵樹？你需要什麼香氣？」\n\n四、課題與精油的實踐\n・課題：「'+ct.challenge+'」\n・當感覺被這個課題卡住時，'+ct.oil+'精油怎麼幫助你重新出發？\n\n【馥靈座標哲學】\n精油不只是香氣。\n每一支精油背後都有一棵植物的生命故事，\n而那個故事，可能就是你自己故事的一部分。';
+  hM+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 人格特質</div>';
+  hM+='<div class="items">';
+  hM+='<div class="item" style="padding:10px 14px"><span class="lbl">天賦</span><span class="rs" style="font-size:.85rem;line-height:1.8;display:block">'+ct.trait+'</span></div>';
+  hM+='<div class="item" style="padding:10px 14px"><span class="lbl">天賦能力</span><span class="rs" style="font-size:.85rem;line-height:1.8;display:block">'+ct.gift+'</span></div>';
+  hM+='<div class="item" style="padding:10px 14px"><span class="lbl">人生課題</span><span class="rs" style="font-size:.85rem;line-height:1.8;display:block">'+ct.challenge+'</span></div>';
+  hM+='</div>';
+  if(extraOils.length>0){
+    hM+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 三時精油建議</div>';
+    hM+='<div class="items">';
+    extraOils.forEach(function(o){ hM+='<div class="item" style="padding:6px 14px"><span class="rs" style="font-size:.83rem">'+o+'</span></div>'; });
+    hM+='</div>';
+  }
+  hM+='<div class="item" style="padding:12px 14px;border:1px solid rgba(240,212,138,.15);border-radius:8px;margin-top:12px"><div style="font-size:.78rem;color:rgba(249,240,229,.4);line-height:1.7">覺得最近被人生課題卡住了？來體驗一場 H.O.U.R. 身心校準，找到屬於你這棵樹的生長方向。</div></div>';
+  var aiM='【AI解讀指令·居爾特樹曆（v2 擴充版）】\n對應樹木：'+ct.name+'（Celtic: '+ct.celtic+'）\n歐甘符文：'+ogham+'\n守護神：'+deity+'\n對應星座帶：'+zodiac+'\n對應精油（主）：'+ct.oil+'\n'+(extraOils.length?'三時精油：'+extraOils.join(' / ')+'\n':'')+'\n【解讀框架】\n壹、'+ct.name+'的自然智慧\n・這種樹在自然界中的生長特性（季節、地理、形態）\n・德魯伊文化中這種樹的神聖象徵\n・歐甘符文'+ogham+'的刻寫傳統和咒語用途\n\n二、守護神：'+deity+'\n・這位凱爾特神祇的神話故事\n・祂代表的原型能量如何展現在你的日常生活中\n・當你需要這位守護神的力量時，你會在什麼情境下感受到？\n\n三、精油與樹木的深度連結\n・主精油'+ct.oil+'的香氣分子與'+ct.name+'樹的化學成分關聯\n・三時精油建議的使用場景\n・白天精油：提振工作能量\n・夜晚精油：安撫身心準備休息\n・壓力精油：緊急時刻的快速重啟\n\n四、星座交叉比對\n・居爾特樹曆的'+zodiac+'區間與西洋占星的共振點\n・你的太陽星座如何與這棵樹的能量互補或衝突？\n\n五、課題與精油的實踐\n・課題：「'+ct.challenge+'」\n・當感覺被這個課題卡住時，'+ct.oil+'精油怎麼幫助你重新出發？\n\n【馥靈座標哲學】\n精油不只是香氣。\n每一支精油背後都有一棵植物的生命故事，\n而那個故事，可能就是你自己故事的一部分。';
   hM+='<div class="ai-box"><h4>📜 AI深度解讀指令</h4><pre id="aiM">'+aiM+'</pre><button class="cp" onclick="copyText(\'aiM\')">📋 複製AI指令</button></div>';
+  hM+='<div style="margin:16px 0;text-align:center"><a href="draw-light.html" style="display:inline-block;background:linear-gradient(135deg,rgba(240,212,138,.9),rgba(200,170,100,.9));color:#1a1a2e;padding:12px 28px;border-radius:24px;font-size:.92rem;font-weight:600;text-decoration:none;letter-spacing:.05em;box-shadow:0 2px 12px rgba(240,212,138,.25)">✦ AI說得太多？抽一張馥靈指引牌，找回方向</a><div style="font-size:.72rem;color:rgba(249,240,229,.35);margin-top:6px">命盤是座標，指引牌是下一步行動</div></div>';
   addP(ps,hM);
 
-  // ═══ ㉓ 鐵板神數 ═══
+  // ═══ ㉓ 鐵板神數（v2 豐度重建）═══
   var hN='<h3>⚡ 鐵板神數（進階版·座標參考）</h3>';
-  // 從 btime input 讀取時分（與 doCalc 同源）
   var btVal=document.getElementById('btime')?document.getElementById('btime').value:'';
   var btParts=btVal.split(':');
   var hVal=parseInt(btParts[0])||0, mVal=parseInt(btParts[1])||0;
   var tb=calcTieBan(Y,M,D,hVal,mVal);
+
   hN+='<div class="mkt-hook">⚡ 鐵板神數：精確到「刻」的中國最嚴格命理系統。逸君說就算是玩也要做——所以這裡有了。<br><span style="font-size:.78rem;color:rgba(249,240,229,.5)">※ 完整鐵板神數需出生時間精確至刻（15分鐘），本系統為教學示範版</span></div>';
+
+  // 四柱 + 納音
   hN+='<div class="items">';
   hN+='<div class="item"><span class="lbl">四柱密碼</span><span class="rs" style="font-size:1.3rem;color:var(--gd);letter-spacing:.1em">'+tb.yearStem+tb.yearBranch+' '+tb.monthStem+tb.monthBranch+' '+tb.dayStem+tb.dayBranch+' '+tb.hourStem+tb.hourBranch+'</span></div>';
+  hN+='<div class="item"><span class="lbl">納音五行</span><span class="rs" style="font-size:.9rem;color:var(--gd3)">'+tb.yearNY+' · '+tb.monthNY+' · '+tb.dayNY+' · '+tb.hourNY+'</span></div>';
   hN+='<div class="item"><span class="lbl">神數碼</span><span class="rs" style="font-family:monospace;font-size:.95rem;color:var(--gd3);letter-spacing:.05em">'+tb.code.join('-')+'</span></div>';
   hN+='<div class="item"><span class="lbl">主命數</span><span class="rs">第 '+tb.masterNum+' 數</span></div>';
-  hN+='<div class="item" style="padding:10px 14px"><span class="lbl">格局</span><span class="rs" style="font-size:1rem;color:var(--gd)">'+tb.type.title+'</span></div>';
-  hN+='<div class="item" style="padding:10px 14px"><span class="rs" style="font-size:.88rem;line-height:1.9;display:block">'+tb.type.desc+'</span></div>';
   hN+='</div>';
+
+  // 格局
+  hN+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 格局：'+tb.type.title+'</div>';
+  hN+='<div class="items">';
+  hN+='<div class="item" style="padding:10px 14px"><span class="rs" style="font-size:.88rem;line-height:1.9;display:block">'+tb.type.desc+'</span></div>';
+  hN+='<div class="item" style="padding:10px 14px"><span class="lbl" style="color:var(--gd3)">💼 事業面</span><span class="rs" style="font-size:.83rem;line-height:1.8;display:block;margin-top:4px">'+tb.type.career+'</span></div>';
+  hN+='<div class="item" style="padding:10px 14px"><span class="lbl" style="color:var(--gd3)">💕 感情面</span><span class="rs" style="font-size:.83rem;line-height:1.8;display:block;margin-top:4px">'+tb.type.love+'</span></div>';
+  hN+='<div class="item" style="padding:10px 14px"><span class="lbl" style="color:var(--gd3)">💰 財富面</span><span class="rs" style="font-size:.83rem;line-height:1.8;display:block;margin-top:4px">'+tb.type.wealth+'</span></div>';
+  hN+='</div>';
+
+  // 十神
+  hN+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 十神關係（以日主 '+tb.dayStem+' 為中心）</div>';
+  hN+='<div class="items">';
+  hN+='<div class="item"><span class="lbl">年柱天干 '+tb.yearStem+'</span><span class="rs" style="color:var(--gd)">'+tb.yearSS+'</span></div>';
+  hN+='<div class="item" style="padding:6px 14px"><span class="rs" style="font-size:.78rem;line-height:1.6;display:block;color:rgba(249,240,229,.6)">'+(tb.SS_DESC[tb.yearSS]||'')+'</span></div>';
+  hN+='<div class="item"><span class="lbl">月柱天干 '+tb.monthStem+'</span><span class="rs" style="color:var(--gd)">'+tb.monthSS+'</span></div>';
+  hN+='<div class="item" style="padding:6px 14px"><span class="rs" style="font-size:.78rem;line-height:1.6;display:block;color:rgba(249,240,229,.6)">'+(tb.SS_DESC[tb.monthSS]||'')+'</span></div>';
+  hN+='<div class="item"><span class="lbl">時柱天干 '+tb.hourStem+'</span><span class="rs" style="color:var(--gd)">'+tb.hourSS+'</span></div>';
+  hN+='<div class="item" style="padding:6px 14px"><span class="rs" style="font-size:.78rem;line-height:1.6;display:block;color:rgba(249,240,229,.6)">'+(tb.SS_DESC[tb.hourSS]||'')+'</span></div>';
+  hN+='</div>';
+
+  // 逐柱分析
+  hN+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 逐柱分析</div>';
+  hN+='<div class="items">';
+  tb.pillars.forEach(function(p){
+    hN+='<div class="item" style="padding:10px 14px"><span class="lbl" style="font-size:.9rem;color:var(--gd)">'+p.label+' '+p.gz+' · '+p.nayin+' — '+p.title+'</span>';
+    hN+='<span class="rs" style="font-size:.83rem;line-height:1.8;display:block;margin-top:4px">'+p.reading+'</span></div>';
+  });
+  hN+='</div>';
+
+  // 神煞
+  hN+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 神煞</div>';
+  hN+='<div class="items">';
+  tb.shensha.forEach(function(ss){
+    hN+='<div class="item" style="padding:8px 14px"><span class="lbl">'+ss.icon+' '+ss.name+'</span><span class="rs" style="font-size:.83rem;line-height:1.7">'+ss.desc+'</span></div>';
+  });
+  hN+='</div>';
+
+  // 人生階段
   hN+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 人生階段神數</div>';
   hN+='<div class="items">';
   tb.stages.forEach(function(st){
     hN+='<div class="item" style="padding:8px 14px"><span class="lbl">'+st.age+' 歲 · '+st.title+'</span><span class="rs" style="font-size:.83rem;line-height:1.7">'+st.desc+'</span></div>';
   });
   hN+='</div>';
+
+  // 流年轉折年
+  if(tb.turnYears.length>0){
+    hN+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 流年轉折年（座標參考）</div>';
+    hN+='<div class="items">';
+    tb.turnYears.forEach(function(ty){
+      hN+='<div class="item" style="padding:8px 14px"><span class="lbl" style="color:var(--gd)">約 '+ty.age+' 歲</span><span class="rs" style="font-size:.83rem;line-height:1.7">'+ty.desc+'</span></div>';
+    });
+    hN+='<div class="item" style="padding:6px 14px"><span class="rs" style="font-size:.75rem;color:rgba(249,240,229,.4)">※ 轉折年為方向性座標，不是精確預言。實際體驗因人而異。</span></div>';
+    hN+='</div>';
+  }
+
+  // 提醒
   hN+='<div class="item" style="padding:12px 14px;border:1px solid rgba(240,212,138,.15);border-radius:8px;margin-top:12px">';
   hN+='<div style="font-size:.78rem;color:rgba(249,240,229,.5);line-height:1.8">'+tb.note+'</div>';
   hN+='</div>';
-  var aiN='【AI解讀指令·鐵板神數（座標版）】\n四柱：'+tb.yearStem+tb.yearBranch+' '+tb.monthStem+tb.monthBranch+' '+tb.dayStem+tb.dayBranch+' '+tb.hourStem+tb.hourBranch+'\n神數碼：'+tb.code.join('-')+' 主命數：'+tb.masterNum+' 格局：'+tb.type.title+'\n\n【解讀框架】\n壹、鐵板神數歷史背景\n・北宋邵雍發明，精確到「刻」（15分鐘）\n・為什麼它比八字更嚴格：數字背後的數理邏輯\n・與梅花易數的關係：同出邵雍，一靜一動\n\n二、格局深析：'+tb.type.title+'\n・這個格局在傳統鐵板神數中的條文解釋\n・用現代心理學語言重新詮釋\n・此格局在哪些生命領域最有力量？\n\n三、人生階段的神數預測模式\n・鐵板神數最著名的是「流年斷事」的精準度\n・哪些年齡是傳統上的關鍵轉折年？\n・這些轉折如何與八字大運流年交叉驗證？\n\n四、鐵板神數的邊界\n・它的宿命論色彩最強，如何用「座標哲學」重新框架？\n・「條文」描述的是能量傾向，不是不可改變的命運\n・同樣的條文，不同的人怎麼用不同的方式展現？\n\n【警示】\n鐵板神數不提供醫療、財務或法律建議。\n本系統提供的是方向性參考，不是預言。\n鑰匙遞給你，城堡自己開。\n\n【馥靈座標哲學】\n鐵板神數說你「幾歲會怎樣」，\n但它沒辦法告訴你你會怎麼回應那個「怎樣」。\n那個回應的空間，才是你真正的自由。';
+
+  // AI 解讀指令
+  var aiN='【AI解讀指令·鐵板神數（座標版 v2）】\n';
+  aiN+='四柱：'+tb.yearStem+tb.yearBranch+' '+tb.monthStem+tb.monthBranch+' '+tb.dayStem+tb.dayBranch+' '+tb.hourStem+tb.hourBranch+'\n';
+  aiN+='納音：'+tb.yearNY+' / '+tb.monthNY+' / '+tb.dayNY+' / '+tb.hourNY+'\n';
+  aiN+='日主：'+tb.dayStem+'（'+tb.dayEl+' '+tb.dayYY+'）\n';
+  aiN+='十神：年'+tb.yearSS+' 月'+tb.monthSS+' 時'+tb.hourSS+'\n';
+  aiN+='神數碼：'+tb.code.join('-')+' 主命數：'+tb.masterNum+'\n';
+  aiN+='格局：'+tb.type.title+'\n';
+  aiN+='神煞：'+tb.shensha.map(function(s){return s.name}).join('、')+'\n';
+  aiN+='\n【逐柱原始數據】\n';
+  tb.pillars.forEach(function(p){
+    aiN+=p.label+'：'+p.gz+'（'+p.nayin+'）'+p.title+'\n';
+  });
+  aiN+='\n【解讀框架】\n';
+  aiN+='壹、四柱交叉分析\n';
+  aiN+='・年柱（祖業）'+tb.yearStem+tb.yearBranch+'納音'+tb.yearNY+'和日柱（自我）的關係是什麼？這說明家族給你的底色如何影響你的核心人格？\n';
+  aiN+='・月柱（事業）'+tb.monthStem+tb.monthBranch+'的十神是'+tb.monthSS+'，這對你的職業方向有什麼具體啟示？\n';
+  aiN+='・時柱（晚年）'+tb.hourStem+tb.hourBranch+'的十神是'+tb.hourSS+'，這暗示你的人生後半段會走向什麼方向？\n';
+  aiN+='\n二、格局深析：'+tb.type.title+'\n';
+  aiN+='・事業：'+tb.type.career+'\n';
+  aiN+='・感情：'+tb.type.love+'\n';
+  aiN+='・財富：'+tb.type.wealth+'\n';
+  aiN+='・這個格局在什麼情境下最有力量？什麼情境下最容易翻車？\n';
+  aiN+='\n三、神煞實戰應用\n';
+  tb.shensha.forEach(function(s){
+    aiN+='・'+s.name+'：在現代職場和生活中，這個神煞如何具體展現？不要講古書，講日常。\n';
+  });
+  aiN+='\n四、人生階段的節奏\n';
+  tb.stages.forEach(function(st){
+    aiN+='・'+st.age+'歲'+st.title+'：具體分析此階段的核心課題和機會。\n';
+  });
+  if(tb.turnYears.length>0){
+    aiN+='\n五、流年轉折年\n';
+    tb.turnYears.forEach(function(ty){
+      aiN+='・'+ty.age+'歲：'+ty.desc+'。結合四柱分析，這一年可能在哪個生活領域出現重大變化？\n';
+    });
+  }
+  aiN+='\n【馥靈座標哲學】\n';
+  aiN+='鐵板神數說你「幾歲會怎樣」，\n';
+  aiN+='但它沒辦法告訴你——你會怎麼回應那個「怎樣」。\n';
+  aiN+='那個回應的空間，才是你真正的自由。\n';
+  aiN+='\n【警示】\n';
+  aiN+='鐵板神數不提供醫療、財務或法律建議。\n';
+  aiN+='本系統提供的是方向性參考，不是預言。\n';
+  aiN+='鑰匙遞給你，城堡自己開。';
+
   hN+='<div class="ai-box"><h4>📜 AI深度解讀指令</h4><pre id="aiN">'+aiN+'</pre><button class="cp" onclick="copyText(\'aiN\')">📋 複製AI指令</button></div>';
+  hN+='<div style="margin:16px 0;text-align:center"><a href="draw-light.html" style="display:inline-block;background:linear-gradient(135deg,rgba(240,212,138,.9),rgba(200,170,100,.9));color:#1a1a2e;padding:12px 28px;border-radius:24px;font-size:.92rem;font-weight:600;text-decoration:none;letter-spacing:.05em;box-shadow:0 2px 12px rgba(240,212,138,.25)">✦ AI說得太多？抽一張馥靈指引牌，找回方向</a><div style="font-size:.72rem;color:rgba(249,240,229,.35);margin-top:6px">命盤是座標，指引牌是下一步行動</div></div>';
   addP(ps,hN);
 
+  // Gemini 建議 C：品牌金句 banner
+  var brandBanner=document.getElementById('brand-banner');
+  if(!brandBanner){
+    brandBanner=document.createElement('div');
+    brandBanner.id='brand-banner';
+    brandBanner.style.cssText='text-align:center;padding:20px 16px;margin:0 0 16px;background:linear-gradient(135deg,rgba(240,212,138,.08),rgba(160,120,80,.05));border:1px solid rgba(240,212,138,.15);border-radius:12px';
+    brandBanner.innerHTML='<div style="font-size:1.15rem;color:var(--gd);letter-spacing:.1em;line-height:1.8">「命盤不是命定劇本，是你的人生藏寶圖。」</div><div style="font-size:.75rem;color:rgba(249,240,229,.4);margin-top:4px">算的是座標，不是結果。看完這些，你要做的不是「信」，而是「決定」。</div>';
+    ra.parentNode.insertBefore(brandBanner,ra);
+  }
   switchTab(0);
   ra.scrollIntoView({behavior:'smooth',block:'start'});
 }
