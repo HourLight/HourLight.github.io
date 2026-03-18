@@ -1689,20 +1689,25 @@ async function doGoogleLogin() {
   }
 }
 
-// 處理 redirect 回來的結果
-auth.getRedirectResult().then(result => {
-  if (!result || !result.user) return;
-  const userRef = db.collection('users').doc(result.user.uid);
-  userRef.get().then(snap => {
-    if (!snap.exists) {
-      userRef.set({
-        displayName: result.user.displayName||'', email: result.user.email||'', role:'guest',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        totalDraws:0, totalQuizzes:0, totalCalcs:0
+// 處理 redirect 回來的結果（延遲執行，避免干擾 onAuthStateChanged）
+setTimeout(function() {
+  if (typeof auth === 'undefined') return;
+  try {
+    auth.getRedirectResult().then(function(result) {
+      if (!result || !result.user) return;
+      var userRef = db.collection('users').doc(result.user.uid);
+      userRef.get().then(function(snap) {
+        if (!snap.exists) {
+          userRef.set({
+            displayName: result.user.displayName||'', email: result.user.email||'', role:'guest',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            totalDraws:0, totalQuizzes:0, totalCalcs:0
+          });
+        }
       });
-    }
-  });
-}).catch(e => { console.warn('getRedirectResult:', e); });
+    }).catch(function(e) { console.warn('getRedirectResult:', e); });
+  } catch(e) { console.warn('getRedirectResult init error:', e); }
+}, 3000);
 
 async function doForgotPassword() {
   const email = document.getElementById('li-email').value.trim();
