@@ -34,9 +34,11 @@ body{background:#08050f}
 .hub-progress-fill{height:100%;background:linear-gradient(90deg,#b8922a,#b8922a);border-radius:3px;transition:width 0.8s ease}
 
 /* Badges */
-.hub-badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+.hub-badges{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;justify-items:center;margin-top:14px;max-width:440px;margin-left:auto;margin-right:auto}
 .hub-badge{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;border:1.5px solid rgba(233,194,125,0.15);background:rgba(10,6,20,0.6);opacity:1;transition:all 0.3s}
 .hub-badge.done{opacity:1;border-color:rgba(233,194,125,0.7);background:rgba(233,194,125,0.08);box-shadow:0 0 12px rgba(201,160,96,0.15)}
+.hub-badge{cursor:pointer;text-decoration:none}
+.hub-badge:hover{transform:scale(1.12);border-color:rgba(233,194,125,0.5);box-shadow:0 0 8px rgba(201,160,96,0.2)}
 
 /* Section */
 .hub-section{margin-bottom:32px}
@@ -258,26 +260,52 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1" loa
 <script>
 // ═══ Quiz completion tracking ═══
 const ALL_QUIZZES = [
-  {id:'bigfive',icon:'🌊',key:'hl_quiz_bigfive'},
-  {id:'mbti',icon:'🧠',key:'hl_quiz_mbti'},
-  {id:'disc',icon:'🦅',key:'hl_quiz_disc'},
-  {id:'enneagram',icon:'🌀',key:'hl_quiz_enneagram'},
-  {id:'bloodtype',icon:'🩸',key:'hl_quiz_bloodtype'},
-  {id:'attachment',icon:'🔗',key:'hl_quiz_attachment'},
-  {id:'lovelang',icon:'💕',key:'hl_quiz_lovelang'},
-  {id:'relationship',icon:'💑',key:'hl_quiz_relationship'},
-  {id:'eq',icon:'🧭',key:'hl_quiz_eq'},
-  {id:'hsp',icon:'🦋',key:'hl_quiz_hsp'},
-  {id:'emotion',icon:'🎨',key:'hl_quiz_emotion'},
-  {id:'stress',icon:'⚡',key:'hl_quiz_stress'},
-  {id:'innerchild',icon:'🧸',key:'hl_quiz_innerchild'},
-  {id:'via',icon:'✦',key:'hl_quiz_via'},
-  {id:'strengths',icon:'💎',key:'hl_quiz_strengths'},
-  {id:'riasec',icon:'🧭',key:'hl_quiz_riasec'},
-  {id:'beauty_burnout',icon:'🔥',key:'hl_quiz_beauty_burnout'},
-  {id:'beauty_client',icon:'🤝',key:'hl_quiz_beauty_client'},
-  {id:'beauty_savior',icon:'🦸',key:'hl_quiz_beauty_savior'},
-  {id:'beauty_locus',icon:'🎮',key:'hl_quiz_beauty_locus'},
+  /* 人格覺察 */
+  {id:'bigfive',name:'大五人格',icon:'🌊',key:'hl_quiz_bigfive',url:'quiz-bigfive.html'},
+  {id:'mbti',name:'MBTI 16型',icon:'🧠',key:'hl_quiz_mbti',url:'quiz-mbti.html'},
+  {id:'disc',name:'DISC職場風格',icon:'🦅',key:'hl_quiz_disc',url:'quiz-disc.html'},
+  {id:'enneagram',name:'九型人格',icon:'🌀',key:'hl_quiz_enneagram',url:'quiz-enneagram.html'},
+  {id:'bloodtype',name:'血型解析',icon:'🩸',key:'hl_quiz_bloodtype',url:'quiz-bloodtype.html'},
+  {id:'archetype',name:'榮格12原型',icon:'👑',key:'hl_quiz_archetype',url:'quiz-archetype.html'},
+  /* 關係覺察 */
+  {id:'attachment',name:'依附型態',icon:'🔗',key:'hl_quiz_attachment',url:'quiz-attachment.html'},
+  {id:'lovelang',name:'愛之語',icon:'💕',key:'hl_quiz_lovelang',url:'quiz-lovelang.html'},
+  {id:'relationship',name:'關係儀表板',icon:'💑',key:'hl_quiz_relationship',url:'quiz-relationship.html'},
+  {id:'boundary',name:'人際界限',icon:'🚪',key:'hl_quiz_boundary',url:'quiz-boundary.html'},
+  /* 情緒覺察 */
+  {id:'eq',name:'EQ情緒智商',icon:'🧭',key:'hl_quiz_eq',url:'quiz-eq.html'},
+  {id:'hsp',name:'高敏感測驗',icon:'🦋',key:'hl_quiz_hsp',url:'quiz-hsp.html'},
+  {id:'emotion',name:'情緒顆粒度',icon:'🎨',key:'hl_quiz_emotion',url:'quiz-emotion.html'},
+  {id:'stress',name:'壓力反應模式',icon:'⚡',key:'hl_quiz_stress',url:'quiz-stress.html'},
+  {id:'innerchild',name:'內在小孩',icon:'🧸',key:'hl_quiz_innerchild',url:'quiz-innerchild.html'},
+  {id:'awareness',name:'覺察力指數',icon:'🧘',key:'hl_quiz_awareness',url:'quiz-awareness.html'},
+  {id:'selfcompassion',name:'自我慈悲',icon:'🤗',key:'hl_quiz_selfcompassion',url:'quiz-selfcompassion.html'},
+  {id:'somatic',name:'身體覺察力',icon:'🫀',key:'hl_quiz_somatic',url:'quiz-somatic.html'},
+  /* 天職覺察 */
+  {id:'via',name:'VIA品格優勢',icon:'✦',key:'hl_quiz_via',url:'quiz-via.html'},
+  {id:'strengths',name:'天賦優勢',icon:'💎',key:'hl_quiz_strengths',url:'quiz-strengths.html'},
+  {id:'riasec',name:'霍蘭德職業',icon:'🗺️',key:'hl_quiz_riasec',url:'quiz-riasec.html'},
+  {id:'locus',name:'內外控信念',icon:'🎯',key:'hl_quiz_locus',url:'quiz-locus.html'},
+  {id:'impostor',name:'冒牌者症候群',icon:'🎭',key:'hl_quiz_impostor',url:'quiz-impostor.html'},
+  {id:'grit',name:'恆毅力',icon:'🏔️',key:'hl_quiz_grit',url:'quiz-grit.html'},
+  {id:'flexibility',name:'心理彈性',icon:'🌊',key:'hl_quiz_flexibility',url:'quiz-flexibility.html'},
+  /* 美業覺察 */
+  {id:'beauty_burnout',name:'美業倦怠',icon:'🔥',key:'hl_quiz_beauty_burnout',url:'quiz-beauty-burnout.html'},
+  {id:'beauty_client',name:'客情依附',icon:'🤝',key:'hl_quiz_beauty_client',url:'quiz-beauty-client.html'},
+  {id:'beauty_savior',name:'拯救者情結',icon:'🦸',key:'hl_quiz_beauty_savior',url:'quiz-beauty-savior.html'},
+  {id:'beauty_locus',name:'控制點指數',icon:'🎮',key:'hl_quiz_beauty_locus',url:'quiz-beauty-locus.html'},
+  {id:'aroma',name:'精油配方師',icon:'🌿',key:'hl_quiz_aroma',url:'quiz-aroma.html'},
+  /* 覺察深潛 */
+  {id:'relationship-deep',name:'關係羅盤',icon:'💕',key:'hl_quiz_relationship_deep',url:'quiz-relationship-deep.html'},
+  {id:'career-deep',name:'職涯解碼',icon:'💼',key:'hl_quiz_career_deep',url:'quiz-career-deep.html'},
+  {id:'wealth-deep',name:'富命覺醒',icon:'💰',key:'hl_quiz_wealth_deep',url:'quiz-wealth-deep.html'},
+  {id:'transform-deep',name:'轉化密室',icon:'🩹',key:'hl_quiz_transform_deep',url:'quiz-transform-deep.html'},
+  {id:'mission-deep',name:'天命導航',icon:'🧭',key:'hl_quiz_mission_deep',url:'quiz-mission-deep.html'},
+  {id:'family-deep',name:'家族星圖',icon:'🌳',key:'hl_quiz_family_deep',url:'quiz-family-deep.html'},
+  {id:'body-deep',name:'體態覺醒',icon:'🦋',key:'hl_quiz_body_deep',url:'quiz-body-deep.html'},
+  {id:'twilight-deep',name:'黃昏導航',icon:'🌅',key:'hl_quiz_twilight_deep',url:'quiz-twilight-deep.html'},
+  {id:'pet-deep',name:'毛孩星圖',icon:'🐾',key:'hl_quiz_pet_deep',url:'quiz-pet-deep.html'},
+  {id:'pregnancy-deep',name:'孕程密碼',icon:'🤰',key:'hl_quiz_pregnancy_deep',url:'quiz-pregnancy-deep.html'},
 ];
 
 function checkDone(){
@@ -287,10 +315,11 @@ function checkDone(){
   ALL_QUIZZES.forEach(q=>{
     const has=localStorage.getItem(q.key);
     if(has)done++;
-    const badge=document.createElement('div');
+    const badge=document.createElement('a');
     badge.className='hub-badge'+(has?' done':'');
     badge.textContent=q.icon;
-    badge.title=q.id+(has?' ✓':'');
+    badge.title=q.id.replace(/_/g,'-')+(has?' ✓ 已完成':' 尚未完成');
+    badge.href=q.url||('quiz-'+q.id.replace(/_/g,'-')+'.html');
     wall.appendChild(badge);
     // Mark card
     const card=document.querySelector(`[data-quiz="${q.id}"]`);
@@ -314,7 +343,7 @@ function exportReport(){
     count++;
     try{
       const data=JSON.parse(raw);
-      report+=`【${q.id.toUpperCase()}】\n`;
+      report+=`【${q.name||q.id.toUpperCase()}】\n`;
       if(data.type)report+=`  類型：${data.label||data.type}\n`;
       if(data.code)report+=`  代碼：${data.code}\n`;
       if(data.pct!==undefined)report+=`  分數：${data.pct}%\n`;
