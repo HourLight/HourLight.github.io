@@ -4065,6 +4065,92 @@ function renderMatch(a,b){
   hG7+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("tb_c",b)}');
   mkPanel(hG7);
 
+  /* ── ㉔ 太乙神數面板 ── */
+  function ty_html(d){
+    var ty=calcTaiYi(d.Y, d.yzI||0);
+    var gd=ty.data||{};
+    var h='';
+    h+='<div class="item" style="text-align:center;margin-bottom:12px">';
+    h+='<div style="font-size:1.6rem;font-weight:700;color:'+ty.color+'">'+ty.gongName+'</div>';
+    h+='<div style="font-size:.85rem;color:var(--gd);margin-top:4px">'+ty.wx+'行 · '+ty.ji+' · '+ty.godName+'</div>';
+    h+='</div>';
+    if(gd.desc)h+='<div class="item" style="line-height:1.8;color:#e8e0f0;font-size:.9rem">'+gd.desc+'</div>';
+    h+='<div class="palace"><div class="pt">積年 '+ty.accYear+' · 曆元 '+ty.liYear+'</div>';
+    h+='<div class="rs">文昌：'+ty.wenchang.pos+'（'+ty.wenchang.name+'）</div>';
+    h+='<div class="rs">計神：'+ty.jishen.pos+'（'+ty.jishen.name+'）</div>';
+    h+='<div class="rs">始擊：'+ty.shiji.pos+'（'+ty.shiji.name+'）</div>';
+    h+='<div class="rs">主算'+ty.zhuSuan+' · 主大將第'+ty.zhuDa+'宮 · 主參將第'+ty.zhuCan+'宮</div>';
+    h+='<div class="rs">客算'+ty.keSuan+' · 客大將第'+ty.keDa+'宮 · 客參將第'+ty.keCan+'宮</div></div>';
+    if(gd.career){
+      h+='<div class="palace"><div class="pt">事業方向</div><div class="rs">'+gd.career+'</div></div>';
+    }
+    if(gd.love){
+      h+='<div class="palace"><div class="pt">感情模式</div><div class="rs">'+gd.love+'</div></div>';
+    }
+    if(gd.wealth){
+      h+='<div class="palace"><div class="pt">財富策略</div><div class="rs">'+gd.wealth+'</div></div>';
+    }
+    if(gd.key){
+      h+='<div class="item" style="margin-top:8px;padding:12px;background:rgba(248,223,165,.06);border-radius:10px;border-left:3px solid var(--gd)"><b style="color:var(--gd)">✦ 核心課題</b><br>'+gd.key+'</div>';
+    }
+    h+='<div class="item" style="margin-top:8px"><b>'+ty.curYear+'年流年太乙：</b>'+ty.curGongName+'</div>';
+    if(ty.curData&&ty.curData.desc){
+      h+='<div class="item" style="font-size:.85rem;color:#c8c0d8;line-height:1.7">'+ty.curData.desc.substring(0,80)+'…</div>';
+    }
+    return h;
+  }
+  function ty_ai(d,pn){
+    var ty=calcTaiYi(d.Y, d.yzI||0);
+    var gd=ty.data||{};
+    var t='【'+pn+'·太乙神數（原典考證版）】\n';
+    t+='積年：'+ty.accYear+' | 曆元：'+ty.liYear+'\n';
+    t+='本命太乙：'+ty.gongName+'（'+ty.wx+'行·'+ty.ji+'）| '+ty.godName+'\n';
+    t+='文昌：'+ty.wenchang.pos+'（'+ty.wenchang.name+'）\n';
+    t+='計神：'+ty.jishen.pos+'（'+ty.jishen.name+'）\n';
+    t+='始擊：'+ty.shiji.pos+'（'+ty.shiji.name+'）\n';
+    t+='主算：'+ty.zhuSuan+' 主大將第'+ty.zhuDa+'宮 主參將第'+ty.zhuCan+'宮\n';
+    t+='客算：'+ty.keSuan+' 客大將第'+ty.keDa+'宮 客參將第'+ty.keCan+'宮\n';
+    t+=ty.curYear+'年流年太乙：'+ty.curGongName+'\n\n';
+    t+='【宮位解讀】\n';
+    if(gd.desc)t+='核心特質：'+gd.desc+'\n';
+    if(gd.career)t+='事業方向：'+gd.career+'\n';
+    if(gd.love)t+='感情模式：'+gd.love+'\n';
+    if(gd.wealth)t+='財富策略：'+gd.wealth+'\n';
+    if(gd.key)t+='核心課題：'+gd.key+'\n';
+    t+='\n【請依以下框架解讀】\n';
+    t+='壹、本命太乙宮位的天時格局（此人出生時的宇宙能量場）\n';
+    t+='貳、文昌·計神·始擊三星布局的戰略意義\n';
+    t+='叁、主客算格局：主動出擊vs被動應對的能量配比\n';
+    t+='肆、流年太乙'+ty.curGongName+'與本命'+ty.gongName+'的互動\n';
+    t+='伍、宮位五行('+ty.wx+')對事業·感情·財富的具體影響\n';
+    t+='【🔴 太乙看的是天時大格局，告訴你宇宙在你出生那刻給了你什麼「時代任務」】\n';
+    return t;
+  }
+  var tyA_ai=ty_ai(a,nameA), tyB_ai=ty_ai(b,nameB);
+  var _rc24=relCat(rel);
+  var tyC=tyA_ai+'\n'+tyB_ai+'\n\n【太乙神數合盤深度解讀指令】\n';
+  tyC+='【關係視角：'+REL_OPENER[_rc24]+'】\n\n';
+  tyC+='甲本命太乙：'+calcTaiYi(a.Y,a.yzI||0).gongName+'（'+calcTaiYi(a.Y,a.yzI||0).wx+'行）\n';
+  tyC+='乙本命太乙：'+calcTaiYi(b.Y,b.yzI||0).gongName+'（'+calcTaiYi(b.Y,b.yzI||0).wx+'行）\n\n';
+  tyC+='壹、兩人太乙宮位五行是否相生？天時格局的契合度\n';
+  tyC+='貳、文昌星布局：兩人的智慧資源是否互補？\n';
+  tyC+='叁、計神課題交叉：各自的天時課題如何影響這段關係？\n';
+  tyC+='肆、主客算格局對比：在這段關係中誰主導、誰配合？\n';
+  tyC+='伍、流年太乙是否同頻？今年共同的能量主題\n';
+  tyC+='陸、宮位解讀交叉：甲的事業/感情/財富模式 vs 乙的模式\n';
+  tyC+='【🔴 太乙看天時，八字看命格，紫微看運程。太乙告訴你這段關係的「時代背景」】\n\n';
+  tyC+='【參考書目】\n';
+  tyC+='▍王希明《太乙金鏡式經》（唐）｜太乙積年公式原始出處\n';
+  tyC+='▍《太乙統宗大全》｜明代集大成\n';
+
+  var hTY=mkDual(nameA,ty_html(a),nameB,ty_html(b));
+  hTY+=mkPre('ty_a',tyA_ai);hTY+=mkPre('ty_b',tyB_ai);
+  hTY+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="ty_c">'+escHtml(tyC)+'</pre></div>';
+  hTY+=mkCpBtn('📋 複製甲方','','function(b){copyText("ty_a",b)}');
+  hTY+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("ty_b",b)}');
+  hTY+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("ty_c",b)}');
+  mkPanel(hTY);
+
   /* ── 🔮 整合合盤 AI 指令 ── */
   var rel=gv('relType'),relName=REL_NAMES[rel]||'全面分析',relFocus=REL_FOCUS[rel]||REL_FOCUS.any;
   var mega='════════════════════════════════════\n';
@@ -4136,25 +4222,8 @@ function renderMatch(a,b){
   mega+=trA+trB+'兩棵樹的共生關係？精油調和？\n\n';
   mega+='貳壹、鐵板神數合盤\n';
   mega+=tbxA+tbxB+'四柱合化沖刑？納音互生？格局互補？神煞交叉？\n\n';
-  // ═══ ㉔ 太乙神數合盤（原典考證版）═══
-  function renderTaiYi(d,pn){
-    var ty=calcTaiYi(d.Y, d.yzI||0);
-    var t='【'+pn+'・太乙神數（原典考證版）】\n';
-    t+='積年：'+ty.accYear+'\n';
-    t+='本命太乙：'+ty.gongName+'（'+ty.wx+'行・'+ty.ji+'）| '+ty.godName+' | '+ty.liYear+'\n';
-    t+='文昌：'+ty.wenchang.pos+'（'+ty.wenchang.name+'）\n';
-    t+='計神：'+ty.jishen.pos+'（'+ty.jishen.name+'）\n';
-    t+='始擊：'+ty.shiji.pos+'（'+ty.shiji.name+'）\n';
-    t+='主算：'+ty.zhuSuan+' 主大將第'+ty.zhuDa+'宮 主參將第'+ty.zhuCan+'宮\n';
-    t+='客算：'+ty.keSuan+' 客大將第'+ty.keDa+'宮 客參將第'+ty.keCan+'宮\n';
-    t+=ty.curYear+'年流年太乙：'+ty.curGongName+'\n';
-    return t;
-  }
-  var tyxA=renderTaiYi(a,nameA),tyxB=renderTaiYi(b,nameB);
-  var tyx24='【太乙神數合盤・'+nameA+'×'+nameB+'】\n'+tyxA+'\n'+tyxB;
-  tyx24+='\n【合盤解讀指令】\n兩人本命太乙的五行是否相生？計神課題是否互補？流年太乙是否同頻？\n主客算格局對這段關係有何啟示？請從天時格局分析契合度和今年共同能量主題。';
-  tyx24+='\n【關係視角：'+REL_OPENER[relCat(rel)]+'】\n';
-  mega+='貳貳、太乙神數合盤\n'+tyx24+'\n\n';
+  // ═══ ㉔ 太乙神數合盤（使用面板區的 ty_ai）═══
+  mega+='貳貳、太乙神數合盤\n'+tyC+'\n\n';
 
 
   mega+='════════════════════════════════════\n';
