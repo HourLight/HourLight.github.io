@@ -60,6 +60,7 @@
       {label:'馥靈秘碼', href:'fuling-mima.html'},
       {label:'智慧抽牌', href:'draw-hl.html'},
       {label:'女巫原力', href:'witch-power.html'},
+      {label:'前世密碼', href:'past-life.html'},
     ]},
     {group:'工具', items:[
       {label:'覺察測驗', href:'quiz-hub.html'},
