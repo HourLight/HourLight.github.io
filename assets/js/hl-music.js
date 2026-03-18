@@ -20,14 +20,10 @@
     // 鑰匙的召喚（故事・深度・品牌核心）
     'yichun':            'thekey',
     'founder':           'thekey',
-    'brand-story':       'thekey',
     'brand':             'thekey',
     'worldview':         'thekey',
     'hourlight-core':    'thekey',
     'book':              'thekey',
-    'Bookpreview':       'thekey',
-    'Fulingpreview':     'thekey',
-    'AIpreview':         'thekey',
     'music':             'thekey',
     'gps':               'thekey',
 

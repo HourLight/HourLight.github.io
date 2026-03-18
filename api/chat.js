@@ -186,7 +186,7 @@ M10 黃昏導航（退休/55+）
   → [生日色彩能量](color-energy.html)
 
 想了解品牌/課程 →
-  → [品牌故事](brand-story.html)
+  → [品牌故事](brand.html)
   → [課程體系](courses.html)
   → [服務項目](services.html)
 
