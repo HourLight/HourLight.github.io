@@ -1209,6 +1209,171 @@ function calcCelticTree(month,day){
   return TREES[0]; // default to Birch
 }
 
+// ══════ ㉔ 太乙神數（原典考證重建版 v3.0）══════
+// 基於唐・王希明《太乙金鏡式經》積年公式 + 多案例驗證
+// 積年 = 西元年 + 1,936,557（上元混沌甲子起算，開元12年724CE前已積1,937,281年）
+var TAIY_BASE=1936557;
+
+// 十六神（固定環形序列，0=子/地主...15=亥/大義）
+// isZ=正宮，gong=宮數（0=間神）
+var GODS16=[
+  {pos:'子',name:'地主',isZ:true,gong:8},   // 0 坎宮=8
+  {pos:'丑',name:'陽德',isZ:false,gong:0},  // 1 間神
+  {pos:'艮',name:'和德',isZ:true,gong:3},   // 2 艮宮=3
+  {pos:'寅',name:'呂申',isZ:false,gong:0},  // 3 間神
+  {pos:'卯',name:'高叢',isZ:true,gong:4},   // 4 震宮=4
+  {pos:'辰',name:'太陽',isZ:false,gong:0},  // 5 間神
+  {pos:'巽',name:'太靈',isZ:true,gong:9},   // 6 巽宮=9
+  {pos:'巳',name:'大神',isZ:false,gong:0},  // 7 間神
+  {pos:'午',name:'大威',isZ:true,gong:2},   // 8 離宮=2
+  {pos:'未',name:'天道',isZ:false,gong:0},  // 9 間神
+  {pos:'坤',name:'大武',isZ:true,gong:7},   // 10 坤宮=7
+  {pos:'申',name:'武德',isZ:false,gong:0},  // 11 間神
+  {pos:'酉',name:'太簇',isZ:true,gong:6},   // 12 兌宮=6
+  {pos:'戌',name:'陰主',isZ:false,gong:0},  // 13 間神
+  {pos:'乾',name:'陰德',isZ:true,gong:1},   // 14 乾宮=1
+  {pos:'亥',name:'大義',isZ:false,gong:0}   // 15 間神
+];
+
+// 太乙陽遁行宮順序（跳過中宮5）
+var TAIY_YANG_DUN=[1,2,3,4,6,7,8,9]; // 乾→離→艮→震→兌→坤→坎→巽
+var TAIY_GONG_G16={1:14,2:8,3:2,4:4,6:12,7:10,8:0,9:6}; // 宮數→16神索引
+
+// 地支索引→16神索引（子=0...亥=11）
+var TAIY_ZHI_G16=[0,1,3,4,5,7,8,9,11,12,13,15];
+
+// 8正宮本命解讀資料（太乙僅住8正宮）
+var TAIY_GONG_DATA={
+  1:{name:'乾宮',wx:'金',dir:'西北',ji:'大吉',color:'#c8c8e0',godName:'陰德',
+    desc:'天道運行之宮。至剛至健，卻懂得在極致時轉身。你天生帶著一種讓人信服的力量，不是因為你說得多，而是因為你做到了。旁邊的人往往不知道你怎麼辦到的，只知道你就是辦到了。',
+    career:'適合需要決斷力和長遠視野的位置——管理者、創業者、法律、高層決策。你不是執行細節的人，你是設定方向、讓人跟著走的人。',
+    love:'感情中你習慣守護，但最適合你的另一半是有獨立主見的人。對等才能長久。找一個讓你心甘情願放下控制感的人。',
+    wealth:'財富跟隨影響力而來。先建立地位和信譽，財自然跟上。長線積累型，不適合投機，穩健是你最大的財富優勢。',
+    key:'你天生是「設定方向的人」。學會授權，把執行交給對的人，才能真正發揮乾宮的能量。'},
+  2:{name:'離宮',wx:'火',dir:'正南',ji:'吉',color:'#e0a070',godName:'大威',
+    desc:'光明昭著之宮。你天生有一種讓人看見的能力，走進任何空間都會成為焦點——不是因為你努力，而是因為你本來就是那道光。表達力強，感染力真實。',
+    career:'需要表達、展示、影響力的工作最適合你——品牌、傳播、教育、藝術、演講。你的核心競爭力是「讓人記住你」，這個時代正好最需要這種能力。',
+    love:'感情中你熱情、直接，愛了就全力以赴。離宮之火容易消耗，要找能給你穩定感的人，讓你的熱情有個安全的落腳點。',
+    wealth:'財來自你的光芒和影響力。靠才華和口碑賺錢是正道，早點建立個人品牌，讓你的名字就是你最大的資產。',
+    key:'你的光是真實的，不需要靠別人的認可來點亮。學會從自己內心充電，而不只是靠外部的掌聲維持。'},
+  3:{name:'艮宮',wx:'土',dir:'東北',ji:'中吉',color:'#c8a870',godName:'和德',
+    desc:'止而有德之宮。萬物在艮宮成就。你有一種難得的能力：知道何時前進，也知道何時停下來。這份判斷力是大多數人學一輩子也學不來的，你天生就懂。',
+    career:'適合需要整合、穩固成果的工作——管理、教育、諮詢、研究、不動產。你是把事情從70分做到100分的那個人，這個角色比衝第一更稀缺。',
+    love:'感情穩重，慢熱但深情。不喜歡虛華的浪漫，更看重日常的踏實陪伴。找一個節奏跟你相近的人，過一種有品質的生活。',
+    wealth:'財運穩健積累型，不會暴富也不會大虧。中年後物質基礎明顯改善，不動產和長線投資是你的方向。',
+    key:'艮宮的功課是「在對的時機停下來」。有時候不繼續往前衝，才是真正的智慧。你比你想像的走得更遠了。'},
+  4:{name:'震宮',wx:'木',dir:'正東',ji:'中',color:'#80b870',godName:'高叢',
+    desc:'雷動萬物之宮。你是那種進入一個空間就會攪動氣場的人。行動力極強，不願被困住，骨子裡有一種對束縛的天然抗拒。不是叛逆，是本能。',
+    career:'需要突破、開拓、衝刺的工作最適合你——創業、業務、任何「第一個吃螃蟹」的角色。你的優勢是膽識，這個時代最缺的也是膽識。',
+    love:'感情容易衝動而入，你需要的不是懂得消受你熱情的人，而是能給你安全感、讓你願意停留的人。這比你想像的更難找，也更值得等。',
+    wealth:'財來得快，但如果不做好財務管理也去得快。把收入的一部分「鎖起來」，給未來的自己留一道防線。',
+    key:'你的衝勁是稀缺資源，但方向比速度更重要。在衝之前多問一句：「這值得我全力以赴嗎？」'},
+  6:{name:'兌宮',wx:'金',dir:'正西',ji:'中吉',color:'#d0d0d0',godName:'太簇',
+    desc:'收斂精華之宮。萬物在兌宮成熟。你有一種讓人感到被理解的能力，說話有溫度，懂得在對的時機說對的話。這是天生的說服力，不是技巧，是你這個人。',
+    career:'需要溝通、協調、說服的工作——外交、談判、諮詢、公關。你的核心能力是「讓人覺得被懂了」，在任何需要建立信任的場域都無往不利。',
+    love:'感情中你重視深度溝通，找不到可以交心的伴侶會很空虛。你需要一個頻道相近、能互相理解的人，不只是外表好看。',
+    wealth:'財運靠人際關係和溝通能力，合作型財富比單打獨鬥更有成效。建立信任關係是你最穩定的財富提款機。',
+    key:'兌宮的人最怕「討好」。你天生有讓人舒服的能力，但要區分「真正的理解」和「為了讓人高興而說的話」。'},
+  7:{name:'坤宮',wx:'土',dir:'西南',ji:'吉',color:'#d4b890',godName:'大武',
+    desc:'厚德載物之宮。你是那種默默承載很多、卻從不開口的人。你的穩定是別人安全感的來源，這份力量比任何耀眼的才華都更難得，也更持久。',
+    career:'需要服務、照顧、支持他人的工作——教育、醫療、人力資源、後勤管理。你的力量在於「托住別人」，但你自己也需要被人好好托住。',
+    love:'感情付出深重，往往比另一半付出更多。要找一個懂得感謝你、也願意回饋你的人，而不是只會消耗你的人。你值得被人好好珍惜。',
+    wealth:'財運穩健，靠勤勞踏實積累。不適合高風險投機，長線投資和固定資產是你的財富主軸。',
+    key:'坤宮的功課是學會說「我也需要被照顧」。你不是只有付出的那個人，你值得被人好好承接。'},
+  8:{name:'坎宮',wx:'水',dir:'正北',ji:'吉',color:'#7090c0',godName:'地主',
+    desc:'深藏智慧之宮。你像深水，表面平靜，底下深不可測。觀察力極強，很多事你看在眼裡但選擇不說，這份沉默裡藏著巨大的能量，等待對的時機才發揮。',
+    career:'需要深度思考、研究、洞察的工作——策略分析、研究、諮詢、心理、任何需要看穿表象的角色。你是那種「被低估直到有人真正看懂你」的人。',
+    love:'感情中你不容易開口，但一旦動了心就是全力投入。要找一個有耐心等待你打開的人，而不是一直追問你「你在想什麼」的人。',
+    wealth:'財運靠智慧和判斷力，而非靠運氣。投資眼光準確，但容易分析過度而錯失時機。學會在想清楚之後果斷行動。',
+    key:'坎宮最珍貴的資產就是那份深沉的智慧。不要讓沉默變成隔閡，找一個讓你願意開口說話的人和環境。'},
+  9:{name:'巽宮',wx:'風木',dir:'東南',ji:'中吉',color:'#90c890',godName:'太靈',
+    desc:'靈動善變之宮。你像風，無處不在卻難以捉摸。思維敏捷，善於觀察和適應，能在不同環境中找到自己的位置。你的靈活不是漂泊，是一種高超的生存智慧。',
+    career:'需要靈活、創意、跨域整合的工作——顧問、創意產業、傳播、國際業務。你的優勢是「把不同的東西連結起來」，這個跨界能力在當今極度稀缺。',
+    love:'感情中你重視自由感，對方給你太大束縛你會想逃。你需要一個既能讓你飛翔、又知道如何接住你的人，這種人值得你留下來。',
+    wealth:'財運多元，靠靈活的判斷和人脈整合。副業和多角化佈局比單一主業更適合你，但要避免太分散而失去核心競爭力。',
+    key:'巽宮的你懂得隨機應變，但也需要一個「錨」——一件你真正在乎的事，或一個你願意為之留下來的人。'}
+};
+
+// ── 建立文昌陽遁18步序列（從申idx11，乾idx14和坤idx10各重留一次）──
+function buildTaiyWCSeq(){
+  var seq=[],cur=11;
+  while(seq.length<18){
+    seq.push(cur);
+    if(cur===14||cur===10) seq.push(cur);
+    cur=(cur+1)%16;
+  }
+  return seq.slice(0,18);
+}
+var TAIY_WC_SEQ=buildTaiyWCSeq();
+
+function calcTaiYi(solarYear,yearZhiIdx){
+  var acc=solarYear+TAIY_BASE;
+
+  // 太乙落宮（積年%24，每3年一宮，8正宮循環）
+  var r=acc%24; if(r===0)r=24;
+  var pIdx=Math.ceil(r/3)-1;
+  var taiyGong=TAIY_YANG_DUN[pIdx];
+  var taiyG16=TAIY_GONG_G16[taiyGong];
+  var liYear=['理人','理天','理地'][r%3];
+
+  // 文昌（積年%18，陽遁序列）
+  var wcN=acc%18; if(wcN===0)wcN=18;
+  var wcG16=TAIY_WC_SEQ[wcN-1];
+
+  // 計神（年支，陽遁從寅逆行12支）
+  var jiZhi=(2-yearZhiIdx+12)%12;
+  var jiG16=TAIY_ZHI_G16[jiZhi];
+
+  // 始擊（計神移到和德艮idx2，文昌同移同步數）
+  var steps=(2-jiG16+16)%16;
+  var sjG16=(wcG16+steps)%16;
+
+  // 算數（從起點到太乙前，正宮累加，間神起始計1）
+  function suan(startG16,tG16){
+    var sum=GODS16[startG16].isZ?GODS16[startG16].gong:1;
+    var cur=(startG16+1)%16,guard=0;
+    while(cur!==tG16&&guard<16){
+      if(GODS16[cur].isZ) sum+=GODS16[cur].gong;
+      cur=(cur+1)%16; guard++;
+    }
+    return sum;
+  }
+  function daJ(s){var d=s%10;if(d===0){d=s%9;if(d===0)d=9;}return d;}
+
+  var zhuSuan=suan(wcG16,taiyG16);
+  var keSuan=suan(sjG16,taiyG16);
+  var zhuDa=daJ(zhuSuan),zhuCan=daJ(zhuDa*3);
+  var keDa=daJ(keSuan),keCan=daJ(keDa*3);
+
+  var gd=TAIY_GONG_DATA[taiyGong]||{};
+
+  // 流年太乙
+  var curY=new Date().getFullYear();
+  var curAcc=curY+TAIY_BASE;
+  var curR=curAcc%24; if(curR===0)curR=24;
+  var curGong=TAIY_YANG_DUN[Math.ceil(curR/3)-1];
+  var curGd=TAIY_GONG_DATA[curGong]||{};
+
+  var GNAME={1:'乾',2:'離',3:'艮',4:'震',6:'兌',7:'坤',8:'坎',9:'巽'};
+
+  return{
+    accYear:acc,
+    gong:taiyGong,gongName:(gd.name||GNAME[taiyGong]+'宮'),
+    godName:(gd.godName||GODS16[taiyG16].name),
+    wx:(gd.wx||''),ji:(gd.ji||''),color:(gd.color||'#c0b89a'),
+    liYear:liYear,data:gd,
+    wenchang:{g16:wcG16,pos:GODS16[wcG16].pos,name:GODS16[wcG16].name,isZ:GODS16[wcG16].isZ,gong:GODS16[wcG16].gong},
+    jishen:{g16:jiG16,pos:GODS16[jiG16].pos,name:GODS16[jiG16].name},
+    shiji:{g16:sjG16,pos:GODS16[sjG16].pos,name:GODS16[sjG16].name},
+    zhuSuan:zhuSuan,keSuan:keSuan,
+    zhuDa:zhuDa,zhuCan:zhuCan,keDa:keDa,keCan:keCan,
+    curYear:curY,curGong:curGong,
+    curGongName:(curGd.name||GNAME[curGong]+'宮'),curData:curGd
+  };
+}
+
+
+
 // ══════ ㉓ 鐵板神數（化宿命為座標版·v2 豐度重建）══════
 function calcTieBan(year,month,day,hour,minute,bzMonthStem,bzMonthBranch){
   var stems=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
@@ -1700,7 +1865,7 @@ function renderMatch(a,b){
   document.getElementById('mrTitle').textContent=nameA+' × '+nameB+' 合盤';
   document.getElementById('mrSub').textContent='配對類型：'+relName;
 
-  var SYS_TABS=['① 八字','② 紫微','③ 占星','④ 人類圖','⑤ 七政四餘','⑥ 瑪雅','⑦ 靈數','⑧ 馥靈秘碼','⑨ 生命密碼','⑩ 大六壬','⑪ 九星','⑫ 色彩','⑬ 凱龍莉莉絲','⑭ 吠陀','⑮ 姓名','⑯ 卡巴拉','⑰ 宿曜','⑱ 梅花','⑲ 基因天命','⑳ 彩虹','㉑ 撲克','㉒ 樹曆','㉓ 鐵板','🔮 整合合盤'];
+  var SYS_TABS=['① 八字','② 紫微','③ 占星','④ 人類圖','⑤ 七政四餘','⑥ 瑪雅','⑦ 靈數','⑧ 馥靈秘碼','⑨ 生命密碼','⑩ 大六壬','⑪ 九星','⑫ 色彩','⑬ 凱龍莉莉絲','⑭ 吠陀','⑮ 姓名','⑯ 卡巴拉','⑰ 宿曜','⑱ 梅花','⑲ 基因天命','⑳ 彩虹','㉑ 撲克','㉒ 樹曆','㉓ 鐵板','㉔ 太乙','🔮 整合合盤'];
   var tabBar=document.getElementById('tabBar');tabBar.innerHTML='';
   SYS_TABS.forEach(function(n,i){
     var btn=document.createElement('button');
@@ -3410,6 +3575,26 @@ function renderMatch(a,b){
   mega+=trA+trB+'兩棵樹的共生關係？精油調和？\n\n';
   mega+='貳壹、鐵板神數合盤\n';
   mega+=tbxA+tbxB+'四柱合化沖刑？納音互生？格局互補？神煞交叉？\n\n';
+  // ═══ ㉔ 太乙神數合盤（原典考證版）═══
+  function renderTaiYi(d,pn){
+    var ty=calcTaiYi(d.Y, d.yzI||0);
+    var t='【'+pn+'・太乙神數（原典考證版）】\n';
+    t+='積年：'+ty.accYear+'\n';
+    t+='本命太乙：'+ty.gongName+'（'+ty.wx+'行・'+ty.ji+'）| '+ty.godName+' | '+ty.liYear+'\n';
+    t+='文昌：'+ty.wenchang.pos+'（'+ty.wenchang.name+'）\n';
+    t+='計神：'+ty.jishen.pos+'（'+ty.jishen.name+'）\n';
+    t+='始擊：'+ty.shiji.pos+'（'+ty.shiji.name+'）\n';
+    t+='主算：'+ty.zhuSuan+' 主大將第'+ty.zhuDa+'宮 主參將第'+ty.zhuCan+'宮\n';
+    t+='客算：'+ty.keSuan+' 客大將第'+ty.keDa+'宮 客參將第'+ty.keCan+'宮\n';
+    t+=ty.curYear+'年流年太乙：'+ty.curGongName+'\n';
+    return t;
+  }
+  var tyxA=renderTaiYi(dA,nameA),tyxB=renderTaiYi(dB,nameB);
+  var tyx24='【太乙神數合盤・'+nameA+'×'+nameB+'】\n'+tyxA+'\n'+tyxB;
+  tyx24+='\n【合盤解讀指令】\n兩人本命太乙的五行是否相生？計神課題是否互補？流年太乙是否同頻？\n主客算格局對這段關係有何啟示？請從天時格局分析契合度和今年共同能量主題。';
+  mega+='貳貳、太乙神數合盤\n'+tyx24+'\n\n';
+
+
   mega+='════════════════════════════════════\n';
   mega+='【完整參考書目·解讀時交叉引用（依系統）】\n\n';
   mega+='▍八字合盤\n';
