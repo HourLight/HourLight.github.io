@@ -3137,7 +3137,8 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
   var solarStr=Y+'年'+M+'月'+D+'日 '+H+':'+String(min).padStart(2,'0');
 
   // ── ① 四柱八字（lunar-javascript EightChar）──
-  var lunarHms=Lunar.fromYmdHms(lunar.getYear(),lunar.getMonth(),ld,H,min,0);
+  var solarHms=Solar.fromYmdHms(Y,M,D,H,min,0);
+  var lunarHms=solarHms.getLunar();
   var ec=lunarHms.getEightChar();
   ec.setSect(sect); // 設定早子(2)/晚子(1)流派
   var yun=ec.getYun(gen=='F'?0:1);
@@ -5083,6 +5084,7 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
   aiN+='\n【逐柱原始數據】\n';
   tb.pillars.forEach(function(p){
     aiN+=p.label+'：'+p.gz+'（'+p.nayin+'）'+p.title+'\n';
+    aiN+='  └ '+p.reading+'\n';
   });
   aiN+='\n【解讀框架】\n';
   aiN+='壹、四柱交叉分析\n';
