@@ -868,13 +868,28 @@ plBtn.addEventListener('click',function(){
     setHtml('rMaya','<b>KIN '+kin+'　'+MAYA_SEALS[seal]+'（調性 '+tone+'）</b><br>'+mayaGift);
 
     setText('rOilName','🌿 '+oil.name);
+    // 業力數字純文字
+    var kdPlain='';
+    if(kd.length>0){
+      kdPlain=kd.map(function(k){var ki=KARMA_INTERP[k];return ki?ki.title+'\n'+ki.text:'業力數 '+k}).join('\n\n');
+    }else{
+      kdPlain='你的生日數字組合中沒有傳統意義上的「業力債」（13/14/16/19）。\n這不代表前世沒有功課，只是你的功課散落在其他五把鑰匙裡，不集中在某一個數字上。';
+    }
     window._plData = {
       persona: '前世的你：'+personaName,
       sub: '南交'+sn.name+' · '+nyText+' · KIN '+kin+' '+MAYA_SEALS[seal],
       summary: '你的前世是'+ny.mat+'做的'+personaName+'。'+sn.past.split('。')[0]+'。而這輩子，你帶著那些記憶重新來過。',
       miniSN: '南交'+sn.name+'座', miniNY: nyText,
       miniChi: '凱龍'+chi.sign+'座', miniMaya: 'KIN '+kin+' '+MAYA_SEALS[seal],
-      oilName: oil.name, personaName: personaName
+      oilName: oil.name, oilDesc: oil.desc, personaName: personaName,
+      keys: [
+        {icon:'🔑', label:'第一鑰｜南交點', title:'南交點'+sn.name+'座', text:sn.past, detail:sn.lesson},
+        {icon:'🪨', label:'第二鑰｜納音五行', title:nyText+'（'+ny.mat+'）', text:ny.past, detail:''},
+        {icon:'📜', label:'第三鑰｜業力數字', title:'', text:kdPlain, detail:''},
+        {icon:'🔒', label:'第四鑰｜化忌宮位', title:'化忌星：'+hj, text:hjText, detail:''},
+        {icon:'💎', label:'第五鑰｜凱龍星座', title:'凱龍'+chi.sign+'座', text:chi.wound, detail:chi.gift},
+        {icon:'🌀', label:'第六鑰｜瑪雅圖騰', title:'KIN '+kin+'　'+MAYA_SEALS[seal]+'（調性 '+tone+'）', text:mayaGift, detail:''}
+      ]
     };
     setText('rOilName2','🌿 '+oil.name);
     setText('rOilDesc',oil.desc);
@@ -885,14 +900,17 @@ plBtn.addEventListener('click',function(){
   },5000);
 });
 
-// ── 截圖 ──
+// ── 截圖（Canvas 手繪完整版含六鑰） ──
 document.getElementById('saveBtn').addEventListener('click',function(){
   var d = window._plData;
   if (!d) return;
 
-  var S = 2, W = 720*S, PAD = 44*S, CW = W - PAD*2;
-  var GOLD = '#f8dfa5', WHITE = '#fff', SILVER = '#c8c0d8';
-  var BG1 = '#2a1852', BG2 = '#1a0e30', SEC = '#1c1238';
+  var S = 2, W = 720*S, PAD = 40*S, CW = W - PAD*2;
+  var GOLD = '#f8dfa5', WHITE = '#ffffff', SILVER = '#c8c0d8';
+  var BG1 = '#2a1852', BG2 = '#1a0e30', SEC = '#1c1238', OIL_SEC = '#1a1030';
+  var BODY_SIZE = 15*S, BODY_LH = 30*S;
+  var DETAIL_SIZE = 13*S, DETAIL_LH = 26*S;
+  var LABEL_SIZE = 11*S, TITLE_SIZE = 16*S;
 
   function wrap(ctx, txt, mw) {
     var lines=[], line='';
@@ -908,127 +926,184 @@ document.getElementById('saveBtn').addEventListener('click',function(){
     ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
     ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
   }
-  function drawLines(ctx,lines,x,y,lh){for(var i=0;i<lines.length;i++){ctx.fillText(lines[i],x,y+i*lh);}return y+lines.length*lh;}
+  function drawL(ctx,lines,x,y,lh){
+    for(var i=0;i<lines.length;i++) ctx.fillText(lines[i],x,y+i*lh);
+    return y+lines.length*lh;
+  }
 
+  // 用超高 canvas 先畫，最後裁
   var c = document.createElement('canvas');
-  c.width = W; c.height = 3000*S;
+  c.width = W; c.height = 8000*S;
   var ctx = c.getContext('2d');
-  var y = 0;
 
   // bg
   var grd = ctx.createLinearGradient(0,0,0,c.height);
-  grd.addColorStop(0, BG1); grd.addColorStop(0.4, '#231445'); grd.addColorStop(1, BG2);
+  grd.addColorStop(0, BG1); grd.addColorStop(0.3, '#231445'); grd.addColorStop(1, BG2);
   ctx.fillStyle = grd; ctx.fillRect(0,0,W,c.height);
 
-  // border
-  rrect(ctx, 6*S, 6*S, W-12*S, c.height-12*S, 24*S);
-  ctx.strokeStyle = GOLD; ctx.lineWidth = 3*S; ctx.stroke();
+  var y = 48*S;
 
-  y = 52*S;
-
-  // ornament
-  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  ctx.font = (14*S)+'px "Cormorant Garamond", Georgia, serif';
-  ctx.fillStyle = 'rgba(248,223,165,0.5)';
+  // ── 頂部裝飾 ──
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.font=(14*S)+'px "Cormorant Garamond",Georgia,serif';
+  ctx.fillStyle='rgba(248,223,165,0.5)';
   ctx.fillText('✦  ·  ✦  ·  ✦', W/2, y);
-  y += 36*S;
+  y+=36*S;
 
-  // brand
-  ctx.font = (13*S)+'px "Noto Serif TC", serif';
-  ctx.fillStyle = GOLD;
-  ctx.fillText('馥靈之鑰｜前世密碼', W/2, y);
-  y += 48*S;
+  // ── 品牌 ──
+  ctx.font=(13*S)+'px "Noto Serif TC",serif';
+  ctx.fillStyle=GOLD;
+  ctx.fillText('馥靈之鑰｜前世密碼 · 六鑰解讀', W/2, y);
+  y+=48*S;
 
-  // persona name
-  ctx.font = 'bold '+(36*S)+'px "Noto Serif TC", serif';
-  ctx.fillStyle = GOLD;
-  ctx.shadowColor = 'rgba(248,223,165,0.4)'; ctx.shadowBlur = 20*S;
-  var nameLines = wrap(ctx, d.persona, CW - 20*S);
-  for(var ni=0;ni<nameLines.length;ni++){
-    ctx.fillText(nameLines[ni], W/2, y + ni*44*S);
-  }
-  ctx.shadowBlur = 0;
-  y += nameLines.length * 44*S + 12*S;
+  // ── 人格名 ──
+  ctx.font='bold '+(34*S)+'px "Noto Serif TC",serif';
+  ctx.fillStyle=GOLD;
+  ctx.shadowColor='rgba(248,223,165,0.35)'; ctx.shadowBlur=18*S;
+  var nLines=wrap(ctx, d.persona, CW-20*S);
+  for(var ni=0;ni<nLines.length;ni++) ctx.fillText(nLines[ni], W/2, y+ni*42*S);
+  ctx.shadowBlur=0;
+  y+=nLines.length*42*S+10*S;
 
-  // sub
-  ctx.font = (14*S)+'px "Cormorant Garamond", Georgia, serif';
-  ctx.fillStyle = GOLD;
+  // ── 副標 ──
+  ctx.font=(14*S)+'px "Cormorant Garamond",Georgia,serif';
+  ctx.fillStyle=GOLD;
   ctx.fillText(d.sub, W/2, y);
-  y += 42*S;
+  y+=38*S;
 
-  // summary box
-  ctx.textAlign = 'left';
-  ctx.font = (16*S)+'px "Noto Serif TC", serif';
-  var sumLines = wrap(ctx, d.summary, CW - 52*S);
-  var sumLH = 32*S;
-  var sumH = sumLines.length * sumLH + 40*S;
+  // ── 摘要框 ──
+  ctx.textAlign='left';
+  ctx.font=BODY_SIZE+'px "Noto Serif TC",serif';
+  var sumL=wrap(ctx, d.summary, CW-56*S);
+  var sumH=sumL.length*BODY_LH+40*S;
   rrect(ctx, PAD, y, CW, sumH, 12*S);
-  ctx.fillStyle = BG2; ctx.fill();
-  ctx.fillStyle = GOLD; ctx.fillRect(PAD, y+10*S, 4*S, sumH-20*S);
-  ctx.fillStyle = '#9b7bd4'; ctx.fillRect(PAD+CW-4*S, y+10*S, 4*S, sumH-20*S);
-  ctx.fillStyle = WHITE;
-  ctx.textAlign = 'center';
-  drawLines(ctx, sumLines, W/2, y+20*S, sumLH);
-  y += sumH + 28*S;
+  ctx.fillStyle=BG2; ctx.fill();
+  ctx.fillStyle=GOLD; ctx.fillRect(PAD, y+10*S, 4*S, sumH-20*S);
+  ctx.fillStyle='#9b7bd4'; ctx.fillRect(PAD+CW-4*S, y+10*S, 4*S, sumH-20*S);
+  ctx.fillStyle=WHITE; ctx.textAlign='center';
+  drawL(ctx, sumL, W/2, y+20*S, BODY_LH);
+  y+=sumH+32*S;
 
-  // 4 mini-keys (2x2 grid)
-  var keys = [
-    {icon:'🔑', text:d.miniSN},
-    {icon:'🪨', text:d.miniNY},
-    {icon:'💎', text:d.miniChi},
-    {icon:'🌀', text:d.miniMaya}
-  ];
-  var kColW = (CW - 14*S) / 2;
-  var kH = 52*S;
-  for(var ki=0; ki<4; ki++){
-    var kx = PAD + (ki%2) * (kColW + 14*S);
-    var ky = y + Math.floor(ki/2) * (kH + 12*S);
-    rrect(ctx, kx, ky, kColW, kH, 10*S);
+  // ── 分隔線 ──
+  ctx.textAlign='center';
+  ctx.font=(13*S)+'px "Noto Serif TC",serif';
+  ctx.fillStyle='rgba(248,223,165,0.4)';
+  ctx.fillText('✦ 六鑰完整解讀 ✦', W/2, y);
+  y+=32*S;
+
+  // ── 六鑰區塊 ──
+  ctx.textAlign='left';
+  var txPad = 22*S;
+  for(var ki=0; ki<d.keys.length; ki++){
+    var k = d.keys[ki];
+
+    // 計算此區塊高度
+    ctx.font='bold '+TITLE_SIZE+'px "Noto Serif TC",serif';
+    var titleLines = k.title ? wrap(ctx, k.title, CW-txPad*2-4*S) : [];
+    ctx.font=BODY_SIZE+'px "Noto Serif TC",serif';
+    var textLines = wrap(ctx, k.text, CW-txPad*2-4*S);
+    ctx.font=DETAIL_SIZE+'px "Noto Serif TC",serif';
+    var detailLines = k.detail ? wrap(ctx, k.detail, CW-txPad*2-4*S) : [];
+
+    var blockH = 32*S; // label
+    if(titleLines.length) blockH += titleLines.length * (TITLE_SIZE+10*S) + 6*S;
+    blockH += textLines.length * BODY_LH + 4*S;
+    if(detailLines.length) blockH += 10*S + detailLines.length * DETAIL_LH;
+    blockH += 18*S; // bottom padding
+
+    // 背景
+    rrect(ctx, PAD, y, CW, blockH, 12*S);
     ctx.fillStyle = SEC; ctx.fill();
-    ctx.fillStyle = GOLD; ctx.fillRect(kx, ky+8*S, 4*S, kH-16*S);
-    ctx.textAlign = 'left';
-    ctx.font = (14*S)+'px "Noto Serif TC", serif';
-    ctx.fillStyle = WHITE;
-    ctx.fillText(keys[ki].icon + '  ' + keys[ki].text, kx+18*S, ky+18*S);
-  }
-  y += 2*(kH+12*S) + 20*S;
+    // 左金線
+    ctx.fillStyle = GOLD; ctx.fillRect(PAD, y+8*S, 4*S, blockH-16*S);
 
-  // oil box
-  var oilH = 76*S;
+    var by = y + 16*S;
+
+    // label
+    ctx.font='bold '+LABEL_SIZE+'px "Noto Serif TC",serif';
+    ctx.fillStyle = GOLD;
+    ctx.fillText(k.icon + '  ' + k.label, PAD+txPad, by);
+    // label 分隔線
+    var lbW = ctx.measureText(k.icon+'  '+k.label).width;
+    ctx.fillStyle='rgba(248,223,165,0.2)';
+    ctx.fillRect(PAD+txPad+lbW+10*S, by+LABEL_SIZE/2+2*S, CW-txPad*2-lbW-14*S, 1*S);
+    by += 26*S;
+
+    // title (bold)
+    if(titleLines.length){
+      ctx.font='bold '+TITLE_SIZE+'px "Noto Serif TC",serif';
+      ctx.fillStyle = WHITE;
+      by = drawL(ctx, titleLines, PAD+txPad, by, TITLE_SIZE+10*S);
+      by += 4*S;
+    }
+
+    // text
+    ctx.font=BODY_SIZE+'px "Noto Serif TC",serif';
+    ctx.fillStyle = WHITE;
+    by = drawL(ctx, textLines, PAD+txPad, by, BODY_LH);
+
+    // detail (dimmer)
+    if(detailLines.length){
+      by += 10*S;
+      ctx.fillStyle='rgba(248,223,165,0.15)';
+      ctx.fillRect(PAD+txPad, by-2*S, CW-txPad*2-4*S, 1*S);
+      by += 6*S;
+      ctx.font=DETAIL_SIZE+'px "Noto Serif TC",serif';
+      ctx.fillStyle = '#ddd4ee';
+      by = drawL(ctx, detailLines, PAD+txPad, by, DETAIL_LH);
+    }
+
+    y += blockH + 14*S;
+  }
+  y += 8*S;
+
+  // ── 精油完整區塊 ──
+  ctx.font=BODY_SIZE+'px "Noto Serif TC",serif';
+  var oilDescL = wrap(ctx, d.oilDesc || '', CW-txPad*2-4*S);
+  var oilH = 40*S + 30*S + oilDescL.length * BODY_LH + 20*S;
   rrect(ctx, PAD, y, CW, oilH, 12*S);
-  ctx.fillStyle = '#1a1030'; ctx.fill();
+  ctx.fillStyle = OIL_SEC; ctx.fill();
   rrect(ctx, PAD, y, CW, oilH, 12*S);
-  ctx.strokeStyle = 'rgba(248,223,165,0.3)'; ctx.lineWidth = 2*S; ctx.stroke();
-  ctx.textAlign = 'center';
-  ctx.font = 'bold '+(11*S)+'px "Noto Serif TC", serif';
-  ctx.fillStyle = GOLD;
+  ctx.strokeStyle='rgba(248,223,165,0.25)'; ctx.lineWidth=2*S; ctx.stroke();
+
+  ctx.textAlign='center';
+  ctx.font='bold '+LABEL_SIZE+'px "Noto Serif TC",serif';
+  ctx.fillStyle=GOLD;
   ctx.fillText('前 世 記 憶 精 油', W/2, y+16*S);
-  ctx.font = 'bold '+(20*S)+'px "Noto Serif TC", serif';
-  ctx.fillStyle = GOLD;
-  ctx.shadowColor = 'rgba(248,223,165,0.3)'; ctx.shadowBlur = 12*S;
-  ctx.fillText('🌿 ' + d.oilName, W/2, y+42*S);
-  ctx.shadowBlur = 0;
+
+  ctx.font='bold '+(20*S)+'px "Noto Serif TC",serif';
+  ctx.fillStyle=GOLD;
+  ctx.shadowColor='rgba(248,223,165,0.3)'; ctx.shadowBlur=10*S;
+  ctx.fillText('🌿 '+d.oilName, W/2, y+40*S);
+  ctx.shadowBlur=0;
+
+  ctx.textAlign='left';
+  ctx.font=BODY_SIZE+'px "Noto Serif TC",serif';
+  ctx.fillStyle='#ddd4ee';
+  drawL(ctx, oilDescL, PAD+txPad, y+72*S, BODY_LH);
   y += oilH + 32*S;
 
-  // watermark
-  ctx.font = (12*S)+'px "Cormorant Garamond", Georgia, serif';
-  ctx.fillStyle = 'rgba(200,188,220,0.45)';
+  // ── 浮水印 ──
+  ctx.textAlign='center';
+  ctx.font=(12*S)+'px "Cormorant Garamond",Georgia,serif';
+  ctx.fillStyle='rgba(200,188,220,0.45)';
   ctx.fillText('馥靈之鑰 Hour Light® hourlightkey.com', W/2, y);
-  y += 50*S;
+  y += 48*S;
 
-  // trim & export
+  // ── 裁切輸出 ──
   var fc = document.createElement('canvas');
   fc.width = W; fc.height = y;
   var fctx = fc.getContext('2d');
   var g2 = fctx.createLinearGradient(0,0,0,y);
-  g2.addColorStop(0, BG1); g2.addColorStop(0.4, '#231445'); g2.addColorStop(1, BG2);
+  g2.addColorStop(0, BG1); g2.addColorStop(0.3, '#231445'); g2.addColorStop(1, BG2);
   fctx.fillStyle = g2; fctx.fillRect(0,0,W,y);
   fctx.drawImage(c, 0, 0, W, y, 0, 0, W, y);
+  // 金色外框
   rrect(fctx, 6*S, 6*S, W-12*S, y-12*S, 24*S);
   fctx.strokeStyle = GOLD; fctx.lineWidth = 3*S; fctx.stroke();
 
   var link = document.createElement('a');
-  link.download = '馥靈之鑰_前世密碼_' + d.personaName + '.png';
+  link.download = '馥靈之鑰_前世密碼_'+d.personaName+'.png';
   link.href = fc.toDataURL('image/png');
   link.click();
 });
