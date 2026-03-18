@@ -1661,23 +1661,27 @@ function gi(id){return parseInt(gv(id))||0}
 
 /* ── WG 翻譯（使用 destiny-calc.js 內建的 WG_MAP）── */
 function wgTranslate(name){
-  if(!name||typeof WG_MAP==='undefined')return'';
+  if(!name)return'';
+  // WG_MAP 可能還沒載入就被呼叫，加保護
+  var map=typeof WG_MAP!=='undefined'?WG_MAP:(window.WG_MAP||null);
+  if(!map)return'';
   var chars=name.split(''),parts=[];
-  for(var i=0;i<chars.length;i++){if(WG_MAP[chars[i]])parts.push(WG_MAP[chars[i]])}
+  for(var i=0;i<chars.length;i++){if(map[chars[i]])parts.push(map[chars[i]])}
   if(parts.length>=2)return parts[0]+' '+parts.slice(1).join('');
   if(parts.length===1)return parts[0];
   return'';
 }
 
 /* ── 綁定姓名自動翻譯 ── */
-(function(){
+function bindWgEvents(){
   ['a','b'].forEach(function(p){
     var nameEl=document.getElementById(p+'_name');
     var enEl=document.getElementById(p+'_name_en');
     var hintEl=document.getElementById(p+'_wg_hint');
-    if(!nameEl)return;
+    if(!nameEl){console.warn('WG: 找不到 #'+p+'_name');return;}
     var composing=false;
     function update(){
+      if(typeof WG_MAP==='undefined'){console.warn('WG_MAP 尚未載入');return;}
       var wg=wgTranslate(nameEl.value.trim());
       if(hintEl)hintEl.textContent=wg?'拼音：'+wg:'';
       if(enEl&&!enEl._edited)enEl.value=wg;
@@ -1688,9 +1692,16 @@ function wgTranslate(name){
     nameEl.addEventListener('blur',function(){update()});
     if(enEl){
       enEl.addEventListener('input',function(){enEl._edited=!!enEl.value});
+      enEl.addEventListener('focus',function(){enEl._edited=true});
     }
   });
-})();
+}
+// window.load 確保 destiny-calc.js 也完全解析完才綁定威妥瑪
+if(document.readyState==='complete'){
+  bindWgEvents();
+} else {
+  window.addEventListener('load', bindWgEvents);
+}
 
 /* ══════════════════════════════════════════════════
    核心：計算一個人的所有命盤資料
@@ -1832,8 +1843,13 @@ function buildData(prefix){
 function runMatch(){
   var btn=document.getElementById('matchBtn');
   btn.disabled=true;btn.textContent='⏳ 載入星曆中...';
+  // 安全保護：30秒後自動解鎖按鈕（防止星曆載入卡住）
+  var _safeTimer=setTimeout(function(){
+    btn.disabled=false;btn.textContent='✦ 雙人合盤解析';
+  },30000);
   // 先載入星曆（占星/人類圖/七政四餘/凱龍/吠陀都需要）
   loadEphemeris().catch(function(){}).finally(function(){
+    clearTimeout(_safeTimer);
     btn.textContent='⏳ 運算中...';
     setTimeout(function(){
       try{
@@ -1842,6 +1858,17 @@ function runMatch(){
         renderMatch(a,b);
         document.getElementById('matchResult').style.display='block';
         document.getElementById('matchResult').scrollIntoView({behavior:'smooth',block:'start'});
+
+        // ── 合盤計算記錄寫入 Firestore ──
+        try{
+          if(window.HL_track){
+            window.HL_track('match_complete',{
+              nameA:a.nameZh||'', solarDateA:a.solarStr, lunarDateA:a.lunarStr, baziA:(a.ec?a.ec.getYear()+' '+a.ec.getMonth()+' '+a.ec.getDay()+' '+a.ec.getTime():''), dayMasterA:(a.ec?a.ec.getDayGan():''), genderA:a.gen||'',
+              nameB:b.nameZh||'', solarDateB:b.solarStr, lunarDateB:b.lunarStr, baziB:(b.ec?b.ec.getYear()+' '+b.ec.getMonth()+' '+b.ec.getDay()+' '+b.ec.getTime():''), dayMasterB:(b.ec?b.ec.getDayGan():''), genderB:b.gen||'',
+              relType:gv('relType')||''
+            });
+          }
+        }catch(e){}
       }catch(e){alert('計算錯誤：'+e.message);console.error(e)}
       btn.disabled=false;btn.textContent='✦ 雙人合盤解析';
     },80);
@@ -1893,7 +1920,7 @@ function renderMatch(a,b){
     var bar=document.createElement('div');
     bar.id='matchNavBar';
     bar.style.cssText='padding:10px 24px;background:rgba(240,212,138,.03);border-bottom:1px solid rgba(240,212,138,.08);display:flex;justify-content:flex-end';
-    bar.innerHTML='<a href="destiny-engine.html" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border:1px solid rgba(240,212,138,.2);border-radius:20px;color:rgba(240,212,138,.7);font-size:.76rem;text-decoration:none;white-space:nowrap" onmouseover="this.style.borderColor='rgba(240,212,138,.5)'" onmouseout="this.style.borderColor='rgba(240,212,138,.2)'">← 只算一個人的命盤</a>';
+    bar.innerHTML='<a href="destiny-engine.html" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border:1px solid rgba(240,212,138,.2);border-radius:20px;color:rgba(240,212,138,.7);font-size:.76rem;text-decoration:none;white-space:nowrap;transition:border-color .2s">← 只算一個人的命盤</a>';
     var sc=document.getElementById('summaryCard');
     if(sc)sc.parentNode.insertBefore(bar,sc);
   })();

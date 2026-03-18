@@ -748,7 +748,6 @@ footer .logo-icon{height:20px;width:20px}
         <span class="sys-tag">㉑ 撲克牌命理</span>
         <span class="sys-tag">㉒ 居爾特樹曆</span>
         <span class="sys-tag">㉓ 鐵板神數</span>
-        <span class="sys-tag">㉔ 太乙神數</span>
     </div>
   </div>
 
@@ -773,12 +772,12 @@ footer .logo-icon{height:20px;width:20px}
         <input type="time" id="btime" placeholder="不確定可留空" onchange="checkZiHour()">
         <div id="ziToggle" style="display:none;margin-top:8px;padding:10px 14px;border-radius:12px;background:rgba(233,194,125,.08);border:1px solid rgba(233,194,125,.2)">
           <div style="font-size:.95rem;color:#f8dfa5;margin-bottom:6px">⚡ 子時流派選擇（23:00-00:59）</div>
-          <div style="display:flex;gap:8px">
-            <label style="flex:1;display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;border:1px solid rgba(233,194,125,.2);cursor:pointer;font-size:.9rem;color:#ffffff;transition:.2s" id="ziLabel0">
-              <input type="radio" name="ziSect" value="2" checked style="accent-color:#f8dfa5"> 早子時（日柱不換日）
+          <div style="display:flex;gap:8px" id="ziSectWrap">
+            <label style="flex:1;display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;border:2px solid #f8dfa5;background:rgba(248,223,165,.12);cursor:pointer;font-size:.9rem;color:#f8dfa5;font-weight:600;transition:.2s" id="ziLabel0">
+              <input type="radio" name="ziSect" value="2" checked style="accent-color:#f8dfa5" onchange="updateZiLabel();rerunIfDone()"> ☀️ 早子時（日柱不換日）
             </label>
-            <label style="flex:1;display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;border:1px solid rgba(233,194,125,.2);cursor:pointer;font-size:.9rem;color:#ffffff;transition:.2s" id="ziLabel1">
-              <input type="radio" name="ziSect" value="1" style="accent-color:#f8dfa5"> 晚子時（日柱進一天）
+            <label style="flex:1;display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;border:1px solid rgba(233,194,125,.2);cursor:pointer;font-size:.9rem;color:rgba(255,255,255,.7);transition:.2s" id="ziLabel1">
+              <input type="radio" name="ziSect" value="1" style="accent-color:#f8dfa5" onchange="updateZiLabel();rerunIfDone()"> 🌙 晚子時（日柱進一天）
             </label>
           </div>
           <div style="font-size:.95rem;color:rgba(249,240,229,0.85);margin-top:6px">23:00-23:59 出生者，八字和紫微的日柱歸屬因流派而異。不確定選哪個？先用預設即可。</div>
@@ -1235,7 +1234,7 @@ var SIGN_RULER={牡羊:'火星',金牛:'金星',雙子:'水星',巨蟹:'月亮',
 var GN=['命宮','兄弟宮','夫妻宮','子女宮','財帛宮','疾厄宮','遷移宮','交友宮','事業宮','田宅宮','福德宮','父母宮'];
 var SIHUA={甲:{祿:'廉貞',權:'破軍',科:'武曲',忌:'太陽'},乙:{祿:'天機',權:'天梁',科:'紫微',忌:'太陰'},丙:{祿:'天同',權:'天機',科:'文昌',忌:'廉貞'},丁:{祿:'太陰',權:'天同',科:'天機',忌:'巨門'},戊:{祿:'貪狼',權:'太陰',科:'右弼',忌:'天機'},己:{祿:'武曲',權:'貪狼',科:'天梁',忌:'文曲'},庚:{祿:'太陽',權:'武曲',科:'太陰',忌:'天同'},辛:{祿:'巨門',權:'太陽',科:'文曲',忌:'文昌'},壬:{祿:'天梁',權:'紫微',科:'左輔',忌:'武曲'},癸:{祿:'破軍',權:'巨門',科:'太陰',忌:'貪狼'}};
 var BRT={紫微:['旺','廟','廟','旺','旺','得','廟','旺','廟','旺','得','旺'],天機:['廟','得','廟','旺','平','旺','廟','得','廟','旺','陷','旺'],太陽:['廟','旺','廟','旺','廟','旺','旺','得','得','陷','陷','陷'],武曲:['旺','廟','利','廟','旺','得','旺','廟','利','廟','旺','利'],天同:['平','陷','旺','陷','得','廟','陷','陷','旺','陷','得','廟'],廉貞:['平','廟','得','陷','旺','平','廟','得','廟','陷','旺','平'],天府:['廟','旺','廟','得','廟','旺','旺','得','旺','旺','廟','得'],太陰:['廟','廟','陷','陷','陷','陷','陷','旺','旺','廟','廟','廟'],貪狼:['旺','廟','平','廟','得','陷','旺','廟','平','廟','得','陷'],巨門:['旺','廟','廟','旺','得','陷','旺','廟','廟','旺','得','陷'],天相:['廟','廟','得','陷','廟','旺','廟','廟','得','陷','廟','旺'],天梁:['廟','旺','廟','陷','旺','廟','旺','廟','廟','陷','旺','廟'],七殺:['旺','廟','廟','旺','廟','得','旺','廟','廟','旺','廟','得'],破軍:['旺','廟','陷','陷','旺','陷','旺','廟','陷','陷','旺','陷']};
-var ZWT={2:{1:1,2:2,3:2,4:3,5:3,6:4,7:4,8:5,9:5,10:6,11:6,12:7,13:7,14:8,15:8,16:9,17:9,18:10,19:10,20:11,21:11,22:0,23:0,24:1,25:1,26:2,27:2,28:3,29:3,30:4},3:{1:2,2:2,3:3,4:2,5:3,6:4,7:3,8:4,9:5,10:4,11:5,12:6,13:5,14:6,15:7,16:6,17:7,18:8,19:7,20:8,21:9,22:8,23:9,24:10,25:9,26:10,27:11,28:10,29:11,30:0},4:{1:3,2:2,3:3,4:2,5:4,6:3,7:3,8:4,9:3,10:5,11:4,12:4,13:5,14:4,15:6,16:5,17:5,18:6,19:5,20:7,21:6,22:6,23:7,24:6,25:8,26:7,27:7,28:8,29:7,30:9},5:{1:4,2:2,3:3,4:3,5:4,6:2,7:3,8:4,9:4,10:5,11:3,12:4,13:5,14:5,15:6,16:4,17:5,18:6,19:6,20:7,21:5,22:6,23:7,24:7,25:8,26:6,27:7,28:8,29:8,30:9},6:{1:5,2:2,3:3,4:3,5:4,6:4,7:5,8:2,9:3,10:3,11:4,12:4,13:5,14:5,15:6,16:3,17:4,18:4,19:5,20:5,21:6,22:6,23:7,24:4,25:5,26:5,27:6,28:6,29:7,30:7}};
+var ZWT={2:{1:1,2:2,3:2,4:3,5:3,6:4,7:4,8:5,9:5,10:6,11:6,12:7,13:7,14:8,15:8,16:9,17:9,18:10,19:10,20:11,21:11,22:0,23:0,24:1,25:1,26:2,27:2,28:3,29:3,30:4},3:{1:2,2:2,3:3,4:2,5:3,6:4,7:3,8:4,9:5,10:4,11:5,12:6,13:5,14:6,15:7,16:6,17:7,18:8,19:7,20:8,21:9,22:8,23:9,24:10,25:9,26:10,27:11,28:10,29:11,30:0},4:{1:4,2:4,3:4,4:4,5:5,6:5,7:5,8:5,9:6,10:6,11:6,12:6,13:7,14:7,15:7,16:7,17:8,18:8,19:8,20:8,21:9,22:9,23:9,24:9,25:10,26:10,27:10,28:10,29:11,30:11},5:{1:4,2:2,3:3,4:3,5:4,6:2,7:3,8:4,9:4,10:5,11:3,12:4,13:5,14:5,15:6,16:4,17:5,18:6,19:6,20:7,21:5,22:6,23:7,24:7,25:8,26:6,27:7,28:8,29:8,30:9},6:{1:5,2:2,3:3,4:3,5:4,6:4,7:5,8:2,9:3,10:3,11:4,12:4,13:5,14:5,15:6,16:3,17:4,18:4,19:5,20:5,21:6,22:6,23:7,24:4,25:5,26:5,27:6,28:6,29:7,30:7}};
 var NY60=['海中金','海中金','爐中火','爐中火','大林木','大林木','路旁土','路旁土','劍鋒金','劍鋒金','山頭火','山頭火','澗下水','澗下水','城頭土','城頭土','白蠟金','白蠟金','楊柳木','楊柳木','泉中水','泉中水','屋上土','屋上土','霹靂火','霹靂火','松柏木','松柏木','長流水','長流水','沙中金','沙中金','山下火','山下火','平地木','平地木','壁上土','壁上土','金箔金','金箔金','覆燈火','覆燈火','天河水','天河水','大驛土','大驛土','釵環金','釵環金','桑柘木','桑柘木','大溪水','大溪水','沙中土','沙中土','天上火','天上火','石榴木','石榴木','大海水','大海水'];
 var LUCUN={0:2,1:3,2:5,3:6,4:5,5:6,6:8,7:9,8:11,9:0};
 var WENCHANG={0:5,1:6,2:8,3:9,4:8,5:9,6:11,7:10,8:0,9:0};
@@ -2421,171 +2420,6 @@ function calcCelticTree(month,day){
   return TREES[0]; // default to Birch
 }
 
-
-// ══════ ㉔ 太乙神數（原典考證重建版 v3.0）══════
-// 基於唐・王希明《太乙金鏡式經》積年公式 + 多案例驗證
-// 積年 = 西元年 + 1,936,557（上元混沌甲子起算，開元12年724CE前已積1,937,281年）
-var TAIY_BASE=1936557;
-
-// 十六神（固定環形序列，0=子/地主...15=亥/大義）
-// isZ=正宮，gong=宮數（0=間神）
-var GODS16=[
-  {pos:'子',name:'地主',isZ:true,gong:8},   // 0 坎宮=8
-  {pos:'丑',name:'陽德',isZ:false,gong:0},  // 1 間神
-  {pos:'艮',name:'和德',isZ:true,gong:3},   // 2 艮宮=3
-  {pos:'寅',name:'呂申',isZ:false,gong:0},  // 3 間神
-  {pos:'卯',name:'高叢',isZ:true,gong:4},   // 4 震宮=4
-  {pos:'辰',name:'太陽',isZ:false,gong:0},  // 5 間神
-  {pos:'巽',name:'太靈',isZ:true,gong:9},   // 6 巽宮=9
-  {pos:'巳',name:'大神',isZ:false,gong:0},  // 7 間神
-  {pos:'午',name:'大威',isZ:true,gong:2},   // 8 離宮=2
-  {pos:'未',name:'天道',isZ:false,gong:0},  // 9 間神
-  {pos:'坤',name:'大武',isZ:true,gong:7},   // 10 坤宮=7
-  {pos:'申',name:'武德',isZ:false,gong:0},  // 11 間神
-  {pos:'酉',name:'太簇',isZ:true,gong:6},   // 12 兌宮=6
-  {pos:'戌',name:'陰主',isZ:false,gong:0},  // 13 間神
-  {pos:'乾',name:'陰德',isZ:true,gong:1},   // 14 乾宮=1
-  {pos:'亥',name:'大義',isZ:false,gong:0}   // 15 間神
-];
-
-// 太乙陽遁行宮順序（跳過中宮5）
-var TAIY_YANG_DUN=[1,2,3,4,6,7,8,9]; // 乾→離→艮→震→兌→坤→坎→巽
-var TAIY_GONG_G16={1:14,2:8,3:2,4:4,6:12,7:10,8:0,9:6}; // 宮數→16神索引
-
-// 地支索引→16神索引（子=0...亥=11）
-var TAIY_ZHI_G16=[0,1,3,4,5,7,8,9,11,12,13,15];
-
-// 8正宮本命解讀資料（太乙僅住8正宮）
-var TAIY_GONG_DATA={
-  1:{name:'乾宮',wx:'金',dir:'西北',ji:'大吉',color:'#c8c8e0',godName:'陰德',
-    desc:'天道運行之宮。至剛至健，卻懂得在極致時轉身。你天生帶著一種讓人信服的力量，不是因為你說得多，而是因為你做到了。旁邊的人往往不知道你怎麼辦到的，只知道你就是辦到了。',
-    career:'適合需要決斷力和長遠視野的位置——管理者、創業者、法律、高層決策。你不是執行細節的人，你是設定方向、讓人跟著走的人。',
-    love:'感情中你習慣守護，但最適合你的另一半是有獨立主見的人。對等才能長久。找一個讓你心甘情願放下控制感的人。',
-    wealth:'財富跟隨影響力而來。先建立地位和信譽，財自然跟上。長線積累型，不適合投機，穩健是你最大的財富優勢。',
-    key:'你天生是「設定方向的人」。學會授權，把執行交給對的人，才能真正發揮乾宮的能量。'},
-  2:{name:'離宮',wx:'火',dir:'正南',ji:'吉',color:'#e0a070',godName:'大威',
-    desc:'光明昭著之宮。你天生有一種讓人看見的能力，走進任何空間都會成為焦點——不是因為你努力，而是因為你本來就是那道光。表達力強，感染力真實。',
-    career:'需要表達、展示、影響力的工作最適合你——品牌、傳播、教育、藝術、演講。你的核心競爭力是「讓人記住你」，這個時代正好最需要這種能力。',
-    love:'感情中你熱情、直接，愛了就全力以赴。離宮之火容易消耗，要找能給你穩定感的人，讓你的熱情有個安全的落腳點。',
-    wealth:'財來自你的光芒和影響力。靠才華和口碑賺錢是正道，早點建立個人品牌，讓你的名字就是你最大的資產。',
-    key:'你的光是真實的，不需要靠別人的認可來點亮。學會從自己內心充電，而不只是靠外部的掌聲維持。'},
-  3:{name:'艮宮',wx:'土',dir:'東北',ji:'中吉',color:'#c8a870',godName:'和德',
-    desc:'止而有德之宮。萬物在艮宮成就。你有一種難得的能力：知道何時前進，也知道何時停下來。這份判斷力是大多數人學一輩子也學不來的，你天生就懂。',
-    career:'適合需要整合、穩固成果的工作——管理、教育、諮詢、研究、不動產。你是把事情從70分做到100分的那個人，這個角色比衝第一更稀缺。',
-    love:'感情穩重，慢熱但深情。不喜歡虛華的浪漫，更看重日常的踏實陪伴。找一個節奏跟你相近的人，過一種有品質的生活。',
-    wealth:'財運穩健積累型，不會暴富也不會大虧。中年後物質基礎明顯改善，不動產和長線投資是你的方向。',
-    key:'艮宮的功課是「在對的時機停下來」。有時候不繼續往前衝，才是真正的智慧。你比你想像的走得更遠了。'},
-  4:{name:'震宮',wx:'木',dir:'正東',ji:'中',color:'#80b870',godName:'高叢',
-    desc:'雷動萬物之宮。你是那種進入一個空間就會攪動氣場的人。行動力極強，不願被困住，骨子裡有一種對束縛的天然抗拒。不是叛逆，是本能。',
-    career:'需要突破、開拓、衝刺的工作最適合你——創業、業務、任何「第一個吃螃蟹」的角色。你的優勢是膽識，這個時代最缺的也是膽識。',
-    love:'感情容易衝動而入，你需要的不是懂得消受你熱情的人，而是能給你安全感、讓你願意停留的人。這比你想像的更難找，也更值得等。',
-    wealth:'財來得快，但如果不做好財務管理也去得快。把收入的一部分「鎖起來」，給未來的自己留一道防線。',
-    key:'你的衝勁是稀缺資源，但方向比速度更重要。在衝之前多問一句：「這值得我全力以赴嗎？」'},
-  6:{name:'兌宮',wx:'金',dir:'正西',ji:'中吉',color:'#d0d0d0',godName:'太簇',
-    desc:'收斂精華之宮。萬物在兌宮成熟。你有一種讓人感到被理解的能力，說話有溫度，懂得在對的時機說對的話。這是天生的說服力，不是技巧，是你這個人。',
-    career:'需要溝通、協調、說服的工作——外交、談判、諮詢、公關。你的核心能力是「讓人覺得被懂了」，在任何需要建立信任的場域都無往不利。',
-    love:'感情中你重視深度溝通，找不到可以交心的伴侶會很空虛。你需要一個頻道相近、能互相理解的人，不只是外表好看。',
-    wealth:'財運靠人際關係和溝通能力，合作型財富比單打獨鬥更有成效。建立信任關係是你最穩定的財富提款機。',
-    key:'兌宮的人最怕「討好」。你天生有讓人舒服的能力，但要區分「真正的理解」和「為了讓人高興而說的話」。'},
-  7:{name:'坤宮',wx:'土',dir:'西南',ji:'吉',color:'#d4b890',godName:'大武',
-    desc:'厚德載物之宮。你是那種默默承載很多、卻從不開口的人。你的穩定是別人安全感的來源，這份力量比任何耀眼的才華都更難得，也更持久。',
-    career:'需要服務、照顧、支持他人的工作——教育、醫療、人力資源、後勤管理。你的力量在於「托住別人」，但你自己也需要被人好好托住。',
-    love:'感情付出深重，往往比另一半付出更多。要找一個懂得感謝你、也願意回饋你的人，而不是只會消耗你的人。你值得被人好好珍惜。',
-    wealth:'財運穩健，靠勤勞踏實積累。不適合高風險投機，長線投資和固定資產是你的財富主軸。',
-    key:'坤宮的功課是學會說「我也需要被照顧」。你不是只有付出的那個人，你值得被人好好承接。'},
-  8:{name:'坎宮',wx:'水',dir:'正北',ji:'吉',color:'#7090c0',godName:'地主',
-    desc:'深藏智慧之宮。你像深水，表面平靜，底下深不可測。觀察力極強，很多事你看在眼裡但選擇不說，這份沉默裡藏著巨大的能量，等待對的時機才發揮。',
-    career:'需要深度思考、研究、洞察的工作——策略分析、研究、諮詢、心理、任何需要看穿表象的角色。你是那種「被低估直到有人真正看懂你」的人。',
-    love:'感情中你不容易開口，但一旦動了心就是全力投入。要找一個有耐心等待你打開的人，而不是一直追問你「你在想什麼」的人。',
-    wealth:'財運靠智慧和判斷力，而非靠運氣。投資眼光準確，但容易分析過度而錯失時機。學會在想清楚之後果斷行動。',
-    key:'坎宮最珍貴的資產就是那份深沉的智慧。不要讓沉默變成隔閡，找一個讓你願意開口說話的人和環境。'},
-  9:{name:'巽宮',wx:'風木',dir:'東南',ji:'中吉',color:'#90c890',godName:'太靈',
-    desc:'靈動善變之宮。你像風，無處不在卻難以捉摸。思維敏捷，善於觀察和適應，能在不同環境中找到自己的位置。你的靈活不是漂泊，是一種高超的生存智慧。',
-    career:'需要靈活、創意、跨域整合的工作——顧問、創意產業、傳播、國際業務。你的優勢是「把不同的東西連結起來」，這個跨界能力在當今極度稀缺。',
-    love:'感情中你重視自由感，對方給你太大束縛你會想逃。你需要一個既能讓你飛翔、又知道如何接住你的人，這種人值得你留下來。',
-    wealth:'財運多元，靠靈活的判斷和人脈整合。副業和多角化佈局比單一主業更適合你，但要避免太分散而失去核心競爭力。',
-    key:'巽宮的你懂得隨機應變，但也需要一個「錨」——一件你真正在乎的事，或一個你願意為之留下來的人。'}
-};
-
-// ── 建立文昌陽遁18步序列（從申idx11，乾idx14和坤idx10各重留一次）──
-function buildTaiyWCSeq(){
-  var seq=[],cur=11;
-  while(seq.length<18){
-    seq.push(cur);
-    if(cur===14||cur===10) seq.push(cur);
-    cur=(cur+1)%16;
-  }
-  return seq.slice(0,18);
-}
-var TAIY_WC_SEQ=buildTaiyWCSeq();
-
-function calcTaiYi(solarYear,yearZhiIdx){
-  var acc=solarYear+TAIY_BASE;
-
-  // 太乙落宮（積年%24，每3年一宮，8正宮循環）
-  var r=acc%24; if(r===0)r=24;
-  var pIdx=Math.ceil(r/3)-1;
-  var taiyGong=TAIY_YANG_DUN[pIdx];
-  var taiyG16=TAIY_GONG_G16[taiyGong];
-  var liYear=['理人','理天','理地'][r%3];
-
-  // 文昌（積年%18，陽遁序列）
-  var wcN=acc%18; if(wcN===0)wcN=18;
-  var wcG16=TAIY_WC_SEQ[wcN-1];
-
-  // 計神（年支，陽遁從寅逆行12支）
-  var jiZhi=(2-yearZhiIdx+12)%12;
-  var jiG16=TAIY_ZHI_G16[jiZhi];
-
-  // 始擊（計神移到和德艮idx2，文昌同移同步數）
-  var steps=(2-jiG16+16)%16;
-  var sjG16=(wcG16+steps)%16;
-
-  // 算數（從起點到太乙前，正宮累加，間神起始計1）
-  function suan(startG16,tG16){
-    var sum=GODS16[startG16].isZ?GODS16[startG16].gong:1;
-    var cur=(startG16+1)%16,guard=0;
-    while(cur!==tG16&&guard<16){
-      if(GODS16[cur].isZ) sum+=GODS16[cur].gong;
-      cur=(cur+1)%16; guard++;
-    }
-    return sum;
-  }
-  function daJ(s){var d=s%10;if(d===0){d=s%9;if(d===0)d=9;}return d;}
-
-  var zhuSuan=suan(wcG16,taiyG16);
-  var keSuan=suan(sjG16,taiyG16);
-  var zhuDa=daJ(zhuSuan),zhuCan=daJ(zhuDa*3);
-  var keDa=daJ(keSuan),keCan=daJ(keDa*3);
-
-  var gd=TAIY_GONG_DATA[taiyGong]||{};
-
-  // 流年太乙
-  var curY=new Date().getFullYear();
-  var curAcc=curY+TAIY_BASE;
-  var curR=curAcc%24; if(curR===0)curR=24;
-  var curGong=TAIY_YANG_DUN[Math.ceil(curR/3)-1];
-  var curGd=TAIY_GONG_DATA[curGong]||{};
-
-  var GNAME={1:'乾',2:'離',3:'艮',4:'震',6:'兌',7:'坤',8:'坎',9:'巽'};
-
-  return{
-    accYear:acc,
-    gong:taiyGong,gongName:(gd.name||GNAME[taiyGong]+'宮'),
-    godName:(gd.godName||GODS16[taiyG16].name),
-    wx:(gd.wx||''),ji:(gd.ji||''),color:(gd.color||'#c0b89a'),
-    liYear:liYear,data:gd,
-    wenchang:{g16:wcG16,pos:GODS16[wcG16].pos,name:GODS16[wcG16].name,isZ:GODS16[wcG16].isZ,gong:GODS16[wcG16].gong},
-    jishen:{g16:jiG16,pos:GODS16[jiG16].pos,name:GODS16[jiG16].name},
-    shiji:{g16:sjG16,pos:GODS16[sjG16].pos,name:GODS16[sjG16].name},
-    zhuSuan:zhuSuan,keSuan:keSuan,
-    zhuDa:zhuDa,zhuCan:zhuCan,keDa:keDa,keCan:keCan,
-    curYear:curY,curGong:curGong,
-    curGongName:(curGd.name||GNAME[curGong]+'宮'),curData:curGd
-  };
-}
-
-
 // ══════ ㉓ 鐵板神數（化宿命為座標版·v2 豐度重建）══════
 function calcTieBan(year,month,day,hour,minute,bzMonthStem,bzMonthBranch){
   var stems=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
@@ -2846,7 +2680,7 @@ function calcTieBan(year,month,day,hour,minute,bzMonthStem,bzMonthBranch){
   };
 }
 
-var SYS=['① 四柱八字','② 紫微斗數','③ 西洋占星','④ 人類圖','⑤ 七政四餘','⑥ 瑪雅曆法','⑦ 生命靈數','⑧ 馥靈秘碼','⑨ 生命密碼','⑩ 大六壬','⑪ 九星氣學','⑫ 生日色彩','⑬ 凱龍莉莉絲','⑭ 吠陀占星','⑮ 姓名解碼','⑯ 卡巴拉','⑰ 宿曜占星','⑱ 梅花易數','⑲ 基因天命','⑳ 彩虹數字','㉑ 撲克牌命理','㉒ 居爾特樹曆','㉓ 鐵板神數','㉔ 太乙神數'];
+var SYS=['① 四柱八字','② 紫微斗數','③ 西洋占星','④ 人類圖','⑤ 七政四餘','⑥ 瑪雅曆法','⑦ 生命靈數','⑧ 馥靈秘碼','⑨ 生命密碼','⑩ 大六壬','⑪ 九星氣學','⑫ 生日色彩','⑬ 凱龍莉莉絲','⑭ 吠陀占星','⑮ 姓名解碼','⑯ 卡巴拉','⑰ 宿曜占星','⑱ 梅花易數','⑲ 基因天命','⑳ 彩虹數字','㉑ 撲克牌命理','㉒ 居爾特樹曆','㉓ 鐵板神數'];
 
 function switchTab(idx){
   var btns=document.querySelectorAll('#tabBar button');
@@ -2902,6 +2736,31 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 /* ── 子時流派切換 ── */
+function updateZiLabel(){
+  var radios=document.getElementsByName('ziSect');
+  radios.forEach(function(r,i){
+    var lbl=document.getElementById('ziLabel'+i);
+    if(!lbl)return;
+    if(r.checked){
+      lbl.style.border='2px solid #f8dfa5';
+      lbl.style.background='rgba(248,223,165,.12)';
+      lbl.style.color='#f8dfa5';
+      lbl.style.fontWeight='600';
+    }else{
+      lbl.style.border='1px solid rgba(233,194,125,.2)';
+      lbl.style.background='';
+      lbl.style.color='rgba(255,255,255,.7)';
+      lbl.style.fontWeight='400';
+    }
+  });
+}
+function rerunIfDone(){
+  // 如果已有計算結果，切換流派就立刻重算
+  var ra=document.getElementById('resultArea');
+  if(ra&&ra.style.display!=='none'){
+    runAll();
+  }
+}
 function checkZiHour(){
   var bt=document.getElementById('btime').value;
   var toggle=document.getElementById('ziToggle');
@@ -4953,86 +4812,6 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
   hN+='<div style="margin:16px 0;text-align:center"><a href="draw-light.html" style="display:inline-block;background:linear-gradient(135deg,rgba(240,212,138,.9),rgba(200,170,100,.9));color:#1a1a2e;padding:12px 28px;border-radius:24px;font-size:.92rem;font-weight:600;text-decoration:none;letter-spacing:.05em;box-shadow:0 2px 12px rgba(240,212,138,.25)">✦ AI說得太多？抽一張馥靈指引牌，找回方向</a><div style="font-size:.72rem;color:rgba(249,240,229,.35);margin-top:6px">命盤是座標，指引牌是下一步行動</div></div>';
   addP(ps,hN);
 
-  // ═══ ㉔ 太乙神數（原典考證版 v3.0）═══
-  var ty=calcTaiYi(Y,yzI); // 傳入西元年和農曆年支索引
-
-  var hTY='<h3>☯ 太乙神數（原典考證版）</h3>';
-  hTY+='<div class="mkt-hook">☯ 太乙神數：中國「三式」之首，源自唐・王希明《太乙金鏡式經》。以積年推算太乙落宮，揭示天時格局與人生底色。本命宮定先天能量，流年宮看當下節奏，文昌定智慧出口，計神見一生課題。</div>';
-
-  // 本命太乙宮
-  hTY+='<div class="palace" style="margin-top:12px;border-left:3px solid '+ty.color+'">';
-  hTY+='<div class="pt" style="color:'+ty.color+'">☯ 本命太乙：'+ty.gongName+'（'+ty.wx+'｜'+ty.ji+'）｜十六神：'+ty.godName+'｜'+ty.liYear+'</div>';
-  hTY+='<div class="rs" style="line-height:1.9;padding:6px 0">'+ty.data.desc+'</div>';
-  hTY+='</div>';
-
-  hTY+='<div class="items">';
-  hTY+='<div class="item" style="padding:10px 14px"><span class="lbl" style="color:var(--gd3)">💼 事業方向</span><span class="rs" style="font-size:.83rem;line-height:1.8;display:block;margin-top:4px">'+(ty.data.career||'')+'</span></div>';
-  hTY+='<div class="item" style="padding:10px 14px"><span class="lbl" style="color:var(--gd3)">💕 感情能量</span><span class="rs" style="font-size:.83rem;line-height:1.8;display:block;margin-top:4px">'+(ty.data.love||'')+'</span></div>';
-  hTY+='<div class="item" style="padding:10px 14px"><span class="lbl" style="color:var(--gd3)">💰 財富密碼</span><span class="rs" style="font-size:.83rem;line-height:1.8;display:block;margin-top:4px">'+(ty.data.wealth||'')+'</span></div>';
-  hTY+='<div class="item" style="padding:10px 14px;background:rgba(240,212,138,.05);border:1px solid rgba(240,212,138,.15);border-radius:10px"><span class="lbl" style="color:var(--gd)">🔑 本命關鍵</span><span class="rs" style="font-size:.88rem;line-height:1.9;display:block;margin-top:4px">'+(ty.data.key||'')+'</span></div>';
-  hTY+='</div>';
-
-  // 輔星格局
-  hTY+='<div class="palace" style="margin-top:12px">';
-  hTY+='<div class="pt">輔星格局</div>';
-  hTY+='<div class="items">';
-  hTY+='<div class="item"><span class="lbl">文昌</span><span class="rs">'+ty.wenchang.pos+'（'+ty.wenchang.name+'）'+(ty.wenchang.isZ?'正宮'+ty.wenchang.gong:'間神')+'</span></div>';
-  hTY+='<div class="item"><span class="lbl">計神</span><span class="rs">'+ty.jishen.pos+'（'+ty.jishen.name+'）</span></div>';
-  hTY+='<div class="item"><span class="lbl">始擊</span><span class="rs">'+ty.shiji.pos+'（'+ty.shiji.name+'）</span></div>';
-  hTY+='<div class="item"><span class="lbl">主算</span><span class="rs">'+ty.zhuSuan+'  主大將第'+ty.zhuDa+'宮 / 主參將第'+ty.zhuCan+'宮</span></div>';
-  hTY+='<div class="item"><span class="lbl">客算</span><span class="rs">'+ty.keSuan+'  客大將第'+ty.keDa+'宮 / 客參將第'+ty.keCan+'宮</span></div>';
-  hTY+='</div></div>';
-
-  // 流年太乙
-  hTY+='<div class="palace" style="margin-top:12px;border:1px solid rgba(240,212,138,.2)">';
-  hTY+='<div class="pt" style="color:var(--gd)">⚡ '+ty.curYear+'年流年太乙：'+ty.curGongName+'</div>';
-  hTY+='<div class="rs" style="line-height:1.9">'+(ty.curData.desc||'')+'</div>';
-  hTY+='<div class="rs" style="margin-top:8px;color:rgba(249,240,229,.6);font-size:.85rem">本命「'+ty.gongName+'」＋流年「'+ty.curGongName+'」：今年的天時節奏，與你的本命底色如何共鳴？AI指令已整合兩者的交叉解讀邏輯。</div>';
-  hTY+='</div>';
-
-  // AI指令
-  var aiTY='【AI解讀指令・太乙神數（原典考證版）】\n';
-  aiTY+='積年：'+ty.accYear+'（西元年+1,936,557，源自《太乙金鏡式經》開元12年基準）\n';
-  aiTY+='太乙本命：'+ty.gongName+'（'+ty.wx+'行，'+ty.ji+'）| 十六神：'+ty.godName+' | '+ty.liYear+'\n';
-  aiTY+='文昌：'+ty.wenchang.pos+'（'+ty.wenchang.name+'）\n';
-  aiTY+='計神：'+ty.jishen.pos+'（'+ty.jishen.name+'）\n';
-  aiTY+='始擊：'+ty.shiji.pos+'（'+ty.shiji.name+'）\n';
-  aiTY+='主算：'+ty.zhuSuan+' 主大將第'+ty.zhuDa+'宮 主參將第'+ty.zhuCan+'宮\n';
-  aiTY+='客算：'+ty.keSuan+' 客大將第'+ty.keDa+'宮 客參將第'+ty.keCan+'宮\n';
-  aiTY+=ty.curYear+'年流年太乙：'+ty.curGongName+'\n\n';
-  aiTY+='【解讀框架】\n';
-  aiTY+='壹、本命太乙「'+ty.gongName+'」的核心能量\n';
-  aiTY+='・這個宮在《太乙金鏡式經》的本義（五行、方位、十六神）\n';
-  aiTY+='・轉譯成現代語言：這個人的天生底色是什麼？核心競爭力在哪？\n';
-  aiTY+='・用一個生活化的比喻描述這個宮位的人\n\n';
-  aiTY+='二、文昌「'+ty.wenchang.name+'」的智慧出口\n';
-  aiTY+='・文昌代表主方的智慧流動方向，'+ty.wenchang.pos+'位有什麼象意？\n';
-  aiTY+='・這個人的智慧如何具體展現在日常決策中？\n\n';
-  aiTY+='三、計神「'+ty.jishen.name+'」的一生課題\n';
-  aiTY+='・計神代表一生反覆出現的「考題」，'+ty.jishen.pos+'位的課題是什麼？\n';
-  aiTY+='・這個課題不是懲罰，是升級的入口——如何轉化？\n\n';
-  aiTY+='四、流年太乙「'+ty.curGongName+'」（'+ty.curYear+'年）\n';
-  aiTY+='・今年的天時節奏是什麼？哪個方向的風最順？\n';
-  aiTY+='・本命「'+ty.gongName+'」＋流年「'+ty.curGongName+'」的組合，今年最值得把握的機會和最需注意的方向？\n\n';
-  aiTY+='五、主客算的格局判斷\n';
-  aiTY+='・主算'+ty.zhuSuan+'、客算'+ty.keSuan+'，主算較長還是客算較長？哪方有優勢？\n';
-  aiTY+='・算數是否為「和數」（陰陽調和）？對當事人的整體運勢有什麼意義？\n\n';
-  aiTY+='【參考書目】\n';
-  aiTY+='・唐・王希明《太乙金鏡式經》（十卷，四庫全書本，Wikisource可查原典）\n';
-  aiTY+='・楊景磐《太乙通解》（1993）+ 《太乙考證》（2006）→ 現代最重要的校勘著作\n';
-  aiTY+='・《太乙統宗寶鑑》元曉山老人 → 歷史驗證案例豐富\n\n';
-  aiTY+='【馥靈座標哲學】\n';
-  aiTY+='太乙告訴你「天時站在哪邊」。\n';
-  aiTY+='但天時再好，沒有地利和人和也枉然。\n';
-  aiTY+='命盤是座標，行動才是導航。\n';
-  aiTY+='鑰匙遞給你，城堡自己開。';
-
-  hTY+='<div class="ai-box"><h4>📜 AI深度解讀指令</h4><pre id="aiTY">'+aiTY+'</pre><button class="cp" onclick="copyText(\'aiTY\')">📋 複製AI指令</button></div>';
-  hTY+='<div style="margin:16px 0;text-align:center"><a href="draw-light.html" style="display:inline-block;background:linear-gradient(135deg,rgba(240,212,138,.9),rgba(200,170,100,.9));color:#1a1a2e;padding:12px 28px;border-radius:24px;font-size:.92rem;font-weight:600;text-decoration:none;letter-spacing:.05em;box-shadow:0 2px 12px rgba(240,212,138,.25)">✦ 算完了？抽一張馥靈指引牌，看今年第一步</a><div style="font-size:.72rem;color:rgba(249,240,229,.35);margin-top:6px">太乙定方向，指引牌定行動</div></div>';
-  addP(ps,hTY);
-
-
-
   // Gemini 建議 C：品牌金句 banner
   var brandBanner=document.getElementById('brand-banner');
   if(!brandBanner){
@@ -5044,6 +4823,35 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
   }
   switchTab(0);
   ra.scrollIntoView({behavior:'smooth',block:'start'});
+
+  // ── 命盤計算記錄寫入 Firestore ──
+  (function(){
+    try{
+      if(window.HL_track){
+        var lunarObj=Solar.fromYmd(Y,M,D).getLunar();
+        window.HL_track('calc_complete',{
+          birthYear:Y, birthMonth:M, birthDay:D, birthHour:H, birthMin:min||0,
+          gender:gen||'',
+          nameZh:(document.getElementById('bname')?document.getElementById('bname').value.trim():''),
+          solarDate:Y+'/'+M+'/'+D,
+          lunarDate:lunarObj.getYearGan()+lunarObj.getYearZhi()+'年'+Math.abs(lunarObj.getMonth())+'月'+lunarObj.getDay()+'日',
+          bazi:(ec?ec.getYear()+' '+ec.getMonth()+' '+ec.getDay()+' '+ec.getTime():''),
+          dayMaster:(ec?ec.getDayGan():'')
+        });
+      }
+    }catch(e){}
+  })();
+
+  // 免責警語 + 合盤導航（結果出來才注入）
+  var navBar=document.getElementById('resultNavBar');
+  if(!navBar){
+    navBar=document.createElement('div');
+    navBar.id='resultNavBar';
+    navBar.style.cssText='padding:12px 20px;margin:0 0 0;background:rgba(240,212,138,.03);border-top:1px solid rgba(240,212,138,.08);display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap';
+    navBar.innerHTML='<span style="font-size:.75rem;color:rgba(220,208,192,.55);line-height:1.9;flex:1;min-width:200px">⚠️ 命盤提供的是大數據下的人生座標參考，不是絕對值，不構成任何決策依據。看懂座標之後，找到彼此最舒服的相處模式，才是我們做這個網頁的用心。</span>'
+      +'<a href="destiny-match-TAIY-TEST.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border:1px solid rgba(240,212,138,.25);border-radius:24px;color:#f0d485;font-size:.78rem;text-decoration:none;white-space:nowrap;flex-shrink:0">💑 加入第二個人，看雙人合盤 →</a>';
+    ra.insertBefore(navBar, ra.firstChild);
+  }
 }
 
 function addP(c,h){var d=document.createElement('div');d.className='panel';d.innerHTML=h;c.appendChild(d)}
@@ -5053,7 +4861,7 @@ function addP(c,h){var d=document.createElement('div');d.className='panel';d.inn
 (function(){
   var panels=document.getElementById('panels');
   if(!panels)return;
-  var sx=0,sy=0,activeIdx=0,maxIdx=23;
+  var sx=0,sy=0,activeIdx=0,maxIdx=22;
   panels.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
   panels.addEventListener('touchend',function(e){
     var dx=e.changedTouches[0].clientX-sx;

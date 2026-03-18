@@ -1273,6 +1273,7 @@ input,select,textarea{font-family:var(--body)}
           <button class="admin-tab" onclick="switchAdminTab('members')" data-tab="members">👥 會員</button>
           <button class="admin-tab" onclick="switchAdminTab('events')" data-tab="events">⚡ 事件流</button>
           <button class="admin-tab" onclick="switchAdminTab('permissions')" data-tab="permissions">🔐 工具權限</button>
+          <button class="admin-tab" onclick="switchAdminTab('calcs')" data-tab="calcs">🌌 命盤紀錄</button>
         </div>
         <div class="admin-sub on" id="admin-dashboard">
           <div class="admin-stats" id="admin-stats-grid">
@@ -1313,6 +1314,46 @@ input,select,textarea{font-family:var(--body)}
         <div class="admin-sub hide" id="admin-events">
           <div class="card"><div class="card-body card-body-pt0"><div class="event-list" id="admin-events-list"><div class="empty"><p>暫無事件</p></div></div></div></div>
           <div class="load-more"><button class="btn-more" onclick="loadMoreEvents()">載入更多</button></div>
+        </div>
+        <div class="admin-sub hide" id="admin-calcs">
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-head" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <span class="card-title">🌌 命盤計算紀錄</span>
+              <input type="text" id="calc-search" placeholder="搜尋姓名 / email / 生日…" style="flex:1;min-width:160px;padding:6px 12px;border:1px solid var(--border);border-radius:20px;font-size:.85rem;background:var(--card);color:var(--text);outline:none" oninput="filterCalcs()">
+              <select id="calc-gender-filter" onchange="filterCalcs()" style="padding:6px 10px;border:1px solid var(--border);border-radius:20px;font-size:.82rem;background:var(--card);color:var(--text);outline:none">
+                <option value="">全部性別</option>
+                <option value="M">乾造（男）</option>
+                <option value="F">坤造（女）</option>
+              </select>
+              <button onclick="exportCalcsCSV()" style="padding:6px 14px;border:1px solid var(--border);border-radius:20px;font-size:.82rem;background:var(--card);color:var(--text);cursor:pointer">📥 匯出 CSV</button>
+            </div>
+            <div class="card-body card-body-pt0">
+              <div style="overflow-x:auto;margin-top:8px">
+                <table style="width:100%;border-collapse:collapse;font-size:.82rem">
+                  <thead>
+                    <tr style="border-bottom:1px solid var(--border);color:var(--mid)">
+                      <th style="text-align:left;padding:8px 10px;white-space:nowrap">時間</th>
+                      <th style="text-align:left;padding:8px 10px;white-space:nowrap">類型</th>
+                      <th style="text-align:left;padding:8px 10px;white-space:nowrap">email</th>
+                      <th style="text-align:left;padding:8px 10px;white-space:nowrap">姓名（甲）</th>
+                      <th style="text-align:left;padding:8px 10px;white-space:nowrap">生日（甲）</th>
+                      <th style="text-align:left;padding:8px 10px;white-space:nowrap">四柱（甲）</th>
+                      <th style="text-align:left;padding:8px 10px;white-space:nowrap">日主</th>
+                      <th style="text-align:left;padding:8px 10px;white-space:nowrap">姓名（乙）</th>
+                      <th style="text-align:left;padding:8px 10px;white-space:nowrap">生日（乙）</th>
+                    </tr>
+                  </thead>
+                  <tbody id="calc-tbody"></tbody>
+                </table>
+              </div>
+              <div id="calc-empty" style="text-align:center;padding:32px;color:var(--mid);display:none">尚無命盤計算紀錄<br><small>登入會員跑命盤後才會出現</small></div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.82rem;color:var(--mid)">
+                <span id="calc-page-info">-</span>
+                <button id="calc-prev" onclick="calcPageNav(-1)" style="padding:4px 12px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);cursor:pointer;font-size:.8rem">← 上頁</button>
+                <button id="calc-next" onclick="calcPageNav(1)"  style="padding:4px 12px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);cursor:pointer;font-size:.8rem">下頁 →</button>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="admin-sub hide" id="admin-permissions">
           <div class="card"><div class="card-body"><div class="matrix-wrap"><table class="matrix-table" id="permission-matrix-table"><thead id="matrix-head"></thead><tbody id="matrix-body"></tbody></table></div><div class="matrix-save"><button class="btn-matrix-save" onclick="savePermMatrix()">儲存變更</button></div></div></div>
@@ -2053,6 +2094,7 @@ function switchAdminTab(tab) {
   document.querySelectorAll('.admin-sub').forEach(s=>s.classList.toggle('on', s.id==='admin-'+tab));
   if (tab==='members') loadAdminMembers();
   if (tab==='events') loadAdminEvents();
+  if (tab==='calcs')  loadAdminCalcs();
   if (tab==='permissions') buildPermissionsMatrix();
   if (tab==='dashboard') loadAdminDashboard();
 }
@@ -2061,6 +2103,110 @@ async function loadAdmin() {
   loadAdminDashboard();
   document.querySelectorAll('.admin-tab').forEach((b,i)=>b.classList.toggle('on',i===0));
   document.querySelectorAll('.admin-sub').forEach((s,i)=>s.classList.toggle('on',i===0));
+}
+
+// ══ 命盤紀錄 ══
+var allCalcs=[], filteredCalcs=[], calcPage=1;
+const CALC_PAGE=25;
+
+async function loadAdminCalcs() {
+  const tbody=document.getElementById('calc-tbody');
+  const empty=document.getElementById('calc-empty');
+  if(!tbody)return;
+  tbody.innerHTML='<tr><td colspan="9" style="padding:20px;text-align:center;color:var(--mid)">載入中…</td></tr>';
+  try {
+    // 同時抓個人命盤 + 合盤兩種記錄
+    const [snapCalc, snapMatch] = await Promise.all([
+      db.collection('events').where('eventType','==','calc_complete').orderBy('ts','desc').limit(300).get(),
+      db.collection('events').where('eventType','==','match_complete').orderBy('ts','desc').limit(300).get()
+    ]);
+    allCalcs=[];
+    snapCalc.forEach(doc=>{ allCalcs.push({id:doc.id,_type:'個人',...doc.data()}); });
+    snapMatch.forEach(doc=>{ allCalcs.push({id:doc.id,_type:'合盤',...doc.data()}); });
+    allCalcs.sort((a,b)=>{ const ta=a.ts?.toDate?a.ts.toDate():new Date(0); const tb=b.ts?.toDate?b.ts.toDate():new Date(0); return tb-ta; });
+    filteredCalcs=[...allCalcs];
+    calcPage=1;
+    renderCalcs();
+  } catch(e) {
+    tbody.innerHTML='<tr><td colspan="9" style="padding:20px;text-align:center;color:var(--mid)">讀取失敗：'+e.message+'</td></tr>';
+  }
+}
+
+function filterCalcs() {
+  const q=(document.getElementById('calc-search').value||'').trim().toLowerCase();
+  const g=(document.getElementById('calc-gender-filter').value||'');
+  filteredCalcs=allCalcs.filter(r=>{
+    const d=r.detail||{};
+    const matchQ=!q||(d.nameZh||'').includes(q)||(r.email||'').toLowerCase().includes(q)||(d.solarDate||'').includes(q)||(d.lunarDate||'').includes(q);
+    const matchG=!g||(d.gender||'')===(g);
+    return matchQ&&matchG;
+  });
+  calcPage=1; renderCalcs();
+}
+
+function renderCalcs() {
+  const tbody=document.getElementById('calc-tbody');
+  const empty=document.getElementById('calc-empty');
+  if(!tbody)return;
+  const total=Math.ceil(filteredCalcs.length/CALC_PAGE)||1;
+  document.getElementById('calc-page-info').textContent='第 '+calcPage+' / '+total+' 頁（共 '+filteredCalcs.length+' 筆）';
+  document.getElementById('calc-prev').style.opacity=calcPage<=1?'.4':'1';
+  document.getElementById('calc-next').style.opacity=calcPage>=total?'.4':'1';
+  const slice=filteredCalcs.slice((calcPage-1)*CALC_PAGE, calcPage*CALC_PAGE);
+  if(!slice.length){ tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  const HR_IDX=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  tbody.innerHTML=slice.map(r=>{
+    const d=r.detail||{};
+    const t=r.ts?.toDate?r.ts.toDate():null;
+    const ts=t?t.toLocaleString("zh-TW",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
+    const isMatch=(r._type==="合盤"||r.eventType==="match_complete");
+    const typeTag=isMatch
+      ?"<span style=\"padding:1px 7px;border-radius:8px;background:rgba(168,143,212,.2);color:#c8a8ff;font-size:.72rem\">合盤</span>"
+      :"<span style=\"padding:1px 7px;border-radius:8px;background:rgba(240,192,96,.12);color:#f0c060;font-size:.72rem\">個人</span>";
+    const nameA=escHtml(isMatch?d.nameA||"-":d.nameZh||"-");
+    const dateA=escHtml(isMatch?d.solarDateA||"-":d.solarDate||"-");
+    const baziA=escHtml(isMatch?d.baziA||"-":d.bazi||"-");
+    const dmA=escHtml(isMatch?d.dayMasterA||"-":d.dayMaster||"-");
+    const nameB=isMatch?escHtml(d.nameB||"-"):"-";
+    const dateB=isMatch?escHtml(d.solarDateB||"-"):"-";
+    return "<tr style=\"border-bottom:1px solid var(--border)\">"
+      +"<td style=\"padding:7px 10px;white-space:nowrap;color:var(--mid);font-size:.78rem\">"+ts+"</td>"
+      +"<td style=\"padding:7px 10px\">"+typeTag+"</td>"
+      +"<td style=\"padding:7px 10px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.8rem\">"+escHtml(r.email||"-")+"</td>"
+      +"<td style=\"padding:7px 10px;font-weight:500\">"+nameA+"</td>"
+      +"<td style=\"padding:7px 10px;white-space:nowrap;font-size:.82rem\">"+dateA+"</td>"
+      +"<td style=\"padding:7px 10px;white-space:nowrap;font-family:monospace;font-size:.78rem\">"+baziA+"</td>"
+      +"<td style=\"padding:7px 10px;font-weight:600;color:var(--accent)\">"+dmA+"</td>"
+      +"<td style=\"padding:7px 10px;color:var(--mid)\">"+nameB+"</td>"
+      +"<td style=\"padding:7px 10px;white-space:nowrap;font-size:.82rem;color:var(--mid)\">"+dateB+"</td>"
+      +"</tr>";
+  }).join("");
+}
+
+function calcPageNav(dir) {
+  const total=Math.ceil(filteredCalcs.length/CALC_PAGE)||1;
+  calcPage=Math.max(1,Math.min(total,calcPage+dir));
+  renderCalcs();
+}
+
+function exportCalcsCSV() {
+  const rows=[['時間','email','姓名','性別','陽曆生日','出生時辰','農曆','四柱','日主']];
+  const HR_IDX=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  filteredCalcs.forEach(r=>{
+    const d=r.detail||{};
+    const t=r.ts?.toDate?r.ts.toDate():null;
+    const ts=t?t.toLocaleString('zh-TW'):'';
+    const hr=typeof d.birthHour==='number'?HR_IDX[d.birthHour===23?0:Math.floor((d.birthHour+1)/2)%12]||d.birthHour:'';
+    const gen=d.gender==='F'?'坤造':d.gender==='M'?'乾造':'';
+    rows.push([ts,r.email||'',d.nameZh||'',gen,d.solarDate||'',hr+'時',d.lunarDate||'',d.bazi||'',d.dayMaster||'']);
+  });
+  const csv='﻿'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('
+');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='命盤紀錄_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
 }
 
 async function loadAdminDashboard() {
