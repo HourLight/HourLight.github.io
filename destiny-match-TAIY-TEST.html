@@ -651,6 +651,26 @@ a{color:var(--gd3);text-decoration:none}
 
 <!-- 結果 -->
 <div id="matchResult">
+  <!-- 30秒結論卡 -->
+  <div id="summaryCard" style="display:none;margin:0 0 0;padding:20px 24px;background:linear-gradient(135deg,rgba(240,212,138,.06),rgba(180,140,80,.03));border-bottom:1px solid rgba(240,212,138,.12);">
+    <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:260px">
+        <div style="font-family:var(--serif);font-size:.7rem;letter-spacing:.3em;color:var(--gd3);margin-bottom:8px">▸ 30秒配對結論</div>
+        <div id="summaryText" style="font-size:.92rem;line-height:1.9;color:var(--ink)"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;align-self:center">
+        <button onclick="switchTab(document.querySelectorAll('.tab-btn').length-1)" style="padding:9px 20px;border:1px solid rgba(240,212,138,.3);border-radius:24px;background:rgba(240,212,138,.08);color:var(--gd);font-size:.78rem;cursor:pointer;white-space:nowrap;font-family:var(--body)">🔮 看整合AI指令 →</button>
+        <a href="draw-hl.html" style="display:block;padding:9px 20px;border:1px solid rgba(240,212,138,.2);border-radius:24px;background:transparent;color:var(--gd3);font-size:.78rem;text-align:center;text-decoration:none;white-space:nowrap">🃏 抽一張指引牌</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 命盤免責警語 -->
+  <div style="padding:10px 24px;background:rgba(240,212,138,.03);border-bottom:1px solid rgba(240,212,138,.08);display:flex;align-items:flex-start;gap:8px">
+    <span style="font-size:.75rem;color:var(--inkm);line-height:1.8;flex:1">
+      ⚠️ 命盤提供的是大數據下的人生座標參考，不是絕對值，不構成任何決策依據。看懂座標之後，找到彼此最舒服的相處模式，才是我們做這個網頁的用心。
+    </span>
+  </div>
   <div class="mr-header">
     <div class="mr-title" id="mrTitle">合盤結果</div>
     <div class="mr-sub" id="mrSub"></div>
@@ -658,13 +678,14 @@ a{color:var(--gd3);text-decoration:none}
   <div class="tab-bar" id="tabBar"></div>
   <div id="panels"></div>
 
-  <div style="text-align:center;margin:28px 0">
-    <div style="font-size:.83rem;color:var(--inkm);line-height:1.9;max-width:520px;margin:0 auto">
-      💡 複製「整合合盤 AI 指令」後貼入 Claude 或 ChatGPT，即可獲得完整雙人命理交叉分析。<br>📧 也可以點「寄到信箱」把完整合盤報告存起來。
+  <div style="text-align:center;margin:28px 0 60px">
+    <div style="font-size:.83rem;color:var(--inkm);line-height:1.9;max-width:520px;margin:0 auto 14px">
+      💡 複製「整合合盤 AI 指令」貼入 Claude 或 ChatGPT，獲得二十四大系統深度解讀。<br>
+      📧 也可以「寄到信箱」把完整合盤報告存起來。
     </div>
-    <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
       <a href="destiny-engine.html" style="color:var(--gd3);font-size:.82rem;border:1px solid var(--border);padding:8px 18px;border-radius:20px">→ 個人命盤引擎</a>
-      <a href="https://lin.ee/p5tBihbe" target="_blank" rel="noopener" style="color:var(--gd3);font-size:.82rem;border:1px solid var(--border);padding:8px 18px;border-radius:20px">→ LINE 專業合盤解讀</a>
+      <a href="draw-hl.html" style="color:var(--gd3);font-size:.82rem;border:1px solid var(--border);padding:8px 18px;border-radius:20px">🃏 抽一張指引牌</a>
     </div>
   </div>
 </div>
@@ -1864,6 +1885,76 @@ function renderMatch(a,b){
 
   document.getElementById('mrTitle').textContent=nameA+' × '+nameB+' 合盤';
   document.getElementById('mrSub').textContent='配對類型：'+relName;
+
+  // ── 個人命盤 × 合盤互連導航 ──
+  (function(){
+    var existing=document.getElementById('matchNavBar');
+    if(existing)existing.remove();
+    var bar=document.createElement('div');
+    bar.id='matchNavBar';
+    bar.style.cssText='padding:10px 24px;background:rgba(240,212,138,.03);border-bottom:1px solid rgba(240,212,138,.08);display:flex;justify-content:flex-end';
+    bar.innerHTML='<a href="destiny-engine.html" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border:1px solid rgba(240,212,138,.2);border-radius:20px;color:rgba(240,212,138,.7);font-size:.76rem;text-decoration:none;white-space:nowrap" onmouseover="this.style.borderColor='rgba(240,212,138,.5)'" onmouseout="this.style.borderColor='rgba(240,212,138,.2)'">← 只算一個人的命盤</a>';
+    var sc=document.getElementById('summaryCard');
+    if(sc)sc.parentNode.insertBefore(bar,sc);
+  })();
+
+  // ── 30秒結論生成 ──
+  (function(){
+    var card=document.getElementById('summaryCard');
+    var txt=document.getElementById('summaryText');
+    if(!card||!txt)return;
+
+    // 八字日主五行互動
+    var WX=['木','木','火','火','土','土','金','金','水','水'];
+    var wxA=WX[a.dayGanI]||'?', wxB=WX[b.dayGanI]||'?';
+    var SHENG={木:'火',火:'土',土:'金',金:'水',水:'木'};
+    var KE={木:'土',土:'水',水:'火',火:'金',金:'木'};
+    var relWx='';
+    if(wxA===wxB) relWx='兩人日主同為'+wxA+'，節奏相近，能量場高度共鳴，容易理解彼此。';
+    else if(SHENG[wxA]===wxB) relWx=nameA+'（'+wxA+'）天生滋養'+nameB+'（'+wxB+'），是給予型的組合，'+nameA+'容易在這段關係裡消耗自己。';
+    else if(SHENG[wxB]===wxA) relWx=nameB+'（'+wxB+'）天生滋養'+nameA+'（'+wxA+'），是給予型的組合，'+nameB+'容易在這段關係裡消耗自己。';
+    else if(KE[wxA]===wxB) relWx=nameA+'（'+wxA+'）對'+nameB+'（'+wxB+'）有制約效應，磁吸力強但需要有意識地讓渡空間。';
+    else if(KE[wxB]===wxA) relWx=nameB+'（'+wxB+'）對'+nameA+'（'+wxA+'）有制約效應，磁吸力強但需要有意識地讓渡空間。';
+    else relWx='兩人五行（'+wxA+'×'+wxB+'）能量結構各具特色，互補空間大，需要多點耐心理解彼此的底層邏輯。';
+
+    // 人類圖類型
+    var hdNote='';
+    var hdA=a.hd,hdB=b.hd;
+    if(hdA&&hdB&&hdA.type&&hdB.type){
+      var ta=hdA.type,tb=hdB.type;
+      if(ta==='生產者'&&(tb==='投射者'||tb==='Projector')) hdNote=nameA+'是'+ta+'，'+nameB+'是'+tb+'——經典的「動力×引導」組合，'+nameB+'等待被邀請後給出精準建議，'+nameA+'負責執行，節奏容易配合。';
+      else if(ta===tb) hdNote='兩人同為人類圖「'+ta+'」，理解對方的策略與等待邏輯更容易，也容易陷入同樣的制約模式，要互相提醒。';
+      else hdNote=nameA+'（'+ta+'）×'+nameB+'（'+tb+'），兩種能量架構可以互補，關鍵在遵循各自的策略與內在權威，而不是勉強同頻。';
+    }
+
+    // 生命靈數主命數
+    var nmNote='';
+    if(a.nm&&b.nm){
+      var lnA=a.nm.ln,lnB=b.nm.ln;
+      if(lnA&&lnB){
+        var diff=Math.abs(lnA-lnB);
+        if(diff===0) nmNote='生命路徑數相同（'+lnA+'），人生功課與課題高度一致，容易彼此照見。';
+        else if(diff<=2) nmNote='生命路徑數（'+lnA+'×'+lnB+'）相近，價值觀節奏接近，磨合期較短。';
+        else nmNote='生命路徑數（'+lnA+'×'+lnB+'）差距較大，彼此能帶來截然不同的視角，是擴展型的組合。';
+      }
+    }
+
+    // 關係類型語
+    var relNote={
+      love:'感情配對',ambig:'曖昧能量場',ex:'前任關係',
+      inlaw_mw:'婆媳能量',inlaw_fi:'翁婿連結',boss:'職場動態',
+      biz:'合作默契',parent:'親子連結',friend:'朋友相性',any:'整體能量'
+    }[rel]||'整體能量';
+
+    var summary='從命理座標看'+nameA+'×'+nameB+'的「'+relNote+'」：<br><br>';
+    summary+='► '+relWx+'<br>';
+    if(hdNote) summary+='► '+hdNote+'<br>';
+    if(nmNote) summary+='► '+nmNote+'<br>';
+    summary+='<br><span style="font-size:.8rem;color:rgba(240,212,138,.5)">這只是座標，不是判決。看完這些，你要問的不是「合不合」，而是「我們願不願意」。</span>';
+
+    txt.innerHTML=summary;
+    card.style.display='block';
+  })();
 
   var SYS_TABS=['① 八字','② 紫微','③ 占星','④ 人類圖','⑤ 七政四餘','⑥ 瑪雅','⑦ 靈數','⑧ 馥靈秘碼','⑨ 生命密碼','⑩ 大六壬','⑪ 九星','⑫ 色彩','⑬ 凱龍莉莉絲','⑭ 吠陀','⑮ 姓名','⑯ 卡巴拉','⑰ 宿曜','⑱ 梅花','⑲ 基因天命','⑳ 彩虹','㉑ 撲克','㉒ 樹曆','㉓ 鐵板','㉔ 太乙','🔮 整合合盤'];
   var tabBar=document.getElementById('tabBar');tabBar.innerHTML='';
@@ -3720,5 +3811,6 @@ function renderMatch(a,b){
 <script src="assets/js/hl-announce.js"></script>
 <script src="assets/js/hl-email.js"></script>
 <script src="assets/js/hl-chat.js"></script>
+
 </body>
 </html>
