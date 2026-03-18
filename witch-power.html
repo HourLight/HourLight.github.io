@@ -1470,6 +1470,7 @@ analyzeBtn.addEventListener('click', function() {
     // Calculate result
     var archKey = getArchetype(_scentScores, _lifePath);
     var arch = ARCHETYPES[archKey];
+    window._currentArch = arch;
 
     // Fill result card
     function setText(id, txt) { var el = document.getElementById(id); if (el) el.textContent = txt; }
@@ -1497,26 +1498,258 @@ analyzeBtn.addEventListener('click', function() {
   }, 3500);
 });
 
-// ── 儲存圖片 ──
+// ── 儲存圖片（Canvas 手繪版） ──
 document.getElementById('saveImageBtn').addEventListener('click', function() {
-  var card = document.getElementById('resultCard');
-  card.classList.add('capturing');
-  html2canvas(card, {
-    backgroundColor: '#231445',
-    scale: 2,
-    useCORS: true,
-    logging: false
-  }).then(function(canvas) {
-    card.classList.remove('capturing');
-    var link = document.createElement('a');
-    link.download = '馥靈之鑰_女巫原力_' + document.getElementById('archetypeName').textContent + '.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  }).catch(function(e) {
-    card.classList.remove('capturing');
-    alert('截圖失敗，請用手機截圖功能');
-  });
+  var arch = window._currentArch;
+  if (!arch) return;
+
+  var S = 2, W = 720*S, PAD = 44*S, CW = W - PAD*2;
+  var GOLD = '#f8dfa5', WHITE = '#fff', SILVER = '#c8c0d8';
+  var BG1 = '#2a1852', BG2 = '#1a0e30', SEC = '#1c1238';
+  var GIFT_BG = '#28200f', SHAD_BG = '#1a1535', OIL_BG = '#d4b978', OIL_TXT = '#1a0e2a';
+
+  // helpers
+  function wrap(ctx, txt, mw) {
+    var lines=[], line='';
+    for(var i=0;i<txt.length;i++){
+      var ch=txt[i]; if(ch==='\n'){lines.push(line);line='';continue;}
+      var t=line+ch;
+      if(ctx.measureText(t).width>mw && line){lines.push(line);line=ch;}else{line=t;}
+    }
+    if(line) lines.push(line); return lines;
+  }
+  function rrect(ctx,x,y,w,h,r){
+    ctx.beginPath(); ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+  }
+  function drawLines(ctx,lines,x,y,lh){for(var i=0;i<lines.length;i++){ctx.fillText(lines[i],x,y+i*lh);}return y+lines.length*lh;}
+
+  // temp canvas
+  var c = document.createElement('canvas');
+  c.width = W; c.height = 5000*S;
+  var ctx = c.getContext('2d');
+  var y = 0;
+
+  // ── background ──
+  var grd = ctx.createLinearGradient(0,0,0,c.height);
+  grd.addColorStop(0, BG1); grd.addColorStop(0.4, '#231445'); grd.addColorStop(1, BG2);
+  ctx.fillStyle = grd; ctx.fillRect(0,0,W,c.height);
+
+  // ── outer border ──
+  rrect(ctx, 6*S, 6*S, W-12*S, c.height-12*S, 24*S);
+  ctx.strokeStyle = GOLD; ctx.lineWidth = 3*S; ctx.stroke();
+
+  y = 52*S;
+
+  // ── ornament ──
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.font = (14*S)+'px "Cormorant Garamond", Georgia, serif';
+  ctx.fillStyle = 'rgba(248,223,165,0.5)';
+  ctx.fillText('✦  ·  ✦  ·  ✦  ·  ✦  ·  ✦', W/2, y);
+  y += 36*S;
+
+  // ── brand ──
+  ctx.font = (13*S)+'px "Noto Serif TC", serif';
+  ctx.fillStyle = GOLD; ctx.letterSpacing = (4*S)+'px';
+  ctx.fillText('馥靈之鑰｜女巫原力', W/2, y);
+  ctx.letterSpacing = '0px';
+  y += 48*S;
+
+  // ── name ──
+  ctx.font = 'bold '+(40*S)+'px "Noto Serif TC", serif';
+  ctx.fillStyle = GOLD;
+  ctx.shadowColor = 'rgba(248,223,165,0.4)'; ctx.shadowBlur = 20*S;
+  ctx.fillText(arch.name, W/2, y);
+  ctx.shadowBlur = 0;
+  y += 52*S;
+
+  // ── english ──
+  ctx.font = 'italic '+(16*S)+'px "Cormorant Garamond", Georgia, serif';
+  ctx.fillStyle = SILVER;
+  ctx.fillText(arch.en, W/2, y);
+  y += 36*S;
+
+  // ── symbol line ──
+  ctx.fillStyle = 'rgba(248,223,165,0.3)';
+  ctx.fillRect(PAD, y, CW, 1*S);
+  y += 14*S;
+  ctx.font = (14*S)+'px "Noto Serif TC", serif';
+  ctx.fillStyle = GOLD;
+  ctx.fillText('象徵：' + arch.symbol, W/2, y);
+  y += 22*S;
+  ctx.fillStyle = 'rgba(248,223,165,0.3)';
+  ctx.fillRect(PAD, y, CW, 1*S);
+  y += 36*S;
+
+  // ── core line box ──
+  ctx.textAlign = 'left';
+  ctx.font = 'bold '+(18*S)+'px "Noto Serif TC", serif';
+  var coreLines = wrap(ctx, arch.coreLine, CW - 52*S);
+  var coreLH = 34*S;
+  var coreH = coreLines.length * coreLH + 40*S;
+  // box background
+  rrect(ctx, PAD, y, CW, coreH, 12*S);
+  ctx.fillStyle = BG2; ctx.fill();
+  // left gold accent
+  ctx.fillStyle = GOLD; ctx.fillRect(PAD, y+10*S, 4*S, coreH-20*S);
+  // right purple accent
+  ctx.fillStyle = '#9b7bd4'; ctx.fillRect(PAD+CW-4*S, y+10*S, 4*S, coreH-20*S);
+  // text
+  ctx.fillStyle = WHITE;
+  ctx.textAlign = 'center';
+  drawLines(ctx, coreLines, W/2, y+20*S, coreLH);
+  y += coreH + 28*S;
+
+  // ── 4 analysis blocks ──
+  var blocks = [
+    {label:'直 覺 觀 察', text: arch.palmObservation},
+    {label:'深 層 解 讀', text: arch.palmInsight},
+    {label:'生 命 密 碼', text: arch.lifePathNote},
+    {label:'元 素 特 質', text: arch.elementNote}
+  ];
+  ctx.textAlign = 'left';
+  for(var bi=0; bi<blocks.length; bi++){
+    var b = blocks[bi];
+    ctx.font = (15*S)+'px "Noto Serif TC", serif';
+    var bLines = wrap(ctx, b.text, CW - 46*S);
+    var bLH = 30*S;
+    var bH = 28*S + bLines.length * bLH + 16*S;
+    // section bg
+    rrect(ctx, PAD, y, CW, bH, 10*S);
+    ctx.fillStyle = SEC; ctx.fill();
+    // left gold line
+    ctx.fillStyle = GOLD; ctx.fillRect(PAD, y+8*S, 4*S, bH-16*S);
+    // label
+    ctx.font = 'bold '+(11*S)+'px "Noto Serif TC", serif';
+    ctx.fillStyle = GOLD;
+    ctx.fillText(b.label, PAD+20*S, y+14*S);
+    // label underline
+    var lw = ctx.measureText(b.label).width;
+    ctx.fillStyle = 'rgba(248,223,165,0.2)';
+    ctx.fillRect(PAD+20*S+lw+8*S, y+20*S, CW-46*S-lw-8*S, 1*S);
+    // text
+    ctx.font = (15*S)+'px "Noto Serif TC", serif';
+    ctx.fillStyle = WHITE;
+    drawLines(ctx, bLines, PAD+20*S, y+34*S, bLH);
+    y += bH + 14*S;
+  }
+  y += 8*S;
+
+  // ── gift & shadow ──
+  var colW = (CW - 14*S) / 2;
+  var colPad = 16*S;
+  ctx.font = (14*S)+'px "Noto Serif TC", serif';
+  var gLines = wrap(ctx, arch.hiddenGift, colW - colPad*2);
+  var sLines = wrap(ctx, arch.shadowSide, colW - colPad*2);
+  var gsLH = 28*S;
+  var gH = 30*S + gLines.length * gsLH + colPad;
+  var sH = 30*S + sLines.length * gsLH + colPad;
+  var maxH = Math.max(gH, sH);
+  // gift box
+  rrect(ctx, PAD, y, colW, maxH, 10*S);
+  ctx.fillStyle = GIFT_BG; ctx.fill();
+  ctx.strokeStyle = 'rgba(248,223,165,0.35)'; ctx.lineWidth = 2*S; ctx.stroke();
+  // shadow box
+  rrect(ctx, PAD+colW+14*S, y, colW, maxH, 10*S);
+  ctx.fillStyle = SHAD_BG; ctx.fill();
+  ctx.strokeStyle = 'rgba(155,123,212,0.35)'; ctx.lineWidth = 2*S; ctx.stroke();
+  // gift label + text
+  ctx.font = 'bold '+(11*S)+'px "Noto Serif TC", serif';
+  ctx.fillStyle = GOLD;
+  ctx.fillText('隱 藏 天 賦', PAD+colPad, y+14*S);
+  ctx.font = (14*S)+'px "Noto Serif TC", serif';
+  ctx.fillStyle = WHITE;
+  drawLines(ctx, gLines, PAD+colPad, y+34*S, gsLH);
+  // shadow label + text
+  ctx.font = 'bold '+(11*S)+'px "Noto Serif TC", serif';
+  ctx.fillStyle = '#c8b8e8';
+  ctx.fillText('要 注 意 的 陷 阱', PAD+colW+14*S+colPad, y+14*S);
+  ctx.font = (14*S)+'px "Noto Serif TC", serif';
+  ctx.fillStyle = WHITE;
+  drawLines(ctx, sLines, PAD+colW+14*S+colPad, y+34*S, gsLH);
+  y += maxH + 20*S;
+
+  // ── ritual ──
+  ctx.font = (15*S)+'px "Noto Serif TC", serif';
+  var rLines = wrap(ctx, arch.ritual, CW - 40*S);
+  var rLH = 30*S;
+  var rH = 28*S + rLines.length * rLH + 16*S;
+  rrect(ctx, PAD, y, CW, rH, 10*S);
+  ctx.fillStyle = '#1a1030'; ctx.fill();
+  rrect(ctx, PAD, y, CW, rH, 10*S);
+  ctx.strokeStyle = 'rgba(248,223,165,0.2)'; ctx.lineWidth = 1.5*S; ctx.stroke();
+  ctx.font = 'bold '+(11*S)+'px "Noto Serif TC", serif';
+  ctx.fillStyle = SILVER;
+  ctx.fillText('適 合 你 的 小 儀 式', PAD+20*S, y+14*S);
+  ctx.font = (15*S)+'px "Noto Serif TC", serif';
+  ctx.fillStyle = GOLD;
+  drawLines(ctx, rLines, PAD+20*S, y+34*S, rLH);
+  y += rH + 20*S;
+
+  // ── oils ──
+  var oilH = 100*S;
+  rrect(ctx, PAD, y, CW, oilH, 12*S);
+  ctx.fillStyle = '#1a1030'; ctx.fill();
+  rrect(ctx, PAD, y, CW, oilH, 12*S);
+  ctx.strokeStyle = 'rgba(248,223,165,0.3)'; ctx.lineWidth = 2*S; ctx.stroke();
+  ctx.textAlign = 'center';
+  ctx.font = 'bold '+(11*S)+'px "Noto Serif TC", serif';
+  ctx.fillStyle = GOLD;
+  ctx.fillText('對 應 精 油', W/2, y+16*S);
+  // oil tags
+  var oTagY = y + 38*S;
+  var totalTagW = 0;
+  var tagPadX = 18*S, tagPadY = 8*S, tagGap = 10*S, tagR = 20*S;
+  ctx.font = 'bold '+(14*S)+'px "Noto Serif TC", serif';
+  var tagWidths = arch.oils.map(function(o){return ctx.measureText(o).width + tagPadX*2;});
+  totalTagW = tagWidths.reduce(function(a,b){return a+b;},0) + (arch.oils.length-1)*tagGap;
+  var tagX = (W - totalTagW) / 2;
+  for(var oi=0; oi<arch.oils.length; oi++){
+    var tw = tagWidths[oi], th = 14*S + tagPadY*2;
+    rrect(ctx, tagX, oTagY, tw, th, tagR);
+    ctx.fillStyle = OIL_BG; ctx.fill();
+    ctx.fillStyle = OIL_TXT;
+    ctx.textAlign = 'center';
+    ctx.fillText(arch.oils[oi], tagX+tw/2, oTagY+tagPadY);
+    tagX += tw + tagGap;
+  }
+  // oil note
+  ctx.font = (12*S)+'px "Noto Serif TC", serif';
+  ctx.fillStyle = SILVER;
+  ctx.textAlign = 'center';
+  ctx.fillText(arch.oilNote.substring(0,30)+'…', W/2, oTagY+40*S);
+  y += oilH + 28*S;
+
+  // ── watermark ──
+  ctx.font = (12*S)+'px "Cormorant Garamond", Georgia, serif';
+  ctx.fillStyle = 'rgba(200,188,220,0.45)';
+  ctx.textAlign = 'center';
+  ctx.fillText('馥靈之鑰 Hour Light® hourlightkey.com', W/2, y);
+  y += 50*S;
+
+  // ── trim & export ──
+  var finalH = y;
+  // redraw border on trimmed height
+  var fc = document.createElement('canvas');
+  fc.width = W; fc.height = finalH;
+  var fctx = fc.getContext('2d');
+  // re-draw background
+  var g2 = fctx.createLinearGradient(0,0,0,finalH);
+  g2.addColorStop(0, BG1); g2.addColorStop(0.4, '#231445'); g2.addColorStop(1, BG2);
+  fctx.fillStyle = g2; fctx.fillRect(0,0,W,finalH);
+  // copy content (without the excess background)
+  fctx.drawImage(c, 0, 0, W, finalH, 0, 0, W, finalH);
+  // redraw border on final canvas
+  rrect(fctx, 6*S, 6*S, W-12*S, finalH-12*S, 24*S);
+  fctx.strokeStyle = GOLD; fctx.lineWidth = 3*S; fctx.stroke();
+
+  var link = document.createElement('a');
+  link.download = '馥靈之鑰_女巫原力_' + arch.name + '.png';
+  link.href = fc.toDataURL('image/png');
+  link.click();
 });
+
 
 // ── 複製文字 ──
 document.getElementById('copyTextBtn').addEventListener('click', function() {
