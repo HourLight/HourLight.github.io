@@ -1603,7 +1603,7 @@ const _authTimeout = setTimeout(() => {
     ls.classList.add("hide");
     if (li) li.classList.remove("hide");
   }
-}, 8000);
+}, 5000);
 
 auth.onAuthStateChanged(user => {
   clearTimeout(_authTimeout);
@@ -1638,7 +1638,7 @@ async function doLogin() {
   try {
     await auth.signInWithEmailAndPassword(email, pw);
   } catch(e) {
-    err.textContent = (e.code==='auth/user-not-found'||e.code==='auth/invalid-credential')?'帳號或密碼錯誤，請確認後再試':e.code==='auth/wrong-password'?'密碼錯誤':e.code==='auth/too-many-requests'?'嘗試次數過多，請稍後再試':'登入失敗，請再試一次';
+    err.textContent = e.code==='auth/user-not-found'?'帳號不存在':e.code==='auth/wrong-password'?'密碼錯誤':'登入失敗，請再試一次';
   }
 }
 
@@ -1664,8 +1664,8 @@ async function doRegister() {
 }
 
 async function doGoogleLogin() {
-  const provider = new firebase.auth.GoogleAuthProvider();
   try {
+    const provider = new firebase.auth.GoogleAuthProvider();
     const cred = await auth.signInWithPopup(provider);
     const userRef = db.collection('users').doc(cred.user.uid);
     const snap = await userRef.get();
@@ -1676,38 +1676,8 @@ async function doGoogleLogin() {
         totalDraws:0, totalQuizzes:0, totalCalcs:0
       });
     }
-  } catch(e) {
-    console.warn('Google popup failed, trying redirect:', e.code);
-    // popup被擋（手機常見）→ 改用redirect
-    if (e.code==='auth/popup-blocked'||e.code==='auth/popup-cancelled-by-user'||e.code==='auth/cancelled-popup-request') {
-      try { await auth.signInWithRedirect(provider); }
-      catch(e2) { console.warn('Google redirect also failed:', e2); }
-    } else {
-      const li_err = document.getElementById('li-err');
-      if(li_err) li_err.textContent = 'Google 登入失敗，請使用 Email 登入';
-    }
-  }
+  } catch(e) { console.warn('Google login:', e); }
 }
-
-// 處理 redirect 回來的結果（延遲執行，避免干擾 onAuthStateChanged）
-setTimeout(function() {
-  if (typeof auth === 'undefined') return;
-  try {
-    auth.getRedirectResult().then(function(result) {
-      if (!result || !result.user) return;
-      var userRef = db.collection('users').doc(result.user.uid);
-      userRef.get().then(function(snap) {
-        if (!snap.exists) {
-          userRef.set({
-            displayName: result.user.displayName||'', email: result.user.email||'', role:'guest',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            totalDraws:0, totalQuizzes:0, totalCalcs:0
-          });
-        }
-      });
-    }).catch(function(e) { console.warn('getRedirectResult:', e); });
-  } catch(e) { console.warn('getRedirectResult init error:', e); }
-}, 3000);
 
 async function doForgotPassword() {
   const email = document.getElementById('li-email').value.trim();
@@ -3182,7 +3152,6 @@ document.addEventListener('HL_USER_READY',async e=>{
   loadHistoryForCalendar(uid);
 });
 </script>
-<script src="assets/js/hl-gate.js"></script>
 <script src="assets/js/hl-email.js"></script>
 <script src="assets/js/hl-chat.js"></script>
 </body>
