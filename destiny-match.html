@@ -174,6 +174,7 @@ a{color:var(--gd3);text-decoration:none}
     <option value="boss">📋 主管 / 下屬</option>
     <option value="biz">🤝 事業 / 合作夥伴</option>
     <option value="parent">👨‍👩‍👧 親子</option>
+    <option value="sibling">👫 兄弟姊妹</option>
     <option value="friend">✨ 朋友 / 同事</option>
     <option value="any">🔮 通用（全面分析）</option>
   </select>
@@ -932,7 +933,7 @@ var LR_WX_TG_CONST=['木','木','火','火','土','土','金','金','水','水']
 var LR_JIANG_NAME_CONST=['神后','大吉','功曹','太沖','天罡','太乙','勝光','小吉','傳送','從魁','河魁','登明'];
 var SULI_NAME_CONST={1:'太極',2:'兩儀',3:'三才',4:'四象',5:'五行',6:'六合',7:'七政',8:'八卦',9:'九星',10:'十全大吉',11:'破敗',12:'厄薄',13:'自立',14:'離祖',15:'福德',16:'德高',17:'剛強',18:'發展',19:'苦難',20:'空虛',21:'独立',22:'秋草',23:'成功',24:'立業',25:'英俊',26:'波瀾',27:'中吉',28:'曲折',29:'不平',30:'非業',31:'旺夫',32:'貴人',33:'昌泰',34:'破家',35:'太平',36:'榮祿',37:'興家',38:'文藝',39:'富貴',40:'退財',41:'大吉',42:'富貴',43:'散財',44:'破家',45:'大成',46:'榮達',47:'大吉',48:'旺家',49:'浮沉',50:'不定',51:'吉慶',52:'先苦後甘',53:'進取',54:'破財',55:'先苦',56:'波折',57:'半吉',58:'大吉',59:'破財',60:'動亂',61:'吉慶',62:'苦難',63:'吉慶',64:'散財',65:'吉慶',66:'衰退',67:'吉慶',68:'富榮',69:'苦難',70:'空虛',71:'吉慶',72:'苦難',73:'吉慶',74:'苦難',75:'旺盛',76:'苦難',77:'吉慶',78:'苦難',79:'苦難',80:'苦難',81:'太極還原'};
 
-var REL_NAMES={love:'感情伴侶',ambig:'曖昧關係',ex:'前任關係',inlaw_mw:'婆媳關係',inlaw_fi:'翁婿關係',boss:'主管下屬',biz:'事業合作',parent:'親子關係',friend:'朋友同事',any:'全面分析'};
+var REL_NAMES={love:'感情伴侶',ambig:'曖昧關係',ex:'前任關係',inlaw_mw:'婆媳關係',inlaw_fi:'翁婿關係',boss:'主管下屬',biz:'事業合作',parent:'親子關係',sibling:'兄弟姊妹',friend:'朋友同事',any:'全面分析'};
 var REL_FOCUS={
   love:'重點分析：天干合化（是否構成「合」）、日主五行互補、紫微夫妻宮交叉、H.O.U.R.情感模式互補、吸引力動態與長期磨合模式',
   ambig:'重點分析：天干地支是否構成吸引力格局（桃花、合局）、日主互動張力、為何會曖昧——是真心還是空白填補？這段關係值得往前走嗎？',
@@ -942,9 +943,209 @@ var REL_FOCUS={
   boss:'重點分析：日主五行生剋（誰主導、誰被帶動）、紫微事業宮＋官祿宮交叉、靈數決策風格磁合度、權力動態與溝通節奏',
   biz:'重點分析：日主五行生剋（合作能量流向）、紫微事業宮＋財帛宮交叉、靈數工作節奏配合度、決策風格互補或衝突',
   parent:'重點分析：日主五行親緣、紫微父母宮＋子女宮交叉、靈數代際張力、教養模式互補、情感表達落差',
+  sibling:'重點分析：比肩劫財手足星互動、紫微兄弟宮＋田宅宮交叉、靈數手足節奏、家族角色分工、資源分配與各自獨立',
   friend:'重點分析：日主五行互動、社交風格配對、價值觀一致性、能量場互補或消耗',
   any:'全面分析：天干地支合化沖刑、日主互動、紫微宮位交叉、數字配對、五行互補、能量場共鳴度'
 };
+
+// ═══ 關係感知合盤指令系統 v1.0 ═══
+// 10種關係 → 6大類，每套系統根據關係類型動態產出AI指令
+
+function relCat(r){
+  if(r==='love'||r==='ambig'||r==='ex') return 'romantic';
+  if(r==='parent') return 'parent';
+  if(r==='sibling') return 'sibling';
+  if(r==='inlaw_mw'||r==='inlaw_fi') return 'inlaw';
+  if(r==='boss'||r==='biz') return 'work';
+  if(r==='friend') return 'social';
+  return 'any';
+}
+
+var REL_LABEL={romantic:'感情',parent:'親子',sibling:'手足',inlaw:'姻親',work:'職場',social:'社交',any:'全面'};
+
+// ── 各系統的關係焦點宮位 & 解讀框架 ──
+
+var ZW_REL={
+  romantic:{
+    title:'紫微合盤深度解讀指令（飛化合盤法·感情版）',
+    focus:['壹、命格鑑定與感情格局','貳、四化飛星追蹤（祿權科忌飛入對方夫妻宮/命宮的意義）','叁、夫妻宮深度比對：甲方「感情藍圖」原型 vs 乙方「伴侶期待」','肆、夫妻宮宮干飛化落對方哪宮（感情能量投入對方的哪個領域）','伍、桃花與特殊格局：廉貞/天姚/紅鸞/天喜的交叉','陸、大限疊宮：雙方大限夫妻宮是否同步活化？','柒、感情關鍵三角：雙方命宮×夫妻宮×福德宮的能量圖'],
+    books:'▍StarQode《紫微合盤全解析》｜飛化互動結構化判斷\n▍大耕老師《紫微攻略3》｜對宮鏡像效應，關係投射心理\n▍周星飛《飛星紫微斗數，這樣學最快懂》｜宮干四化因果邏輯\n▍張凱元《紫微斗數之迷與悟》｜星曜本質現代詮釋'
+  },
+  parent:{
+    title:'紫微合盤深度解讀指令（飛化合盤法·親子版）',
+    focus:['壹、命格鑑定與親子能量型態','貳、四化飛星追蹤（祿權科忌飛入對方父母宮/子女宮的意義）','叁、父母宮＋子女宮深度比對：雙方對「親子角色」的天生設定','肆、飛化落對方哪宮（教養能量投注的領域 vs 孩子真正需要的領域）','伍、命宮主星對照：親子天生的互動風格——誰先退讓？誰先爆炸？','陸、福德宮交叉：內在精神世界的代際落差，壓力下的真實反應差異','柒、大限疊宮：孩子當前大限走到哪個本命宮？此階段最需要什麼？'],
+    books:'▍大耕老師《紫微攻略》系列｜星曜與人格原型\n▍張凱元《紫微斗數之迷與悟》｜宮位互動現代詮釋\n▍河洛《紫微斗數命理學》｜六親宮位系統，父母子女宮推演邏輯\n▍John Bradshaw《家庭會傷人》｜家族系統動力學（心理學參照）'
+  },
+  sibling:{
+    title:'紫微合盤深度解讀指令（飛化合盤法·兄弟姊妹版）',
+    focus:['壹、命格鑑定與手足能量型態','貳、四化飛星追蹤（祿權科忌飛入對方兄弟宮/命宮的意義）','叁、兄弟宮深度比對：雙方天生的手足角色定位——誰是領頭的？誰是跟隨的？','肆、田宅宮交叉：對「家」的定義和責任分配是否有共識','伍、財帛宮互動：資源/遺產/經濟支援的能量流向','陸、交友宮與遷移宮：各自的社交圈是否重疊？各自獨立後的距離感','柒、福德宮交叉：手足之間的精神連結深度——到底懂不懂彼此？'],
+    books:'▍大耕老師《紫微攻略3》｜對宮鏡像效應\n▍周星飛《飛星紫微斗數》｜兄弟宮飛化邏輯\n▍Murray Bowen《家庭系統理論》｜手足位置與家族角色（心理學參照）'
+  },
+  inlaw:{
+    title:'紫微合盤深度解讀指令（飛化合盤法·姻親版）',
+    focus:['壹、命格鑑定與世代能量差異','貳、四化飛星追蹤（祿權科忌飛入對方父母宮/田宅宮的意義）','叁、父母宮＋夫妻宮交叉：長輩對「媳婦/女婿角色」的期待 vs 實際','肆、田宅宮比對：對「家庭規矩」「生活習慣」的天生設定差異','伍、命宮主星風格：溝通模式的根本落差在哪裡？','陸、福德宮交叉：兩個世代的精神世界差距，壓力下的反應模式','柒、找到共處節奏：從飛化中找出雙方最容易產生共鳴的宮位'],
+    books:'▍周星飛《飛星紫微斗數》｜宮干飛化因果邏輯\n▍大耕老師《紫微攻略3》｜投射心理\n▍Harriet Lerner《The Dance of Anger》｜家族界線心理學（參照）'
+  },
+  work:{
+    title:'紫微合盤深度解讀指令（飛化合盤法·職場版）',
+    focus:['壹、命格鑑定與職場能量型態','貳、四化飛星追蹤（祿權科忌飛入對方事業宮/財帛宮的意義）','叁、事業宮＋官祿宮深度比對：雙方的職場角色定位與野心','肆、財帛宮互動：合作的利益結構——誰開源？誰守成？','伍、命宮主星風格：決策模式的根本差異——權力動態怎麼跑？','陸、遷移宮交叉：外在形象與公關能力的互補或衝突','柒、福德宮交叉：工作壓力下的真實反應——誰先崩？誰在撐？'],
+    books:'▍StarQode《紫微合盤全解析》｜飛化互動職場應用\n▍陳俊宏《靜觀天機》｜飛化量化分析\n▍Peter Drucker《管理的實踐》｜決策風格互補（參照）'
+  },
+  social:{
+    title:'紫微合盤深度解讀指令（飛化合盤法·社交版）',
+    focus:['壹、命格鑑定與社交能量型態','貳、四化飛星追蹤（祿權科忌飛入對方交友宮/遷移宮的意義）','叁、交友宮深度比對：雙方天生的社交角色——誰主動？誰回應？','肆、遷移宮互動：在外面的世界裡，你們是什麼樣的組合？','伍、命宮主星風格：價值觀一致性——能不能聊到一塊？','陸、福德宮交叉：精神世界的共鳴度——深夜能聊到天亮嗎？','柒、財帛宮交叉：對「花錢」和「投資」的態度差異'],
+    books:'▍大耕老師《紫微攻略3》｜社交鏡像效應\n▍周星飛《飛星紫微斗數》｜交友宮飛化'
+  },
+  any:{
+    title:'紫微合盤深度解讀指令（飛化合盤法·全面版）',
+    focus:['壹、命格鑑定','貳、四化飛星追蹤（祿權科忌各落對方何宮）','叁、三方四正交叉（命+財+官+遷）','肆、十二宮全面比對','伍、大限疊宮分析','陸、桃花與特殊格局交叉','柒、關係中最強共鳴點與最大張力點'],
+    books:'▍StarQode《紫微合盤全解析》\n▍周星飛《飛星紫微斗數》\n▍張凱元《紫微斗數之迷與悟》'
+  }
+};
+
+var BZ_REL={
+  romantic:{
+    title:'八字合盤深度解讀指令（感情版）',
+    focus:['壹、天干合化分析（是否構成天然化學反應）','貳、日主五行互動（甲方日主 vs 乙方日主的生剋制化）','叁、地支六合/三合/六沖/刑害（感情的吸引力與衝突源）','肆、桃花神煞交叉（咸池/紅艷/天喜/紅鸞落在彼此的哪裡）','伍、用神喜忌互補（對方是你的「喜神」還是「忌神」？）','陸、大運同步度（你們的運勢節奏是否合拍？）','柒、感情模式：日柱互動揭示的愛情原型'],
+    books:'▍梁湘潤《合婚實務》｜合婚判斷邏輯\n▍鍾義明《命理鑑定學》｜六親宮位交叉\n▍何建忠《八字心理學》｜十神心理原型\n▍張盛舒《閱人有術》｜日主互動心理語言'
+  },
+  parent:{
+    title:'八字合盤深度解讀指令（親子版）',
+    focus:['壹、年柱（父母世代）vs 日柱（子女本命）的五行生剋','貳、印星（母親能量）/ 偏財（父親能量）在子女命盤的作用','叁、食傷星（子女星）的狀態——順生還是被制？','肆、日主五行互動——教養風格的天生落差','伍、用神喜忌：父母是孩子的助力還是壓力？反過來呢？','陸、大運節奏：孩子叛逆期 vs 父母中年期的能量碰撞','柒、十神關係：父母在孩子眼中是正印（溫暖包容）還是七殺（高壓管教）？'],
+    books:'▍何建忠《八字心理學》｜十神親子心理投射\n▍梁湘潤《子平基礎概要》｜六親推演\n▍John Gottman《培養高EQ小孩》｜教養風格互動（心理學參照）'
+  },
+  sibling:{
+    title:'八字合盤深度解讀指令（兄弟姊妹版）',
+    focus:['壹、比肩/劫財（手足星）在雙方命盤的狀態','貳、月柱互動——同一個家庭環境下的不同反應','叁、日主五行生剋——手足之間天生的角色分工','肆、財星互動——資源分配與經濟觀念的差異','伍、年柱納音比較——相同家族背景下的不同人生底色','陸、十神關係：在對方眼中，你是什麼角色？','柒、大運同步：人生節奏是否有交叉點？'],
+    books:'▍何建忠《八字心理學》｜比劫星心理原型\n▍梁湘潤《子平基礎概要》｜六親推演\n▍Murray Bowen 家庭系統理論｜手足序位（參照）'
+  },
+  inlaw:{
+    title:'八字合盤深度解讀指令（姻親版）',
+    focus:['壹、日主五行互動——天生的合拍度或摩擦源','貳、年柱對照——兩個世代的價值觀底色','叁、官殺星（管制能量）在雙方命盤的作用——誰在「管」誰？','肆、印星互動——長輩的「好意」vs 晚輩的「窒息感」','伍、食傷星——表達方式的衝突（直接 vs 委婉）','陸、用神喜忌：彼此是助力還是消耗？','柒、如何用五行互補找到共處的節奏'],
+    books:'▍鍾義明《合婚實務》｜姻親關係判斷\n▍何建忠《八字心理學》｜十神心理\n▍Harriet Lerner《The Dance of Connection》｜界線心理（參照）'
+  },
+  work:{
+    title:'八字合盤深度解讀指令（職場版）',
+    focus:['壹、日主五行生剋——誰主導、誰被帶動、誰是資源','貳、官殺星互動——權力結構與服從度','叁、食傷星——才華展現與意見衝突','肆、財星互動——績效產出與利益分配','伍、印星——學習模式與指導關係','陸、用神喜忌互補——合作是加乘還是消耗？','柒、大運節奏對照——合作的黃金期和磨合期'],
+    books:'▍張盛舒《閱人有術》｜職場十神互動\n▍何建忠《八字心理學》｜決策風格分析\n▍梁湘潤《實務論命》｜格局與事業判斷'
+  },
+  social:{
+    title:'八字合盤深度解讀指令（社交版）',
+    focus:['壹、日主五行互動——天然的相處舒適度','貳、食傷星——社交場合中誰是焦點、誰是觀察者','叁、比肩劫財——是同頻共振還是搶奪資源？','肆、年柱互動——時代背景與價值觀共鳴度','伍、用神分析——這段友誼給你帶來什麼能量？','陸、地支刑沖合害——友誼中的隱性摩擦點'],
+    books:'▍何建忠《八字心理學》｜十神社交心理\n▍張盛舒《閱人有術》｜人際日主互動'
+  },
+  any:{
+    title:'八字合盤深度解讀指令（全面版）',
+    focus:['壹、天干合化分析','貳、日主五行生剋制化','叁、地支六合三合六沖刑害','肆、十神關係動態','伍、用神喜忌互補','陸、大運同步度','柒、納音五行配對'],
+    books:'▍梁湘潤《子平基礎概要》《合婚實務》\n▍何建忠《八字心理學》\n▍鍾義明《命理鑑定學》\n▍張盛舒《閱人有術》'
+  }
+};
+
+var AST_REL={
+  romantic:{
+    focus:['壹、金星×火星互動（吸引力化學）','貳、月亮×月亮（情感共鳴與安全感需求）','叁、第七宮（伴侶宮）主星與行星落入','肆、太陽×月亮相位（核心人格的融合度）','伍、土星相位（關係的承諾與壓力點）','陸、北交點互動（靈魂層次的緣分方向）'],
+    books:'▍韓良露《人際相位聖經》\n▍Liz Greene《Relating》｜合盤心理學\n▍Stephen Arroyo《Astrology, Karma and Transformation》'
+  },
+  parent:{
+    focus:['壹、月亮（母性/安全感）× 土星（父性/權威）交叉','貳、第四宮（家庭/根）與第十宮（權威/社會期待）','叁、IC-MC 軸的世代傳承','肆、太陽×月亮（父母在孩子心中的形象）','伍、冥王星相位（控制與轉化的代際課題）','陸、凱龍星（世代傷口的傳遞與覺察）'],
+    books:'▍Liz Greene《The Astrology of Fate》｜家族業力\n▍Howard Sasportas《The Twelve Houses》｜四宮十宮家庭動力'
+  },
+  sibling:{
+    focus:['壹、第三宮（手足/溝通）行星與主星互動','貳、水星相位（溝通模式差異）','叁、月亮互動（情感表達的落差）','肆、天王星相位（手足關係中的獨立與疏離）','伍、北交點（手足之間的靈魂功課）','陸、木星（手足之間的支持與過度期待）'],
+    books:'▍Howard Sasportas《The Twelve Houses》｜三宮手足動力\n▍韓良露《人際相位聖經》'
+  },
+  inlaw:{
+    focus:['壹、土星（長輩權威）× 對方個人行星','貳、第七宮（婚姻宮）× 第十宮（權威宮）交叉','叁、月亮互動（家庭習慣與情感需求的世代差異）','肆、冥王星相位（權力控制與界線議題）','伍、木星相位（恩惠、寬容、過度干涉）','陸、金星互動（審美觀與生活品味差異）'],
+    books:'▍Liz Greene《Relating》\n▍Howard Sasportas《The Twelve Houses》｜家庭宮位'
+  },
+  work:{
+    focus:['壹、第十宮（事業/地位）交叉','貳、第六宮（工作/日常）互動','叁、MC 中天相位（職業野心與社會形象）','肆、土星（責任/結構）× 火星（行動力/衝突）','伍、木星（擴張/機會）× 水星（溝通/決策）','陸、冥王星相位（權力鬥爭與組織轉化）'],
+    books:'▍韓良露《人際相位聖經》\n▍Sue Tompkins《Aspects in Astrology》｜職場相位'
+  },
+  social:{
+    focus:['壹、第十一宮（友誼/群體）行星互動','貳、第三宮（日常溝通）交叉','叁、金星互動（審美與社交風格）','肆、水星相位（思考模式與對話節奏）','伍、木星互動（價值觀與人生哲學的共鳴）','陸、天王星（這段友誼帶來的刺激與突破）'],
+    books:'▍韓良露《人際相位聖經》\n▍Stephen Arroyo《Chart Interpretation Handbook》'
+  },
+  any:{
+    focus:['壹、個人行星（日月水金火）交叉相位','貳、外行星（木土天海冥）結構性影響','叁、軸線比較（ASC-DSC、IC-MC）','肆、北交點與凱龍星的靈魂課題','伍、組合盤（Composite）綜合能量','陸、流年行運同步度'],
+    books:'▍韓良露《人際相位聖經》\n▍Liz Greene《Relating》\n▍Robert Hand《Planets in Composite》'
+  }
+};
+
+// ── 通用指令生成函數 ──
+function buildRelInstr(sysObj, cat, sysName){
+  var d = sysObj[cat] || sysObj.any;
+  var t = '\n【' + d.title + '】\n\n';
+  d.focus.forEach(function(f){ t += f + '\n'; });
+  t += '\n【參考書目·' + sysName + '合盤】\n' + d.books + '\n';
+  return t;
+}
+
+// ── 中低敏感度系統用的通用關係前導語 ──
+var REL_OPENER={
+  romantic:'以感情/伴侶關係的角度深度解讀：吸引力來源、相處模式、長期磨合建議',
+  parent:'以親子關係的角度深度解讀：教養互動模式、代際傳承、情感表達落差、彼此最需要的理解',
+  sibling:'以兄弟姊妹關係的角度深度解讀：手足角色分工、資源分配、家族責任、長大後的距離與連結',
+  inlaw:'以姻親關係的角度深度解讀：世代價值觀差異、界線與尊重、共處節奏、各退一步的具體方式',
+  work:'以職場關係的角度深度解讀：決策風格差異、權力動態、合作效率、溝通節奏建議',
+  social:'以朋友/社交關係的角度深度解讀：價值觀共鳴度、社交風格互補、友誼的深度與邊界',
+  any:'全面分析所有面向的互動關係'
+};
+
+// ── 整合指令的關係感知框架 ──
+var MEGA_FRAME={
+  romantic:{
+    zw:'甲化祿/化忌各飛入乙哪個宮位？夫妻宮主星互動？桃花星交叉？',
+    ast:'甲金星×乙火星吸引力、甲月亮×乙月亮情感共鳴、主要連結相位',
+    hour:'情感模式(H)互補？決策方式(O)差異？行動力(U)配合？成長方向(R)一致？',
+    verdict:'三大互補面向（最能互相加分的地方）\n► 三大衝突面向（最容易摩擦的議題，每個給出具體化解方式）\n► 感情續航指數：長期磨合的關鍵是什麼？',
+    closing:'感情裡最難的不是相愛，是看懂對方的出廠配置以後，還願意留下來。'
+  },
+  parent:{
+    zw:'甲化祿/化忌各飛入乙哪個宮位？父母宮×子女宮交叉？教養飛化落哪？',
+    ast:'甲月亮×乙月亮（安全感需求）、土星相位（管教壓力）、凱龍（代際傷口）',
+    hour:'教養模式(H)差異？價值觀(O)代溝？潛能期待(U)投射？成長方向(R)一致嗎？',
+    verdict:'三件孩子最需要從父母得到的東西\n► 三件父母最容易無意識投射的期待\n► 親子關係現階段最需要調整的一件事',
+    closing:'親子關係最深的功課不是教會他什麼，是允許他成為跟你想像不同的人。'
+  },
+  sibling:{
+    zw:'甲化祿/化忌各飛入乙哪個宮位？兄弟宮互動？田宅宮（家的責任）交叉？',
+    ast:'甲水星×乙水星（溝通模式）、月亮互動（情感表達差異）、三宮交叉',
+    hour:'手足角色(H)差異？責任認知(O)落差？各自發展(U)空間？家族使命(R)分工？',
+    verdict:'手足之間最強的共鳴點\n► 最容易產生摩擦的議題\n► 長大之後維持連結的最好方式',
+    closing:'手足是你沒有選擇的隊友。不用什麼都一起，但在關鍵時刻知道彼此在就好。'
+  },
+  inlaw:{
+    zw:'甲化祿/化忌各飛入乙哪個宮位？父母宮×田宅宮交叉？生活習慣飛化？',
+    ast:'土星（長輩權威）×對方個人行星、月亮互動（家庭習慣差異）、冥王星（控制議題）',
+    hour:'生活節奏(H)差異？價值觀(O)代溝？界線(U)設定？家族和諧(R)的優先級？',
+    verdict:'姻親之間最容易踩的三個雷區\n► 三個可以建立善意連結的切入點\n► 「各退一步」的具體操作建議',
+    closing:'姻親關係的智慧不是讓對方變成你想要的樣子，是找到你們都能呼吸的距離。'
+  },
+  work:{
+    zw:'甲化祿/化忌各飛入乙哪個宮位？事業宮×財帛宮交叉？決策風格飛化？',
+    ast:'MC交叉、土星×火星（責任與行動）、木星×水星（擴張與溝通）',
+    hour:'決策模式(H)差異？效率(O)配合？執行力(U)互補？目標(R)一致？',
+    verdict:'合作中最能互相加分的三個面向\n► 最容易產生摩擦的三個工作場景\n► 提升合作效率的三個具體建議',
+    closing:'最好的合作不是找一個跟你一樣的人，是找一個補你短板而且你補得了他的人。'
+  },
+  social:{
+    zw:'甲化祿/化忌各飛入乙哪個宮位？交友宮×遷移宮交叉？社交風格飛化？',
+    ast:'金星互動（審美與社交）、水星相位（對話節奏）、木星（價值觀共鳴）',
+    hour:'社交風格(H)互補？興趣(O)重疊？成長(U)帶動？人生觀(R)共鳴？',
+    verdict:'友誼中最珍貴的三個共鳴點\n► 可能導致漸行漸遠的三個因素\n► 維持友誼品質的三個建議',
+    closing:'好的朋友不是永遠在身邊的人，是很久沒見面但一開口就接上的人。'
+  },
+  any:{
+    zw:'甲化祿/化忌各飛入乙哪個宮位？十二宮全面交叉？',
+    ast:'個人行星交叉相位、外行星結構性影響、組合盤綜合能量',
+    hour:'H.O.U.R.四柱全面比對：每一柱的互補與張力',
+    verdict:'三大互補面向\n► 三大衝突面向與化解方式\n► 具體行動建議：現在可以做的3件事',
+    closing:'合盤不是判斷「合不合適」，是讓你看見：你們各自站在什麼座標。'
+  }
+};
+
+
 
 
 // ═══ ⑰~㉓ 七套新系統 calc 函數（同步自 destiny-engine.html v32）═══
@@ -2269,40 +2470,14 @@ function renderMatch(a,b){
     return t;
   }
   var bzA=bazi_ai(a,nameA),bzB=bazi_ai(b,nameB);
-  var bzCombined=bzA+'\n'+bzB+'\n\n【八字合盤深度解讀指令】\n'
-  +'甲日主'+a.ec.getDayGan()+'('+a.dayWx+') × 乙日主'+b.ec.getDayGan()+'('+b.dayWx+')\n\n'
-  +'壹、天干合化判斷\n'
-  +'・甲乙雙方天干是否構成「五合」：甲己合（土）乙庚合（金）丙辛合（水）丁壬合（木）戊癸合（火）\n'
-  +'・合化後的五行對各自命盤是喜神還是忌神？合而不化的條件與影響\n'
-  +'・天干相沖（甲庚、乙辛、丙壬、丁癸）：衝突在哪個宮柱（年=觀念/月=工作/日=感情/時=未來）？\n\n'
-  +'貳、地支合沖刑害\n'
-  +'・六合/三合/三會：有無化氣？引動對方哪個宮位？\n'
-  +'・六沖：衝的是感情（日支）、財（財帛宮）還是事業（月支）？\n'
-  +'・三刑（寅巳申無恩刑/丑戌未持勢刑/子卯無禮刑）：刑的宮位透露什麼互動模式？\n'
-  +'・六害（子未/丑午/寅巳/卯辰/申亥/酉戌）：隱性的能量消耗在哪裡？\n\n'
-  +'叁、日主五行生剋（關係能量流向）\n'
-  +'・甲日主('+a.dayWx+') × 乙日主('+b.dayWx+')\n'
-  +'・相生=自然滋養（長期可能形成依賴）；相剋=無意識壓制（需要有意識管理）；比和=同頻但可能競爭\n'
-  +'・「旺夫/旺妻」邏輯：日主弱+對方帶比劫/印星=天然補強，反之可能消耗\n'
-  +'・財官印交叉：甲方財星 vs 乙方比劫的感情vs金錢能量衝突\n\n'
-  +'肆、用神喜忌互補\n'
-  +'・甲方用神五行？乙方日主是甲方的喜神還是忌神？\n'
-  +'・乙方用神五行？甲方日主是乙方的喜神還是忌神？\n'
-  +'・最佳情境：雙方互為彼此的用神喜神。天然旺夫/旺妻格局\n\n'
-  +'伍、大運流年同步\n'
-  +'・甲當前大運：'+( a.dyArr[0]||'未知')+'；乙當前大運：'+( b.dyArr[0]||'未知')+'\n'
-  +'・兩人能量節奏差距幾年？是否同步走入好運/逆境期？\n'
-  +'・2026丙午流年：丙火對兩人日主各自的意義與衝擊\n\n'
-  +'【參考書目·八字合盤】\n'
-  +'▍梁湘潤《子平基礎概要》《實務論命》｜用神喜忌判斷、格局鑑定標準版本\n'
-  +'▍何建忠《八字心理學》｜日主五行互動的心理學解讀，十神對應人格原型\n'
-  +'▍鍾義明《命理鑑定學》《合婚實務》｜六親宮位交叉、合婚判斷實務\n'
-  +'▍《三命通會》（明·萬民英）｜六合六沖六刑原始斷訣，傳統案例庫\n'
-  +'▍張盛舒《閱人有術》造命系列｜十神對接大五人格/MBTI，日主互動的現代心理語言\n';
-  var h0=mkDual(nameA,bazi_html(a),nameB,bazi_html(b));
-  var preIdA='bz_ai_a',preIdB='bz_ai_b',preIdC='bz_ai_c';
-  h0+=mkPre(preIdA,bzA);h0+=mkPre(preIdB,bzB);
-  h0+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="'+preIdC+'">'+escHtml(bzCombined)+'</pre></div>';
+  var _bzCat=relCat(rel);
+  var _bzR=BZ_REL[_bzCat]||BZ_REL.any;
+  var bzCombined=bzA+'\n'+bzB+'\n\n【'+_bzR.title+'】\n';
+  bzCombined+='甲日主：'+a.ec.getDayGan()+'('+a.dayWx+') × 乙日主：'+b.ec.getDayGan()+'('+b.dayWx+')\n\n';
+  _bzR.focus.forEach(function(f){bzCombined+=f+'\n';});
+  bzCombined+='\n【🔴 用神不是絕對好壞，是你選擇站哪個位置看世界】\n\n';
+  bzCombined+='【參考書目】\n'+_bzR.books+'\n';
+    h0+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="'+preIdC+'">'+escHtml(bzCombined)+'</pre></div>';
   h0+=mkCpBtn('📋 複製甲方','',  'function(b){copyText("'+preIdA+'",b)}');
   h0+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("'+preIdB+'",b)}');
   h0+=mkCpBtn('📋 複製合盤指令','combined','function(b){copyText("'+preIdC+'",b)}');
@@ -2343,43 +2518,14 @@ function renderMatch(a,b){
     return t;
   }
   var zwA=zw_ai(a,nameA),zwB=zw_ai(b,nameB);
-  var zwC=zwA+'\n'+zwB+'\n\n【紫微合盤深度解讀指令（飛化合盤法）】\n'
-    +'甲命宮：'+DZ[a.zw.ming]+'　乙命宮：'+DZ[b.zw.ming]+'\n\n'
-    +'壹、生年四化飛化合盤（最核心）\n'
-    +'・甲方化祿（'+a.zw.sh4.祿+'）飛入乙方哪宮→旺財宮=養乙方財/旺感情宮=助感情/旺事業宮=事業夥伴\n'
-    +'・甲方化忌（'+a.zw.sh4.忌+'）飛入乙方哪宮→入命宮=無意識壓制/入福德宮=精神壓力/入財帛宮=影響財務\n'
-    +'・乙方化祿（'+b.zw.sh4.祿+'）飛入甲方哪宮→同上，反向分析\n'
-    +'・乙方化忌（'+b.zw.sh4.忌+'）飛入甲方哪宮\n'
-    +'・「互飛化祿」=兩人最強共鳴點；「互飛化忌」=關係的主要張力與學習功課\n\n'
-    +'貳、夫妻宮深度比對\n'
-    +'・甲夫妻宮主星：甲方的「感情藍圖」原型，天生在感情中扮演什麼角色？\n'
-    +'・乙夫妻宮主星：乙方的「伴侶期待」\n'
-    +'・甲方夫妻宮宮干飛化落乙方哪宮（感情能量投入乙方的哪個領域）\n'
-    +'・乙方夫妻宮宮干飛化落甲方哪宮\n'
-    +'・雙方夫妻宮形成「拱照」（互補）還是「相衝」（衝突）？\n\n'
-    +'叁、命宮三方四正交叉\n'
-    +'・甲方化祿是否落入乙方三方四正（命/財/官/遷）？→最強合作信號\n'
-    +'・甲方化忌是否沖對乙方關鍵宮位？\n'
-    +'・感情關鍵三角：雙方命宮×夫妻宮×福德宮的三角能量圖\n\n'
-    +'肆、大限疊宮分析\n'
-    +'・甲當前大限走'+DZ[a.zw.ming]+'宮（'+( a.dyArr[0]||'?')+'）\n'
-    +'・乙當前大限走'+DZ[b.zw.ming]+'宮（'+( b.dyArr[0]||'?')+'）\n'
-    +'・2026流年命宮各落哪個本命宮位（疊宮效應）？\n'
-    +'・雙方大限夫妻宮是否同步活化？能量節奏差幾年？\n\n'
-    +'伍、桃花與特殊格局\n'
-    +'・雙方桃花星（廉貞/天姚/紅鸞/天喜）的交叉\n'
-    +'・是否形成「日月同宮」「紫府朝垣」等強力合盤格局？\n'
-    +'・化科的知音加持：甲方化科落乙方哪宮（互相欣賞的點）\n\n'
-    +'【參考書目·紫微合盤】\n'
-    +'▍StarQode《紫微合盤全解析：用命盤找出最佳人生夥伴》｜飛化互動結構化判斷，完整詮釋框架\n'
-    +'▍大耕老師《紫微攻略3：星曜我們與真實自己的距離》｜對宮鏡像效應，關係中的投射心理\n'
-    +'▍周星飛《飛星紫微斗數，這樣學最快懂》｜宮干四化因果飛化邏輯，最清晰的現代白話版\n'
-    +'▍陳俊宏《靜觀天機：紫微斗數現代量化分析》｜飛化互動量化，AI判盤架構\n'
-    +'▍張凱元《紫微斗數之迷與悟》｜星曜本質與宮位互動的現代詮釋，打破宿命論\n';
-  var h1=mkDual(nameA,zw_html(a),nameB,zw_html(b));
-  h1+=mkPre('zw_a',zwA);h1+=mkPre('zw_b',zwB);
-  h1+='<div style="margin:0 0 14px;padding:10px 14px;border-radius:10px;background:rgba(233,194,125,.06);border:1px solid rgba(233,194,125,.18);font-size:.8rem;color:rgba(249,240,229,.65);line-height:1.6;">  ⚠️ 紫微排盤因流派不同，安星位置可能有差異。本站採用 iztro 開源算法為計算標準，若發現與您熟悉的版本不符，可依個人習慣的流派調整參照。如遇嚴重錯誤，歡迎回報：<a href="mailto:info@hourlightkey.com" style="color:rgba(233,194,125,.75);text-decoration:none;">info@hourlightkey.com</a></div>';
-  h1+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="zw_c">'+escHtml(zwC)+'</pre></div>';
+  var _zwCat=relCat(rel);
+  var _zwR=ZW_REL[_zwCat]||ZW_REL.any;
+  var zwC=zwA+'\n'+zwB+'\n\n【'+_zwR.title+'】\n';
+  zwC+='甲命宮：'+DZ[a.zw.ming]+'　乙命宮：'+DZ[b.zw.ming]+'\n\n';
+  _zwR.focus.forEach(function(f){zwC+=f+'\n';});
+  zwC+='\n【🔴 煞星不是壞事，化忌不是災難，它們是升級的入口】\n\n';
+  zwC+='【參考書目】\n'+_zwR.books+'\n';
+    h1+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="zw_c">'+escHtml(zwC)+'</pre></div>';
   h1+=mkCpBtn('📋 複製甲方','','function(b){copyText("zw_a",b)}');
   h1+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("zw_b",b)}');
   h1+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("zw_c",b)}');
@@ -2426,44 +2572,12 @@ function renderMatch(a,b){
     return t;
   }
   var astA=ast_ai(a,nameA),astB=ast_ai(b,nameB);
-  var astC=astA+'\n'+astB+'\n\n【西洋占星合盤深度解讀指令（Synastry + Composite）】\n\n'
-    +'壹、比對盤 Synastry。行星對行星\n'
-    +'・甲太陽 vs 乙太陽：意識目標是否朝同一方向？同元素=同頻，互補=動態加分\n'
-    +'・甲月亮 vs 乙月亮：情緒底色共鳴。同元素=天然安慰彼此，相剋=容易「不懂對方為什麼這樣」\n'
-    +'・甲金星 vs 乙火星：吸引力化學。合相/六分/三分=天然吸引；四分/對分=強烈但有張力\n'
-    +'・甲火星 vs 乙金星：反向吸引力，兩組金火相位是否互相呼應？\n'
-    +'・甲土星落乙個人行星：土星的規範效應。合相月亮=情緒被管控，合相金星=愛被限制\n'
-    +'・甲冥王落乙個人行星：深度轉化主題。合相太陽=改變對方自我認同，合相月亮=情緒掌控議題\n\n'
-    +'貳、宮位交叉（行星落對方哪宮）\n'
-    +'・甲太陽落乙哪宮→第7宮=看見對方整體/第4宮=家庭滋養/第10宮=支持事業/第8宮=深度轉化\n'
-    +'・甲月亮落乙哪宮→第4宮=最溫暖的家/第8宮=深度情感/第12宮=內在深層連結\n'
-    +'・甲金星落乙哪宮→第1宮=被欣賞/第5宮=創造力玩樂/第7宮=夫妻默契/第2宮=價值觀共鳴\n'
-    +'・甲土星落乙哪宮→這段關係在哪個領域帶來壓力也帶來成熟\n\n'
-    +'叁、主要相位深度詮釋\n'
-    +'・合相(☌)：能量融合，最強連結，但界線可能模糊\n'
-    +'・對分相(☍)：強烈相吸需要整合，最容易在關係中「投射」自己不認識的面向到對方身上\n'
-    +'・三分相(△)：天然流動和諧，但可能太安逸缺乏成長動力\n'
-    +'・四分相(□)：最有成長動力的張力，也最容易爆發衝突。轉化後變成最強支柱\n'
-    +'・每個相位必須給出：這個相位在感情/事業/日常的具體場景是什麼樣子？\n\n'
-    +'肆、組合盤 Composite。「這段關係本身」的星盤\n'
-    +'・組合盤太陽在哪宮？→這段關係的共同使命在哪個領域\n'
-    +'・組合盤月亮在哪宮？→這段關係最需要什麼才能感到安全\n'
-    +'・組合盤金星 vs 火星相位：關係中的愛與慾望是否流暢\n'
-    +'・組合盤土星/冥王的相位：關係的核心功課與轉化主題\n\n'
-    +'伍、關係型態識別\n'
-    +'・內在共鳴型（北交點連結）：甲北交點 vs 乙個人行星\n'
-    +'・業力連結型（土星/冥王連結）：需共同完成的深層功課\n'
-    +'・天雷勾地火型（金火連結）：激情但需要管理\n'
-    +'・成長搭檔型（木星連結）：互相擴展視野與機會\n\n'
-    +'【參考書目·占星合盤】\n'
-    +'▍韓良露《人際相位聖經：占星合盤的個人緣、社會緣與宿命緣》｜十大行星合盤互動詳解，最完整中文合盤教材\n'
-    +'▍Liz Greene《Relating: An Astrological Guide to Living with Others》，占星合盤心理學聖經，投射與陰影\n'
-    +'▍Sue Tompkins《Aspects in Astrology》，相位情結必讀，各相位的心理學場景拆解\n'
-    +'▍Robert Hand《Planets in Composite》，組合盤聖經，關係本身的命盤如何閱讀\n'
-    +'▍Stephen Arroyo《Astrology, Karma and Transformation》，業力占星，關係中的靈魂功課\n';
-  var h2=mkDual(nameA,ast_html(a),nameB,ast_html(b));
-  h2+=mkPre('ast_a',astA);h2+=mkPre('ast_b',astB);
-  h2+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="ast_c">'+escHtml(astC)+'</pre></div>';
+  var _astCat=relCat(rel);
+  var _astR=AST_REL[_astCat]||AST_REL.any;
+  var astC=astA+'\n'+astB+'\n\n【西洋占星合盤深度解讀指令（'+REL_LABEL[_astCat]+'版）】\n\n';
+  _astR.focus.forEach(function(f){astC+=f+'\n';});
+  astC+='\n【參考書目】\n'+_astR.books+'\n';
+    h2+='<div class="ai-box"><h4>📜 合盤AI指令</h4><pre id="ast_c">'+escHtml(astC)+'</pre></div>';
   h2+=mkCpBtn('📋 複製甲方','','function(b){copyText("ast_a",b)}');
   h2+=mkCpBtn('📋 複製乙方','teal','function(b){copyText("ast_b",b)}');
   h2+=mkCpBtn('📋 複製合盤','combined','function(b){copyText("ast_c",b)}');
@@ -2504,7 +2618,9 @@ function renderMatch(a,b){
     return t;
   }
   var hdA=hd_ai(a,nameA),hdB=hd_ai(b,nameB);
+  var _rc=relCat(rel);
   var hdC=hdA+'\n'+hdB+'\n\n【人類圖合盤深度解讀指令（Connection Chart）】\n'
+  hdC+='\n【關係視角：'+REL_OPENER[_rc]+'】\n\n';
     +'甲類型：'+((a.hd&&a.hd.type)||'?')+' 乙類型：'+((b.hd&&b.hd.type)||'?')+'\n\n'
     +'壹、類型能量場互動\n'
     +'・顯示者×生產者：生產者回應顯示者行動，顯示者需主動「告知」，否則生產者感到被忽視\n'
@@ -2570,6 +2686,7 @@ function renderMatch(a,b){
     return t;
   }
   var qzA=qz_ai(a,nameA),qzB=qz_ai(b,nameB);
+  var _rc=relCat(rel);
   var qzC=qzA+'\n'+qzB+'\n\n【七政四餘合盤深度解讀指令】\n\n'
     +'壹、命主星合盤。恩用仇難體系\n'
     +'・甲方命度主（日命主）× 乙方命度主的五行生剋關係\n'
@@ -2593,6 +2710,7 @@ function renderMatch(a,b){
     +'・哪個年份兩人的行限同時走到有利宿度（共同的好運窗口）？\n'
     +'・2026年流年七政入宮對兩人關係的交叉影響\n\n'
     +'【參考書目·七政四餘合盤】\n'
+  qzC+='\n【關係視角：'+REL_OPENER[_rc]+'】\n\n';
     +'▍唐代張果《果老星宗》｜恩用仇難生剋體系聖經，化曜十星完整推算\n'
     +'▍秦瑞生老師《古典占星學》｜七政四餘與西方行星尊貴力量完美對接\n'
     +'▍Chris Brennan《希臘古典占星學》，法達星限法（Firdaria）與行限的跨文化對照\n'
@@ -2635,7 +2753,9 @@ function renderMatch(a,b){
     return t;
   }
   var myA=maya_ai(a,nameA),myB=maya_ai(b,nameB);
+  var _rc=relCat(rel);
   var myC=myA+'\n'+myB+'\n\n【瑪雅曆合盤深度解讀指令（Dreamspell Oracle）】\n'
+  myC+='\n【關係視角：'+REL_OPENER[_rc]+'】\n\n';
     +'甲KIN'+a.my.kin+'('+a.my.sealN+') × 乙KIN'+b.my.kin+'('+b.my.sealN+')\n'
     +'合盤KIN（兩人KIN之和mod 260）：'+((a.my.kin+b.my.kin)%260||260)+'\n\n'
     +'壹、主印記配對分析\n'
@@ -2713,7 +2833,9 @@ function renderMatch(a,b){
     return t;
   }
   var nmA=num_ai(a,nameA),nmB=num_ai(b,nameB);
+  var _rc=relCat(rel);
   var nmC=nmA+'\n'+nmB+'\n\n【生命靈數合盤深度解讀指令】\n'
+  nmC+='\n【關係視角：'+REL_OPENER[_rc]+'】\n\n';
     +'甲生命數：'+a.nm.life+(a.nm.life>=11?' ✦大師':'')+'（'+(NUM_GIFT[a.nm.life]||'')+')\n'
     +'乙生命數：'+b.nm.life+(b.nm.life>=11?' ✦大師':'')+'（'+(NUM_GIFT[b.nm.life]||'')+')\n\n'
     +'壹、生命數深度配對\n'
@@ -2788,7 +2910,9 @@ function renderMatch(a,b){
     return t;
   }
   var flA=fl_ai(a,nameA),flB=fl_ai(b,nameB);
+  var _rc=relCat(rel);
   var flC=flA+'\n'+flB+'\n\n【馥靈秘碼 H.O.U.R.×L.I.G.H.T. 合盤深度解讀指令】\n'
+  flC+='\n【關係視角：'+REL_OPENER[_rc]+'】\n\n';
     +'▍核心參考依據：王逸君《藏在農曆生日裡的秘碼》ISBN 978-626-01-5769-2\n\n'
     +'甲：H='+a.fl.H.H+' O='+a.fl.H.O+' U='+a.fl.H.U+' R='+a.fl.H.R+'\n'
     +'乙：H='+b.fl.H.H+' O='+b.fl.H.O+' U='+b.fl.H.U+' R='+b.fl.H.R+'\n\n'
@@ -2867,7 +2991,9 @@ function renderMatch(a,b){
     return t;
   }
   var triA=tri_ai(a,nameA),triB=tri_ai(b,nameB);
+  var _rc=relCat(rel);
   var triC=triA+'\n'+triB+'\n\n【生命數字三角形合盤深度解讀指令】\n'
+  triC+='\n【關係視角：'+REL_OPENER[_rc]+'】\n\n';
     +'甲O（主性格）='+a.tri.O+'（'+getWuxing(a.tri.O)+'）乙O='+b.tri.O+'（'+getWuxing(b.tri.O)+'）\n\n'
     +'壹、主性格（O值）五行生剋。關係能量的核心動態\n'
     +'・甲O('+a.tri.O+'/'+getWuxing(a.tri.O)+') × 乙O('+b.tri.O+'/'+getWuxing(b.tri.O)+')\n'
@@ -2944,6 +3070,7 @@ function renderMatch(a,b){
     return t;
   }
   var lrA=lr_ai(a,nameA),lrB=lr_ai(b,nameB);
+  var _rc=relCat(rel);
   var lrC=lrA+'\n'+lrB+'\n\n【大六壬合盤深度解讀指令】\n\n'
     +'壹、日干上神的力量對比\n'
     +'・甲日干上神：'+a.lr.lessons[0].t+'（'+LR_WX_CONST[DZ.indexOf(a.lr.lessons[0].t)]+'）乙日干上神：'+b.lr.lessons[0].t+'（'+LR_WX_CONST[DZ.indexOf(b.lr.lessons[0].t)]+'）\n'
@@ -2964,6 +3091,7 @@ function renderMatch(a,b){
     +'・四課整體：甲方能量（一二課）vs 乙方能量（三四課）的合盤版本。誰主動誰配合？\n'
     +'・與八字合盤互相驗證：六壬上神的五行生剋是否呼應八字日主的能量流向？\n\n'
     +'【參考書目·大六壬合盤】\n'
+  lrC+='\n【關係視角：'+REL_OPENER[_rc]+'】\n\n';
     +'▍陳公獻《大六壬指南》｜四課三傳判斷邏輯的標準出處，人際六壬的完整應用\n'
     +'▍徐養浩《六壬大全》｜體系最完整的六壬百科，九宗門三傳取法的權威依據\n'
     +'▍邵彥和《六壬斷案》｜實戰案例集，六壬在感情/合作關係中的判斷過程\n'
@@ -3006,7 +3134,9 @@ function renderMatch(a,b){
     return t;
   }
   var nskA=nsk_ai(a,nameA),nskB=nsk_ai(b,nameB);
+  var _rc=relCat(rel);
   var nskC=nskA+'\n'+nskB+'\n\n【九星氣學合盤深度解讀指令】\n'
+  nskC+='\n【關係視角：'+REL_OPENER[_rc]+'】\n\n';
     +'甲年星：'+(NSK[a.nsk.ys]&&NSK[a.nsk.ys].n||'?')+'　乙年星：'+(NSK[b.nsk.ys]&&NSK[b.nsk.ys].n||'?')+'\n\n'
     +'壹、三星完整配對分析\n'
     +'・年星（本命/外在）配對：甲'+( NSK[a.nsk.ys]&&NSK[a.nsk.ys].n||'?')+' × 乙'+( NSK[b.nsk.ys]&&NSK[b.nsk.ys].n||'?')+'，這是別人看到的兩人互動\n'
@@ -3074,7 +3204,9 @@ function renderMatch(a,b){
     return t;
   }
   var clrA=clr_ai(a,nameA),clrB=clr_ai(b,nameB);
+  var _rc=relCat(rel);
   var clrC=clrA+'\n'+clrB+'\n\n【生日色彩合盤深度解讀指令】\n'
+  clrC+='\n【關係視角：'+REL_OPENER[_rc]+'】\n\n';
     +'甲生命色：'+( a.clr&&a.clr.mc&&a.clr.mc.n||'?')+'（'+a.clr.ln+'）　乙生命色：'+( b.clr&&b.clr.mc&&b.clr.mc.n||'?')+'（'+b.clr.ln+'）\n\n'
     +'壹、生命色配對。色彩語言的相容性\n'
     +'・甲'+( a.clr&&a.clr.mc&&a.clr.mc.n||'?')+'（'+a.clr.ln+'）× 乙'+( b.clr&&b.clr.mc&&b.clr.mc.n||'?')+'（'+b.clr.ln+'）\n'
@@ -3136,6 +3268,7 @@ function renderMatch(a,b){
     return t;
   }
   var clxA=cl_ai(a,nameA),clxB=cl_ai(b,nameB);
+  var _rc=relCat(rel);
   var clxC=clxA+'\n'+clxB+'\n\n【凱龍星與黑月莉莉絲合盤深度解讀指令】\n\n'
     +'壹、凱龍星合盤。傷口的共鳴與修復\n'
     +'・甲凱龍星座：'+((a.cl&&a.cl.ch&&a.cl.ch.sign)||'需星曆')+'　乙凱龍星座：'+((b.cl&&b.cl.ch&&b.cl.ch.sign)||'需星曆')+'\n'
@@ -3162,6 +3295,7 @@ function renderMatch(a,b){
     +'・凱龍回歸期間，這段關係對當事人的轉化意義\n'
     +'・「先覺察自己的傷，才能不讓傷繼續傷害彼此」。給出具體的日常覺察練習\n\n'
     +'【參考書目·凱龍莉莉絲合盤】\n'
+  clxC+='\n【關係視角：'+REL_OPENER[_rc]+'】\n\n';
     +'▍Melanie Reinhart《Chiron and the Healing Journey》，凱龍解讀聖經，12星座×12宮位完整分析，凱龍回歸的轉化準備\n'
     +'▍Barbara Hand Clow《Chiron: Rainbow Bridge》，凱龍作為內外行星橋樑，個人傷痛與集體覺醒的連結\n'
     +'▍Demetra George《Mysteries of the Dark Moon》，黑月莉莉絲的神話學、天文學與心理學完整解析\n'
@@ -3202,6 +3336,7 @@ function renderMatch(a,b){
     return t;
   }
   var vedA=ved_ai(a,nameA),vedB=ved_ai(b,nameB);
+  var _rc=relCat(rel);
   var vedC=vedA+'\n'+vedB+'\n\n【吠陀占星合盤深度解讀指令（Jyotish Synastry）】\n\n'
     +'壹、月亮 Nakshatra 傳統婚配\n'
     +'・甲月亮Nakshatra：'+((a.ved&&a.ved.ps.length>1)?a.ved.ps[1].nn:'需星曆')+'（主星：'+((a.ved&&a.ved.ps.length>1)?a.ved.ps[1].nl:'?')+'）\n'
@@ -3227,6 +3362,7 @@ function renderMatch(a,b){
     +'・甲的Navamsa月亮×乙的Navamsa月亮：深層次的連結深度\n'
     +'・Pushkara Navamsa：雙方是否有任何行星落在此吉祥分盤位置？\n\n'
     +'【參考書目·吠陀合盤】\n'
+  vedC+='\n【關係視角：'+REL_OPENER[_rc]+'】\n\n';
     +'▍K.N. Rao《Planets and Education》，印度國寶占星師，吠陀合盤的傳統婚配八因子詳解\n'
     +'▍Dennis Harness《The Nakshatras》，27星宿完整解讀，星宿動物配對與婚配應用\n'
     +'▍Komilla Sutton《The Nakshatras: The Stars Beyond the Zodiac》，月亮星宿的心理學原型，合盤應用\n'
@@ -3275,6 +3411,7 @@ function renderMatch(a,b){
     return t;
   }
   var ngA=ng_ai(a,nameA),ngB=ng_ai(b,nameB);
+  var _rc=relCat(rel);
   var ngC=ngA+'\n'+ngB+'\n\n【姓名覺察解碼合盤深度解讀指令】\n\n'
     +'壹、人格數五行互動（核心）\n'
     +(a.ng?('・甲人格：'+a.ng.ren.v+'（'+a.ng.ren.wx+'·'+a.ng.ren.lk+'）'):'・甲方未輸入姓名')+'\n'
@@ -3301,6 +3438,7 @@ function renderMatch(a,b){
     +'・乙人格五行（'+b.ng.ren.wx+'）最擅長：'+( b.ng.ren.wx=='木'?'開創、成長、文藝': b.ng.ren.wx=='火'?'表達、激勵、建立能見度': b.ng.ren.wx=='土'?'穩定、服務、長期經營': b.ng.ren.wx=='金'?'決斷、精準、紀律執行':'適應、溝通、人際潤滑')+'\n'
     +'・合作分工建議：誰擅長開創、誰擅長執行、誰擅長維繫？\n'):'・輸入姓名後分析\n')
     +'\n【參考書目·姓名合盤】\n'
+  ngC+='\n【關係視角：'+REL_OPENER[_rc]+'】\n\n';
     +'▍熊崎健翁《姓名之研究》｜五格剖象法鼻祖，81數理吉利順逆原始出處\n'
     +'▍梁湘潤《納音姓名學》｜聲音節奏（宮商角徵羽）對神經系統與人際氣場的影響\n'
     +'▍白惠文《姓名學入門》｜康熙筆畫查詢標準、三才配置吉利順逆表，台灣最普及教材\n'
@@ -3344,6 +3482,7 @@ function renderMatch(a,b){
     return t;
   }
   var kbA=kb_ai(a,nameA),kbB=kb_ai(b,nameB);
+  var _rc=relCat(rel);
   var kbC=kbA+'\n'+kbB+'\n\n【卡巴拉生命之樹合盤深度解讀指令】\n\n'
     +'壹、生命路徑數配對（核心質點）\n'
     +(a.kb&&b.kb?('・甲生命路徑：'+a.kb.lp+'（'+(KB_SEPH[kbNTS(a.kb.lp)]||'')+'）乙生命路徑：'+b.kb.lp+'（'+(KB_SEPH[kbNTS(b.kb.lp)]||'')+'）\n'):('・請輸入雙方英文名以計算\n'))
@@ -3370,6 +3509,7 @@ function renderMatch(a,b){
     +'・兩張大牌在生命之樹上的路徑關係：共振（相鄰路徑）還是對立（對面路徑）？\n'
     +'・「對立路徑」不是衝突，是互補。兩人的深層課題剛好是彼此的影子面\n\n'
     +'【參考書目·卡巴拉合盤】\n'
+  kbC+='\n【關係視角：'+REL_OPENER[_rc]+'】\n\n';
     +'▍Dion Fortune《The Mystical Qabalah》，現代西方卡巴拉入門聖典，十質點與四界心理學解讀\n'
     +'▍Israel Regardie《A Garden of Pomegranates》，Golden Dawn體系，22路徑與塔羅完整對應\n'
     +'▍Faith Javane & Dusty Bunker《Numerology and the Divine Triangle》，數字+塔羅+占星三角交叉，卡巴拉數值進階應用\n'
@@ -3693,6 +3833,7 @@ function renderMatch(a,b){
   // ═══ ⑰ 宿曜合盤 ═══
   var xiuA=xiu_ai(a,nameA),xiuB=xiu_ai(b,nameB);
   var xiuC='【宿曜合盤·'+nameA+'×'+nameB+'】\n'+xiuA+xiuB;
+  xiuC+='\n【關係視角：'+REL_OPENER[relCat(rel)]+'】\n';
   xiuC+='\n【合盤分析】\n甲'+((a.xiuyao&&a.xiuyao.name)||'?')+'宿 × 乙'+((b.xiuyao&&b.xiuyao.name)||'?')+'宿\n';
   xiuC+='兩人宿曜的安壞成危關係？宮位（青龍/白虎/朱雀/玄武）能量互補還是衝突？\n';
   var hG1=mkDual(nameA,xiu_html(a),nameB,xiu_html(b));
@@ -3706,6 +3847,7 @@ function renderMatch(a,b){
   // ═══ ⑱ 梅花合盤 ═══
   var meiA=mei_ai(a,nameA),meiB=mei_ai(b,nameB);
   var meiC='【梅花易數合盤·'+nameA+'×'+nameB+'】\n'+meiA+meiB;
+  meiC+='\n【關係視角：'+REL_OPENER[relCat(rel)]+'】\n';
   meiC+='\n【合盤分析】\n甲終身卦「'+((a.meihua&&a.meihua.hexName)||'?')+'」× 乙終身卦「'+((b.meihua&&b.meihua.hexName)||'?')+'」\n';
   meiC+='兩人卦象的五行生剋？體用關係是否互補？動爻的方向是否指向對方？\n';
   var hG2=mkDual(nameA,mei_html(a),nameB,mei_html(b));
@@ -3720,6 +3862,7 @@ function renderMatch(a,b){
   var gkA=gk_ai(a,nameA),gkB=gk_ai(b,nameB);
   var gkC='【基因天命合盤·'+nameA+'×'+nameB+'】\n'+gkA+gkB;
   gkC+='\n【基因天命合盤深度解讀指令】\n\n';
+  gkC+='【關係視角：'+REL_OPENER[relCat(rel)]+'】\n\n';
   gkC+='壹、陰影/天賦互補分析\n';
   gkC+='・甲的陰影是否恰好是乙的天賦？這代表乙能幫甲轉化什麼？\n';
   gkC+='・反之亦然——甲能幫乙轉化什麼？\n';
@@ -3743,6 +3886,7 @@ function renderMatch(a,b){
   var rbA=rb_ai(a,nameA),rbB=rb_ai(b,nameB);
   var rbC='【彩虹數字合盤·'+nameA+'×'+nameB+'】\n'+rbA+rbB;
   rbC+='\n【彩虹數字合盤深度解讀指令】\n\n';
+  rbC+='【關係視角：'+REL_OPENER[relCat(rel)]+'】\n\n';
   rbC+='壹、數字互補分析\n';
   rbC+='・甲缺少的數字，乙是否擁有？這代表乙能補足甲什麼能力？\n';
   rbC+='・反之亦然\n';
@@ -3770,6 +3914,7 @@ function renderMatch(a,b){
   var pkA=poker_ai(a,nameA),pkB=poker_ai(b,nameB);
   var pkC='【撲克牌合盤·'+nameA+'×'+nameB+'】\n'+pkA+pkB;
   pkC+='\n【撲克牌合盤深度解讀指令】\n\n';
+  pkC+='【關係視角：'+REL_OPENER[relCat(rel)]+'】\n\n';
   pkC+='壹、花色元素互動\n';
   pkC+='・甲花色（'+((a.cardology&&a.cardology.suitName)||'?')+'）× 乙花色（'+((b.cardology&&b.cardology.suitName)||'?')+'）\n';
   pkC+='・同花色=同頻共振但可能放大缺點；不同花色=互補但溝通方式不同\n';
@@ -3792,6 +3937,7 @@ function renderMatch(a,b){
   // ═══ ㉒ 居爾特樹曆合盤 ═══
   var trA=tree_ai(a,nameA),trB=tree_ai(b,nameB);
   var trC='【居爾特樹曆合盤·'+nameA+'×'+nameB+'】\n'+trA+trB;
+  trC+='\n【關係視角：'+REL_OPENER[relCat(rel)]+'】\n';
   trC+='\n【居爾特樹曆合盤深度解讀指令】\n\n';
   trC+='壹、兩棵樹的自然生態\n';
   trC+='・甲'+((a.celtic&&a.celtic.name)||'?')+' × 乙'+((b.celtic&&b.celtic.name)||'?')+'在自然界中是否共生？\n';
@@ -3818,6 +3964,7 @@ function renderMatch(a,b){
   var tbxA=tb_ai(a,nameA),tbxB=tb_ai(b,nameB);
   var tbxC='【鐵板神數合盤·'+nameA+'×'+nameB+'】\n'+tbxA+tbxB;
   tbxC+='\n【鐵板神數合盤深度解讀指令】\n\n';
+  tbxC+='【關係視角：'+REL_OPENER[relCat(rel)]+'】\n\n';
   tbxC+='壹、天干合化分析\n';
   tbxC+='・甲日主'+((a.tieban&&a.tieban.dayStem)||'?')+' × 乙日主'+((b.tieban&&b.tieban.dayStem)||'?')+'是否構成天干五合？\n';
   tbxC+='・甲己合土/乙庚合金/丙辛合水/丁壬合木/戊癸合火\n';
@@ -3871,16 +4018,16 @@ function renderMatch(a,b){
   mega+='天干是否構成合化？地支六合/三合/六沖/刑害？用神喜忌是否互補？\n\n';
   mega+='貳、紫微合盤\n';
   mega+='甲命宮'+DZ[a.zw.ming]+' × 乙命宮'+DZ[b.zw.ming]+'\n';
-  mega+='甲化祿/化忌各飛入乙哪個宮位？夫妻宮主星互動？\n\n';
+  mega+=MEGA_FRAME[relCat(rel)].zw+'\n\n';
   mega+='叁、占星合盤 (Synastry)\n';
-  mega+='甲金星×乙火星吸引力、甲月亮×乙月亮情感共鳴、主要連結相位\n\n';
+  mega+=MEGA_FRAME[relCat(rel)].ast+'\n\n';
   mega+='肆、人類圖合盤\n';
   mega+='甲類型：'+((a.hd&&a.hd.type)||'?')+' 乙類型：'+((b.hd&&b.hd.type)||'?')+'\n';
   mega+='電磁通道？能量場互動？開放中心影響？\n\n';
   mega+='伍、H.O.U.R. 四柱深度配對\n';
   mega+='甲 H='+a.fl.H.H+' O='+a.fl.H.O+' U='+a.fl.H.U+' R='+a.fl.H.R+'\n';
   mega+='乙 H='+b.fl.H.H+' O='+b.fl.H.O+' U='+b.fl.H.U+' R='+b.fl.H.R+'\n';
-  mega+='情感模式(H)互補？決策方式(O)差異？行動力(U)配合？成長方向(R)一致？\n\n';
+  mega+=MEGA_FRAME[relCat(rel)].hour+'\n\n';
   mega+='陸、靈數配對\n甲生命數'+a.nm.life+' × 乙生命數'+b.nm.life+'\n節奏是否同步？九宮格共振/互補？\n\n';
   mega+='柒、瑪雅合盤\n甲KIN'+a.my.kin+'('+a.my.sealN+') × 乙KIN'+b.my.kin+'('+b.my.sealN+')\n兩人KIN之和：'+((a.my.kin+b.my.kin)%260||260)+'\n互為支持/挑戰/隱藏？\n\n';
   mega+='捌、九星氣學合盤\n甲年星：'+(NSK[a.nsk.ys]&&NSK[a.nsk.ys].n||'?')+' 乙年星：'+(NSK[b.nsk.ys]&&NSK[b.nsk.ys].n||'?')+'\n東西命兼容度？居住方位建議？\n\n';
@@ -3898,10 +4045,7 @@ function renderMatch(a,b){
   mega+='共同空間擴香組合建議：根據兩人五行互補/相生原則設計\n';
   mega+='兩人一起時最適合的香氣氛圍？各自獨處充電時的精油選擇？\n\n';
   mega+='拾肆、整體關係評估（必答）\n';
-  mega+='► 三大互補面向（從24大系統中找出最強共鳴的3個點）\n';
-  mega+='► 三大衝突面向（最容易摩擦的議題，每個給出具體化解方式）\n';
-  mega+='► 關係型態識別：這是深度共鳴/成長搭檔/業力連結/天雷勾地火/穩定守護中的哪一型？\n';
-  mega+='► 這段關係最需要的3個日常溝通習慣調整\n';
+  mega+=MEGA_FRAME[relCat(rel)].verdict+'\n';
   mega+='► 具體行動建議：現在可以做的3件事（每件事1-2句話）\n\n';
 
   mega+='\n拾伍、宿曜合盤\n';
@@ -3937,6 +4081,7 @@ function renderMatch(a,b){
   var tyxA=renderTaiYi(a,nameA),tyxB=renderTaiYi(b,nameB);
   var tyx24='【太乙神數合盤・'+nameA+'×'+nameB+'】\n'+tyxA+'\n'+tyxB;
   tyx24+='\n【合盤解讀指令】\n兩人本命太乙的五行是否相生？計神課題是否互補？流年太乙是否同頻？\n主客算格局對這段關係有何啟示？請從天時格局分析契合度和今年共同能量主題。';
+  tyx24+='\n【關係視角：'+REL_OPENER[relCat(rel)]+'】\n';
   mega+='貳貳、太乙神數合盤\n'+tyx24+'\n\n';
 
 
@@ -4000,7 +4145,7 @@ function renderMatch(a,b){
   mega+='合盤不是判斷「合不合適」，是讓你看見：你們各自站在什麼座標。\n';
   mega+='站得近不一定好，站得遠不一定壞。\n';
   mega+='重要的是，你們願不願意朝對方的方向，多走幾步。\n';
-  mega+='感情裡最難的不是相愛，是看懂對方的出廠配置以後，還願意留下來。\n';
+  mega+=MEGA_FRAME[relCat(rel)].closing+'\n';
 
   var hMega='<h3 style="font-family:var(--serif);color:var(--gd);letter-spacing:.1em;margin-bottom:16px;text-align:center">🔮 整合合盤 AI 指令</h3>';
   hMega+='<p style="font-size:.82rem;color:var(--inkm);text-align:center;margin-bottom:16px">複製下方完整指令，貼入 Claude 或 ChatGPT 即可獲得二十四大系統深度合盤解讀。</p>';
