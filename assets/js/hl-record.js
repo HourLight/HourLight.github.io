@@ -16,16 +16,14 @@
   function rec(type, title, detail) {
     if (recorded) return;
     try {
-      // 等 HLMember 和 auth.currentUser 都就緒
       var retries = 0;
       var tryWrite = function() {
         try {
-          // 還沒有 HLMember → 等
-          if (!window.HLMember) {
+          // 等 firebase 就緒
+          if (typeof firebase === 'undefined' || !firebase.apps || !firebase.apps.length) {
             if (++retries < 15) setTimeout(tryWrite, 1000);
             return;
           }
-          // 檢查 auth.currentUser（直接用 firebase.auth()）
           var user = null;
           try { user = firebase.auth().currentUser; } catch(e) {}
           if (!user) {
@@ -34,7 +32,7 @@
           }
           // 用戶已確認，寫入！
           recorded = true;
-          var db = window.HLMember.db;
+          var db = (window.HLMember && window.HLMember.db) ? window.HLMember.db : firebase.firestore();
           if (!db) return;
           db.collection('users/' + user.uid + '/history').add({
             type: type,
@@ -44,13 +42,11 @@
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             tags: [type, page.replace('.html','')]
           }).then(function(){
-            // 更新計數
             var field = type === 'draw' ? 'totalDraws' : type === 'calculator' ? 'totalCalcs' : 'totalQuizzes';
             var upd = {};
             upd[field] = firebase.firestore.FieldValue.increment(1);
             db.doc('users/' + user.uid).set(upd, { merge: true });
           }).catch(function(){});
-          // 5 秒後允許再次記錄
           setTimeout(function(){ recorded = false; }, 5000);
         } catch(e) { recorded = false; }
       };
@@ -265,7 +261,26 @@
     'quantum-numerology.html': '量子靈數',
     'maslow-frequency.html': '生命覺察指數',
     'master.html': '馥靈秘碼進階',
-    'aroma-daily.html': '今日精油處方箋'
+    'aroma-daily.html': '今日精油處方箋',
+    'cardology.html': '撲克牌命理',
+    'meihua-yishu.html': '梅花易數',
+    'xiuyao.html': '宿曜占星',
+    'gene-keys.html': '基因天命',
+    'rainbow-number.html': '彩虹數字',
+    'celtic-tree.html': '居爾特樹曆',
+    'tieban.html': '鐵板神數',
+    'taiyi.html': '太乙神數',
+    'nine-star-ki.html': '九星氣學',
+    'liuren.html': '大六壬',
+    'color-energy.html': '生日色彩',
+    'chiron-lilith.html': '凱龍莉莉絲',
+    'vedic-jyotish.html': '吠陀占星',
+    'kabbalah.html': '卡巴拉生命之樹',
+    'name-oracle.html': '姓名解碼',
+    'phone-oracle.html': '手機號碼解碼',
+    'qimen-dunjia.html': '奇門遁甲',
+    'fuling-fuyu.html': '馥靈馥語易經',
+    'destiny-match.html': '合盤配對引擎'
   };
 
   var CALC_PAGES = Object.keys(CALC_NAMES);
@@ -287,13 +302,14 @@
       } catch(e){}
     }, 1000);
 
-    // 策略2：觀察 display:block 切換（scent/quantum/maslow）
+    // 策略2：觀察 display:block 切換（scent/quantum/maslow + 新頁面resultArea）
     var displayCheck = setInterval(function(){
       try {
         var els = [
           document.getElementById('resultSection'),
           document.getElementById('resultContent'),
-          document.getElementById('resultCard')
+          document.getElementById('resultCard'),
+          document.getElementById('resultArea')
         ];
         for (var i = 0; i < els.length; i++) {
           if (els[i] && els[i].offsetHeight > 0 && els[i].style.display !== 'none') {
