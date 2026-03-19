@@ -117,11 +117,15 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .btn-upd{padding:10px 20px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:8px;font-family:var(--body);font-size:.92rem;color:#2d1a00;cursor:pointer;transition:opacity .2s}
 .btn-upd:hover{opacity:.88}
 .pwdmsg{font-size:.9rem;margin-top:8px;color:var(--mid)}
-.danger-zone{margin-top:16px;padding:18px;background:rgba(192,80,80,.03);border:1px solid rgba(192,80,80,.12);border-radius:14px}
-.dz-title{font-size:.9rem;color:rgba(192,80,80,.7);margin-bottom:8px;letter-spacing:.05em}
-.dz-desc{font-size:.95rem;color:var(--mid);margin-bottom:12px;line-height:1.7}
-.btn-del-acct{padding:9px 18px;background:transparent;border:1px solid rgba(192,80,80,.25);border-radius:8px;font-family:var(--body);font-size:.9rem;color:rgba(192,80,80,.7);cursor:pointer;transition:all .2s}
-.btn-del-acct:hover{border-color:rgba(192,80,80,.6);color:#c05050}
+.danger-zone{margin-top:48px;padding:0;border:none}
+.dz-toggle{font-size:.65rem;color:rgba(128,128,128,.2);cursor:pointer;text-align:right;padding:8px 0;user-select:none;transition:color .3s}
+.dz-toggle:hover{color:rgba(128,128,128,.35)}
+.dz-inner{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.dz-inner.show{max-height:200px}
+.dz-title{font-size:.7rem;color:rgba(128,128,128,.25);margin-bottom:6px}
+.dz-desc{font-size:.68rem;color:rgba(128,128,128,.2);margin-bottom:8px;line-height:1.6}
+.btn-del-acct{padding:5px 12px;background:transparent;border:1px solid rgba(128,128,128,.1);border-radius:6px;font-family:var(--body);font-size:.65rem;color:rgba(128,128,128,.2);cursor:pointer;transition:all .3s}
+.btn-del-acct:hover{border-color:rgba(192,80,80,.25);color:rgba(192,80,80,.4)}
 
 /* ===== QUICK LINKS ===== */
 .qlinks{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
@@ -258,9 +262,12 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
     </div>
 
     <div class="danger-zone">
-      <div class="dz-title">⚠️ 危險區域</div>
-      <div class="dz-desc">刪除帳號後，所有足跡和筆記記錄將永久消失，<br>無法恢復。請謹慎操作。</div>
-      <button class="btn-del-acct" onclick="confirmDel()">刪除我的帳號</button>
+      <div class="dz-toggle" onclick="this.nextElementSibling.classList.toggle('show')">帳號管理</div>
+      <div class="dz-inner">
+        <div class="dz-title">帳號移除</div>
+        <div class="dz-desc">移除後所有記錄將永久消失且無法恢復</div>
+        <button class="btn-del-acct" onclick="confirmDel()">移除帳號</button>
+      </div>
     </div>
   </div>
 
@@ -271,6 +278,7 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
 <script src="assets/js/hl-gate.js"></script>
+<script src="assets/js/hl-record.js"></script>
 <script>
 let auth,db,_uid,_lastDoc=null;
 
@@ -423,10 +431,13 @@ async function changePwd(){
 }
 
 function confirmDel(){
-  if(!confirm('⚠️ 確定要刪除帳號嗎？\n\n所有足跡和筆記將永久消失，無法恢復。'))return;
+  if(!confirm('確定要移除帳號嗎？所有記錄將永久消失。'))return;
+  var check=prompt('請輸入「確認移除」四個字來確認：');
+  if(check!=='確認移除'){alert('輸入不符，取消操作。');return;}
+  if(!confirm('最後確認：這個動作無法復原，確定要繼續嗎？'))return;
   const u=auth.currentUser;
   u.delete().then(()=>{location.href='index.html';}).catch(e=>{
-    if(e.code==='auth/requires-recent-login')alert('請先重新登入再刪除帳號');
+    if(e.code==='auth/requires-recent-login')alert('請先重新登入再操作');
     else alert(e.message);
   });
 }
@@ -441,5 +452,6 @@ function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt
 <script src="assets/js/hl-bottomnav.js"></script>
 <script src="assets/js/hl-email.js"></script>
 <script src="assets/js/hl-chat.js"></script>
+<script src="assets/js/hl-aroma-fx.js" defer></script>
 </body>
 </html>
