@@ -360,13 +360,34 @@ function calcHumanDesign(planets,Y,M,D,H,min){
     });
     (hasChannel?defC:undefC).push(HD_CENTER_NAMES[c]);
   }
-  // 類型判斷
+  // 類型判斷（v2：BFS連通性檢查）
+  var _cg={};for(var _cc in HD_CENTERS)_cg[_cc]=[];
+  channels.forEach(function(ch){
+    var ps=ch.gates.split('-').map(Number);var inv=[];
+    for(var _cc in HD_CENTERS){var found=false;ps.forEach(function(g){if(HD_CENTERS[_cc].indexOf(g)>=0)found=true});if(found&&inv.indexOf(_cc)<0)inv.push(_cc)}
+    for(var ii=0;ii<inv.length;ii++)for(var jj=ii+1;jj<inv.length;jj++){
+      if(_cg[inv[ii]].indexOf(inv[jj])<0)_cg[inv[ii]].push(inv[jj]);
+      if(_cg[inv[jj]].indexOf(inv[ii])<0)_cg[inv[jj]].push(inv[ii]);
+    }
+  });
+  function _m2t(){
+    var MM=['薦骨','情緒','意志力','根部'];
+    for(var mi=0;mi<MM.length;mi++){
+      if(defC.indexOf(MM[mi])<0)continue;
+      // 反查key
+      var startKey='';for(var _k in HD_CENTER_NAMES)if(HD_CENTER_NAMES[_k]===MM[mi])startKey=_k;
+      if(!startKey)continue;
+      var vis={},q=[startKey];vis[startKey]=true;
+      while(q.length>0){var cur=q.shift();if(cur==='throat')return true;(_cg[cur]||[]).forEach(function(nb){if(!vis[nb]){vis[nb]=true;q.push(nb)}})}
+    }
+    return false;
+  }
   var type='投射者',strategy='等待邀請',authority='',nst='苦澀';
-  var hasSacral=defC.indexOf('薦骨')>=0,hasMotor=defC.indexOf('薦骨')>=0||defC.indexOf('情緒')>=0||defC.indexOf('根部')>=0||defC.indexOf('意志力')>=0;
-  var hasThroat=defC.indexOf('喉嚨')>=0;
-  if(hasSacral&&hasThroat){type='顯示生產者';strategy='等待回應（聽肚子），然後告知';nst='挫敗/憤怒'}
+  var hasSacral=defC.indexOf('薦骨')>=0;
+  var _hasM2T=_m2t();
+  if(hasSacral&&_hasM2T){type='顯示生產者';strategy='等待回應（聽肚子），然後告知';nst='挫敗/憤怒'}
   else if(hasSacral){type='生產者';strategy='等待回應（不主動發起，等事情來找你，用肚子回答）';nst='挫敗'}
-  else if(!hasSacral&&hasMotor&&hasThroat){type='顯示者';strategy='告知';nst='憤怒'}
+  else if(!hasSacral&&_hasM2T){type='顯示者';strategy='告知';nst='憤怒'}
   else if(defC.length<=1){type='反映者';strategy='等待月循環';nst='失望'}
   // 內在權威
   if(defC.indexOf('情緒')>=0)authority='情緒權威';

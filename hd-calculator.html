@@ -383,14 +383,33 @@ function calcHumanDesign(planets,dPlanets){
   var defNames=defC.map(function(c){return HD_CENTER_NAMES[c];});
   var undefNames=undefC.map(function(c){return HD_CENTER_NAMES[c];});
 
-  // Type
-  var type='投射者',strategy='等待邀請',nst='苦澀';
+  // Type（v2：BFS連通性檢查）
+  var centerGraph2={};
+  for(var cc in HD_CENTERS)centerGraph2[cc]=[];
+  channels.forEach(function(ch){
+    var ps=ch.gates.split('-').map(Number);
+    var inv=[];
+    for(var cc in HD_CENTERS){var found=false;ps.forEach(function(g){if(HD_CENTERS[cc].indexOf(g)>=0)found=true});if(found&&inv.indexOf(cc)<0)inv.push(cc)}
+    for(var ii=0;ii<inv.length;ii++)for(var jj=ii+1;jj<inv.length;jj++){
+      if(centerGraph2[inv[ii]].indexOf(inv[jj])<0)centerGraph2[inv[ii]].push(inv[jj]);
+      if(centerGraph2[inv[jj]].indexOf(inv[ii])<0)centerGraph2[inv[jj]].push(inv[ii]);
+    }
+  });
+  function m2t(){
+    var MM=['sacral','solar','ego','root'];
+    for(var mi=0;mi<MM.length;mi++){
+      if(defC.indexOf(MM[mi])<0)continue;
+      var vis={},q=[MM[mi]];vis[MM[mi]]=true;
+      while(q.length>0){var cur=q.shift();if(cur==='throat')return true;(centerGraph2[cur]||[]).forEach(function(nb){if(!vis[nb]){vis[nb]=true;q.push(nb)}})}
+    }
+    return false;
+  }
   var hasSacral=defC.indexOf('sacral')>=0;
-  var hasMotor=defC.indexOf('sacral')>=0||defC.indexOf('solar')>=0||defC.indexOf('root')>=0||defC.indexOf('ego')>=0;
-  var hasThroat=defC.indexOf('throat')>=0;
-  if(hasSacral&&hasThroat){type='顯示生產者';strategy='等待回應（等外界丟是非題給你，聽肚子的第一反應），然後告知後行動';nst='挫敗・憤怒';}
+  var hasM2T=m2t();
+  var type='投射者',strategy='等待邀請',nst='苦澀';
+  if(hasSacral&&hasM2T){type='顯示生產者';strategy='等待回應（等外界丟是非題給你，聽肚子的第一反應），然後告知後行動';nst='挫敗・憤怒';}
   else if(hasSacral){type='生產者';strategy='等待回應（不要主動發起，等事情來找你，用肚子回答）';nst='挫敗';}
-  else if(!hasSacral&&hasMotor&&hasThroat){type='顯示者';strategy='行動前告知';nst='憤怒';}
+  else if(!hasSacral&&hasM2T){type='顯示者';strategy='行動前告知';nst='憤怒';}
   else if(defC.length<=1){type='反映者';strategy='等待月循環（28天）';nst='失望';}
 
   // Authority

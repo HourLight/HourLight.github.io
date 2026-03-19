@@ -1512,13 +1512,45 @@ function calcHumanDesign(planets,Y,M,D,H,min){
     });
     (hasChannel?defC:undefC).push(HD_CENTER_NAMES[c]);
   }
-  // 類型判斷
+  // 類型判斷（v2：連通性檢查修正）
+  // 建立中心連通圖（BFS判定動力→喉嚨是否有路徑）
+  var centerGraph={};
+  for(var cc in HD_CENTERS)centerGraph[cc]=[];
+  channels.forEach(function(ch){
+    var ps=ch.gates.split('-').map(Number);
+    var involved=[];
+    for(var cc in HD_CENTERS){
+      var found=false;
+      ps.forEach(function(g){if(HD_CENTERS[cc].indexOf(g)>=0)found=true});
+      if(found&&involved.indexOf(cc)<0)involved.push(cc);
+    }
+    for(var ii=0;ii<involved.length;ii++){
+      for(var jj=ii+1;jj<involved.length;jj++){
+        if(centerGraph[involved[ii]].indexOf(involved[jj])<0)centerGraph[involved[ii]].push(involved[jj]);
+        if(centerGraph[involved[jj]].indexOf(involved[ii])<0)centerGraph[involved[jj]].push(involved[ii]);
+      }
+    }
+  });
+  function motorToThroatBFS(){
+    var MOTORS=['sacral','solar','ego','root'];
+    for(var mi=0;mi<MOTORS.length;mi++){
+      var mc=MOTORS[mi];
+      if(defC.indexOf(HD_CENTER_NAMES[mc])<0)continue;
+      var visited={},queue=[mc];visited[mc]=true;
+      while(queue.length>0){
+        var cur=queue.shift();
+        if(cur==='throat')return true;
+        (centerGraph[cur]||[]).forEach(function(nb){if(!visited[nb]){visited[nb]=true;queue.push(nb)}});
+      }
+    }
+    return false;
+  }
+  var hasSacral=defC.indexOf('薦骨')>=0;
+  var hasMotorToThroat=motorToThroatBFS();
   var type='投射者',strategy='等待邀請',authority='',nst='苦澀';
-  var hasSacral=defC.indexOf('薦骨')>=0,hasMotor=defC.indexOf('薦骨')>=0||defC.indexOf('情緒')>=0||defC.indexOf('根部')>=0||defC.indexOf('意志力')>=0;
-  var hasThroat=defC.indexOf('喉嚨')>=0;
-  if(hasSacral&&hasThroat){type='顯示生產者';strategy='等待回應（聽肚子），然後告知';nst='挫敗/憤怒'}
+  if(hasSacral&&hasMotorToThroat){type='顯示生產者';strategy='等待回應（聽肚子），然後告知';nst='挫敗/憤怒'}
   else if(hasSacral){type='生產者';strategy='等待回應（不主動發起，等事情來找你，用肚子回答）';nst='挫敗'}
-  else if(!hasSacral&&hasMotor&&hasThroat){type='顯示者';strategy='告知';nst='憤怒'}
+  else if(!hasSacral&&hasMotorToThroat){type='顯示者';strategy='告知';nst='憤怒'}
   else if(defC.length===0){type='反映者';strategy='等待月循環';nst='失望'}
   // 內在權威
   if(defC.indexOf('情緒')>=0)authority='情緒權威';
@@ -1755,13 +1787,33 @@ function calcNum(Y,M,D,H){
   var life=rd(yS+mS+dS); // 正確：先各自化簡再加總，保留大師數11/22/33
   var talent=rd(D); // 天賦數＝出生日化簡
 
-  // 九宮格
-  var digits=String(Y)+String(M).padStart(2,'0')+String(D).padStart(2,'0');
+  // 九宮格（v4：全位數直加法 + 加總過程所有中間數都計入）
+  var dateStr=String(Y)+String(M).padStart(2,'0')+String(D).padStart(2,'0');
+  var allProcessDigits=dateStr.split('').map(Number);
+  var currentSum=allProcessDigits.reduce(function(a,b){return a+b},0);
+  while(currentSum>9 && currentSum!==11 && currentSum!==22 && currentSum!==33){
+    var stepD=String(currentSum).split('').map(Number);
+    allProcessDigits=allProcessDigits.concat(stepD);
+    currentSum=stepD.reduce(function(a,b){return a+b},0);
+  }
+  // 最終結果的位數也放入
+  String(currentSum).split('').map(Number).forEach(function(d){allProcessDigits.push(d)});
+  // 建九宮格
   var grid={};for(var i=0;i<=9;i++)grid[i]=0;
-  digits.split('').forEach(function(d){grid[+d]++});
-  var innateArr=digits.split('').map(Number).filter(function(n){return n>0}).sort();
-  var innate='0'.repeat(grid[0])+innateArr.join('');
+  allProcessDigits.forEach(function(d){grid[d]++});
+  var innateArr=dateStr.split('').map(Number).filter(function(n){return n>0}).sort();
+  var innate=innateArr.join('');
   var missing=[];for(var i=1;i<=9;i++)if(grid[i]==0)missing.push(i);
+  // 加總過程文字記錄
+  var _ds=String(Y)+String(M).padStart(2,'0')+String(D).padStart(2,'0');
+  var _ad=_ds.split('').map(Number);
+  var _cs=_ad.reduce(function(a,b){return a+b},0);
+  var processTrace=_ds+' → '+_cs;
+  while(_cs>9&&_cs!==11&&_cs!==22&&_cs!==33){
+    var _sd=String(_cs).split('').map(Number);
+    _cs=_sd.reduce(function(a,b){return a+b},0);
+    processTrace+=' → '+_cs;
+  }
 
   // 禮物（往上加，保留大師數）
   var g1=rd(rdP(mS)+rdP(dS)),g2=rd(rdP(dS)+rdP(yS)),g3=rd(rdP(g1)+rdP(g2)),g4=rd(rdP(mS)+rdP(yS));
@@ -1787,7 +1839,7 @@ function calcNum(Y,M,D,H){
   var MERIDIAN=['膽經（子時23-1點）','肝經（丑時1-3點）','肺經（寅時3-5點）','大腸經（卯時5-7點）','胃經（辰時7-9點）','脾經（巳時9-11點）','心經（午時11-13點）','小腸經（未時13-15點）','膀胱經（申時15-17點）','腎經（酉時17-19點）','心包經（戌時19-21點）','三焦經（亥時21-23點）'];
 
   return{life:life,talent:talent,yS:yS,mS:mS,dS:dS,
-    grid:grid,innate:innate,missing:missing,
+    grid:grid,innate:innate,missing:missing,processTrace:processTrace,
     stages:stages,py:py2026,
     gifts:{g1:g1,g2:g2,g3:g3,g4:g4},
     challenges:{c1:c1,c2:c2,c3:c3,c4:c4},
@@ -2245,13 +2297,18 @@ var GK_DATA=[
 // ══════ ⑳ 彩虹數字（畢達哥拉斯九宮格）══════
 function calcRainbow(year,month,day){
   // 取出生日期所有數字
-  var dateStr=String(day).padStart(2,'0')+String(month).padStart(2,'0')+String(year);
-  var counts={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
-  for(var i=0;i<dateStr.length;i++){
-    var d=parseInt(dateStr[i]);
-    if(d===0)d=9; // 0對應9
-    if(counts[d]!==undefined)counts[d]++;
+  // v4：全位數直加法+中間過程數字
+  var dateStr=String(year)+String(month).padStart(2,'0')+String(day).padStart(2,'0');
+  var allD=dateStr.split('').map(Number);
+  var cs=allD.reduce(function(a,b){return a+b},0);
+  while(cs>9&&cs!==11&&cs!==22&&cs!==33){
+    var sd=String(cs).split('').map(Number);
+    allD=allD.concat(sd);
+    cs=sd.reduce(function(a,b){return a+b},0);
   }
+  String(cs).split('').map(Number).forEach(function(d){allD.push(d)});
+  var counts={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
+  allD.forEach(function(d){if(d>0&&d<=9)counts[d]++});
   // 號碼意義
   var MEANINGS={
     1:{name:'太陽數·自我',trait:'獨立、自主、開創、領導',energy:'主動、前行、新生'},
@@ -3487,6 +3544,7 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
 
   // 九宮格
   h7+='<div class="item" style="margin-top:16px"><b>✦ 九宮格先天矩陣</b></div>';
+  h7+='<div class="item" style="font-size:.85rem;color:var(--inks)">　加總過程：'+nm.processTrace+'</div>';
   h7+='<div style="display:inline-block;font-family:monospace;font-size:.9rem;line-height:2;margin:8px 0 8px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(233,194,125,.2);border-radius:8px;padding:12px 20px">';
   h7+='<div>3:'+('●'.repeat(nm.grid[3])||'○')+'　6:'+('●'.repeat(nm.grid[6])||'○')+'　9:'+('●'.repeat(nm.grid[9])||'○')+'</div>';
   h7+='<div>2:'+('●'.repeat(nm.grid[2])||'○')+'　5:'+('●'.repeat(nm.grid[5])||'○')+'　8:'+('●'.repeat(nm.grid[8])||'○')+'</div>';
@@ -3566,7 +3624,7 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
   var ai7='【AI解讀指令】請依據畢達哥拉斯數命論、David A. Phillips《生命靈數全書》做深度解讀：\n\n';
   ai7+='基礎：M(月)='+nm.mS+' D(日)='+nm.dS+' Y(年)='+nm.yS+'\n';
   ai7+='生命數：'+nm.life+(nm.life>=11?' (大師數)':'')+' | 天賦數：'+nm.talent+'\n';
-  ai7+='先天數：'+nm.innate+' | 空缺數：'+nm.missing.join(',')+'\n';
+  ai7+='加總過程：'+nm.processTrace+'\n先天數：'+nm.innate+' | 空缺數：'+nm.missing.join(',')+'\n';
   ai7+='出生時辰經絡：'+nm.meridian+'\n\n';
   ai7+='九宮格：3='+nm.grid[3]+' 6='+nm.grid[6]+' 9='+nm.grid[9]+' / 2='+nm.grid[2]+' 5='+nm.grid[5]+' 8='+nm.grid[8]+' / 1='+nm.grid[1]+' 4='+nm.grid[4]+' 7='+nm.grid[7]+'\n\n';
   ai7+='禮物（往上加 Pinnacles，保留大師數）：\n';
