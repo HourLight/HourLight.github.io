@@ -76,13 +76,18 @@ function renderArrowSVG(arrows){
 
 function calcRainbow(year,month,day){
   // 取出生日期所有數字
-  var dateStr=String(day).padStart(2,'0')+String(month).padStart(2,'0')+String(year);
-  var counts={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
-  for(var i=0;i<dateStr.length;i++){
-    var d=parseInt(dateStr[i]);
-    if(d===0)d=9; // 0對應9
-    if(counts[d]!==undefined)counts[d]++;
+  // v4：全位數直加法+中間過程數字
+  var dateStr=String(year)+String(month).padStart(2,'0')+String(day).padStart(2,'0');
+  var allD=dateStr.split('').map(Number);
+  var cs=allD.reduce(function(a,b){return a+b},0);
+  while(cs>9&&cs!==11&&cs!==22&&cs!==33){
+    var sd=String(cs).split('').map(Number);
+    allD=allD.concat(sd);
+    cs=sd.reduce(function(a,b){return a+b},0);
   }
+  String(cs).split('').map(Number).forEach(function(d){allD.push(d)});
+  var counts={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
+  allD.forEach(function(d){if(d>0&&d<=9)counts[d]++});
   // 號碼意義
   var MEANINGS={
     1:{name:'太陽數·自我',trait:'獨立、自主、開創、領導',energy:'主動、前行、新生'},
