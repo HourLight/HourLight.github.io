@@ -18,11 +18,13 @@
   var SVG_MUSIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
   var SVG_MUSIC_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3" fill="currentColor" opacity="0.4"/><circle cx="18" cy="16" r="3" fill="currentColor" opacity="0.4"/><path d="M19 8c1 .5 1.5 1.5 1 2.5" opacity="0.6"/></svg>';
 
+  var SVG_MATCH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="5"/><circle cx="15" cy="15" r="5"/></svg>';
   var NAV_ITEMS = [
     { icon: SVG_HOME,    label: '首頁',  tip: '回到首頁',      href: 'index.html' },
     { icon: SVG_CARD,    label: '抽牌',  tip: '馥靈牌卡抽牌',  href: 'draw-hl.html' },
     { icon: SVG_CODE,    label: '秘碼',  tip: '馥靈秘碼解析',  href: 'fuling-mima.html' },
     { icon: SVG_DESTINY, label: '命盤',  tip: '二十四大命理系統',  href: 'destiny-engine.html' },
+    { icon: SVG_MATCH,   label: '合盤',  tip: '雙人合盤配對',      href: 'destiny-match.html' },
     { icon: SVG_QUIZ,    label: '測驗',  tip: '覺察測驗中心',  href: 'quiz-hub.html' },
     { icon: SVG_MAP,     label: '地圖',  tip: '完整網站地圖',  href: 'hourlight-sitemap.html' },
     { icon: SVG_MUSIC,   label: '音樂',  tip: '背景音樂開關',  href: '#', id: 'hl-bn-music' }

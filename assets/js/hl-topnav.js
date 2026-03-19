@@ -56,7 +56,8 @@
   var NAV = [
     {group:'探索', items:[
       {label:'首頁', href:'index.html'},
-      {label:'十六大命盤', href:'destiny-engine.html'},
+      {label:'二十四大命盤', href:'destiny-engine.html'},
+      {label:'合盤配對', href:'destiny-match.html'},
       {label:'馥靈秘碼', href:'fuling-mima.html'},
       {label:'智慧抽牌', href:'draw-hl.html'},
       {label:'女巫原力', href:'witch-power.html'},
@@ -76,6 +77,7 @@
   var QUICK = [
     {label:'首頁', href:'index.html'},
     {label:'命盤引擎', href:'destiny-engine.html'},
+    {label:'合盤', href:'destiny-match.html'},
     {label:'馥靈秘碼', href:'fuling-mima.html'},
     {label:'抽牌', href:'draw-hl.html'},
     {label:'測驗', href:'quiz-hub.html'},
