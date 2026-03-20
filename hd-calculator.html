@@ -262,7 +262,7 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1" loa
         <option value="-8">美西（UTC-8）</option>
       </select>
     </div>
-    <div class="hint">※ 人類圖計算需要從伺服器載入星曆資料（約4MB），請稍候。</div>
+    <div class="hint">※ 使用瑞士星曆表（Swiss Ephemeris）即時運算，精度達秒角等級。</div>
     <div class="load-msg" id="loadMsg"></div>
     <button class="calc-btn" onclick="doCalc()">✦ 計算我的人類圖</button>
   </div>
@@ -332,6 +332,35 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1" loa
 <script>
 // ═══ 人類圖計算邏輯（完全同步 destiny-engine.html）═══
 var EPH=null,EPH_LOADING=false;
+// ═══ Swiss Ephemeris WASM 引擎 ═══
+var SWE=null,SWE_READY=false,SWE_TRIED=false;
+async function loadSwissEph(){
+  if(SWE_READY)return true;if(SWE_TRIED)return false;SWE_TRIED=true;
+  try{
+    var mod=await import('https://cdn.jsdelivr.net/gh/prolaxu/swisseph-wasm@main/src/swisseph.js');
+    SWE=new mod.default();await SWE.initSwissEph();SWE_READY=true;
+    console.log('Swiss Ephemeris WASM loaded ✓');return true;
+  }catch(e){console.warn('WASM unavailable, using JSON fallback',e);return false;}
+}
+function sweCalcPlanets(Y,M,D,H,Min,tz){
+  var utcH=H-tz+(Min||0)/60;var jd=SWE.julday(Y,M,D,utcH);
+  var B=[[0,'sun'],[1,'moon'],[2,'mercury'],[3,'venus'],[4,'mars'],[5,'jupiter'],[6,'saturn'],[7,'uranus'],[8,'neptune'],[9,'pluto'],[10,'node']];
+  var r={};B.forEach(function(b){var p=SWE.calc_ut(jd,b[0],0);r[b[1]]={lon:p[0]};});
+  r.earth={lon:(r.sun.lon+180)%360};r.snode={lon:(r.node.lon+180)%360};
+  r.chiron={lon:0};// Moshier 不支援凱龍，後面用 JSON 補
+  return{planets:r,jd:jd};
+}
+function sweDesignDate(birthJd,birthSunLon){
+  var target=(birthSunLon-88+360)%360;
+  var lo=birthJd-95,hi=birthJd-80;
+  for(var i=0;i<80;i++){var mid=(lo+hi)/2;var p=SWE.calc_ut(mid,0,0);var df=target-p[0];if(df>180)df-=360;if(df<-180)df+=360;if(df>0)lo=mid;else hi=mid;}
+  var djd=(lo+hi)/2;
+  var B=[[0,'sun'],[1,'moon'],[2,'mercury'],[3,'venus'],[4,'mars'],[5,'jupiter'],[6,'saturn'],[7,'uranus'],[8,'neptune'],[9,'pluto'],[10,'node']];
+  var r={};B.forEach(function(b){var p=SWE.calc_ut(djd,b[0],0);r[b[1]]={lon:p[0]};});
+  r.earth={lon:(r.sun.lon+180)%360};r.snode={lon:(r.node.lon+180)%360};
+  r.chiron={lon:0};
+  return{dPlanets:r,designJd:djd};
+}
 var SIGNS=['牡羊','金牛','雙子','巨蟹','獅子','處女','天秤','天蠍','射手','摩羯','水瓶','雙魚'];
 var P_ORDER=['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','node','chiron'];
 var P_NAMES_ZH=['太陽☉','地球⊕','月亮☽','北交節☊','南交節☋','水星☿','金星♀','火星♂','木星♃','土星♄','天王星♅','海王星♆','冥王星♇'];
@@ -829,17 +858,43 @@ async function doCalc(){
   var Min=parseInt(document.getElementById('bmin').value)||0;
   var tz=parseFloat(document.getElementById('btz').value);
   if(!Y||!M||!D){alert('請輸入出生年月日');return;}
+  var msg=document.getElementById('loadMsg');
   try{
-    await loadEphemeris();
-    var planets=ephLookup(Y,M,D,H,Min,tz);
-    if(!planets){alert('找不到星曆資料，請確認年份在1920-2060之間');return;}
-    var dPlanets=getDesignDate(Y,M,D,H,Min,tz,planets);
+    var planets,dPlanets,engineUsed='';
+    // ═══ 優先嘗試 Swiss Ephemeris WASM ═══
+    if(!SWE_READY&&!SWE_TRIED){msg.textContent='正在載入瑞士星曆表...';await loadSwissEph();}
+    if(SWE_READY){
+      msg.textContent='瑞士星曆表計算中...';
+      var pRes=sweCalcPlanets(Y,M,D,H,Min,tz);
+      planets=pRes.planets;
+      var dRes=sweDesignDate(pRes.jd,planets.sun.lon);
+      dPlanets=dRes.dPlanets;
+      engineUsed='Swiss Ephemeris';
+      // 凱龍星：用 JSON 補（Moshier 不支援小行星）
+      try{
+        await loadEphemeris();
+        var jp=ephLookup(Y,M,D,H,Min,tz);
+        if(jp&&jp.chiron)planets.chiron=jp.chiron;
+        // 設計凱龍也從 JSON 取
+        var jdp=getDesignDate(Y,M,D,H,Min,tz,jp);
+        if(jdp&&jdp.chiron)dPlanets.chiron=jdp.chiron;
+      }catch(e){}
+    }else{
+      // ═══ JSON 星曆 Fallback ═══
+      msg.textContent='正在載入星曆資料...';
+      await loadEphemeris();
+      planets=ephLookup(Y,M,D,H,Min,tz);
+      if(!planets){alert('找不到星曆資料，請確認年份在1920-2060之間');return;}
+      dPlanets=getDesignDate(Y,M,D,H,Min,tz,planets);
+      engineUsed='JSON 星曆';
+    }
+    msg.textContent=engineUsed+' ✓';setTimeout(function(){msg.textContent='';},2500);
     var hd=calcHumanDesign(planets,dPlanets);
     renderResult(hd);
     var r=document.getElementById('result');r.className='result show';
     r.scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){
-    document.getElementById('loadMsg').textContent='計算失敗：'+e.message;
+    msg.textContent='計算失敗：'+e.message;
     console.error(e);
   }
 }
@@ -851,8 +906,8 @@ document.addEventListener('DOMContentLoaded',function(){
   bm.addEventListener('input',function(){if(this.value.length===2)bd.focus();});
   bd.addEventListener('input',function(){if(this.value.length===2)bh.focus();});
   bh.addEventListener('input',function(){if(this.value.length===2)bmin.focus();});
-  // Pre-load ephemeris silently
-  setTimeout(function(){loadEphemeris().catch(function(){});},1000);
+  // Pre-load: try Swiss Eph WASM first, then JSON as fallback
+  setTimeout(function(){loadSwissEph().then(function(ok){if(!ok)loadEphemeris().catch(function(){});});},800);
 });
 </script>
 
