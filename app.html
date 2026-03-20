@@ -1366,7 +1366,7 @@ input,select,textarea{font-family:var(--body)}
           </div>
         </div>
         <!-- 公告管理 -->
-        <div class="admin-sub hide" id="admin-announce">
+        <div class="admin-sub" id="admin-announce">
           <div class="adm-card" style="margin-bottom:14px">
             <div class="adm-card-title" style="justify-content:space-between">📢 公告管理<button class="ann-btn" style="font-size:.78rem;padding:6px 14px;background:var(--gold);color:#1a1008;border:none;border-radius:8px;font-weight:500" onclick="openAnnounceEditor()">＋ 新增公告</button></div>
             <div id="a-announce-list"><div class="empty"><p>尚無公告</p></div></div>
@@ -1384,7 +1384,7 @@ input,select,textarea{font-family:var(--body)}
           </div>
         </div>
         <!-- 快速資源連結 -->
-        <div class="admin-sub hide" id="admin-links">
+        <div class="admin-sub" id="admin-links">
           <div class="adm-card">
             <div class="adm-card-title">🔗 管理資源快速入口</div>
             <div class="qlink-grid">
@@ -1403,7 +1403,7 @@ input,select,textarea{font-family:var(--body)}
             </div>
           </div>
         </div>
-        <div class="admin-sub hide" id="admin-members">
+        <div class="admin-sub" id="admin-members">
           <div class="member-filters">
             <input class="member-search" id="admin-member-search" type="text" placeholder="搜尋姓名或 Email" oninput="adminSearchMembers()">
             <select class="role-filter" id="admin-role-filter" onchange="adminSearchMembers()">
@@ -1437,11 +1437,11 @@ input,select,textarea{font-family:var(--body)}
             </div>
           </div>
         </div>
-        <div class="admin-sub hide" id="admin-events">
+        <div class="admin-sub" id="admin-events">
           <div class="card"><div class="card-body card-body-pt0"><div class="event-list" id="admin-events-list"><div class="empty"><p>暫無事件</p></div></div></div></div>
           <div class="load-more"><button class="btn-more" onclick="loadMoreEvents()">載入更多</button></div>
         </div>
-        <div class="admin-sub hide" id="admin-calcs">
+        <div class="admin-sub" id="admin-calcs">
           <div class="card" style="margin-bottom:16px">
             <div class="card-head" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
               <span class="card-title">🌌 命盤計算紀錄</span>
@@ -1481,7 +1481,7 @@ input,select,textarea{font-family:var(--body)}
             </div>
           </div>
         </div>
-        <div class="admin-sub hide" id="admin-permissions">
+        <div class="admin-sub" id="admin-permissions">
           <div class="card"><div class="card-body"><div class="matrix-wrap"><table class="matrix-table" id="permission-matrix-table"><thead id="matrix-head"></thead><tbody id="matrix-body"></tbody></table></div><div class="matrix-save"><button class="btn-matrix-save" onclick="savePermMatrix()">儲存變更</button></div></div></div>
         </div>
       </div>
@@ -2728,7 +2728,9 @@ async function checkPlanExpiry(uid){
 /* 權限矩陣 */
 /* permMatrix 已在上方全域宣告 */
 async function buildPermissionsMatrix() {
-  const matrixWrap=document.getElementById('permission-matrix-table').closest('.card').querySelector('.card-body');
+  const tableEl=document.getElementById('permission-matrix-table');
+  if(!tableEl)return;
+  const matrixWrap=tableEl.closest('.card')?.querySelector('.card-body');
   if (!matrixWrap) return;
   matrixWrap.innerHTML='<div class="empty"><p>載入中⋯</p></div>';
   const roles=['guest','member','premium','practitioner','mentor'];
@@ -3280,6 +3282,7 @@ const BA_PATTERNS={
   worth:{name:'自我價值型',icon:'💎',dims:{mood:'low',craving:'high',tension:'high'},desc:'被數字綁架了',hour:'Own'},
 };
 let baToday={},baHistory=[];
+function renderBodyCard(){/* 身體覺察卡片 - 待實作 */}
 function initBodyAwareness(){
   try{const s=localStorage.getItem('hl_body_log');if(s)baHistory=JSON.parse(s);}catch(e){}
   BA_DIMS.forEach(dim=>{const el=document.getElementById('ba-'+dim);if(!el)return;el.innerHTML=[1,2,3,4,5].map(v=>`<button class="ba-dot" onclick="setBA('${dim}',${v},this)" title="${v}">${v}</button>`).join('');});
