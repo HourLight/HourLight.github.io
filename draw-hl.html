@@ -1770,39 +1770,26 @@ restoreFromURL();
     const ADMIN_EMAILS = ['info@hourlightkey.com', 'judyanee@gmail.com', 'judyanee@hotmail.com'];
 
     window.HL_checkQuota = async function() {
+      // ★ 2026/3/20 全面開放免費，PAYUNi串接後改 false 重啟限額
+      return true;
+      /* ── 以下為未來付費版邏輯（改上面 return true 為 return false 即啟用）──
       const user = auth.currentUser;
-      if (!user) return true; // 未登入，放行（登入牆另設）
-
-      // 管理員直接放行
+      if (!user) return true;
       if (user.email && ADMIN_EMAILS.includes(user.email.toLowerCase())) return true;
-
-      // 取用戶方案
       let plan = 'free';
-      try {
-        const snap = await db.doc('users/' + user.uid).get();
-        if (snap.exists) plan = snap.data().plan || 'free';
-      } catch(e) {}
-
-      const limit = MONTHLY_QUOTA[plan] || 3;
-      if (limit >= 9999) return true; // 付費，無限
-
+      try { const snap = await db.doc('users/' + user.uid).get(); if (snap.exists) plan = snap.data().plan || 'free'; } catch(e) {}
+      const PAID_QUOTA = { free: 3, basic: 10, pro: 30, vip: 9999, elite: 9999 };
+      const limit = PAID_QUOTA[plan] || 3;
+      if (limit >= 9999) return true;
       const qRef = db.doc('users/' + user.uid + '/quota/' + getMonthKey());
       try {
         const qSnap = await qRef.get();
         const used = qSnap.exists ? (qSnap.data().draws || 0) : 0;
-        if (used >= limit) {
-          // 顯示 Paywall
-          showPaywallInline(used, limit);
-          return false;
-        }
-        await qRef.set(
-          { draws: used + 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() },
-          { merge: true }
-        );
+        if (used >= limit) { showPaywallInline(used, limit); return false; }
+        await qRef.set({ draws: used + 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
         return true;
-      } catch(e) {
-        return true;
-      }
+      } catch(e) { return true; }
+      ── 付費版邏輯結束 ── */
     };
   }
 
