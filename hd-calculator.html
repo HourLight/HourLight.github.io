@@ -277,7 +277,9 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1" loa
       </div>
       <div class="type-side">
         <div class="side-card"><div class="sc-label">人生角色 PROFILE</div><div class="sc-val" id="profileVal">-</div></div>
-        <div class="side-card"><div class="sc-label">人生主題 NOT-SELF</div><div class="sc-val" id="nstVal">-</div></div>
+        <div class="side-card"><div class="sc-label">定義 DEFINITION</div><div class="sc-val" id="defTypeVal">-</div></div>
+        <div class="side-card"><div class="sc-label">非自己主題 NOT-SELF</div><div class="sc-val" id="nstVal">-</div></div>
+        <div class="side-card" style="flex:2"><div class="sc-label">輪迴交叉 INCARNATION CROSS</div><div class="sc-val" id="crossVal" style="font-size:.85rem;line-height:1.5">-</div></div>
       </div>
     </div>
 
@@ -394,6 +396,70 @@ function ephLookup(Y,M,D,H,min,tzOff){
   return result;
 }
 
+// ═══ Rave Mandala 閘門順序（64閘門，起點 Gate 41 ≈302°）═══
+var MANDALA_ORDER=[41,19,13,49,30,55,37,63,22,36,25,17,21,51,42,3,27,24,2,23,8,20,16,35,45,12,15,52,39,53,62,56,31,33,7,4,29,59,40,64,47,6,46,18,48,57,32,50,28,44,1,43,14,34,9,5,26,11,10,58,38,54,61,60];
+var _gpos={};MANDALA_ORDER.forEach(function(g,i){_gpos[g]=i;});
+function _oppGate(g){return MANDALA_ORDER[(_gpos[g]+32)%64];}
+
+// Quarter 結構
+var _Q1=[13,49,30,55,37,63,22,36,25,17,21,51,42,3,27,24];
+var _Q2=[2,23,8,20,16,35,45,12,15,52,39,53,62,56,31,33];
+var _Q3=[7,4,29,59,40,64,47,6,46,18,48,57,32,50,28,44];
+var _Q4=[1,43,14,34,9,5,26,11,10,58,38,54,61,60,41,19];
+var _QS=[_Q1,_Q2,_Q3,_Q4];
+// Design Sun 的 Quarter 對應：Q1→Q4, Q2→Q1, Q3→Q2, Q4→Q3
+var _DQ=[3,0,1,2];
+
+// 16 個右角度交叉名稱
+var RAC_NAMES=['人面獅身','解釋','感染','精神','計畫','意識','統治','伊甸園','愛之器皿','服務','張力','滲透','馬雅','律法','意外','四方之路'];
+
+// 64 個並列交叉名稱（按 gate number 索引）
+var JAX_NAMES={1:'自我表達',2:'引導',3:'突變',4:'公式化',5:'習慣',6:'命運',7:'互動',8:'貢獻',9:'馴服',10:'行為',11:'觀念',12:'表達',13:'傾聽',14:'力量技巧',15:'極端',16:'實驗',17:'意見',18:'修正',19:'需求',20:'當下',21:'掌控',22:'優雅',23:'同化',24:'合理化',25:'天真',26:'詭計師',27:'照顧',28:'冒險',29:'承諾',30:'命運之火',31:'影響',32:'保存',33:'退隱',34:'力量',35:'經驗',36:'危機',37:'交易',38:'對立',39:'挑釁',40:'否認',41:'幻想',42:'完成',43:'洞見',44:'警覺',45:'擁有',46:'緣分',47:'壓迫',48:'深度',49:'原則',50:'價值',51:'震驚',52:'靜止',53:'開始',54:'企圖心',55:'情緒',56:'刺激',57:'直覺',58:'活力',59:'親密',60:'限制',61:'思考',62:'細節',63:'懷疑',64:'困惑'};
+
+// 32 個左角度交叉名稱（按 cross group index，Q1+Q3共用名, Q2+Q4共用名）
+var LAC_NAMES_A=['面具','革命','對抗','二元性','遷移','循環','校準','飛行','預防','需求','奉獻','努力','限制','希望','分心','轉世'];
+var LAC_NAMES_B=['面具','告知','不確定','勤勉','遷移','分離','校準','教育','預防','需求','奉獻','努力','限制','闡明','意外','精煉'];
+
+function calcCross(pSunGate,dSunGate,profileLine){
+  // 找到 personality sun 在哪個 quarter 的哪個位置
+  var qi=-1,pos=-1;
+  for(var q=0;q<4;q++){var idx=_QS[q].indexOf(pSunGate);if(idx>=0){qi=q;pos=idx;break;}}
+  if(qi<0)return{angle:'',name:'',gates:'',full:pSunGate+'/'+_oppGate(pSunGate)+' | '+dSunGate+'/'+_oppGate(dSunGate)};
+  var pEarth=_oppGate(pSunGate),dEarth=_oppGate(dSunGate);
+  var gateStr=pSunGate+'/'+pEarth+' | '+dSunGate+'/'+dEarth;
+  var variant=qi+1;
+  // Angle from profile line
+  var line=parseInt(String(profileLine).split('/')[0])||0;
+  var angle,name;
+  if(line>=1&&line<=3){
+    angle='右角度交叉';name=RAC_NAMES[pos];
+    return{angle:angle,name:name+variant,gates:gateStr,full:angle+'之'+name+variant+' ('+gateStr+')'};
+  }else if(line===4){
+    angle='並列交叉';name=JAX_NAMES[pSunGate]||'';
+    return{angle:angle,name:name,gates:gateStr,full:angle+'之'+name+' ('+gateStr+')'};
+  }else{
+    angle='左角度交叉';
+    name=(qi===0||qi===2)?LAC_NAMES_A[pos]:LAC_NAMES_B[pos];
+    var lv=(qi<=1)?1:2;
+    return{angle:angle,name:name+lv,gates:gateStr,full:angle+'之'+name+lv+' ('+gateStr+')'};
+  }
+}
+
+function calcDefinition(defC,centerGraph){
+  if(defC.length===0)return'無定義';
+  var visited={},comps=0;
+  defC.forEach(function(c){
+    if(visited[c])return;
+    comps++;var q=[c];
+    while(q.length>0){var cur=q.shift();if(visited[cur])continue;visited[cur]=true;
+      (centerGraph[cur]||[]).forEach(function(nb){if(!visited[nb]&&defC.indexOf(nb)>=0)q.push(nb)});}
+  });
+  if(comps===1)return'單一定義';
+  if(comps===2)return'二分人';
+  if(comps===3)return'三分人';
+  return'四分人';
+}
+
 function calcHumanDesign(planets,dPlanets){
   // Personality gates (red = design, blue = personality)
   var pNames=['太陽','地球','月亮','北交節','南交節','水星','金星','火星','木星','土星','天王星','海王星','冥王星'];
@@ -479,10 +545,16 @@ function calcHumanDesign(planets,dPlanets){
 
   // Profile from sun lines
   var sunG=lonToGate(planets.sun.lon);
-  var dSunG=dPlanets?lonToGate(dPlanets.sun.lon):{line:0};
+  var dSunG=dPlanets?lonToGate(dPlanets.sun.lon):{gate:0,line:0};
   var profile=sunG.line+'/'+dSunG.line;
 
-  return{type:type,strategy:strategy,authority:authority,profile:profile,nst:nst,channels:channels,defC:defC,undefC:undefC,defNames:defNames,undefNames:undefNames,pGates:pGates,dGates:dGates,pGateNums:pGateNums,dGateNums:dGateNums,allGates:allGates};
+  // Definition type
+  var defType=calcDefinition(defC,centerGraph2);
+
+  // Incarnation cross
+  var cross=calcCross(sunG.gate,dSunG.gate,profile);
+
+  return{type:type,strategy:strategy,authority:authority,profile:profile,nst:nst,channels:channels,defC:defC,undefC:undefC,defNames:defNames,undefNames:undefNames,pGates:pGates,dGates:dGates,pGateNums:pGateNums,dGateNums:dGateNums,allGates:allGates,defType:defType,cross:cross};
 }
 
 function getDesignDate(Y,M,D,H,min,tzOff,planets){
@@ -629,7 +701,9 @@ function renderResult(hd,pGatesAll,dGatesAll){
     '<span class="tag strat">策略：'+hd.strategy+'</span>'
     +'<span class="tag auth">權威：'+hd.authority+'</span>';
   document.getElementById('profileVal').textContent=hd.profile;
+  document.getElementById('defTypeVal').textContent=hd.defType;
   document.getElementById('nstVal').textContent=hd.nst;
+  document.getElementById('crossVal').textContent=hd.cross.full||'-';
 
   // Design gates list
   var pNames=['太陽','地球','月亮','北交節','南交節','水星','金星','火星','木星','土星','天王星','海王星','冥王星'];
@@ -679,7 +753,7 @@ function renderResult(hd,pGatesAll,dGatesAll){
 
   // AI Prompt
   var ai='【AI解讀指令】請依據Ra Uru Hu原傳訊做人類圖深度解讀：\n\n'
-    +'類型：'+hd.type+'\n策略：'+hd.strategy+'\n內在權威：'+hd.authority+'\n人生角色：'+hd.profile+'\n人生主題（非自己主題）：'+hd.nst+'\n\n'
+    +'類型：'+hd.type+'\n策略：'+hd.strategy+'\n內在權威：'+hd.authority+'\n人生角色：'+hd.profile+'\n定義：'+hd.defType+'\n輪迴交叉：'+hd.cross.full+'\n人生主題（非自己主題）：'+hd.nst+'\n\n'
     +'已定義能量中心：'+hd.defNames.join('、')+'\n未定義能量中心：'+hd.undefNames.join('、')+'\n\n'
     +'通道（'+hd.channels.length+'條）：\n'
     +hd.channels.map(function(c){return '  '+c.gates+'（'+c.name+'）'+(c.src==='dp'?'[雙方]':c.src==='d'?'[設計]':'[人格]');}).join('\n')
