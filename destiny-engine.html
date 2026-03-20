@@ -1563,7 +1563,33 @@ function calcHumanDesign(planets,Y,M,D,H,min){
   var sunG=lonToGate(planets.sun.lon);
   var dSunG=lonToGate(dSunLon);
   var profile=sunG.line+'/'+dSunG.line;
-  return{type:type,strategy:strategy,authority:authority,profile:profile,nst:nst,channels:channels,defC:defC,undefC:undefC,pGates:pGates,dGates:dGates};
+  // 定義類型（BFS 連通分量）
+  var _defKeys=[];for(var _ck in HD_CENTERS){if(defC.indexOf(HD_CENTER_NAMES[_ck])>=0)_defKeys.push(_ck);}
+  var _vis={},_comps=0;
+  _defKeys.forEach(function(c){if(_vis[c])return;_comps++;var q=[c];while(q.length){var cur=q.shift();if(_vis[cur])return;_vis[cur]=true;(centerGraph[cur]||[]).forEach(function(nb){if(!_vis[nb]&&_defKeys.indexOf(nb)>=0)q.push(nb)})}});
+  var defType=_comps<=1?(_defKeys.length===0?'無定義':'單一定義'):_comps===2?'二分人':_comps===3?'三分人':'四分人';
+  // 輪迴交叉
+  var _MO=[41,19,13,49,30,55,37,63,22,36,25,17,21,51,42,3,27,24,2,23,8,20,16,35,45,12,15,52,39,53,62,56,31,33,7,4,29,59,40,64,47,6,46,18,48,57,32,50,28,44,1,43,14,34,9,5,26,11,10,58,38,54,61,60];
+  var _mp={};_MO.forEach(function(g,i){_mp[g]=i;});
+  function _opp(g){return _MO[(_mp[g]+32)%64];}
+  var _Q=[[[13,49,30,55,37,63,22,36,25,17,21,51,42,3,27,24],[2,23,8,20,16,35,45,12,15,52,39,53,62,56,31,33],[7,4,29,59,40,64,47,6,46,18,48,57,32,50,28,44],[1,43,14,34,9,5,26,11,10,58,38,54,61,60,41,19]]];
+  var _QS=_Q[0],_DQM=[3,0,1,2];
+  var _RN=['人面獅身','解釋','感染','精神','計畫','意識','統治','伊甸園','愛之器皿','服務','張力','滲透','馬雅','律法','意外','四方之路'];
+  var _JN={1:'自我表達',2:'引導',3:'突變',4:'公式化',5:'習慣',6:'命運',7:'互動',8:'貢獻',9:'馴服',10:'行為',11:'觀念',12:'表達',13:'傾聽',14:'力量技巧',15:'極端',16:'實驗',17:'意見',18:'修正',19:'需求',20:'當下',21:'掌控',22:'優雅',23:'同化',24:'合理化',25:'天真',26:'詭計師',27:'照顧',28:'冒險',29:'承諾',30:'命運之火',31:'影響',32:'保存',33:'退隱',34:'力量',35:'經驗',36:'危機',37:'交易',38:'對立',39:'挑釁',40:'否認',41:'幻想',42:'完成',43:'洞見',44:'警覺',45:'擁有',46:'緣分',47:'壓迫',48:'深度',49:'原則',50:'價值',51:'震驚',52:'靜止',53:'開始',54:'企圖心',55:'情緒',56:'刺激',57:'直覺',58:'活力',59:'親密',60:'限制',61:'思考',62:'細節',63:'懷疑',64:'困惑'};
+  var _LA=['面具','革命','對抗','二元性','遷移','循環','校準','飛行','預防','需求','奉獻','努力','限制','希望','分心','轉世'];
+  var _LB=['面具','告知','不確定','勤勉','遷移','分離','校準','教育','預防','需求','奉獻','努力','限制','闡明','意外','精煉'];
+  var crossFull='';
+  (function(){
+    var ps=sunG.gate,qi=-1,pos=-1;
+    for(var q=0;q<4;q++){var idx=_QS[q].indexOf(ps);if(idx>=0){qi=q;pos=idx;break;}}
+    if(qi<0){crossFull=ps+'/'+_opp(ps)+' | '+dSunG.gate+'/'+_opp(dSunG.gate);return;}
+    var pe=_opp(ps),ds=dSunG.gate,de=_opp(ds),gs=ps+'/'+pe+' | '+ds+'/'+de,v=qi+1;
+    var ln=parseInt(String(profile).split('/')[0])||0;
+    if(ln>=1&&ln<=3)crossFull='右角度交叉之'+_RN[pos]+v+' ('+gs+')';
+    else if(ln===4)crossFull='並列交叉之'+(_JN[ps]||'')+' ('+gs+')';
+    else{var nm=(qi===0||qi===2)?_LA[pos]:_LB[pos];crossFull='左角度交叉之'+nm+((qi<=1)?1:2)+' ('+gs+')';}
+  })();
+  return{type:type,strategy:strategy,authority:authority,profile:profile,nst:nst,channels:channels,defC:defC,undefC:undefC,pGates:pGates,dGates:dGates,defType:defType,crossFull:crossFull};
 }
 
 // ═══ 袁天罡稱骨算命 ═══
@@ -3383,14 +3409,15 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
   if(hd){
     h4+='<div class="item"><b>類型：</b>'+hd.type+'　<b>策略：</b>'+hd.strategy+'</div>';
     h4+='<div class="item"><b>內在權威：</b>'+hd.authority+'　<b>人生角色：</b>'+hd.profile+'</div>';
-    h4+='<div class="item"><b>非自己主題：</b>'+hd.nst+'</div>';
+    h4+='<div class="item"><b>定義：</b>'+hd.defType+'　<b>非自己主題：</b>'+hd.nst+'</div>';
+    h4+='<div class="item"><b>輪迴交叉：</b>'+hd.crossFull+'</div>';
     h4+='<div class="item"><b>通道（'+hd.channels.length+'條）：</b></div>';
     hd.channels.forEach(function(ch){h4+='<div class="item">　'+ch.gates+'（'+ch.name+'）</div>'});
     h4+='<div class="item"><b>已定義：</b>'+hd.defC.join('、')+'</div>';
     h4+='<div class="item"><b>未定義：</b>'+hd.undefC.join('、')+'</div>';
     h4+='<div class="item" style="margin-top:8px"><b>個性水晶：</b></div>';
     for(var k in hd.pGates)h4+='<div class="item">　'+k+'：閘門'+hd.pGates[k]+'</div>';
-    var ai4='【AI解讀指令】請依據Ra Uru Hu原傳訊做人類圖深度解讀：\n類型：'+hd.type+' | 策略：'+hd.strategy+' | 權威：'+hd.authority+' | 角色：'+hd.profile+'\n通道：'+hd.channels.map(function(c){return c.gates+'('+c.name+')'}).join(', ')+'\n已定義：'+hd.defC.join(',')+'\n未定義：'+hd.undefC.join(',');
+    var ai4='【AI解讀指令】請依據Ra Uru Hu原傳訊做人類圖深度解讀：\n類型：'+hd.type+' | 策略：'+hd.strategy+' | 權威：'+hd.authority+' | 角色：'+hd.profile+'\n定義：'+hd.defType+' | 輪迴交叉：'+hd.crossFull+'\n通道：'+hd.channels.map(function(c){return c.gates+'('+c.name+')'}).join(', ')+'\n已定義：'+hd.defC.join(',')+'\n未定義：'+hd.undefC.join(',');
     ai4+='\n\n【參考書目與轉譯視角】\n► 殿堂級西方大師（建構系統藍圖）\n· Ra Uru Hu《人類圖：區分的科學》｜九大能量中心聖經\n  轉譯：妳的電池是哪種型號？哪裡漏電，哪裡是自帶發電機\n· Richard Rudd《基因天命 Gene Keys》｜64閘門對應易經的陰暗面、天賦、悉地\n  轉譯：看見恐懼 → 解鎖潛能，完全呼應 H.O.U.R. 系統核心\n\n► 華人圈轉譯高手（接地氣實戰）\n· 喬宜思 Joyce Huang《人類圖去制約之旅》系列 ｜ 台灣本土生活案例最豐富\n  轉譯：「制約」＝社會期待與討好型人格\n\n【白話轉譯示範】\n· 3/5 角色 → 傳統說「烈士/異端者」\n  白話版：人肉測試機 / 危機處理大師\n  所以呢：不要害怕搞砸，妳的失敗經驗就是未來教人的黃金教材\n\n【馥靈座標哲學】\n看懂人類圖，不是為了找到人生捷徑。\n是為了讓妳在繞遠路的時候，知道自己沒走錯。\n\n【解讀框架·請逐項分析】\n壹、類型與策略實踐\n・類型能量場的運作邏輯（光環場/信封場/薦骨場/反射場）\n・策略遵守後的簽名情緒 vs 非自己主題\n・在工作/感情/決策中的具體實踐方式\n\n二、內在權威深析\n・各權威的決策機制（薦骨/情緒/直覺/意志/自我投射/月亮）\n・情緒權威：需等待情緒浪潮高低後才做決定\n・薦骨權威：【超重要，必須具體說明】薦骨回應不是想法、不是情緒、不是你「決定」要不要。它是一個身體反應，住在肚臍以下、骨盆上方。辨認方式有三：(1)聲音：YES是「嗯哼！」從肚子往上衝的短促有力音，就像朋友問你要不要吃火鍋你還沒想就先嗯了。NO是「嗯⋯」拖長沒力往下掉，或嘴巴根本打不開。(2)身體：YES=下腹微微發熱、往前傾、有想靠近的拉力。NO=下腹發涼、往後縮、一種「算了」的洩氣感。(3)能量：YES=越做越有精神像手機充電。NO=才開始就被掏空。你覺得感受不到不是遲鈍，是從小被教育用腦決定，薦骨被按了靜音。練習法：每天找人問你10個是非題（不是開放式問題），0.5秒內注意嘴巴冒出的音和肚子的感覺。堅持兩週就能分辨。\n\n三、人生角色深析\n・角色第一爻（學習基礎建立）vs 第二爻（天賦隱遁）特質\n・爻的組合如何影響人際吸引力與人生課題\n・3/5角色白話：你的失敗不是失敗，是未來教學的黃金素材\n\n四、九大能量中心分析\n・已定義中心：穩定一致的能量輸出，是你給世界的禮物\n・未定義中心：被外界制約最深之處，也是潛在智慧所在\n・空白情緒中心→容易為避免衝突壓抑自我\n・空白意志力中心→可能在過度承諾中透支\n・空白喉嚨中心→容易說話不算數或時機不對\n\n五、通道力學分析\n・電磁通道（Electromagnetic）：接通整條通道的致命吸引力\n・妥協通道（Compromise）：對方只有半條，容易被強勢同化\n・支配通道（Dominance）：單向傳遞，對方成為接收者\n\n六、PHS 原初健康系統（進階）\n・最優睡眠模式（非薦骨定義者應在疲憊前躺下）\n・消化環境條件（安靜/音樂/社交/獨處進食的能量影響）\n・最適工作與居住環境特質\n\n七、64閘門爻線特質\n・1爻：需透過深層探究克服恐懼\n・5爻：容易成為他人投射期待的救世主，要管理期待\n・閘門對應易經卦象的天賦底色\n\n【🔴 請將術語轉譯為日常語言，並給出工作/感情/健康三個面向的具體建議】\n\n【參考書目 · 解讀時請交叉引用】\n▍官方核心原典\n· Ra Uru Hu & 國際人類圖學院《人類圖：區分之書》（The Definitive Book of Human Design，喬宜思翻譯審定）\n  → 唯一官方授權定本，九大能量中心+閘門+通道完整解碼\n  → 核心：愛自己不是口號，是你把設計活出來的那一刻\n· Richard Rudd《基因天命 Gene Keys》\n  → 64閘門的陰暗面/天賦/悉地三層次，與H.O.U.R.系統深度共振\n  → 恐懼→天賦→悉地的轉化路徑，是絕佳的覺察引導框架\n▍華人轉譯與去制約\n· 喬宜思 Joyce Huang《人類圖去制約之旅》系列｜台灣本土生活案例最豐富\n· Lynda Bunnell《以能量活出自己》｜四大類型日常生活實踐指南\n\n▍馥靈座標哲學\n看懂人類圖，不是為了找到人生捷徑。\n是為了讓妳在繞遠路的時候，知道自己沒走錯。';
     h4+='<div class="ai-box"><h4>📜 AI深度解讀指令</h4><pre id="ai4">'+ai4+'</pre><button class="cp" onclick="copyText(\'ai4\')">📋 複製AI指令</button></div>';
   }else{h4+='<div class="item" style="color:var(--inkm)">需要星曆資料</div>'}
