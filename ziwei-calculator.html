@@ -5,7 +5,7 @@
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-BXP7K53QG6');</script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>紫微斗數完整命盤｜十二宮星耀｜馥靈之鑰</title>
-<meta name="description" content="輸入農曆或陽曆生日自動計算紫微斗數命盤，十二宮主星、輔星、煞星、四化、大限全展開。馥靈之鑰。">
+<meta name="description" content="輸入國曆生日自動計算紫微斗數命盤，十二宮主星、輔星、煞星、四化、大限全展開。馥靈之鑰。">
 <link rel="icon" href="favicon.ico"/>
 <link rel="stylesheet" href="assets/css/hourlight-global.css">
 <link rel="stylesheet" href="assets/css/hl-design-tokens.css">
@@ -121,7 +121,7 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1" loa
   <div class="hero">
     <div class="hero-badge">ZIWEI DOUSHU</div>
     <h1>⭐ 紫微斗數</h1>
-    <p>輸入農曆生日，完整呈現十二宮星耀、四化飛星、大限走勢<br>帶宮格圖形，一眼看懂您的命盤全貌</p>
+    <p>輸入國曆生日，系統自動轉換農曆，完整呈現十二宮星耀、四化飛星、大限走勢<br>帶宮格圖形，一眼看懂您的命盤全貌</p>
     <a href="destiny-engine.html" class="engine-link">✦ 前往二十四合一命盤引擎</a>
   </div>
 
@@ -195,12 +195,13 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1" loa
 
 </div></div></div>
 <div class="input-card">
-    <span class="input-label">✦ 農曆生日（請用農曆月日）</span>
+    <span class="input-label">✦ 國曆（陽曆）生日</span>
     <div class="field-row">
-      <input class="fi fi-wide" type="number" id="by" placeholder="陽曆年 YYYY" min="1920" max="2099" style="flex:2;text-align:left;">
-      <input class="fi" type="number" id="lm" placeholder="農曆月" min="1" max="12">
-      <input class="fi" type="number" id="ld" placeholder="農曆日" min="1" max="30">
+      <input class="fi fi-wide" type="number" id="by" placeholder="國曆年 YYYY" min="1920" max="2099" style="flex:2;text-align:left;">
+      <input class="fi" type="number" id="bm" placeholder="月" min="1" max="12">
+      <input class="fi" type="number" id="bd" placeholder="日" min="1" max="31">
     </div>
+    <div id="lunar-preview" style="font-size:.82rem;color:rgba(233,194,125,.7);margin:6px 0 0 4px;display:none"></div>
     <div class="field-row">
       <select class="fi" id="bh" style="flex:2;text-align:left;padding:11px 12px;">
         <option value="" disabled selected>請選擇出生時辰</option>
@@ -226,7 +227,7 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1" loa
       <label><input type="radio" name="gen" value="M" checked><span>♂ 乾造（男）</span></label>
       <label><input type="radio" name="gen" value="F"><span>♀ 坤造（女）</span></label>
     </div>
-    <div style="font-size:.95rem;color:var(--sub);margin-top:8px;">※ 若不知農曆日期，可先用陽曆查農曆轉換後再輸入。時辰影響命宮位置，建議選填。<br>※ 早子時（23:00-23:59）屬當日，晚子時（00:00-00:59）屬隔日。若出生在子時，請留意農曆日期是否需要調整。</div>
+    <div style="font-size:.95rem;color:var(--sub);margin-top:8px;">※ 輸入國曆生日，系統自動轉換農曆。時辰影響命宮位置，建議選填。<br>※ 早子時（23:00-23:59）屬當日，晚子時（00:00-00:59）屬隔日。</div>
     <button class="calc-btn" onclick="doCalc()">⭐ 排出紫微斗數命盤</button>
   </div>
 
@@ -402,23 +403,22 @@ function drawZiweiChart(zw){
 
 function doCalc(){
   var Y=parseInt(document.getElementById('by').value);
-  var lm=parseInt(document.getElementById('lm').value);
-  var ld=parseInt(document.getElementById('ld').value);
+  var sM=parseInt(document.getElementById('bm').value);
+  var sD=parseInt(document.getElementById('bd').value);
   var bhVal=document.getElementById('bh').value; var H=(bhVal===''||bhVal===null)?12:parseInt(bhVal);
   var gen=document.querySelector('input[name=gen]:checked').value;
-  if(!Y||!lm||!ld){alert('請輸入陽曆年份＋農曆月日');return;}
+  if(!Y||!sM||!sD){alert('請輸入完整的國曆生日');return;}
 
-  // 從陽曆年份推算天干地支年 (需要一個農曆年份)
-  // 用 lunar-javascript 從陽曆1月1日取農曆年
-  var solar=Solar.fromYmd(Y,1,1);
-  var lunarY=solar.getLunar();
-  var ytI=TG.indexOf(lunarY.getYearGan()),yzI=DZ.indexOf(lunarY.getYearZhi());
-  // 若月份>2，同年；若月份<=2，可能上一農曆年 - 用農曆月修正
-  // 直接用 lunar.getYearGan 從農曆月份對應陽曆日期
-  // 簡化：用陽曆年中（6月）的農曆年干支
-  var solar2=Solar.fromYmd(Y,6,1);
-  var lunar2=solar2.getLunar();
-  ytI=TG.indexOf(lunar2.getYearGan());yzI=DZ.indexOf(lunar2.getYearZhi());
+  // 國曆轉農曆（全自動）
+  var solar=Solar.fromYmdHms(Y,sM,sD,H,0,0);
+  var lunar=solar.getLunar();
+  var lm=Math.abs(lunar.getMonth()); // 農曆月（取絕對值，閏月為負數）
+  var ld=lunar.getDay(); // 農曆日
+  var ytI=TG.indexOf(lunar.getYearGan());
+  var yzI=DZ.indexOf(lunar.getYearZhi());
+  // 顯示農曆資訊
+  var pvEl=document.getElementById('lunar-preview');
+  if(pvEl){pvEl.textContent='→ 農曆 '+lunar.getYearInGanZhi()+'年'+lunar.getMonthInChinese()+'月'+lunar.getDayInChinese()+'｜'+lunar.getYearGan()+lunar.getYearZhi()+'年';pvEl.style.display='block';}
 
   var hzI=H===23?0:Math.floor((H+1)/2)%12;
   var zw=calcZiwei(lm,ld,ytI,yzI,hzI,gen);
