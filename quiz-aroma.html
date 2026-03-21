@@ -491,8 +491,13 @@ function copyFormula() {
   const text=`今日精油配方：${names}\n\n每天都不一樣 → hourlightkey.com/quiz-aroma.html`;
   navigator.clipboard?.writeText(text).then(()=>alert('已複製！'));
 }
-function shareToLine() {
-  window.open(`https://line.me/R/share?text=${encodeURIComponent('我今天的精油配方出來了！你也來調一瓶～\nhttps://hourlightkey.com/quiz-aroma.html')}`);
+function shareToLine(){
+  var el=document.getElementById('quizResult');if(!el)return;
+  var title=document.title.replace(/[|｜].*/,'').trim();
+  var url=location.href.split('?')[0];
+  var hero=el.querySelector('.result-hero-title,.rh-type,.result-title');
+  var t=hero?'【'+title+'】'+hero.textContent.trim():'【'+title+'】';
+  window.open('https://social-plugins.line.me/lineit/share?url='+encodeURIComponent(url)+'&text='+encodeURIComponent(t),'_blank');
 }
 
 
@@ -521,6 +526,9 @@ renderOpts('useOpts', USES, 'use');
   <p style="margin-top:4px">精油建議僅供參考，不替代專業醫療。孕婦、嬰幼兒、癲癇患者請先諮詢芳療師。</p>
 </footer>
 <script src="assets/js/hourlight-global.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
 <script src="assets/js/hl-member.js?v=20260310"></script>
 <script src="assets/js/hl-gate.js"></script>
@@ -550,4 +558,6 @@ renderOpts('useOpts', USES, 'use');
 </footer>
 <script src="assets/js/hl-topnav.js"></script>
 <script src="assets/js/hl-bottomnav.js"></script>
+<script src="assets/js/hl-share.js"></script>
+<script src="assets/js/hl-tracker.js" data-tool="quiz-aroma" data-tool-name="香氣人格測驗" data-tool-type="quiz"></script>
 </body></html>

@@ -131,7 +131,8 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1" loa
     <div class="ocean-bars" id="dimBars"></div>
     <div id="resultSections"></div>
     <div class="result-hour-bridge" id="resultHour"></div>
-    <div class="share-row"><button class="share-btn" onclick="copyResult()">📋 複製結果</button><button class="share-btn" onclick="shareToLine()">💬 分享到 LINE</button></div>
+    <div class="share-row"><button class="share-btn" onclick="saveResultImage()">📥 儲存圖片</button>
+      <button class="share-btn" onclick="copyResult()">📋 複製結果</button><button class="share-btn" onclick="shareToLine()">💬 分享到 LINE</button></div>
     <button class="btn-retry" onclick="restartQuiz()">🔄 重新測一次</button>
     <div class="more-quizzes"><h3>✨ 更多覺察測驗</h3><div class="more-grid">
 <a href="quiz-via.html" class="more-card"><span class="more-card-icon">✦</span>VIA 品格優勢</a>
@@ -249,11 +250,6 @@ function showResult(){
   document.getElementById('quizResult').classList.add('active');window.scrollTo({top:0,behavior:'smooth'});
   try{localStorage.setItem('hl_quiz_strengths',JSON.stringify({top5:top5.map(s=>({str:s[0],name:strNames[s[0]],pct:s[1]})),topDom,ts:Date.now()}));}catch(e){}
 }
-function copyResult(){const text=`我的天賦優勢：${document.querySelector('.result-combo-name')?.textContent||''}
-${document.querySelector('.hl-title-tag-value')?.textContent||''}
-
-→ hourlightkey.com/quiz-strengths.html`;navigator.clipboard?.writeText(text).then(()=>alert('已複製！'));}
-function shareToLine(){window.open(`https://line.me/R/share?text=${encodeURIComponent('我的天賦優勢測驗結果出來了！\nhttps://hourlightkey.com/quiz-strengths.html')}`);}
 </script>
 
 <footer style="text-align:center;padding:32px 20px;font-size:0.95rem;color:#9e8a70">
@@ -261,6 +257,9 @@ function shareToLine(){window.open(`https://line.me/R/share?text=${encodeURIComp
   <p style="margin-top:4px">本測驗僅供自我覺察參考，非臨床診斷工具</p>
 </footer>
 <script src="assets/js/hourlight-global.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
 <script src="assets/js/hl-member.js?v=20260310"></script>
 <script src="assets/js/hl-gate.js"></script>
@@ -290,4 +289,6 @@ function shareToLine(){window.open(`https://line.me/R/share?text=${encodeURIComp
 </footer>
 <script src="assets/js/hl-topnav.js"></script>
 <script src="assets/js/hl-bottomnav.js"></script>
+<script src="assets/js/hl-share.js"></script>
+<script src="assets/js/hl-tracker.js" data-tool="quiz-strengths" data-tool-name="天賦優勢測驗" data-tool-type="quiz"></script>
 </body></html>

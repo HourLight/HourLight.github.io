@@ -93,6 +93,7 @@
     <div id="bridgeArea"></div>
     <div class="hl-quiz-actions">
       <button class="hl-quiz-action-btn primary" onclick="copyAI()">🤖 複製 AI 深度解讀</button>
+      <button class="share-btn" onclick="saveResultImage()">📥 儲存圖片</button>
       <button class="hl-quiz-action-btn" onclick="copyResult()">📋 複製結果</button>
       <button class="hl-quiz-action-btn" onclick="restartQuiz()">🔄 重新測驗</button>
     </div>
@@ -297,33 +298,6 @@ function showResult(){
   window._resultText='【馥靈之鑰 覺察力指數 AQ】\n我的覺察力：'+totalPct+' / 100（'+levelName+'）\n最強：'+DIMS[maxI]+' '+pcts[maxK]+'%\n成長空間：'+DIMS[minI]+' '+pcts[minK]+'%\n\n測測你的覺察力 👉 hourlightkey.com/quiz-awareness.html';
 }
 
-function copyResult(){
-  if(window._resultText)navigator.clipboard.writeText(window._resultText).then(function(){showToast('已複製！')});
-}
-
-function copyAI(){
-  var r=window._aqResult;if(!r)return;
-  var txt='【AI 深度解讀指令｜自我覺察力指數 × 馥靈座標哲學】\n\n';
-  txt+='你是一位精通正念覺察（Mindfulness）、自我覺察心理學（Self-Awareness Psychology）、Daniel Goleman 情緒智商理論、以及馥靈 H.O.U.R. 座標哲學的覺察引導師。\n\n';
-  txt+='═══ 測驗結果 ═══\n';
-  txt+='覺察力總分：'+r.totalPct+' / 100（'+r.levelName+'）\n\n';
-  txt+='五維度分數：\n';
-  DIM_KEYS.forEach(function(k,i){txt+=DIMS[i]+'：'+r.pcts[k]+'%\n';});
-  txt+='\n最強維度：'+DIMS[r.maxI]+'\n成長空間最大：'+DIMS[r.minI]+'\n\n';
-  txt+='═══ 請依以下框架解讀 ═══\n\n';
-  txt+='壹、覺察力全貌：這個分數代表什麼？此人目前的覺察發展階段是？\n';
-  txt+='二、最強維度分析：這個天賦覺察通道怎麼用？怎麼善用它帶動其他維度？\n';
-  txt+='三、成長維度分析：為什麼這個維度比較低？可能的心理原因是什麼？\n';
-  txt+='四、21天覺察練習計畫：針對最弱維度，設計一個每天5分鐘的具體練習\n';
-  txt+='五、H.O.U.R. 對應：五個維度分別對應 H.O.U.R. 的哪個階段？\n\n';
-  txt+='【🔴 馥靈認知芳療｜文字自帶香氣】\n';
-  txt+='每個維度都有對應的精油。在解讀中自然融入香氣觸感。\n';
-  txt+='身體覺察→岩蘭草 情緒辨識→玫瑰 思維覺知→迷迭香 關係敏感→天竺葵 行動整合→黑胡椒\n\n';
-  txt+='【座標哲學】覺察力是肌肉，不是天賦。今天的分數是起點，不是終點。\n';
-  txt+='【🔴 溫暖精準的語言。結尾給一個今天就能做的5分鐘覺察練習。】';
-  navigator.clipboard.writeText(txt).then(function(){showToast('🤖 AI 深度解讀已複製！');});
-}
-
 function restartQuiz(){
   answers={};currentQ=0;
   document.getElementById('quizResult').classList.remove('active');
@@ -336,6 +310,9 @@ function showToast(m){var t=document.getElementById('toast');if(!t){t=document.c
 
 renderQuestion(0);
 </script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
 <script src="assets/js/hl-gate.js"></script>
 <script src="assets/js/hl-record.js"></script>
@@ -363,5 +340,7 @@ renderQuestion(0);
 </footer>
 <script src="assets/js/hl-topnav.js"></script>
 <script src="assets/js/hl-bottomnav.js"></script>
+<script src="assets/js/hl-share.js"></script>
+<script src="assets/js/hl-tracker.js" data-tool="quiz-awareness" data-tool-name="覺察力測驗" data-tool-type="quiz"></script>
 </body>
 </html>

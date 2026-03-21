@@ -167,6 +167,7 @@ body{background:#05030a;color:#ffffff;font-family:'Noto Sans TC',sans-serif;font
     <div id="bridgeArea"></div>
 
     <div class="quiz-share-row">
+      <button class="share-btn" onclick="saveResultImage()">📥 儲存圖片</button>
       <button class="share-btn" onclick="copyResult()">📋 複製結果</button>
       <button class="share-btn" onclick="shareToLine()">💬 分享到 LINE</button>
       <button class="share-btn" onclick="copyAI()">🤖 AI 深度解讀</button>
@@ -452,30 +453,6 @@ function showResult(){
   window._resultText='【馥靈之鑰 榮格原型測驗】\n我是 '+r.icon+' '+r.name+' '+r.en+'\n「'+r.sub+'」\n\n測測你的內在原型 👉 hourlightkey.com/quiz-archetype.html';
 }
 
-function copyResult(){if(window._resultText)navigator.clipboard.writeText(window._resultText).then(function(){alert('已複製！')})}
-function shareToLine(){var t=encodeURIComponent(window._resultText||'');window.open('https://social-plugins.line.me/lineit/share?url='+encodeURIComponent('https://hourlightkey.com/quiz-archetype.html')+'&text='+t,'_blank')}
-
-function copyAI(){
-  var a=window._archetype;if(!a)return;
-  var r=DATA[a];
-  var txt='【AI 深度解讀指令｜榮格12原型 × 馥靈座標哲學】\n\n';
-  txt+='你是精通榮格原型心理學、深度心理學、以及馥靈 H.O.U.R. 座標哲學的覺察引導師。\n\n';
-  txt+='使用者的主要原型：'+r.name+'（'+r.en+'）\n';
-  txt+='H.O.U.R. 座標：'+r.hour+'（'+r.castle+'）\n';
-  txt+='對應香氣：'+r.oil+'\n';
-  txt+='對應馥靈原型卡：'+r.cards.join('、')+'\n\n';
-  txt+='請從以下角度深度解讀：\n';
-  txt+='1. 此原型的核心驅動力、恐懼與渴望\n';
-  txt+='2. 此原型在關係、工作、金錢中的行為模式\n';
-  txt+='3. 陰影面：此原型的自我欺騙方式\n';
-  txt+='4. 成長方向：如何整合陰影\n';
-  txt+='5. 對應的馥靈原型卡在說什麼\n\n';
-  txt+='參考：Carl Jung《原型與集體潛意識》、Carol S. Pearson《內在英雄》、馥靈座標哲學\n\n';
-  txt+='【馥靈認知芳療】對應香氣 '+r.oil+'。文字自帶香氣。\n';
-  txt+='【座標哲學】原型不是標籤，是你的潛意識正在使用的劇本。看見劇本，你就能決定要不要繼續演。';
-  navigator.clipboard.writeText(txt).then(function(){alert('AI 提示詞已複製！')});
-}
-
 function restartQuiz(){
   answers={};currentQ=0;
   document.getElementById('quizResult').classList.remove('active');
@@ -485,6 +462,9 @@ function restartQuiz(){
 }
 </script>
 <script src="assets/js/hl-announce.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
 <script src="assets/js/hl-gate.js"></script>
 <script src="assets/js/hl-record.js"></script>
@@ -512,5 +492,7 @@ function restartQuiz(){
 </footer>
 <script src="assets/js/hl-topnav.js"></script>
 <script src="assets/js/hl-bottomnav.js"></script>
+<script src="assets/js/hl-share.js"></script>
+<script src="assets/js/hl-tracker.js" data-tool="quiz-archetype" data-tool-name="覺察原型測驗" data-tool-type="quiz"></script>
 </body>
 </html>
