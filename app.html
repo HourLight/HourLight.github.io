@@ -1293,6 +1293,7 @@ input,select,textarea{font-family:var(--body)}
 
       <!-- Students -->
       <div class="page hide" id="page-students">
+        <button class="subpage-back" onclick="goBack()">‹ 返回</button>
         <div class="page-head"><h1>學員管理</h1><p>您的學員使用記錄。</p></div>
         <div class="card">
           <div class="card-body">
@@ -1307,6 +1308,7 @@ input,select,textarea{font-family:var(--body)}
 
       <!-- Certification -->
       <div class="page hide" id="page-certification">
+        <button class="subpage-back" onclick="goBack()">‹ 返回</button>
         <div class="page-head"><h1>授權認證</h1></div>
         <div class="cert-card"><div class="cert-icon">🌟</div><div class="cert-info"><div class="cert-name">馥靈覺察導師</div><div class="cert-detail" id="cert-detail">認證由管理員手動開通，如有疑問請 LINE 聯繫。</div></div><span class="cert-status cert-active" id="cert-status">有效</span></div>
         <div class="card"><div class="card-head"><span class="card-title">導師權益</span></div><div class="card-body card-body-pt0"><div class="hlist"><div class="hitem"><div class="hicon draw"></div><div class="hinfo"><div class="htool">全站工具不限次數</div></div></div><div class="hitem"><div class="hicon quiz"></div><div class="hinfo"><div class="htool">學員使用記錄查閱</div></div></div><div class="hitem"><div class="hicon calculator"></div><div class="hinfo"><div class="htool">覺察記錄永久保存</div></div></div></div></div></div>
@@ -1314,6 +1316,7 @@ input,select,textarea{font-family:var(--body)}
 
       <!-- Admin -->
       <div class="page hide" id="page-admin">
+        <button class="subpage-back" onclick="goBack()">‹ 返回</button>
         <div class="page-head"><h1>管理總覽</h1></div>
         <div class="admin-tabs">
           <button class="admin-tab on" onclick="switchAdminTab('dashboard')" data-tab="dashboard">📊 數據總覽</button>
@@ -1676,9 +1679,8 @@ const TOOLS_LIST = [
   { id:'quiz-beauty-locus',      name:'控制點指數',      type:'quiz',       icon:'🎮', desc:'你是掌舵者還是順流者？', url:'https://hourlightkey.com/quiz-beauty-locus.html' },
   /* 每日工具 */
   { id:'quiz-aroma',             name:'精油配方師',      type:'quiz',       icon:'🌿', desc:'每日情緒×專業精油配方', url:'https://hourlightkey.com/quiz-aroma.html' },
-  { id:'birthday-gift',          name:'生日禮',          type:'explore',    icon:'🎂', desc:'生日月限定解析服務', url:'https://hourlightkey.com/birthday-gift.html' },
-  { id:'number-triangle',        name:'數字三角',        type:'calculator', icon:'△',  desc:'三角數字關係解析', url:'https://hourlightkey.com/number-triangle.html' },
-  { id:'id-decode',              name:'身分證秘碼',      type:'calculator', icon:'🪪', desc:'身分證裡的數字密碼', url:'https://hourlightkey.com/id-decode.html' },
+  { id:'triangle-calculator',    name:'三角生命密碼',    type:'calculator', icon:'🔺', desc:'九宮格×三角密碼', url:'https://hourlightkey.com/triangle-calculator.html' },
+  { id:'id-decode',              name:'身分證秘碼',      type:'calculator', icon:'🪪', desc:'身分證裡的數字密碼（馥靈三角秘碼）', url:'https://hourlightkey.com/fuling-mima.html' },
   /* ═══ v20-v21 新增測驗 ═══ */
   { id:'quiz-locus',             name:'內外控信念',      type:'quiz',       icon:'🎯', desc:'你相信命運還是選擇？', url:'https://hourlightkey.com/quiz-locus.html' },
   { id:'quiz-impostor',          name:'冒牌者症候群',    type:'quiz',       icon:'🎭', desc:'你覺得自己配不上成功嗎？', url:'https://hourlightkey.com/quiz-impostor.html' },
@@ -1712,7 +1714,6 @@ const TOOLS_LIST = [
   { id:'draw-family',             name:'家庭關係抽牌',    type:'draw',       icon:'👨‍👩‍👧', desc:'家族動力覺察牌陣', url:'https://hourlightkey.com/draw-family.html' },
   { id:'draw-nail',               name:'美甲能量抽牌',    type:'draw',       icon:'💅', desc:'指尖色彩覺察', url:'https://hourlightkey.com/draw-nail.html' },
   { id:'draw-spa',                name:'SPA芳療抽牌',     type:'draw',       icon:'🧖', desc:'身體訊息覺察牌陣', url:'https://hourlightkey.com/draw-spa.html' },
-  { id:'triangle-calculator',     name:'三角生命密碼',    type:'calculator', icon:'🔺', desc:'九宮格×三角密碼', url:'https://hourlightkey.com/triangle-calculator.html' },
   { id:'lifepath-calculator',     name:'生命靈數計算',    type:'calculator', icon:'🔢', desc:'生命路徑完整分析', url:'https://hourlightkey.com/lifepath-calculator.html' },
   { id:'bazi-calculator',         name:'八字排盤',        type:'calculator', icon:'📜', desc:'四柱八字獨立排盤', url:'https://hourlightkey.com/bazi-calculator.html' },
   { id:'ziwei-calculator',        name:'紫微排盤',        type:'calculator', icon:'⭐', desc:'紫微斗數獨立排盤', url:'https://hourlightkey.com/ziwei-calculator.html' },
@@ -1937,6 +1938,10 @@ async function initApp() {
 /* ═══ 頁面切換 ═══ */
 const TAB_PAGES = ['home','tools','history','mine'];
 function showPage(page) {
+  // ── 角色驗證：管理/導師頁面需要對應權限 ──
+  if (['admin'].includes(page) && !['admin','curator'].includes(userRole)) { return; }
+  if (['students','certification'].includes(page) && !['admin','curator','mentor'].includes(userRole)) { return; }
+
   // 記錄返回堆疊（非 tab root 才記錄）
   if (!TAB_PAGES.includes(page) && currentPage !== page) backStack.push(currentPage);
 
@@ -2285,6 +2290,7 @@ function switchAdminTab(tab) {
 }
 
 async function loadAdmin() {
+  if (!['admin','curator'].includes(userRole)) { showPage('home'); return; }
   loadAdminDashboard();
   document.querySelectorAll('.admin-tab').forEach((b,i)=>b.classList.toggle('on',i===0));
   document.querySelectorAll('.admin-sub').forEach((s,i)=>s.classList.toggle('on',i===0));
