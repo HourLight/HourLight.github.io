@@ -2388,6 +2388,7 @@ function renderDailyEnergy(userData) {
     var el = document.getElementById('de-content');
     var dateEl = document.getElementById('de-date');
     if (!el) return;
+    if (typeof Solar === 'undefined') { el.innerHTML = '<div style="font-size:.88rem;color:var(--light);text-align:center">日曆模組載入中，請稍候重新整理</div>'; return; }
 
     var now = new Date();
     var solar = Solar.fromYmdHms(now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), 0, 0);
@@ -2763,7 +2764,7 @@ function saveBirthProfile() {
   var m = parseInt(document.getElementById('bp-month').value);
   var d = parseInt(document.getElementById('bp-day').value);
   var gender = document.getElementById('bp-gender').value;
-  if (!y || !m || !d || y < 1920 || y > 2020) { alert('請輸入正確的國曆生日'); return; }
+  if (!y || !m || !d || y < 1920 || y > 2060) { alert('請輸入正確的國曆生日（1920～2060）'); return; }
   if (m < 1 || m > 12 || d < 1 || d > 31) { alert('請輸入正確的月日'); return; }
   if (!gender) { alert('請選擇性別'); return; }
   var timeVal = document.getElementById('bp-time').value || '';
@@ -2781,8 +2782,10 @@ function saveBirthProfile() {
   var nameZh = (document.getElementById('bp-name').value || '').trim();
   var statusEl = document.getElementById('bp-status');
   statusEl.textContent = '計算中...';
+  if (typeof Solar === 'undefined') { statusEl.textContent = '日曆模組載入失敗，請重新整理頁面後再試'; return; }
   try {
-    var solar = Solar.fromYmdHms(y, m, d, H >= 0 ? H : 12, 0, 0);
+    var hourVal = (H >= 0 && H <= 23) ? H : 12;
+    var solar = Solar.fromYmdHms(y, m, d, hourVal, 0, 0);
     var lunar = solar.getLunar();
     var ec = lunar.getEightChar();
     var WX_MAP = {'甲':'木','乙':'木','丙':'火','丁':'火','戊':'土','己':'土','庚':'金','辛':'金','壬':'水','癸':'水'};
@@ -2825,7 +2828,7 @@ function saveBirthProfile() {
       statusEl.textContent = '儲存失敗：' + (e.message || '請稍後再試');
     });
   } catch (e) {
-    statusEl.textContent = '計算失敗：請確認日期是否正確';
+    statusEl.textContent = '計算失敗：' + (e.message || '請確認日期是否正確');
   }
 }
 function showEditNameModal() { document.getElementById('new-name-input').value=currentUser.displayName||''; openModal('modal-edit-name'); }
