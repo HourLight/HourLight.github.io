@@ -326,6 +326,23 @@ input,select,textarea{font-family:var(--body)}
 .btn-change{padding:7px 16px;border:1px solid var(--border);border-radius:8px;background:transparent;font-size:.95rem;color:var(--mid)}
 .btn-change:active{border-color:var(--gold);color:var(--text)}
 .danger-zone{margin-top:24px}
+.bp-form{display:flex;flex-direction:column;gap:14px;margin-top:8px}
+.bp-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.bp-row label{font-size:.88rem;color:var(--mid);min-width:70px;flex-shrink:0}
+.bp-row input,.bp-row select{flex:1;min-width:100px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:.92rem;font-family:inherit}
+.bp-row input:focus,.bp-row select:focus{border-color:var(--gold);outline:none}
+.bp-row select option{background:#faf6ee;color:#2a1f0e}
+.bp-date-row{display:flex;gap:8px}
+.bp-date-row input{flex:1;min-width:60px}
+.bp-saved{display:none;padding:12px 16px;background:rgba(90,158,80,.08);border:1px solid rgba(90,158,80,.2);border-radius:10px;font-size:.88rem;color:#5a9e50;text-align:center;margin-top:8px}
+.bp-saved.show{display:block}
+.bp-status{font-size:.82rem;color:var(--light);margin-top:4px}
+.bp-btn{padding:12px 28px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;font-size:.92rem;color:#1a1008;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px;min-height:48px}
+.bp-btn:active{opacity:.8}
+.bp-current{padding:12px 16px;background:var(--bg);border:1px solid var(--border);border-radius:10px;margin-top:8px}
+.bp-current-item{display:flex;justify-content:space-between;font-size:.88rem;padding:4px 0;color:var(--mid)}
+.bp-current-item span:last-child{color:var(--text);font-weight:500}
+@media(max-width:420px){.bp-row{flex-direction:column;gap:6px}.bp-row label{min-width:unset}}
 .danger-title{font-size:.95rem;letter-spacing:.1em;color:var(--red);text-transform:uppercase;margin-bottom:10px;opacity:.7}
 .btn-danger{padding:10px 20px;border:1px solid rgba(208,80,80,.3);border-radius:9px;background:transparent;font-size:.92rem;color:var(--red);width:100%}
 
@@ -912,6 +929,19 @@ input,select,textarea{font-family:var(--body)}
           <div class="sc-cta" onclick="location.href='https://hourlightkey.com/draw-hl.html'">✦ 抽今日節氣牌 ›</div>
         </div>
 
+        <!-- 今日開運能量 -->
+        <div class="card" id="daily-energy-card" style="margin-bottom:16px">
+          <div class="card-body" style="padding:20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <div style="font-size:1rem;font-weight:600;color:var(--text)">✦ 今日開運能量</div>
+              <div style="font-size:.78rem;color:var(--light)" id="de-date">載入中</div>
+            </div>
+            <div id="de-content">
+              <div style="text-align:center;padding:16px;color:var(--light);font-size:.88rem">載入中⋯</div>
+            </div>
+          </div>
+        </div>
+
         <!-- 今日任務 -->
         <div class="tasks-card" id="tasks-card">
           <div class="tasks-head">
@@ -1284,6 +1314,343 @@ input,select,textarea{font-family:var(--body)}
             <div class="setting-row"><div><div class="setting-label">電子郵件</div><div class="setting-val" id="s-email">-</div></div></div>
             <div class="setting-row"><div><div class="setting-label">身分等級</div><div class="setting-val" id="s-role">-</div></div></div>
             <div class="setting-row"><div><div class="setting-label">加入時間</div><div class="setting-val" id="s-joined">-</div></div></div>
+            <div class="settings-section-title">我的出生資料</div>
+            <div id="bp-display" style="display:none">
+              <div class="bp-current" id="bp-current-info"></div>
+              <div style="display:flex;gap:8px;margin-top:10px">
+                <button class="btn-change" onclick="toggleBirthForm(true)">修改資料</button>
+              </div>
+            </div>
+            <div id="bp-form-wrap">
+              <div class="bp-form">
+                <div class="bp-row"><label>國曆生日</label>
+                  <div class="bp-date-row">
+                    <input type="tel" id="bp-year" placeholder="年" maxlength="4" inputmode="numeric">
+                    <input type="tel" id="bp-month" placeholder="月" maxlength="2" inputmode="numeric">
+                    <input type="tel" id="bp-day" placeholder="日" maxlength="2" inputmode="numeric">
+                  </div>
+                </div>
+                <div class="bp-row"><label>出生時間</label><input type="time" id="bp-time" placeholder="不確定可留空"></div>
+                <div class="bp-row"><label>性別</label>
+                  <select id="bp-gender"><option value="">請選擇</option><option value="M">男</option><option value="F">女</option></select>
+                </div>
+                <div class="bp-row"><label>出生地</label>
+                  <select id="bp-place"><option value="">請選擇</option>
+          <optgroup label="🇹🇼 台灣">
+            <option value="25.05,121.52">台北市</option>
+            <option value="25.01,121.47">新北市</option>
+            <option value="25.13,121.74">基隆市</option>
+            <option value="24.99,121.30">桃園市</option>
+            <option value="24.80,120.97">新竹市</option>
+            <option value="24.56,120.82">苗栗縣</option>
+            <option value="24.26,120.54">台中市</option>
+            <option value="23.96,120.97">南投縣</option>
+            <option value="23.90,120.54">彰化縣</option>
+            <option value="23.75,120.54">雲林縣</option>
+            <option value="23.47,120.45">嘉義市</option>
+            <option value="22.99,120.21">台南市</option>
+            <option value="22.62,120.30">高雄市</option>
+            <option value="22.36,120.55">屏東縣</option>
+            <option value="23.97,121.60">花蓮縣</option>
+            <option value="22.75,121.15">台東縣</option>
+            <option value="24.45,118.38">金門縣</option>
+            <option value="26.16,119.95">連江縣</option>
+            <option value="23.55,119.58">澎湖縣</option>
+            <option value="24.85,121.55">宜蘭縣</option>
+          </optgroup>
+          <optgroup label="🇲🇾 馬來西亞 ｜ 雪隆 / 森美蘭">
+            <option value="3.14,101.69">吉隆坡 Kuala Lumpur</option>
+            <option value="3.07,101.51">八打靈再也 Petaling Jaya</option>
+            <option value="3.05,101.57">莎亞南 Shah Alam</option>
+            <option value="3.17,101.65">蕉賴 Cheras（雪蘭莪）</option>
+            <option value="2.99,101.78">加影 Kajang</option>
+            <option value="3.10,101.45">巴生 Klang</option>
+            <option value="3.07,101.52">士毛月 Semenyih</option>
+            <option value="3.19,101.53">武吉加里爾 Bukit Jalil</option>
+            <option value="3.33,101.53">烏魯雪蘭莪 Ulu Selangor</option>
+            <option value="2.73,101.94">芙蓉 Seremban</option>
+            <option value="2.64,102.02">波德申 Port Dickson</option>
+          </optgroup>
+          <optgroup label="🇲🇾 馬來西亞 ｜ 柔佛 / 馬六甲">
+            <option value="1.47,103.74">新山 Johor Bahru</option>
+            <option value="1.55,103.76">士乃 Senai</option>
+            <option value="2.04,103.33">古來 Kulai</option>
+            <option value="1.86,103.33">麻坡 Muar</option>
+            <option value="1.96,102.94">居鑾 Kluang</option>
+            <option value="2.02,103.83">笨珍 Pontian</option>
+            <option value="1.86,103.45">峇株巴轄 Batu Pahat</option>
+            <option value="1.67,103.93">龜咯 Kukup</option>
+            <option value="2.19,102.24">馬六甲市 Melaka Raya</option>
+            <option value="2.31,102.45">愛極樂 Ayer Keroh</option>
+          </optgroup>
+          <optgroup label="🇲🇾 馬來西亞 ｜ 彭亨 / 登嘉樓 / 吉蘭丹">
+            <option value="3.80,103.33">關丹 Kuantan</option>
+            <option value="3.81,103.33">淡馬魯 Temerloh</option>
+            <option value="3.48,102.39">文冬 Bentong</option>
+            <option value="3.97,101.39">瓜拉庇勞 Kuala Lipis</option>
+            <option value="3.87,102.42">勞勿 Raub</option>
+            <option value="5.32,103.14">瓜拉登嘉樓 Kuala Terengganu</option>
+            <option value="4.84,103.35">甘馬挽 Kemaman</option>
+            <option value="5.87,102.75">萬撓 Rantau Panjang</option>
+            <option value="6.12,102.24">哥打巴魯 Kota Bharu</option>
+          </optgroup>
+          <optgroup label="🇲🇾 馬來西亞 ｜ 霹靂 / 檳城 / 吉打 / 玻璃市">
+            <option value="4.77,100.73">怡保 Ipoh</option>
+            <option value="4.59,101.08">太平 Taiping</option>
+            <option value="3.99,101.37">金寶 Kampar</option>
+            <option value="3.46,101.38">安順 Teluk Intan</option>
+            <option value="4.00,101.07">江沙 Kuala Kangsar</option>
+            <option value="4.12,100.96">實兆遠 Sitiawan</option>
+            <option value="3.82,100.63">班台 Pantai Remis</option>
+            <option value="5.41,100.33">檳城 Penang（喬治市）</option>
+            <option value="5.52,100.46">威省 Seberang Perai</option>
+            <option value="5.33,100.47">浮羅交怡 Langkawi</option>
+            <option value="6.05,100.35">雙溪大年 Sungai Petani</option>
+            <option value="6.44,100.20">亞羅士打 Alor Setar</option>
+            <option value="6.72,100.53">瓜拉姆拉 Kuala Muda</option>
+            <option value="6.42,100.19">哥打士達 Kota Setar</option>
+            <option value="6.69,100.42">居林 Kulim</option>
+            <option value="6.72,100.16">玻璃市 Perlis（加央 Kangar）</option>
+          </optgroup>
+          <optgroup label="🇲🇾 馬來西亞 ｜ 砂拉越">
+            <option value="1.55,110.34">古晉 Kuching</option>
+            <option value="1.55,111.02">斯里阿曼 Sri Aman</option>
+            <option value="1.83,110.32">三馬拉漢 Samarahan</option>
+            <option value="2.30,111.82">詩巫 Sibu</option>
+            <option value="2.11,111.45">木中 Mukah</option>
+            <option value="3.33,113.05">美里 Miri</option>
+            <option value="4.20,114.05">馬魯帝 Marudi</option>
+            <option value="4.39,114.00">林夢 Limbang</option>
+            <option value="2.30,113.04">民都魯 Bintulu</option>
+          </optgroup>
+          <optgroup label="🇲🇾 馬來西亞 ｜ 沙巴">
+            <option value="5.98,116.07">亞庇 Kota Kinabalu</option>
+            <option value="5.85,116.13">保佛 Papar</option>
+            <option value="5.55,116.67">根地咬 Keningau</option>
+            <option value="5.32,115.97">斗亞蘭 Tuaran</option>
+            <option value="5.82,117.98">拿篤 Lahad Datu</option>
+            <option value="6.92,116.84">山打根 Sandakan</option>
+            <option value="5.54,118.12">仙本那 Semporna</option>
+            <option value="4.27,117.89">斗湖 Tawau</option>
+          </optgroup>
+          <optgroup label="🇨🇳 中國大陸 ｜ 華東">
+            <option value="31.23,121.47">上海</option>
+            <option value="30.25,120.17">杭州</option>
+            <option value="32.06,118.78">南京</option>
+            <option value="31.30,120.58">蘇州</option>
+            <option value="31.86,117.28">合肥</option>
+            <option value="28.68,115.88">南昌</option>
+            <option value="36.67,117.00">濟南</option>
+            <option value="36.09,120.38">青島</option>
+            <option value="30.59,114.31">武漢</option>
+            <option value="28.23,112.94">長沙</option>
+            <option value="29.87,121.55">寧波</option>
+            <option value="28.00,120.67">溫州</option>
+            <option value="30.28,120.16">紹興</option>
+            <option value="30.74,120.74">嘉興</option>
+            <option value="27.46,119.99">龍岩（福建）</option>
+            <option value="25.44,118.37">莆田（福建）</option>
+          </optgroup>
+          <optgroup label="🇨🇳 中國大陸 ｜ 華北 / 東北">
+            <option value="39.91,116.39">北京</option>
+            <option value="39.13,117.20">天津</option>
+            <option value="41.80,123.43">瀋陽</option>
+            <option value="43.89,125.32">長春</option>
+            <option value="45.75,126.63">哈爾濱</option>
+            <option value="37.87,112.55">太原</option>
+            <option value="38.05,114.52">石家莊</option>
+            <option value="38.91,121.63">大連</option>
+            <option value="34.76,113.67">鄭州</option>
+            <option value="36.06,114.39">安陽</option>
+            <option value="47.84,134.97">佳木斯</option>
+          </optgroup>
+          <optgroup label="🇨🇳 中國大陸 ｜ 福建 / 廣東">
+            <option value="26.07,119.30">福州</option>
+            <option value="24.48,118.09">廈門</option>
+            <option value="24.91,118.59">泉州</option>
+            <option value="25.44,118.37">莆田</option>
+            <option value="26.64,117.96">三明</option>
+            <option value="26.89,118.32">南平</option>
+            <option value="27.33,117.37">邵武</option>
+            <option value="23.13,113.27">廣州</option>
+            <option value="22.54,114.06">深圳</option>
+            <option value="22.27,113.57">珠海</option>
+            <option value="23.12,113.03">佛山</option>
+            <option value="23.02,113.75">東莞</option>
+            <option value="23.55,116.68">汕頭</option>
+            <option value="24.35,115.37">梅州</option>
+            <option value="21.47,109.91">湛江</option>
+            <option value="22.30,113.54">中山</option>
+            <option value="21.87,110.90">茂名</option>
+            <option value="22.82,108.37">南寧</option>
+          </optgroup>
+          <optgroup label="🇨🇳 中國大陸 ｜ 西南 / 西北">
+            <option value="25.07,102.68">昆明</option>
+            <option value="22.01,100.80">西雙版納</option>
+            <option value="25.60,100.25">大理</option>
+            <option value="26.87,100.23">麗江</option>
+            <option value="30.66,104.07">成都</option>
+            <option value="29.56,106.55">重慶</option>
+            <option value="26.58,106.71">貴陽</option>
+            <option value="29.65,91.13">拉薩</option>
+            <option value="34.27,108.95">西安</option>
+            <option value="36.06,103.79">蘭州</option>
+            <option value="36.63,101.78">西寧</option>
+            <option value="43.79,87.60">烏魯木齊</option>
+          </optgroup>
+          <optgroup label="🇭🇰🇲🇴 港澳">
+            <option value="22.31,114.17">香港</option>
+            <option value="22.20,113.54">澳門</option>
+          </optgroup>
+          <optgroup label="🇸🇬 新加坡 / 汶萊">
+            <option value="1.35,103.82">新加坡</option>
+            <option value="1.28,103.81">新加坡南部 Tanjong Pagar</option>
+            <option value="1.44,103.82">兀蘭 Woodlands</option>
+            <option value="4.94,114.95">斯里巴加灣 Bandar（汶萊）</option>
+          </optgroup>
+          <optgroup label="🇻🇳 越南">
+            <option value="21.03,105.83">河內 Hà Nội（北）</option>
+            <option value="20.86,106.68">海防 Hải Phòng（北）</option>
+            <option value="20.51,106.33">南定 Nam Định（北）</option>
+            <option value="21.38,105.84">太原 Thái Nguyên（北）</option>
+            <option value="22.67,106.81">諒山 Lạng Sơn（北）</option>
+            <option value="21.83,108.03">廣寧 Quảng Ninh（北）</option>
+            <option value="16.47,107.59">峴港 Đà Nẵng（中）</option>
+            <option value="15.88,108.34">會安 Hội An（中）</option>
+            <option value="16.07,108.22">廣南 Quảng Nam（中）</option>
+            <option value="13.10,109.30">歸仁 Quy Nhơn（中）</option>
+            <option value="11.94,108.44">大叻 Đà Lạt（中）</option>
+            <option value="12.24,109.19">芽莊 Nha Trang（中）</option>
+            <option value="10.82,106.63">胡志明市（南）</option>
+            <option value="10.94,106.82">平陽 Bình Dương（南）</option>
+            <option value="10.96,106.87">同奈 Đồng Nai（南）</option>
+            <option value="10.59,107.24">巴地 Bà Rịa（南）</option>
+            <option value="10.37,105.44">芹苴 Cần Thơ（南）</option>
+            <option value="10.50,105.62">同塔 Đồng Tháp（南）</option>
+            <option value="10.70,106.41">隆安 Long An（南）</option>
+            <option value="10.37,106.36">前江 Tiền Giang（南）</option>
+            <option value="9.17,105.15">薄寮 Bạc Liêu（南）</option>
+            <option value="9.60,105.97">茶榮 Trà Vinh（南）</option>
+          </optgroup>
+          <optgroup label="🇹🇭 泰國">
+            <option value="13.75,100.52">曼谷 Bangkok</option>
+            <option value="13.70,100.48">吞武里 Thonburi</option>
+            <option value="13.83,100.62">暖武里 Nonthaburi</option>
+            <option value="14.00,100.53">巴吞他尼 Pathum Thani</option>
+            <option value="14.35,100.57">大城 Ayutthaya</option>
+            <option value="18.80,98.99">清邁 Chiang Mai</option>
+            <option value="19.90,99.83">清萊 Chiang Rai</option>
+            <option value="16.43,102.83">孔敬 Khon Kaen</option>
+            <option value="17.41,102.79">烏隆他尼 Udon Thani</option>
+            <option value="15.24,104.85">烏汶 Ubon Ratchathani</option>
+            <option value="14.99,102.09">呵叻 Nakhon Ratchasima</option>
+            <option value="16.42,103.00">加拉信 Kalasin</option>
+            <option value="7.89,98.40">普吉 Phuket</option>
+            <option value="9.14,99.34">蘇梅島 Koh Samui</option>
+            <option value="7.00,100.47">合艾 Hat Yai</option>
+            <option value="8.10,98.30">甲米 Krabi</option>
+          </optgroup>
+          <optgroup label="🌏 東南亞其他">
+            <option value="11.56,104.92">金邊 Phnom Penh（柬埔寨）</option>
+            <option value="13.36,103.86">暹粒 Siem Reap（柬埔寨）</option>
+            <option value="17.97,102.60">永珍 Vientiane（寮國）</option>
+            <option value="19.89,102.13">琅勃拉邦 Luang Prabang（寮國）</option>
+            <option value="16.87,96.15">仰光 Yangon（緬甸）</option>
+            <option value="21.97,96.08">曼德勒 Mandalay（緬甸）</option>
+            <option value="14.62,120.98">馬尼拉 Manila（菲律賓）</option>
+            <option value="10.32,123.90">宿霧 Cebu（菲律賓）</option>
+            <option value="7.07,125.61">達沃 Davao（菲律賓）</option>
+            <option value="-6.21,106.85">雅加達 Jakarta（印尼）</option>
+            <option value="-8.34,115.09">峇里島 Bali（印尼）</option>
+            <option value="3.59,98.67">棉蘭 Medan（印尼）</option>
+            <option value="-7.25,112.75">泗水 Surabaya（印尼）</option>
+            <option value="-6.99,110.42">三寶瓏 Semarang（印尼）</option>
+            <option value="0.95,131.28">德那第 Ternate（印尼）</option>
+          </optgroup>
+          <optgroup label="🇯🇵🇰🇷 日本 / 韓國">
+            <option value="35.69,139.69">東京 Tokyo</option>
+            <option value="34.69,135.50">大阪 Osaka</option>
+            <option value="35.02,135.76">京都 Kyoto</option>
+            <option value="33.59,130.40">福岡 Fukuoka</option>
+            <option value="43.06,141.35">札幌 Sapporo</option>
+            <option value="26.21,127.68">那霸 Naha（沖繩）</option>
+            <option value="37.57,126.98">首爾 Seoul</option>
+            <option value="35.10,129.04">釜山 Busan</option>
+          </optgroup>
+          <optgroup label="🌍 歐洲">
+            <option value="51.51,-0.13">倫敦 London（英國）</option>
+            <option value="48.86,2.35">巴黎 Paris（法國）</option>
+            <option value="52.52,13.40">柏林 Berlin（德國）</option>
+            <option value="48.14,11.58">慕尼黑 Munich（德國）</option>
+            <option value="52.37,4.90">阿姆斯特丹 Amsterdam（荷蘭）</option>
+            <option value="50.85,4.35">布魯塞爾 Brussels（比利時）</option>
+            <option value="47.37,8.54">蘇黎世 Zurich（瑞士）</option>
+            <option value="41.90,12.50">羅馬 Rome（義大利）</option>
+            <option value="45.46,9.19">米蘭 Milan（義大利）</option>
+            <option value="40.42,-3.70">馬德里 Madrid（西班牙）</option>
+            <option value="41.38,2.17">巴塞隆納 Barcelona（西班牙）</option>
+            <option value="38.72,-9.14">里斯本 Lisbon（葡萄牙）</option>
+            <option value="55.75,37.62">莫斯科 Moscow（俄羅斯）</option>
+            <option value="59.33,18.07">斯德哥爾摩 Stockholm（瑞典）</option>
+            <option value="59.91,10.75">奧斯陸 Oslo（挪威）</option>
+            <option value="55.68,12.57">哥本哈根 Copenhagen（丹麥）</option>
+            <option value="60.17,24.94">赫爾辛基 Helsinki（芬蘭）</option>
+            <option value="47.50,19.04">布達佩斯 Budapest（匈牙利）</option>
+            <option value="50.08,14.43">布拉格 Prague（捷克）</option>
+            <option value="52.23,21.01">華沙 Warsaw（波蘭）</option>
+          </optgroup>
+          <optgroup label="🌎 北美洲">
+            <option value="40.71,-74.01">紐約 New York</option>
+            <option value="34.05,-118.25">洛杉磯 Los Angeles</option>
+            <option value="37.77,-122.42">舊金山 San Francisco</option>
+            <option value="47.61,-122.33">西雅圖 Seattle</option>
+            <option value="45.52,-122.68">波特蘭 Portland</option>
+            <option value="49.28,-123.12">溫哥華 Vancouver（加拿大）</option>
+            <option value="43.65,-79.38">多倫多 Toronto（加拿大）</option>
+            <option value="45.51,-73.56">蒙特婁 Montreal（加拿大）</option>
+            <option value="41.88,-87.63">芝加哥 Chicago</option>
+            <option value="29.76,-95.37">休斯頓 Houston</option>
+            <option value="33.45,-112.07">鳳凰城 Phoenix</option>
+            <option value="32.78,-96.80">達拉斯 Dallas</option>
+            <option value="25.77,-80.19">邁阿密 Miami</option>
+            <option value="38.91,-77.04">華盛頓特區 Washington DC</option>
+            <option value="42.36,-71.06">波士頓 Boston</option>
+            <option value="19.43,-99.13">墨西哥城 Mexico City</option>
+          </optgroup>
+          <optgroup label="🌏 澳洲 / 紐西蘭">
+            <option value="-33.87,151.21">雪梨 Sydney</option>
+            <option value="-37.81,144.96">墨爾本 Melbourne</option>
+            <option value="-27.47,153.03">布里斯本 Brisbane</option>
+            <option value="-31.95,115.86">柏斯 Perth</option>
+            <option value="-34.93,138.60">阿得雷德 Adelaide</option>
+            <option value="-36.87,174.77">奧克蘭 Auckland（紐西蘭）</option>
+            <option value="-41.29,174.78">惠靈頓 Wellington（紐西蘭）</option>
+          </optgroup>
+          <optgroup label="🌍 中東 / 南亞">
+            <option value="25.20,55.27">杜拜 Dubai（阿聯酋）</option>
+            <option value="24.47,54.37">阿布達比 Abu Dhabi（阿聯酋）</option>
+            <option value="31.77,35.22">耶路撒冷 Jerusalem（以色列）</option>
+            <option value="28.61,77.21">新德里 New Delhi（印度）</option>
+            <option value="19.08,72.88">孟買 Mumbai（印度）</option>
+            <option value="12.97,77.59">班加羅爾 Bangalore（印度）</option>
+            <option value="23.72,90.41">達卡 Dhaka（孟加拉）</option>
+          </optgroup>
+          <optgroup label="🌎 南美洲 / 其他">
+            <option value="-23.55,-46.63">聖保羅 São Paulo（巴西）</option>
+            <option value="-22.91,-43.17">里約 Rio de Janeiro（巴西）</option>
+            <option value="-34.61,-58.44">布宜諾斯艾利斯 Buenos Aires（阿根廷）</option>
+            <option value="-33.46,-70.65">聖地牙哥 Santiago（智利）</option>
+            <option value="-4.32,15.32">金夏沙 Kinshasa（剛果）</option>
+            <option value="-26.30,31.14">姆巴巴內 Mbabane（斯威士蘭）</option>
+          </optgroup>
+        </select>
+                </div>
+                <div class="bp-row"><label>中文姓名</label><input type="text" id="bp-name" placeholder="選填，用於姓名學分析" autocomplete="off"></div>
+                <button class="bp-btn" onclick="saveBirthProfile()">儲存出生資料</button>
+                <div class="bp-saved" id="bp-saved-msg">✅ 已儲存，全站工具將自動帶入您的資料</div>
+                <div class="bp-status" id="bp-status"></div>
+              </div>
+            </div>
             <div class="settings-section-title">安全性</div>
             <div class="setting-row" style="border-radius:var(--radius-sm)!important"><div class="setting-label">密碼</div><button class="btn-change" onclick="showChangePwModal()">修改密碼</button></div>
             <div class="danger-zone"><div class="danger-title">⚠ 危險區域</div><button class="btn-danger" onclick="confirmDeleteAccount()">刪除我的帳號</button></div>
@@ -1938,10 +2305,9 @@ async function initApp() {
 /* ═══ 頁面切換 ═══ */
 const TAB_PAGES = ['home','tools','history','mine'];
 function showPage(page) {
-  // ── 角色驗證：管理/導師頁面需要對應權限 ──
-  if (['admin'].includes(page) && !['admin','curator'].includes(userRole)) { return; }
-  if (['students','certification'].includes(page) && !['admin','curator','mentor'].includes(userRole)) { return; }
-
+  // 角色驗證
+  if (page==='admin' && !['admin','curator'].includes(userRole)) return;
+  if ((page==='students'||page==='certification') && !['admin','curator','mentor'].includes(userRole)) return;
   // 記錄返回堆疊（非 tab root 才記錄）
   if (!TAB_PAGES.includes(page) && currentPage !== page) backStack.push(currentPage);
 
@@ -2009,7 +2375,121 @@ async function loadHome() {
 
     // 最近足跡
     loadRecentHistory();
+
+    // 今日開運能量
+    renderDailyEnergy(d);
   } catch(e) { console.warn(e); }
+}
+
+/* ═══ 今日開運能量 ═══ */
+function renderDailyEnergy(userData) {
+  try {
+    var el = document.getElementById('de-content');
+    var dateEl = document.getElementById('de-date');
+    if (!el) return;
+
+    var now = new Date();
+    var solar = Solar.fromYmdHms(now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), 0, 0);
+    var lunar = solar.getLunar();
+    var ec = lunar.getEightChar();
+    var dayGan = ec.getDayGan ? ec.getDayGan() : ec.getDay()[0];
+    var dayZhi = ec.getDayZhi ? ec.getDayZhi() : ec.getDay()[1];
+
+    var WX_MAP = {'甲':'木','乙':'木','丙':'火','丁':'火','戊':'土','己':'土','庚':'金','辛':'金','壬':'水','癸':'水'};
+    var dayWX = WX_MAP[dayGan] || '土';
+    var jqName = '';
+    try { jqName = lunar.getPrevJieQi().getName(); } catch(e2) {}
+
+    dateEl.textContent = now.getFullYear() + '/' + (now.getMonth()+1) + '/' + now.getDate() + ' ' + dayGan + dayZhi + '日';
+
+    var OIL = {'水':'薰衣草','木':'迷迭香','火':'甜橙','土':'岩蘭草','金':'茶樹'};
+    var OIL2 = {'水':'佛手柑','木':'尤加利','火':'薄荷','土':'檀香','金':'雪松'};
+    var CRYSTAL = {'水':'黑碧璽','木':'綠幽靈','火':'紅瑪瑙','土':'黃水晶','金':'白水晶'};
+    var DIR = {'水':'北方','木':'東方','火':'南方','土':'中央','金':'西方'};
+    var COLOR = {'水':'墨玉藍','木':'翠玉金','火':'赤焰金','土':'琥珀金','金':'霜銀白'};
+    var WX_ICON = {'水':'💧','木':'🌿','火':'🔥','土':'🏔','金':'⚔'};
+    var WX_MSG = {
+      '水':'水行日，直覺敏銳但容易想太多。重要決定睡一覺再說。',
+      '木':'木行日，生長力旺盛，適合開始新計畫、認識新朋友。',
+      '火':'火行日，行動力爆表但容易衝動。做完深呼吸再按送出。',
+      '土':'土行日，穩定踏實的一天。適合處理文件、整理空間、盤點財務。',
+      '金':'金行日，判斷力清明。適合談判、做取捨、剪掉不需要的東西。'
+    };
+
+    var hasProfile = userData && userData.yearWX;
+    var html = '';
+
+    if (hasProfile) {
+      var myWX = userData.yearWX;
+      var sheng = {'木':'火','火':'土','土':'金','金':'水','水':'木'};
+      var ke = {'木':'土','土':'水','水':'火','火':'金','金':'木'};
+      var scores = calcDailyScores(myWX, dayWX, dayGan, dayZhi);
+      html += '<div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px;flex-wrap:wrap">';
+      var dims = [['💪',scores.body,'身心'],['💕',scores.love,'人際'],['💰',scores.wealth,'財運'],['⚡',scores.action,'事業'],['✦',scores.total,'總運']];
+      for (var i = 0; i < dims.length; i++) {
+        var c = dims[i][1] >= 80 ? '#5dba8a' : dims[i][1] >= 60 ? 'var(--gold)' : '#c47a5a';
+        html += '<div style="text-align:center;min-width:52px"><div style="font-size:.78rem;color:var(--light)">' + dims[i][2] + '</div>';
+        html += '<div style="font-size:1.1rem;font-weight:700;color:' + c + '">' + dims[i][0] + ' ' + dims[i][1] + '</div></div>';
+      }
+      html += '</div>';
+    }
+
+    html += '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">';
+    html += '<div style="flex:1;min-width:120px;padding:10px;background:var(--bg);border-radius:10px;text-align:center"><div style="font-size:.75rem;color:var(--light)">精油</div><div style="font-size:.92rem;font-weight:600;color:var(--text)">🌿 ' + OIL[dayWX] + '</div></div>';
+    html += '<div style="flex:1;min-width:120px;padding:10px;background:var(--bg);border-radius:10px;text-align:center"><div style="font-size:.75rem;color:var(--light)">水晶</div><div style="font-size:.92rem;font-weight:600;color:var(--text)">💎 ' + CRYSTAL[dayWX] + '</div></div>';
+    html += '<div style="flex:1;min-width:120px;padding:10px;background:var(--bg);border-radius:10px;text-align:center"><div style="font-size:.75rem;color:var(--light)">方位</div><div style="font-size:.92rem;font-weight:600;color:var(--text)">🧭 ' + DIR[dayWX] + '</div></div>';
+    html += '<div style="flex:1;min-width:120px;padding:10px;background:var(--bg);border-radius:10px;text-align:center"><div style="font-size:.75rem;color:var(--light)">開運色</div><div style="font-size:.92rem;font-weight:600;color:var(--text)">🎨 ' + COLOR[dayWX] + '</div></div>';
+    html += '</div>';
+
+    if (hasProfile) {
+      var myWX2 = userData.yearWX;
+      var tip = getPersonalTip(myWX2, dayWX);
+      html += '<div style="padding:12px;background:linear-gradient(135deg,rgba(201,160,96,.06),rgba(201,160,96,.02));border:1px solid rgba(201,160,96,.15);border-radius:10px;font-size:.88rem;color:var(--text);line-height:1.8">' + WX_ICON[dayWX] + ' ' + tip + '</div>';
+    } else {
+      html += '<div style="padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;font-size:.88rem;color:var(--mid);line-height:1.8">' + WX_ICON[dayWX] + ' ' + WX_MSG[dayWX] + '</div>';
+      html += '<div style="text-align:center;margin-top:10px"><button onclick="showPage(&quot;settings&quot;)" style="padding:8px 20px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:8px;color:#1a1008;font-size:.85rem;font-weight:500;cursor:pointer;font-family:inherit">🔓 填入生日，解鎖專屬五維能量分數</button></div>';
+    }
+
+    html += '<div style="display:flex;gap:8px;margin-top:10px;justify-content:center">';
+    html += '<a href="https://hourlightkey.com/fortune-wealth.html" target="_blank" style="font-size:.82rem;color:var(--gold);text-decoration:none">完整招財分析 →</a>';
+    html += '<a href="https://hourlightkey.com/draw-hl.html?n=1" target="_blank" style="font-size:.82rem;color:var(--gold);text-decoration:none">抽一張牌 →</a>';
+    html += '</div>';
+
+    el.innerHTML = html;
+  } catch(e) {
+    var el2 = document.getElementById('de-content');
+    if (el2) el2.innerHTML = '<div style="font-size:.88rem;color:var(--light);text-align:center">能量載入中</div>';
+  }
+}
+
+function calcDailyScores(myWX, dayWX, dayGan, dayZhi) {
+  var sheng = {'木':'火','火':'土','土':'金','金':'水','水':'木'};
+  var ke = {'木':'土','土':'水','水':'火','火':'金','金':'木'};
+  var base = 65;
+  if (sheng[dayWX] === myWX) base = 82;
+  else if (sheng[myWX] === dayWX) base = 72;
+  else if (myWX === dayWX) base = 70;
+  else if (ke[myWX] === dayWX) base = 60;
+  else if (ke[dayWX] === myWX) base = 55;
+  var today = new Date();
+  var seed = today.getFullYear() * 10000 + (today.getMonth()+1) * 100 + today.getDate();
+  function pseudoRand(s, offset) { return ((s * 9301 + 49297 + offset * 233) % 32768) / 32768; }
+  var body = Math.max(30, Math.min(98, base + Math.round((pseudoRand(seed, 1) - 0.5) * 24)));
+  var love = Math.max(30, Math.min(98, base + Math.round((pseudoRand(seed, 2) - 0.5) * 28)));
+  var wealth = Math.max(30, Math.min(98, base + Math.round((pseudoRand(seed, 3) - 0.5) * 26)));
+  var action = Math.max(30, Math.min(98, base + Math.round((pseudoRand(seed, 4) - 0.5) * 22)));
+  var total = Math.round((body + love + wealth + action) / 4);
+  return { body: body, love: love, wealth: wealth, action: action, total: total };
+}
+
+function getPersonalTip(myWX, dayWX) {
+  var sheng = {'木':'火','火':'土','土':'金','金':'水','水':'木'};
+  var ke = {'木':'土','土':'水','水':'火','火':'金','金':'木'};
+  if (sheng[dayWX] === myWX) return '今天環境在餵養您（' + dayWX + '生' + myWX + '）。之前拖著的事，今天推一把會有進展。';
+  if (sheng[myWX] === dayWX) return '今天是付出日（' + myWX + '生' + dayWX + '）。花出去的精力不會白費，但記得留一點給自己。';
+  if (myWX === dayWX) return '今天跟您同頻（都是' + myWX + '）。競爭多但機會也多，做出差異化是關鍵。';
+  if (ke[myWX] === dayWX) return '今天您有掌控力（' + myWX + '剋' + dayWX + '）。適合談判、做決定，但別太強硬。';
+  return '今天外在壓力稍大（' + dayWX + '剋' + myWX + '）。守比攻重要，做好手邊的事就好。';
 }
 
 function getGreeting() {
@@ -2216,6 +2696,136 @@ function loadSettings() {
   document.getElementById('s-email').textContent = currentUser.email||'-';
   const r = HL_ROLES[userRole]||HL_ROLES.guest;
   document.getElementById('s-role').textContent = r.icon+' '+r.name;
+  loadBirthProfile();
+}
+
+/* ═══ 出生資料 ═══ */
+var _birthLoaded = false;
+
+function loadBirthProfile() {
+  if (!currentUser || !db) return;
+  db.collection('users').doc(currentUser.uid).get().then(function(doc) {
+    if (!doc.exists) return;
+    var d = doc.data();
+    if (d.solarYear && d.gender) {
+      _birthLoaded = true;
+      showBirthDisplay(d);
+    } else {
+      document.getElementById('bp-display').style.display = 'none';
+      document.getElementById('bp-form-wrap').style.display = 'block';
+    }
+  }).catch(function() {});
+}
+
+function showBirthDisplay(d) {
+  var info = document.getElementById('bp-current-info');
+  var html = '';
+  html += '<div class="bp-current-item"><span>國曆生日</span><span>' + (d.solarYear||'') + '/' + (d.solarMonth||'') + '/' + (d.solarDay||'') + '</span></div>';
+  html += '<div class="bp-current-item"><span>農曆</span><span>' + (d.lunarDate||'-') + '</span></div>';
+  html += '<div class="bp-current-item"><span>八字</span><span>' + (d.bazi||'-') + '</span></div>';
+  html += '<div class="bp-current-item"><span>本命五行</span><span>' + (d.yearWX||'-') + '（年干' + (d.yearGan||'') + '）</span></div>';
+  html += '<div class="bp-current-item"><span>日主</span><span>' + (d.dayWX||'-') + '（日干' + (d.dayGan||'') + '）</span></div>';
+  if (d.birthTime) html += '<div class="bp-current-item"><span>出生時間</span><span>' + d.birthTime + '</span></div>';
+  html += '<div class="bp-current-item"><span>性別</span><span>' + (d.gender === 'M' ? '男' : '女') + '</span></div>';
+  if (d.birthPlaceName) html += '<div class="bp-current-item"><span>出生地</span><span>' + d.birthPlaceName + '</span></div>';
+  if (d.nameZh) html += '<div class="bp-current-item"><span>姓名</span><span>' + d.nameZh + '</span></div>';
+  info.innerHTML = html;
+  document.getElementById('bp-display').style.display = 'block';
+  document.getElementById('bp-form-wrap').style.display = 'none';
+}
+
+function toggleBirthForm(show) {
+  if (show) {
+    document.getElementById('bp-display').style.display = 'none';
+    document.getElementById('bp-form-wrap').style.display = 'block';
+    if (_birthLoaded && currentUser && db) {
+      db.collection('users').doc(currentUser.uid).get().then(function(doc) {
+        if (!doc.exists) return;
+        var d = doc.data();
+        if (d.solarYear) document.getElementById('bp-year').value = d.solarYear;
+        if (d.solarMonth) document.getElementById('bp-month').value = d.solarMonth;
+        if (d.solarDay) document.getElementById('bp-day').value = d.solarDay;
+        if (d.birthTime) document.getElementById('bp-time').value = d.birthTime;
+        if (d.gender) document.getElementById('bp-gender').value = d.gender;
+        if (d.birthPlace) document.getElementById('bp-place').value = d.birthPlace;
+        if (d.nameZh) document.getElementById('bp-name').value = d.nameZh;
+      }).catch(function() {});
+    }
+  } else {
+    document.getElementById('bp-display').style.display = 'block';
+    document.getElementById('bp-form-wrap').style.display = 'none';
+  }
+}
+
+function saveBirthProfile() {
+  var y = parseInt(document.getElementById('bp-year').value);
+  var m = parseInt(document.getElementById('bp-month').value);
+  var d = parseInt(document.getElementById('bp-day').value);
+  var gender = document.getElementById('bp-gender').value;
+  if (!y || !m || !d || y < 1920 || y > 2020) { alert('請輸入正確的國曆生日'); return; }
+  if (m < 1 || m > 12 || d < 1 || d > 31) { alert('請輸入正確的月日'); return; }
+  if (!gender) { alert('請選擇性別'); return; }
+  var timeVal = document.getElementById('bp-time').value || '';
+  var H = -1;
+  if (timeVal) {
+    var tp = timeVal.split(':');
+    H = parseInt(tp[0]);
+  }
+  var place = document.getElementById('bp-place').value || '';
+  var placeName = '';
+  if (place) {
+    var sel = document.getElementById('bp-place');
+    placeName = sel.options[sel.selectedIndex].text;
+  }
+  var nameZh = (document.getElementById('bp-name').value || '').trim();
+  var statusEl = document.getElementById('bp-status');
+  statusEl.textContent = '計算中...';
+  try {
+    var solar = Solar.fromYmdHms(y, m, d, H >= 0 ? H : 12, 0, 0);
+    var lunar = solar.getLunar();
+    var ec = lunar.getEightChar();
+    var WX_MAP = {'甲':'木','乙':'木','丙':'火','丁':'火','戊':'土','己':'土','庚':'金','辛':'金','壬':'水','癸':'水'};
+    var yearGan = ec.getYearGan ? ec.getYearGan() : ec.getYear()[0];
+    var dayGan = ec.getDayGan ? ec.getDayGan() : ec.getDay()[0];
+    var profileData = {
+      solarYear: y,
+      solarMonth: m,
+      solarDay: d,
+      solarDate: y + '-' + (m < 10 ? '0' : '') + m + '-' + (d < 10 ? '0' : '') + d,
+      birthTime: timeVal,
+      birthHour: H,
+      gender: gender,
+      birthPlace: place,
+      birthPlaceName: placeName,
+      nameZh: nameZh,
+      lunarDate: lunar.getYearInChinese() + '年' + lunar.getMonthInChinese() + '月' + lunar.getDayInChinese(),
+      lunarYear: lunar.getYear(),
+      lunarMonth: lunar.getMonth(),
+      lunarDay: lunar.getDay(),
+      yearGZ: ec.getYear(),
+      monthGZ: ec.getMonth(),
+      dayGZ: ec.getDay(),
+      timeGZ: H >= 0 ? ec.getTime() : '',
+      bazi: ec.getYear() + ' ' + ec.getMonth() + ' ' + ec.getDay() + (H >= 0 ? ' ' + ec.getTime() : ''),
+      yearGan: yearGan,
+      dayGan: dayGan,
+      yearWX: WX_MAP[yearGan] || '',
+      dayWX: WX_MAP[dayGan] || '',
+      profileComplete: true,
+      profileUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    db.collection('users').doc(currentUser.uid).set(profileData, { merge: true }).then(function() {
+      _birthLoaded = true;
+      statusEl.textContent = '';
+      var msg = document.getElementById('bp-saved-msg');
+      msg.classList.add('show');
+      setTimeout(function() { msg.classList.remove('show'); showBirthDisplay(profileData); }, 2000);
+    }).catch(function(e) {
+      statusEl.textContent = '儲存失敗：' + (e.message || '請稍後再試');
+    });
+  } catch (e) {
+    statusEl.textContent = '計算失敗：請確認日期是否正確';
+  }
 }
 function showEditNameModal() { document.getElementById('new-name-input').value=currentUser.displayName||''; openModal('modal-edit-name'); }
 async function saveDisplayName() {
@@ -2290,7 +2900,7 @@ function switchAdminTab(tab) {
 }
 
 async function loadAdmin() {
-  if (!['admin','curator'].includes(userRole)) { showPage('home'); return; }
+  if (!['admin','curator'].includes(userRole)) return;
   loadAdminDashboard();
   document.querySelectorAll('.admin-tab').forEach((b,i)=>b.classList.toggle('on',i===0));
   document.querySelectorAll('.admin-sub').forEach((s,i)=>s.classList.toggle('on',i===0));

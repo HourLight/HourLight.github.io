@@ -1263,7 +1263,6 @@ let pendingN = 0;
 document.querySelectorAll('.hl-v2-mode-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     pendingN = parseInt(btn.dataset.n, 10);
-    // 1張牌不需要問問題，直接抽
     if (pendingN === 1) {
       userQuestion = '';
       drawCards(1);
@@ -1289,18 +1288,19 @@ modalConfirm.addEventListener('click', async () => {
   drawCards(pendingN);
 });
 
-// ── 偵測 URL 參數自動抽牌（首頁 ?n=1 導入）──
+// 偵測 URL 參數 ?n=1 自動抽牌（首頁導入）
 (function(){
-  var params = new URLSearchParams(window.location.search);
-  var autoN = parseInt(params.get('n'), 10);
-  if (autoN === 1) {
-    userQuestion = '';
-    setTimeout(function(){ drawCards(1); }, 300);
-    // 清除 URL 參數，避免重新整理再次觸發
-    if (window.history && window.history.replaceState) {
-      window.history.replaceState({}, '', window.location.pathname);
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var autoN = parseInt(params.get('n'), 10);
+    if (autoN === 1) {
+      userQuestion = '';
+      setTimeout(function(){ drawCards(1); }, 300);
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState({}, '', window.location.pathname);
+      }
     }
-  }
+  } catch(e) {}
 })();
 
 function drawCards(n) {
