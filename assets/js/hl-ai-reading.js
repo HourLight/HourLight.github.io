@@ -45,7 +45,7 @@
       + '<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px">'
       + '<button onclick="window._hlCopyResult()" style="padding:10px 20px;background:none;border:1px solid rgba(233,194,125,.2);'
       + 'border-radius:50px;color:#f8dfa5;font-size:.9rem;cursor:pointer;font-family:inherit">📋 複製解讀結果</button>'
-      + '<a href="https://lin.ee/p5tBihbe" target="_blank" rel="noopener" style="padding:10px 20px;'
+      + '<a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" style="padding:10px 20px;'
       + 'background:none;border:1px solid rgba(233,194,125,.2);border-radius:50px;color:#f8dfa5;'
       + 'font-size:.9rem;text-decoration:none;font-family:inherit">💬 預約覺察師深度陪伴</a></div>';
 

@@ -68,7 +68,7 @@ overlay.innerHTML = `
     <button class="hla-btn" onclick="document.getElementById('hlAnnounce').remove();try{sessionStorage.setItem('${DISMISS_KEY}','1')}catch(e){}">
       我知道了，開始探索 ✨
     </button>
-    <a href="https://lin.ee/p5tBihbe" class="hla-link" target="_blank">💬 LINE 聊聊</a>
+    <a href="https://lin.ee/RdQBFAN" class="hla-link" target="_blank">💬 LINE 聊聊</a>
   </div>
 </div>
 `;

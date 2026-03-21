@@ -1,71 +1,21 @@
 /* ============================================
    馥靈之鑰 Hour Light
-   背景音樂控制模組 v2.0
-   三首宇宙氛圍原創音樂・依頁面自動切換
+   背景音樂控制模組 v3.0
+   Endless Little Stars・八音盒單曲循環
    ============================================ */
 
 (function() {
   'use strict';
 
-  /* ---- 音樂檔案對照表 ---- */
-  var BASE = 'https://hourlightkey.com/music/';
-  var TRACKS = {
-    cosmos:   BASE + '70bpm.mp3',   // 宇宙搖籃：溫暖 pad + 鋼琴，官網主旋律
-    stardust: BASE + '65bpm.mp3',   // 星河漫步：有旋律線，互動工具陪伴
-    thekey:   BASE + '60bpm.mp3'    // 鑰匙的召喚：品牌辨識度最高，敘事感
-  };
-
-  /* ---- 頁面→音軌分配 ---- */
-  var PAGE_MAP = {
-    // 鑰匙的召喚（故事・深度・品牌核心）
-    'yichun':            'thekey',
-    'founder':           'thekey',
-    'brand':             'thekey',
-    'worldview':         'thekey',
-    'hourlight-core':    'thekey',
-    'book':              'thekey',
-    'music':             'thekey',
-    'gps':               'thekey',
-
-    // 星河漫步（互動工具・計算器・抽牌）
-    'fuling-mima':           'stardust',
-    'draw-hl':               'stardust',
-    'draw-light':            'stardust',
-    'draw-spa':              'stardust',
-    'draw-nail':             'stardust',
-    'draw-family':           'stardust',
-    'family-reading':        'stardust',
-    'tarot':                 'stardust',
-    'tarot-draw':            'stardust',
-    'tarot-widget':          'stardust',
-    'lifepath-calculator':   'stardust',
-    'numerology-calculator': 'stardust',
-    'rainbow-calculator':    'stardust',
-    'maya-calculator':       'stardust',
-    'quantum-numerology':    'stardust',
-    'rainbow-bridge':        'stardust',
-    'digital-energy-analyzer': 'stardust',
-    'scent-navigator':       'stardust',
-    'maslow-frequency':      'stardust'
-  };
-  // 其餘所有頁面 → cosmos（宇宙搖籃）
+  /* ---- 音樂檔案 ---- */
+  var MUSIC_URL = 'https://hourlightkey.com/music/Endless_Little_Stars.mp3';
 
   /* ---- 設定 ---- */
-  var DEFAULT_VOLUME = 0.25;
-  var FADE_MS = 2000;
-
-  /* ---- 判斷當前頁面 ---- */
-  function getPageKey() {
-    var path = window.location.pathname;
-    var file = path.split('/').pop().replace('.html', '');
-    if (!file || file === '') file = 'index';
-    return file;
-  }
+  var DEFAULT_VOLUME = 0.12;   // 輕柔不干擾，睡著也不反感
+  var FADE_MS = 8000;          // 8 秒慢慢浮現
 
   function getTrackUrl() {
-    var key = getPageKey();
-    var track = PAGE_MAP[key] || 'cosmos';
-    return TRACKS[track];
+    return MUSIC_URL;
   }
 
   /* ---- 初始化 ---- */
@@ -91,7 +41,7 @@
       btn.id = 'hlMusicToggle';
       btn.className = 'hl-music-toggle';
       btn.setAttribute('aria-label', '背景音樂開關');
-      btn.setAttribute('title', '點擊播放宇宙氛圍音樂');
+      btn.setAttribute('title', '點擊播放背景音樂 ✦');
       btn.innerHTML = '<span class="hl-music-icon">♪</span>';
       btn.onclick = toggleMusic;
       document.body.appendChild(btn);
@@ -146,7 +96,7 @@
       fadeOut(audio, function() { audio.pause(); });
       btn.innerHTML = '<span class="hl-music-icon">♪</span>';
       btn.classList.remove('playing');
-      btn.setAttribute('title', '點擊播放宇宙氛圍音樂');
+      btn.setAttribute('title', '點擊播放背景音樂 ✦');
       try { localStorage.setItem('hlMusicPlaying', 'false'); } catch(e) {}
     }
   }

@@ -160,7 +160,7 @@
         body: JSON.stringify({ messages: history })
       });
       var data = await res.json();
-      var reply = data.reply || '我這邊訊號飄了一下 🌿 您直接加 LINE 找逸君聊最快 → lin.ee/p5tBihbe';
+      var reply = data.reply || '我這邊訊號飄了一下 🌿 您直接加 LINE 找逸君聊最快 → lin.ee/RdQBFAN';
 
       removeTyping();
       addMsg('ai', reply);
@@ -171,7 +171,7 @@
 
     } catch(e) {
       removeTyping();
-      addMsg('ai', '訊號飄了一下，像精油瓶蓋沒蓋緊 😅 您直接加 LINE 跟逸君聊，比較穩 → lin.ee/p5tBihbe');
+      addMsg('ai', '訊號飄了一下，像精油瓶蓋沒蓋緊 😅 您直接加 LINE 跟逸君聊，比較穩 → lin.ee/RdQBFAN');
     }
 
     document.getElementById('hlcSend').disabled = false;
