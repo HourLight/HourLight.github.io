@@ -70,6 +70,7 @@ body{min-height:100vh;font-family:"Noto Sans TC","Noto Serif TC",sans-serif;colo
 </style>
 <link rel="stylesheet" href="assets/css/hl-footer.css">
 <link rel="stylesheet" href="assets/css/hl-design-tokens.css">
+<meta property="og:image" content="https://hourlightkey.com/og-image.jpg"/>
 </head>
 <body>
 
@@ -85,9 +86,9 @@ body{min-height:100vh;font-family:"Noto Sans TC","Noto Serif TC",sans-serif;colo
   <!-- 平台會員 -->
   <div class="block">
     <div class="block-title">🔑 平台會員方案（月費）</div>
-    <div class="row"><div class="row-name">基礎會員<div class="row-desc">基礎工具使用權限</div></div><div class="row-price">NT$ 299 / 月</div></div>
-    <div class="row"><div class="row-name">標準會員<span class="badge">推薦</span><div class="row-desc">進階工具 + 測驗不限次 + 覺察記錄</div></div><div class="row-price">NT$ 699 / 月</div></div>
-    <div class="row"><div class="row-name">專業會員<div class="row-desc">全工具無限次 + AI 深度解讀 + 完整匯出</div></div><div class="row-price">NT$ 999 / 月</div></div>
+    <div class="row"><div class="row-name">免費會員<div class="row-desc">塔羅、雙人合盤、高階心理測驗 每月 3 次｜馥靈之鑰抽牌不限次</div></div><div class="row-price">免費</div></div>
+    <div class="row"><div class="row-name">馥靈鑰友<span class="badge">推薦</span><div class="row-desc">塔羅、雙人合盤、高階心理測驗 每月 12 次｜馥靈之鑰抽牌不限次</div></div><div class="row-price">NT$ 399 / 月</div></div>
+    <div class="row"><div class="row-name">馥靈大師<div class="row-desc">全功能無限使用｜馥靈之鑰抽牌不限次</div></div><div class="row-price">NT$ 999 / 月</div></div>
     <div class="note">線上自助服務，付費後立即開通，按月自動續約</div>
   </div>
 
@@ -262,9 +263,9 @@ body{min-height:100vh;font-family:"Noto Sans TC","Noto Serif TC",sans-serif;colo
 
 <script>
 var PRODUCTS = [
-  {id:'basic-299',  name:'基礎會員',   sub:'基礎工具使用權限',                      price:299,  type:'month', badge:''},
-  {id:'std-699',    name:'標準會員',   sub:'進階工具 + 測驗不限次 + 覺察記錄',       price:699,  type:'month', badge:'推薦'},
-  {id:'pro-999',    name:'專業會員',   sub:'全工具無限次 + AI 深度解讀 + 完整匯出', price:999,  type:'month', badge:''},
+  {id:'free',       name:'免費會員',   sub:'塔羅/合盤/心理測驗 每月3次，馥靈抽牌不限次',  price:0,   type:'free',  badge:''},
+  {id:'plus-399',   name:'馥靈鑰友',   sub:'塔羅/合盤/心理測驗 每月12次，馥靈抽牌不限次', price:399,  type:'month', badge:'推薦'},
+  {id:'pro-999',    name:'馥靈大師',   sub:'全功能無限使用，馥靈抽牌不限次',               price:999,  type:'month', badge:''},
   {id:'reading-6800', name:'馥靈初探（60 分鐘）', sub:'認證覺察師一對一深度解讀',  price:6800, type:'once',  badge:''},
   {id:'reading-9800', name:'馥靈深探（90 分鐘）', sub:'命盤 × 牌卡 × 秘碼三鑰交叉解讀', price:9800, type:'once', badge:'推薦'},
   {id:'reading-13800',name:'馥靈全境（120 分鐘）',sub:'三系統整合 + 含書面報告',   price:13800,type:'once',  badge:''},
@@ -304,6 +305,19 @@ function renderProducts(){
 
 function goStep2(){
   if(!selected) return;
+  if(selected.type === 'free'){
+    document.getElementById('cartStep1').style.display = 'none';
+    document.getElementById('cartStep2').style.display = 'block';
+    document.getElementById('orderSummary').innerHTML =
+      '選購方案：<strong>' + selected.name + '</strong><br>' +
+      '<span style="color:rgba(255,255,255,.6);font-size:.85rem">免費方案直接前往官網註冊即可，無需匯款。</span>';
+    document.getElementById('cartStep2').querySelector('button:last-child').textContent = '前往註冊 →';
+    document.getElementById('cartStep2').querySelector('button:last-child').onclick = function(){
+      window.location.href = 'member-login.html';
+    };
+    window.scrollTo({top: document.getElementById('cartSection').offsetTop - 20, behavior:'smooth'});
+    return;
+  }
   document.getElementById('cartStep1').style.display = 'none';
   document.getElementById('cartStep2').style.display = 'block';
   document.getElementById('orderSummary').innerHTML =
@@ -327,7 +341,7 @@ function goStep3(){
   }
   document.getElementById('cartStep2').style.display = 'none';
   document.getElementById('cartStep3').style.display = 'block';
-  document.getElementById('finalAmount').textContent = 'NT$ ' + selected.price.toLocaleString() + (selected.type === 'month' ? ' / 月' : '');
+  document.getElementById('finalAmount').textContent = selected.price === 0 ? '免費' : ('NT$ ' + selected.price.toLocaleString() + (selected.type === 'month' ? ' / 月' : ''));
   document.getElementById('remitNote').textContent = name + '｜' + selected.name;
   window.scrollTo({top: document.getElementById('cartSection').offsetTop - 20, behavior:'smooth'});
 }
