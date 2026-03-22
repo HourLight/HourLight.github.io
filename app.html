@@ -1288,9 +1288,9 @@ input,select,textarea{font-family:var(--body)}
         <button class="subpage-back" onclick="goBack()">‹ 返回</button>
         <div class="page-head"><h1>訂閱方案</h1><p>選擇最適合您現在階段的方案。</p></div>
         <div class="plan-list" id="plan-cards">
-          <div class="plan-item" id="plan-guest"><div class="plan-icon-wrap plan-icon-free">🌱</div><div class="plan-info"><div class="plan-name">馥靈訪客</div><div class="plan-desc">核心工具免費</div></div><div class="plan-price-wrap"><div class="plan-price">免費</div><div class="plan-unit">永久</div></div></div>
-          <div class="plan-item popular" id="plan-member"><div class="plan-badge pb-hot">熱門</div><div class="plan-icon-wrap plan-icon-member">🔑</div><div class="plan-info"><div class="plan-name">馥靈會員</div><div class="plan-desc">全站解鎖，足跡完整保存</div></div><div class="plan-price-wrap"><div class="plan-price">$299</div><div class="plan-unit">/ 月</div></div></div>
-          <div class="plan-item" id="plan-premium"><div class="plan-icon-wrap plan-icon-premium">💎</div><div class="plan-info"><div class="plan-name">馥靈高階</div><div class="plan-desc">無限解析＋AI 優先</div></div><div class="plan-price-wrap"><div class="plan-price">$999</div><div class="plan-unit">/ 月</div></div></div>
+          <div class="plan-item" id="plan-guest"><div class="plan-icon-wrap plan-icon-free">🌱</div><div class="plan-info"><div class="plan-name">免費會員</div><div class="plan-desc">塔羅/合盤/心理測驗 每月3次，馥靈抽牌不限次</div></div><div class="plan-price-wrap"><div class="plan-price">免費</div><div class="plan-unit">永久</div></div></div>
+          <div class="plan-item popular" id="plan-member"><div class="plan-badge pb-hot">推薦</div><div class="plan-icon-wrap plan-icon-member">🔑</div><div class="plan-info"><div class="plan-name">馥靈鑰友</div><div class="plan-desc">塔羅/合盤/心理測驗 每月12次，馥靈抽牌不限次</div></div><div class="plan-price-wrap"><div class="plan-price">$399</div><div class="plan-unit">/ 月</div></div></div>
+          <div class="plan-item" id="plan-premium"><div class="plan-icon-wrap plan-icon-premium">👑</div><div class="plan-info"><div class="plan-name">馥靈大師</div><div class="plan-desc">全功能無限使用，馥靈抽牌不限次</div></div><div class="plan-price-wrap"><div class="plan-price">$999</div><div class="plan-unit">/ 月</div></div></div>
         </div>
         <div class="upgrade-cta">
           <p>升級方案請透過 LINE 聯繫，我們在 24 小時內為您處理。</p>
@@ -1788,9 +1788,9 @@ input,select,textarea{font-family:var(--body)}
             </select>
             <select class="role-filter" id="admin-plan-filter" onchange="adminSearchMembers()">
               <option value="">全部方案</option>
-              <option value="vip">👑 尊榮 $999</option>
-              <option value="pro">💎 進階 $699</option>
-              <option value="basic">🔑 入門 $299</option>
+              <option value="vip">👑 馥靈大師 $999</option>
+              <option value="plus">🔑 馥靈鑰友 $399</option>
+              <option value="free">🌱 免費會員</option>
               <option value="free">🌱 免費</option>
             </select>
           </div>
@@ -1899,9 +1899,8 @@ input,select,textarea{font-family:var(--body)}
       <div style="margin-top:12px"><label class="modal-label">訂閱方案</label>
         <select class="modal-select" id="plan-select" onchange="toggleDuration()">
           <option value="free">🌱 免費方案（$0）</option>
-          <option value="basic">🔑 入門方案（$299/月）</option>
-          <option value="pro">💎 進階方案（$699/月）</option>
-          <option value="vip">👑 尊榮方案（$999/月）</option>
+          <option value="plus">🔑 馥靈鑰友（$399/月）</option>
+          <option value="pro">👑 馥靈大師（$999/月）</option>
         </select>
       </div>
       <div style="margin-top:12px;display:none" id="duration-row">
@@ -2007,10 +2006,9 @@ const HL_ROLES = {
   admin:       { name:'管理員',     icon:'⚜️', bg:'rgba(74,120,192,.15)',  tc:'#2040a0' },
 };
 const HL_PLANS = {
-  free:  { name:'免費方案',   icon:'🌱', price:0,   bg:'rgba(176,176,176,.12)', tc:'#7a6a55' },
-  basic: { name:'入門方案',   icon:'🔑', price:299, bg:'rgba(201,160,96,.15)',  tc:'#8a6020' },
-  pro:   { name:'進階方案',   icon:'💎', price:699, bg:'rgba(100,150,220,.15)', tc:'#4060a0' },
-  vip:   { name:'尊榮方案',   icon:'👑', price:999, bg:'rgba(201,160,96,.25)',  tc:'#7a5010' },
+  free:  { name:'免費會員',   icon:'🌱', price:0,   bg:'rgba(176,176,176,.12)', tc:'#7a6a55' },
+  plus:  { name:'馥靈鑰友',   icon:'🔑', price:399, bg:'rgba(201,160,96,.15)',  tc:'#8a6020' },
+  pro:   { name:'馥靈大師',   icon:'👑', price:999, bg:'rgba(201,160,96,.25)',  tc:'#7a5010' },
 };
 
 /* ── 工具清單 ── */
@@ -3025,7 +3023,7 @@ async function loadAdminDashboard() {
     usersSnap.forEach(d=>{
       const u=d.data();
       if(u.lastSeen?.toDate && u.lastSeen.toDate()>=today) todayActive++;
-      if(['basic','pro','vip'].includes(u.plan)) premium++;
+      if(['plus','pro'].includes(u.plan)) premium++;
       const ct=u.createdAt?.toDate?u.createdAt.toDate():null;
       if(ct){
         const dk=ct.toLocaleDateString('sv-SE');
@@ -3355,7 +3353,7 @@ async function buildPermissionsMatrix() {
   if (!matrixWrap) return;
   matrixWrap.innerHTML='<div class="empty"><p>載入中⋯</p></div>';
   const roles=['guest','member','premium','practitioner','mentor'];
-  const plans=['free','basic','pro','vip'];
+  const plans=['free','plus','pro'];
   const allCols=[...roles,...plans];
   const colNames=allCols.map(c=>HL_ROLES[c]?.name||HL_PLANS[c]?.name||c);
   const colIcons=allCols.map(c=>(HL_ROLES[c]?.icon||HL_PLANS[c]?.icon||''));
