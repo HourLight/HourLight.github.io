@@ -84,12 +84,16 @@ module.exports = async function handler(req, res) {
 
     // 日制配額檢查
     var dayKey = getDayKey();
+
+    // ★ 寬限期：2026/3/26 之前不限次數（公告日期）
+    var gracePeriod = dayKey < '2026-03-26';
+
     var dailyRef = db.collection('users').doc(uid).collection('ai_daily').doc(dayKey);
     var dailyDoc = await dailyRef.get();
     var count = (dailyDoc.exists && dailyDoc.data().count) || 0;
 
     // Pro 用戶無上限
-    if (plan === 'pro') {
+    if (plan === 'pro' || gracePeriod) {
       // 直接放行，不扣次但記錄
     } else if (count >= limit) {
       // 每日額度用完，檢查加購
