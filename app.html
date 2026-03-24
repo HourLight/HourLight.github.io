@@ -2071,11 +2071,11 @@ async function copyReadingText(readingId){
           <div class="adm-grid2">
             <div class="adm-card">
               <div class="adm-card-title">📈 每日操作量 vs 用戶數</div>
-              <div id="enh-trend-chart" style="height:200px;overflow:hidden"></div>
+              <div id="enh-trend-chart" style="height:200px;overflow:hidden"><div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:.82rem;color:var(--light)">載入中⋯</div></div>
             </div>
             <div class="adm-card">
               <div class="adm-card-title">🎯 功能使用佔比（詳細）</div>
-              <div id="enh-pie-chart" style="min-height:180px"></div>
+              <div id="enh-pie-chart" style="min-height:180px"><div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:.82rem;color:var(--light)">載入中⋯</div></div>
             </div>
           </div>
 
@@ -2083,11 +2083,11 @@ async function copyReadingText(readingId){
           <div class="adm-grid2">
             <div class="adm-card">
               <div class="adm-card-title">🔥 功能排行（視覺化）</div>
-              <div id="enh-feature-bars" style="max-height:280px;overflow-y:auto"></div>
+              <div id="enh-feature-bars" style="max-height:280px;overflow-y:auto"><div style="padding:20px;text-align:center;font-size:.82rem;color:var(--light)">載入中⋯</div></div>
             </div>
             <div class="adm-card">
               <div class="adm-card-title">🌡️ 24小時 × 7天 熱力矩陣</div>
-              <div id="enh-heatmap-matrix" style="overflow-x:auto"></div>
+              <div id="enh-heatmap-matrix" style="overflow-x:auto"><div style="padding:20px;text-align:center;font-size:.82rem;color:var(--light)">載入中⋯</div></div>
             </div>
           </div>
 
@@ -2101,7 +2101,7 @@ async function copyReadingText(readingId){
                 <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:#e5a84b"></span>2天</span>
               </div>
             </div>
-            <div id="enh-retention-table"></div>
+            <div id="enh-retention-table"><div style="padding:20px;text-align:center;font-size:.82rem;color:var(--light)">載入中⋯</div></div>
             <div id="enh-retention-summary" style="margin-top:10px;text-align:center;font-size:.78rem;color:var(--mid)"></div>
           </div>
 
@@ -3141,6 +3141,9 @@ function showPage(page) {
   window.scrollTo(0,0);
   const mainEl = document.querySelector('.main');
   if (mainEl) mainEl.scrollTo(0,0);
+  // 確保所有可能的容器都 scroll reset
+  document.querySelectorAll('.page:not(.hide)').forEach(p=>p.scrollTop=0);
+  var appC=document.querySelector('.app-container');if(appC)appC.scrollTop=0;
 }
 
 function goBack() {
@@ -3325,7 +3328,10 @@ async function loadRecentHistory() {
       .orderBy('timestamp','desc').limit(5).get();
     if (snap.empty) { el.innerHTML='<div class="empty"><p>還沒有使用記錄<br>去試試看工具吧</p></div>'; return; }
     el.innerHTML = snap.docs.map(doc=>makeHistItem(doc.data())).join('');
-  } catch(e) { el.innerHTML='<div class="empty"><p>載入失敗</p></div>'; }
+  } catch(e) { 
+    console.warn('History load error:', e);
+    el.innerHTML='<div class="empty"><div class="empty-icon">👣</div><p>還沒有使用記錄<br><small>去試試看工具吧</small></p></div>'; 
+  }
 }
 
 function makeHistItem(d) {
@@ -3982,7 +3988,12 @@ async function loadAdminDashboard() {
       console.log('[增強儀表板] 準備完成，共 ' + enhEvents.length + ' 筆事件');
       if(enhEvents.length > 0) console.log('[增強儀表板] 樣本:', JSON.stringify(enhEvents[0]));
       renderEnhancedDashboard(enhEvents);
-    } catch(enhErr) { console.warn('Enhanced dashboard error:', enhErr); }
+    } catch(enhErr) { 
+      console.warn('Enhanced dashboard error:', enhErr);
+      ['enh-trend-chart','enh-pie-chart','enh-feature-bars','enh-heatmap-matrix','enh-retention-table'].forEach(function(id){
+        var errEl=document.getElementById(id);if(errEl)errEl.innerHTML='<div style="padding:12px;text-align:center;font-size:.78rem;color:var(--light)">⚠ 趨勢資料載入異常<br><small>'+enhErr.message+'</small></div>';
+      });
+    }
   } catch(e) { console.warn('Admin dashboard error:',e); }
 }
 
@@ -5848,7 +5859,7 @@ async function loadHistoryForCalendar(uid){
       map[dateStr]=(map[dateStr]||0)+1;
     });
     renderCalendar(map);
-  }catch(e){ renderCalendar({}); }
+  }catch(e){ console.warn('日曆資料載入失敗:',e); renderCalendar({}); }
 }
 
 /* ── 一次渲染所有遊戲化 UI ── */
@@ -6231,7 +6242,11 @@ async function loadPartnerPortal(){
       }).join('');
     }
 
-  }catch(e){console.warn('Partner portal error',e);document.getElementById('ptr-name').textContent='載入失敗';}
+  }catch(e){
+    console.warn('Partner portal error',e);
+    document.getElementById('ptr-name').textContent='載入失敗：'+e.message;
+    document.getElementById('ptr-member-list').innerHTML='<div class="empty"><p>推薦夥伴資料載入異常<br><small>'+e.message+'</small></p></div>';
+  }
 }
 
 function copyPartnerURL(){
