@@ -1,18 +1,15 @@
 /* ═══════════════════════════════════════
-   hl-announce.js — 馥靈全站公告彈窗
-   放在需要顯示的頁面底部引入即可
+   hl-announce.js — 馥靈全站公告彈窗 v3
+   2026/3/24 更新：收費預告版
    ═══════════════════════════════════════ */
 (function(){
 'use strict';
 
-// 設定：公告版本（改版本號會讓已關閉的使用者再看一次）
-var ANNOUNCE_VER = '2026-03-12-v1';
+var ANNOUNCE_VER = '2026-03-24-v4';
 var DISMISS_KEY = 'hl_announce_' + ANNOUNCE_VER;
 
-// 已經關過就不再顯示
 try { if(sessionStorage.getItem(DISMISS_KEY)) return; } catch(e){}
 
-// 延遲顯示（讓頁面先載入完）
 setTimeout(function(){
 
 var overlay = document.createElement('div');
@@ -24,56 +21,70 @@ overlay.innerHTML = `
   
   <div class="hla-header">
     <div class="hla-brand">HOUR LIGHT ✦ 馥靈之鑰</div>
-    <div class="hla-title">📢 開放測試中</div>
+    <div class="hla-title">🔑 這裡怎麼玩</div>
   </div>
   
   <div class="hla-body">
     <div class="hla-section">
-      <div class="hla-icon">🤖</div>
+      <div class="hla-icon">✨</div>
       <div class="hla-text">
-        <strong>所有測驗與工具皆附有簡易解讀</strong><br>
-        想看更詳細的分析？每個結果頁都有「複製 AI 深度解讀提示詞」按鈕，<br>
-        貼到 Claude、Gemini、Perplexity、Grok、Manus 等任一 AI 工具，即可獲得完整深度解讀。
+        <strong>命盤計算、測驗、抽牌，不用花一毛錢</strong><br>
+        所有工具都可以免費使用。算完之後，命盤資料可以隨意複製、寄信箱，完全免費不限次數。
+      </div>
+    </div>
+    
+    <div class="hla-section">
+      <div class="hla-icon">💡</div>
+      <div class="hla-text">
+        <strong>「智慧解讀指令」是什麼？</strong><br>
+        我們為每套命理系統打造了專業解讀框架（含書目、分析結構、座標哲學），點「🔮 複製智慧解讀指令」就會把資料＋框架一起複製，貼到 ChatGPT、Claude、Gemini 就能拿到高品質的深度解讀。這個按鈕每天可以免費用 3 次，午夜自動恢復。
+      </div>
+    </div>
+    
+    <div class="hla-section">
+      <div class="hla-icon">🔑</div>
+      <div class="hla-text">
+        <strong>如果您覺得 3 次不太夠用</strong><br>
+        馥靈鑰友（$399/月）每天 10 次，馥靈大師（$999/月）無限次。<br>
+        也可以單買 10 次 $199，買了永久有效不會過期。<br>
+        <a href="pricing.html" style="color:#f8dfa5">完整方案說明 →</a>
+      </div>
+    </div>
+    
+    <div class="hla-section">
+      <div class="hla-icon">🔮</div>
+      <div class="hla-text">
+        <strong>馥靈抽牌（130 張智慧牌卡）</strong><br>
+        1 張免費隨時抽。3 張以上搭配深度解讀，單次付費。<br>
+        覺察師親自解讀的 9 張以上服務，另外預約。
       </div>
     </div>
     
     <div class="hla-section">
       <div class="hla-icon">🔒</div>
       <div class="hla-text">
-        <strong>隱私提醒</strong><br>
-        使用 AI 工具時，建議關閉「分享對話以改善模型」等設定，保護你的個人資訊。
-      </div>
-    </div>
-    
-    <div class="hla-section">
-      <div class="hla-icon">🧪</div>
-      <div class="hla-text">
-        <strong>目前為開放測試階段</strong><br>
-        如遇到任何問題、錯誤或建議，歡迎回報！<br>
-        <span style="color:#f8dfa5">LINE ID：judyanee</span>
+        <strong>小提醒</strong><br>
+        使用外部 AI 工具時，建議關閉「分享對話以改善模型」的設定，保護您的個人資訊。
       </div>
     </div>
     
     <div class="hla-section hla-highlight">
-      <div class="hla-icon">📅</div>
+      <div class="hla-icon">💬</div>
       <div class="hla-text">
-        <strong>2026/3/26 起開始綁定會員登入</strong><br>
-        部分進階內容將需要付費使用。<br>
-        現在體驗的所有功能，趁免費期好好玩！
+        有任何問題，隨時敲我們。<br>
+        <span style="color:#f8dfa5">LINE 官方帳號 @hourlight</span>
       </div>
     </div>
   </div>
   
   <div class="hla-footer">
     <button class="hla-btn" onclick="document.getElementById('hlAnnounce').remove();try{sessionStorage.setItem('${DISMISS_KEY}','1')}catch(e){}">
-      我知道了，開始探索 ✨
+      知道了，開始探索 ✨
     </button>
-    <a href="https://lin.ee/RdQBFAN" class="hla-link" target="_blank">💬 LINE 聊聊</a>
   </div>
 </div>
 `;
 
-// 注入 CSS
 var style = document.createElement('style');
 style.textContent = `
 #hlAnnounce{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;animation:hla-in .4s ease}
@@ -91,25 +102,23 @@ style.textContent = `
 .hla-brand{font-size:.65rem;letter-spacing:3px;color:rgba(233,194,125,.3);margin-bottom:8px}
 .hla-title{font-family:'Noto Serif TC',serif;font-size:1.2rem;color:#f8dfa5;font-weight:600;letter-spacing:1px}
 .hla-body{padding:20px 24px}
-.hla-section{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid rgba(233,194,125,.05)}
+.hla-section{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid rgba(233,194,125,.05)}
 .hla-section:last-child{border:none}
 .hla-icon{font-size:1.3rem;flex-shrink:0;margin-top:2px}
 .hla-text{font-size:.84rem;color:rgba(249,240,229,.6);line-height:1.8}
 .hla-text strong{color:rgba(249,240,229,.85);font-weight:400}
-.hla-highlight{background:rgba(233,194,125,.04);margin:8px -12px;padding:14px 12px;border-radius:12px;border:1px solid rgba(233,194,125,.1)}
-.hla-footer{padding:8px 24px 24px;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
+.hla-highlight{background:rgba(233,194,125,.04);margin:8px -12px;padding:12px 12px;border-radius:12px;border:1px solid rgba(233,194,125,.1)}
+.hla-footer{padding:8px 24px 24px;text-align:center}
 .hla-btn{width:100%;padding:14px;border:none;border-radius:999px;
   background:linear-gradient(135deg,#f8dfa5,#ecd098);color:#1a1008;
   font-size:.92rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.3s}
 .hla-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(233,194,125,.25)}
-.hla-link{font-size:.95rem;color:rgba(233,194,125,.5);text-decoration:none;transition:.2s}
-.hla-link:hover{color:#f8dfa5}
 @media(max-width:480px){.hla-modal{border-radius:18px}.hla-body{padding:16px 18px}}
 `;
 
 document.head.appendChild(style);
 document.body.appendChild(overlay);
 
-}, 1500); // 延遲 1.5 秒顯示
+}, 1500);
 
 })();
