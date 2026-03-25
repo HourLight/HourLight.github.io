@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="robots" content="noindex,nofollow"/>
+<title>💰 付款紀錄管理｜馥靈之鑰</title>
+<link rel="icon" href="favicon.ico"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0612;color:#f0e8d8;font-family:'Noto Sans TC',sans-serif;min-height:100vh}
+.admin-wrap{max-width:960px;margin:0 auto;padding:16px}
+.admin-header{text-align:center;padding:24px 0 16px}
+.admin-header h1{font-size:1.4rem;color:#f0d48a;letter-spacing:.1em}
+.admin-header .sub{font-size:.78rem;color:rgba(255,255,255,.4);margin-top:4px}
+/* 守門 */
+.guard{text-align:center;padding:80px 20px}
+.guard .icon{font-size:3rem;margin-bottom:16px}
+.guard .msg{color:rgba(255,255,255,.5);margin-bottom:20px}
+.guard .btn{padding:14px 36px;border-radius:40px;background:linear-gradient(135deg,#c9985e,#f0d48a);color:#0a0714;font-size:.95rem;font-weight:600;border:none;cursor:pointer}
+/* 工具列 */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.toolbar input[type=text]{flex:1;min-width:200px;padding:10px 14px;background:#141020;border:1px solid rgba(233,194,125,.2);border-radius:8px;color:#f0e8d8;font-size:.88rem;font-family:inherit}
+.toolbar select{padding:10px 14px;background:#141020;border:1px solid rgba(233,194,125,.2);border-radius:8px;color:#f0e8d8;font-size:.88rem;font-family:inherit;min-width:130px}
+.toolbar .btn-add{padding:10px 20px;background:linear-gradient(135deg,#c9a044,#f0d48a);color:#0a0714;border:none;border-radius:8px;font-size:.88rem;font-weight:600;cursor:pointer;white-space:nowrap}
+.toolbar .btn-export{padding:10px 16px;background:transparent;border:1px solid rgba(240,212,138,.3);border-radius:8px;color:#f0d48a;font-size:.82rem;cursor:pointer;white-space:nowrap}
+/* 統計 */
+.stats{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.stat-card{flex:1;min-width:120px;background:rgba(255,255,255,.03);border:1px solid rgba(233,194,125,.1);border-radius:12px;padding:14px;text-align:center}
+.stat-card .num{font-size:1.4rem;font-weight:700;color:#f0d48a}
+.stat-card .label{font-size:.72rem;color:rgba(255,255,255,.5);margin-top:4px}
+/* 表格 */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th{background:rgba(240,212,138,.08);color:#f0d48a;padding:10px 8px;text-align:left;position:sticky;top:0;font-weight:600;white-space:nowrap}
+td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top}
+tr:hover td{background:rgba(240,212,138,.03)}
+.inv-input{background:#141020;border:1px solid rgba(233,194,125,.15);border-radius:6px;color:#f0e8d8;padding:6px 8px;font-size:.8rem;width:110px;font-family:inherit}
+.inv-status{padding:4px 8px;border-radius:12px;font-size:.72rem;font-weight:600;display:inline-block}
+.inv-status.none{background:rgba(255,255,255,.06);color:rgba(255,255,255,.4)}
+.inv-status.issued{background:rgba(100,200,255,.12);color:#80c8ff}
+.inv-status.won{background:rgba(255,180,80,.15);color:#ffc060}
+.inv-status.lost{background:rgba(255,255,255,.06);color:rgba(255,255,255,.3)}
+.addr-input{background:#141020;border:1px solid rgba(233,194,125,.15);border-radius:6px;color:#f0e8d8;padding:6px 8px;font-size:.8rem;width:160px;font-family:inherit}
+.btn-save{padding:4px 12px;background:rgba(240,212,138,.15);border:1px solid rgba(240,212,138,.3);border-radius:6px;color:#f0d48a;font-size:.75rem;cursor:pointer;font-family:inherit}
+.btn-save:hover{background:rgba(240,212,138,.25)}
+.btn-del{padding:4px 8px;background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.2);border-radius:6px;color:#ff6060;font-size:.72rem;cursor:pointer;font-family:inherit}
+.amount{color:#f0d48a;font-weight:600}
+.email-cell{max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.date-cell{white-space:nowrap;color:rgba(255,255,255,.6)}
+.product-cell{max-width:140px}
+.notes-input{background:#141020;border:1px solid rgba(233,194,125,.15);border-radius:6px;color:#f0e8d8;padding:6px 8px;font-size:.8rem;width:100px;font-family:inherit}
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:#1a1028;border:1px solid rgba(233,194,125,.2);border-radius:16px;padding:28px;width:90%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal h3{color:#f0d48a;margin-bottom:20px;font-size:1.1rem}
+.modal .field{margin-bottom:14px}
+.modal .field label{display:block;font-size:.82rem;color:rgba(255,255,255,.6);margin-bottom:6px}
+.modal .field input,.modal .field select{width:100%;padding:10px 14px;background:#141020;border:1px solid rgba(233,194,125,.2);border-radius:8px;color:#f0e8d8;font-size:.88rem;font-family:inherit}
+.modal .actions{display:flex;gap:10px;margin-top:20px}
+.modal .btn-ok{flex:1;padding:12px;background:linear-gradient(135deg,#c9a044,#f0d48a);color:#0a0714;border:none;border-radius:10px;font-weight:600;cursor:pointer;font-family:inherit}
+.modal .btn-cancel{flex:1;padding:12px;background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:rgba(255,255,255,.5);cursor:pointer;font-family:inherit}
+.empty{text-align:center;color:rgba(255,255,255,.3);padding:40px;font-size:.88rem}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(10,6,18,.95);border:1px solid rgba(240,212,138,.3);color:#f0d48a;padding:10px 24px;border-radius:20px;font-size:.85rem;z-index:99999;animation:fadeUp .3s}
+@keyframes fadeUp{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+@media(max-width:640px){
+  .toolbar{flex-direction:column}
+  .toolbar input[type=text],.toolbar select{width:100%}
+  table{font-size:.75rem}
+  .inv-input,.addr-input,.notes-input{width:80px}
+}
+</style>
+</head>
+<body>
+
+<!-- 守門：未登入 -->
+<div id="guardArea" class="guard">
+  <div class="icon">🔒</div>
+  <div class="msg">管理員專區，請先登入</div>
+  <button class="btn" onclick="doLogin()">Google 登入</button>
+</div>
+
+<!-- 主內容：登入後顯示 -->
+<div id="mainArea" style="display:none" class="admin-wrap">
+  <div class="admin-header">
+    <h1>💰 付款紀錄管理</h1>
+    <div class="sub">所有付款紀錄 ✦ 發票管理 ✦ 中獎寄送追蹤</div>
+  </div>
+
+  <!-- 統計 -->
+  <div class="stats">
+    <div class="stat-card"><div class="num" id="statTotal">0</div><div class="label">總筆數</div></div>
+    <div class="stat-card"><div class="num" id="statAmount">$0</div><div class="label">總金額</div></div>
+    <div class="stat-card"><div class="num" id="statNoInv">0</div><div class="label">未開發票</div></div>
+    <div class="stat-card"><div class="num" id="statWon">0</div><div class="label">中獎待寄</div></div>
+  </div>
+
+  <!-- 工具列 -->
+  <div class="toolbar">
+    <input type="text" id="searchBox" placeholder="搜尋姓名、Email、商品..." oninput="renderTable()"/>
+    <select id="filterStatus" onchange="renderTable()">
+      <option value="all">全部狀態</option>
+      <option value="none">未開發票</option>
+      <option value="issued">已開</option>
+      <option value="won">中獎待寄</option>
+      <option value="sent">已寄出</option>
+    </select>
+    <button class="btn-add" onclick="openAddModal()">＋ 新增付款</button>
+    <button class="btn-export" onclick="exportCSV()">📋 匯出 CSV</button>
+  </div>
+
+  <!-- 表格 -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>日期</th>
+          <th>姓名</th>
+          <th>Email</th>
+          <th>商品</th>
+          <th>金額</th>
+          <th>發票號碼</th>
+          <th>發票狀態</th>
+          <th>收件地址（中獎寄送）</th>
+          <th>備註</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div id="emptyMsg" class="empty" style="display:none">尚無付款紀錄</div>
+  </div>
+</div>
+
+<!-- 新增/編輯 Modal -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h3 id="modalTitle">新增付款紀錄</h3>
+    <input type="hidden" id="editId"/>
+    <div class="field"><label>會員 Email *</label><input type="email" id="fEmail" placeholder="member@example.com"/></div>
+    <div class="field"><label>姓名</label><input type="text" id="fName" placeholder="會員姓名"/></div>
+    <div class="field"><label>商品名稱 *</label><input type="text" id="fProduct" placeholder="例：馥靈會員月費 / AI 解讀加購"/></div>
+    <div class="field"><label>金額 *</label><input type="number" id="fAmount" placeholder="299"/></div>
+    <div class="field"><label>付款日期</label><input type="date" id="fDate"/></div>
+    <div class="field"><label>付款方式</label>
+      <select id="fMethod">
+        <option value="transfer">銀行轉帳</option>
+        <option value="linepay">LINE Pay</option>
+        <option value="payuni">PAYUNi</option>
+        <option value="cash">現金</option>
+        <option value="other">其他</option>
+      </select>
+    </div>
+    <div class="field"><label>發票號碼（稍後填也可以）</label><input type="text" id="fInvoice" placeholder="AB-12345678"/></div>
+    <div class="field"><label>備註</label><input type="text" id="fNotes" placeholder="選填"/></div>
+    <div class="actions">
+      <button class="btn-cancel" onclick="closeModal()">取消</button>
+      <button class="btn-ok" onclick="savePayment()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+<script>
+// ═══ 付款紀錄管理系統 v1.0 ═══
+// Firestore collection: payments
+// 只有 admin 帳號可存取
+
+firebase.initializeApp(FIREBASE_CONFIG);
+var auth = firebase.auth();
+var db = firebase.firestore();
+var ADMIN_EMAILS = ['judyanee@gmail.com','info@hourlightkey.com','judyanee@hotmail.com'];
+var payments = []; // local cache
+
+function doLogin(){
+  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function(e){
+    if(e.code==='auth/popup-blocked') auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+  });
+}
+
+auth.onAuthStateChanged(function(user){
+  if(!user){
+    document.getElementById('guardArea').style.display='block';
+    document.getElementById('mainArea').style.display='none';
+    return;
+  }
+  if(!ADMIN_EMAILS.includes(user.email)){
+    document.getElementById('guardArea').innerHTML='<div class="icon">⛔</div><div class="msg">此帳號無管理權限<br>'+user.email+'</div>';
+    return;
+  }
+  document.getElementById('guardArea').style.display='none';
+  document.getElementById('mainArea').style.display='block';
+  loadPayments();
+});
+
+function loadPayments(){
+  db.collection('payments').orderBy('paymentDate','desc').onSnapshot(function(snap){
+    payments=[];
+    snap.forEach(function(doc){
+      var d=doc.data();
+      d.id=doc.id;
+      payments.push(d);
+    });
+    updateStats();
+    renderTable();
+  });
+}
+
+function updateStats(){
+  var total=payments.length;
+  var amount=payments.reduce(function(s,p){return s+(p.amount||0)},0);
+  var noInv=payments.filter(function(p){return !p.invoiceNo}).length;
+  var won=payments.filter(function(p){return p.invoiceStatus==='won'}).length;
+  document.getElementById('statTotal').textContent=total;
+  document.getElementById('statAmount').textContent='$'+amount.toLocaleString();
+  document.getElementById('statNoInv').textContent=noInv;
+  document.getElementById('statWon').textContent=won;
+}
+
+function renderTable(){
+  var q=(document.getElementById('searchBox').value||'').toLowerCase();
+  var status=document.getElementById('filterStatus').value;
+  var filtered=payments.filter(function(p){
+    if(q){
+      var hay=((p.email||'')+(p.displayName||'')+(p.product||'')+(p.invoiceNo||'')+(p.notes||'')).toLowerCase();
+      if(hay.indexOf(q)===-1) return false;
+    }
+    if(status!=='all'){
+      if(status==='none' && p.invoiceNo) return false;
+      if(status==='issued' && p.invoiceStatus!=='issued') return false;
+      if(status==='won' && p.invoiceStatus!=='won') return false;
+      if(status==='sent' && p.invoiceStatus!=='sent') return false;
+    }
+    return true;
+  });
+  var tbody=document.getElementById('tableBody');
+  if(!filtered.length){
+    tbody.innerHTML='';
+    document.getElementById('emptyMsg').style.display='block';
+    return;
+  }
+  document.getElementById('emptyMsg').style.display='none';
+  var html='';
+  filtered.forEach(function(p,i){
+    var dt=p.paymentDate?new Date(p.paymentDate.seconds?p.paymentDate.seconds*1000:p.paymentDate).toLocaleDateString('zh-TW'):(p.dateStr||'');
+    var statusClass=!p.invoiceNo?'none':p.invoiceStatus==='won'?'won':p.invoiceStatus==='sent'?'won':p.invoiceStatus==='lost'?'lost':'issued';
+    var statusText=!p.invoiceNo?'未開':p.invoiceStatus==='won'?'🎉 中獎':p.invoiceStatus==='sent'?'✅ 已寄':p.invoiceStatus==='lost'?'未中獎':'已開';
+    html+='<tr data-id="'+p.id+'">';
+    html+='<td>'+(i+1)+'</td>';
+    html+='<td class="date-cell">'+dt+'</td>';
+    html+='<td>'+(p.displayName||'')+'</td>';
+    html+='<td class="email-cell">'+(p.email||'')+'</td>';
+    html+='<td class="product-cell">'+(p.product||'')+'</td>';
+    html+='<td class="amount">$'+(p.amount||0).toLocaleString()+'</td>';
+    html+='<td><input class="inv-input" value="'+(p.invoiceNo||'')+'" onchange="updateField(\''+p.id+'\',\'invoiceNo\',this.value)" placeholder="AB-12345678"/></td>';
+    html+='<td><select class="inv-input" onchange="updateInvStatus(\''+p.id+'\',this.value)" style="width:90px">';
+    html+='<option value=""'+((!p.invoiceStatus||p.invoiceStatus==='none')?' selected':'')+'>未開</option>';
+    html+='<option value="issued"'+(p.invoiceStatus==='issued'?' selected':'')+'>已開</option>';
+    html+='<option value="won"'+(p.invoiceStatus==='won'?' selected':'')+'>中獎</option>';
+    html+='<option value="lost"'+(p.invoiceStatus==='lost'?' selected':'')+'>未中獎</option>';
+    html+='<option value="sent"'+(p.invoiceStatus==='sent'?' selected':'')+'>已寄出</option>';
+    html+='</select></td>';
+    html+='<td><input class="addr-input" value="'+(p.address||'')+'" onchange="updateField(\''+p.id+'\',\'address\',this.value)" placeholder="中獎寄送地址（選填）"/></td>';
+    html+='<td><input class="notes-input" value="'+(p.notes||'')+'" onchange="updateField(\''+p.id+'\',\'notes\',this.value)" placeholder="備註"/></td>';
+    html+='<td><button class="btn-del" onclick="delPayment(\''+p.id+'\')">刪除</button></td>';
+    html+='</tr>';
+  });
+  tbody.innerHTML=html;
+}
+
+function updateField(id,field,val){
+  var obj={};obj[field]=val;
+  db.collection('payments').doc(id).update(obj).then(function(){toast('✅ 已更新')}).catch(function(e){toast('❌ '+e.message)});
+}
+
+function updateInvStatus(id,val){
+  db.collection('payments').doc(id).update({invoiceStatus:val||''}).then(function(){toast('✅ 發票狀態已更新')});
+}
+
+function openAddModal(){
+  document.getElementById('modalTitle').textContent='新增付款紀錄';
+  document.getElementById('editId').value='';
+  document.getElementById('fEmail').value='';
+  document.getElementById('fName').value='';
+  document.getElementById('fProduct').value='';
+  document.getElementById('fAmount').value='';
+  document.getElementById('fDate').value=new Date().toISOString().split('T')[0];
+  document.getElementById('fMethod').value='transfer';
+  document.getElementById('fInvoice').value='';
+  document.getElementById('fNotes').value='';
+  document.getElementById('addModal').classList.add('active');
+}
+
+function closeModal(){document.getElementById('addModal').classList.remove('active')}
+
+function savePayment(){
+  var email=document.getElementById('fEmail').value.trim();
+  var product=document.getElementById('fProduct').value.trim();
+  var amount=parseInt(document.getElementById('fAmount').value)||0;
+  if(!email||!product||!amount){toast('⚠️ Email、商品、金額為必填');return}
+  var data={
+    email:email,
+    displayName:document.getElementById('fName').value.trim(),
+    product:product,
+    amount:amount,
+    paymentDate:new Date(document.getElementById('fDate').value||Date.now()),
+    dateStr:document.getElementById('fDate').value||new Date().toISOString().split('T')[0],
+    method:document.getElementById('fMethod').value,
+    invoiceNo:document.getElementById('fInvoice').value.trim(),
+    invoiceStatus:document.getElementById('fInvoice').value.trim()?'issued':'',
+    address:'',
+    notes:document.getElementById('fNotes').value.trim(),
+    createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+    createdBy:auth.currentUser.email
+  };
+  var editId=document.getElementById('editId').value;
+  var promise=editId?db.collection('payments').doc(editId).update(data):db.collection('payments').add(data);
+  promise.then(function(){
+    toast('✅ 已儲存');
+    closeModal();
+  }).catch(function(e){toast('❌ '+e.message)});
+}
+
+function delPayment(id){
+  if(!confirm('確定刪除這筆付款紀錄？')) return;
+  db.collection('payments').doc(id).delete().then(function(){toast('✅ 已刪除')});
+}
+
+function exportCSV(){
+  if(!payments.length){toast('沒有資料可匯出');return}
+  var header='日期,姓名,Email,商品,金額,付款方式,發票號碼,發票狀態,收件地址,備註\n';
+  var rows=payments.map(function(p){
+    return [
+      p.dateStr||'',p.displayName||'',p.email||'',p.product||'',p.amount||0,p.method||'',
+      p.invoiceNo||'',p.invoiceStatus||'','"'+(p.address||'')+'"','"'+(p.notes||'')+'"'
+    ].join(',');
+  }).join('\n');
+  var bom='\uFEFF';
+  var blob=new Blob([bom+header+rows],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='payments_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();
+  toast('✅ CSV 已匯出');
+}
+
+function toast(msg){
+  var d=document.createElement('div');d.className='toast';d.textContent=msg;
+  document.body.appendChild(d);
+  setTimeout(function(){d.remove()},2500);
+}
+</script>
+</body>
+</html>

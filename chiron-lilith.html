@@ -396,10 +396,29 @@ async function calculate() {
   var btn = document.getElementById('calcBtn');
   btn.disabled = true; btn.textContent = '⏳ 載入星曆...';
 
-  await loadEph();
+  var chironLon = null, lilithLon = null, precisionLabel = '';
 
-  var chironLon = getChiron(Y, M, D);
-  var lilithLon = calcMeanLilith(Y, M, D);
+  // 優先使用 Swiss Ephemeris WASM（精度 0.001 角秒）
+  if (window.hlSweph) {
+    var sweOk = await hlSweph.init();
+    if (sweOk) {
+      var cData = hlSweph.calcPlanet(Y,M,D,12, hlSweph.SE_CHIRON);
+      var lData = hlSweph.calcPlanet(Y,M,D,12, hlSweph.SE_MEAN_APOG);
+      if (cData && lData) {
+        chironLon = cData.lon;
+        lilithLon = lData.lon;
+        precisionLabel = 'Swiss Ephemeris（NASA JPL DE431·精度 0.001 角秒）';
+      }
+    }
+  }
+
+  // Fallback：JSON 星曆 + 公式
+  if (chironLon === null) {
+    await loadEph();
+    chironLon = getChiron(Y, M, D);
+    lilithLon = calcMeanLilith(Y, M, D);
+    precisionLabel = 'JSON 星曆 + Mean BML 公式（精度 ±0.5°）';
+  }
 
   if (chironLon === null) {
     alert('此日期超出星曆範圍（1920-2060）');
@@ -606,6 +625,8 @@ function showToast(m){var t=document.getElementById('toast');if(!t){t=document.c
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-referral.js?v=20260323"></script>
+<script src="assets/js/hl-ai-gate.js"></script>
 <script src="assets/js/hl-gate.js"></script>
 <script src="assets/js/hl-record.js"></script>
 <script src="assets/js/hl-email.js"></script>
@@ -626,7 +647,7 @@ function showToast(m){var t=document.getElementById('toast');if(!t){t=document.c
       <a href="podcast.html" title="Podcast" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">🎙</a>
     </div>
     <div class="hl-footer-links">
-      <a href="app.html">🔑 會員工作台</a><a href="index.html">首頁</a>
+      <a href="app.html">🔑 我的內在城堡</a><a href="index.html">首頁</a>
       <a href="fuling-mima.html">生命秘碼</a><a href="draw-hl.html">線上抽牌</a>
       <a href="destiny-engine.html">命盤引擎</a><a href="services.html">服務項目</a>
       <a href="courses.html">課程學苑</a><a href="book.html">著作</a>
@@ -637,6 +658,7 @@ function showToast(m){var t=document.getElementById('toast');if(!t){t=document.c
     <div class="hl-footer-copyright">© 2026 馥靈之鑰國際有限公司 Hour Light International Co., Ltd.｜統編：60303284<br>All Rights Reserved.</div>
   </div>
 </footer>
+<script src="assets/js/hl-sweph.js"></script>
 <script src="assets/js/hl-topnav.js"></script>
 <script src="assets/js/hl-bottomnav.js"></script>
 <script>document.querySelectorAll('.origin-toggle').forEach(function(t){t.addEventListener('click',function(){this.parentElement.classList.toggle('open')})})</script>

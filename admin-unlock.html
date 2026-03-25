@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="robots" content="noindex,nofollow"/>
+<title>🔑 解鎖碼管理｜馥靈之鑰</title>
+<link rel="icon" href="favicon.ico"/>
+<link rel="stylesheet" href="assets/css/hourlight-global.css?v=20260323"/>
+<style>
+body{background:#0a0612;color:#f0e8d8;font-family:'Noto Sans TC',sans-serif;padding:0;margin:0}
+.admin-wrap{max-width:600px;margin:80px auto 40px;padding:24px}
+.admin-title{font-family:'Noto Serif TC',serif;font-size:1.6rem;color:#f0d48a;text-align:center;letter-spacing:.15em;margin-bottom:8px}
+.admin-subtitle{text-align:center;font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:32px}
+.admin-guard{text-align:center;padding:60px 20px}
+.admin-guard .icon{font-size:3rem;margin-bottom:16px}
+.admin-guard .msg{color:rgba(255,255,255,.6);font-size:.95rem;margin-bottom:20px}
+.admin-guard .btn{display:inline-block;padding:14px 36px;border-radius:40px;background:linear-gradient(135deg,#c9985e,#f0d48a);color:#0a0714;font-size:.95rem;font-weight:600;border:none;cursor:pointer;letter-spacing:.1em}
+.gen-section{background:rgba(255,255,255,.03);border:1px solid rgba(233,194,125,.12);border-radius:16px;padding:24px;margin-bottom:24px}
+.gen-section h3{color:#f0d48a;font-size:1rem;margin:0 0 16px;font-weight:700}
+.gen-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.gen-row label{font-size:.88rem;color:rgba(255,255,255,.7);min-width:80px}
+.gen-row select,.gen-row input{background:#141020;border:1px solid rgba(233,194,125,.2);border-radius:8px;color:#f0e8d8;padding:10px 14px;font-size:.9rem;font-family:inherit}
+.gen-row select{min-width:140px}
+.gen-row input{flex:1;min-width:120px}
+.gen-btn{display:block;width:100%;padding:14px;border-radius:12px;background:linear-gradient(135deg,#c9a044,#f0d48a);color:#0a0714;font-size:.95rem;font-weight:700;border:none;cursor:pointer;letter-spacing:.08em;transition:all .3s}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(240,212,138,.25)}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.result-box{margin-top:16px;display:none}
+.result-code{background:rgba(240,212,138,.08);border:2px dashed rgba(240,212,138,.3);border-radius:12px;padding:20px;text-align:center;margin-bottom:12px}
+.result-code .code{font-size:2rem;font-weight:800;color:#f0d48a;letter-spacing:.3em;font-family:'Courier New',monospace}
+.result-code .hint{font-size:.78rem;color:rgba(255,255,255,.5);margin-top:8px}
+.copy-btn{display:block;width:100%;padding:12px;border-radius:10px;border:1px solid rgba(240,212,138,.3);background:transparent;color:#f0d48a;font-size:.88rem;cursor:pointer;font-family:inherit;transition:all .3s}
+.copy-btn:hover{background:rgba(240,212,138,.08)}
+.history-section{margin-top:32px}
+.history-section h3{color:#f0d48a;font-size:1rem;margin:0 0 16px;font-weight:700}
+.history-item{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.04);font-size:.85rem}
+.history-item:last-child{border-bottom:none}
+.history-item .code-text{font-family:'Courier New',monospace;color:#f0d48a;font-weight:700;letter-spacing:.15em}
+.history-item .meta{color:rgba(255,255,255,.5)}
+.history-item .used{color:rgba(255,100,100,.7);font-size:.78rem}
+.history-item .unused{color:rgba(100,255,150,.7);font-size:.78rem}
+.empty-msg{text-align:center;color:rgba(255,255,255,.3);font-size:.85rem;padding:20px}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(10,6,18,.95);border:1px solid rgba(240,212,138,.3);color:#f0d48a;padding:10px 24px;border-radius:20px;font-size:.85rem;z-index:99999;animation:fadeInUp .3s}
+@keyframes fadeInUp{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+</style>
+</head>
+<body>
+
+<div class="admin-wrap">
+  <h1 class="admin-title">🔑 解鎖碼管理</h1>
+  <p class="admin-subtitle">馥靈智慧牌 AI 解讀｜手動收款後生成解鎖碼給客戶</p>
+
+  <!-- 未登入 guard -->
+  <div class="admin-guard" id="guardBlock">
+    <div class="icon">🔒</div>
+    <div class="msg">僅限管理員使用</div>
+    <button class="btn" onclick="doLogin()">登入 Google 帳號</button>
+  </div>
+
+  <!-- 主內容（登入後顯示）-->
+  <div id="mainContent" style="display:none">
+
+    <div class="gen-section">
+      <h3>✨ 生成新的解鎖碼</h3>
+      <div class="gen-row">
+        <label>牌陣張數</label>
+        <select id="selN">
+          <option value="3">3 張（$199）</option>
+          <option value="5">5 張（$399）</option>
+          <option value="7" selected>7 張（$599）</option>
+        </select>
+      </div>
+      <div class="gen-row">
+        <label>備註（選填）</label>
+        <input type="text" id="inputMemo" placeholder="例：小美 3/23 匯款" maxlength="100"/>
+      </div>
+      <button class="gen-btn" id="genBtn" onclick="generateCode()">🔑 生成解鎖碼</button>
+
+      <div class="result-box" id="resultBox">
+        <div class="result-code">
+          <div class="code" id="resultCode"></div>
+          <div class="hint">請將此碼傳給客戶，輸入後即可獲得 AI 解讀</div>
+        </div>
+        <button class="copy-btn" onclick="copyCode()">📋 複製解鎖碼</button>
+      </div>
+    </div>
+
+    <div class="history-section">
+      <h3>📋 最近生成的解鎖碼（最新 20 筆）</h3>
+      <div id="historyList"><div class="empty-msg">載入中⋯⋯</div></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-referral.js?v=20260323"></script>
+<script>
+var ADMIN_EMAILS = ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+var PRICES = { 3: 199, 5: 399, 7: 599 };
+
+// Firebase init
+if (typeof FIREBASE_CONFIG !== 'undefined' && !firebase.apps.length) {
+  firebase.initializeApp(FIREBASE_CONFIG);
+}
+var auth = firebase.auth();
+var db = firebase.firestore();
+
+function doLogin() {
+  var provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).catch(function(err) {
+    if (err.code === 'auth/popup-blocked') {
+      auth.signInWithRedirect(provider);
+    } else {
+      alert('登入失敗：' + err.message);
+    }
+  });
+}
+
+auth.onAuthStateChanged(function(user) {
+  if (user && ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+    document.getElementById('guardBlock').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+    loadHistory();
+  } else if (user) {
+    document.getElementById('guardBlock').innerHTML =
+      '<div class="icon">⛔</div><div class="msg">此帳號（' + user.email + '）非管理員</div>';
+  }
+});
+
+// 生成 6 位碼（英數混合，去掉容易混淆的字元）
+function makeCode() {
+  var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var code = '';
+  for (var i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+async function generateCode() {
+  var btn = document.getElementById('genBtn');
+  btn.disabled = true;
+  btn.textContent = '生成中⋯⋯';
+
+  try {
+    var n = parseInt(document.getElementById('selN').value);
+    var memo = document.getElementById('inputMemo').value.trim();
+    var code = makeCode();
+    var user = auth.currentUser;
+
+    // 檢查碼是否重複（極小機率）
+    var existing = await db.collection('unlock_codes').doc(code).get();
+    if (existing.exists) code = makeCode();
+
+    await db.collection('unlock_codes').doc(code).set({
+      n: n,
+      price: PRICES[n] || 0,
+      used: false,
+      memo: memo,
+      createdBy: user.email,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    document.getElementById('resultCode').textContent = code;
+    document.getElementById('resultBox').style.display = 'block';
+    showToast('解鎖碼已生成：' + code);
+    loadHistory();
+
+  } catch (err) {
+    alert('生成失敗：' + err.message);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🔑 生成解鎖碼';
+}
+
+function copyCode() {
+  var code = document.getElementById('resultCode').textContent;
+  navigator.clipboard.writeText(code).then(function() {
+    showToast('已複製：' + code);
+  });
+}
+
+async function loadHistory() {
+  var listEl = document.getElementById('historyList');
+  try {
+    var snap = await db.collection('unlock_codes')
+      .orderBy('createdAt', 'desc')
+      .limit(20)
+      .get();
+
+    if (snap.empty) {
+      listEl.innerHTML = '<div class="empty-msg">尚無解鎖碼記錄</div>';
+      return;
+    }
+
+    var html = '';
+    snap.forEach(function(doc) {
+      var d = doc.data();
+      var status = d.used
+        ? '<span class="used">已使用</span>'
+        : '<span class="unused">未使用</span>';
+      var date = d.createdAt ? new Date(d.createdAt.seconds * 1000).toLocaleString('zh-TW', {timeZone:'Asia/Taipei'}) : '';
+      var memo = d.memo ? ' (' + d.memo + ')' : '';
+      html += '<div class="history-item">'
+        + '<div><span class="code-text">' + doc.id + '</span> ' + status + '</div>'
+        + '<div class="meta">' + d.n + '張 $' + (d.price||0) + memo + '<br>' + date + '</div>'
+        + '</div>';
+    });
+    listEl.innerHTML = html;
+
+  } catch (err) {
+    listEl.innerHTML = '<div class="empty-msg">載入失敗：' + err.message + '</div>';
+  }
+}
+
+function showToast(msg) {
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 2000);
+}
+</script>
+</body>
+</html>

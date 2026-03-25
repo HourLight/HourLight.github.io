@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-BXP7K53QG6');</script>
+<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1333106288588347');fbq('track','PageView');</script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>內在城堡探索者｜每天10分鐘，走進自己的城堡｜馥靈之鑰 Hour Light</title>
+<meta name="description" content="每天解鎖一個房間，收集靈感點數，遇見那個您一直迴避的自己。免費互動式覺察遊戲，基於H.O.U.R.覺察框架。"/>
+<meta property="og:title" content="內在城堡探索者｜馥靈之鑰"/>
+<meta property="og:description" content="每天10分鐘，走進自己的城堡。您有12個房間，但有幾扇門從來沒推開過？"/>
+<link rel="canonical" href="https://hourlightkey.com/castle-game.html"/>
+<link rel="icon" href="favicon.ico"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--rose:#E63946;--rose-l:#FF6B7A;--teal:#2EC4B6;--teal-d:#1A936F;--navy:#1D3557;--navy-l:#457B9D;--coral:#E76F51;--amber:#F0A500;--amber-l:#FFD166;--cream:#FFF8F0;--peach:#FFE8D6;--txt:#1a1a2e;--txt-l:#4a4a5a;--txt-d:#8a8a9a;--card:rgba(255,255,255,.88)}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Serif TC',serif;color:var(--txt);background:linear-gradient(170deg,var(--cream),var(--peach));min-height:100vh;overflow-x:hidden}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 20px 40px}
+.hero h1{font-family:'Playfair Display','Noto Serif TC',serif;font-size:clamp(2.4rem,6vw,3.6rem);font-weight:800;color:var(--navy);letter-spacing:.04em;margin-bottom:10px}
+.hero-sub{font-size:clamp(.9rem,2.2vw,1.05rem);color:var(--txt-l);max-width:420px;margin:0 auto 28px;line-height:1.8}
+.hero-tags{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:32px}
+.hero-tag{padding:5px 14px;background:#fff;border:1.5px solid rgba(29,53,87,.08);border-radius:20px;font-size:.72rem;color:var(--txt-l);font-weight:600}
+.btn-enter{display:inline-flex;align-items:center;gap:8px;padding:16px 44px;background:var(--rose);color:#fff;font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;letter-spacing:.05em;border:none;border-radius:30px;cursor:pointer;box-shadow:0 6px 28px rgba(230,57,70,.3);transition:all .35s}
+.btn-enter:hover{transform:translateY(-3px);box-shadow:0 10px 36px rgba(230,57,70,.4);background:#d62839}
+.game{display:none;max-width:800px;margin:0 auto;padding:60px 16px 80px}
+.game.active{display:block;animation:fadeUp .5s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:#fff;border-radius:14px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.bar-item{text-align:center}.bar-label{font-size:.6rem;color:var(--txt-d);text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+.bar-val{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700}
+.bar-val.pts{color:var(--amber)}.bar-val.rooms{color:var(--teal-d)}.bar-val.streak{color:var(--rose)}
+.prog{height:5px;background:rgba(29,53,87,.06);border-radius:3px;margin-bottom:24px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--amber),var(--rose));border-radius:3px;transition:width .6s cubic-bezier(.23,1,.32,1)}
+.castle-wrap{position:relative;width:100%;max-width:720px;margin:0 auto 28px}
+.castle-svg{width:100%;height:auto}
+.room-zone{cursor:pointer;transition:all .3s}
+.room-zone:hover .zone-fill{opacity:.25}
+.room-zone.locked{cursor:default;opacity:.5}
+.room-zone.locked:hover .zone-fill{opacity:0}
+.room-zone.current .zone-fill{opacity:.18;animation:glow 2s ease-in-out infinite}
+.room-zone.done .zone-check{opacity:1}
+@keyframes glow{0%,100%{opacity:.12}50%{opacity:.28}}
+.zone-fill{opacity:0;transition:opacity .3s}
+.zone-label{font-family:'Noto Serif TC',serif;font-size:12px;font-weight:700;fill:var(--navy);opacity:1;pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linecap:round;stroke-linejoin:round}
+.zone-icon{font-size:24px;pointer-events:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.15))}
+.zone-check{opacity:0;transition:opacity .3s}
+.panel{display:none;background:#fff;border-radius:20px;padding:32px 24px;margin-bottom:24px;box-shadow:0 8px 32px rgba(0,0,0,.06)}
+.panel.active{display:block;animation:fadeUp .4s ease}
+.panel h2{font-family:'Playfair Display','Noto Serif TC',serif;font-size:1.5rem;color:var(--navy);margin-bottom:6px}
+.panel .desc{font-size:.88rem;color:var(--txt-l);margin-bottom:22px;line-height:1.8}
+.riddle-box{padding:22px;border-radius:14px;margin-bottom:18px;background:linear-gradient(135deg,rgba(230,57,70,.03),rgba(46,196,182,.02))}
+.riddle-q{font-size:1.05rem;font-weight:600;color:var(--navy);text-align:center;line-height:1.6;margin-bottom:18px}
+.riddle-opts{display:flex;flex-direction:column;gap:10px}
+.riddle-opt{padding:14px 18px;background:var(--cream);border:2px solid rgba(29,53,87,.06);border-radius:12px;cursor:pointer;font-size:.88rem;color:var(--txt);transition:all .3s;line-height:1.5}
+.riddle-opt:hover{border-color:var(--rose);background:#fff;transform:translateX(4px)}
+.riddle-opt.sel{border-color:var(--rose);background:rgba(230,57,70,.04);color:var(--rose);font-weight:600}
+.aroma-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.aroma-card{padding:16px;background:var(--cream);border:2px solid rgba(46,196,182,.1);border-radius:14px;cursor:pointer;text-align:center;transition:all .3s}
+.aroma-card:hover{border-color:var(--teal);transform:translateY(-3px);box-shadow:0 4px 16px rgba(46,196,182,.1)}
+.aroma-card.sel{border-color:var(--teal-d);background:rgba(46,196,182,.06)}
+.aroma-icon{font-size:2rem;margin-bottom:4px}.aroma-name{font-size:.82rem;font-weight:700;color:var(--txt)}.aroma-note{font-size:.68rem;color:var(--txt-d);margin-top:2px}
+.insight{display:none;padding:22px;background:linear-gradient(135deg,rgba(240,165,0,.05),rgba(46,196,182,.03));border:1.5px solid rgba(240,165,0,.15);border-radius:14px;margin-top:14px}
+.insight.show{display:block;animation:fadeUp .5s ease}
+.insight-txt{font-size:.92rem;color:var(--txt);line-height:1.9;text-align:center}
+.insight-txt strong{color:var(--rose);font-weight:700}
+.btn-done{display:block;width:100%;padding:14px;background:var(--teal);color:#fff;font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;border:none;border-radius:12px;cursor:pointer;transition:all .3s;margin-top:14px}
+.btn-done:hover{background:var(--teal-d);transform:translateY(-2px);box-shadow:0 6px 20px rgba(46,196,182,.25)}
+.btn-done:disabled{opacity:.35;cursor:default;transform:none}
+.share{text-align:center;padding:22px;background:#fff;border-radius:16px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,.03)}
+.share h3{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--navy);margin-bottom:10px}
+.btn-share{padding:10px 24px;background:var(--coral);color:#fff;border:none;border-radius:20px;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .3s}
+.btn-share:hover{transform:scale(1.05);box-shadow:0 4px 16px rgba(231,111,81,.25)}
+.confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999}
+.confetti i{position:absolute;width:10px;height:10px;border-radius:2px;animation:fall 3s ease forwards}
+@keyframes fall{0%{transform:translateY(-100vh) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.topbar{position:fixed;top:0;left:0;right:0;padding:12px 20px;background:rgba(255,248,240,.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(29,53,87,.04);z-index:100;display:none;align-items:center;justify-content:space-between}
+.topbar.show{display:flex}
+.topbar a{font-size:.8rem;color:var(--txt-l);text-decoration:none}.topbar a:hover{color:var(--rose)}
+@media(max-width:520px){.zone-label{font-size:10px;stroke-width:2.5px}.zone-icon{font-size:18px}.panel{padding:24px 18px}}
+</style>
+</head>
+<body>
+<div class="topbar" id="topbar"><a href="index.html">← 回首頁</a><span style="font-size:.7rem;color:var(--txt-d)">內在城堡探索者</span></div>
+
+<section class="hero" id="heroSec">
+<h1>內在城堡探索者</h1>
+<p class="hero-sub">每天10分鐘，走進自己的城堡。<br>您有12個房間，但有幾扇門從來沒推開過？</p>
+<div class="hero-tags"><span class="hero-tag">🏰 12個覺察房間</span><span class="hero-tag">🔮 每日謎語</span><span class="hero-tag">✨ 靈感點數</span><span class="hero-tag">🌿 認知芳療</span></div>
+<button class="btn-enter" onclick="startGame()">推開城門 →</button>
+</section>
+
+<div class="game" id="gameArea">
+<div class="bar">
+<div class="bar-item"><div class="bar-label">靈感</div><div class="bar-val pts" id="dPts">0</div></div>
+<div class="bar-item"><div class="bar-label">今日</div><div class="bar-val rooms" id="dRms">0/3</div></div>
+<div class="bar-item"><div class="bar-label">連續</div><div class="bar-val streak" id="dStr">1</div></div>
+</div>
+<div class="prog"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+
+<div class="castle-wrap">
+<svg class="castle-svg" viewBox="0 0 720 600" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#D6EEFF"/><stop offset="100%" style="stop-color:#FFF0E5"/></linearGradient>
+<linearGradient id="wall" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#F5E6D3"/><stop offset="100%" style="stop-color:#E8D5C0"/></linearGradient>
+<linearGradient id="roof" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" style="stop-color:#C0334D"/><stop offset="100%" style="stop-color:#E63946"/></linearGradient>
+<linearGradient id="twr" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#FAECD8"/><stop offset="100%" style="stop-color:#E0CBAA"/></linearGradient>
+<linearGradient id="door" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#5C3A1E"/><stop offset="100%" style="stop-color:#3A2410"/></linearGradient>
+</defs>
+<rect x="0" y="0" width="720" height="600" fill="url(#sky)"/>
+<rect x="0" y="480" width="720" height="120" fill="#C8E6C9"/>
+<ellipse cx="360" cy="490" rx="340" ry="20" fill="#A5D6A7" opacity=".5"/>
+<rect x="160" y="240" width="400" height="250" fill="url(#wall)" rx="4"/>
+<rect x="160" y="232" width="400" height="12" fill="#D4B896" rx="2"/>
+<g fill="#D4B896"><rect x="160" y="220" width="28" height="18" rx="2"/><rect x="210" y="220" width="28" height="18" rx="2"/><rect x="260" y="220" width="28" height="18" rx="2"/><rect x="310" y="220" width="28" height="18" rx="2"/><rect x="360" y="220" width="28" height="18" rx="2"/><rect x="410" y="220" width="28" height="18" rx="2"/><rect x="460" y="220" width="28" height="18" rx="2"/><rect x="510" y="220" width="28" height="18" rx="2"/></g>
+<rect x="100" y="160" width="80" height="330" fill="url(#twr)" rx="3"/>
+<polygon points="140,80 95,165 185,165" fill="url(#roof)"/>
+<rect x="100" y="155" width="80" height="10" fill="#D4B896"/>
+<rect x="122" y="190" width="36" height="42" rx="18" fill="#457B9D" opacity=".3"/><rect x="138" y="190" width="4" height="42" fill="#D4B896"/><rect x="122" y="208" width="36" height="4" fill="#D4B896"/>
+<rect x="540" y="160" width="80" height="330" fill="url(#twr)" rx="3"/>
+<polygon points="580,80 535,165 625,165" fill="url(#roof)"/>
+<rect x="540" y="155" width="80" height="10" fill="#D4B896"/>
+<rect x="562" y="190" width="36" height="42" rx="18" fill="#457B9D" opacity=".3"/><rect x="578" y="190" width="4" height="42" fill="#D4B896"/><rect x="562" y="208" width="36" height="4" fill="#D4B896"/>
+<rect x="300" y="120" width="120" height="130" fill="url(#twr)" rx="3"/>
+<polygon points="360,40 290,125 430,125" fill="url(#roof)"/>
+<rect x="300" y="115" width="120" height="10" fill="#D4B896"/>
+<rect x="332" y="145" width="56" height="65" rx="28" fill="#457B9D" opacity=".25"/><rect x="358" y="145" width="4" height="65" fill="#D4B896"/><rect x="332" y="175" width="56" height="4" fill="#D4B896"/>
+<line x1="360" y1="15" x2="360" y2="42" stroke="#8B6914" stroke-width="3"/>
+<polygon points="360,15 395,25 360,35" fill="#F0A500" opacity=".9"/>
+<rect x="320" y="400" width="80" height="90" rx="40" fill="url(#door)"/><circle cx="390" cy="450" r="5" fill="#F0A500"/><rect x="358" y="400" width="4" height="90" fill="#4A2C10"/>
+<g fill="#457B9D" opacity=".25"><rect x="195" y="280" width="30" height="38" rx="15"/><rect x="255" y="280" width="30" height="38" rx="15"/><rect x="435" y="280" width="30" height="38" rx="15"/><rect x="495" y="280" width="30" height="38" rx="15"/><rect x="195" y="370" width="30" height="38" rx="4"/><rect x="255" y="370" width="30" height="38" rx="4"/><rect x="435" y="370" width="30" height="38" rx="4"/><rect x="495" y="370" width="30" height="38" rx="4"/></g>
+
+<g class="room-zone" data-room="mirror"><rect class="zone-fill" x="100" y="175" width="80" height="70" rx="4" fill="#E63946"/><text class="zone-icon" x="140" y="215" text-anchor="middle">🪞</text><text class="zone-label" x="140" y="258" text-anchor="middle">鏡之廳</text><circle class="zone-check" cx="170" cy="182" r="8" fill="#2EC4B6"/><text class="zone-check" x="170" y="186" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">✓</text></g>
+<g class="room-zone" data-room="treasure"><rect class="zone-fill" x="100" y="300" width="80" height="70" rx="4" fill="#F0A500"/><text class="zone-icon" x="140" y="340" text-anchor="middle">💎</text><text class="zone-label" x="140" y="383" text-anchor="middle">價值寶庫</text><circle class="zone-check" cx="170" cy="307" r="8" fill="#2EC4B6"/><text class="zone-check" x="170" y="311" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">✓</text></g>
+<g class="room-zone" data-room="tower"><rect class="zone-fill" x="300" y="130" width="120" height="70" rx="4" fill="#E76F51"/><text class="zone-icon" x="360" y="168" text-anchor="middle">🔭</text><text class="zone-label" x="360" y="210" text-anchor="middle">瞭望塔</text><circle class="zone-check" cx="410" cy="137" r="8" fill="#2EC4B6"/><text class="zone-check" x="410" y="141" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">✓</text></g>
+<g class="room-zone" data-room="throne"><rect class="zone-fill" x="540" y="175" width="80" height="70" rx="4" fill="#E76F51"/><text class="zone-icon" x="580" y="215" text-anchor="middle">👑</text><text class="zone-label" x="580" y="258" text-anchor="middle">王座塔</text><circle class="zone-check" cx="610" cy="182" r="8" fill="#2EC4B6"/><text class="zone-check" x="610" y="186" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">✓</text></g>
+<g class="room-zone" data-room="love"><rect class="zone-fill" x="180" y="260" width="70" height="60" rx="4" fill="#FF6B7A"/><text class="zone-icon" x="215" y="296" text-anchor="middle">💕</text><text class="zone-label" x="215" y="332" text-anchor="middle">愛之殿</text><circle class="zone-check" cx="242" cy="267" r="8" fill="#2EC4B6"/><text class="zone-check" x="242" y="271" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">✓</text></g>
+<g class="room-zone" data-room="intuition"><rect class="zone-fill" x="470" y="260" width="70" height="60" rx="4" fill="#457B9D"/><text class="zone-icon" x="505" y="296" text-anchor="middle">🔮</text><text class="zone-label" x="505" y="332" text-anchor="middle">直覺閣</text><circle class="zone-check" cx="532" cy="267" r="8" fill="#2EC4B6"/><text class="zone-check" x="532" y="271" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">✓</text></g>
+<g class="room-zone" data-room="ground"><rect class="zone-fill" x="540" y="300" width="80" height="70" rx="4" fill="#F0A500"/><text class="zone-icon" x="580" y="340" text-anchor="middle">🏔️</text><text class="zone-label" x="580" y="383" text-anchor="middle">磐石廳</text><circle class="zone-check" cx="610" cy="307" r="8" fill="#2EC4B6"/><text class="zone-check" x="610" y="311" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">✓</text></g>
+<g class="room-zone" data-room="harmony"><rect class="zone-fill" x="180" y="355" width="70" height="60" rx="4" fill="#2EC4B6"/><text class="zone-icon" x="215" y="391" text-anchor="middle">🌿</text><text class="zone-label" x="215" y="427" text-anchor="middle">和諧苑</text><circle class="zone-check" cx="242" cy="362" r="8" fill="#2EC4B6"/><text class="zone-check" x="242" y="366" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">✓</text></g>
+<g class="room-zone" data-room="transform"><rect class="zone-fill" x="470" y="355" width="70" height="60" rx="4" fill="#1D3557"/><text class="zone-icon" x="505" y="391" text-anchor="middle">🦋</text><text class="zone-label" x="505" y="427" text-anchor="middle">蛻變室</text><circle class="zone-check" cx="532" cy="362" r="8" fill="#2EC4B6"/><text class="zone-check" x="532" y="366" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">✓</text></g>
+<g class="room-zone" data-room="dream"><rect class="zone-fill" x="270" y="280" width="70" height="55" rx="4" fill="#457B9D"/><text class="zone-icon" x="305" y="312" text-anchor="middle">🌙</text><text class="zone-label" x="305" y="347" text-anchor="middle">夢境走廊</text><circle class="zone-check" cx="332" cy="287" r="8" fill="#2EC4B6"/><text class="zone-check" x="332" y="291" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">✓</text></g>
+<g class="room-zone" data-room="garden"><rect class="zone-fill" x="380" y="280" width="70" height="55" rx="4" fill="#E63946"/><text class="zone-icon" x="415" y="312" text-anchor="middle">🌸</text><text class="zone-label" x="415" y="347" text-anchor="middle">記憶花園</text><circle class="zone-check" cx="442" cy="287" r="8" fill="#2EC4B6"/><text class="zone-check" x="442" y="291" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">✓</text></g>
+<g class="room-zone" data-room="key"><rect class="zone-fill" x="310" y="365" width="100" height="40" rx="4" fill="#2EC4B6"/><text class="zone-icon" x="360" y="392" text-anchor="middle">🔑</text><text class="zone-label" x="360" y="418" text-anchor="middle">解鎖密室</text><circle class="zone-check" cx="402" cy="372" r="8" fill="#2EC4B6"/><text class="zone-check" x="402" y="376" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">✓</text></g>
+</svg>
+</div>
+
+<div class="panel" id="panel"></div>
+<div class="share" id="shareSec" style="display:none"><h3>🏰 分享您的城堡進度</h3><p style="font-size:.78rem;color:var(--txt-l);margin-bottom:12px">分享一次，獲得 2 點靈感</p><button class="btn-share" onclick="doShare()">✦ 分享到社群</button></div>
+</div>
+
+<div class="confetti" id="confettiBox"></div>
+
+<script src="castle-riddles.js"></script>
+<script src="assets/js/hl-castle-key.js"></script>
+<script>
+// ═══ 每日抽題邏輯：同一天同一房間看到同一道 ═══
+function todayRiddle(room){
+  var today = new Date(Date.now()+8*3600000);
+  var seed = today.getUTCFullYear()*10000+today.getUTCMonth()*100+today.getUTCDate();
+  var hash = seed * 2654435761 + room.id.charCodeAt(0) * 31;
+  var idx = Math.abs(hash) % room.riddles.length;
+  return room.riddles[idx];
+}
+;
+
+// ═══ 使用 hl-castle-key.js 鑰匙系統 ═══
+var CUR_ROOM = null;
+
+function upd(){
+  var st = hlCastle.getState();
+  document.getElementById('dPts').textContent = st.points;
+  document.getElementById('dRms').textContent = st.todayOpened + '/3';
+  document.getElementById('dStr').textContent = st.streak;
+  document.getElementById('progFill').style.width = Math.round(st.todayOpened/3*100) + '%';
+  if(st.points > 0) document.getElementById('shareSec').style.display = 'block';
+  renderZones();
+}
+
+function startGame(){
+  document.getElementById('heroSec').style.display='none';
+  document.getElementById('gameArea').classList.add('active');
+  document.getElementById('topbar').classList.add('show');
+  upd();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderZones(){
+  var st = hlCastle.getState();
+  document.querySelectorAll('.room-zone').forEach(function(g){
+    var rid = g.dataset.room;
+    var isDone = hlCastle.isDone(rid);
+    var hasKey = hlCastle.hasKey(rid);
+    var canOpenMore = hlCastle.canOpen();
+
+    // 狀態：done（今天已完成）/ hasKey（有鑰匙可進）/ open（可去拿鑰匙）/ full（今天額度滿了）
+    g.classList.toggle('done', isDone);
+    g.classList.toggle('current', hasKey && !isDone);
+    g.classList.toggle('locked', !hasKey && !isDone && !canOpenMore);
+
+    if(isDone){
+      g.style.cursor = 'default';
+      g.onclick = null;
+    } else {
+      g.style.cursor = 'pointer';
+      g.onclick = function(){ handleRoomClick(rid); };
+    }
+  });
+}
+
+function handleRoomClick(rid){
+  if(hlCastle.isDone(rid)) return;
+
+  if(hlCastle.hasKey(rid)){
+    // 有鑰匙 → 直接進房間做謎語
+    if(!hlCastle.canOpen()){
+      alert('今天的 3 扇門已經全部探索完畢 ✨\n\n分享一次可以多開 1 扇，或者明天再來繼續探索！');
+      return;
+    }
+    openRoom(rid);
+  } else {
+    // 沒鑰匙 → 顯示今天的任務提示
+    showKeyTask(rid);
+  }
+}
+
+function showKeyTask(rid){
+  var task = hlCastle.getTodayTask(rid);
+  var hint = hlCastle.getRoomHint(rid);
+  var room = ROOMS.find(function(r){return r.id===rid});
+  if(!room || !task) return;
+
+  var p = document.getElementById('panel');
+  var h = '<h2>🔒 ' + room.name + '</h2>';
+  h += '<div class="desc" style="font-size:.95rem;color:var(--navy);font-weight:600;margin-bottom:8px">' + hint + '</div>';
+  h += '<div class="riddle-box" style="text-align:center">';
+  h += '<div style="font-size:2.5rem;margin-bottom:12px">🗝️</div>';
+  h += '<div class="riddle-q" style="font-size:.95rem">今天的鑰匙：' + task.label + '</div>';
+  h += '<div style="font-size:.85rem;color:var(--txt-l);margin-bottom:18px">' + task.hint + '</div>';
+  if(task.url === '_share'){
+    h += '<button class="btn-done" onclick="doShare()" style="background:var(--coral)">✦ 分享城堡進度，拿回鑰匙</button>';
+  } else {
+    h += '<a href="' + task.url + '" style="display:inline-block;padding:14px 32px;background:var(--rose);color:#fff;border-radius:12px;text-decoration:none;font-weight:700;font-size:.95rem;transition:all .3s">去拿鑰匙 →</a>';
+    h += '<div style="font-size:.72rem;color:var(--txt-d);margin-top:10px">完成後會自動帶著鑰匙回到城堡</div>';
+  }
+  h += '</div>';
+  p.innerHTML = h;
+  p.classList.add('active');
+  p.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function openRoom(rid){
+  var room = ROOMS.find(function(r){return r.id===rid});
+  if(!room) return;
+  CUR_ROOM = rid;
+  var rd = todayRiddle(room); // 今天的這道謎語
+  var p = document.getElementById('panel');
+  var typeLabel = rd.type==='aroma'?'🌿 認知芳療':'rd.type==='fuyu'?'☯ 馥靈馥語':'💭 覺察';
+  typeLabel = rd.type==='aroma'?'🌿 認知芳療':rd.type==='fuyu'?'☯ 馥靈馥語':'💭 覺察';
+  var h = '<h2>' + room.icon + ' ' + room.name + '</h2>';
+  h += '<div class="desc">' + room.phase + '｜門開了。走進去，看看裡面有什麼。</div>';
+  h += '<div style="display:inline-block;padding:4px 12px;background:rgba(29,53,87,.06);border-radius:12px;font-size:.68rem;color:var(--txt-l);margin-bottom:14px">' + typeLabel + '</div>';
+  h += '<div class="riddle-box"><div class="riddle-q">' + rd.q + '</div>';
+  if(rd.isAroma && rd.aromas){
+    h += '<div class="aroma-grid">';
+    rd.aromas.forEach(function(a,i){
+      h += '<div class="aroma-card" onclick="selAroma('+i+')" id="a'+i+'"><div class="aroma-icon">'+a.icon+'</div><div class="aroma-name">'+a.name+'</div><div class="aroma-note">'+a.note+'</div></div>';
+    });
+    h += '</div>';
+  } else {
+    h += '<div class="riddle-opts">';
+    rd.opts.forEach(function(o,i){
+      h += '<div class="riddle-opt" onclick="selOpt('+i+')" id="o'+i+'">'+o.text+'</div>';
+    });
+    h += '</div>';
+  }
+  h += '</div><div class="insight" id="ins"></div>';
+  h += '<button class="btn-done" id="btnDone" disabled onclick="finish()">✦ 收下這份覺察</button>';
+  p.innerHTML = h;
+  p.classList.add('active');
+  p.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function selOpt(i){var r=ROOMS.find(function(r){return r.id===CUR_ROOM});if(!r)return;var rd=todayRiddle(r);if(rd.isAroma)return;rd.opts.forEach(function(_,j){var e=document.getElementById('o'+j);if(e)e.className='riddle-opt'+(j===i?' sel':'')});showIns(rd.opts[i].insight)}
+function selAroma(i){var r=ROOMS.find(function(r){return r.id===CUR_ROOM});if(!r)return;var rd=todayRiddle(r);if(!rd.aromas)return;rd.aromas.forEach(function(_,j){var e=document.getElementById('a'+j);if(e)e.className='aroma-card'+(j===i?' sel':'')});showIns(rd.aromas[i].insight)}
+function showIns(t){var el=document.getElementById('ins');el.innerHTML='<div class="insight-txt">'+t.replace(/\\n/g,'<br>')+'</div>';el.classList.add('show');document.getElementById('btnDone').disabled=false;el.scrollIntoView({behavior:'smooth',block:'center'})}
+
+function finish(){
+  if(!CUR_ROOM) return;
+  hlCastle.completeRoom(CUR_ROOM);
+  confetti();
+  upd();
+  document.getElementById('panel').classList.remove('active');
+  setTimeout(function(){
+    document.querySelector('.castle-wrap').scrollIntoView({behavior:'smooth',block:'center'});
+  },400);
+  var st = hlCastle.getState();
+  if(st.todayOpened >= 3){
+    setTimeout(function(){
+      alert('✨ 今天的 3 個房間都探索完畢！\n\n明天城堡會為您準備新的鑰匙。\n\n您的靈感點數：' + st.points + ' 點（永久累積）');
+    },1200);
+  }
+}
+function confetti(){var b=document.getElementById('confettiBox'),c=['#E63946','#2EC4B6','#1D3557','#F0A500','#E76F51','#FFD166','#457B9D'];for(var i=0;i<40;i++){var p=document.createElement('i');p.style.cssText='left:'+Math.random()*100+'%;background:'+c[~~(Math.random()*c.length)]+';animation-delay:'+Math.random()+'s;animation-duration:'+(2+Math.random()*2)+'s;width:'+(6+Math.random()*8)+'px;height:'+(6+Math.random()*8)+'px;border-radius:'+(Math.random()>.5?'50%':'2px');b.appendChild(p)}setTimeout(function(){b.innerHTML=''},4000)}
+
+function doShare(){
+  var st = hlCastle.getState();
+  var t='🏰 我在馥靈之鑰的內在城堡收集了 '+st.points+' 點靈感！\n\n每天10分鐘，走進自己的城堡 ✨\n👉 hourlightkey.com/castle-game.html';
+  if(navigator.share)navigator.share({title:'內在城堡探索者',text:t,url:'https://hourlightkey.com/castle-game.html'}).catch(function(){});
+  else navigator.clipboard.writeText(t).then(function(){alert('✅ 已複製分享文案')});
+  hlCastle.shareBonus();
+  upd();
+}
+</script>
+<script src="assets/js/hourlight-global.js?v=20260325"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-referral.js?v=20260323"></script>
+<footer style="background:rgba(255,240,229,.5);border-top:1px solid rgba(29,53,87,.04);padding:36px 24px;text-align:center">
+<div style="margin-bottom:10px"><img src="LOGO-1.png" alt="" style="height:26px;opacity:.6" loading="lazy"></div>
+<div style="font-size:.8rem;color:var(--txt-l);margin-bottom:6px">馥靈之鑰 Hour Light｜讀懂自己，活對人生</div>
+<div style="font-size:.68rem;color:var(--txt-d)">© 2026 馥靈之鑰國際有限公司｜統編：60303284</div>
+<div style="display:flex;gap:12px;justify-content:center;margin-top:12px;flex-wrap:wrap">
+<a href="index.html" style="font-size:.72rem;color:var(--txt-l);text-decoration:none">首頁</a>
+<a href="destiny-engine.html" style="font-size:.72rem;color:var(--txt-l);text-decoration:none">命盤引擎</a>
+<a href="draw-hl.html" style="font-size:.72rem;color:var(--txt-l);text-decoration:none">線上抽牌</a>
+<a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" style="font-size:.72rem;color:var(--txt-l);text-decoration:none">LINE 諮詢</a>
+</div>
+</footer>
+<script src="assets/js/hl-topnav.js"></script>
+<script src="assets/js/hl-bottomnav.js"></script>
+<script src="assets/js/hl-share.js"></script>
+<script src="assets/js/hl-tracker.js" data-tool="castle-game" data-tool-name="內在城堡探索者" data-tool-type="game"></script>
+</body>
+</html>
