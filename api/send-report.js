@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════
-// 馥靈之鑰 · 命盤測算報告寄送 API
+// 馥靈之鑰 · 命盤測算報告 / 通知信 寄送 API
 // Vercel Serverless Function
 // © 2026 Hour Light International
 // ═══════════════════════════════════════
@@ -7,7 +7,7 @@
 module.exports = async function handler(req, res) {
   // CORS
   var origin = req.headers.origin || '';
-  var allowed = ['https://hourlightkey.com','https://www.hourlightkey.com','http://localhost:3000'];
+  var allowed = ['https://hourlightkey.com','https://www.hourlightkey.com','https://app.hourlightkey.com','http://localhost:3000'];
   if (allowed.indexOf(origin) > -1) res.setHeader('Access-Control-Allow-Origin', origin);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -27,50 +27,54 @@ module.exports = async function handler(req, res) {
     var subject = body.subject || '您的馥靈座標哲學 · 命盤測算資料';
     var content = body.content || '';
     var system = body.system || '命盤引擎';
+    // type: 'report'（預設）= 測算報告，'notification' = 會員通知信
+    var type = body.type || 'report';
 
     // 驗證 email
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ error: '請輸入正確的電子信箱' });
     }
     if (!content) {
-      return res.status(400).json({ error: '沒有測算內容可寄送' });
+      return res.status(400).json({ error: '沒有內容可寄送' });
     }
 
-    // ── 1. 加入 MailerLite 訂閱名單 ──
+    // ── 1. 加入 MailerLite 訂閱名單（僅報告信加入）──
     var mlResult = null;
-    try {
-      var mlResp = await fetch('https://connect.mailerlite.com/api/subscribers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + ML_KEY
-        },
-        body: JSON.stringify({
-          email: email,
-          fields: { name: name || undefined, company: '命盤引擎用戶' },
-          groups: body.groupId ? [body.groupId] : [],
-          status: 'active'
-        })
-      });
-      mlResult = await mlResp.json();
-    } catch(mlErr) {
-      console.error('MailerLite error:', mlErr);
-      // 不阻塞，繼續寄信
+    if (type === 'report') {
+      try {
+        var mlResp = await fetch('https://connect.mailerlite.com/api/subscribers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + ML_KEY
+          },
+          body: JSON.stringify({
+            email: email,
+            fields: { name: name || undefined, company: '命盤引擎用戶' },
+            groups: body.groupId ? [body.groupId] : [],
+            status: 'active'
+          })
+        });
+        mlResult = await mlResp.json();
+      } catch(mlErr) {
+        console.error('MailerLite error:', mlErr);
+      }
     }
 
     // ── 2. 寄送 Email（Gmail SMTP via Nodemailer）──
     var emailSent = false;
     if (GMAIL_USER && GMAIL_APP_PW) {
       try {
-        // 動態載入 nodemailer
         var nodemailer = require('nodemailer');
         var transporter = nodemailer.createTransport({
           service: 'gmail',
           auth: { user: GMAIL_USER, pass: GMAIL_APP_PW }
         });
 
-        // 將純文字內容轉成漂亮的 HTML email
-        var htmlContent = buildEmailHTML(name, system, content);
+        // 依 type 選擇模板
+        var htmlContent = type === 'notification'
+          ? buildNotificationHTML(content)
+          : buildReportHTML(name, system, content);
 
         await transporter.sendMail({
           from: '"馥靈之鑰 Hour Light" <' + GMAIL_USER + '>',
@@ -90,8 +94,8 @@ module.exports = async function handler(req, res) {
       subscribed: !!mlResult,
       emailSent: emailSent,
       message: emailSent
-        ? '測算資料已寄送至 ' + email
-        : '已加入名單，但信件寄送尚未設定。請聯繫管理員完成 Gmail 應用程式密碼設定。'
+        ? '信件已寄送至 ' + email
+        : '已處理，但信件寄送尚未設定。請聯繫管理員完成 Gmail 應用程式密碼設定。'
     });
 
   } catch(err) {
@@ -100,12 +104,33 @@ module.exports = async function handler(req, res) {
   }
 };
 
-// ── Email HTML 模板 ──
-function buildEmailHTML(name, system, content) {
+// ── 共用：HTML 跳脫 ──
+function esc(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ── 共用：品牌 Header ──
+function emailHeader() {
+  return '<div style="background:#0a0714;padding:32px 24px;text-align:center">'
+    + '<div style="font-size:24px;color:#f0d48a;letter-spacing:4px;font-weight:500">馥靈之鑰</div>'
+    + '<div style="font-size:12px;color:#c9985e;margin-top:6px;letter-spacing:2px">HOUR LIGHT · 座標哲學</div>'
+    + '</div>';
+}
+
+// ── 共用：品牌 Footer ──
+function emailFooter() {
+  return '<div style="background:#0a0714;padding:20px 24px;text-align:center">'
+    + '<div style="font-size:11px;color:#c9985e;letter-spacing:1px">馥靈之鑰國際有限公司 Hour Light International</div>'
+    + '<div style="font-size:11px;color:#888;margin-top:4px">'
+    + '<a href="https://hourlightkey.com" style="color:#f0d48a;text-decoration:none">hourlightkey.com</a>'
+    + ' ｜ <a href="https://lin.ee/RdQBFAN" style="color:#f0d48a;text-decoration:none">LINE 諮詢</a></div>'
+    + '</div>';
+}
+
+// ── 測算報告模板（type: 'report'）──
+function buildReportHTML(name, system, content) {
   var greeting = name ? (name + '，您好！') : '您好！';
-  // 將換行轉成 <br>，保留格式
-  var formatted = content
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  var formatted = esc(content)
     .replace(/\n/g, '<br>')
     .replace(/══+/g, '<hr style="border:none;border-top:1px solid #e8d5a8;margin:16px 0">')
     .replace(/▍/g, '<b style="color:#c9985e">▍</b>');
@@ -113,19 +138,12 @@ function buildEmailHTML(name, system, content) {
   return '<!DOCTYPE html><html><head><meta charset="utf-8"></head>'
     + '<body style="margin:0;padding:0;background:#f5f0e8;font-family:serif">'
     + '<div style="max-width:640px;margin:0 auto;background:#fffdf8;border:1px solid #e8d5a8">'
-    // Header
-    + '<div style="background:#0a0714;padding:32px 24px;text-align:center">'
-    + '<div style="font-size:24px;color:#f0d48a;letter-spacing:4px;font-weight:500">馥靈之鑰</div>'
-    + '<div style="font-size:12px;color:#c9985e;margin-top:6px;letter-spacing:2px">HOUR LIGHT · 座標哲學</div>'
-    + '</div>'
-    // Body
+    + emailHeader()
     + '<div style="padding:28px 24px">'
-    + '<p style="font-size:15px;color:#333;line-height:1.8;margin-bottom:16px">'
-    + greeting + '</p>'
+    + '<p style="font-size:15px;color:#333;line-height:1.8;margin-bottom:16px">' + esc(greeting) + '</p>'
     + '<p style="font-size:14px;color:#666;line-height:1.8;margin-bottom:20px">'
-    + '以下是您在「' + system + '」的測算資料。<br>'
+    + '以下是您在「' + esc(system) + '」的測算資料。<br>'
     + '您可以將這段內容複製後貼到 ChatGPT 或 Claude 等 AI 工具中，即可獲得深度解讀。</p>'
-    // Content box
     + '<div style="background:#faf6ee;border:1px solid #e8d5a8;border-radius:8px;padding:20px;margin:16px 0">'
     + '<div style="font-size:13px;color:#555;line-height:1.85;font-family:monospace,serif;white-space:pre-wrap;word-break:break-word">'
     + formatted
@@ -133,12 +151,26 @@ function buildEmailHTML(name, system, content) {
     + '<p style="font-size:13px;color:#999;margin-top:20px;line-height:1.7">'
     + '💡 使用方式：複製上方內容 → 貼到 AI 對話工具 → 獲得完整解讀</p>'
     + '</div>'
-    // Footer
-    + '<div style="background:#0a0714;padding:20px 24px;text-align:center">'
-    + '<div style="font-size:11px;color:#c9985e;letter-spacing:1px">馥靈之鑰國際有限公司 Hour Light International</div>'
-    + '<div style="font-size:11px;color:#888;margin-top:4px">'
-    + '<a href="https://hourlightkey.com" style="color:#f0d48a;text-decoration:none">hourlightkey.com</a>'
-    + ' ｜ <a href="https://lin.ee/p5tBihbe" style="color:#f0d48a;text-decoration:none">LINE 諮詢</a></div>'
+    + emailFooter()
+    + '</div></body></html>';
+}
+
+// ── 通知信模板（type: 'notification'）──
+// content 自帶完整文字（含稱呼），模板只加品牌外框
+function buildNotificationHTML(content) {
+  var formatted = esc(content)
+    .replace(/\n/g, '<br>')
+    .replace(/►/g, '<span style="color:#c9985e">►</span>');
+
+  return '<!DOCTYPE html><html><head><meta charset="utf-8"></head>'
+    + '<body style="margin:0;padding:0;background:#f5f0e8;font-family:serif">'
+    + '<div style="max-width:640px;margin:0 auto;background:#fffdf8;border:1px solid #e8d5a8">'
+    + emailHeader()
+    + '<div style="padding:28px 24px">'
+    + '<div style="font-size:14px;color:#444;line-height:2">'
+    + formatted
     + '</div>'
+    + '</div>'
+    + emailFooter()
     + '</div></body></html>';
 }
