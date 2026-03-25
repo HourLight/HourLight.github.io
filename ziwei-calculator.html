@@ -251,7 +251,7 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1" loa
     <div class="ai-card">
       <div class="ai-title">📜 AI 深度解讀指令</div>
       <pre class="ai-pre" id="aiPre"></pre>
-      <button class="cp-btn" onclick="copyAI()">📋 複製 AI 指令</button>
+      <button class="cp-btn" onclick="copyData('aiPre',this)">📋 複製命盤資料</button><button class="cp-btn" style="margin-left:8px;background:rgba(160,124,220,.12);border-color:rgba(160,124,220,.3)" onclick="hlAICopy('aiPre','ziwei',this)">🔮 複製智慧解讀指令</button>
     </div>
     <div class="cta-block">
       <h3>紫微看結構，馥靈幫您活出來</h3>
@@ -420,7 +420,8 @@ function doCalc(){
   var yzI=DZ.indexOf(lunar.getYearZhi());
   // 顯示農曆資訊
   var pvEl=document.getElementById('lunar-preview');
-  if(pvEl){pvEl.textContent='→ 農曆 '+lunar.getYearInGanZhi()+'年'+lunar.getMonthInChinese()+'月'+lunar.getDayInChinese()+'｜'+lunar.getYearGan()+lunar.getYearZhi()+'年';pvEl.style.display='block';}
+  var isLeap=lunar.getMonth()<0;
+  if(pvEl){pvEl.textContent='→ 農曆 '+lunar.getYearInGanZhi()+'年'+(isLeap?'閏':'')+lunar.getMonthInChinese()+'月'+lunar.getDayInChinese()+'｜'+lunar.getYearGan()+lunar.getYearZhi()+'年';pvEl.style.display='block';}
 
   var hzI=H===23?0:Math.floor((H+1)/2)%12;
   var zw=calcZiwei(lm,ld,ytI,yzI,hzI,gen);
@@ -463,11 +464,11 @@ function doCalc(){
   // AI
   var zwData='';
   GN.forEach(function(gn){var p=null;zw.palaces.forEach(function(x){if(x.name==gn)p=x});if(!p)return;zwData+=p.name+'('+p.tg+p.dz+')大限'+p.dx+': '+(p.ms.length?p.ms.map(function(s){return s.n+'('+s.b+')'+(s.h?'化'+s.h:'')}).join(','):'空宮')+' | 吉:'+p.lj.join(',')+'|煞:'+p.ls.join(',')+' | '+p.cs+' '+p.bs+'\n'});
-  var ai='【AI解讀指令】請依據《紫微斗數全書》《斗數宣微》《飛星紫微》做深度解讀：\n\n';
+  var ai=';
   ai+='命宮：'+DZ[zw.ming]+'宮 ｜ 身宮：'+DZ[zw.shen]+'宮（'+zw.shGN+'）\n';
   ai+='五行局：'+zw.juS+' ｜ 命主：'+zw.mzhu+' 身主：'+zw.szhu+'\n';
   ai+='生年四化：祿'+zw.sh4.祿+' 權'+zw.sh4.權+' 科'+zw.sh4.科+' 忌'+zw.sh4.忌+'\n\n十二宮完整資料：\n'+zwData;
-  ai+='\n\n【解讀框架·請逐項分析】\n壹、格局鑑定與命格類型\n・命格類型（紫府朝垣/府相朝垣/殺破狼/機月同梁等）\n・三方四正（命+財+官+遷）格局判定（廟旺/煞忌）\n\n二、十四主星性格原型\n・開創型（七殺/破軍/廉貞/貪狼）→ 行動派\n・領導型（紫微/天府/武曲/天相）→ 管理派\n・支援型（太陽/巨門/天機）→ 智囊派\n・合作型（太陰/天梁/天同）→ 協調派\n\n三、四化飛星與大限疊宮\n・生年四化各落何宮？宮干引動哪些宮位？\n・當前大限主星能量變化\n・2026丙午年流年四化飛星論斷\n\n四、十二宮聯動重點\n・命宮×事業宮：天生事業屬性\n・財帛宮×交友宮：客群磁鐵密碼\n・夫妻宮：感情模式\n・福德宮：精神底色\n・疾厄宮：身體弱點提醒\n\n五、煞星與化忌的升級密碼\n・煞星不是壞事，化忌不是災難，它們是升級的入口\n\n六、星曜與身心對應\n・紫微/天府→頭部脊椎 太陽→心臟眼睛 太陰→腎內分泌\n・天機→肝神經系統 武曲→肺呼吸 廉貞→心包血液\n\n七、合盤應用提示\n・A的命宮主星落入B的哪個宮位→決定A在B生命中的角色\n\n【🔴 請用日常語言翻譯，結尾給出：當前最值得把握的機會＋最需警惕的地雷】\n\n【參考書目】\n▍古典：《紫微斗數全書》《太微賦》《骨髓賦》《紫微斗數全集》\n▍三合派：慧心齋主《紫微斗數新詮》了無居士《現代紫微》善存老師《別認命！》\n▍飛星派：梁若瑜（飛星泰斗）周星飛《飛星紫微斗數，這樣學最快懂》\n▍現代詮釋：大耕老師《紫微攻略》系列（時報出版）張盛舒《閱人有術》\n▍合盤：StarQode 鄭書羽《紫微合盤全解析》\n\n▍馥靈座標哲學\n大家以為算財運是為了知道哪天暴富。\n其實，是為了讓妳在拒絕不適合的客人時，底氣十足。\n\n【延伸導航·從命盤到此刻動態】\n► 馥靈馥語（hourlightkey.com/fuling-fuyu.html）→ 紫微看十年大限，馥靈馥語看今天的即時座標\n► 馥靈秘碼（hourlightkey.com/fuling-mima.html）→ 紫微十二宮 × 馥靈十二宮交叉比對\n► 130張牌卡（hourlightkey.com/draw-hl.html）→ 命盤說你是什麼型，牌卡告訴你此刻該怎麼動\n\n紫微是十二間房間的設計圖，馥靈馥語是此刻的溫度計，牌卡是幫你決定今天先整理哪個房間的鑰匙。';
+  ai+='\n\n【解讀框架·請逐項分析】\n壹、格局鑑定與命格類型\n・命格類型（紫府朝垣/府相朝垣/殺破狼/機月同梁等）\n・三方四正（命+財+官+遷）格局判定（廟旺/煞忌）\n\n二、十四主星性格原型\n・開創型（七殺/破軍/廉貞/貪狼）→ 行動派\n・領導型（紫微/天府/武曲/天相）→ 管理派\n・支援型（太陽/巨門/天機）→ 智囊派\n・合作型（太陰/天梁/天同）→ 協調派\n\n三、四化飛星與大限疊宮\n・生年四化各落何宮？宮干引動哪些宮位？\n・當前大限主星能量變化\n・2026丙午年流年四化飛星論斷\n\n四、十二宮聯動重點\n・命宮×事業宮：天生事業屬性\n・財帛宮×交友宮：客群磁鐵密碼\n・夫妻宮：感情模式\n・福德宮：精神底色\n・疾厄宮：身體弱點提醒\n\n五、煞星與化忌的升級密碼\n・煞星不是壞事，化忌不是災難，它們是升級的入口\n\n六、星曜與身心對應\n・紫微/天府→頭部脊椎 太陽→心臟眼睛 太陰→腎內分泌\n・天機→肝神經系統 武曲→肺呼吸 廉貞→心包血液\n\n七、合盤應用提示\n・A的命宮主星落入B的哪個宮位→決定A在B生命中的角色\n\n【🔴 請用日常語言翻譯，結尾給出：當前最值得把握的機會＋最需警惕的地雷】\n\n【參考書目】\n▍古典：《紫微斗數全書》《太微賦》《骨髓賦》《紫微斗數全集》\n▍三合派：慧心齋主《紫微斗數新詮》了無居士《現代紫微》善存老師《別認命！》\n▍飛星派：梁若瑜（飛星泰斗）周星飛《飛星紫微斗數，這樣學最快懂》\n▍現代詮釋：大耕老師《紫微攻略》系列（時報出版）張盛舒《閱人有術》\n▍合盤：StarQode 鄭書羽《紫微合盤全解析》\n\n▍馥靈座標哲學\n大家以為算財運是為了知道哪天暴富。\n其實，是為了讓妳在拒絕不適合的客人時，底氣十足。\n\n【延伸導航·從命盤到此刻動態】\n► 易經覺察占卜（hourlightkey.com/yijing-oracle.html）→ 紫微看十年大限，易經覺察占卜看今天的即時座標\n► 馥靈秘碼（hourlightkey.com/fuling-mima.html）→ 紫微十二宮 × 馥靈十二宮交叉比對\n► 130張牌卡（hourlightkey.com/draw-hl.html）→ 命盤說你是什麼型，牌卡告訴你此刻該怎麼動\n\n紫微是十二間房間的設計圖，易經覺察占卜是此刻的溫度計，牌卡是幫你決定今天先整理哪個房間的鑰匙。';
   document.getElementById('aiPre').textContent=ai;
   window._ai=ai;
 
@@ -484,6 +485,7 @@ function copyAI(){navigator.clipboard.writeText(window._ai||'').then(function(){
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-referral.js?v=20260323"></script>
 <footer class="hl-footer"><div class="hl-footer-inner">
   <div class="hl-footer-brand"><div class="hl-footer-logo"><img src="LOGO-1.png" alt="" class="hl-logo-icon" aria-hidden="true" loading="lazy">馥靈之鑰 Hour Light</div><div class="hl-footer-tagline">讀懂自己，活對人生｜創辦人 王逸君</div>
     <div class="hl-footer-social" style="display:flex;gap:16px;justify-content:center;align-items:center;margin:16px 0;flex-wrap:wrap">
@@ -495,7 +497,7 @@ function copyAI(){navigator.clipboard.writeText(window._ai||'').then(function(){
     </div>
     </div>
       <div class="hl-footer-links">
-      <a href="app.html">🔑 會員工作台</a><a href="index.html">首頁</a>
+      <a href="app.html">🔑 我的內在城堡</a><a href="index.html">首頁</a>
       <a href="fuling-mima.html">生命秘碼</a><a href="draw-hl.html">線上抽牌</a>
       <a href="destiny-engine.html">命盤引擎</a><a href="services.html">服務項目</a>
       <a href="courses.html">課程學苑</a><a href="book.html">著作</a>
@@ -507,6 +509,7 @@ function copyAI(){navigator.clipboard.writeText(window._ai||'').then(function(){
 </div></footer>
 <script src="assets/js/hl-topnav.js"></script>
 <script src="assets/js/hl-bottomnav.js"></script>
+<script src="assets/js/hl-ai-gate.js"></script>
 <script src="assets/js/hl-gate.js"></script>
 <script src="assets/js/hl-record.js"></script>
 <script src="assets/js/hl-announce.js"></script>
@@ -514,4 +517,13 @@ function copyAI(){navigator.clipboard.writeText(window._ai||'').then(function(){
 <script src="assets/js/hl-chat.js"></script>
 <script src="assets/js/hl-aroma-fx.js" defer></script>
 <script>document.querySelectorAll(".origin-toggle").forEach(function(t){t.addEventListener("click",function(){this.parentElement.classList.toggle("open")})})</script>
+<script src="assets/js/hl-ai-copy.js">
+function copyData(id,btn){
+  var el=document.getElementById(id);if(!el)return;
+  navigator.clipboard.writeText(el.textContent).then(function(){
+    var orig=btn.textContent;btn.textContent='✅ 已複製命盤資料';
+    setTimeout(function(){btn.textContent=orig},2000);
+  });
+}
+</script>
 </body></html>

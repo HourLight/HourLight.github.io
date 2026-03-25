@@ -437,7 +437,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;background:url('HOUR-L
       <a href="podcast.html" title="Podcast" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">🎙</a>
     </div>
     <div class="hl-footer-links">
-      <a href="app.html">🔑 會員工作台</a><a href="index.html">首頁</a>
+      <a href="app.html">🔑 我的內在城堡</a><a href="index.html">首頁</a>
       <a href="fuling-mima.html">生命秘碼</a><a href="draw-hl.html">線上抽牌</a>
       <a href="destiny-engine.html">命盤引擎</a><a href="services.html">服務項目</a>
       <a href="courses.html">課程學苑</a><a href="book.html">著作</a>
@@ -470,6 +470,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;background:url('HOUR-L
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-referral.js?v=20260323"></script>
 <script src="assets/js/hl-share.js"></script>
 <script src="assets/js/hl-tracker.js" data-tool="tarot-draw" data-tool-name="塔羅抽牌" data-tool-type="draw"></script>
 <script src="assets/js/hl-topnav.js"></script>
@@ -676,6 +677,15 @@ cpyBtn.addEventListener('click',function(){
 // ========== 複製 AI 解讀指令（豐富版）==========
 aiBtn.addEventListener('click',function(){
   if(!drawn.length)return;
+  // AI 門控檢查（計次）
+  if(typeof hlAIGateCheck==='function'){
+    hlAIGateCheck(function(){ _doTarotAICopy(); });
+    return;
+  }
+  _doTarotAICopy();
+});
+function _doTarotAICopy(){
+  if(!drawn.length)return;
   var ds=new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'});
   var pos=POSITIONS[selN]||[];
   var n=drawn.length;
@@ -824,7 +834,7 @@ aiBtn.addEventListener('click',function(){
   var orig=aiBtn.textContent;
   aiBtn.textContent='✅ 已複製！';aiBtn.classList.add('btn-p');
   setTimeout(function(){aiBtn.textContent=orig;aiBtn.classList.remove('btn-p');},2200);
-});
+}
 
 function doCopy(s){
   if(navigator.clipboard){navigator.clipboard.writeText(s).catch(function(){fb(s);});}else{fb(s);}
@@ -838,6 +848,7 @@ function fb(s){
 function p2(n){return String(n).padStart(2,'0')}
 </script>
 
+<script src="assets/js/hl-ai-gate.js"></script>
 <script src="assets/js/hl-gate.js"></script>
 <script src="assets/js/hl-record.js"></script>
 <script src="assets/js/hl-announce.js"></script>
