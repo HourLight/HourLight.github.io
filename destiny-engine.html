@@ -3450,7 +3450,13 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
     ai3+='上升：'+degToSignStr(houses.asc)+'\n天頂：'+degToSignStr(houses.mc)+'\n\n相位：\n';
     aspects.forEach(function(a){ai3+=a.p1+' '+a.type+' '+a.p2+'（'+a.orb+'°）\n'});
     if(patterns.length){ai3+='\n格局：\n';patterns.forEach(function(p){ai3+=p.type+'：'+p.planets+'\n'})}
-    ai3+='\n請分析：日月升三重奏、元素模式分佈、主要相位格局、宮位守護星飛入、2026行運預測。';
+    // 宮位守護星飛入
+    ai3+='\n宮位系統：\n';
+    for(var hi=0;hi<12;hi++){var cL=houses.cusps[hi];var cS=SIGNS[Math.floor(((cL%360)+360)%360/30)];var rul=SIGN_RULER[cS]||'';var rS='',rH='';if(rul&&pShort[rul]){rS=pShort[rul].sign;rH=pShort[rul].house+'宮'}ai3+=(hi+1)+'宮 '+cS+(rul?' → 守護'+rul:'')+(rH?' 飛入'+rS+rH:'')+'\n'}
+    // 元素/模式統計
+    if(stats.elements){ai3+='\n元素分佈：火象'+stats.elements['火'].length+'顆 土象'+stats.elements['土'].length+'顆 風象'+stats.elements['風'].length+'顆 水象'+stats.elements['水'].length+'顆\n'}
+    if(stats.modes){ai3+='模式分佈：開創'+stats.modes['開創'].length+'顆 固定'+stats.modes['固定'].length+'顆 變動'+stats.modes['變動'].length+'顆\n'}
+    ai3+='\n（完整命盤資料。直接貼到 AI 就能得到基礎解讀 ✦ 想要更精準的深度分析，試試旁邊的「🔮 智慧解讀指令」）';
     
     h3+='<div class="ai-box"><h4>📜 命盤資料</h4><pre id="ai3">'+ai3+'</pre><button class="cp" onclick="copyText(\'ai3\')">📋 複製命盤資料</button><button class="cp" style="margin-left:8px;background:rgba(160,124,220,.15);border-color:rgba(160,124,220,.3)" onclick="copyAIPrompt(\'ai3\',\'astro\')">🔮 複製智慧解讀指令</button></div>';
   }else{h3+='<div class="item" style="color:var(--inkm)">星曆資料載入中或不可用</div>'}
@@ -3541,14 +3547,7 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
     });
     ai5+='└───────────────────────┘\n\n';
     ai5+='生剋關係：\n命度主：'+mingQiyao+'\n身度主：'+shenQiyao+'\n\n';
-    ai5+='請分析：\n';
-    ai5+='1. 命宮星格判定\n';
-    ai5+='2. 化曜十星的完整推算與吉利順逆判斷\n';
-    ai5+='3. 助力與挑戰星標注（催官/傷官/祿元/文星/科名/仁元/印星/祿神/魁星/官星/生官/喜神）\n';
-    ai5+='4. 恩星、用星、財星、難星的完整推導\n';
-    ai5+='5. 七政入宮論斷（各星落入何宮的意義）\n';
-    ai5+='6. 四餘交會論斷（羅計孛紫的相互作用）\n';
-    ai5+='7. 限度吉利順逆推運';
+    ai5+='（完整命盤資料。直接貼到 AI 就能得到基礎解讀 ✦ 想要更精準的深度分析，試試旁邊的「🔮 智慧解讀指令」）';
     
     h5+='<div class="ai-box"><h4>📜 命盤資料（含化曜+生剋）</h4><pre id="ai5">'+ai5+'</pre><button class="cp" onclick="copyText(\'ai5\')">📋 複製命盤資料</button><button class="cp" style="margin-left:8px;background:rgba(160,124,220,.15);border-color:rgba(160,124,220,.3)" onclick="copyAIPrompt(\'ai5\',\'qizheng\')">🔮 複製智慧解讀指令</button></div>';
   }else{h5+='<div class="item" style="color:var(--inkm)">需要星曆資料</div>'}
@@ -3611,7 +3610,7 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
   ai6+='內在女神力：KIN.'+my.innerGoddess.kin+' '+my.innerGoddess.tone+' '+my.innerGoddess.seal+'\n\n';
   ai6+='13月亮曆：\n  '+my.ns.yearName+'\n  '+my.nsCoord+'\n';
   if(my.ns.moon>0)ai6+='  '+my.ns.moonName+' 第'+my.ns.day+'天\n  '+my.ns.weekName+' 第'+my.ns.dayOfWeek+'天（'+my.ns.plasma+'）\n  脈輪：'+my.ns.chakra+'\n  力量動物：'+my.ns.powerAnimal+'\n';
-  ai6+='\n請分析：\n1. 主印記圖騰的核心能量與天賦\n2. 調性的人生目的與學習方向\n3. 五大神諭的力量關係與啟動方式\n4. 波符13天的位置意義\n5. PSI的高維度課題\n6. 13月亮曆的能量週期與脈輪對應\n7. 力量動物的象徵意義\n8. 與其他命理系統的交叉共振';
+  ai6+='\n（完整命盤資料。直接貼到 AI 就能得到基礎解讀 ✦ 想要更精準的深度分析，試試旁邊的「🔮 智慧解讀指令」）';
   
   h6+='<div class="ai-box"><h4>📜 命盤資料</h4><pre id="ai6">'+ai6+'</pre><button class="cp" onclick="copyText(\'ai6\')">📋 複製命盤資料</button><button class="cp" style="margin-left:8px;background:rgba(160,124,220,.15);border-color:rgba(160,124,220,.3)" onclick="copyAIPrompt(\'ai6\',\'maya\')">🔮 複製智慧解讀指令</button></div>';
   addP(ps,h6);
@@ -3713,7 +3712,7 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
   nm.stages.forEach(function(s){ai7+=s.name+'('+s.age+'): 禮物='+s.gift+'\n'});
   ai7+='\n挑戰（往下減 Challenges）：\n';
   nm.stages.forEach(function(s){ai7+=s.name+'('+s.age+'): 挑戰='+s.challenge+'\n'});
-  ai7+='\n2026流年：'+nm.py+'\n\n請分析：生命數核心天賦、大師數特殊使命（如有）、九宮格能量分佈、空缺數的隱藏課題與具體修煉方法、四階段禮物如何善用、四階段挑戰如何跨越、當前所在階段的具體建議、時辰經絡對情緒能量的影響、2026流年能量走向。';
+  ai7+='\n2026流年：'+nm.py+'\n\n（完整命盤資料。直接貼到 AI 就能得到基礎解讀 ✦ 想要更精準的深度分析，試試旁邊的「🔮 智慧解讀指令」）';
   
   h7+='<div class="ai-box"><h4>📜 命盤資料</h4><pre id="ai7">'+ai7+'</pre><button class="cp" onclick="copyText(\'ai7\')">📋 複製命盤資料</button><button class="cp" style="margin-left:8px;background:rgba(160,124,220,.15);border-color:rgba(160,124,220,.3)" onclick="copyAIPrompt(\'ai7\',\'lifepath\')">🔮 複製智慧解讀指令</button></div>';
   addP(ps,h7);
