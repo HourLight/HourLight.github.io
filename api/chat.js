@@ -1,3 +1,32 @@
+// ── Firebase Admin 初始化（只在第一次載入時執行）──
+var _db = null;
+function getDb() {
+  if (_db) return _db;
+  try {
+    var admin = require('firebase-admin');
+    if (!admin.apps.length) {
+      var svc = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
+      admin.initializeApp({ credential: admin.credential.cert(svc) });
+    }
+    _db = admin.firestore();
+  } catch(e) { _db = null; }
+  return _db;
+}
+
+// ── 主題分類（根據第一句話判斷）──
+function detectTopic(firstMsg) {
+  if (!firstMsg) return '其他';
+  var m = firstMsg.toLowerCase();
+  if (/他|她|感情|戀愛|愛|分手|交往|曖昧|復合|婚|另一半|伴侶|對方|男友|女友|老公|老婆/.test(m)) return '感情';
+  if (/工作|事業|職場|升遷|轉職|面試|創業|合作|老闆|跳槽|離職|薪水|求職/.test(m)) return '事業';
+  if (/錢|財|投資|賺|借|股票|理財|收入|虧|賠|生意|金錢|財運/.test(m)) return '財運';
+  if (/健康|身體|病|睡|痛|累|頭|胃|失眠|焦慮|壓力|情緒/.test(m)) return '身心';
+  if (/精油|芳療|香氣|薰|精油|香|味道/.test(m)) return '精油';
+  if (/測驗|測試|心理|mbti|人格|抽牌|牌卡|命盤|紫微|八字|塔羅|易經/.test(m)) return '工具';
+  if (/課程|學習|認證|覺察師|培訓|美業/.test(m)) return '課程';
+  return '其他';
+}
+
 module.exports = async function handler(req, res) {
   var origin = req.headers.origin || '';
   var allowed = ['https://hourlightkey.com', 'https://www.hourlightkey.com'];
@@ -289,6 +318,26 @@ M10 黃昏導航（退休/55+）
         if (data.content[i].text) text += data.content[i].text;
       }
     }
+
+    // ── 儲存對話記錄到 Firestore（靜靜失敗，不影響主流程）──
+    try {
+      var db = getDb();
+      if (db) {
+        var firstQ = (messages[0] && messages[0].content) ? String(messages[0].content).slice(0, 100) : '';
+        var topic = detectTopic(firstQ);
+        var turns = Math.ceil(messages.length / 2);
+        await db.collection('chat_logs').add({
+          ts: Date.now(),
+          date: new Date().toISOString().slice(0, 10),
+          page: String(body.page || '').slice(0, 80),
+          topic: topic,
+          turns: turns,
+          firstQ: firstQ,
+          replyLen: text.length,
+          createdAt: new Date().toISOString()
+        });
+      }
+    } catch(logErr) { /* 靜靜失敗，對話不受影響 */ }
 
     return res.status(200).json({ reply: text, usage: data.usage || {} });
   } catch (err) {
