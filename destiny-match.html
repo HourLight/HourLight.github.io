@@ -4284,86 +4284,604 @@ function renderMatch(a,b){
   hTY+=mkCpBtn('🔮 複製智慧解讀指令','combined','function(b){hlMatchCopy("ty_c","taiyi",b)}');
   mkPanel(hTY);
 
-  // ═══ 🆕 系統 25：五運六氣 合盤 ═══
-  var wyA_ai='五運六氣（甲方）：'+a.wuyun.ganZhi+'年 '+a.wuyun.yunWx+'運'+a.wuyun.nat+' 司天：'+a.wuyun.siTian+' 在泉：'+a.wuyun.zaiQuan;
-  var wyB_ai='五運六氣（乙方）：'+b.wuyun.ganZhi+'年 '+b.wuyun.yunWx+'運'+b.wuyun.nat+' 司天：'+b.wuyun.siTian+' 在泉：'+b.wuyun.zaiQuan;
-  var wyC='═══ 五運六氣合盤 ═══\n'+wyA_ai+'\n'+wyB_ai+'\n關係：'+REL_NAMES[rel]+'\n';
-  var hWYm='<div class="item"><b>甲方</b> '+a.wuyun.yunWx+'運'+a.wuyun.nat+'　司天：'+a.wuyun.siTian+'</div>';
-  hWYm+='<div class="item"><b>乙方</b> '+b.wuyun.yunWx+'運'+b.wuyun.nat+'　司天：'+b.wuyun.siTian+'</div>';
-  hWYm+='<div class="ai-box"><pre id="wy_c">'+escHtml(wyC)+'</pre></div>';
+  /* ── ㉕ 五運六氣合盤 ── */
+  function wy_html(d){
+    var w=d.wuyun,h='';
+    h+='<div class="item" style="text-align:center;margin-bottom:12px">';
+    h+='<div style="font-size:1.4rem;font-weight:700;color:var(--gd)">'+w.ganZhi+'年　'+w.yunWx+'運'+w.nat+'</div>';
+    h+='<div style="font-size:.85rem;color:var(--inkm);margin-top:4px">司天：'+w.siTian+'　在泉：'+w.zaiQuan+'</div></div>';
+    h+='<div class="palace"><div class="pt">五運</div>';
+    h+='<div class="rs"><b>主運：</b>'+w.yunWx+'（'+w.nat+'）</div>';
+    h+='<div class="rs"><b>五行：</b>'+w.yunWx+'行主歲，影響臟腑功能與體質偏向</div></div>';
+    h+='<div class="palace"><div class="pt">六氣</div>';
+    h+='<div class="rs"><b>司天：</b>'+w.siTian+'（上半年主氣）</div>';
+    h+='<div class="rs"><b>在泉：</b>'+w.zaiQuan+'（下半年主氣）</div>';
+    h+='<div class="rs"><b>運氣相合：</b>'+w.yunWx+'運 '+w.nat+' × '+w.siTian+'司天</div></div>';
+    h+='<div class="item" style="margin-top:8px;padding:10px;background:rgba(248,223,165,.06);border-radius:10px;border-left:3px solid var(--gd)">';
+    h+='<b style="color:var(--gd)">✦ 養生提示</b><br>'+w.yunWx+'運'+w.nat+'年份，'+w.siTian+'司天主上半年氣候與體質變化</div>';
+    return h;
+  }
+  function wy_ai(d,pn){
+    var w=d.wuyun;
+    var t='【'+pn+'·五運六氣】\n';
+    t+='出生年：'+w.ganZhi+'年\n';
+    t+='主運：'+w.yunWx+'（'+w.nat+'）\n';
+    t+='司天：'+w.siTian+'\n';
+    t+='在泉：'+w.zaiQuan+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、主運五行（'+w.yunWx+'）對應臟腑。太過則亢、不及則虛，此人先天體質偏向\n';
+    t+='貳、司天（'+w.siTian+'）= 出生上半年的天候能量，影響性格外顯面\n';
+    t+='叁、在泉（'+w.zaiQuan+'）= 下半年能量，影響內在情緒底色與潛意識模式\n';
+    t+='肆、運氣相合：主運與司天是否同五行？同則加強，異則牽制\n';
+    t+='伍、養生精油建議：根據五運六氣體質推薦的芳療方向\n';
+    t+='【🔴 五運六氣看的是你出生那年的天地氣場，就像你降落的「氣候區」決定了先天體質底色】\n';
+    return t;
+  }
+  var wyA=wy_ai(a,nameA),wyB=wy_ai(b,nameB);
+  var _rcWY=relCat(rel);
+  var wyC=wyA+'\n'+wyB+'\n\n【五運六氣合盤深度解讀指令】\n';
+  wyC+='【關係視角：'+REL_OPENER[_rcWY]+'】\n\n';
+  wyC+='甲方：'+a.wuyun.ganZhi+'年 '+a.wuyun.yunWx+'運'+a.wuyun.nat+' 司天：'+a.wuyun.siTian+' 在泉：'+a.wuyun.zaiQuan+'\n';
+  wyC+='乙方：'+b.wuyun.ganZhi+'年 '+b.wuyun.yunWx+'運'+b.wuyun.nat+' 司天：'+b.wuyun.siTian+' 在泉：'+b.wuyun.zaiQuan+'\n\n';
+  wyC+='壹、主運五行配對\n';
+  wyC+='・甲'+a.wuyun.yunWx+'運 × 乙'+b.wuyun.yunWx+'運：五行相生、相剋或比和？\n';
+  wyC+='・太過×不及的互補：一方能量過盛是否正好補足另一方的不足？\n';
+  wyC+='・同為太過或同為不及：容易在哪些層面過度消耗或同時低迷？\n\n';
+  wyC+='貳、司天六氣交叉\n';
+  wyC+='・甲司天'+a.wuyun.siTian+' × 乙司天'+b.wuyun.siTian+'：上半年能量節奏是否同步？\n';
+  wyC+='・司天相同：兩人對外在環境的應激模式相似，容易共鳴也容易共振出問題\n';
+  wyC+='・司天相剋：壓力反應模式不同，需要更多理解與空間\n\n';
+  wyC+='叁、在泉配對。內在體質互動\n';
+  wyC+='・甲在泉'+a.wuyun.zaiQuan+' × 乙在泉'+b.wuyun.zaiQuan+'：潛意識與情緒底色的交互影響\n';
+  wyC+='・長期相處時，彼此的在泉能量如何影響對方的身心狀態？\n\n';
+  wyC+='肆、運氣同步度分析\n';
+  wyC+='・兩人的年份氣場差異對日常相處節奏的影響\n';
+  wyC+='・季節敏感度：哪些月份兩人狀態最同步？哪些月份容易不對頻？\n\n';
+  wyC+='伍、共同養生與精油建議\n';
+  wyC+='・根據兩人五運六氣體質的共同空間擴香組合\n';
+  wyC+='・飲食節奏建議：兩人體質最適合的共同飲食方向\n\n';
+  wyC+='【參考書目】\n';
+  wyC+='▍《黃帝內經·素問》天元紀大論、五運行大論、六微旨大論｜五運六氣理論源頭\n';
+  wyC+='▍顧植山《五運六氣臨證指南》｜運氣體質辨識與臨床應用\n';
+  wyC+='▍楊力《中醫運氣學》｜五運六氣現代解讀\n';
+  var hWYm=mkDual(nameA,wy_html(a),nameB,wy_html(b));
+  hWYm+=mkPre('wy_a',wyA);hWYm+=mkPre('wy_b',wyB);
+  hWYm+='<div class="ai-box"><h4>📜 合盤資料</h4><pre id="wy_c">'+escHtml(wyC)+'</pre></div>';
+  hWYm+=mkCpBtn('📋 複製甲方','','function(b){copyData("wy_a",b)}');
+  hWYm+=mkCpBtn('📋 複製乙方','teal','function(b){copyData("wy_b",b)}');
   hWYm+=mkCpBtn('🔮 複製智慧解讀指令','combined','function(b){hlMatchCopy("wy_c","wuyun",b)}');
   mkPanel(hWYm);
 
-  // ═══ 🆕 系統 26：韓國四柱 合盤 ═══
-  var sjA_ai='韓國四柱（甲方）：日主'+a.saju.dg+'（'+a.saju.dgWx+'）日柱十二運星：'+a.saju.ys;
-  var sjB_ai='韓國四柱（乙方）：日主'+b.saju.dg+'（'+b.saju.dgWx+'）日柱十二運星：'+b.saju.ys;
-  var sjC='═══ 韓國四柱合盤 ═══\n'+sjA_ai+'\n'+sjB_ai+'\n關係：'+REL_NAMES[rel]+'\n';
-  var hSJm='<div class="item"><b>甲方</b> 日主 '+a.saju.dg+'（'+a.saju.dgWx+'）十二運星：'+a.saju.ys+'</div>';
-  hSJm+='<div class="item"><b>乙方</b> 日主 '+b.saju.dg+'（'+b.saju.dgWx+'）十二運星：'+b.saju.ys+'</div>';
-  hSJm+='<div class="ai-box"><pre id="sj_c">'+escHtml(sjC)+'</pre></div>';
+  /* ── ㉖ 韓國四柱合盤 ── */
+  function sj_html(d){
+    var s=d.saju,h='';
+    h+='<div class="item" style="text-align:center;margin-bottom:12px">';
+    h+='<div style="font-size:1.4rem;font-weight:700;color:var(--gd)">日主：'+s.dg+'（'+s.dgWx+'行）</div>';
+    h+='<div style="font-size:.85rem;color:var(--inkm);margin-top:4px">日柱：'+s.dg+s.dz+'　十二運星：'+s.ys+'</div></div>';
+    h+='<div class="palace"><div class="pt">사주 四柱基本</div>';
+    h+='<div class="rs"><b>日干：</b>'+s.dg+'（'+s.dgWx+'行）→ 性格本質與自我認知</div>';
+    h+='<div class="rs"><b>日支：</b>'+s.dz+'→ 內在情感世界與配偶宮</div>';
+    h+='<div class="rs"><b>十二運星：</b>'+s.ys+'→ 日主在日支的能量狀態</div></div>';
+    h+='<div class="item" style="margin-top:8px;padding:10px;background:rgba(248,223,165,.06);border-radius:10px;border-left:3px solid var(--gd)">';
+    h+='<b style="color:var(--gd)">✦ 韓式解讀視角</b><br>韓國四柱重視日主與十二運星的生命階段，'+s.ys+'代表此人目前的能量週期定位</div>';
+    return h;
+  }
+  function sj_ai(d,pn){
+    var s=d.saju;
+    var t='【'+pn+'·韓國四柱 사주】\n';
+    t+='日干：'+s.dg+'（'+s.dgWx+'行）\n';
+    t+='日支：'+s.dz+'\n';
+    t+='日柱：'+s.dg+s.dz+'\n';
+    t+='十二運星：'+s.ys+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、日主'+s.dg+'的五行性格（'+s.dgWx+'行人的核心驅力與盲點）\n';
+    t+='貳、十二運星「'+s.ys+'」的生命能量階段（長生→帝旺→墓→胎養的哪個週期）\n';
+    t+='叁、日柱'+s.dg+s.dz+'的干支組合心理學（天干=外在表現，地支=內在需求）\n';
+    t+='肆、韓式궁합（宮合）：日主五行的人際互動模式\n';
+    t+='伍、精油建議：根據日主五行'+s.dgWx+'推薦的香氣調理方向\n';
+    t+='【🔴 韓國四柱的精華在十二運星，它不只看你是誰，更看你「現在在人生的哪個季節」】\n';
+    return t;
+  }
+  var sjA=sj_ai(a,nameA),sjB=sj_ai(b,nameB);
+  var _rcSJ=relCat(rel);
+  var sjC=sjA+'\n'+sjB+'\n\n【韓國四柱合盤深度解讀指令】\n';
+  sjC+='【關係視角：'+REL_OPENER[_rcSJ]+'】\n\n';
+  sjC+='甲日主：'+a.saju.dg+'（'+a.saju.dgWx+'）十二運星：'+a.saju.ys+'\n';
+  sjC+='乙日主：'+b.saju.dg+'（'+b.saju.dgWx+'）十二運星：'+b.saju.ys+'\n\n';
+  sjC+='壹、日主五行配對\n';
+  sjC+='・甲'+a.saju.dg+'（'+a.saju.dgWx+'）× 乙'+b.saju.dg+'（'+b.saju.dgWx+'）：五行生剋關係\n';
+  sjC+='・相生：一方自然滋養另一方，關係中有明確的給予方向\n';
+  sjC+='・相剋：存在控制與被控制的張力，需要意識管理\n';
+  sjC+='・比和：節奏相似，理解容易，但可能缺乏互補刺激\n\n';
+  sjC+='貳、十二運星生命階段對比\n';
+  sjC+='・甲「'+a.saju.ys+'」× 乙「'+b.saju.ys+'」：兩人處於不同的能量週期嗎？\n';
+  sjC+='・同階段：共振強但可能同時遇到同類型瓶頸\n';
+  sjC+='・互補階段（如帝旺×養）：一方高能量時另一方在蓄力，輪流撐場\n\n';
+  sjC+='叁、韓式궁합（宮合）分析\n';
+  sjC+='・日柱天干合化可能性：甲'+a.saju.dg+' × 乙'+b.saju.dg+'是否構成天干五合？\n';
+  sjC+='・日支六合/六沖/刑害：內在情感世界的和諧或衝突\n\n';
+  sjC+='肆、關係節奏建議\n';
+  sjC+='・根據兩人十二運星的週期差異，哪些時期是關係的「旺季」？\n';
+  sjC+='・什麼時候需要各自充電、什麼時候適合共同決策？\n\n';
+  sjC+='伍、共同精油建議\n';
+  sjC+='・甲（'+a.saju.dgWx+'行）與乙（'+b.saju.dgWx+'行）的五行調和擴香組合\n\n';
+  sjC+='【參考書目】\n';
+  sjC+='▍백영관《사주명리학 정설》（白英寬《四柱命理學正說》）｜韓國四柱正統教材\n';
+  sjC+='▍박재완《궁합의 비밀》（朴在完《宮合的秘密》）｜韓式合婚體系\n';
+  sjC+='▍梁湘潤《子平基礎概要》｜十二運星與日主互動原始理論\n';
+  var hSJm=mkDual(nameA,sj_html(a),nameB,sj_html(b));
+  hSJm+=mkPre('sj_a',sjA);hSJm+=mkPre('sj_b',sjB);
+  hSJm+='<div class="ai-box"><h4>📜 合盤資料</h4><pre id="sj_c">'+escHtml(sjC)+'</pre></div>';
+  hSJm+=mkCpBtn('📋 複製甲方','','function(b){copyData("sj_a",b)}');
+  hSJm+=mkCpBtn('📋 複製乙方','teal','function(b){copyData("sj_b",b)}');
   hSJm+=mkCpBtn('🔮 複製智慧解讀指令','combined','function(b){hlMatchCopy("sj_c","korean_saju",b)}');
   mkPanel(hSJm);
 
-  // ═══ 🆕 系統 27：河洛理數 合盤 ═══
-  var hlA_ai='河洛理數（甲方）：先天數'+a.helo.xt+' 後天數'+a.helo.ht+' 本命卦：'+a.helo.gua;
-  var hlB_ai='河洛理數（乙方）：先天數'+b.helo.xt+' 後天數'+b.helo.ht+' 本命卦：'+b.helo.gua;
-  var hlC='═══ 河洛理數合盤 ═══\n'+hlA_ai+'\n'+hlB_ai+'\n關係：'+REL_NAMES[rel]+'\n';
-  var hHLm='<div class="item"><b>甲方</b> 先天'+a.helo.xt+' 後天'+a.helo.ht+' 卦：'+a.helo.gua+'</div>';
-  hHLm+='<div class="item"><b>乙方</b> 先天'+b.helo.xt+' 後天'+b.helo.ht+' 卦：'+b.helo.gua+'</div>';
-  hHLm+='<div class="ai-box"><pre id="hl_c">'+escHtml(hlC)+'</pre></div>';
+  /* ── ㉗ 河洛理數合盤 ── */
+  function hl2_html(d){
+    var e=d.helo,h='';
+    h+='<div class="item" style="text-align:center;margin-bottom:12px">';
+    h+='<div style="font-size:1.4rem;font-weight:700;color:var(--gd)">本命卦：'+e.gua+'</div>';
+    h+='<div style="font-size:.85rem;color:var(--inkm);margin-top:4px">先天數：'+e.xt+'　後天數：'+e.ht+'</div></div>';
+    h+='<div class="palace"><div class="pt">河洛數理</div>';
+    h+='<div class="rs"><b>先天數：</b>'+e.xt+'（先天稟賦，與生俱來的天賦能量）</div>';
+    h+='<div class="rs"><b>後天數：</b>'+e.ht+'（後天修為，努力方向與發展潛力）</div>';
+    h+='<div class="rs"><b>本命卦：</b>'+e.gua+'（先後天數綜合的人生主卦象）</div></div>';
+    h+='<div class="item" style="margin-top:8px;padding:10px;background:rgba(248,223,165,.06);border-radius:10px;border-left:3px solid var(--gd)">';
+    h+='<b style="color:var(--gd)">✦ 河洛哲學</b><br>河圖為體、洛書為用。先天數是你的「出廠設定」，後天數是你的「升級路徑」</div>';
+    return h;
+  }
+  function hl2_ai(d,pn){
+    var e=d.helo;
+    var t='【'+pn+'·河洛理數】\n';
+    t+='先天數：'+e.xt+'\n';
+    t+='後天數：'+e.ht+'\n';
+    t+='本命卦：'+e.gua+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、先天數'+e.xt+'的天賦解讀（1水智/2火禮/3木仁/4金義/5土信/6水智/7火禮/8木仁/9金義/10土信）\n';
+    t+='貳、後天數'+e.ht+'的修行方向（洛書九宮：1坎/2坤/3震/4巽/5中/6乾/7兌/8艮/9離）\n';
+    t+='叁、本命卦「'+e.gua+'」的八卦心理學（乾剛健/坤柔順/震行動/巽溫潤/坎智慧/離熱情/艮沉穩/兌喜悅）\n';
+    t+='肆、先天×後天的互動：天賦與努力方向是否一致？若不一致，如何調和？\n';
+    t+='伍、精油對應：本命卦'+e.gua+'的五行屬性對應的芳療建議\n';
+    t+='【🔴 河洛理數看的是數字背後的宇宙秩序，先天是天給的牌，後天是你怎麼打】\n';
+    return t;
+  }
+  var hlA2=hl2_ai(a,nameA),hlB2=hl2_ai(b,nameB);
+  var _rcHL=relCat(rel);
+  var hlC2=hlA2+'\n'+hlB2+'\n\n【河洛理數合盤深度解讀指令】\n';
+  hlC2+='【關係視角：'+REL_OPENER[_rcHL]+'】\n\n';
+  hlC2+='甲方：先天'+a.helo.xt+' 後天'+a.helo.ht+' 卦：'+a.helo.gua+'\n';
+  hlC2+='乙方：先天'+b.helo.xt+' 後天'+b.helo.ht+' 卦：'+b.helo.gua+'\n\n';
+  hlC2+='壹、先天數配對\n';
+  hlC2+='・甲先天'+a.helo.xt+' × 乙先天'+b.helo.xt+'：天賦能量是否同頻或互補？\n';
+  hlC2+='・先天數相同：深層共鳴，不需解釋就懂的默契\n';
+  hlC2+='・先天數相生：自然滋養，一方的天賦支撐另一方的成長\n';
+  hlC2+='・先天數相剋：天賦方向不同，需要更多溝通才能理解對方的世界\n\n';
+  hlC2+='貳、後天數配對\n';
+  hlC2+='・甲後天'+a.helo.ht+' × 乙後天'+b.helo.ht+'：努力方向的一致性\n';
+  hlC2+='・後天數接近：人生目標相似，容易攜手同行\n';
+  hlC2+='・後天數差異大：各自有各自的功課，需要在差異中找到共同語言\n\n';
+  hlC2+='叁、本命卦交叉\n';
+  hlC2+='・甲'+a.helo.gua+' × 乙'+b.helo.gua+'：兩卦之間是否構成錯卦、綜卦或互卦？\n';
+  hlC2+='・卦象五行生剋：兩人的人生主題如何互動？\n\n';
+  hlC2+='肆、先天後天交叉分析\n';
+  hlC2+='・甲的先天數 vs 乙的後天數：甲的天賦是否正好是乙的修行方向？\n';
+  hlC2+='・乙的先天數 vs 甲的後天數：乙的天賦是否支持甲的成長目標？\n\n';
+  hlC2+='伍、共同精油與空間建議\n';
+  hlC2+='・兩人本命卦五行的調和擴香方案\n\n';
+  hlC2+='【參考書目】\n';
+  hlC2+='▍陳摶《河洛理數》（宋）｜河洛數理原始理論\n';
+  hlC2+='▍邵雍《皇極經世》｜先後天數與元會運世\n';
+  hlC2+='▍劉恆《河洛數理姓名學》｜河洛數理現代應用\n';
+  var hHLm=mkDual(nameA,hl2_html(a),nameB,hl2_html(b));
+  hHLm+=mkPre('hl2_a',hlA2);hHLm+=mkPre('hl2_b',hlB2);
+  hHLm+='<div class="ai-box"><h4>📜 合盤資料</h4><pre id="hl_c">'+escHtml(hlC2)+'</pre></div>';
+  hHLm+=mkCpBtn('📋 複製甲方','','function(b){copyData("hl2_a",b)}');
+  hHLm+=mkCpBtn('📋 複製乙方','teal','function(b){copyData("hl2_b",b)}');
   hHLm+=mkCpBtn('🔮 複製智慧解讀指令','combined','function(b){hlMatchCopy("hl_c","helo",b)}');
   mkPanel(hHLm);
 
-  // ═══ 🆕 系統 28：易經 合盤 ═══
-  var yjA_ai='易經（甲方）：'+a.yijing.hex+'（上'+a.yijing.up+' 下'+a.yijing.lo+'）動爻第'+a.yijing.dong+'爻';
-  var yjB_ai='易經（乙方）：'+b.yijing.hex+'（上'+b.yijing.up+' 下'+b.yijing.lo+'）動爻第'+b.yijing.dong+'爻';
-  var yjC='═══ 易經合盤 ═══\n'+yjA_ai+'\n'+yjB_ai+'\n關係：'+REL_NAMES[rel]+'\n';
-  var hYJm='<div class="item"><b>甲方</b> '+a.yijing.hex+'　動爻第'+a.yijing.dong+'爻</div>';
-  hYJm+='<div class="item"><b>乙方</b> '+b.yijing.hex+'　動爻第'+b.yijing.dong+'爻</div>';
-  hYJm+='<div class="ai-box"><pre id="yj_c">'+escHtml(yjC)+'</pre></div>';
+  /* ── ㉘ 易經合盤 ── */
+  function yj_html(d){
+    var y=d.yijing,h='';
+    h+='<div class="item" style="text-align:center;margin-bottom:12px">';
+    h+='<div style="font-size:1.4rem;font-weight:700;color:var(--gd)">'+y.hex+'</div>';
+    h+='<div style="font-size:.85rem;color:var(--inkm);margin-top:4px">上卦：'+y.up+'　下卦：'+y.lo+'　動爻：第'+y.dong+'爻</div></div>';
+    h+='<div class="palace"><div class="pt">卦象結構</div>';
+    h+='<div class="rs"><b>本卦：</b>'+y.hex+'（上'+y.up+' 下'+y.lo+'）</div>';
+    h+='<div class="rs"><b>動爻：</b>第'+y.dong+'爻（變化的關鍵位置）</div>';
+    h+='<div class="rs"><b>上卦：</b>'+y.up+'（外在表現/結果面）</div>';
+    h+='<div class="rs"><b>下卦：</b>'+y.lo+'（內在動機/出發點）</div></div>';
+    h+='<div class="item" style="margin-top:8px;padding:10px;background:rgba(248,223,165,.06);border-radius:10px;border-left:3px solid var(--gd)">';
+    h+='<b style="color:var(--gd)">✦ 易經智慧</b><br>「'+y.hex+'」是你生命的本卦，動爻第'+y.dong+'爻揭示這輩子最關鍵的轉變力量</div>';
+    return h;
+  }
+  function yj_ai(d,pn){
+    var y=d.yijing;
+    var t='【'+pn+'·易經生辰卦】\n';
+    t+='本卦：'+y.hex+'（上'+y.up+' 下'+y.lo+'）\n';
+    t+='動爻：第'+y.dong+'爻\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、本卦「'+y.hex+'」的卦義解讀（這個卦象描述了什麼樣的人生主題？）\n';
+    t+='貳、上卦'+y.up+'（外顯）× 下卦'+y.lo+'（內在）的內外呼應\n';
+    t+='叁、動爻第'+y.dong+'爻的爻辭與人生關鍵轉折點\n';
+    t+='肆、變卦推演：動爻變化後的卦象 = 人生的發展方向\n';
+    t+='伍、卦象五行與精油對應建議\n';
+    t+='【🔴 易經不算命，它問的是「在這個情境下，最佳的應對策略是什麼」】\n';
+    return t;
+  }
+  var yjA=yj_ai(a,nameA),yjB=yj_ai(b,nameB);
+  var _rcYJ=relCat(rel);
+  var yjC2=yjA+'\n'+yjB+'\n\n【易經合盤深度解讀指令】\n';
+  yjC2+='【關係視角：'+REL_OPENER[_rcYJ]+'】\n\n';
+  yjC2+='甲方本卦：'+a.yijing.hex+'（動爻第'+a.yijing.dong+'爻）\n';
+  yjC2+='乙方本卦：'+b.yijing.hex+'（動爻第'+b.yijing.dong+'爻）\n\n';
+  yjC2+='壹、本卦配對分析\n';
+  yjC2+='・甲「'+a.yijing.hex+'」× 乙「'+b.yijing.hex+'」：兩個人生主題的互動\n';
+  yjC2+='・兩卦是否構成錯卦（反面）、綜卦（翻轉）、互卦（內在連結）？\n';
+  yjC2+='・卦象五行生剋：上下卦組合的能量流向\n\n';
+  yjC2+='貳、內外卦交叉\n';
+  yjC2+='・甲上卦'+a.yijing.up+'（外在）× 乙下卦'+b.yijing.lo+'（內在）：甲的外在表現是否觸碰乙的內心需求？\n';
+  yjC2+='・乙上卦'+b.yijing.up+'（外在）× 甲下卦'+a.yijing.lo+'（內在）：反向分析\n\n';
+  yjC2+='叁、動爻交互影響\n';
+  yjC2+='・甲動爻第'+a.yijing.dong+'爻 × 乙動爻第'+b.yijing.dong+'爻\n';
+  yjC2+='・動爻位置相同：變化節奏同步，容易同時面臨轉折\n';
+  yjC2+='・動爻位置不同：一方在變化時另一方穩定，可以互相錨定\n\n';
+  yjC2+='肆、變卦方向預測\n';
+  yjC2+='・兩人的變卦分別指向什麼方向？發展趨勢是靠近還是遠離？\n\n';
+  yjC2+='伍、關係卦象建議\n';
+  yjC2+='・根據兩人卦象組合的整體指引，這段關係的最佳策略\n';
+  yjC2+='・精油建議：卦象五行對應的共同空間擴香\n\n';
+  yjC2+='【參考書目】\n';
+  yjC2+='▍《周易》原典｜六十四卦卦辭爻辭\n';
+  yjC2+='▍傅佩榮《解讀易經》｜最白話的現代易經詮釋\n';
+  yjC2+='▍劉君祖《易經與現代生活》｜卦象人際關係應用\n';
+  var hYJm=mkDual(nameA,yj_html(a),nameB,yj_html(b));
+  hYJm+=mkPre('yj_a',yjA);hYJm+=mkPre('yj_b',yjB);
+  hYJm+='<div class="ai-box"><h4>📜 合盤資料</h4><pre id="yj_c">'+escHtml(yjC2)+'</pre></div>';
+  hYJm+=mkCpBtn('📋 複製甲方','','function(b){copyData("yj_a",b)}');
+  hYJm+=mkCpBtn('📋 複製乙方','teal','function(b){copyData("yj_b",b)}');
   hYJm+=mkCpBtn('🔮 複製智慧解讀指令','combined','function(b){hlMatchCopy("yj_c","yijing",b)}');
   mkPanel(hYJm);
 
-  // ═══ 🆕 系統 29：奇門遁甲 合盤 ═══
-  var qmA_ai='奇門遁甲（甲方）：第'+a.qimen.ju+'局 值符'+a.qimen.star+' 值使'+a.qimen.door+' '+a.qimen.sanqi;
-  var qmB_ai='奇門遁甲（乙方）：第'+b.qimen.ju+'局 值符'+b.qimen.star+' 值使'+b.qimen.door+' '+b.qimen.sanqi;
-  var qmC='═══ 奇門遁甲合盤 ═══\n'+qmA_ai+'\n'+qmB_ai+'\n關係：'+REL_NAMES[rel]+'\n';
-  var hQMm='<div class="item"><b>甲方</b> 第'+a.qimen.ju+'局　'+a.qimen.star+'　'+a.qimen.door+'　'+a.qimen.sanqi+'</div>';
-  hQMm+='<div class="item"><b>乙方</b> 第'+b.qimen.ju+'局　'+b.qimen.star+'　'+b.qimen.door+'　'+b.qimen.sanqi+'</div>';
-  hQMm+='<div class="ai-box"><pre id="qm_c">'+escHtml(qmC)+'</pre></div>';
+  /* ── ㉙ 奇門遁甲合盤 ── */
+  function qm_html(d){
+    var q=d.qimen,h='';
+    h+='<div class="item" style="text-align:center;margin-bottom:12px">';
+    h+='<div style="font-size:1.4rem;font-weight:700;color:var(--gd)">第'+q.ju+'局　'+q.sanqi+'</div>';
+    h+='<div style="font-size:.85rem;color:var(--inkm);margin-top:4px">值符：'+q.star+'　值使：'+q.door+'</div></div>';
+    h+='<div class="palace"><div class="pt">天盤（九星）</div>';
+    h+='<div class="rs"><b>值符：</b>'+q.star+'（本命星，主先天格局）</div>';
+    h+='<div class="rs"><b>局數：</b>第'+q.ju+'局（陽遁/陰遁格局定位）</div></div>';
+    h+='<div class="palace"><div class="pt">人盤（八門）</div>';
+    h+='<div class="rs"><b>值使：</b>'+q.door+'（本命門，主行事風格）</div>';
+    h+='<div class="rs"><b>八門含義：</b>休養/生發/傷衝/杜守/景觀/死藏/驚變/開創</div></div>';
+    h+='<div class="palace"><div class="pt">神盤（三奇）</div>';
+    h+='<div class="rs"><b>三奇：</b>'+q.sanqi+'（乙=日奇·柔/丙=月奇·烈/丁=星奇·巧）</div></div>';
+    h+='<div class="item" style="margin-top:8px;padding:10px;background:rgba(248,223,165,.06);border-radius:10px;border-left:3px solid var(--gd)">';
+    h+='<b style="color:var(--gd)">✦ 奇門格局</b><br>'+q.star+'×'+q.door+'×'+q.sanqi+'三盤交會，構成此人的天時戰略定位</div>';
+    return h;
+  }
+  function qm_ai(d,pn){
+    var q=d.qimen;
+    var t='【'+pn+'·奇門遁甲】\n';
+    t+='局數：第'+q.ju+'局\n';
+    t+='值符（天盤九星）：'+q.star+'\n';
+    t+='值使（人盤八門）：'+q.door+'\n';
+    t+='三奇：'+q.sanqi+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、值符'+q.star+'的天時格局（九星主運勢大方向：蓬水/芮土/沖木/輔木/禽土/心金/柱金/任土/英火）\n';
+    t+='貳、值使'+q.door+'的行動策略（八門主做事方式：開門利進取/休門利修養/生門利求財/傷門利競爭）\n';
+    t+='叁、三奇'+q.sanqi+'的特殊天賦（乙奇善謀/丙奇勇進/丁奇巧思）\n';
+    t+='肆、星門組合吉凶判定（值符×值使的能量交叉）\n';
+    t+='伍、奇門精油對應：九星五行→對應臟腑→芳療建議\n';
+    t+='【🔴 奇門遁甲是古代的戰略導航系統，它不告訴你命運如何，而是告訴你「什麼時機做什麼事最有效」】\n';
+    return t;
+  }
+  var qmA=qm_ai(a,nameA),qmB=qm_ai(b,nameB);
+  var _rcQM=relCat(rel);
+  var qmC2=qmA+'\n'+qmB+'\n\n【奇門遁甲合盤深度解讀指令】\n';
+  qmC2+='【關係視角：'+REL_OPENER[_rcQM]+'】\n\n';
+  qmC2+='甲方：第'+a.qimen.ju+'局 '+a.qimen.star+' '+a.qimen.door+' '+a.qimen.sanqi+'\n';
+  qmC2+='乙方：第'+b.qimen.ju+'局 '+b.qimen.star+' '+b.qimen.door+' '+b.qimen.sanqi+'\n\n';
+  qmC2+='壹、九星配對（天盤交叉）\n';
+  qmC2+='・甲值符'+a.qimen.star+' × 乙值符'+b.qimen.star+'：兩人的天時格局如何互動？\n';
+  qmC2+='・星與星的五行生剋：誰的格局自然支持對方？誰需要對方的能量補給？\n\n';
+  qmC2+='貳、八門配對（人盤交叉）\n';
+  qmC2+='・甲值使'+a.qimen.door+' × 乙值使'+b.qimen.door+'：行事風格的匹配度\n';
+  qmC2+='・開門×生門：進取+求財，商業夥伴絕配\n';
+  qmC2+='・休門×傷門：一靜一動，需要理解節奏差異\n';
+  qmC2+='・兩人門的吉凶組合對關係的整體影響\n\n';
+  qmC2+='叁、三奇交叉\n';
+  qmC2+='・甲'+a.qimen.sanqi+' × 乙'+b.qimen.sanqi+'：天賦路線的互補或重疊\n';
+  qmC2+='・同奇：思維方式相近，溝通成本低\n';
+  qmC2+='・異奇：互補，但需要更多耐心理解對方的決策邏輯\n\n';
+  qmC2+='肆、星門組合吉凶交互\n';
+  qmC2+='・甲（'+a.qimen.star+'×'+a.qimen.door+'）vs 乙（'+b.qimen.star+'×'+b.qimen.door+'）的吉凶級別對比\n';
+  qmC2+='・在這段關係中，誰更適合主導決策？誰更適合執行落地？\n\n';
+  qmC2+='伍、共同行動策略與精油建議\n';
+  qmC2+='・兩人合力最強的方向（九星五行交叉的最佳合作領域）\n';
+  qmC2+='・精油組合：根據雙方九星五行配置的共同空間擴香建議\n\n';
+  qmC2+='【參考書目】\n';
+  qmC2+='▍《奇門遁甲統宗》（明·楊維德）｜奇門完整體系原典\n';
+  qmC2+='▍王鳳麟《奇門遁甲高級教程》｜現代奇門實務應用\n';
+  qmC2+='▍張志春《神奇之門》｜奇門遁甲白話入門\n';
+  var hQMm=mkDual(nameA,qm_html(a),nameB,qm_html(b));
+  hQMm+=mkPre('qm_a',qmA);hQMm+=mkPre('qm_b',qmB);
+  hQMm+='<div class="ai-box"><h4>📜 合盤資料</h4><pre id="qm_c">'+escHtml(qmC2)+'</pre></div>';
+  hQMm+=mkCpBtn('📋 複製甲方','','function(b){copyData("qm_a",b)}');
+  hQMm+=mkCpBtn('📋 複製乙方','teal','function(b){copyData("qm_b",b)}');
   hQMm+=mkCpBtn('🔮 複製智慧解讀指令','combined','function(b){hlMatchCopy("qm_c","qimen",b)}');
   mkPanel(hQMm);
 
-  // ═══ 🆕 系統 30：前世今生 合盤 ═══
-  var plA_ai='前世今生（甲方）：原型 '+a.pastlife.arch+(a.pastlife.chiron?' 凱龍：'+a.pastlife.chiron:'')+(a.pastlife.nn?' 北交：'+a.pastlife.nn:'');
-  var plB_ai='前世今生（乙方）：原型 '+b.pastlife.arch+(b.pastlife.chiron?' 凱龍：'+b.pastlife.chiron:'')+(b.pastlife.nn?' 北交：'+b.pastlife.nn:'');
-  var plC='═══ 前世今生合盤 ═══\n'+plA_ai+'\n'+plB_ai+'\n關係：'+REL_NAMES[rel]+'\n';
-  var hPLm='<div class="item"><b>甲方</b> 原型：'+a.pastlife.arch+(a.pastlife.chiron?' ｜凱龍：'+a.pastlife.chiron:'')+'</div>';
-  hPLm+='<div class="item"><b>乙方</b> 原型：'+b.pastlife.arch+(b.pastlife.chiron?' ｜凱龍：'+b.pastlife.chiron:'')+'</div>';
-  hPLm+='<div class="ai-box"><pre id="pl_c">'+escHtml(plC)+'</pre></div>';
+  /* ── ㉚ 前世今生合盤 ── */
+  function pl_html(d){
+    var p=d.pastlife,h='';
+    h+='<div class="item" style="text-align:center;margin-bottom:12px">';
+    h+='<div style="font-size:1.4rem;font-weight:700;color:var(--gd)">'+p.arch+'</div>';
+    var sub='';
+    if(p.chiron)sub+='凱龍：'+p.chiron;
+    if(p.nn)sub+=(sub?' ｜ ':'')+'北交：'+p.nn;
+    if(sub)h+='<div style="font-size:.85rem;color:var(--inkm);margin-top:4px">'+sub+'</div>';
+    h+='</div>';
+    h+='<div class="palace"><div class="pt">前世原型</div>';
+    h+='<div class="rs"><b>內在原型：</b>'+p.arch+'</div>';
+    h+='<div class="rs"><b>含義：</b>債主型=來收帳/鏡像型=照見自己/引路型=帶路人/纏繞型=解不完的課題</div></div>';
+    if(p.chiron){
+      h+='<div class="palace"><div class="pt">凱龍星（傷口與轉化）</div>';
+      h+='<div class="rs"><b>凱龍星座：</b>'+p.chiron+'（此生最深的傷口來源）</div>';
+      h+='<div class="rs"><b>轉化方向：</b>透過面對'+p.chiron+'主題的恐懼來轉化</div></div>';
+    }
+    if(p.nn){
+      h+='<div class="palace"><div class="pt">北交點（今生方向）</div>';
+      h+='<div class="rs"><b>北交星座：</b>'+p.nn+'（此生要走向的成長方向）</div>';
+      h+='<div class="rs"><b>南交點：</b>北交的對面星座（前世的舒適圈）</div></div>';
+    }
+    h+='<div class="item" style="margin-top:8px;padding:10px;background:rgba(248,223,165,.06);border-radius:10px;border-left:3px solid var(--gd)">';
+    h+='<b style="color:var(--gd)">✦ 核心功課</b><br>'+p.arch+'原型揭示了今生人際關係中反覆出現的主題模式</div>';
+    return h;
+  }
+  function pl_ai(d,pn){
+    var p=d.pastlife;
+    var t='【'+pn+'·前世今生】\n';
+    t+='內在原型：'+p.arch+'\n';
+    if(p.chiron)t+='凱龍星座：'+p.chiron+'\n';
+    if(p.nn)t+='北交點：'+p.nn+'\n';
+    t+='\n【請依以下框架解讀】\n';
+    t+='壹、'+p.arch+'原型的前世故事推演（債主=前世欠債/鏡像=前世的自己/引路=前世的導師/纏繞=前世未完的羈絆）\n';
+    t+='貳、凱龍傷口：'+(p.chiron||'?')+'星座主題的具體傷口表現與自我轉化路徑\n';
+    t+='叁、北交方向：'+(p.nn||'?')+'星座 = 此生要往哪裡走？南交 = 前世在哪個舒適圈待太久？\n';
+    t+='肆、原型×凱龍×北交的三角關係：前世傷口如何指引今生方向\n';
+    t+='伍、精油建議：凱龍傷口對應的調理精油\n';
+    t+='【🔴 前世今生不是要你沉溺於過去，是讓你看見「為什麼這些模式一直重複」，然後選擇新的路】\n';
+    return t;
+  }
+  var plA=pl_ai(a,nameA),plB=pl_ai(b,nameB);
+  var _rcPL=relCat(rel);
+  var plC2=plA+'\n'+plB+'\n\n【前世今生合盤深度解讀指令】\n';
+  plC2+='【關係視角：'+REL_OPENER[_rcPL]+'】\n\n';
+  plC2+='甲方原型：'+a.pastlife.arch+(a.pastlife.chiron?' 凱龍：'+a.pastlife.chiron:'')+(a.pastlife.nn?' 北交：'+a.pastlife.nn:'')+'\n';
+  plC2+='乙方原型：'+b.pastlife.arch+(b.pastlife.chiron?' 凱龍：'+b.pastlife.chiron:'')+(b.pastlife.nn?' 北交：'+b.pastlife.nn:'')+'\n\n';
+  plC2+='壹、內在原型配對\n';
+  plC2+='・甲「'+a.pastlife.arch+'」× 乙「'+b.pastlife.arch+'」：兩人前世的關係劇本是什麼？\n';
+  plC2+='・同原型：同一類課題的不同版本，容易共鳴也容易陷入相同盲點\n';
+  plC2+='・互補原型：一方的功課是另一方的天賦，天然的教學關係\n\n';
+  plC2+='貳、凱龍傷口交叉\n';
+  plC2+='・甲凱龍'+(a.pastlife.chiron||'?')+' × 乙凱龍'+(b.pastlife.chiron||'?')+'：傷口是否在同一個主題？\n';
+  plC2+='・同星座凱龍：深層傷口共鳴，理解彼此但也可能互相觸發\n';
+  plC2+='・不同凱龍：各自的痛點不同，可以成為對方的支持者（如果願意）\n\n';
+  plC2+='叁、北交方向配對\n';
+  plC2+='・甲北交'+(a.pastlife.nn||'?')+' × 乙北交'+(b.pastlife.nn||'?')+'：兩人此生的成長方向是否一致？\n';
+  plC2+='・甲的北交是否落在乙的南交方向（意味著甲要去的地方是乙已經熟悉的）？\n\n';
+  plC2+='肆、業力功課清單\n';
+  plC2+='・這段關係中反覆出現的主題是什麼？（金錢/信任/自由/控制/依賴）\n';
+  plC2+='・前世未完的課題如何在今生以新的形式重現？\n\n';
+  plC2+='伍、調理精油建議\n';
+  plC2+='・根據雙方凱龍傷口主題的共同調理擴香組合\n';
+  plC2+='・個人調理精油：各自最需要的香氣支持\n\n';
+  plC2+='【參考書目】\n';
+  plC2+='▍Brian Weiss《前世今生》（Many Lives, Many Masters）｜前世療法經典\n';
+  plC2+='▍Melanie Reinhart《Chiron and the Healing Journey》｜凱龍星解讀聖經\n';
+  plC2+='▍Jan Spiller《Astrology for the Soul》｜北交點12星座完整指南\n';
+  var hPLm=mkDual(nameA,pl_html(a),nameB,pl_html(b));
+  hPLm+=mkPre('pl_a',plA);hPLm+=mkPre('pl_b',plB);
+  hPLm+='<div class="ai-box"><h4>📜 合盤資料</h4><pre id="pl_c">'+escHtml(plC2)+'</pre></div>';
+  hPLm+=mkCpBtn('📋 複製甲方','','function(b){copyData("pl_a",b)}');
+  hPLm+=mkCpBtn('📋 複製乙方','teal','function(b){copyData("pl_b",b)}');
   hPLm+=mkCpBtn('🔮 複製智慧解讀指令','combined','function(b){hlMatchCopy("pl_c","pastlife",b)}');
   mkPanel(hPLm);
 
-  // ═══ 🆕 系統 31：Nakshatra 合盤 ═══
-  var nkA2=a.nakshatra2?a.nakshatra2.name+' (守護：'+a.nakshatra2.lord+')':'需出生時間';
-  var nkB2=b.nakshatra2?b.nakshatra2.name+' (守護：'+b.nakshatra2.lord+')':'需出生時間';
-  var nkC2='═══ Nakshatra合盤 ═══\n甲方：'+nkA2+'\n乙方：'+nkB2+'\n關係：'+REL_NAMES[rel]+'\n';
-  var hNKm='<div class="item"><b>甲方</b> '+nkA2+'</div><div class="item"><b>乙方</b> '+nkB2+'</div>';
-  hNKm+='<div class="ai-box"><pre id="nk_c">'+escHtml(nkC2)+'</pre></div>';
+  /* ── ㉛ Nakshatra 印度星宿合盤 ── */
+  function nk2_html(d){
+    var n=d.nakshatra2,h='';
+    if(!n){return '<div class="item">需要出生時間（星曆載入後可用）</div>';}
+    h+='<div class="item" style="text-align:center;margin-bottom:12px">';
+    h+='<div style="font-size:1.4rem;font-weight:700;color:var(--gd)">'+n.name+'</div>';
+    h+='<div style="font-size:.85rem;color:var(--inkm);margin-top:4px">守護星：'+n.lord+'</div></div>';
+    h+='<div class="palace"><div class="pt">Nakshatra 星宿</div>';
+    h+='<div class="rs"><b>月亮星宿：</b>'+n.name+'</div>';
+    h+='<div class="rs"><b>守護星：</b>'+n.lord+'（主管此星宿的行星能量）</div>';
+    h+='<div class="rs"><b>守護星週期：</b>'+n.lord+'大運（Dasha）為此人的主要生命節奏</div></div>';
+    h+='<div class="item" style="margin-top:8px;padding:10px;background:rgba(248,223,165,.06);border-radius:10px;border-left:3px solid var(--gd)">';
+    h+='<b style="color:var(--gd)">✦ 吠陀智慧</b><br>Nakshatra 是月亮經過的27個星宿，比星座更精確地描述你的情緒本質與直覺模式</div>';
+    return h;
+  }
+  function nk2_ai(d,pn){
+    if(!d.nakshatra2)return '【'+pn+'·Nakshatra】需要出生時間\n';
+    var n=d.nakshatra2;
+    var t='【'+pn+'·Nakshatra 印度月亮星宿】\n';
+    t+='月亮星宿：'+n.name+'\n';
+    t+='守護星：'+n.lord+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、'+n.name+'星宿的神話原型與性格描述\n';
+    t+='貳、守護星'+n.lord+'的能量特質與Dasha大運週期\n';
+    t+='叁、此星宿的動物象徵（Yoni）：對應的性格與親密關係模式\n';
+    t+='肆、吠陀精油對應：根據星宿守護星的傳統芳療建議\n';
+    t+='伍、與其他27星宿的相容性概覽（最佳搭配 vs 需要注意的組合）\n';
+    t+='【🔴 Nakshatra比星座更精細，它像是星座裡面的「郵遞區號」，告訴你情緒反應的精確模式】\n';
+    return t;
+  }
+  var nk2A=nk2_ai(a,nameA),nk2B=nk2_ai(b,nameB);
+  var _rcNK=relCat(rel);
+  var nkA2s=a.nakshatra2?a.nakshatra2.name+' (守護：'+a.nakshatra2.lord+')':'需出生時間';
+  var nkB2s=b.nakshatra2?b.nakshatra2.name+' (守護：'+b.nakshatra2.lord+')':'需出生時間';
+  var nkC2=nk2A+'\n'+nk2B+'\n\n【Nakshatra合盤深度解讀指令】\n';
+  nkC2+='【關係視角：'+REL_OPENER[_rcNK]+'】\n\n';
+  nkC2+='甲方：'+nkA2s+'\n';
+  nkC2+='乙方：'+nkB2s+'\n\n';
+  nkC2+='壹、星宿配對相容性（Tara Kuta）\n';
+  nkC2+='・甲'+(a.nakshatra2?a.nakshatra2.name:'?')+' × 乙'+(b.nakshatra2?b.nakshatra2.name:'?')+'：吠陀婚配體系中的相容分數\n';
+  nkC2+='・Nadi Kuta（脈輪相容）：體質與能量流動的匹配度\n\n';
+  nkC2+='貳、守護星互動\n';
+  nkC2+='・甲守護星'+(a.nakshatra2?a.nakshatra2.lord:'?')+' × 乙守護星'+(b.nakshatra2?b.nakshatra2.lord:'?')+'：行星友誼關係\n';
+  nkC2+='・守護星為友：天然的親和力，相處自然\n';
+  nkC2+='・守護星為敵：需要更多意識調和，但也帶來成長\n\n';
+  nkC2+='叁、Yoni 動物配對\n';
+  nkC2+='・吠陀傳統以動物象徵分析親密關係中的本能互動模式\n';
+  nkC2+='・同類動物：直覺理解，身體語言同頻\n';
+  nkC2+='・天敵動物：本能層面的張力，需要理性介入\n\n';
+  nkC2+='肆、Dasha 大運同步分析\n';
+  nkC2+='・兩人目前的Dasha週期是否同步？關鍵年份預測\n\n';
+  nkC2+='伍、精油與儀式建議\n';
+  nkC2+='・吠陀傳統推薦的關係和諧精油組合\n\n';
+  nkC2+='【參考書目】\n';
+  nkC2+='▍Dennis Harness《The Nakshatras》｜27星宿完整指南\n';
+  nkC2+='▍Hart deFouw《Light on Relationships》｜吠陀合盤聖經\n';
+  nkC2+='▍David Frawley《Astrology of the Seers》｜吠陀占星入門\n';
+  var hNKm=mkDual(nameA,nk2_html(a),nameB,nk2_html(b));
+  hNKm+=mkPre('nk2_a',nk2A);hNKm+=mkPre('nk2_b',nk2B);
+  hNKm+='<div class="ai-box"><h4>📜 合盤資料</h4><pre id="nk_c">'+escHtml(nkC2)+'</pre></div>';
+  hNKm+=mkCpBtn('📋 複製甲方','','function(b){copyData("nk2_a",b)}');
+  hNKm+=mkCpBtn('📋 複製乙方','teal','function(b){copyData("nk2_b",b)}');
   hNKm+=mkCpBtn('🔮 複製智慧解讀指令','combined','function(b){hlMatchCopy("nk_c","nakshatra",b)}');
   mkPanel(hNKm);
 
-  // ═══ 🆕 系統 32：BG5 合盤 ═══
-  var bgC2='═══ BG5商業人類圖合盤 ═══\n甲方：'+a.bg5type+'\n乙方：'+b.bg5type+'\n關係：'+REL_NAMES[rel]+'\n';
-  var hBGm='<div class="item"><b>甲方</b> '+a.bg5type+'</div><div class="item"><b>乙方</b> '+b.bg5type+'</div>';
-  hBGm+='<div class="ai-box"><pre id="bg_c">'+escHtml(bgC2)+'</pre></div>';
+  /* ── ㉜ BG5 商業人類圖合盤 ── */
+  function bg_html(d){
+    var t=d.bg5type,h='';
+    h+='<div class="item" style="text-align:center;margin-bottom:12px">';
+    h+='<div style="font-size:1.4rem;font-weight:700;color:var(--gd)">'+t+'</div>';
+    h+='<div style="font-size:.85rem;color:var(--inkm);margin-top:4px">BG5 商業角色定位</div></div>';
+    h+='<div class="palace"><div class="pt">BG5 類型解析</div>';
+    h+='<div class="rs"><b>商業類型：</b>'+t+'</div>';
+    h+='<div class="rs"><b>Classic Builder：</b>持續產出型，適合穩定執行角色</div>';
+    h+='<div class="rs"><b>Express Builder：</b>快速多工型，適合多線並行任務</div>';
+    h+='<div class="rs"><b>Advisor：</b>顧問識別型，適合指導與系統規劃</div>';
+    h+='<div class="rs"><b>Initiator：</b>啟動發起型，適合開創新方向</div>';
+    h+='<div class="rs"><b>Evaluator：</b>環境評估型，適合品質監控與時機判斷</div></div>';
+    h+='<div class="item" style="margin-top:8px;padding:10px;background:rgba(248,223,165,.06);border-radius:10px;border-left:3px solid var(--gd)">';
+    h+='<b style="color:var(--gd)">✦ 商業定位</b><br>BG5將人類圖的能量類型轉譯為職場角色，'+t+'在團隊中扮演獨特的能量位置</div>';
+    return h;
+  }
+  function bg_ai(d,pn){
+    var t='【'+pn+'·BG5商業人類圖】\n';
+    t+='商業類型：'+d.bg5type+'\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、'+d.bg5type+'在團隊中的最佳角色定位與工作節奏\n';
+    t+='貳、此類型的決策風格（等待邀請/等待回應/告知後行動/等待28天）\n';
+    t+='叁、能量管理：什麼時候高效、什麼時候該休息\n';
+    t+='肆、與其他BG5類型的最佳協作模式\n';
+    t+='伍、精油建議：根據商業類型的能量特質推薦的工作空間擴香\n';
+    t+='【🔴 BG5不是要你改變自己，是讓你知道自己在職場上的「原廠設定」，然後順勢而為】\n';
+    return t;
+  }
+  var bgA=bg_ai(a,nameA),bgB=bg_ai(b,nameB);
+  var _rcBG=relCat(rel);
+  var bgC2=bgA+'\n'+bgB+'\n\n【BG5商業人類圖合盤深度解讀指令】\n';
+  bgC2+='【關係視角：'+REL_OPENER[_rcBG]+'】\n\n';
+  bgC2+='甲方：'+a.bg5type+'\n';
+  bgC2+='乙方：'+b.bg5type+'\n\n';
+  bgC2+='壹、商業類型配對\n';
+  bgC2+='・甲'+a.bg5type+' × 乙'+b.bg5type+'：團隊角色的互補性\n';
+  bgC2+='・Builder×Advisor：執行力+策略力的黃金組合\n';
+  bgC2+='・Builder×Builder：產能倍增但可能缺乏方向感\n';
+  bgC2+='・Initiator×Builder：開創+落地的完美分工\n';
+  bgC2+='・Advisor×Advisor：智囊充足但可能缺乏行動力\n\n';
+  bgC2+='貳、決策風格差異\n';
+  bgC2+='・甲的決策機制 vs 乙的決策機制：是否經常在「做不做」上卡住？\n';
+  bgC2+='・如何尊重彼此的決策節奏？（不催促、不代為決定）\n\n';
+  bgC2+='叁、能量節奏同步\n';
+  bgC2+='・兩人的工作能量高峰和低谷是否同步？\n';
+  bgC2+='・如何安排共同工作時間以發揮最大效率？\n\n';
+  bgC2+='肆、衝突與磨合指南\n';
+  bgC2+='・兩種商業類型最常見的摩擦點\n';
+  bgC2+='・具體的溝通調整建議（每種類型需要聽到什麼、不想聽到什麼）\n\n';
+  bgC2+='伍、共同空間精油建議\n';
+  bgC2+='・根據兩人BG5類型的工作空間最佳擴香組合\n\n';
+  bgC2+='【參考書目】\n';
+  bgC2+='▍Ra Uru Hu《BG5 Business Institute》｜BG5原始體系\n';
+  bgC2+='▍Karen Curry Parker《Understanding Human Design》｜人類圖商業應用\n';
+  bgC2+='▍Lynda Bunnell《The Definitive Book of Human Design》｜類型互動聖經\n';
+  var hBGm=mkDual(nameA,bg_html(a),nameB,bg_html(b));
+  hBGm+=mkPre('bg_a',bgA);hBGm+=mkPre('bg_b',bgB);
+  hBGm+='<div class="ai-box"><h4>📜 合盤資料</h4><pre id="bg_c">'+escHtml(bgC2)+'</pre></div>';
+  hBGm+=mkCpBtn('📋 複製甲方','','function(b){copyData("bg_a",b)}');
+  hBGm+=mkCpBtn('📋 複製乙方','teal','function(b){copyData("bg_b",b)}');
   hBGm+=mkCpBtn('🔮 複製智慧解讀指令','combined','function(b){hlMatchCopy("bg_c","bg5",b)}');
   mkPanel(hBGm);
 
-  // ═══ 🆕 系統 33：五音五味 合盤 ═══
-  var wuC2='═══ 五音五味合盤 ═══\n甲方：'+a.wuyin5.yin+'音（'+a.wuyin5.wx+'行）\n乙方：'+b.wuyin5.yin+'音（'+b.wuyin5.wx+'行）\n關係：'+REL_NAMES[rel]+'\n';
-  var hWUm='<div class="item"><b>甲方</b> '+a.wuyin5.yin+'音（'+a.wuyin5.wx+'行）</div><div class="item"><b>乙方</b> '+b.wuyin5.yin+'音（'+b.wuyin5.wx+'行）</div>';
-  hWUm+='<div class="ai-box"><pre id="wu_c">'+escHtml(wuC2)+'</pre></div>';
+  /* ── ㉝ 五音五味合盤 ── */
+  function wu_html(d){
+    var w=d.wuyin5,h='';
+    h+='<div class="item" style="text-align:center;margin-bottom:12px">';
+    h+='<div style="font-size:1.4rem;font-weight:700;color:var(--gd)">'+w.yin+'音（'+w.wx+'行）</div>';
+    h+='<div style="font-size:.85rem;color:var(--inkm);margin-top:4px">五音五味·中醫聲療體系</div></div>';
+    h+='<div class="palace"><div class="pt">五音歸類</div>';
+    h+='<div class="rs"><b>本命音：</b>'+w.yin+'（'+w.wx+'行）</div>';
+    h+='<div class="rs"><b>宮音（土）：</b>脾胃·甘味·思慮·穩定</div>';
+    h+='<div class="rs"><b>商音（金）：</b>肺·辛味·悲憂·肅降</div>';
+    h+='<div class="rs"><b>角音（木）：</b>肝·酸味·怒氣·生發</div>';
+    h+='<div class="rs"><b>徵音（火）：</b>心·苦味·喜悅·升騰</div>';
+    h+='<div class="rs"><b>羽音（水）：</b>腎·鹹味·恐懼·收藏</div></div>';
+    h+='<div class="item" style="margin-top:8px;padding:10px;background:rgba(248,223,165,.06);border-radius:10px;border-left:3px solid var(--gd)">';
+    h+='<b style="color:var(--gd)">✦ 聲療智慧</b><br>'+w.yin+'音人屬'+w.wx+'行，對應特定的臟腑、情緒與味覺偏好</div>';
+    return h;
+  }
+  function wu_ai(d,pn){
+    var w=d.wuyin5;
+    var t='【'+pn+'·五音五味】\n';
+    t+='本命音：'+w.yin+'（'+w.wx+'行）\n\n';
+    t+='【請依以下框架解讀】\n';
+    t+='壹、'+w.yin+'音人的性格特徵（'+w.wx+'行的情緒模式與行為傾向）\n';
+    t+='貳、對應臟腑（'+w.wx+'行→哪個臟腑）的身心連結\n';
+    t+='叁、'+w.yin+'音人的味覺偏好與飲食建議\n';
+    t+='肆、聲療建議：適合的音樂節奏與聲音環境\n';
+    t+='伍、精油對應：'+w.wx+'行臟腑的芳療調理方向\n';
+    t+='【🔴 五音五味是中醫的感官系統，它說的是你的身體天生會被什麼聲音、什麼味道吸引，這不是偏好，是體質】\n';
+    return t;
+  }
+  var wuA=wu_ai(a,nameA),wuB=wu_ai(b,nameB);
+  var _rcWU=relCat(rel);
+  var wuC2=wuA+'\n'+wuB+'\n\n【五音五味合盤深度解讀指令】\n';
+  wuC2+='【關係視角：'+REL_OPENER[_rcWU]+'】\n\n';
+  wuC2+='甲方：'+a.wuyin5.yin+'音（'+a.wuyin5.wx+'行）\n';
+  wuC2+='乙方：'+b.wuyin5.yin+'音（'+b.wuyin5.wx+'行）\n\n';
+  wuC2+='壹、五音配對\n';
+  wuC2+='・甲'+a.wuyin5.yin+'音（'+a.wuyin5.wx+'）× 乙'+b.wuyin5.yin+'音（'+b.wuyin5.wx+'）：五行生剋關係\n';
+  wuC2+='・同音：節奏共振，但可能缺乏變化刺激\n';
+  wuC2+='・相生音：自然的聲音和諧，相處舒適\n';
+  wuC2+='・相剋音：聲音節奏衝突，可能在溝通中「聽不進去」\n\n';
+  wuC2+='貳、五味偏好的生活影響\n';
+  wuC2+='・甲'+a.wuyin5.wx+'行味覺 × 乙'+b.wuyin5.wx+'行味覺：飲食習慣是否合拍？\n';
+  wuC2+='・共餐時的口味協調建議\n\n';
+  wuC2+='叁、臟腑互動\n';
+  wuC2+='・甲主臟（'+a.wuyin5.wx+'行對應臟腑）× 乙主臟（'+b.wuyin5.wx+'行對應臟腑）\n';
+  wuC2+='・兩人在壓力下的身體反應模式是否互補？\n\n';
+  wuC2+='肆、聲音環境設計\n';
+  wuC2+='・兩人共同空間的最佳音樂類型\n';
+  wuC2+='・溝通時的聲調建議（什麼語氣最能讓對方接收）\n\n';
+  wuC2+='伍、共同精油與養生建議\n';
+  wuC2+='・根據兩人五音五行的共同空間擴香建議\n';
+  wuC2+='・四季養生：不同季節兩人各自的調理重點\n\n';
+  wuC2+='【參考書目】\n';
+  wuC2+='▍《黃帝內經·素問》金匱真言論、陰陽應象大論｜五音五味理論源頭\n';
+  wuC2+='▍吳慎《中國音療》｜五音療法現代臨床應用\n';
+  wuC2+='▍龍梅《五行音樂療法》｜五音與臟腑情緒的科學研究\n';
+  var hWUm=mkDual(nameA,wu_html(a),nameB,wu_html(b));
+  hWUm+=mkPre('wu_a',wuA);hWUm+=mkPre('wu_b',wuB);
+  hWUm+='<div class="ai-box"><h4>📜 合盤資料</h4><pre id="wu_c">'+escHtml(wuC2)+'</pre></div>';
+  hWUm+=mkCpBtn('📋 複製甲方','','function(b){copyData("wu_a",b)}');
+  hWUm+=mkCpBtn('📋 複製乙方','teal','function(b){copyData("wu_b",b)}');
   hWUm+=mkCpBtn('🔮 複製智慧解讀指令','combined','function(b){hlMatchCopy("wu_c","wuyin",b)}');
   mkPanel(hWUm);
 
