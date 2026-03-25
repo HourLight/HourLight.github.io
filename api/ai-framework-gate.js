@@ -18,20 +18,14 @@ function getAdmin() {
   return a;
 }
 
-// 從同目錄的 ai-prompt-test.js 取框架
+// 從同目錄的 _ai-prompt-test.js 取框架（用 require 確保 Vercel 打包）
 var _cachedSystems = null;
 function getSystems() {
   if (_cachedSystems) return _cachedSystems;
-  var fs = require('fs');
-  var path = require('path');
-  var code = fs.readFileSync(path.join(__dirname, '_ai-prompt-test.js'), 'utf8');
-  var defsEnd = code.indexOf('module.exports');
-  var defs = code.substring(0, defsEnd);
   try {
-    var fn = new Function(defs + '\nreturn SYSTEMS;');
-    _cachedSystems = fn();
+    _cachedSystems = require('./_ai-prompt-test.js').SYSTEMS || {};
   } catch (e) {
-    console.error('SYSTEMS parse error:', e.message);
+    console.error('SYSTEMS load error:', e.message);
     _cachedSystems = {};
   }
   return _cachedSystems;

@@ -187,4 +187,4 @@ module.exports = function handler(req, res) {
   if (!relData) return res.status(404).json({ error: relation + ' 不存在' });
 
   return res.status(200).json(relData);
-};
+};module.exports.SYSTEMS = SYSTEMS;

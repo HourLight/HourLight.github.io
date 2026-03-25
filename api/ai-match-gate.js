@@ -17,28 +17,21 @@ function getAdmin() {
   return a;
 }
 
-// 從 ai-match-1/2/3-test.js 取框架（三組合併）
+// 從 _ai-match-1/2/3-test.js 取框架（用 require 確保 Vercel 打包）
 var _cached = null;
 function getMatchSystems() {
   if (_cached) return _cached;
-  var fs = require('fs');
-  var path = require('path');
   _cached = {};
-  var files = ['_ai-match-1-test.js', '_ai-match-2-test.js', '_ai-match-3-test.js'];
-  files.forEach(function(fn) {
-    try {
-      var code = fs.readFileSync(path.join(__dirname, fn), 'utf8');
-      var modIdx = code.indexOf('module.exports');
-      if (modIdx < 0) return;
-      var defs = code.substring(0, modIdx);
-      var extractor = new Function(defs + '\nreturn SYSTEMS;');
-      var systems = extractor();
-      Object.keys(systems).forEach(function(k) {
-        _cached[k] = systems[k];
-      });
-    } catch (e) {
-      console.error('Load ' + fn + ':', e.message);
-    }
+  var mods = [
+    require('./_ai-match-1-test.js'),
+    require('./_ai-match-2-test.js'),
+    require('./_ai-match-3-test.js')
+  ];
+  mods.forEach(function(mod) {
+    var systems = mod.SYSTEMS || {};
+    Object.keys(systems).forEach(function(k) {
+      _cached[k] = systems[k];
+    });
   });
   return _cached;
 }

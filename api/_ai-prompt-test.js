@@ -228,4 +228,4 @@ module.exports = function handler(req, res) {
   }
 
   return res.status(200).json(sysData);
-};
+};module.exports.SYSTEMS = SYSTEMS;
