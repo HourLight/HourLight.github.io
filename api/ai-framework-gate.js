@@ -18,7 +18,7 @@ function getAdmin() {
   return a;
 }
 
-// SYSTEMS 資料直接嵌入（不依賴外部檔案）
+// SYSTEMS 資料直接嵌入
 // api/ai-prompt-test.js
 // 單人命盤 AI 解讀框架倉庫（22 大系統）
 // 版本：2026-03-23
@@ -220,9 +220,8 @@ const SYSTEMS = {
 
 };
 
-function getSystems() {
-  return SYSTEMS;
-}
+function getSystems() { return SYSTEMS; }
+
 
 // 日制配額（對齊 hl-ai-gate.js v3）
 var DAILY_LIMITS = { free: 3, plus: 10, pro: 999999 };
@@ -239,9 +238,13 @@ function getDayKey() {
 }
 
 module.exports = async function handler(req, res) {
+  // CORS 最優先，確保 preflight 一定能回
   var origin = req.headers.origin || '';
-  var allowed = ['https://hourlightkey.com', 'https://www.hourlightkey.com'];
-  if (allowed.indexOf(origin) > -1) res.setHeader('Access-Control-Allow-Origin', origin);
+  if (origin === 'https://hourlightkey.com' || origin === 'https://www.hourlightkey.com') {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', 'https://hourlightkey.com');
+  }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
