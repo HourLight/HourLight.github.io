@@ -34,7 +34,7 @@
 <link rel="stylesheet" href="assets/css/hl-design-tokens.css">
 <link rel="stylesheet" href="assets/css/hl-music.css">
 <style>
-/* ═══════════ 馥靈馥語 設計系統 ═══════════ */
+/* ═══════════ 易經覺察占卜 設計系統 ═══════════ */
 :root {
   --ff-font:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
   --ff-oracle:"LXGW WenKai TC","Noto Serif TC",serif;
@@ -389,41 +389,178 @@ body{
     <div class="ff-layers">馥語 · 賦予 · 腹語 · 付與 · 復與 · 富羽 · 富予</div>
   </div>
 
-  <!-- ═══ 起卦面板 ═══ -->
+  <!-- ═══ 卦象歷史 ═══ -->
+  <div class="ff-glass" id="historyPanel" style="display:none;margin-bottom:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <h3 style="font-family:var(--ff-oracle);color:var(--ff-gold);font-size:1rem;letter-spacing:.08em;margin:0">📜 最近的卦</h3>
+      <button onclick="clearHistory()" style="background:transparent;border:none;color:rgba(233,194,125,.4);font-size:.78rem;cursor:pointer;font-family:inherit">全部清除</button>
+    </div>
+    <div id="historyList" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+
+  <!-- ═══ 起卦面板（步驟式對話框）═══ -->
   <div class="ff-glass" id="castPanel">
-    <div class="ff-tabs" id="methodTabs">
-      <button class="ff-tab active" data-method="coin">銅錢六爻</button>
-      <button class="ff-tab" data-method="plum">梅花易數</button>
-      <button class="ff-tab" data-method="text">文字起卦</button>
-      <button class="ff-tab" data-method="time">時間起卦</button>
+
+    <!-- 步驟指示器 -->
+    <div class="ff-steps" id="stepIndicator">
+      <div class="ff-step active" id="si-1">
+        <div class="ff-step-dot">1</div>
+        <div class="ff-step-label">寫下問題</div>
+      </div>
+      <div class="ff-step-line"></div>
+      <div class="ff-step" id="si-2">
+        <div class="ff-step-dot">2</div>
+        <div class="ff-step-label">選起卦方式</div>
+      </div>
+      <div class="ff-step-line"></div>
+      <div class="ff-step" id="si-3">
+        <div class="ff-step-dot">3</div>
+        <div class="ff-step-label">起卦</div>
+      </div>
+      <div class="ff-step-line"></div>
+      <div class="ff-step" id="si-4">
+        <div class="ff-step-dot">✦</div>
+        <div class="ff-step-label">看見座標</div>
+      </div>
     </div>
 
-    <div class="ff-ask">
-      <label>✦ 靜心片刻，寫下您想問的事 ✦</label>
-      <textarea class="ff-textarea" id="questionInput" placeholder="把您心裡的問題寫下來⋯&#10;不用完整句子，關鍵字也行。&#10;重點是：問的時候，您是認真的。" rows="3"></textarea>
+    <!-- 步驟一：寫下問題 -->
+    <div class="ff-step-panel active" id="sp-1">
+      <div class="ff-awareness-box">
+        <strong>易經不是算命，是一面鏡子。</strong><br>
+        鏡子裡說的是您現在的座標，不是命運的判決。<br>
+        每一個卦象都是一種地形描述——前面是山就繞路，遇到逆風就收帆。<br>
+        卜卦的過程本身就是一次覺察練習，讓注意力回到當下。
+      </div>
 
-      <div class="ff-num-row" id="plumNums">
+      <div class="ff-awareness-box" style="background:rgba(233,194,125,.04);border-color:rgba(233,194,125,.12)">
+        <strong>有效的問題是什麼樣的？</strong><br>
+        ► 具體的，不是「我的人生怎樣」而是「這件事現在適不適合推進」<br>
+        ► 誠實的，問的時候是認真的<br>
+        ► 開放的，不是要驗證你已經決定的答案
+      </div>
+
+      <div class="ff-ask" style="padding-top:4px">
+        <label style="color:rgba(233,194,125,.85);font-size:.88rem;letter-spacing:.06em;display:block;margin-bottom:10px">✦ 靜心片刻，寫下您想問的事 ✦</label>
+        <textarea class="ff-textarea" id="questionInput" placeholder="把您心裡的問題寫下來⋯&#10;不用完整句子，關鍵字也行。&#10;重點是：問的時候，您是認真的。" rows="3"></textarea>
+
+        <!-- 問題分類 -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 20px;align-items:center">
+          <span style="font-size:.78rem;color:rgba(233,194,125,.5);flex-shrink:0">這件事關於：</span>
+          <div id="categoryBtns" style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="cat-btn" data-cat="general" onclick="setCat(this)" style="background:rgba(233,194,125,.12);border:1px solid rgba(233,194,125,.3);border-radius:20px;padding:4px 14px;font-size:.8rem;color:rgba(233,194,125,.9);cursor:pointer;font-family:inherit;transition:.2s">綜合</button>
+            <button class="cat-btn" data-cat="love" onclick="setCat(this)" style="background:transparent;border:1px solid rgba(233,194,125,.18);border-radius:20px;padding:4px 14px;font-size:.8rem;color:rgba(233,194,125,.6);cursor:pointer;font-family:inherit;transition:.2s">感情</button>
+            <button class="cat-btn" data-cat="career" onclick="setCat(this)" style="background:transparent;border:1px solid rgba(233,194,125,.18);border-radius:20px;padding:4px 14px;font-size:.8rem;color:rgba(233,194,125,.6);cursor:pointer;font-family:inherit;transition:.2s">事業</button>
+            <button class="cat-btn" data-cat="money" onclick="setCat(this)" style="background:transparent;border:1px solid rgba(233,194,125,.18);border-radius:20px;padding:4px 14px;font-size:.8rem;color:rgba(233,194,125,.6);cursor:pointer;font-family:inherit;transition:.2s">財運</button>
+            <button class="cat-btn" data-cat="health" onclick="setCat(this)" style="background:transparent;border:1px solid rgba(233,194,125,.18);border-radius:20px;padding:4px 14px;font-size:.8rem;color:rgba(233,194,125,.6);cursor:pointer;font-family:inherit;transition:.2s">健康</button>
+            <button class="cat-btn" data-cat="decision" onclick="setCat(this)" style="background:transparent;border:1px solid rgba(233,194,125,.18);border-radius:20px;padding:4px 14px;font-size:.8rem;color:rgba(233,194,125,.6);cursor:pointer;font-family:inherit;transition:.2s">決策</button>
+          </div>
+        </div>
+
+        <button class="ff-cast-btn" onclick="goStep2()" style="width:100%">
+          <span>→</span> 下一步：選擇起卦方式
+        </button>
+      </div>
+    </div>
+
+    <!-- 步驟二：選起卦方式 -->
+    <div class="ff-step-panel" id="sp-2">
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:.82rem;color:rgba(233,194,125,.6);letter-spacing:.06em;margin-bottom:6px">您的問題</div>
+        <div id="q-preview" style="font-size:.95rem;color:rgba(249,240,229,.8);font-style:italic"></div>
+      </div>
+
+      <div style="font-size:.82rem;color:rgba(233,194,125,.55);text-align:center;margin-bottom:14px;letter-spacing:.04em">
+        易經有幾千年歷史，這四種起卦方式，哪一種在這個當下感覺對的
+      </div>
+
+      <div class="ff-method-cards">
+
+        <div class="ff-method-card selected" onclick="selectMethod('coin',this)">
+          <div class="ff-method-card-icon">🪙</div>
+          <div class="ff-method-card-name">銅錢六爻</div>
+          <div class="ff-method-card-root">根源：源自蓍草法，漢代普及</div>
+          <div class="ff-method-card-desc">
+            三枚銅錢，擲六次，每次的正反面決定一爻的陰陽。<br>
+            最傳統的方式。手的動作讓身體參與進來，
+            卜卦的過程本身是一次靜心。
+          </div>
+          <span class="ff-method-badge">身體參與 · 最傳統</span>
+        </div>
+
+        <div class="ff-method-card" onclick="selectMethod('plum',this)">
+          <div class="ff-method-card-icon">🌸</div>
+          <div class="ff-method-card-name">梅花易數</div>
+          <div class="ff-method-card-root">根源：北宋邵雍《梅花易數》</div>
+          <div class="ff-method-card-desc">
+            輸入兩個數字（您直覺想到的），系統用數字計算卦象。<br>
+            邵雍說：萬物皆有數，數中自有卦。<br>
+            您選的數字，已經包含了答案。
+          </div>
+          <span class="ff-method-badge">直覺數字 · 邵雍創立</span>
+        </div>
+
+        <div class="ff-method-card" onclick="selectMethod('text',this)">
+          <div class="ff-method-card-icon">✍️</div>
+          <div class="ff-method-card-name">文字起卦</div>
+          <div class="ff-method-card-root">根源：梅花易數「觀物起卦」精神</div>
+          <div class="ff-method-card-desc">
+            系統將您的問題文字轉換為數字，再起卦。<br>
+            更深的意義是：您寫下的那幾個字，
+            已經說出了您心裡最真實的狀態。<br>
+            問題本身就是答案的一部分。
+          </div>
+          <span class="ff-method-badge">問題即答案 · 現代詮釋</span>
+        </div>
+
+        <div class="ff-method-card" onclick="selectMethod('time',this)">
+          <div class="ff-method-card-icon">⏰</div>
+          <div class="ff-method-card-name">時間起卦</div>
+          <div class="ff-method-card-root">根源：《繫辭傳》「時止則止，時行則行」</div>
+          <div class="ff-method-card-desc">
+            以現在的年月日時起卦。<br>
+            易經相信：此時此刻，天地之氣的狀態，
+            就是您的卦象。當下即答案，
+            不需要任何額外的輸入。
+          </div>
+          <span class="ff-method-badge">當下即答案 · 最直接</span>
+        </div>
+
+      </div>
+
+      <!-- 梅花數字輸入 -->
+      <div class="ff-num-row" id="plumNums" style="display:none;margin-top:16px">
         <span class="ff-num-label">上卦數</span>
         <input type="number" class="ff-num-input" id="plumNum1" min="1" max="999" placeholder="1-999">
         <span class="ff-num-label">下卦數</span>
         <input type="number" class="ff-num-input" id="plumNum2" min="1" max="999" placeholder="1-999">
       </div>
 
-      <button class="ff-cast-btn" id="castBtn" onclick="startCasting()">
-        <span>☰</span> 起卦問事
-      </button>
+      <div style="display:flex;gap:12px;margin-top:20px">
+        <button onclick="goStep1()" style="flex:0 0 auto;padding:12px 20px;border:1px solid rgba(233,194,125,.2);background:transparent;color:rgba(233,194,125,.6);border-radius:12px;cursor:pointer;font-family:inherit;font-size:.88rem">← 返回</button>
+        <button class="ff-cast-btn" onclick="goStep3()" style="flex:1">
+          <span>☰</span> 開始起卦
+        </button>
+      </div>
     </div>
 
-    <!-- 動畫區 -->
-    <div class="ff-stage hidden" id="castStage">
+    <!-- 步驟三：起卦動畫 -->
+    <div class="ff-step-panel" id="sp-3">
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:.78rem;color:rgba(233,194,125,.5);margin-bottom:4px">問事</div>
+        <div id="q-preview-3" style="font-size:.9rem;color:rgba(249,240,229,.7);font-style:italic"></div>
+      </div>
       <div class="ff-coins" id="coinsArea">
         <div class="ff-coin"><div class="hole"></div></div>
         <div class="ff-coin"><div class="hole"></div></div>
         <div class="ff-coin"><div class="hole"></div></div>
       </div>
-      <div class="ff-progress" id="castProgress">擲第 1 爻⋯</div>
+      <div class="ff-progress" id="castProgress">準備起卦⋯</div>
       <div class="ff-hex-visual" id="hexVisual"></div>
     </div>
+
+  </div>
+
   </div>
 
   <!-- ═══ 結果區 ═══ -->
@@ -443,7 +580,7 @@ body{
       <div class="ff-cards" id="hexCards"></div>
     </div>
 
-    <!-- 馥靈馥語 -->
+    <!-- 易經覺察占卜 -->
     <div class="ff-glass ff-fuyu">
       <div class="ff-fuyu-title">馥 靈 馥 語</div>
       <div class="ff-fuyu-layers">賦予 · 腹語 · 付與 · 復與 · 富羽 · 富予</div>
@@ -495,8 +632,9 @@ body{
 
     <!-- 操作 -->
     <div class="ff-actions">
-      <button class="ff-btn ff-btn-gold" onclick="copyAIPrompt()">🤖 複製 AI 深度解讀提示詞</button>
+      <button class="ff-btn ff-btn-gold" onclick="copyAIPrompt()">🔮 複製智慧解讀指令</button>
       <button class="ff-btn ff-btn-outline" onclick="copyResult()">📋 複製卦象紀錄</button>
+      <button class="ff-btn ff-btn-outline" onclick="startCompare()" id="compareBtn" style="display:none">⚖️ 對比前次卦象</button>
       <button class="ff-btn ff-btn-outline" onclick="copyForLine()">💬 複製給 LINE</button>
       <button class="ff-btn ff-btn-outline" onclick="resetOracle()">🔄 重新問事</button>
     </div>
@@ -526,7 +664,7 @@ body{
 <div class="ff-toast" id="toast"></div>
 
 <!-- ═══════════════════════════════════════════════════ -->
-<!-- 馥靈馥語 核心引擎 -->
+<!-- 易經覺察占卜 核心引擎 -->
 <!-- ═══════════════════════════════════════════════════ -->
 <script>
 // ═══ 八卦 ═══
@@ -1017,7 +1155,7 @@ function renderResult(p,question){
     cc.appendChild(div);
   });
 
-  // 馥靈馥語
+  // H.O.U.R. 座標
   const fi=Math.floor(Math.random()*FUYU_LAYERS.length);
   const fl=FUYU_LAYERS[fi];
   document.getElementById('fuyuMessage').innerHTML=p.benH.d.fuyu.replace(/\n/g,'<br>');
@@ -1193,8 +1331,15 @@ function renderNajia(p){
 
 // ═══ 複製功能 ═══
 
-// 馥靈馥語 AI 解讀提示詞產生器
+// 易經覺察占卜 AI 解讀指令產生器
 function copyAIPrompt(){
+  if(typeof hlAIGateCheck==='function'){
+    hlAIGateCheck(function(){ _copyAIPromptInner(); });
+    return;
+  }
+  _copyAIPromptInner();
+}
+function _copyAIPromptInner(){
   if(!castData)return;
   const p=parseHex(castData.lines);
   const lineNames=['初爻','二爻','三爻','四爻','五爻','上爻'];
@@ -1231,22 +1376,13 @@ function copyAIPrompt(){
   const wxR=getWxRelation(bWx,biWx);
   const wxRN={same:'比和',gen:'相生(本生變)',ke:'相剋(本剋變)',bei_gen:'相生(變生本)',bei_ke:'相剋(變剋本)'}[wxR]||'比和';
 
-  const prompt=`你是「馥靈馥語」解讀師，隸屬於「馥靈之鑰 Hour Light」品牌體系。請根據以下卦象資料，為問事者做出完整深度解讀。
+  const prompt=`你是「馥靈之鑰」易經覺察占卜解讀師，隸屬於「馥靈之鑰 Hour Light」品牌體系。請根據以下卦象資料，為問事者做出完整深度解讀。
 
 ══════ 你的身份與語氣設定 ══════
 
 【品牌】馥靈之鑰 Hour Light（hourlightkey.com）
-【支系】馥靈馥語｜用香氣的語言重新閱讀古老智慧
-【核心哲學】座標哲學。卦象讓你看清「你現在站在哪個座標」。前面有坑就繞路，遇到逆風就收帆。
-
-【馥語的多重意涵】
-「馥語」不只是一個名字，它是一組座標：
-► 賦予：這個卦象賦予你看見座標的能力
-► 腹語：聽聽內心沒說出口的那句話
-► 付與：你願意為改變付出什麼？
-► 復與：失去的不回來，但新的會以你想不到的方式到來
-► 富予：當你開始給予，豐盛就會回流
-► 富羽：讓翅膀豐滿，準備起飛
+【工具】易經覺察占卜｜融合梅花易數、納甲六爻、京房易的現代卜卦系統
+【核心哲學】座標哲學。卦象讓你看清「你現在站在哪個座標」。前面有坑就繞路，遇到逆風就收帆。命盤不是命定劇本，是你的人生藏寶圖。
 
 【語氣要求】
 ► 像一個很懂你的閨蜜在跟你說真話，溫暖但不軟弱
@@ -1323,9 +1459,8 @@ function copyAIPrompt(){
 ► 每個建議要帶有時間感（今天可以做 / 這週可以做 / 這個月可以做）
 ► 搭配建議的精油或香氣校準方式
 
-【五、馥靈馥語 · 收束】
+【五、覺察收束｜鑰匙遞給您，城堡自己開】
 ► 用一段帶有香氣意象的文字，把整個解讀溫暖地收束
-► 從「馥語」六層意涵（賦予/腹語/付與/復與/富予/富羽）中挑一個最適合的切入
 ► 結尾必須讓問事者覺得「我可以自己做到」
 
 ══════ 延伸（選填）══════
@@ -1339,7 +1474,7 @@ function copyAIPrompt(){
 🔗 線上抽牌：hourlightkey.com/draw-hl.html
 🔗 預約認證馥靈覺察師：hourlightkey.com/services.html`;
 
-  navigator.clipboard.writeText(prompt).then(()=>showToast('AI 解讀提示詞已複製！貼到任一 AI 即可深度解讀'));
+  navigator.clipboard.writeText(prompt).then(()=>showToast('智慧解讀指令已複製！貼到任一 AI 即可深度解讀'));
 }
 
 function copyResult(){
@@ -1351,7 +1486,7 @@ function copyResult(){
     return lineNames[i]+'：'+(yang?'陽':'陰')+(chg?' (動)':'');
   }).join('\n');
 
-  const txt=`【馥靈馥語｜卦象紀錄】
+  const txt=`【易經覺察占卜｜卦象紀錄】
 
 問事：`+castData.question+`
 方法：`+({coin:'銅錢六爻',plum:'梅花易數',text:'文字起卦',time:'時間起卦'})[castData.method]+`
@@ -1366,7 +1501,7 @@ function copyResult(){
 
 `+yaoDesc+`
 
-馥靈馥語：`+p.benH.d.fuyu+`
+卦語：`+p.benH.d.fuyu+`
 
 H.O.U.R. 座標：
 H 身心校準：`+p.benH.d.n+`
@@ -1382,7 +1517,7 @@ R 行動進化：前往 draw-hl.html 抽一張牌卡校準
 function copyForLine(){
   if(!castData)return;
   const p=parseHex(castData.lines);
-  const txt=`【馥靈馥語】
+  const txt=`【易經覺察占卜｜馥靈之鑰】
 問：`+castData.question+`
 本卦：`+p.benH.d.n+'（'+p.benH.d.j+'）'+`
 變卦：`+p.bianH.d.n+`
@@ -1483,6 +1618,480 @@ function toggleLegalContent(){
   if(t&&c){t.classList.toggle('active');c.classList.toggle('active');}
 }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
+<script src="js/ai-frameworks.js">
+// ════════════════════════════════════════════════════
+// 易經覺察占卜 強化版 JS
+// A: 問題分類、旬空標示、歷史記錄、卦象視覺
+// B: 月建日辰、意圖偵測
+// C: 卦象日記（Firebase）、對比卦
+// ════════════════════════════════════════════════════
+
+// ── 問題分類 ──
+var currentCategory = 'general';
+var CAT_NAMES = {general:'綜合',love:'感情',career:'事業',money:'財運',health:'健康',decision:'決策'};
+var CAT_FOCUS = {
+  general:'',
+  love:'（感情問題角度：解讀感情現況、對方心態、雙方緣份深淺、未來走向）',
+  career:'（事業問題角度：職場態勢、升遷時機、貴人出現方位、適合進退策略）',
+  money:'（財運問題角度：財祿卦象、用神力量、動財時機、理財決策建議）',
+  health:'（健康問題角度：卦象五行對應臟腑、旺衰、調養方向）',
+  decision:'（決策問題角度：利弊分析、最佳時機、可行vs不可行、注意事項）'
+};
+
+function setCat(btn){
+  document.querySelectorAll('.cat-btn').forEach(b=>{
+    b.style.background='transparent';
+    b.style.color='rgba(233,194,125,.65)';
+    b.style.borderColor='rgba(233,194,125,.2)';
+  });
+  btn.style.background='rgba(233,194,125,.15)';
+  btn.style.color='rgba(233,194,125,.95)';
+  btn.style.borderColor='rgba(233,194,125,.45)';
+  currentCategory = btn.dataset.cat;
+}
+
+// 意圖智能偵測（B功能）
+function detectCategory(question){
+  if(!question) return 'general';
+  var q = question;
+  if(/他|她|情感|戀愛|感情|分手|交往|喜歡|愛|曖昧|復合|婚|另一半|伴侶|對方/.test(q)) return 'love';
+  if(/工作|事業|職場|升遷|轉職|面試|創業|合作|客戶|老闆|跳槽|項目|計畫/.test(q)) return 'career';
+  if(/錢|財|投資|賺|借|股票|理財|收入|虧|賠|生意|合約/.test(q)) return 'money';
+  if(/健康|身體|病|症狀|醫|手術|調養|睡眠|疲勞|能量/.test(q)) return 'health';
+  if(/要不要|選擇|決定|該|值不值|可不可以|適不適合/.test(q)) return 'decision';
+  return 'general';
+}
+
+// ── 旬空計算 ──
+// 60甲子旬空對照
+var XUN_KONG = {
+  '甲子':['戌','亥'],'甲戌':['申','酉'],'甲申':['午','未'],
+  '甲午':['辰','巳'],'甲辰':['寅','卯'],'甲寅':['子','丑']
+};
+// 天干地支對照（從2026/3/25起算）
+var STEMS10 = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+var BRANCHES12 = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+// 2026/3/25 是甲午日（dayNum=20570 from epoch）
+var BASE_DAY = 20570; // 2026/3/25
+var BASE_STEM = 0;    // 甲
+var BASE_BRANCH = 6;  // 午
+
+function getDayStemBranch(){
+  var dayNum = Math.floor(Date.now()/86400000);
+  var diff = dayNum - BASE_DAY;
+  var stemIdx = ((BASE_STEM + diff) % 10 + 10) % 10;
+  var branchIdx = ((BASE_BRANCH + diff) % 12 + 12) % 12;
+  return { stem: STEMS10[stemIdx], branch: BRANCHES12[branchIdx] };
+}
+
+function getXunKong(dayInfo){
+  // 找所在旬
+  var s = dayInfo.stem, b = dayInfo.branch;
+  var stemIdx = STEMS10.indexOf(s);
+  var branchIdx = BRANCHES12.indexOf(b);
+  // 旬首：找同組甲（stem=0，同餘）
+  var xunStart = BRANCHES12[(branchIdx - stemIdx + 12) % 12];
+  var xunKey = '甲' + xunStart;
+  return XUN_KONG[xunKey] || [];
+}
+
+// ── 月建日辰計算（B功能）──
+function getLunarInfo(){
+  try {
+    if(typeof Lunar === 'undefined') return null;
+    var now = new Date();
+    var l = Lunar.fromDate(now);
+    return {
+      monthBranch: ['寅','卯','辰','巳','午','未','申','酉','戌','亥','子','丑'][((l.getMonth()-1)+12)%12],
+      dayBranch: l.getDayInGanZhi().slice(-1),  // 取地支
+      dayGanZhi: l.getDayInGanZhi(),
+      monthGanZhi: l.getMonthInGanZhi()
+    };
+  } catch(e){ return null; }
+}
+
+function branchRelation(a, b){
+  if(a===b) return 'same';
+  var CHONG = {子:'午',丑:'未',寅:'申',卯:'酉',辰:'戌',巳:'亥',午:'子',未:'丑',申:'寅',酉:'卯',戌:'辰',亥:'巳'};
+  var HE = {子:'丑',丑:'子',寅:'亥',卯:'戌',辰:'酉',巳:'申',午:'未',未:'午',申:'巳',酉:'辰',戌:'卯',亥:'寅'};
+  if(CHONG[a]===b) return 'chong';
+  if(HE[a]===b) return 'he';
+  return '';
+}
+
+// ── 強化版 renderNajia（含旬空、月建日辰標示）──
+var _origRenderNajia = renderNajia;
+renderNajia = function(p){
+  var nc = document.getElementById('najiaContent');
+  if(!p) return;
+
+  var lowerTri = TRIGRAMS[p.benH.l].name;
+  var upperTri = TRIGRAMS[p.benH.u].name;
+  var lData = NAJIA[lowerTri]||NAJIA['乾'];
+  var uData = NAJIA[upperTri]||NAJIA['乾'];
+  var hexWx = p.benH.d.wx;
+
+  var dayInfo = getDayStemBranch();
+  var xunKong = getXunKong(dayInfo);
+  var lunarInfo = getLunarInfo();
+  var beastStart = ({'甲':0,'乙':0,'丙':1,'丁':1,'戊':2,'己':3,'庚':4,'辛':4,'壬':5,'癸':5})[dayInfo.stem]||0;
+
+  var rows='';
+  for(var i=5;i>=0;i--){
+    var isUpper=i>=3;
+    var triData=isUpper?uData:lData;
+    var localIdx=isUpper?i-3:i;
+    var branch=triData.br[localIdx];
+    var brWx=triData.wx[localIdx];
+    var yaoType=p.ben[i]?'陽':'陰';
+    var isChg=p.chgLines.includes(i);
+    var beast=SIX_BEASTS[(beastStart+i)%6];
+    var rel=getWxRelation(hexWx,brWx);
+    var relName=SIX_REL[rel]||'兄弟';
+    var shiying='';
+    if(i===p.shiYing[0]) shiying='<span style="color:#f0d48a;font-weight:700">世</span>';
+    if(i===p.shiYing[1]) shiying='<span style="color:rgba(200,180,240,.9);font-weight:700">應</span>';
+
+    var elClass='ff-el ff-el-'+WX_MAP[brWx];
+    var rowClass=isChg?'ff-changing-row':'';
+
+    // 旬空標示
+    var xkMark='';
+    if(xunKong.includes(branch)){
+      xkMark=' <span title="旬空" style="color:rgba(180,160,220,.7);font-size:.72rem;border:1px solid rgba(180,160,220,.3);border-radius:4px;padding:0 4px">空</span>';
+      if(!rowClass) rowClass='ff-xunkong-row';
+    }
+
+    // 月建日辰標示
+    var relMark='';
+    if(lunarInfo){
+      var mRel=branchRelation(branch,lunarInfo.monthBranch);
+      var dRel=branchRelation(branch,lunarInfo.dayBranch);
+      if(mRel==='chong') relMark+=' <span title="月建相沖" style="color:#e07070;font-size:.72rem;border:1px solid rgba(220,100,100,.3);border-radius:4px;padding:0 4px">月沖</span>';
+      if(mRel==='he') relMark+=' <span title="月建相合" style="color:#70c0a0;font-size:.72rem;border:1px solid rgba(100,200,160,.3);border-radius:4px;padding:0 4px">月合</span>';
+      if(dRel==='chong') relMark+=' <span title="日辰相沖" style="color:#e09050;font-size:.72rem;border:1px solid rgba(220,150,80,.3);border-radius:4px;padding:0 4px">日沖</span>';
+      if(dRel==='he') relMark+=' <span title="日辰相合" style="color:#a0d0f0;font-size:.72rem;border:1px solid rgba(160,200,240,.3);border-radius:4px;padding:0 4px">日合</span>';
+    }
+
+    rows+='<tr class="'+rowClass+'">'
+      +'<td>'+['初','二','三','四','五','上'][i]+'爻</td>'
+      +'<td>'+yaoType+(isChg?' ⟡':'')+'</td>'
+      +'<td>'+branch+xkMark+relMark+'</td>'
+      +'<td><span class="'+elClass+'">'+brWx+'</span></td>'
+      +'<td>'+relName+'</td>'
+      +'<td>'+beast+'</td>'
+      +'<td>'+shiying+'</td>'
+      +'</tr>';
+  }
+
+  var lunarLine = lunarInfo
+    ? '月建：'+lunarInfo.monthBranch+'（'+lunarInfo.monthGanZhi+'）｜日辰：'+lunarInfo.dayBranch+'（'+lunarInfo.dayGanZhi+'）'
+    : '';
+  var xkLine = xunKong.length
+    ? '旬空：'+xunKong.join('、')+'（旬空爻位力量減弱，需注意）'
+    : '本旬無空亡';
+
+  nc.innerHTML='<div style="font-size:.85rem;color:var(--ff-ink-soft);margin-bottom:12px;text-align:center;line-height:2">'
+    +'日干：'+dayInfo.stem+'｜卦宮五行：'+hexWx+'｜動爻：'+(p.chgLines.length?p.chgLines.map(function(i){return ['初','二','三','四','五','上'][i]+'爻';}).join('、'):'無動爻（靜卦）')+'<br>'
+    +(lunarLine?lunarLine+'<br>':'')
+    +xkLine
+    +'</div>'
+    +'<div style="overflow-x:auto">'
+    +'<table class="ff-najia-table">'
+    +'<thead><tr><th>爻位</th><th>陰陽</th><th>地支</th><th>五行</th><th>六親</th><th>六獸</th><th>世應</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody>'
+    +'</table></div>'
+    +'<div style="margin-top:14px;font-size:.82rem;color:var(--ff-ink-soft);line-height:2;text-align:center">'
+    +'動爻（⟡）是轉折點｜旬空爻位力量打折｜世爻=問卦人，應爻=所問之事<br>'
+    +'月沖日沖=此爻在當前時間點受衝動，需留意；月合日合=有助力'
+    +'</div>';
+};
+
+// ── 卦象歷史記錄（A功能）──
+var HISTORY_KEY = 'hl_yijing_history';
+function loadHistory(){ try{ return JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]'); }catch(e){return[];} }
+function saveHistory(arr){ try{ localStorage.setItem(HISTORY_KEY,JSON.stringify(arr.slice(0,10))); }catch(e){} }
+
+function addToHistory(q, hexName, category){
+  var arr = loadHistory();
+  arr.unshift({ ts:Date.now(), q:q, hex:hexName, cat:category||'general' });
+  saveHistory(arr);
+  renderHistory();
+}
+
+function renderHistory(){
+  var arr = loadHistory();
+  var panel = document.getElementById('historyPanel');
+  var list = document.getElementById('historyList');
+  if(!arr.length){ panel.style.display='none'; return; }
+  panel.style.display='block';
+  list.innerHTML = arr.map(function(item,i){
+    var d = new Date(item.ts);
+    var time = (d.getMonth()+1)+'/'+(d.getDate())+' '+(d.getHours()+':')+(String(d.getMinutes()).padStart(2,'0'));
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(233,194,125,.04);cursor:pointer;transition:.2s" '
+      +'onclick="reloadCast('+i+')" onmouseover="this.style.background=\'rgba(233,194,125,.08)\'" onmouseout="this.style.background=\'rgba(233,194,125,.04)\'">'
+      +'<span style="font-size:.72rem;color:rgba(233,194,125,.5);flex-shrink:0;width:60px">'+time+'</span>'
+      +'<span style="font-size:.82rem;color:rgba(233,194,125,.8);font-family:var(--ff-oracle);flex-shrink:0;width:60px">'+item.hex+'</span>'
+      +'<span style="font-size:.82rem;color:rgba(255,255,255,.55);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+item.q+'</span>'
+      +'<span style="font-size:.72rem;color:rgba(233,194,125,.4);flex-shrink:0">'+CAT_NAMES[item.cat||'general']+'</span>'
+      +'</div>';
+  }).join('');
+}
+
+function clearHistory(){
+  if(confirm('確定要清除所有卦象紀錄？')) {
+    localStorage.removeItem(HISTORY_KEY);
+    renderHistory();
+  }
+}
+
+function reloadCast(idx){
+  // 顯示歷史紀錄（唯讀）
+  var arr = loadHistory();
+  var item = arr[idx];
+  if(!item) return;
+  showToast('「'+item.hex+'」—— '+item.q);
+}
+
+// ── 對比卦功能（C功能）──
+var prevCastData = null;
+
+function startCompare(){
+  if(!castData) return;
+  if(!prevCastData){
+    showToast('請先起卦一次作為基準，再起一卦進行對比');
+    return;
+  }
+  renderCompare(prevCastData, castData);
+}
+
+function renderCompare(cast1, cast2){
+  var sec = document.getElementById('compareSection');
+  var con = document.getElementById('compareContent');
+  sec.classList.remove('hidden');
+  sec.scrollIntoView({behavior:'smooth',block:'start'});
+
+  var p1 = parseHex(cast1.lines), p2 = parseHex(cast2.lines);
+  var sameMainHex = p1.benH.d.n === p2.benH.d.n;
+  var sameBianHex = p1.bianH.d.n === p2.bianH.d.n;
+  var sameWx = p1.benH.d.wx === p2.benH.d.wx;
+
+  var summary = '';
+  if(sameMainHex) summary = '⚡ 兩次得到同一個卦「'+p1.benH.d.n+'」——卦象在強調，這件事很確定。';
+  else if(sameWx) summary = '兩次本卦五行相同（'+p1.benH.d.wx+'），方向一致，只是角度不同。';
+  else summary = '兩次卦象不同，說明這個問題本身還在流動，沒有定數。';
+
+  con.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">'
+    +'<div style="text-align:center;padding:16px;border-radius:12px;background:rgba(233,194,125,.04);border:1px solid rgba(233,194,125,.12)">'
+    +'<div style="font-size:.75rem;color:rgba(233,194,125,.5);margin-bottom:8px">第一卦</div>'
+    +'<div style="font-family:var(--ff-oracle);color:var(--ff-gold);font-size:1.2rem">'+p1.benH.d.n+'</div>'
+    +'<div style="font-size:.82rem;color:rgba(255,255,255,.5);margin-top:4px">變：'+p1.bianH.d.n+'</div>'
+    +'<div style="font-size:.78rem;color:rgba(255,255,255,.4);margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+cast1.question+'</div>'
+    +'</div>'
+    +'<div style="text-align:center;padding:16px;border-radius:12px;background:rgba(233,194,125,.04);border:1px solid rgba(233,194,125,.12)">'
+    +'<div style="font-size:.75rem;color:rgba(233,194,125,.5);margin-bottom:8px">第二卦</div>'
+    +'<div style="font-family:var(--ff-oracle);color:var(--ff-gold);font-size:1.2rem">'+p2.benH.d.n+'</div>'
+    +'<div style="font-size:.82rem;color:rgba(255,255,255,.5);margin-top:4px">變：'+p2.bianH.d.n+'</div>'
+    +'<div style="font-size:.78rem;color:rgba(255,255,255,.4);margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+cast2.question+'</div>'
+    +'</div>'
+    +'</div>'
+    +'<div style="padding:16px;border-radius:12px;background:rgba(233,194,125,.06);border:1px solid rgba(233,194,125,.2);font-size:.92rem;color:rgba(249,240,229,.8);line-height:1.9">'
+    +'<div style="color:var(--ff-gold);font-weight:600;margin-bottom:8px">卦意對比解讀</div>'
+    +summary
+    +(sameMainHex?'':'<br>本卦從「'+p1.benH.d.n+'」變成「'+p2.benH.d.n+'」，兩個卦的核心差異：'+p1.benH.d.img+' vs '+p2.benH.d.img+'。')
+    +(sameBianHex?'<br>兩次的變卦都是「'+p1.bianH.d.n+'」，說明最終走向是一致的。':'')
+    +'</div>';
+}
+
+// ── 卦象日記（C功能 / Firebase）──
+function saveDiary(q, hexName, hexJudge, category, aiPrompt){
+  if(typeof firebase==='undefined'||!firebase.auth) return;
+  var user = firebase.auth().currentUser;
+  if(!user) return;
+  var db = firebase.firestore();
+  db.collection('users').doc(user.uid).collection('yijing_diary').add({
+    ts: Date.now(),
+    question: q,
+    hexName: hexName,
+    hexJudge: hexJudge,
+    category: category||'general',
+    aiPromptSnippet: (aiPrompt||'').slice(0,200),
+    createdAt: new Date().toISOString()
+  }).then(function(){
+    loadDiary(user.uid);
+  }).catch(function(){});
+}
+
+function loadDiary(uid){
+  var db = firebase.firestore();
+  db.collection('users').doc(uid).collection('yijing_diary')
+    .orderBy('ts','desc').limit(20).get().then(function(snap){
+      var panel = document.getElementById('diaryPanel');
+      var list = document.getElementById('diaryList');
+      if(!snap||snap.empty){ panel.style.display='none'; return; }
+      panel.style.display='block';
+      var html='';
+      snap.forEach(function(doc){
+        var d=doc.data();
+        var dt=new Date(d.ts);
+        var time=(dt.getMonth()+1)+'/'+(dt.getDate())+' '+dt.getHours()+':'+String(dt.getMinutes()).padStart(2,'0');
+        html+='<div style="padding:10px 12px;border-radius:10px;border:1px solid rgba(233,194,125,.1);margin-bottom:8px;background:rgba(233,194,125,.02)">'
+          +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">'
+          +'<span style="font-size:.72rem;color:rgba(233,194,125,.5)">'+time+'</span>'
+          +'<span style="font-family:var(--ff-oracle);color:var(--ff-gold);font-size:.88rem">'+d.hexName+'</span>'
+          +'<span style="font-size:.72rem;color:rgba(233,194,125,.4)">'+CAT_NAMES[d.category||'general']+'</span>'
+          +'</div>'
+          +'<div style="font-size:.82rem;color:rgba(255,255,255,.5)">'+d.question+'</div>'
+          +'</div>';
+      });
+      list.innerHTML = html;
+    }).catch(function(){});
+}
+
+// ── Hook：在起卦完成後做所有整合 ──
+var _origRenderResult = renderResult;
+renderResult = function(p, question){
+  // 自動偵測分類（如果還是 general）
+  if(currentCategory==='general'){
+    var detected = detectCategory(question);
+    if(detected!=='general'){
+      var btn = document.querySelector('.cat-btn[data-cat="'+detected+'"]');
+      if(btn) setCat(btn);
+    }
+  }
+
+  // 呼叫原本的 renderResult
+  _origRenderResult(p, question);
+
+  // 對比卦按鈕邏輯
+  var compareBtn = document.getElementById('compareBtn');
+  if(compareBtn){
+    if(prevCastData){
+      compareBtn.style.display='inline-flex';
+    }
+    prevCastData = castData ? JSON.parse(JSON.stringify(castData)) : null;
+  }
+
+  // 歷史記錄
+  addToHistory(question, p.benH.d.n, currentCategory);
+
+  // 登入後存 Firebase 日記
+  if(typeof firebase!=='undefined' && firebase.auth){
+    var user = firebase.auth().currentUser;
+    if(user) saveDiary(question, p.benH.d.n, p.benH.d.j, currentCategory, '');
+  }
+};
+
+// ── 頁面載入：顯示歷史 ──
+document.addEventListener('DOMContentLoaded', function(){
+  renderHistory();
+  // Firebase 載入後的日記
+  setTimeout(function(){
+    if(typeof firebase!=='undefined'&&firebase.auth){
+      firebase.auth().onAuthStateChanged(function(user){
+        if(user) loadDiary(user.uid);
+      });
+    }
+  },1500);
+});
+
+// ── 強化版 copyAIPrompt：加入分類和意圖 ──
+var _origCopyAIPrompt = copyAIPrompt;
+copyAIPrompt = function(){
+  if(!castData) return;
+  // 先執行原版但攔截最後 writeText
+  var p = parseHex(castData.lines);
+
+  // 取得問題意圖
+  var q = castData.question;
+  var cat = currentCategory;
+  var catFocus = CAT_FOCUS[cat]||'';
+  var detectedCat = detectCategory(q);
+
+  // 月建日辰資訊
+  var lunarInfo = getLunarInfo();
+  var dayInfo = getDayStemBranch();
+  var xunKong = getXunKong(dayInfo);
+  var lunarAppend = lunarInfo
+    ? '\n\n【起卦時的時間座標】\n月建：'+lunarInfo.monthBranch+'（'+lunarInfo.monthGanZhi+'）\n日辰：'+lunarInfo.dayBranch+'（'+lunarInfo.dayGanZhi+'）\n旬空：'+xunKong.join('、')+'（旬空爻位力量減弱）'
+    : '';
+
+  // 呼叫原版 copyAIPrompt，但在其基礎上加入額外資訊
+  // 由於原版直接 clipboard.writeText，我們需要重新生成
+  var lineNames=['初爻','二爻','三爻','四爻','五爻','上爻'];
+  var yaoDetail=castData.lines.map(function(v,i){
+    var yang=v===7||v===9;var chg=v===6||v===9;
+    return lineNames[i]+'：'+(yang?'陽(—)':'陰(- -)')+(chg?(v===9?' ○ 老陽(動爻，陽變陰)':' ✕ 老陰(動爻，陰變陽)'):(yang?' 少陽(靜)':' 少陰(靜)'));
+  }).join('\n');
+
+  var lTri=TRIGRAMS[p.benH.l].name,uTri=TRIGRAMS[p.benH.u].name;
+  var lD=NAJIA[lTri]||NAJIA['乾'],uD=NAJIA[uTri]||NAJIA['乾'];
+  var hWx=p.benH.d.wx;
+  var ds=dayInfo.stem;
+  var bs=({'甲':0,'乙':0,'丙':1,'丁':1,'戊':2,'己':3,'庚':4,'辛':4,'壬':5,'癸':5})[ds]||0;
+  var now=new Date();
+
+  var najia='';
+  for(var i=0;i<6;i++){
+    var isU=i>=3,td=isU?uD:lD,li=isU?i-3:i;
+    var br=td.br[li],bw=td.wx[li];
+    var yang=p.ben[i]?'陽':'陰';
+    var chg=p.chgLines.includes(i);
+    var beast=SIX_BEASTS[(bs+i)%6];
+    var rel=getWxRelation(hWx,bw);
+    var relN=SIX_REL[rel]||'兄弟';
+    var sy='';if(i===p.shiYing[0])sy='【世】';if(i===p.shiYing[1])sy='【應】';
+    var xk=xunKong.includes(br)?'(旬空)':'';
+    var mrel=lunarInfo?branchRelation(br,lunarInfo.monthBranch):'';
+    var drel=lunarInfo?branchRelation(br,lunarInfo.dayBranch):'';
+    var tags=(mrel==='chong'?'月沖':'')+(mrel==='he'?'月合':'')+(drel==='chong'?'日沖':'')+(drel==='he'?'日合':'');
+    najia+=lineNames[i]+'：'+yang+(chg?' (動)':'')+'｜'+br+xk+(tags?' '+tags:'')+'('+bw+')｜'+relN+'｜'+beast+' '+sy+'\n';
+  }
+
+  var bWx=p.benH.d.wx,biWx=p.bianH.d.wx;
+  var wxR=getWxRelation(bWx,biWx);
+  var wxRN={same:'比和',gen:'相生(本生變)',ke:'相剋(本剋變)',bei_gen:'相生(變生本)',bei_ke:'相剋(變剋本)'}[wxR]||'比和';
+
+  var prompt = '你是「馥靈之鑰」易經覺察占卜解讀師，隸屬於「馥靈之鑰 Hour Light」品牌體系。請根據以下卦象資料，為問事者做出完整深度解讀。\n\n'
+    +'【問事者的問題】\n'+q+'\n'
+    +'【問題分類】'+CAT_NAMES[cat]+catFocus+'\n'
+    +'【起卦方式】'+({coin:'銅錢六爻',plum:'梅花易數',text:'文字起卦',time:'時間起卦'})[castData.method||'coin']+'\n'
+    +'【起卦時間】'+now.toLocaleString('zh-TW')
+    +lunarAppend+'\n\n'
+    +'【六爻詳細】\n'+yaoDetail+'\n\n'
+    +'【動爻】'+(p.chgLines.length?p.chgLines.map(function(i){return lineNames[i];}).join('、'):'無動爻（靜卦）')+'\n'
+    +(p.chgLines.length&&p.benH.d.yao?p.chgLines.map(function(i){return '  '+lineNames[i]+'動：'+(p.benH.d.yao[i]||'');}).join('\n')+'\n':'\n')
+    +'【本卦】'+p.benH.d.n+'\n'
+    +'上卦：'+TRIGRAMS[p.benH.u].name+'（'+TRIGRAMS[p.benH.u].nature+'，'+TRIGRAMS[p.benH.u].element+'，'+TRIGRAMS[p.benH.u].attr+'）\n'
+    +'下卦：'+TRIGRAMS[p.benH.l].name+'（'+TRIGRAMS[p.benH.l].nature+'，'+TRIGRAMS[p.benH.l].element+'，'+TRIGRAMS[p.benH.l].attr+'）\n'
+    +'卦辭：'+p.benH.d.j+'\n大象：'+p.benH.d.img+'\n五行：'+p.benH.d.wx+'\n\n'
+    +'【變卦】'+p.bianH.d.n+'\n卦辭：'+p.bianH.d.j+'\n五行：'+p.bianH.d.wx+'\n\n'
+    +'【互卦】'+p.huH.d.n+' | 【錯卦】'+p.cuoH.d.n+' | 【綜卦】'+p.zongH.d.n+'\n\n'
+    +'【本卦與變卦五行】'+bWx+' → '+biWx+'（'+wxRN+'）\n\n'
+    +'【納甲六爻（京房易）】\n日干：'+ds+'｜卦宮五行：'+hWx+'\n'+najia+'\n'
+    +'══════ 請按以下架構解讀 ══════\n\n'
+    +'【H｜Heal 身心校準｜本卦】針對問題「'+q+'」，本卦揭示什麼現狀？'+(catFocus?'\n特別聚焦：'+catFocus:'')+'\n\n'
+    +'【O｜Own 智慧辨識｜互卦+錯卦+綜卦】問事者的盲點是什麼？世應關係說明主客態勢。\n\n'
+    +'【U｜Unlock 潛能解鎖｜變卦】突破口在哪裡？五行生剋關係代表什麼行動方向？\n\n'
+    +'【R｜Rise 行動進化】3個具體可執行建議（今天/這週/這個月各一個），帶精油建議。\n\n'
+    +'【覺察收束｜鑰匙遞給您，城堡自己開】用一段帶香氣意象的文字收束。\n\n'
+    +'🔗 馥靈之鑰 hourlightkey.com';
+
+  navigator.clipboard.writeText(prompt).then(function(){
+    showToast('智慧解讀指令已複製！貼到任一 AI 即可深度解讀');
+    // 儲存到日記（帶 prompt 摘要）
+    if(castData && typeof firebase!=='undefined'&&firebase.auth&&firebase.auth().currentUser){
+      saveDiary(q, p.benH.d.n, p.benH.d.j, cat, prompt);
+    }
+  }).catch(function(e){
+    var t=document.createElement('textarea');t.value=prompt;t.style.cssText='position:fixed;opacity:0';
+    document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);
+    showToast('智慧解讀指令已複製！');
+  });
+};
+
+</script>
 <script src="assets/js/hl-topnav.js"></script>
 <script src="assets/js/hl-bottomnav.js"></script>
 <script src="assets/js/hl-announce.js"></script>
@@ -1492,6 +2101,7 @@ function toggleLegalContent(){
 <script src="assets/js/firebase-config.js"></script>
 <script src="assets/js/hl-referral.js?v=20260323"></script>
 <script src="assets/js/hl-ai-gate.js"></script>
+<!-- yijing-oracle 只鎖 AI 按鈕，不鎖整頁 -->
 <script src="assets/js/hl-gate.js"></script>
 <script src="assets/js/hl-record.js"></script>
 <script src="assets/js/hl-email.js"></script>
