@@ -236,7 +236,7 @@ body{
 .c-front.rv .c-div{background:linear-gradient(90deg,transparent,rgba(150,80,220,.8),transparent)}
 .c-zh{font-family:"LXGW WenKai TC","Noto Serif TC",serif;font-size:1rem;font-weight:500;letter-spacing:.08em;text-align:center;color:var(--ink);line-height:1.3}
 .c-en{font-size:.56rem;text-align:center;letter-spacing:.04em;margin-top:2px;opacity:1;color:var(--ink-soft)}
-.c-kw{font-size:.95rem;text-align:center;margin-top:5px;letter-spacing:.03em;line-height:1.5;padding:0 4px}
+.c-kw{font-size:.95rem;text-align:center;margin-top:5px;letter-spacing:.03em;line-height:1.5;padding:0 4px;-webkit-user-select:none;user-select:none}
 .c-front.up .c-kw{color:var(--gold);opacity:.85}
 .c-front.rv .c-kw{color:#c998ff;opacity:.82}
 .c-pos-tag{margin-top:7px;padding:3px 11px;border-radius:999px;font-size:.95rem;font-weight:700;letter-spacing:.1em;display:flex;align-items:center;gap:4px}
@@ -661,8 +661,7 @@ cpyBtn.addEventListener('click',function(){
     var p=pos[i]?'【'+pos[i]+'】':'第'+(i+1)+'張';
     txt+=p+'\n';
     txt+='  牌名：'+c.zh+'（'+c.en+'）\n';
-    txt+='  方位：'+(c.rev?'🔻 逆位':'🔺 正位')+'\n';
-    txt+='  關鍵詞：'+(c.rev?c.kr:c.ku)+'\n\n';
+    txt+='  方位：'+(c.rev?'🔻 逆位':'🔺 正位')+'\n\n';
   });
   txt+='───────────────────────\n';
   txt+='\n💫 想了解牌卡的深層訊息？\n預約馥靈覺察師為您完整解讀 👉 https://lin.ee/RdQBFAN\n\n';
@@ -680,6 +679,13 @@ aiBtn.addEventListener('click',function(){
   // AI 門控檢查（計次）
   if(typeof hlAIGateCheck==='function'){
     hlAIGateCheck(function(){ _doTarotAICopy(); });
+    return;
+  }
+  // fallback：至少要登入
+  var auth=window.firebase&&firebase.auth();
+  if(!auth||!auth.currentUser){
+    alert('請先登入會員才能複製 AI 解讀指令');
+    var lb=document.querySelector('[data-action="login"]');if(lb)lb.click();
     return;
   }
   _doTarotAICopy();
