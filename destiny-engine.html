@@ -5395,19 +5395,22 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
   hYJ+='<div class="ai-box"><h4>📜 命盤資料</h4><pre id="aiYJ">'+aiYJ+'</pre><button class="cp" onclick="copyText(\'aiYJ\')">📋 複製命盤資料</button><button class="cp" style="margin-left:8px;background:rgba(160,124,220,.15);border-color:rgba(160,124,220,.3)" onclick="copyAIPrompt(\'aiYJ\',\'yijing\')">🔮 複製智慧解讀指令</button></div>';
   addP(ps,hYJ);
 
+  // 計算日干支索引（供奇門遁甲使用）
+  var _dGanI=TG.indexOf(ec.getDayGan()), _dZhiI=DZ.indexOf(ec.getDayZhi());
+
   // ═══ 🆕 系統 29：奇門遁甲（簡化版·生辰定局）═══
   var QM_STARS=['天蓬','天芮','天沖','天輔','天禽','天心','天柱','天任','天英'];
   var QM_DOORS=['休門','死門','傷門','杜門','中宮','開門','驚門','生門','景門'];
   var QM_3Q=['乙奇','丙奇','丁奇'];
   // 簡化：用日干和時辰決定值符星和值使門
-  var qmJu=((dStemIdx%9)+1); // 局數 1-9
-  var qmStarIdx=(dStemIdx+hzI)%9;
-  var qmDoorIdx=(hzI+dBranchIdx)%9;
+  var qmJu=((_dGanI%9)+1); // 局數 1-9
+  var qmStarIdx=(_dGanI+hzI)%9;
+  var qmDoorIdx=(hzI+_dZhiI)%9;
   var qmStar=QM_STARS[qmStarIdx];
   var qmDoor=QM_DOORS[qmDoorIdx<0?0:qmDoorIdx];
-  var qm3q=QM_3Q[dStemIdx%3];
-  var qmFuyin=(dStemIdx===hzI%10)?'⚠️ 伏吟格局（天地盤重疊，事情膠著）':'';
-  var qmFanyin=(Math.abs(dStemIdx-hzI%10)===5)?'⚠️ 反吟格局（天地盤對沖，事情反覆）':'';
+  var qm3q=QM_3Q[_dGanI%3];
+  var qmFuyin=(_dGanI===hzI%10)?'⚠️ 伏吟格局（天地盤重疊，事情膠著）':'';
+  var qmFanyin=(Math.abs(_dGanI-hzI%10)===5)?'⚠️ 反吟格局（天地盤對沖，事情反覆）':'';
   var hQM='<h3>🔮 奇門遁甲（生辰定局）</h3>';
   hQM+='<div class="item"><span class="lbl">局數</span><span class="rs">'+(['陽','陰'][(M>6)?1:0])+'遁第 '+qmJu+' 局</span></div>';
   hQM+='<div class="item"><span class="lbl">值符星</span><span class="rs">'+qmStar+'</span></div>';
