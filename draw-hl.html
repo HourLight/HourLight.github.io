@@ -364,6 +364,10 @@
       color: var(--hl-v2-ink-main);
       font-size: 1rem;
       line-height: 2;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
     }
     .hl-bestie-opener {
       color: var(--hl-v2-rose);
@@ -372,6 +376,8 @@
       margin-bottom: 16px;
       padding-left: 16px;
       border-left: 3px solid var(--hl-v2-rose);
+      -webkit-user-select: none;
+      user-select: none;
     }
     .hl-bestie-body {
       margin-bottom: 20px;
@@ -394,6 +400,8 @@
     .hl-bestie-closer-text {
       color: var(--hl-v2-ink-main);
       font-weight: 500;
+      -webkit-user-select: none;
+      user-select: none;
     }
 
     /* ========== 引流區塊 ========== */
@@ -1305,10 +1313,9 @@
           <span style="font-size:1.5rem">✨</span>
           <span style="font-family:'Noto Serif TC',serif;font-size:1.1rem;color:#f0d48a;letter-spacing:.12em;margin-left:8px" id="aiResultTitle"></span>
         </div>
-        <div id="aiResultContent" style="font-size:.9rem;color:rgba(244,240,235,.85);line-height:2.2;white-space:pre-wrap;word-wrap:break-word"></div>
+        <div id="aiResultContent" style="font-size:.9rem;color:rgba(244,240,235,.85);line-height:2.2;white-space:pre-wrap;word-wrap:break-word;-webkit-user-select:none;user-select:none"></div>
       </div>
       <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;justify-content:center">
-        <button class="hl-v2-btn hl-v2-btn-secondary" onclick="copyAIReading()">📋 複製解讀結果</button>
       </div>
     </div>
   </section>
@@ -1678,6 +1685,12 @@ function renderCards(showExplain) {
       </a>
     `;
     grid.appendChild(ctaDiv);
+
+    // 付費複製牌義按鈕
+    const copyReadingDiv = document.createElement('div');
+    copyReadingDiv.style.cssText = 'text-align:center;margin-top:20px';
+    copyReadingDiv.innerHTML = '<button class="hl-v2-btn hl-v2-btn-secondary" onclick="copyFullReading()" style="opacity:.7;font-size:.85rem">🔒 複製完整牌義（需登入）</button>';
+    grid.appendChild(copyReadingDiv);
   }
 
   // ===== 馬斯洛覺察指數（7張以上才顯示）=====
@@ -2082,14 +2095,42 @@ function showAIError(msg) {
   }
 }
 
-function copyAIReading() {
-  var content = document.getElementById('aiResultContent');
-  if (!content) return;
-  var title = document.getElementById('aiResultTitle');
-  var txt = '【馥靈之鑰｜' + (title ? title.textContent : 'AI 解讀') + '】\n\n';
-  txt += content.textContent;
+// ========== 付費複製完整牌義 ==========
+function copyFullReading() {
+  // 檢查登入狀態
+  var auth = window.firebase && firebase.auth();
+  if (!auth || !auth.currentUser) {
+    showToast('請先登入會員才能複製完整牌義');
+    var loginBtn = document.querySelector('[data-action="login"]') || document.getElementById('loginBtn');
+    if (loginBtn) loginBtn.click();
+    return;
+  }
+  // 收集牌義資料
+  var n = selected.length;
+  var layouts = {
+    1:["✨ 今日一語"],3:["①浮出水面","②水面之下","③那把鑰匙"],
+    7:["①全景掃描","②表層故事","③暗流湧動","④視線之外","⑤手中王牌","⑥啟動指令","⑦深處密語"],
+    12:["第1門","第2門","第3門","第4門","第5門","第6門","第7門","第8門","第9門","第10門","第11門","第12門"],
+    15:["A1","A2","A3","B1","B2","B3","C1","C2","C3","D1","D2","D3","E1","E2","E3"],
+    21:["H×L","H×I","H×G","H×H","H×T","O×L","O×I","O×G","O×H","O×T","U×L","U×I","U×G","U×H","U×T","R×L","R×I","R×G","R×H","R×T","✦"]
+  };
+  var labelArr = layouts[n] || [];
+  var txt = '【馥靈之鑰｜完整牌義】\n';
+  txt += '抽牌張數：' + n + ' 張\n';
+  if (userQuestion && userQuestion.trim()) txt += '提問：' + userQuestion + '\n';
+  txt += '\n';
+  selected.forEach(function(idx, i) {
+    var code = allFiles[idx].replace('.png','');
+    var info = window.cardData ? window.cardData[code] : {};
+    var label = labelArr[i] || (i + 1);
+    txt += '▸ ' + label + '：' + code + ' ' + (info.title || '') + '\n';
+    if (info.sense || info['覺察']) txt += '  覺察：' + (info.sense || info['覺察']) + '\n';
+    if (info.action || info['行動指引']) txt += '  行動指引：' + (info.action || info['行動指引']) + '\n';
+    txt += '\n';
+  });
+  txt += '馥靈之鑰 hourlightkey.com\n';
   navigator.clipboard.writeText(txt).then(function() {
-    showToast('解讀結果已複製');
+    showToast('完整牌義已複製');
   });
 }
 
