@@ -1,89 +1,55 @@
 /**
- * hl-ai-copy.js — 馥靈之鑰 AI 智慧解讀指令複製模組 v1.0
- * 2026/3/24
- *
- * 統一門控邏輯：登入 → 扣次數（日制）→ 從 server 取框架 → 組合資料+框架 → 複製到剪貼簿
- * 螢幕上永遠看不到框架內容，只有剪貼簿裡有
- *
- * 使用方式（HTML）：
- *   <button class="cp" onclick="hlAICopy('ai1','bazi',this)">🔮 複製智慧解讀指令</button>
- *
- * 需要先載入：firebase-app-compat.js + firebase-auth-compat.js + firebase-config.js
+ * hl-ai-copy.js v3.0
+ * 從 window.AI_FRAMEWORKS 讀取框架（由 js/ai-frameworks.js 載入）
+ * 次數管控由 hl-ai-gate.js + hl-usage-wall.js 負責
  */
 (function(){
 'use strict';
 
 window.hlAICopy = function(preId, system, btn) {
-  // 取得命盤資料
   var pre = document.getElementById(preId);
   if (!pre) { alert('找不到命盤資料'); return; }
   var data = pre.textContent;
-
-  // 檢查 Firebase 登入
-  if (typeof firebase === 'undefined' || !firebase.auth || !firebase.auth().currentUser) {
-    if (confirm('🔮 智慧解讀指令為會員功能（免費註冊即可）\n\n每日 3 次免費額度，登入後立即可用。\n\n點「確定」前往登入頁面')) {
-      window.open('member-login.html?from=' + encodeURIComponent(location.pathname.replace(/.*\//,'')), '_blank');
-    }
+  if (typeof hlAIGateCheck === 'function') {
+    hlAIGateCheck(function() { _doCopy(data, system, btn); });
     return;
   }
-
-  var user = firebase.auth().currentUser;
-  if (!btn) btn = event && event.target;
-  var origText = btn ? btn.textContent : '';
-  if (btn) { btn.textContent = '🔮 載入中...'; btn.disabled = true; }
-
-  // 取得 token → 呼叫閘門 API
-  user.getIdToken().then(function(token) {
-    return fetch('https://app.hourlightkey.com/api/ai-framework-gate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify({ system: system })
-    });
-  }).then(function(r) { return r.json(); })
-  .then(function(result) {
-    if (result.error) {
-      if (result.code === 'QUOTA_EXCEEDED') {
-        var hl = result.hoursLeft || '?';
-        alert('⏰ 今日智慧解讀額度已用完（' + result.used + '/' + result.limit + '）\n\n' +
-              '約 ' + hl + ' 小時後（午夜 00:00）自動恢復。\n\n' +
-              '► 免費會員每日 3 次\n' +
-              '► 馥靈鑰友 $399/月：每日 10 次\n' +
-              '► 馥靈大師 $999/月：無限次\n' +
-              '► 單買 10 次 $199，永久有效');
-      } else if (result.code === 'AUTH_REQUIRED' || result.code === 'TOKEN_INVALID') {
-        alert('🔑 登入已過期，請重新登入');
-      } else {
-        alert(result.error);
-      }
-      if (btn) { btn.textContent = origText; btn.disabled = false; }
-      return;
-    }
-    // 組合：命盤資料 + 框架 → 複製到剪貼簿（螢幕上看不到框架）
-    var fullText = data + '\n\n' + result.framework;
-    navigator.clipboard.writeText(fullText).then(function() {
-      var q = result.quota || {};
-      var remain = q.plan === 'pro' ? '∞' : ((q.limit || 3) - (q.used || 0) + (q.bonus || 0));
-      if (btn) {
-        btn.textContent = '✅ 已複製（今日剩餘 ' + remain + ' 次）';
-        btn.style.background = 'rgba(160,124,220,.25)';
-        setTimeout(function() {
-          btn.textContent = origText;
-          btn.style.background = '';
-          btn.disabled = false;
-        }, 2500);
-      }
-    }).catch(function() {
-      alert('複製失敗，請手動操作（iOS 用戶請長按選取）');
-      if (btn) { btn.textContent = origText; btn.disabled = false; }
-    });
-  }).catch(function(e) {
-    console.error('hlAICopy error:', e);
-    if (btn) { btn.textContent = origText; btn.disabled = false; }
-    alert('網路錯誤，請稍後再試');
-  });
+  _doCopy(data, system, btn);
 };
+
+function _doCopy(data, system, btn) {
+  var fw = (window.AI_FRAMEWORKS && window.AI_FRAMEWORKS[system]) || {};
+  var framework = fw.framework || '';
+
+  var txt = '═══ 馥靈之鑰｜' + (fw.title || system) + ' 深度解讀 AI 指令 ═══\n\n';
+  txt += data;
+  if (framework) { txt += '\n\n' + framework; }
+  txt += '\n\n═══ 語氣要求 ═══\n';
+  txt += '► 像一個很懂人的閨蜜在說真話，溫暖但不軟弱\n';
+  txt += '► 帶有香氣意象（精油、花草、自然元素的比喻）\n';
+  txt += '► 不使用「梳理」「節奏」等詞彙，不使用雙破折號\n';
+  txt += '► 請將術語轉譯為日常語言\n';
+  txt += '\n═══ H.O.U.R. 行動建議（必須回答）═══\n';
+  txt += 'H（靜心殿）→ 現在最需要先安頓什麼？\n';
+  txt += 'O（覺察廳）→ 這組資料在提醒什麼反覆出現的模式？\n';
+  txt += 'U（解鎖密室）→ 今天就能做的一個具體動作\n';
+  txt += 'R（啟程塔）→ 接下來一週的方向建議\n';
+  txt += '\n🔗 馥靈之鑰 hourlightkey.com';
+
+  navigator.clipboard.writeText(txt).then(function() {
+    if (btn) {
+      var orig = btn.textContent;
+      btn.textContent = '✅ 已複製';
+      btn.style.background = 'rgba(160,124,220,.25)';
+      setTimeout(function() { btn.textContent = orig; btn.style.background = ''; }, 2000);
+    }
+  }).catch(function() {
+    var t = document.createElement('textarea');
+    t.value = txt; t.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(t); t.select();
+    document.execCommand('copy'); document.body.removeChild(t);
+    if (btn) { var orig = btn.textContent; btn.textContent = '✅ 已複製'; setTimeout(function() { btn.textContent = orig; }, 2000); }
+  });
+}
 
 })();

@@ -2390,58 +2390,49 @@ function hlMatchCopy(preId, system, btn) {
   var data = pre.textContent;
   var rel = gv('relType') || 'any';
 
-  if (typeof firebase === 'undefined' || !firebase.auth || !firebase.auth().currentUser) {
-    if (confirm('🔮 智慧解讀指令為會員功能（免費註冊即可）\n\n每日 3 次免費額度，登入後立即可用。\n\n點「確定」前往登入頁面')) {
-      window.open('member-login.html?from=destiny-match', '_blank');
-    }
+  // 門控（hl-ai-gate.js 計次）
+  if (typeof hlAIGateCheck === 'function') {
+    hlAIGateCheck(function() { _doMatchCopy(data, system, rel, btn); });
     return;
   }
+  _doMatchCopy(data, system, rel, btn);
+}
+function _doMatchCopy(data, system, rel, btn) {
+  var fw = (window.AI_MATCH_FRAMEWORKS && window.AI_MATCH_FRAMEWORKS[system]) || {};
+  var relData = fw[rel] || fw['any'] || {};
+  var title = relData.title || (system + ' 合盤');
+  var focus = relData.focus || [];
+  var books = relData.books || '';
 
-  var user = firebase.auth().currentUser;
-  var origText = btn.textContent;
-  btn.textContent = '🔮 載入中...';
-  btn.disabled = true;
+  var txt = '═══ 馥靈之鑰｜' + title + ' ═══\n\n';
+  txt += '關係類型：' + rel + '\n\n';
+  txt += data + '\n\n';
+  txt += '═══ 解讀框架 ═══\n\n';
+  focus.forEach(function(f) { txt += f.replace(/\\n/g, '\n') + '\n\n'; });
+  if (books) { txt += '═══ 參考書目 ═══\n' + books.replace(/\\n/g, '\n') + '\n\n'; }
+  txt += '═══ 語氣要求 ═══\n';
+  txt += '► 像一個很懂人的閨蜜在說真話，溫暖但不軟弱\n';
+  txt += '► 分析兩人的互動模式，不只說好話\n';
+  txt += '► 帶有香氣意象，結尾推薦精油\n';
+  txt += '► 不使用「梳理」「節奏」等詞彙，不使用雙破折號\n';
+  txt += '\n═══ H.O.U.R. 行動建議（必須回答）═══\n';
+  txt += 'H（靜心殿）→ 這段關係最需要先安頓什麼？\n';
+  txt += 'O（覺察廳）→ 兩人反覆出現的互動模式是什麼？\n';
+  txt += 'U（解鎖密室）→ 今天就能為這段關係做的一件事\n';
+  txt += 'R（啟程塔）→ 這段關係接下來的方向建議\n';
+  txt += '\n🔗 馥靈之鑰 hourlightkey.com';
 
-  user.getIdToken().then(function(token) {
-    return fetch('https://app.hourlightkey.com/api/ai-match-gate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify({ system: system, relation: rel })
-    });
-  }).then(function(r) { return r.json(); })
-  .then(function(result) {
-    if (result.error) {
-      if (result.code === 'QUOTA_EXCEEDED') {
-        var hl = result.hoursLeft || '?';
-        alert('⏰ 今日智慧解讀額度已用完（' + result.used + '/' + result.limit + '）\n\n約 ' + hl + ' 小時後自動恢復。\n\n► 免費會員每日 3 次\n► 馥靈鑰友 $399/月：每日 10 次\n► 馥靈大師 $999/月：無限次\n► 單買 10 次 $199，永久有效');
-      } else if (result.code === 'AUTH_REQUIRED' || result.code === 'TOKEN_INVALID') {
-        alert('🔑 登入已過期，請重新登入');
-      } else {
-        alert(result.error);
-      }
-      btn.textContent = origText; btn.disabled = false;
-      return;
-    }
-    // 組合：合盤資料 + server 框架
-    var fullText = data + '\n\n' + result.framework;
-    navigator.clipboard.writeText(fullText).then(function() {
-      var q = result.quota || {};
-      var remain = q.plan === 'pro' ? '∞' : ((q.limit||3) - (q.used||0) + (q.bonus||0));
-      btn.textContent = '✅ 已複製（今日剩餘 ' + remain + ' 次）';
+  navigator.clipboard.writeText(txt).then(function() {
+    if (btn) {
+      var orig = btn.textContent;
+      btn.textContent = '✅ 已複製';
       btn.style.background = 'rgba(160,124,220,.25)';
-      setTimeout(function() {
-        btn.textContent = origText;
-        btn.style.background = '';
-        btn.disabled = false;
-      }, 2500);
-    });
-  }).catch(function(e) {
-    console.error('hlMatchCopy error:', e);
-    btn.textContent = origText; btn.disabled = false;
-    alert('網路錯誤，請稍後再試');
+      setTimeout(function() { btn.textContent = orig; btn.style.background = ''; }, 2000);
+    }
+  }).catch(function() {
+    var t = document.createElement('textarea'); t.value = txt; t.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
+    if (btn) { btn.textContent = '✅ 已複製'; setTimeout(function() { btn.textContent = '🔮 複製智慧解讀指令'; }, 2000); }
   });
 }
 
@@ -5110,6 +5101,6 @@ function renderMatch(a,b){
 <script src="assets/js/hl-email.js"></script>
 <script src="assets/js/hl-chat.js"></script>
 <script src="assets/js/hl-aroma-fx.js" defer></script>
-
+<script src="js/ai-match-frameworks.js"></script>
 </body>
 </html>

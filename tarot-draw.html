@@ -352,8 +352,9 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;background:url('HOUR-L
       </div>
     </div>
     <div class="r-actions" id="rAct" style="display:none">
-      <button id="cpyBtn" class="btn btn-s">📋 複製含提問結果</button>
-      <button id="aiBtn" class="btn btn-s" style="background:linear-gradient(135deg,rgba(233,194,125,0.2),rgba(92,58,99,0.1));border-color:rgba(233,194,125,0.7)">🤖 複製 AI 解讀指令</button>
+      <button id="cpyBtn" class="btn btn-s">📋 複製抽牌結果</button>
+      <button id="emailBtn" class="btn btn-s">📧 寄到信箱</button>
+      <button id="aiBtn" class="btn btn-s" style="background:linear-gradient(135deg,rgba(233,194,125,0.2),rgba(92,58,99,0.1));border-color:rgba(233,194,125,0.7)">🔮 複製深度解讀指令</button>
       <button id="rdBtn" class="btn btn-s">🔄 重新抽牌</button>
     </div>
 
@@ -577,6 +578,18 @@ rdBtn.addEventListener('click',function(){
 });
 
 function go(){
+  // 每日 3 次限制
+  var today = new Date().toISOString().slice(0,10);
+  var gateKey = 'tarot_gate_' + today;
+  var used = parseInt(localStorage.getItem(gateKey) || '0');
+  if (used >= 3) {
+    document.getElementById('tarotGateOverlay').style.display = 'flex';
+    return;
+  }
+  localStorage.setItem(gateKey, String(used + 1));
+  // 清理昨天的 key
+  try { var yd = new Date(Date.now()-86400000).toISOString().slice(0,10); localStorage.removeItem('tarot_gate_' + yd); } catch(e){}
+
   q=qi.value.trim();
   so.classList.add('on');
   setTimeout(function(){doDraw();so.classList.remove('on');},900+Math.random()*500);
