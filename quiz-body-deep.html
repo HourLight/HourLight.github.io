@@ -54,7 +54,6 @@
     <button class="copy-report-btn" onclick="copyFullReport()">📋 複製完整報告（可貼給 AI 深度分析）</button>
     <div class="result-hour-bridge" id="resultHour"></div>
     <div class="share-row">
-      <button class="share-btn" onclick="saveResultImage()">📥 儲存圖片</button>
       <button class="share-btn" onclick="copyResult()">📋 複製摘要</button>
       <button class="share-btn" onclick="shareToLine()">💬 分享到 LINE</button>
     </div>
@@ -76,7 +75,8 @@ let answers={},currentQ=0;
 function startQuiz(){document.getElementById('startArea').style.display='none';document.getElementById('progressWrap').style.display='block';renderQuestion(0);}
 function renderQuestion(idx){const area=document.getElementById('questionsArea');area.innerHTML='';questions.forEach((qd,i)=>{const card=document.createElement('div');card.className='quiz-card'+(i===idx?' active':'');card.id='qcard-'+i;const vals=[1,2,3];const lk=qd.labels||['很少/不會','有時候','經常/很多'];const likertHTML=`<div class="likert-wrap"><div class="likert-labels"><span>${lk[0]}</span><span>${lk[1]}</span><span>${lk[2]}</span></div><div class="likert-row">${vals.map(v=>`<button class="likert-btn${answers[i]===v?' selected':''}" onclick="selectLikert(${i},${v},this)">${v}</button>`).join('')}</div></div>`;card.innerHTML=`<div class="quiz-q-num">${qd.axis} ✦ 第 ${i+1} 題 / ${questions.length}</div><div class="quiz-question">${qd.q}</div>${likertHTML}<div class="quiz-nav">${i>0?`<button class="btn-prev" onclick="goTo(${i-1})">← 上一題</button>`:'<span></span>'}<button class="btn-next" id="btnNext-${i}" ${answers[i]===undefined?'disabled':''} onclick="${i<questions.length-1?`goTo(${i+1})`:'showResult()'}">${i<questions.length-1?'下一題 →':'看見我的體態座標 🦋'}</button></div>`;area.appendChild(card);});updateProgress(idx);}
 function selectLikert(qi,v,btn){answers[qi]=v;document.getElementById('qcard-'+qi).querySelectorAll('.likert-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');const nb=document.getElementById('btnNext-'+qi);if(nb)nb.disabled=false;}
-function goTo(idx){currentQ=idx;document.querySelectorAll('.quiz-card').forEach(c=>c.classList.remove('active'));const t=document.getElementById('qcard-'+idx);if(t){t.classList.add('active');t.scrollIntoView({behavior:'smooth',block:'start'});}updateProgress(idx);}
+function goTo(idx){currentQ=idx;document.querySelectorAll('.quiz-card').forEach(c=>c.classList.remove('active'));const t=document.getElementById('qcard-'+idx);if(t){t.classList.add('active');t.scrollIntoView({behavior:'smooth',block:'nearest'});
+  setTimeout(function(){if(typeof HLPOINTS!=='undefined')HLPOINTS.triggerQuizEgg('body deep');},2000);}updateProgress(idx);}
 function updateProgress(idx){const a=Object.keys(answers).length;const p=Math.round(a/questions.length*100);document.getElementById('progressText').textContent=`第 ${idx+1} 題，共 ${questions.length} 題`;document.getElementById('progressPct').textContent=p+'%';document.getElementById('progressFill').style.width=p+'%';}
 function calcScores(){const axes={H:{sum:0,count:0},O:{sum:0,count:0},U:{sum:0,count:0},R:{sum:0,count:0}};questions.forEach((qd,i)=>{const ax=qd.axis.charAt(0);if(axes[ax]){axes[ax].sum+=(answers[i]||1);axes[ax].count++;}});const pcts={};let total=0;Object.keys(axes).forEach(k=>{pcts[k]=axes[k].count>0?Math.round(axes[k].sum/(axes[k].count*3)*100):0;total+=axes[k].sum;});return{pcts,total,max:questions.length*3};}
 function getType(pcts){const sorted=Object.entries(pcts).sort((a,b)=>b[1]-a[1]);const top=sorted[0][0];const low=sorted[sorted.length-1][0];const avg=Math.round((pcts.H+pcts.O+pcts.U+pcts.R)/4);let key;if(avg>=75)key='high';else if(avg>=50)key='mid';else key='low';return key;}
@@ -121,4 +121,5 @@ function restartQuiz(){answers={};currentQ=0;document.getElementById('quizResult
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="assets/js/hl-share.js"></script>
 <script src="assets/js/hl-tracker.js" data-tool="quiz-body-deep" data-tool-name="身體覺察深度測驗" data-tool-type="quiz"></script>
+<script src="assets/js/hl-points.js"></script>
 </body></html>

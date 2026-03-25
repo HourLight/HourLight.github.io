@@ -321,7 +321,6 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1" loa
     <div class="result-section" id="resultAroma" style="display:none"></div>
     <div class="share-section">
     <div class="share-row">
-      <button class="share-btn" onclick="saveResultImage()">📥 儲存圖片</button>
       <button class="share-btn" onclick="copyResult()">📋 複製結果</button>
       <button class="share-btn" onclick="shareToLine()">💬 分享到 LINE</button>
     </div>
@@ -428,7 +427,8 @@ function goTo(idx){
   currentQ=idx;
   document.querySelectorAll('.quiz-card').forEach(c=>c.classList.remove('active'));
   const t=document.getElementById('qcard-'+idx);
-  if(t){t.classList.add('active');t.scrollIntoView({behavior:'smooth',block:'start'});}
+  if(t){t.classList.add('active');t.scrollIntoView({behavior:'smooth',block:'nearest'});
+  setTimeout(function(){if(typeof HLPOINTS!=='undefined')HLPOINTS.triggerQuizEgg('大五人格');},2000);}
   updateProgress(idx);
 }
 
@@ -636,7 +636,7 @@ function showResult(){
   
   try{localStorage.setItem('hl_quiz_bigfive',JSON.stringify({top:topTrait[0],pcts:pct,ts:Date.now()}));}catch(e){}
 document.getElementById('quizResult').classList.add('active');
-  document.getElementById('quizResult').scrollIntoView({behavior:'smooth',block:'start'});
+  document.getElementById('quizResult').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 function restartQuiz(){answers={};currentQ=0;document.getElementById('quizResult').classList.remove('active');document.getElementById('questionsArea').style.display='block';document.getElementById('progressWrap').style.display='block';renderQuestion(0);window.scrollTo({top:0,behavior:'smooth'});}
@@ -723,5 +723,6 @@ function toggleLegalContent(){
 <script src="assets/js/hl-email.js"></script>
 <script src="assets/js/hl-chat.js"></script>
 <script src="assets/js/hl-aroma-fx.js" defer></script>
+<script src="assets/js/hl-points.js"></script>
 </body>
 </html>

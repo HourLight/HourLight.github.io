@@ -242,7 +242,6 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1" loa
     <div class="result-section" id="resultAroma" style="display:none"></div>
     <div style="background:rgba(10,6,20,0.8);border:1px solid rgba(233,194,125,0.15);border-radius:16px;padding:20px 16px;margin-bottom:16px;backdrop-filter:blur(12px);">
     <div class="share-row">
-      <button class="share-btn" onclick="saveResultImage()" style="background:rgba(10,6,20,0.85)!important;border:1px solid rgba(233,194,125,0.4)!important;color:#f8dfa5!important;">📥 儲存圖片</button>
       <button class="share-btn" onclick="copyResult()" style="background:rgba(10,6,20,0.85)!important;border:1px solid rgba(233,194,125,0.4)!important;color:#f8dfa5!important;">📋 複製結果</button>
       <button class="share-btn" onclick="shareToLine()" style="background:rgba(10,6,20,0.85)!important;border:1px solid rgba(233,194,125,0.4)!important;color:#f8dfa5!important;">💬 分享到 LINE</button>
     </div>
@@ -558,7 +557,8 @@ function goTo(idx){
   currentQ=idx;
   document.querySelectorAll('.quiz-card').forEach(c=>c.classList.remove('active'));
   const t=document.getElementById('qcard-'+idx);
-  if(t){t.classList.add('active');t.scrollIntoView({behavior:'smooth',block:'start'});}
+  if(t){t.classList.add('active');t.scrollIntoView({behavior:'smooth',block:'nearest'});
+  setTimeout(function(){if(typeof HLPOINTS!=='undefined')HLPOINTS.triggerQuizEgg('MBTI人格');},2000);}
   updateProgress(idx);
 }
 
@@ -623,7 +623,7 @@ function showResult(){
   
   try{localStorage.setItem('hl_quiz_mbti',JSON.stringify({type:mbtiType,ts:Date.now()}));}catch(e){}
 document.getElementById('quizResult').classList.add('active');
-  document.getElementById('quizResult').scrollIntoView({behavior:'smooth',block:'start'});
+  document.getElementById('quizResult').scrollIntoView({behavior:'smooth',block:'nearest'});
   if(window.HL_track) window.HL_track("quiz_complete", {quizName:"MBTI人格測驗", result: mbtiType+" "+r.name});
   window._resultText=`【馥靈之鑰 MBTI 測驗】\n我是 ${type} ${result.icon} ${result.name}\n「${result.sub}」\n\n測測你是哪種出廠設定 👉 hourlightkey.com/quiz-mbti.html`;
 }
@@ -719,5 +719,6 @@ function toggleLegalContent(){
 <script src="assets/js/hl-email.js"></script>
 <script src="assets/js/hl-chat.js"></script>
 <script src="assets/js/hl-aroma-fx.js" defer></script>
+<script src="assets/js/hl-points.js"></script>
 </body>
 </html>

@@ -214,7 +214,6 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1" loa
     <div class="result-section" id="resultAroma" style="display:none"></div>
     <div style="background:rgba(10,6,20,0.8);border:1px solid rgba(233,194,125,0.15);border-radius:16px;padding:20px 16px;margin-bottom:16px;backdrop-filter:blur(12px);">
     <div class="share-row">
-      <button class="share-btn" onclick="saveResultImage()" style="background:rgba(10,6,20,0.85)!important;border:1px solid rgba(233,194,125,0.4)!important;color:#f8dfa5!important;">📥 儲存圖片</button>
       <button class="share-btn" onclick="copyResult()" style="background:rgba(10,6,20,0.85)!important;border:1px solid rgba(233,194,125,0.4)!important;color:#f8dfa5!important;">📋 複製結果</button>
       <button class="share-btn" onclick="shareToLine()" style="background:rgba(10,6,20,0.85)!important;border:1px solid rgba(233,194,125,0.4)!important;color:#f8dfa5!important;">💬 分享到 LINE</button>
     </div>
@@ -506,7 +505,8 @@ function goTo(idx){
   currentQ=idx;
   document.querySelectorAll('.quiz-card').forEach(c=>c.classList.remove('active'));
   const t=document.getElementById('qcard-'+idx);
-  if(t){t.classList.add('active');t.scrollIntoView({behavior:'smooth',block:'start'});}
+  if(t){t.classList.add('active');t.scrollIntoView({behavior:'smooth',block:'nearest'});
+  setTimeout(function(){if(typeof HLPOINTS!=='undefined')HLPOINTS.triggerQuizEgg('九型人格');},2000);}
   updateProgress(idx);
 }
 
@@ -574,7 +574,7 @@ function showResult(){
   
   try{localStorage.setItem('hl_quiz_enneagram',JSON.stringify({type:topType,label:result.name,ts:Date.now()}));}catch(e){}
 document.getElementById('quizResult').classList.add('active');
-  document.getElementById('quizResult').scrollIntoView({behavior:'smooth',block:'start'});
+  document.getElementById('quizResult').scrollIntoView({behavior:'smooth',block:'nearest'});
   if(window.HL_track) window.HL_track("quiz_complete", {quizName:"九型人格測驗", result: topType+"型 "+result.name});
   window._resultText='\u3010\u99a5\u9748\u4e4b\u9470\u4e5d\u578b\u4eba\u683c\u6e2c\u9a57\u3011 https://hourlightkey.com/quiz-enneagram.html';
 }
@@ -663,5 +663,6 @@ function toggleLegalContent(){
 <script src="assets/js/hl-email.js"></script>
 <script src="assets/js/hl-chat.js"></script>
 <script src="assets/js/hl-aroma-fx.js" defer></script>
+<script src="assets/js/hl-points.js"></script>
 </body>
 </html>
