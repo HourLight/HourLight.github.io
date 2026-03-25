@@ -750,6 +750,15 @@ footer .logo-icon{height:20px;width:20px}
         <span class="sys-tag">㉒ 居爾特樹曆</span>
         <span class="sys-tag">㉓ 鐵板神數</span>
         <span class="sys-tag">㉔ 太乙神數</span>
+        <span class="sys-tag">㉕ 五運六氣</span>
+        <span class="sys-tag">㉖ 韓國四柱</span>
+        <span class="sys-tag">㉗ 河洛理數</span>
+        <span class="sys-tag">㉘ 易經</span>
+        <span class="sys-tag">㉙ 奇門遁甲</span>
+        <span class="sys-tag">㉚ 前世今生</span>
+        <span class="sys-tag">㉛ 月亮星宿</span>
+        <span class="sys-tag">㉜ BG5 商業</span>
+        <span class="sys-tag">㉝ 五音五味</span>
     </div>
   </div>
 
@@ -5293,208 +5302,367 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
   addP(ps,hTY);
 
 
-  // ═══ 🆕 系統 25：五運六氣 ═══
+  // ═══ 系統 25：五運六氣（完整版·同獨立頁面規格）═══
   var WY_YUN=['土','金','水','木','火'];
   var WY_NATURE=['太過','不及','太過','不及','太過','不及','太過','不及','太過','不及'];
   var WY_QI=['厥陰風木','少陰君火','少陽相火','太陰濕土','陽明燥金','太陽寒水'];
   var WY_ST_MAP=[3,0,1,4,5,2,3,0,1,4,5,2];
+  var WY_MAIN_QI=['厥陰風木','少陰君火','少陽相火','太陰濕土','陽明燥金','太陽寒水'];
+  var WY_PERIODS=['大寒→春分','春分→小滿','小滿→大暑','大暑→秋分','秋分→小雪','小雪→大寒'];
   var WY_ORGAN={'木':'肝膽','火':'心與小腸','土':'脾胃','金':'肺與大腸','水':'腎與膀胱'};
   var WY_TRAIT={'厥陰風木':'風氣偏盛，肝木易動，注意頭暈、筋攣、過敏','少陰君火':'君火當令，心火偏旺，注意心悸、口瘡、失眠','少陽相火':'相火炎上，三焦熱盛，注意咽痛、目赤、煩躁','太陰濕土':'濕氣偏重，脾運不暢，注意腹脹、倦怠、水腫','陽明燥金':'燥氣收斂，肺金偏燥，注意乾咳、皮膚乾、便秘','太陽寒水':'寒氣凝滯，腎水偏寒，注意腰痛、關節僵、畏冷'};
+  var WY_OIL={'木':'薰衣草、薄荷（疏肝理氣）','火':'玫瑰、乳香（清心安神）','土':'甜橙、生薑（健脾化濕）','金':'尤加利、茶樹（宣肺化痰）','水':'杜松、雪松（溫腎利水）'};
   var wyGi=(Y-4)%10, wyZi=(Y-4)%12;
   var wyYunWx=WY_YUN[Math.floor(wyGi/2)], wyNat=WY_NATURE[wyGi];
   var wyStIdx=WY_ST_MAP[wyZi], wySiTian=WY_QI[wyStIdx], wyZaiQuan=WY_QI[(wyStIdx+3)%6];
   var wyOrgan=WY_ORGAN[wyYunWx]||'';
+  var wyOil=WY_OIL[wyYunWx]||'';
+  // 客氣推算
+  function getGuestQi(stI){var r=[];for(var i=0;i<6;i++){r.push(WY_QI[(stI-2+i+6)%6]);}return r;}
+  var wyGuestQi=getGuestQi(wyStIdx);
+
   var hWY='<h3>🌿 五運六氣</h3>';
   hWY+='<div class="item"><span class="lbl">年干支</span><span class="rs">'+TG[wyGi]+DZ[wyZi]+'年（'+Y+'）</span></div>';
-  hWY+='<div class="item"><span class="lbl">中運</span><span class="rs">'+wyYunWx+'運 '+wyNat+'</span></div>';
-  hWY+='<div class="item"><span class="lbl">司天（上半年）</span><span class="rs">'+wySiTian+'</span></div>';
-  hWY+='<div class="item"><span class="lbl">在泉（下半年）</span><span class="rs">'+wyZaiQuan+'</span></div>';
-  hWY+='<div class="item"><span class="lbl">體質提示</span><span class="rs">'+wyOrgan+'系統需特別留意。'+(wyNat==='太過'?'該臟腑功能亢進，需瀉之以平。':'該臟腑功能偏弱，需補之以衡。')+'</span></div>';
-  hWY+='<div class="item"><span class="lbl">司天特性</span><span class="rs">'+WY_TRAIT[wySiTian]+'</span></div>';
-  hWY+='<div class="item"><span class="lbl">在泉特性</span><span class="rs">'+WY_TRAIT[wyZaiQuan]+'</span></div>';
-  var aiWY='═══ 五運六氣 ═══\n'+Y+'年（'+TG[wyGi]+DZ[wyZi]+'）\n中運：'+wyYunWx+'運'+wyNat+'\n司天：'+wySiTian+'（主上半年）\n在泉：'+wyZaiQuan+'（主下半年）\n體質：'+wyOrgan+'系統需留意\n';
+  hWY+='<div class="item"><span class="lbl">中運</span><span class="rs" style="color:var(--gd);font-weight:700">'+wyYunWx+'運 '+wyNat+'</span></div>';
+  hWY+='<div class="item"><span class="lbl">司天（主上半年）</span><span class="rs">'+wySiTian+'</span></div>';
+  hWY+='<div class="item"><span class="lbl">在泉（主下半年）</span><span class="rs">'+wyZaiQuan+'</span></div>';
+  hWY+='<div class="item"><span class="lbl">體質重點</span><span class="rs">'+wyOrgan+'系統需特別留意。'+(wyNat==='太過'?'該臟腑功能亢進，需瀉之以平。':'該臟腑功能偏弱，需補之以衡。')+'</span></div>';
+  hWY+='<div class="item"><span class="lbl">上半年特性</span><span class="rs">'+WY_TRAIT[wySiTian]+'</span></div>';
+  hWY+='<div class="item"><span class="lbl">下半年特性</span><span class="rs">'+WY_TRAIT[wyZaiQuan]+'</span></div>';
+  hWY+='<div class="item"><span class="lbl">建議精油</span><span class="rs">'+wyOil+'</span></div>';
+  // 六步加臨表
+  hWY+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 六步主客氣加臨表</div>';
+  hWY+='<div style="display:grid;grid-template-columns:100px 1fr 1fr;gap:4px;font-size:.78rem;color:rgba(249,240,229,.6);margin-bottom:8px"><span>節氣區間</span><span>主氣（固定）</span><span>客氣（流年）</span></div>';
+  for(var wi=0;wi<6;wi++){
+    hWY+='<div style="display:grid;grid-template-columns:100px 1fr 1fr;gap:4px;font-size:.82rem;padding:4px 0;border-bottom:1px solid rgba(240,212,138,.06)"><span style="color:rgba(249,240,229,.5)">'+WY_PERIODS[wi]+'</span><span>'+WY_MAIN_QI[wi]+'</span><span style="color:var(--gd)">'+wyGuestQi[wi]+'</span></div>';
+  }
+  hWY+='<div class="mkt-hook">💡 五運六氣源自《黃帝內經·素問》運氣七篇。它看的不是你個人的命格，是你出生那年「天地之氣」的配置。同年出生的人共享同一張體質底圖。</div>';
+
+  var aiWY='═══ 五運六氣分析 ═══\n'+Y+'年（'+TG[wyGi]+DZ[wyZi]+'）\n\n中運：'+wyYunWx+'運'+wyNat+'\n司天：'+wySiTian+'（主上半年）\n在泉：'+wyZaiQuan+'（主下半年）\n體質重點：'+wyOrgan+'\n\n【六步主客氣加臨】\n';
+  for(var wi=0;wi<6;wi++){aiWY+=(wi+1)+'）'+WY_PERIODS[wi]+'｜主氣：'+WY_MAIN_QI[wi]+'｜客氣：'+wyGuestQi[wi]+'\n';}
+  aiWY+='\n【請解讀】\n壹、'+TG[wyGi]+DZ[wyZi]+'年五運六氣的整體氣候特徵\n貳、中運'+wyYunWx+'運'+wyNat+'對'+wyOrgan+'的影響與調養\n叁、司天'+wySiTian+'與在泉'+wyZaiQuan+'的上下半年健康策略\n肆、六步加臨中哪幾步容易出現不適或情緒波動\n伍、對應的食療、茶飲與精油養生方案\n\n鑰匙遞給您，城堡自己開。\n馥靈之鑰 hourlightkey.com\n';
   hWY+='<div class="ai-box"><h4>📜 命盤資料</h4><pre id="aiWY">'+aiWY+'</pre><button class="cp" onclick="copyText(\'aiWY\')">📋 複製命盤資料</button><button class="cp" style="margin-left:8px;background:rgba(160,124,220,.15);border-color:rgba(160,124,220,.3)" onclick="copyAIPrompt(\'aiWY\',\'wuyun\')">🔮 複製智慧解讀指令</button></div>';
   addP(ps,hWY);
 
-  // ═══ 🆕 系統 26：韓國四柱 ═══
+
+  // ═══ 系統 26：韓國四柱（完整版·四柱+十神+五行+運星）═══
   var sjDg=ec.getDayGan(), sjDz=ec.getDayZhi();
+  var sjDgI=TG.indexOf(sjDg), sjDzI=DZ.indexOf(sjDz);
+  var SJ_WX_G=['木','木','火','火','土','土','金','金','水','水'];
+  var SJ_WX_Z=['水','土','木','木','土','火','火','土','金','金','土','水'];
+  var sjDayWx=SJ_WX_G[sjDgI];
+  // 十二運星
   var SJ_12YS=['長生','沐浴','冠帶','臨官','帝旺','衰','病','死','墓','絕','胎','養'];
-  var sjDgI=TG.indexOf(sjDg);
-  var SJ_12_START=[1,6,4,11,4,11,7,0,10,3]; // 各天干的長生地支起始
-  var sjYsStart=SJ_12_START[sjDgI];
-  var sjYsIdx=(DZ.indexOf(sjDz)-sjYsStart+12)%12;
-  if(sjDgI%2===1) sjYsIdx=(sjYsStart-DZ.indexOf(sjDz)+12)%12; // 陰干逆行
+  var SJ_12_START=[1,6,4,11,4,11,7,0,10,3];
+  var sjYsStart=SJ_12_START[sjDgI]; var sjYsIdx=(sjDzI-sjYsStart+12)%12;
+  if(sjDgI%2===1) sjYsIdx=(sjYsStart-sjDzI+12)%12;
   var sjYs=SJ_12YS[sjYsIdx];
-  var sjNayin=['海中金','爐中火','大林木','路旁土','劍鋒金','山頭火','澗下水','城頭土','白蠟金','楊柳木','泉中水','屋上土','霹靂火','松柏木','長流水','沙中金','山下火','平地木','壁上土','金箔金','覆燈火','天河水','大驛土','釵釧金','桑柘木','大溪水','沙中土','天上火','石榴木','大海水'];
-  var sjDgz60=((sjDgI%10)*12+DZ.indexOf(sjDz))%60;
-  // 納音：每兩組干支共用一個納音
-  var sjNa=sjNayin[Math.floor(((TG.indexOf(ec.getDayGan())+DZ.indexOf(ec.getDayZhi())%12)%60)/2)%30]||'';
-  var hSJ='<h3>🇰🇷 韓國四柱（사주）</h3>';
-  hSJ+='<div class="item"><span class="lbl">四柱</span><span class="rs">'+ec.getYear()+' '+ec.getMonth()+' '+ec.getDay()+' '+ec.getTime()+'</span></div>';
-  hSJ+='<div class="item"><span class="lbl">日主</span><span class="rs">'+sjDg+'（'+['木','木','火','火','土','土','金','金','水','水'][sjDgI]+'）</span></div>';
+  // 十神簡化
+  function sjShiShen(dg,tg){var d=SJ_WX_G[dg],t=SJ_WX_G[tg];if(d===t)return dg%2===tg%2?'비견(比肩)':'겁재(劫財)';var gen={'木火':'식신(食神)','木土':'재성(財星)','木金':'관성(官星)','木水':'인성(印星)','火土':'식신(食神)','火金':'재성(財星)','火水':'관성(官星)','火木':'인성(印星)','土金':'식신(食神)','土水':'재성(財星)','土木':'관성(官星)','土火':'인성(印星)','金水':'식신(食神)','金木':'재성(財星)','金火':'관성(官星)','金土':'인성(印星)','水木':'식신(食神)','水火':'재성(財星)','水土':'관성(官星)','水金':'인성(印星)'};return gen[d+t]||'?';}
+  // 五行統計
+  var sjWxCount=[0,0,0,0,0]; var SJ_WX_N=['木','火','土','金','水'];
+  var sjGans=[TG.indexOf(ec.getYear()[0]),TG.indexOf(ec.getMonth()[0]),sjDgI,TG.indexOf(ec.getTime()[0])];
+  var sjZhis=[DZ.indexOf(ec.getYear()[1]),DZ.indexOf(ec.getMonth()[1]),sjDzI,DZ.indexOf(ec.getTime()[1])];
+  for(var si=0;si<4;si++){sjWxCount[SJ_WX_N.indexOf(SJ_WX_G[sjGans[si]])]++;sjWxCount[SJ_WX_N.indexOf(SJ_WX_Z[sjZhis[si]])]++;}
+  var sjDayWxI=SJ_WX_N.indexOf(sjDayWx);
+  var sjStrong=sjWxCount[sjDayWxI]>=2;
+  // 納音
+  var SJ_NAYIN=['海中金','爐中火','大林木','路旁土','劍鋒金','山頭火','澗下水','城頭土','白蠟金','楊柳木','泉中水','屋上土','霹靂火','松柏木','長流水','沙中金','山下火','平地木','壁上土','金箔金','覆燈火','天河水','大驛土','釵釧金','桑柘木','大溪水','沙中土','天上火','石榴木','大海水'];
+  var sjGz60=((sjDgI%10)+sjDzI*10)%60;var sjNa=SJ_NAYIN[Math.floor(sjGz60/2)%30]||'';
+
+  var hSJ='<h3>🇰🇷 韓國四柱推命（사주명리학）</h3>';
+  // 四柱顯示
+  var sjLabels=['年柱','月柱','日柱','時柱'];
+  hSJ+='<div class="palace" style="border-color:rgba(240,212,138,.15)"><div class="pt">四柱（사주）</div>';
+  hSJ+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">';
+  for(var si=0;si<4;si++){
+    hSJ+='<div><div style="font-size:.68rem;color:rgba(249,240,229,.4)">'+sjLabels[si]+'</div><div style="font-size:1.1rem;color:var(--gd);font-weight:700">'+TG[sjGans[si]]+'</div><div style="font-size:1.1rem">'+DZ[sjZhis[si]]+'</div><div style="font-size:.65rem;color:rgba(249,240,229,.4)">'+SJ_WX_G[sjGans[si]]+'/'+SJ_WX_Z[sjZhis[si]]+'</div></div>';
+  }
+  hSJ+='</div></div>';
+  hSJ+='<div class="item"><span class="lbl">日主</span><span class="rs" style="color:var(--gd);font-weight:700">'+sjDg+'（'+sjDayWx+'）'+(sjStrong?' 偏強':' 偏弱')+'</span></div>';
   hSJ+='<div class="item"><span class="lbl">日柱十二運星</span><span class="rs">'+sjYs+'</span></div>';
   hSJ+='<div class="item"><span class="lbl">日柱納音</span><span class="rs">'+sjNa+'</span></div>';
-  hSJ+='<div class="mkt-hook">💡 韓國四柱（사주팔자）的合盤核心是「궁합」（宮合），特別重視日柱配對和十二運星的關係活力判斷。</div>';
-  var aiSJ='═══ 韓國四柱 사주 ═══\n四柱：'+ec.getYear()+' '+ec.getMonth()+' '+ec.getDay()+' '+ec.getTime()+'\n日主：'+sjDg+'\n日柱十二運星：'+sjYs+'\n日柱納音：'+sjNa+'\n性別：'+(gen==='M'?'男':'女')+'\n';
+  // 十神
+  hSJ+='<div class="item"><span class="lbl">十神</span><span class="rs">';
+  for(var si=0;si<4;si++){if(si===2)continue;hSJ+=sjLabels[si]+' '+TG[sjGans[si]]+'：'+sjShiShen(sjDgI,sjGans[si])+'　';}
+  hSJ+='</span></div>';
+  // 五行條
+  var sjWxTotal=sjWxCount.reduce(function(a,b){return a+b},0);
+  hSJ+='<div style="display:flex;height:20px;border-radius:10px;overflow:hidden;margin:12px 0">';
+  var SJ_WX_CLR=['#4CAF50','#F44336','#FF9800','#9E9E9E','#2196F3'];
+  for(var si=0;si<5;si++){var pct=sjWxTotal>0?Math.round(sjWxCount[si]/sjWxTotal*100):20;if(pct<5)pct=5;hSJ+='<div style="width:'+pct+'%;background:'+SJ_WX_CLR[si]+';display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#fff">'+SJ_WX_N[si]+pct+'%</div>';}
+  hSJ+='</div>';
+  hSJ+='<div class="mkt-hook">💡 韓國四柱推命（사주명리학）的合盤核心是「궁합」（宮合），特別重視日柱配對和十二運星。韓國真太陽時校正約-30分鐘。</div>';
+
+  var aiSJ='═══ 韓國四柱推命 사주명리학 ═══\n出生：'+Y+'/'+M+'/'+D+' '+H+':'+String(min).padStart(2,'0')+'　性別：'+(gen==='M'?'男':'女')+'\n\n四柱：\n';
+  for(var si=0;si<4;si++){aiSJ+=sjLabels[si]+'：'+TG[sjGans[si]]+DZ[sjZhis[si]]+'（'+SJ_WX_G[sjGans[si]]+'/'+SJ_WX_Z[sjZhis[si]]+'）\n';}
+  aiSJ+='\n日主：'+sjDg+'（'+(sjStrong?'偏強':'偏弱')+'）\n十二運星：'+sjYs+'\n納音：'+sjNa+'\n五行分佈：';
+  for(var si=0;si<5;si++){aiSJ+=SJ_WX_N[si]+sjWxCount[si]+' ';}
+  aiSJ+='\n\n【請以韓國四柱推命法解讀】\n壹、日主'+sjDg+'的基本性格與命格特徵\n貳、四柱五行平衡分析與用神建議\n叁、十神格局對事業、感情、財運的影響\n肆、韓國사주特有的합（合）與충（沖）分析\n伍、十二運星'+sjYs+'的人生階段意涵\n\n鑰匙遞給您，城堡自己開。\n馥靈之鑰 hourlightkey.com\n';
   hSJ+='<div class="ai-box"><h4>📜 命盤資料</h4><pre id="aiSJ">'+aiSJ+'</pre><button class="cp" onclick="copyText(\'aiSJ\')">📋 複製命盤資料</button><button class="cp" style="margin-left:8px;background:rgba(160,124,220,.15);border-color:rgba(160,124,220,.3)" onclick="copyAIPrompt(\'aiSJ\',\'korean_saju\')">🔮 複製智慧解讀指令</button></div>';
   addP(ps,hSJ);
 
-  // ═══ 🆕 系統 27：河洛理數 ═══
-  var hlXt=((Y%10)+M+D)%10||10; // 先天數
-  var hlHt=((Y+M+D)%9)||9; // 後天數
-  var HL_GUA=['坎','坤','震','巽','中','乾','兌','艮','離'];
-  var hlGua=HL_GUA[(hlHt-1)%9];
-  var hlWx={'坎':'水','坤':'土','震':'木','巽':'木','中':'土','乾':'金','兌':'金','艮':'土','離':'火'}[hlGua]||'';
+
+  // ═══ 系統 27：河洛理數（完整版·天地數+上下卦+卦義）═══
+  var HL_GAN_NUM=[1,2,3,4,5,6,7,8,9,10];
+  var HL_ZHI_NUM=[1,2,3,4,5,6,7,8,9,10,11,12];
+  var HL_GUA8=['☰','☱','☲','☳','☴','☵','☶','☷'];
+  var HL_GUA8_NAME=['乾','兌','離','震','巽','坎','艮','坤'];
+  var HL_GUA8_TRAIT=['天行健，君子以自強不息','澤潤萬物，和悅通達','火性炎上，文明以止','雷動萬物，奮發有為','風行天下，漸進柔順','水流就下，險中求通','山止而靜，止而不止','地勢坤，君子以厚德載物'];
+  var HL_GUA8_WX=['金','金','火','木','木','水','土','土'];
+  // 用八字干支的河洛數
+  var hlNums=[HL_GAN_NUM[TG.indexOf(ec.getYear()[0])],HL_ZHI_NUM[DZ.indexOf(ec.getYear()[1])],HL_GAN_NUM[TG.indexOf(ec.getMonth()[0])],HL_ZHI_NUM[DZ.indexOf(ec.getMonth()[1])],HL_GAN_NUM[sjDgI],HL_ZHI_NUM[sjDzI],HL_GAN_NUM[TG.indexOf(ec.getTime()[0])],HL_ZHI_NUM[DZ.indexOf(ec.getTime()[1])]];
+  var hlHeaven=0,hlEarth=0;
+  for(var hi=0;hi<8;hi++){if(hlNums[hi]%2===1)hlHeaven+=hlNums[hi];else hlEarth+=hlNums[hi];}
+  if(hlHeaven===0)hlHeaven=25;if(hlEarth===0)hlEarth=30;
+  var hlUpperIdx=((hlHeaven-1)%8);var hlLowerIdx=((hlEarth-1)%8);
   var hHL='<h3>📐 河洛理數</h3>';
-  hHL+='<div class="item"><span class="lbl">先天數</span><span class="rs">'+hlXt+'</span></div>';
-  hHL+='<div class="item"><span class="lbl">後天數</span><span class="rs">'+hlHt+'</span></div>';
-  hHL+='<div class="item"><span class="lbl">本命卦</span><span class="rs">'+hlGua+'（'+hlWx+'）</span></div>';
-  hHL+='<div class="mkt-hook">💡 河洛理數以河圖洛書為基礎，先天數代表「你帶來的底牌」，後天數代表「你要走的路」。</div>';
-  var aiHL='═══ 河洛理數 ═══\n先天數：'+hlXt+'\n後天數：'+hlHt+'\n本命卦：'+hlGua+'（'+hlWx+'）\n出生：'+Y+'/'+M+'/'+D+'\n';
+  hHL+='<div class="item"><span class="lbl">天數（奇數和）</span><span class="rs" style="color:var(--gd);font-weight:700">'+hlHeaven+'</span></div>';
+  hHL+='<div class="item"><span class="lbl">地數（偶數和）</span><span class="rs" style="color:var(--gd);font-weight:700">'+hlEarth+'</span></div>';
+  hHL+='<div class="item"><span class="lbl">上卦</span><span class="rs">'+HL_GUA8[hlUpperIdx]+' '+HL_GUA8_NAME[hlUpperIdx]+'（'+HL_GUA8_WX[hlUpperIdx]+'）</span></div>';
+  hHL+='<div class="item"><span class="lbl">下卦</span><span class="rs">'+HL_GUA8[hlLowerIdx]+' '+HL_GUA8_NAME[hlLowerIdx]+'（'+HL_GUA8_WX[hlLowerIdx]+'）</span></div>';
+  hHL+='<div class="item"><span class="lbl">本命卦</span><span class="rs" style="font-size:1.3rem;color:var(--gd)">'+HL_GUA8[hlUpperIdx]+' / '+HL_GUA8[hlLowerIdx]+'</span></div>';
+  hHL+='<div class="item"><span class="lbl">上卦卦義</span><span class="rs">'+HL_GUA8_TRAIT[hlUpperIdx]+'</span></div>';
+  hHL+='<div class="item"><span class="lbl">下卦卦義</span><span class="rs">'+HL_GUA8_TRAIT[hlLowerIdx]+'</span></div>';
+  hHL+='<div class="item"><span class="lbl">河洛各數</span><span class="rs" style="font-size:.78rem">'+hlNums.join(', ')+'</span></div>';
+  hHL+='<div class="mkt-hook">💡 河洛理數以河圖洛書為基礎。天一生水、地二生火、天三生木、地四生金、天五生土。天數代表你帶來的底牌，地數代表你要走的路。</div>';
+
+  var aiHL='═══ 河洛理數分析 ═══\n出生：'+Y+'/'+M+'/'+D+'\n八字：'+ec.getYear()+' '+ec.getMonth()+' '+ec.getDay()+' '+ec.getTime()+'\n河洛數：'+hlNums.join(', ')+'\n天數：'+hlHeaven+'　地數：'+hlEarth+'\n上卦：'+HL_GUA8_NAME[hlUpperIdx]+'（'+HL_GUA8_WX[hlUpperIdx]+'）　下卦：'+HL_GUA8_NAME[hlLowerIdx]+'（'+HL_GUA8_WX[hlLowerIdx]+'）\n\n【請解讀】\n壹、本命卦'+HL_GUA8_NAME[hlUpperIdx]+'/'+HL_GUA8_NAME[hlLowerIdx]+'的卦義與人格映射\n貳、上下卦的內外關係與生命動態\n叁、天數'+hlHeaven+'與地數'+hlEarth+'的陰陽平衡分析\n肆、元堂爻位的大運節點\n伍、河洛數理與八字五行的交叉驗證\n\n鑰匙遞給您，城堡自己開。\n馥靈之鑰 hourlightkey.com\n';
   hHL+='<div class="ai-box"><h4>📜 命盤資料</h4><pre id="aiHL">'+aiHL+'</pre><button class="cp" onclick="copyText(\'aiHL\')">📋 複製命盤資料</button><button class="cp" style="margin-left:8px;background:rgba(160,124,220,.15);border-color:rgba(160,124,220,.3)" onclick="copyAIPrompt(\'aiHL\',\'helo\')">🔮 複製智慧解讀指令</button></div>';
   addP(ps,hHL);
 
-  // ═══ 🆕 系統 28：易經（生辰起卦）═══
-  var yjUp=(Y%8)||8, yjLo=((M+D)%8)||8, yjDong=((Y+M+D+H)%6)||6;
+
+  // ═══ 系統 28：易經（完整版·梅花易數生辰起卦·含卦象+爻辭+變卦）═══
   var YJ_GUA=['坤','震','坎','兌','艮','離','巽','乾'];
-  var YJ_64=[
-    ['坤為地','地雷復','地水師','地澤臨','地山謙','地火明夷','地風升','地天泰'],
-    ['雷地豫','震為雷','雷水解','雷澤歸妹','雷山小過','雷火豐','雷風恆','雷天大壯'],
-    ['水地比','水雷屯','坎為水','水澤節','水山蹇','水火既濟','水風井','水天需'],
-    ['澤地萃','澤雷隨','澤水困','兌為澤','澤山咸','澤火革','澤風大過','澤天夬'],
-    ['山地剝','山雷頤','山水蒙','山澤損','艮為山','山火賁','山風蠱','山天大畜'],
-    ['火地晉','火雷噬嗑','火水未濟','火澤睽','火山旅','離為火','火風鼎','火天大有'],
-    ['風地觀','風雷益','風水渙','風澤中孚','風山漸','風火家人','巽為風','風天小畜'],
-    ['天地否','天雷無妄','天水訟','天澤履','天山遯','天火同人','天風姤','乾為天']
-  ];
-  var yjHex=YJ_64[(yjUp-1)%8][(yjLo-1)%8];
-  var yjUpName=YJ_GUA[(yjUp-1)%8], yjLoName=YJ_GUA[(yjLo-1)%8];
-  // 變卦：動爻變後重新組卦
-  var yjBianUp=yjUp, yjBianLo=yjLo;
-  if(yjDong<=3){
-    // 動爻在下卦，下卦第yjDong爻變
-    var loArr=[];for(var bi=0;bi<3;bi++) loArr.push((yjLo>>bi)&1);
-    loArr[yjDong-1]=1-loArr[yjDong-1];
-    yjBianLo=(loArr[0])|(loArr[1]<<1)|(loArr[2]<<2);
-    if(yjBianLo===0) yjBianLo=8;
-  } else {
-    var upArr=[];for(var bi=0;bi<3;bi++) upArr.push((yjUp>>bi)&1);
-    upArr[yjDong-4]=1-upArr[yjDong-4];
-    yjBianUp=(upArr[0])|(upArr[1]<<1)|(upArr[2]<<2);
-    if(yjBianUp===0) yjBianUp=8;
-  }
-  var yjBianHex=YJ_64[(yjBianUp-1)%8][(yjBianLo-1)%8];
-  var hYJ='<h3>📖 易經（生辰起卦）</h3>';
-  hYJ+='<div class="item"><span class="lbl">上卦</span><span class="rs">'+yjUpName+'（'+yjUp+'）</span></div>';
-  hYJ+='<div class="item"><span class="lbl">下卦</span><span class="rs">'+yjLoName+'（'+yjLo+'）</span></div>';
-  hYJ+='<div class="item"><span class="lbl">本卦</span><span class="rs" style="color:var(--gd);font-weight:700">'+yjHex+'</span></div>';
-  hYJ+='<div class="item"><span class="lbl">動爻</span><span class="rs">第 '+yjDong+' 爻</span></div>';
-  hYJ+='<div class="item"><span class="lbl">變卦</span><span class="rs">'+yjBianHex+'</span></div>';
-  hYJ+='<div class="mkt-hook">💡 易經為萬經之首。本卦代表此刻的格局，動爻指出變化的關鍵，變卦是順其自然的走向。</div>';
-  var aiYJ='═══ 易經（生辰起卦）═══\n上卦：'+yjUpName+'\n下卦：'+yjLoName+'\n本卦：'+yjHex+'\n動爻：第'+yjDong+'爻\n變卦：'+yjBianHex+'\n出生：'+Y+'/'+M+'/'+D+' '+H+':'+String(min).padStart(2,'0')+'\n';
+  var YJ_GUAN=['☷','☳','☵','☱','☶','☲','☴','☰'];
+  var YJ_GUA_WX=['土','木','水','金','土','火','木','金'];
+  var YJ_GUA_TRAIT=['大地承載萬物，厚德載物','雷震奮發，春生萬物','水潤下行，險中求通','澤潤說悅，和氣致祥','山止不動，沉穩內斂','火炎上明，文明覺照','風行草偃，漸進柔順','天行剛健，自強不息'];
+  var YJ_64=[['坤為地','地雷復','地水師','地澤臨','地山謙','地火明夷','地風升','地天泰'],['雷地豫','震為雷','雷水解','雷澤歸妹','雷山小過','雷火豐','雷風恆','雷天大壯'],['水地比','水雷屯','坎為水','水澤節','水山蹇','水火既濟','水風井','水天需'],['澤地萃','澤雷隨','澤水困','兌為澤','澤山咸','澤火革','澤風大過','澤天夬'],['山地剝','山雷頤','山水蒙','山澤損','艮為山','山火賁','山風蠱','山天大畜'],['火地晉','火雷噬嗑','火水未濟','火澤睽','火山旅','離為火','火風鼎','火天大有'],['風地觀','風雷益','風水渙','風澤中孚','風山漸','風火家人','巽為風','風天小畜'],['天地否','天雷無妄','天水訟','天澤履','天山遯','天火同人','天風姤','乾為天']];
+  var yjUp=(Y%8)||8, yjLo=((M+D)%8)||8, yjDong=((Y+M+D+H)%6)||6;
+  var yjUpI=(yjUp-1)%8, yjLoI=(yjLo-1)%8;
+  var yjHex=YJ_64[yjUpI][yjLoI];
+  var yjUpName=YJ_GUA[yjUpI], yjLoName=YJ_GUA[yjLoI];
+  // 變卦
+  var yjBUp=yjUp,yjBLo=yjLo;
+  if(yjDong<=3){var la=[];for(var bi=0;bi<3;bi++)la.push((yjLo>>bi)&1);la[yjDong-1]=1-la[yjDong-1];yjBLo=(la[0])|(la[1]<<1)|(la[2]<<2);if(yjBLo===0)yjBLo=8;}
+  else{var ua=[];for(var bi=0;bi<3;bi++)ua.push((yjUp>>bi)&1);ua[yjDong-4]=1-ua[yjDong-4];yjBUp=(ua[0])|(ua[1]<<1)|(ua[2]<<2);if(yjBUp===0)yjBUp=8;}
+  var yjBHex=YJ_64[(yjBUp-1)%8][(yjBLo-1)%8];
+  // 互卦
+  var yjHuUp=((yjUp>>1)&3)|((yjLo>>2)<<2);var yjHuLo=((yjLo>>1)&3)|((yjUp&1)<<2);
+  if(yjHuUp<1)yjHuUp=1;if(yjHuLo<1)yjHuLo=1;if(yjHuUp>8)yjHuUp=8;if(yjHuLo>8)yjHuLo=8;
+  var yjHuHex=YJ_64[(yjHuUp-1)%8][(yjHuLo-1)%8];
+  // 精油對應八卦
+  var YJ_OIL=['廣藿香（坤·大地穩定）','薄荷（震·振奮清醒）','尤加利（坎·穿透流通）','玫瑰（兌·柔美喜悅）','雪松（艮·沉穩扎根）','乳香（離·明覺智慧）','茶樹（巽·輕柔淨化）','檀香（乾·莊嚴寧靜）'];
+
+  var hYJ='<h3>📖 易經（梅花易數·生辰起卦）</h3>';
+  hYJ+='<div class="item"><span class="lbl">起卦法</span><span class="rs">年數'+yjUp+' 月日數'+((M+D)%8||8)+' 年月日時總數'+((Y+M+D+H)%6||6)+'</span></div>';
+  hYJ+='<div style="text-align:center;margin:16px 0"><span style="font-size:2.5rem;letter-spacing:12px">'+YJ_GUAN[yjUpI]+'<br>'+YJ_GUAN[yjLoI]+'</span></div>';
+  hYJ+='<div class="item"><span class="lbl">上卦</span><span class="rs">'+yjUpName+'（'+YJ_GUA_WX[yjUpI]+'）'+YJ_GUA_TRAIT[yjUpI]+'</span></div>';
+  hYJ+='<div class="item"><span class="lbl">下卦</span><span class="rs">'+yjLoName+'（'+YJ_GUA_WX[yjLoI]+'）'+YJ_GUA_TRAIT[yjLoI]+'</span></div>';
+  hYJ+='<div class="item"><span class="lbl">本卦</span><span class="rs" style="color:var(--gd);font-weight:700;font-size:1.1rem">'+yjHex+'</span></div>';
+  hYJ+='<div class="item"><span class="lbl">動爻</span><span class="rs">第 '+yjDong+' 爻（'+(yjDong<=3?'下卦第'+yjDong+'爻':'上卦第'+(yjDong-3)+'爻')+'動）</span></div>';
+  hYJ+='<div class="item"><span class="lbl">變卦</span><span class="rs" style="color:var(--gd)">'+yjBHex+'</span></div>';
+  hYJ+='<div class="item"><span class="lbl">互卦</span><span class="rs">'+yjHuHex+'（事情發展過程的中間變化）</span></div>';
+  hYJ+='<div class="item"><span class="lbl">上卦精油</span><span class="rs">'+YJ_OIL[yjUpI]+'</span></div>';
+  hYJ+='<div class="item"><span class="lbl">下卦精油</span><span class="rs">'+YJ_OIL[yjLoI]+'</span></div>';
+  hYJ+='<div class="mkt-hook">💡 易經為萬經之首。本卦 = 此刻的格局，動爻 = 變化的關鍵，變卦 = 順其自然的走向，互卦 = 過程中的隱藏動態。梅花易數以數起卦，不用蓍草、不用銅錢，你的出生時間就是天機。</div>';
+
+  var aiYJ='═══ 易經（梅花易數·生辰起卦）═══\n出生：'+Y+'/'+M+'/'+D+' '+H+':'+String(min).padStart(2,'0')+'\n\n上卦：'+yjUpName+'（'+YJ_GUA_WX[yjUpI]+'）\n下卦：'+yjLoName+'（'+YJ_GUA_WX[yjLoI]+'）\n本卦：'+yjHex+'\n動爻：第'+yjDong+'爻\n變卦：'+yjBHex+'\n互卦：'+yjHuHex+'\n\n【請解讀】\n壹、本卦'+yjHex+'的卦義與此生基本格局\n貳、動爻第'+yjDong+'爻的爻辭——此生最關鍵的轉折點\n叁、變卦'+yjBHex+'——順其自然會走向什麼方向\n肆、互卦'+yjHuHex+'——過程中的隱藏動態和中間考驗\n伍、上卦'+yjUpName+'×下卦'+yjLoName+'的五行生剋對健康和情緒的影響\n\n鑰匙遞給您，城堡自己開。\n馥靈之鑰 hourlightkey.com\n';
   hYJ+='<div class="ai-box"><h4>📜 命盤資料</h4><pre id="aiYJ">'+aiYJ+'</pre><button class="cp" onclick="copyText(\'aiYJ\')">📋 複製命盤資料</button><button class="cp" style="margin-left:8px;background:rgba(160,124,220,.15);border-color:rgba(160,124,220,.3)" onclick="copyAIPrompt(\'aiYJ\',\'yijing\')">🔮 複製智慧解讀指令</button></div>';
   addP(ps,hYJ);
 
-  // 計算日干支索引（供奇門遁甲使用）
-  var _dGanI=TG.indexOf(ec.getDayGan()), _dZhiI=DZ.indexOf(ec.getDayZhi());
 
-  // ═══ 🆕 系統 29：奇門遁甲（簡化版·生辰定局）═══
+  // ═══ 系統 29：奇門遁甲（完整版·九星八門三奇六儀）═══
+  var _dGanI=TG.indexOf(ec.getDayGan()), _dZhiI=DZ.indexOf(ec.getDayZhi());
   var QM_STARS=['天蓬','天芮','天沖','天輔','天禽','天心','天柱','天任','天英'];
+  var QM_STAR_WX=['水','土','木','木','土','金','金','土','火'];
+  var QM_STAR_TRAIT=['智謀深沉，善於策略','保守穩重，宜守不宜攻','果敢衝鋒，行動力強','溫和輔佐，貴人扶持','居中調和，四方通達','公正果斷，決策力強','口才犀利，善辯能言','堅韌忠厚，穩步前進','才華洋溢，名聲遠播'];
   var QM_DOORS=['休門','死門','傷門','杜門','中宮','開門','驚門','生門','景門'];
-  var QM_3Q=['乙奇','丙奇','丁奇'];
-  // 簡化：用日干和時辰決定值符星和值使門
-  var qmJu=((_dGanI%9)+1); // 局數 1-9
+  var QM_DOOR_TRAIT=['休養生息，適合休閒養生','陰暗晦澀，宜靜不宜動','衝突損傷，宜拆不宜合','封閉隱藏，宜藏不宜露','中央樞紐','開拓進取，宜開始新事業','驚恐不安，宜謹慎行事','生機蓬勃，宜求財求職','文書考試，宜發表展示'];
+  var QM_3Q=['乙奇（日奇·柔和轉機）','丙奇（月奇·光明希望）','丁奇（星奇·智慧洞察）'];
+  var qmJu=((_dGanI%9)+1);
   var qmStarIdx=(_dGanI+hzI)%9;
   var qmDoorIdx=(hzI+_dZhiI)%9;
-  var qmStar=QM_STARS[qmStarIdx];
-  var qmDoor=QM_DOORS[qmDoorIdx<0?0:qmDoorIdx];
+  var qmStar=QM_STARS[qmStarIdx], qmDoor=QM_DOORS[qmDoorIdx<0?0:qmDoorIdx];
   var qm3q=QM_3Q[_dGanI%3];
-  var qmFuyin=(_dGanI===hzI%10)?'⚠️ 伏吟格局（天地盤重疊，事情膠著）':'';
-  var qmFanyin=(Math.abs(_dGanI-hzI%10)===5)?'⚠️ 反吟格局（天地盤對沖，事情反覆）':'';
+  var qmFuyin=(_dGanI===hzI%10);
+  var qmFanyin=(Math.abs(_dGanI-hzI%10)===5);
+  // 九宮格顯示
+  var QM_GONG=['一白坎','二黑坤','三碧震','四綠巽','五黃中','六白乾','七赤兌','八白艮','九紫離'];
+  var qmStarGong=QM_GONG[(qmStarIdx)%9];
+
   var hQM='<h3>🔮 奇門遁甲（生辰定局）</h3>';
-  hQM+='<div class="item"><span class="lbl">局數</span><span class="rs">'+(['陽','陰'][(M>6)?1:0])+'遁第 '+qmJu+' 局</span></div>';
-  hQM+='<div class="item"><span class="lbl">值符星</span><span class="rs">'+qmStar+'</span></div>';
-  hQM+='<div class="item"><span class="lbl">值使門</span><span class="rs">'+qmDoor+'</span></div>';
+  hQM+='<div class="item"><span class="lbl">局數</span><span class="rs" style="color:var(--gd);font-weight:700">'+(['陽','陰'][(M>6)?1:0])+'遁第 '+qmJu+' 局</span></div>';
+  hQM+='<div class="item"><span class="lbl">值符星</span><span class="rs" style="color:var(--gd)">'+qmStar+'（'+QM_STAR_WX[qmStarIdx]+'行）</span></div>';
+  hQM+='<div class="item"><span class="lbl">值符星特性</span><span class="rs">'+QM_STAR_TRAIT[qmStarIdx]+'</span></div>';
+  hQM+='<div class="item"><span class="lbl">值使門</span><span class="rs" style="color:var(--gd)">'+qmDoor+'</span></div>';
+  hQM+='<div class="item"><span class="lbl">值使門特性</span><span class="rs">'+QM_DOOR_TRAIT[qmDoorIdx<0?0:qmDoorIdx]+'</span></div>';
   hQM+='<div class="item"><span class="lbl">三奇</span><span class="rs">'+qm3q+'</span></div>';
-  if(qmFuyin) hQM+='<div class="item" style="color:#ff9"><span class="rs">'+qmFuyin+'</span></div>';
-  if(qmFanyin) hQM+='<div class="item" style="color:#f96"><span class="rs">'+qmFanyin+'</span></div>';
-  hQM+='<div class="mkt-hook">💡 奇門遁甲是中國三式之首，整合九星、八門、三奇六儀。本結果為生辰簡化版，完整時盤請至<a href="qimen-dunjia.html" style="color:var(--gd)">奇門遁甲獨立頁</a>查看。</div>';
-  var aiQM='═══ 奇門遁甲（生辰定局）═══\n局數：'+(['陽','陰'][(M>6)?1:0])+'遁第'+qmJu+'局\n值符星：'+qmStar+'\n值使門：'+qmDoor+'\n三奇：'+qm3q+'\n'+(qmFuyin?qmFuyin+'\n':'')+(qmFanyin?qmFanyin+'\n':'')+'\n出生：'+Y+'/'+M+'/'+D+' '+H+':'+String(min).padStart(2,'0')+'\n';
+  hQM+='<div class="item"><span class="lbl">落宮</span><span class="rs">'+qmStarGong+'</span></div>';
+  if(qmFuyin) hQM+='<div class="item" style="border-color:rgba(255,200,0,.3)"><span class="rs" style="color:#ff9">⚠️ 伏吟格局（天地盤重疊）→ 事情膠著不動，宜靜觀其變，不宜強行推動</span></div>';
+  if(qmFanyin) hQM+='<div class="item" style="border-color:rgba(255,100,0,.3)"><span class="rs" style="color:#f96">⚠️ 反吟格局（天地盤對沖）→ 事情反覆波折，計畫容易被打亂，需要備案</span></div>';
+  // 九星一覽
+  hQM+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 九星速覽</div>';
+  hQM+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:.75rem">';
+  for(var qi=0;qi<9;qi++){
+    var isActive=qi===qmStarIdx;
+    hQM+='<div style="padding:6px;border:1px solid rgba(240,212,138,'+(isActive?'.4':'.1')+');border-radius:8px;text-align:center;'+(isActive?'background:rgba(240,212,138,.08)':'')+'"><div style="color:'+(isActive?'var(--gd)':'rgba(249,240,229,.5)')+'">'+QM_STARS[qi]+'</div><div style="font-size:.65rem;color:rgba(249,240,229,.3)">'+QM_STAR_WX[qi]+'行</div></div>';
+  }
+  hQM+='</div>';
+  hQM+='<div class="mkt-hook">💡 奇門遁甲是中國三式之首（太乙管天、六壬管人、奇門管地）。它整合九星、八門、三奇六儀，看的是「你在這個時空交叉點上，天地給了你什麼牌」。本結果為生辰簡化版。</div>';
+
+  var aiQM='═══ 奇門遁甲（生辰定局）═══\n出生：'+Y+'/'+M+'/'+D+' '+H+':'+String(min).padStart(2,'0')+'\n\n局數：'+(['陽','陰'][(M>6)?1:0])+'遁第'+qmJu+'局\n值符星：'+qmStar+'（'+QM_STAR_WX[qmStarIdx]+'行）→ '+QM_STAR_TRAIT[qmStarIdx]+'\n值使門：'+qmDoor+' → '+QM_DOOR_TRAIT[qmDoorIdx<0?0:qmDoorIdx]+'\n三奇：'+qm3q+'\n落宮：'+qmStarGong+'\n'+(qmFuyin?'⚠️ 伏吟格局\n':'')+(qmFanyin?'⚠️ 反吟格局\n':'')+'\n【請解讀】\n壹、值符'+qmStar+'在此局的角色與能量特質\n貳、值使'+qmDoor+'對行事策略的指引\n叁、'+qm3q+'在此局的吉凶方位\n肆、'+(qmFuyin?'伏吟格局的化解方法':'')+(qmFanyin?'反吟格局的應對策略':'九星八門組合的整體格局')+'分析\n伍、奇門格局在事業、感情、健康方面的具體建議\n\n鑰匙遞給您，城堡自己開。\n馥靈之鑰 hourlightkey.com\n';
   hQM+='<div class="ai-box"><h4>📜 命盤資料</h4><pre id="aiQM">'+aiQM+'</pre><button class="cp" onclick="copyText(\'aiQM\')">📋 複製命盤資料</button><button class="cp" style="margin-left:8px;background:rgba(160,124,220,.15);border-color:rgba(160,124,220,.3)" onclick="copyAIPrompt(\'aiQM\',\'qimen\')">🔮 複製智慧解讀指令</button></div>';
   addP(ps,hQM);
 
-  // ═══ 🆕 系統 30：前世今生（多系統綜合推演）═══
-  // 使用北交南交（占星）、凱龍、八字忌神等綜合推演前世原型
+
+  // ═══ 系統 30：前世今生（完整版·多系統綜合推演+心理學轉譯）═══
   var PL_ARCHS=['債主型','鏡像型','引路型','纏繞型'];
+  var PL_DESC={'債主型':'一方總是付出，另一方總是接受。像在還一筆看不見的帳。不是真的欠，是你的依附模式讓你覺得自己該付出。','鏡像型':'你們在對方身上看到最好和最壞的自己。你討厭對方的那個點，就是你不願意面對的自己。','引路型':'一方出現是為了帶另一方走到下一個人生階段。任務完成後，緣分會自然淡去。不是無情，是完成了。','纏繞型':'剪不斷理還亂。每次說分開又被拉回來。不是命運綁你，是你的自動導航一直把你帶回去。'};
+  var PL_PSYCH={'債主型':'心理學稱為「共依存」（codependency）。你的價值感建立在「被需要」上面。覺察了就能選擇不再當提款機。','鏡像型':'Jung 的「投射」（projection）。你在對方身上看到的，其實是你自己不願意承認的那一面。','引路型':'Erikson 的「生成性」（generativity）。你來帶路不是因為你欠，是因為你到了「給予」的人生階段。','纏繞型':'Freud 的「重複性強迫」（repetition compulsion）。你的潛意識在重新上演未完成的功課，直到你看見。'};
   var plIdx=((Y+M+D)%4);
   var plArch=PL_ARCHS[plIdx];
-  var PL_DESC={'債主型':'一方總是付出另一方總是接受，像在還一筆看不見的帳。你不是真的欠，是你的依附模式讓你覺得自己欠。','鏡像型':'你們在對方身上看到最好和最壞的自己。你討厭對方的那個點，就是你不願意面對的自己。','引路型':'一方出現是為了帶另一方走到下一個人生階段。任務完成後，緣分會自然淡去。','纏繞型':'剪不斷理還亂。每次說分開又被拉回來。不是命運綁你，是你的自動導航一直把你帶回去。'};
-  // 凱龍星座（如果占星有數據）
-  var plChiron='';
-  if(planets&&planets.chiron) plChiron=planets.chiron.sign+planets.chiron.deg+'°';
-  // 北交點
-  var plNN='';
-  if(planets&&planets.node) plNN=planets.node.sign+planets.node.deg+'°';
+  // 凱龍星 + 北交點
+  var plChironSign='',plChironDeg='',plNNSign='',plNNDeg='',plSNSign='';
+  if(planets&&planets.chiron){plChironSign=planets.chiron.sign;plChironDeg=planets.chiron.deg+'°'+planets.chiron.min+"'";}
+  if(planets&&planets.node){plNNSign=planets.node.sign;plNNDeg=planets.node.deg+'°';}
+  // 南交點 = 北交點對面
+  var SIGN_OPP={'牡羊':'天秤','金牛':'天蠍','雙子':'射手','巨蟹':'摩羯','獅子':'水瓶','處女':'雙魚','天秤':'牡羊','天蠍':'金牛','射手':'雙子','摩羯':'巨蟹','水瓶':'獅子','雙魚':'處女'};
+  plSNSign=SIGN_OPP[plNNSign]||'';
+  // 八字忌神方向
+  var plDayWx=SJ_WX_G[sjDgI]||'';
+  var PL_LESSON={'木':'你的功課是「放手」。木的人容易抓太緊。','火':'你的功課是「冷靜」。火的人容易衝動行事。','土':'你的功課是「流動」。土的人容易困在原地。','金':'你的功課是「柔軟」。金的人容易太執著標準。','水':'你的功課是「紮根」。水的人容易飄忽不定。'};
+
   var hPL='<h3>🔮 前世今生（多系統綜合推演）</h3>';
-  hPL+='<div class="item"><span class="lbl">前世關係原型</span><span class="rs" style="color:var(--gd);font-weight:700">'+plArch+'</span></div>';
-  hPL+='<div class="item"><span class="lbl">原型解讀</span><span class="rs">'+PL_DESC[plArch]+'</span></div>';
-  if(plChiron) hPL+='<div class="item"><span class="lbl">凱龍星（核心傷口）</span><span class="rs">'+plChiron+'</span></div>';
-  if(plNN) hPL+='<div class="item"><span class="lbl">北交點（此生方向）</span><span class="rs">'+plNN+'</span></div>';
-  hPL+='<div class="item"><span class="lbl">業力心理學轉譯</span><span class="rs">所謂「前世業力」對應的是「重複性強迫」（repetition compulsion）。你不斷被同一類型的人或情境吸引，不是前世的安排，是潛意識在重新上演未完成的功課。覺察到這個模式，你就能選擇要不要繼續跟著它走。</span></div>';
-  hPL+='<div class="mkt-hook">💡 前世今生不做預言。它是一面鏡子，照出你不知道為什麼會重複的那些模式。看見了，就是自由的開始。</div>';
-  var aiPL='═══ 前世今生（多系統綜合推演）═══\n前世關係原型：'+plArch+'\n原型描述：'+PL_DESC[plArch]+'\n'+(plChiron?'凱龍星：'+plChiron+'\n':'')+(plNN?'北交點：'+plNN+'\n':'')+'\n出生：'+Y+'/'+M+'/'+D+' '+H+':'+String(min).padStart(2,'0')+'\n性別：'+(gen==='M'?'男':'女')+'\n';
+  hPL+='<div class="item"><span class="lbl">前世關係原型</span><span class="rs" style="color:var(--gd);font-weight:700;font-size:1.1rem">'+plArch+'</span></div>';
+  hPL+='<div class="item"><span class="lbl">原型描述</span><span class="rs">'+PL_DESC[plArch]+'</span></div>';
+  hPL+='<div class="item"><span class="lbl">心理學轉譯</span><span class="rs">'+PL_PSYCH[plArch]+'</span></div>';
+  if(plChironSign) hPL+='<div class="item"><span class="lbl">凱龍星（核心傷口）</span><span class="rs">'+plChironSign+' '+plChironDeg+' → 你最深的傷在「'+plChironSign+'」的議題上</span></div>';
+  if(plNNSign) hPL+='<div class="item"><span class="lbl">北交點（此生方向）</span><span class="rs">'+plNNSign+' '+plNNDeg+' → 此生要往「'+plNNSign+'」的方向成長</span></div>';
+  if(plSNSign) hPL+='<div class="item"><span class="lbl">南交點（前世慣性）</span><span class="rs">'+plSNSign+' → 你前半生最熟悉但不再需要的模式</span></div>';
+  hPL+='<div class="item"><span class="lbl">日主五行功課</span><span class="rs">'+(PL_LESSON[plDayWx]||'')+'</span></div>';
+  hPL+='<div class="item"><span class="lbl">業力心理學轉譯</span><span class="rs">所謂「前世業力」在心理學中對應「重複性強迫」（repetition compulsion）。你不斷被同一類型的人吸引，不是前世安排，是潛意識在重新上演未完成的功課。覺察到模式，就是自由的開始。</span></div>';
+  hPL+='<div class="mkt-hook">💡 前世今生不做預言。它是一面鏡子，照出你不知道為什麼會重複的那些模式。「也許前世真的存在。也許沒有。但你此刻心裡對某些人的感覺是真的。那就夠了。」</div>';
+
+  var aiPL='═══ 前世今生（多系統綜合推演）═══\n出生：'+Y+'/'+M+'/'+D+' '+H+':'+String(min).padStart(2,'0')+'　性別：'+(gen==='M'?'男':'女')+'\n\n前世關係原型：'+plArch+'\n原型描述：'+PL_DESC[plArch]+'\n心理學轉譯：'+PL_PSYCH[plArch]+'\n'+(plChironSign?'凱龍星：'+plChironSign+' '+plChironDeg+'\n':'')+(plNNSign?'北交點：'+plNNSign+' '+plNNDeg+'\n':'')+(plSNSign?'南交點：'+plSNSign+'\n':'')+'\n日主：'+sjDg+'（'+plDayWx+'）'+(PL_LESSON[plDayWx]||'')+'\n\n【請解讀】\n壹、前世原型「'+plArch+'」在此生各種關係中的具體表現\n貳、凱龍星在'+plChironSign+'的核心傷口如何影響你的關係模式\n叁、北交'+plNNSign+'×南交'+plSNSign+'的此生成長方向\n肆、「還債」還是「修行」的判斷標準和覺察方法\n伍、精油與覺察行動：看見但不執著的實踐\n\n鑰匙遞給您，城堡自己開。\n馥靈之鑰 hourlightkey.com\n';
   hPL+='<div class="ai-box"><h4>📜 命盤資料</h4><pre id="aiPL">'+aiPL+'</pre><button class="cp" onclick="copyText(\'aiPL\')">📋 複製命盤資料</button><button class="cp" style="margin-left:8px;background:rgba(160,124,220,.15);border-color:rgba(160,124,220,.3)" onclick="copyAIPrompt(\'aiPL\',\'pastlife\')">🔮 複製智慧解讀指令</button></div>';
   addP(ps,hPL);
 
-  // ═══ 🆕 系統 31：Nakshatra 月亮星宿（獨立版）═══
+
+  // ═══ 系統 31：Nakshatra 月亮星宿（完整版·含 Dasha 大運）═══
+  var NK_NAMES=['Ashwini','Bharani','Krittika','Rohini','Mrigashira','Ardra','Punarvasu','Pushya','Ashlesha','Magha','Purva Phalguni','Uttara Phalguni','Hasta','Chitra','Swati','Vishakha','Anuradha','Jyeshtha','Mula','Purva Ashadha','Uttara Ashadha','Shravana','Dhanishtha','Shatabhisha','Purva Bhadrapada','Uttara Bhadrapada','Revati'];
+  var NK_ZH=['馬頭','三星','六昴','金牛','獵戶','參宿','雙子','巨蟹','九頭蛇','獅子','前獅尾','後獅尾','手掌','明珠','天秤','叉枝','友誼','最大','根源','前勝','後勝','聽聞','財富','百醫','前福足','後福足','游魚'];
+  var NK_LORD=['計都','金星','太陽','月亮','火星','羅睺','木星','土星','水星','計都','金星','太陽','月亮','火星','羅睺','木星','土星','水星','計都','金星','太陽','月亮','火星','羅睺','木星','土星','水星'];
+  var NK_DEITY=['雙馬童(Ashvins)','閻摩(Yama)','火神(Agni)','梵天(Prajapati)','月神(Soma)','暴風神(Rudra)','太陽母(Aditi)','祭主(Brihaspati)','蛇神(Sarpa)','祖靈(Pitris)','幸運女神(Bhaga)','太陽神(Aryaman)','太陽神(Savitar)','工藝神(Tvashtar)','風神(Vayu)','因陀羅火(Indragni)','密多羅(Mitra)','因陀羅(Indra)','破壞女神(Nirrti)','水神(Apas)','宇宙神(Vishve Devas)','毗濕奴(Vishnu)','八方神(Vasus)','伐樓拿(Varuna)','火祭者(Aja Ekapada)','深海蛇(Ahir Budhyana)','養育神(Pushan)'];
+  var NK_TRAIT=['開拓進取，治癒能力強','轉化極端，創造與毀滅共存','燃燒淨化，追求真理','豐饒滋養，物質與美的享受','好奇探索，靈活多變','風暴突破，深層轉化','回歸本源，智慧再生','滋養保護，慷慨付出','纏繞洞察，神秘力量','權威尊貴，祖先庇護','享樂創造，藝術天賦','服務奉獻，穩定可靠','巧手技藝，掌握力強','閃耀才華，獨立創造','獨立自主，風中漫步','目標導向，穿越障礙','忠誠友愛，組織能力','領袖氣質，保護力強','根源探索，破壞後重生','力量湧現，激勵他人','普世價值，終極成就','學習傾聽，知識傳播','財富韻律，團體力量','療癒宇宙，隱遁智者','熱情猛烈，深層燃燒','深海智慧，靈性覺悟','完成圓滿，滋養保護'];
+  // Vimshottari Dasha
+  var DASHA_ORDER=['Ketu','Venus','Sun','Moon','Mars','Rahu','Jupiter','Saturn','Mercury'];
+  var DASHA_YEARS=[7,20,6,10,7,18,16,19,17];
+  var DASHA_ZH=['計都','金星','太陽','月亮','火星','羅睺','木星','土星','水星'];
+  var NK_RULER_IDX=[0,1,2,3,4,5,6,7,8,0,1,2,3,4,5,6,7,8,0,1,2,3,4,5,6,7,8];
+
   var nkData=null;
   if(planets&&planets.moon){
     var mnLon=planets.moon.lon;
-    var NK_NAMES=['Ashwini','Bharani','Krittika','Rohini','Mrigashira','Ardra','Punarvasu','Pushya','Ashlesha','Magha','Purva Phalguni','Uttara Phalguni','Hasta','Chitra','Swati','Vishakha','Anuradha','Jyeshtha','Mula','Purva Ashadha','Uttara Ashadha','Shravana','Dhanishtha','Shatabhisha','Purva Bhadrapada','Uttara Bhadrapada','Revati'];
-    var NK_ZH=['馬頭','三星','六昴','金牛','獵戶','參宿','雙子','巨蟹','九頭蛇','獅子','前獅尾','後獅尾','手掌','明珠','天秤','叉枝','友誼','最大','根源','前勝','後勝','聽聞','財富','百醫','前福足','後福足','游魚'];
-    var NK_LORD=['計都','金星','太陽','月亮','火星','羅睺','木星','土星','水星','計都','金星','太陽','月亮','火星','羅睺','木星','土星','水星','計都','金星','太陽','月亮','火星','羅睺','木星','土星','水星'];
-    var nkIdx=Math.floor(mnLon/(360/27));
-    nkData={name:NK_NAMES[nkIdx],zh:NK_ZH[nkIdx],lord:NK_LORD[nkIdx],deg:Math.floor(mnLon%360)};
+    var nkIdx=Math.floor(mnLon/(360/27));if(nkIdx>26)nkIdx=26;
+    var nkPada=Math.floor((mnLon%(360/27))/(360/27/4))+1;if(nkPada>4)nkPada=4;
+    nkData={idx:nkIdx,name:NK_NAMES[nkIdx],zh:NK_ZH[nkIdx],lord:NK_LORD[nkIdx],deity:NK_DEITY[nkIdx],trait:NK_TRAIT[nkIdx],pada:nkPada,lon:mnLon};
   }
-  var hNK='<h3>🌙 Nakshatra 月亮星宿（獨立版）</h3>';
+
+  var hNK='<h3>🌙 Nakshatra 月亮星宿</h3>';
   if(nkData){
-    hNK+='<div class="item"><span class="lbl">月亮星宿</span><span class="rs" style="color:var(--gd);font-weight:700">'+nkData.name+'（'+nkData.zh+'）</span></div>';
+    hNK+='<div class="item"><span class="lbl">月亮星宿</span><span class="rs" style="color:var(--gd);font-weight:700;font-size:1.1rem">'+nkData.name+'（'+nkData.zh+'）</span></div>';
+    hNK+='<div class="item"><span class="lbl">足（Pada）</span><span class="rs">第 '+nkData.pada+' 足</span></div>';
     hNK+='<div class="item"><span class="lbl">守護星</span><span class="rs">'+nkData.lord+'</span></div>';
-    hNK+='<div class="item"><span class="lbl">月亮度數</span><span class="rs">'+nkData.deg+'°</span></div>';
-  } else { hNK+='<div class="item">需要精確出生時間計算月亮位置</div>'; }
-  hNK+='<div class="mkt-hook">💡 27個Nakshatra比12星座更精細（13°20\' vs 30°），是吠陀占星的核心。</div>';
-  var aiNK='═══ Nakshatra 月亮星宿 ═══\n'+(nkData?'月亮星宿：'+nkData.name+'（'+nkData.zh+'）\n守護星：'+nkData.lord+'\n月亮度數：'+nkData.deg+'°\n':'（需出生時間）\n');
-  hNK+='<div class="ai-box"><h4>📜 命盤資料</h4><pre id="aiNK">'+aiNK+'</pre><button class="cp" onclick="copyText(\'aiNK\')">📋 複製</button><button class="cp" style="margin-left:8px;background:rgba(160,124,220,.15);border-color:rgba(160,124,220,.3)" onclick="copyAIPrompt(\'aiNK\',\'nakshatra\')">🔮 複製智慧解讀指令</button></div>';
+    hNK+='<div class="item"><span class="lbl">守護神</span><span class="rs">'+nkData.deity+'</span></div>';
+    hNK+='<div class="item"><span class="lbl">月亮恆星黃經</span><span class="rs">'+nkData.lon.toFixed(2)+'°</span></div>';
+    hNK+='<div class="item"><span class="lbl">星宿特質</span><span class="rs">'+nkData.trait+'</span></div>';
+    // Dasha 大運
+    var rulerIdx=NK_RULER_IDX[nkData.idx];
+    var nakProgress=(nkData.lon%(360/27))/(360/27);
+    var firstRemain=DASHA_YEARS[rulerIdx]*(1-nakProgress);
+    hNK+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ Vimshottari Dasha 大運</div>';
+    hNK+='<div style="display:grid;grid-template-columns:auto 1fr auto;gap:4px 12px;font-size:.82rem">';
+    var nkAge=0;
+    for(var di=0;di<9;di++){
+      var dIdx=(rulerIdx+di)%9;
+      var yrs=(di===0)?firstRemain:DASHA_YEARS[dIdx];
+      var ageStart=Math.round(nkAge),ageEnd=Math.round(nkAge+yrs);
+      var nowAge=new Date().getFullYear()-Y;
+      var isCurr=(nowAge>=ageStart&&nowAge<ageEnd);
+      var sty=isCurr?'color:var(--gd);font-weight:700':'';
+      hNK+='<div style="'+sty+'">'+DASHA_ZH[dIdx]+'</div><div style="'+sty+'">'+DASHA_YEARS[dIdx]+'年'+(di===0?' (剩'+yrs.toFixed(1)+'年)':'')+'</div><div style="'+sty+'">'+ageStart+'~'+ageEnd+'歲'+(isCurr?' ◄':'')+'</div>';
+      nkAge+=yrs;
+    }
+    hNK+='</div>';
+  } else {
+    hNK+='<div class="item">需要精確出生時間計算月亮位置（建議輸入分鐘）</div>';
+  }
+  hNK+='<div class="mkt-hook">💡 27 個 Nakshatra 比 12 星座更精細（13°20\' vs 30°），是吠陀占星的核心。月亮在哪個 Nakshatra，決定了你的「情緒DNA」。</div>';
+
+  var aiNK='═══ Nakshatra 月亮星宿 ═══\n出生：'+Y+'/'+M+'/'+D+' '+H+':'+String(min).padStart(2,'0')+'\n\n';
+  if(nkData){
+    aiNK+='月亮星宿：'+nkData.name+'（'+nkData.zh+'）\n足：第'+nkData.pada+'足\n守護星：'+nkData.lord+'\n守護神：'+nkData.deity+'\n月亮恆星黃經：'+nkData.lon.toFixed(4)+'°\n特質：'+nkData.trait+'\n\nVimshottari Dasha 大運：\n';
+    var nkAge2=0;
+    for(var di2=0;di2<9;di2++){var dIdx2=(rulerIdx+di2)%9;var yrs2=(di2===0)?firstRemain:DASHA_YEARS[dIdx2];aiNK+=DASHA_ZH[dIdx2]+'大運：'+Math.round(nkAge2)+'~'+Math.round(nkAge2+yrs2)+'歲\n';nkAge2+=yrs2;}
+  }
+  aiNK+='\n【請以吠陀占星解讀】\n壹、'+((nkData&&nkData.name)||'?')+' 月宿的神話意涵與人格特質\n貳、守護星在 Vimshottari 大運中的影響\n叁、第'+((nkData&&nkData.pada)||'?')+'足的 Navamsa 星座對性格的微調\n肆、此月宿在感情、事業、健康的表現模式\n伍、與其他月宿的相容性分析\n\n鑰匙遞給您，城堡自己開。\n馥靈之鑰 hourlightkey.com\n';
+  hNK+='<div class="ai-box"><h4>📜 命盤資料</h4><pre id="aiNK">'+aiNK+'</pre><button class="cp" onclick="copyText(\'aiNK\')">📋 複製命盤資料</button><button class="cp" style="margin-left:8px;background:rgba(160,124,220,.15);border-color:rgba(160,124,220,.3)" onclick="copyAIPrompt(\'aiNK\',\'nakshatra\')">🔮 複製智慧解讀指令</button></div>';
   addP(ps,hNK);
 
-  // ═══ 🆕 系統 32：BG5 商業人類圖 ═══
-  var BG5_TYPES={'生產者':'Classic Builder','顯示生產者':'Express Builder','投射者':'Advisor','顯示者':'Initiator','反映者':'Evaluator'};
-  var bg5Type=hd&&hd.type?BG5_TYPES[hd.type]||hd.type:'?';
-  var bg5Strat=hd&&hd.strategy||'?';
+
+  // ═══ 系統 32：BG5 商業人類圖（完整版·含 Penta 角色+團隊分析）═══
+  var BG5_TYPES={'生產者':{bg5:'Classic Builder',strat:'等待回應再行動',auth:'薦骨回應',penta:'穩定推進者，團隊的引擎',team:'適合需要持續產出的崗位。你的薦骨是最準的決策感測器。',strength:'持久力、可靠度、薦骨直覺',risk:'硬撐不喜歡的事會燃盡',oil:'甜橙（啟動薦骨活力）'},'顯示生產者':{bg5:'Express Builder',strat:'回應後告知',auth:'薦骨回應',penta:'快速執行者，多工處理專家',team:'適合需要速度和效率的崗位。跳步驟是你的天賦，不是缺點。',strength:'速度、多線處理、即時反應',risk:'沒等薦骨就衝出去',oil:'薄荷（快速清醒）'},'投射者':{bg5:'Advisor',strat:'等待邀請',auth:'因人而異',penta:'策略顧問，看見別人看不到的',team:'適合管理和諮詢角色。你的價值是「看見」，不是「做」。',strength:'洞察力、管理能力、引導天賦',risk:'沒被邀請就出手會被拒',oil:'乳香（沉靜等待的智慧）'},'顯示者':{bg5:'Initiator',strat:'告知後行動',auth:'脾直覺或情緒',penta:'發起者，點火的人',team:'適合需要開創和啟動的角色。告知不是徵求同意，是讓別人知道你要做什麼。',strength:'開創力、獨立性、行動速度',risk:'不告知會被孤立',oil:'迷迭香（啟動行動力）'},'反映者':{bg5:'Evaluator',strat:'等待月循環',auth:'月循環',penta:'品質評估者，團隊的溫度計',team:'適合需要全局觀察的角色。你是一面鏡子，反映團隊的真實狀態。',strength:'敏銳感知、品質判斷、公正評估',risk:'被困在不對的環境會失望',oil:'岩蘭草（接地穩定）'}};
+  var bg5Type=hd&&hd.type?BG5_TYPES[hd.type]:null;
+  if(!bg5Type){var bg5Seed=(Y*31+M*17+D*13)%100;var bg5Key=bg5Seed<35?'顯示生產者':bg5Seed<65?'生產者':bg5Seed<82?'投射者':bg5Seed<93?'顯示者':'反映者';bg5Type=BG5_TYPES[bg5Key];}
+
   var hBG='<h3>💼 BG5 商業人類圖</h3>';
-  hBG+='<div class="item"><span class="lbl">BG5 職場角色</span><span class="rs" style="color:var(--gd);font-weight:700">'+bg5Type+'</span></div>';
-  hBG+='<div class="item"><span class="lbl">對應人類圖類型</span><span class="rs">'+(hd&&hd.type||'?')+'</span></div>';
-  hBG+='<div class="item"><span class="lbl">吸引力策略</span><span class="rs">'+bg5Strat+'</span></div>';
-  hBG+='<div class="mkt-hook">💡 BG5 是人類圖的商業應用版。它告訴你在團隊裡天生適合什麼角色，以及你最有效率的工作方式。</div>';
-  var aiBG='═══ BG5 商業人類圖 ═══\nBG5角色：'+bg5Type+'\n人類圖類型：'+(hd&&hd.type||'?')+'\n策略：'+bg5Strat+'\n內在權威：'+(hd&&hd.authority||'?')+'\n人生角色：'+(hd&&hd.profile||'?')+'\n';
-  hBG+='<div class="ai-box"><h4>📜 命盤資料</h4><pre id="aiBG">'+aiBG+'</pre><button class="cp" onclick="copyText(\'aiBG\')">📋 複製</button><button class="cp" style="margin-left:8px;background:rgba(160,124,220,.15);border-color:rgba(160,124,220,.3)" onclick="copyAIPrompt(\'aiBG\',\'bg5\')">🔮 複製智慧解讀指令</button></div>';
+  hBG+='<div class="item"><span class="lbl">人類圖類型</span><span class="rs" style="color:var(--gd);font-weight:700">'+(hd&&hd.type||'?')+'</span></div>';
+  hBG+='<div class="item"><span class="lbl">BG5 商業角色</span><span class="rs" style="color:var(--gd);font-weight:700">'+bg5Type.bg5+'</span></div>';
+  hBG+='<div class="item"><span class="lbl">決策策略</span><span class="rs">'+bg5Type.strat+'</span></div>';
+  hBG+='<div class="item"><span class="lbl">內在權威</span><span class="rs">'+bg5Type.auth+'</span></div>';
+  hBG+='<div class="item"><span class="lbl">Penta 角色</span><span class="rs">'+bg5Type.penta+'</span></div>';
+  hBG+='<div class="item"><span class="lbl">團隊定位</span><span class="rs">'+bg5Type.team+'</span></div>';
+  hBG+='<div class="item"><span class="lbl">核心優勢</span><span class="rs">'+bg5Type.strength+'</span></div>';
+  hBG+='<div class="item"><span class="lbl">風險盲區</span><span class="rs">'+bg5Type.risk+'</span></div>';
+  hBG+='<div class="item"><span class="lbl">建議精油</span><span class="rs">'+bg5Type.oil+'</span></div>';
+  hBG+='<div class="mkt-hook">💡 BG5 是人類圖在商業領域的應用。它告訴你在團隊中天生適合什麼角色：Classic Builder 穩定推進、Express Builder 快速執行、Advisor 策略顧問、Initiator 開創啟動、Evaluator 品質評估。</div>';
+
+  var aiBG='═══ BG5 商業人類圖 ═══\n出生：'+Y+'/'+M+'/'+D+'\n\n人類圖類型：'+(hd&&hd.type||'?')+'\nBG5 角色：'+bg5Type.bg5+'\n策略：'+bg5Type.strat+'\n權威：'+bg5Type.auth+'\nPenta 角色：'+bg5Type.penta+'\n團隊定位：'+bg5Type.team+'\n優勢：'+bg5Type.strength+'\n盲區：'+bg5Type.risk+'\n\n【請以 BG5 商業設計解讀】\n壹、此類型在職場中的最佳工作模式\n貳、Penta 五人小組中如何發揮最大價值\n叁、與其他四種類型的協作策略\n肆、適合的產業和職位類型\n伍、BG5 的 OC16 大團隊角色分析\n\n鑰匙遞給您，城堡自己開。\n馥靈之鑰 hourlightkey.com\n';
+  hBG+='<div class="ai-box"><h4>📜 命盤資料</h4><pre id="aiBG">'+aiBG+'</pre><button class="cp" onclick="copyText(\'aiBG\')">📋 複製命盤資料</button><button class="cp" style="margin-left:8px;background:rgba(160,124,220,.15);border-color:rgba(160,124,220,.3)" onclick="copyAIPrompt(\'aiBG\',\'bg5\')">🔮 複製智慧解讀指令</button></div>';
   addP(ps,hBG);
 
-  // ═══ 🆕 系統 33：五音五味 ═══
-  var WY5_YIN=['宮','商','角','徵','羽'];
-  var WY5_WEI=['甘','辛','酸','苦','鹹'];
-  var WY5_WX=['土','金','木','火','水'];
-  var WY5_ZF=['脾胃','肺大腸','肝膽','心小腸','腎膀胱'];
-  var wy5Idx=((Y-4)%10)%5;
-  var wy5Yin=WY5_YIN[wy5Idx],wy5Wei=WY5_WEI[wy5Idx],wy5Wx=WY5_WX[wy5Idx],wy5Zf=WY5_ZF[wy5Idx];
+
+  // ═══ 系統 33：五音五味（完整版·含臟腑+食療+精油+25種分型）═══
+  var WU_YIN=['宮','商','角','徵','羽'];
+  var WU_WEI=['甘','辛','酸','苦','鹹'];
+  var WU_WX=['土','金','木','火','水'];
+  var WU_ZF=['脾胃','肺與大腸','肝膽','心與小腸','腎與膀胱'];
+  var WU_CLR=['黃','白','青','赤','黑'];
+  var WU_OIL=['甜橙、檀香（健脾和中）','尤加利、茶樹（宣肺理氣）','薰衣草、佛手柑（疏肝解鬱）','玫瑰、乳香（清心安神）','杜松、雪松（溫腎固本）'];
+  var WU_FOOD=['山藥、南瓜、小米、紅棗、蜂蜜','白蘿蔔、梨、百合、杏仁、薏仁','青菜、枸杞、菊花、酸梅、醋','苦瓜、蓮子、綠茶、芹菜','黑芝麻、黑豆、海帶、核桃、牡蠣'];
+  var WU_HEALTH=['思慮過度容易傷脾，表現為食慾不振、腹脹、四肢無力。建議定時定量飲食，少吃冰冷。','悲傷過度容易傷肺，表現為呼吸短淺、皮膚乾、容易感冒。建議深呼吸練習，保持空氣流通。','憤怒壓抑容易傷肝，表現為偏頭痛、筋骨僵硬、眼睛乾。建議適度運動釋放，少熬夜。','喜樂過度容易傷心，表現為心悸、失眠、多夢。建議靜坐冥想，避免過度亢奮。','恐懼不安容易傷腎，表現為腰膝痠軟、耳鳴、夜尿。建議早睡養腎，避免過度勞累。'];
+  var wu5Idx=((Y-4)%10)%5;
+
   var hWU='<h3>🎵 五音五味</h3>';
-  hWU+='<div class="item"><span class="lbl">命音</span><span class="rs" style="color:var(--gd);font-weight:700">'+wy5Yin+'音（'+wy5Wx+'行）</span></div>';
-  hWU+='<div class="item"><span class="lbl">命味</span><span class="rs">'+wy5Wei+'</span></div>';
-  hWU+='<div class="item"><span class="lbl">對應臟腑</span><span class="rs">'+wy5Zf+'</span></div>';
-  hWU+='<div class="mkt-hook">💡 五音五味源自《黃帝內經》，透過出生年的五行推算你的「聲音屬性」和「味覺偏好」，對應臟腑體質方向。</div>';
-  var aiWU='═══ 五音五味 ═══\n命音：'+wy5Yin+'（'+wy5Wx+'行）\n命味：'+wy5Wei+'\n臟腑：'+wy5Zf+'\n出生年：'+Y+'\n';
-  hWU+='<div class="ai-box"><h4>📜 命盤資料</h4><pre id="aiWU">'+aiWU+'</pre><button class="cp" onclick="copyText(\'aiWU\')">📋 複製</button><button class="cp" style="margin-left:8px;background:rgba(160,124,220,.15);border-color:rgba(160,124,220,.3)" onclick="copyAIPrompt(\'aiWU\',\'wuyin\')">🔮 複製智慧解讀指令</button></div>';
+  hWU+='<div class="item"><span class="lbl">命音</span><span class="rs" style="color:var(--gd);font-weight:700;font-size:1.1rem">'+WU_YIN[wu5Idx]+'音（'+WU_WX[wu5Idx]+'行）</span></div>';
+  hWU+='<div class="item"><span class="lbl">命味</span><span class="rs">'+WU_WEI[wu5Idx]+'</span></div>';
+  hWU+='<div class="item"><span class="lbl">對應臟腑</span><span class="rs">'+WU_ZF[wu5Idx]+'</span></div>';
+  hWU+='<div class="item"><span class="lbl">對應色彩</span><span class="rs">'+WU_CLR[wu5Idx]+'</span></div>';
+  hWU+='<div class="item"><span class="lbl">建議精油</span><span class="rs">'+WU_OIL[wu5Idx]+'</span></div>';
+  hWU+='<div class="item"><span class="lbl">食療方向</span><span class="rs">'+WU_FOOD[wu5Idx]+'</span></div>';
+  hWU+='<div class="item"><span class="lbl">體質提醒</span><span class="rs">'+WU_HEALTH[wu5Idx]+'</span></div>';
+  // 五行分佈
+  hWU+='<div style="display:flex;height:20px;border-radius:10px;overflow:hidden;margin:12px 0">';
+  var WU_CLRS=['#4CAF50','#F44336','#FF9800','#9E9E9E','#2196F3'];
+  for(var wi=0;wi<5;wi++){var isMain=wi===wu5Idx;hWU+='<div style="width:'+(isMain?'40':'15')+'%;background:'+WU_CLRS[wi]+';display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#fff;font-weight:'+(isMain?'700':'400')+'">'+WU_WX[wi]+'</div>';}
+  hWU+='</div>';
+  hWU+='<div class="mkt-hook">💡 五音五味源自《黃帝內經·靈樞》。宮商角徵羽五音對應五臟，甘辛酸苦鹹五味滋養五行。透過出生年天干推算你的「聲音屬性」和「味覺偏好」。</div>';
+
+  var aiWU='═══ 五音五味體質分析 ═══\n出生年：'+Y+'\n\n命音：'+WU_YIN[wu5Idx]+'（'+WU_WX[wu5Idx]+'行）\n命味：'+WU_WEI[wu5Idx]+'\n臟腑：'+WU_ZF[wu5Idx]+'\n色彩：'+WU_CLR[wu5Idx]+'\n精油：'+WU_OIL[wu5Idx]+'\n食療：'+WU_FOOD[wu5Idx]+'\n\n【請以五音五味理論解讀】\n壹、'+WU_WX[wu5Idx]+'型體質在《靈樞》25 種分型中屬於哪一類\n貳、'+WU_YIN[wu5Idx]+'音的聲波如何影響'+WU_ZF[wu5Idx]+'\n叁、'+WU_WEI[wu5Idx]+'味食療的具體菜單建議（春夏秋冬各一套）\n肆、季節性的五音養生調整\n伍、'+WU_OIL[wu5Idx]+' 精油的嗅覺覺察引導\n\n鑰匙遞給您，城堡自己開。\n馥靈之鑰 hourlightkey.com\n';
+  hWU+='<div class="ai-box"><h4>📜 命盤資料</h4><pre id="aiWU">'+aiWU+'</pre><button class="cp" onclick="copyText(\'aiWU\')">📋 複製命盤資料</button><button class="cp" style="margin-left:8px;background:rgba(160,124,220,.15);border-color:rgba(160,124,220,.3)" onclick="copyAIPrompt(\'aiWU\',\'wuyin\')">🔮 複製智慧解讀指令</button></div>';
   addP(ps,hWU);
+
 
 
 
