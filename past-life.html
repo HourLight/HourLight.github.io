@@ -474,6 +474,25 @@ body{min-height:100vh;font-family:'Noto Serif TC',serif;color:var(--text);backgr
     <div class="share-buttons">
       <button class="share-btn share-btn-primary" id="saveBtn">📥 儲存圖片</button>
       <button class="share-btn share-btn-secondary" id="copyBtn">📋 複製文字</button>
+      <button class="share-btn" id="aiReadBtn" style="background:rgba(160,124,220,.15);border:1px solid rgba(160,124,220,.3);color:rgba(200,180,240,.9)" onclick="(function(btn){
+        var d=window._plData;
+        if(!d){alert('請先等計算完成');return;}
+        var t='【前世今生六鑰解讀】完整資料\n══════════════════\n\n';
+        t+=d.persona+'\n'+d.sub+'\n\n';
+        t+='精油：'+d.oilName+'\n\n';
+        d.keys.forEach(function(k){
+          t+=k.icon+' '+k.label+'\n';
+          if(k.title) t+='  '+k.title+'\n';
+          t+='  '+k.text+'\n';
+          if(k.detail) t+='  ▸ '+k.detail+'\n';
+          t+='\n';
+        });
+        var pre=document.getElementById('plAiPre');
+        if(!pre){pre=document.createElement('pre');pre.id='plAiPre';pre.style.display='none';document.body.appendChild(pre);}
+        pre.textContent=t;
+        if(typeof hlAICopy==='function')hlAICopy('plAiPre','past_life',btn);
+        else{navigator.clipboard.writeText(t);btn.textContent='✅ 已複製';setTimeout(function(){btn.textContent='🔮 複製智慧解讀指令';},2200);}
+      })(this)">🔮 複製智慧解讀指令</button>
     </div>
     <button class="retry-btn" id="retryBtn">↺ 重新解讀</button>
   </div>
@@ -481,6 +500,8 @@ body{min-height:100vh;font-family:'Noto Serif TC',serif;color:var(--text);backgr
 </div>
 
 <!-- 全站 JS -->
+<script src="js/ai-frameworks.js"></script>
+<script src="assets/js/hl-ai-copy.js"></script>
 <script src="assets/js/hourlight-global.js?v=20260318"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
