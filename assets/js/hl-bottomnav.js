@@ -23,7 +23,7 @@
     { icon: SVG_HOME,    label: '首頁',  tip: '回到首頁',      href: 'index.html' },
     { icon: SVG_CARD,    label: '抽牌',  tip: '馥靈牌卡抽牌',  href: 'draw-hl.html' },
     { icon: SVG_CODE,    label: '秘碼',  tip: '馥靈秘碼解析',  href: 'fuling-mima.html' },
-    { icon: SVG_DESTINY, label: '命盤',  tip: '二十四大命理系統',  href: 'destiny-engine.html' },
+    { icon: SVG_DESTINY, label: '命盤',  tip: '三十三大命理系統',  href: 'destiny-engine.html' },
     { icon: SVG_MATCH,   label: '合盤',  tip: '雙人合盤配對',      href: 'destiny-match.html' },
     { icon: SVG_QUIZ,    label: '測驗',  tip: '覺察測驗中心',  href: 'quiz-hub.html' },
     { icon: SVG_MAP,     label: '地圖',  tip: '完整網站地圖',  href: 'hourlight-sitemap.html' },

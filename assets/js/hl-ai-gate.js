@@ -8,7 +8,7 @@
  *
  * 每日限額：
  *   free  → 每天 3 次
- *   plus  → 每天 10 次（3免費+7付費，$399/月）
+ *   plus  → 每天 15 次（3免費+12付費，$399/月）
  *   pro   → 無上限（$999/月）
  *
  * 次數加購：
@@ -24,7 +24,7 @@
 (function(){
   'use strict';
   var GATE_START_TIME = new Date('2026-03-25T16:00:00Z').getTime();
-  var DAILY_LIMITS = { 'free': 3, 'plus': 10, 'pro': Infinity };
+  var DAILY_LIMITS = { 'free': 3, 'plus': 15, 'pro': Infinity };
 
   function getDayKey(){
     var now=new Date();var twMs=now.getTime()+8*3600000;var tw=new Date(twMs);
@@ -125,7 +125,7 @@
     var m=document.createElement('div');m.id='hl-ai-upgrade-modal';
     m.style.cssText='position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(8px)';
     var pn=plan==='free'?'免費會員':'馥靈鑰友';
-    var np=plan==='free'?'馥靈鑰友（$399/月，每天10次）':'馥靈大師（$999/月，無限次）';
+    var np=plan==='free'?'馥靈鑰友（$399/月，每天15次）':'馥靈大師（$999/月，無限次）';
     var hr=getHoursUntilReset();
     m.innerHTML='<div style="max-width:420px;padding:32px 24px;background:#0a0612;border:1px solid rgba(240,212,138,.2);border-radius:20px;text-align:center;color:#f0e8d8;max-height:90vh;overflow-y:auto">'
       +'<div style="font-size:2rem;margin-bottom:12px">🔒</div>'
@@ -136,7 +136,7 @@
       +'<div style="text-align:left;font-size:.82rem;color:rgba(255,255,255,.5);line-height:2;margin-bottom:16px;padding:14px 16px;border-radius:12px;background:rgba(240,212,138,.04);border:1px solid rgba(240,212,138,.1)">'
       +'<div style="color:rgba(240,212,138,.8);font-weight:700;margin-bottom:8px">📋 方案一覽</div>'
       +'► 免費會員：每天 3 次（午夜歸零）<br>'
-      +'► 馥靈鑰友 $399/月：每天 10 次（午夜歸零）<br>'
+      +'► 馥靈鑰友 $399/月：每天 15 次（午夜歸零）<br>'
       +'► 馥靈大師 $999/月：無限次<br>'
       +'<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(240,212,138,.08)">'
       +'🎯 次數加購：10 次 / $199（永久有效，不歸零）</div>'

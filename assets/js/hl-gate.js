@@ -89,7 +89,6 @@
       +   'Google 快速登入'
       + '</button>'
       + '<a href="member-login.html" style="display:block;padding:12px 20px;border:1px solid rgba(233,194,125,.2);border-radius:12px;color:#999;font-size:13px;text-decoration:none;letter-spacing:.06em;transition:all .25s;margin-bottom:20px">Email 登入 / 註冊</a>'
-      + '<button id="hlGC" style="background:none;border:none;color:#555;font-size:12px;cursor:pointer;letter-spacing:.08em;font-family:inherit;padding:8px 16px">先看看就好，稍後再登入</button>'
       + '<div style="font-size:11px;color:#444;margin-top:16px;letter-spacing:.05em;line-height:1.8">免費帳號 ✦ 不需信用卡 ✦ 資料嚴格保護</div>'
       + '</div>';
 
@@ -112,8 +111,6 @@
       } catch(e){ location.href='member-login.html'; }
     };
 
-    // 關閉
-    document.getElementById('hlGC').onclick = function(){ hideOL(); };
     return overlayEl;
   }
 

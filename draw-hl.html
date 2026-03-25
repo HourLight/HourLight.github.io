@@ -1210,7 +1210,7 @@
           </div>
           <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px">
             <span style="flex-shrink:0;width:26px;height:26px;border-radius:50%;background:rgba(240,212,138,.12);color:rgba(240,212,138,.85);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700">2</span>
-            <span>匯款至下方帳戶，將<strong style="color:rgba(240,212,138,.8)">匯款截圖 + 抽牌結果</strong>傳到 LINE</span>
+            <span>把<strong style="color:rgba(240,212,138,.8)">匯款截圖 + 抽牌結果</strong>傳到 LINE，我們收到就幫您排解讀</span>
           </div>
           <div style="display:flex;align-items:flex-start;gap:10px">
             <span style="flex-shrink:0;width:26px;height:26px;border-radius:50%;background:rgba(240,212,138,.12);color:rgba(240,212,138,.85);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700">3</span>
@@ -1248,7 +1248,7 @@
           <button onclick="toggleBankTransfer()" id="bankBtn"
             style="flex:1;min-width:200px;max-width:280px;padding:16px 20px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:rgba(255,255,255,.7);font-size:1rem;font-weight:700;cursor:pointer;transition:all .3s;letter-spacing:.04em">
             🏦 銀行轉帳
-            <div style="font-size:.75rem;font-weight:400;color:rgba(255,255,255,.35);margin-top:4px">手動匯款＋LINE 傳截圖</div>
+            <div style="font-size:.75rem;font-weight:400;color:rgba(255,255,255,.35);margin-top:4px">匯款後傳截圖，3分鐘搞定</div>
           </button>
         </div>
       </div>
@@ -1270,7 +1270,7 @@
         <div style="font-size:.82rem;color:rgba(255,255,255,.55);line-height:2">
           ► 上班時間（週一至週五 10:00-18:00）：確認付款後 <strong style="color:rgba(240,212,138,.8)">30 分鐘內</strong>回覆解讀結果<br>
           ► 下班時間或假日：解讀將於次營業日處理<br>
-          ► 急件需求：請加 LINE ID <strong style="color:rgba(240,212,138,.8)">judyanee</strong> 直接聯繫，將優先為您安排
+          ► 比較趕的話：直接加 LINE <strong style="color:rgba(240,212,138,.8)">judyanee</strong>，告訴我，我會優先處理
         </div>
       </div>
 
@@ -1295,7 +1295,19 @@
     <!-- 9張+：LINE 覺察師 -->
     <div id="aiPractitionerBlock" style="display:none;text-align:center">
       <p style="color:rgba(255,255,255,.6);font-size:.88rem;margin-bottom:16px">9 張以上由覺察師為您深度解讀</p>
-      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" class="hl-v2-btn hl-v2-btn-primary">🌿 LINE 預約覺察師</a>
+
+      <!-- 抵用券說明 -->
+      <div id="voucherHint" style="display:none;margin-bottom:16px;padding:16px 18px;border-radius:14px;background:rgba(240,212,138,.06);border:1px solid rgba(240,212,138,.2);font-size:.85rem;color:rgba(244,240,235,.8);line-height:1.9;text-align:left">
+        <div style="color:#f0d48a;font-weight:700;margin-bottom:10px">🎟️ 您有 <span id="voucherCount">0</span> 張 $500 解牌抵用券可用</div>
+        <div id="voucherList" style="margin-bottom:12px;font-size:.82rem;color:rgba(244,240,235,.65)"></div>
+        <div style="margin-bottom:10px;font-size:.82rem;color:rgba(244,240,235,.6)">每張可折抵 9 張以上一對一抽牌解讀費用（不含美甲、SPA），三個月內有效。</div>
+        <div>
+          <button onclick="useVoucher()" style="padding:10px 24px;border-radius:12px;background:linear-gradient(135deg,#f0d48a,#c9a060);color:#1a1520;font-weight:700;font-size:.9rem;border:none;cursor:pointer;letter-spacing:.04em">🎟️ 使用一張抵用券預約</button>
+        </div>
+      </div>
+
+      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" class="hl-v2-btn hl-v2-btn-primary" id="lineBookBtn">🌿 LINE 預約覺察師（$1,800 起）</a>
+      <p style="margin-top:10px;font-size:.78rem;color:rgba(255,255,255,.4)">▸ 馥靈大師會員每月獲贈 $500 抵用券 × 2 張（限 9 張以上抽牌解讀，不含美甲、SPA，三個月有效）</p>
     </div>
 
     <!-- Loading 動畫 -->
@@ -2242,9 +2254,150 @@ restoreFromURL();
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
+<script>
+// ═══ 抵用券系統 v2.0（含序號 + 三個月期限）═══
+
+// 格式化到期日
+function _vFmtDate(ts){
+  var d=new Date(ts);
+  return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+ d.getDate();
+}
+
+// 產生使用序號 HL-U-YYYYMMDD-XXXX
+function _vGenUseCode(){
+  var now=new Date();
+  var d=now.getFullYear()+
+    String(now.getMonth()+1).padStart(2,'0')+
+    String(now.getDate()).padStart(2,'0');
+  var r=String(Math.floor(Math.random()*9000)+1000);
+  return 'HL-U-'+d+'-'+r;
+}
+
+function checkVouchers(){
+  if(typeof firebase==='undefined'||!firebase.auth) return;
+  var user=firebase.auth().currentUser;
+  if(!user) return;
+  var now=Date.now();
+  firebase.firestore().collection('users').doc(user.uid)
+    .collection('vouchers')
+    .where('used','==',false)
+    .where('type','==','reading500')
+    .get().then(function(snap){
+      // 過濾未過期（三個月 = 90天）
+      var valid=[];
+      snap.forEach(function(doc){
+        var d=doc.data();
+        var exp=d.expiresAt||(d.issuedAt+90*24*3600000);
+        if(now<exp) valid.push({id:doc.id,data:d,exp:exp});
+      });
+      var hint=document.getElementById('voucherHint');
+      var countEl=document.getElementById('voucherCount');
+      var listEl=document.getElementById('voucherList');
+      if(!hint) return;
+      if(valid.length>0){
+        if(countEl) countEl.textContent=valid.length;
+        if(listEl){
+          listEl.innerHTML=valid.map(function(v){
+            return '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(240,212,138,.08)">'
+              +'<span style="color:rgba(240,212,138,.9);font-family:monospace;font-size:.8rem">'+
+              (v.data.code||('HL-V-'+v.id.slice(0,8).toUpperCase()))+'</span>'
+              +'<span style="color:rgba(255,255,255,.4);font-size:.78rem">有效至 '+_vFmtDate(v.exp)+'</span>'
+              +'</div>';
+          }).join('');
+        }
+        hint.style.display='block';
+        // 儲存供 useVoucher 使用
+        window._validVouchers=valid;
+      }
+    }).catch(function(){});
+}
+
+function useVoucher(){
+  if(typeof firebase==='undefined'||!firebase.auth||!firebase.auth().currentUser){
+    if(confirm('請先登入會員以使用抵用券，前往登入？'))
+      window.location.href='member-login.html';
+    return;
+  }
+  var valid=window._validVouchers;
+  if(!valid||valid.length===0){
+    alert('您目前沒有可用的抵用券');
+    return;
+  }
+  var user=firebase.auth().currentUser;
+  var db=firebase.firestore();
+  var target=valid[0]; // 用最舊的一張
+  var useCode=_vGenUseCode();
+  var vCode=target.data.code||('HL-V-'+target.id.slice(0,8).toUpperCase());
+
+  // 更新 Firestore
+  target.data.ref||db.collection('users').doc(user.uid).collection('vouchers').doc(target.id)
+    .update({
+      used:true,
+      usedAt:Date.now(),
+      usedFor:'draw-9plus',
+      useCode:useCode
+    });
+
+  // 全域 log
+  db.collection('voucher_log').add({
+    uid:user.uid,
+    email:user.email||'',
+    voucherCode:vCode,
+    useCode:useCode,
+    usedAt:Date.now(),
+    usedFor:'draw-9plus'
+  }).catch(function(){});
+
+  // 複製結果
+  var cpBtn=document.getElementById('cpyBtn');
+  if(cpBtn) cpBtn.click();
+
+  // LINE 訊息帶序號
+  var msg='【抵用券預約 '+useCode+'】\n'
+    +'我要預約 9 張以上覺察師解讀（$500 抵用券）\n'
+    +'抵用券序號：'+vCode+'\n'
+    +'使用代碼：'+useCode+'\n'
+    +'抽牌結果已複製，傳給您參考。';
+  window.open('https://social-plugins.line.me/lineit/share?url='
+    +encodeURIComponent('https://hourlightkey.com/draw-hl.html')
+    +'&text='+encodeURIComponent(msg),'_blank');
+
+  // 更新本地狀態
+  valid.shift();
+  window._validVouchers=valid;
+  var hint=document.getElementById('voucherHint');
+  var countEl=document.getElementById('voucherCount');
+  if(valid.length===0&&hint) hint.style.display='none';
+  else if(countEl) countEl.textContent=valid.length;
+}
+document.addEventListener('DOMContentLoaded',function(){
+  setTimeout(function(){
+    document.querySelectorAll('.hl-v2-mode-btn[data-n]').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        if(parseInt(btn.getAttribute('data-n'))>=9) setTimeout(checkVouchers,400);
+      });
+    });
+  },800);
+});
+</script>
 <script src="assets/js/hl-referral.js?v=20260323"></script>
 <script src="assets/js/hl-castle-key.js"></script>
 <script src="assets/js/hl-share.js"></script>
+<script>
+// 抽牌結果底部彩蛋
+(function(){
+  var eggTriggered = false;
+  window.addEventListener('scroll', function(){
+    if(eggTriggered) return;
+    var bottom = document.documentElement.scrollHeight - window.scrollY - window.innerHeight;
+    if(bottom < 120 && typeof HLPOINTS !== 'undefined'){
+      // 只有顯示了結果才觸發
+      var hasResult = document.querySelector('.hl-bestie-content, .hl-card-reveal, [id*="result"], .draw-result');
+      if(hasResult){ eggTriggered = true; HLPOINTS.triggerDrawEgg(); }
+    }
+  });
+})();
+</script>
 <script src="assets/js/hl-tracker.js" data-tool="draw-hl" data-tool-name="馥靈牌陣抽牌" data-tool-type="draw"></script>
 
 <script>
@@ -2429,5 +2582,7 @@ function saveDrawToFirestore(n, cardCodes, cardTitles, question) {
   } catch(e) {}
 }
 </script>
+<!-- draw-hl 不計次，不鎖 -->
+<script src="assets/js/hl-points.js"></script>
 </body>
 </html>
