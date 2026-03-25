@@ -10,12 +10,12 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>寵物溝通牌卡｜聽見毛孩想說的話｜馥靈之鑰</title>
-<meta name="description" content="馥靈之鑰寵物溝通系統：20 題覺察問卷 + 130 張牌卡 + AI 即時深度解讀。一段您和毛孩之間的心靈對話。"/>
+<meta name="description" content="馥靈之鑰寵物溝通系統：20 題覺察問卷 + 130 張牌卡 + 即時智慧解讀。一段您和毛孩之間的心靈對話。"/>
 <link rel="icon" href="favicon.ico"/>
 <link rel="canonical" href="https://hourlightkey.com/pet-reading.html"/>
 <meta property="og:type" content="website"/><meta property="og:url" content="https://hourlightkey.com/pet-reading.html"/>
 <meta property="og:title" content="寵物溝通牌卡｜聽見毛孩想說的話｜馥靈之鑰"/>
-<meta property="og:description" content="20 題覺察問卷 + 130 張牌卡 + AI 即時解讀。一段您和毛孩之間的心靈對話。"/>
+<meta property="og:description" content="20 題覺察問卷 + 130 張牌卡 + 即時智慧解讀。一段您和毛孩之間的心靈對話。"/>
 <meta property="og:image" content="https://hourlightkey.com/og-image.jpg"/><meta property="og:locale" content="zh_TW"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -469,7 +469,23 @@ goScene=function(n){
 };
 
 // ══════ AI Reading ══════
-async function requestAIReading(){
+
+function requestAIReading(){
+  // 付款牆攔截
+  if(typeof hlPaywall!=='undefined'){
+    var petPriceMap={3:199,5:399,7:599};
+    if(petPriceMap[currentSpread]){
+      hlPaywall.show({n:currentSpread,priceMap:petPriceMap,serviceName:'寵物溝通智慧解讀'});
+      return;
+    }
+  }
+  if(typeof hlAIGateCheck==='function'){
+    hlAIGateCheck(function(){ _requestAIReadingOriginal(); });
+  }else{
+    _requestAIReadingOriginal();
+  }
+}
+async function _requestAIReadingOriginal(){
   document.getElementById('aiReadBtn').disabled=true;
   document.getElementById('aiReadBtn').textContent='🐾 連結中...';
   goScene(8);
@@ -573,6 +589,8 @@ function copyReading(){
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-referral.js?v=20260323"></script>
+<script src="assets/js/hl-ai-gate.js"></script>
 <script src="assets/js/hl-gate.js"></script>
 <script src="assets/js/hl-record.js"></script>
 <footer class="hl-footer">
@@ -587,7 +605,7 @@ function copyReading(){
     </div>
     </div>
         <div class="hl-footer-links">
-      <a href="app.html">🔑 會員工作台</a><a href="index.html">首頁</a>
+      <a href="app.html">🔑 我的內在城堡</a><a href="index.html">首頁</a>
       <a href="fuling-mima.html">生命秘碼</a><a href="draw-hl.html">線上抽牌</a>
       <a href="destiny-engine.html">命盤引擎</a><a href="services.html">服務項目</a>
       <a href="courses.html">課程學苑</a><a href="book.html">著作</a>
@@ -601,6 +619,7 @@ function copyReading(){
 <script src="assets/js/hl-topnav.js"></script>
 <script src="assets/js/hl-bottomnav.js"></script>
 <script src="assets/js/hl-email.js"></script>
+<script src="assets/js/hl-paywall.js"></script>
 <script src="assets/js/hl-chat.js"></script>
 <script src="assets/js/hl-aroma-fx.js" defer></script>
 <script src="assets/js/hl-share.js"></script>

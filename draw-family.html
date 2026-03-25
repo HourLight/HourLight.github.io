@@ -356,7 +356,7 @@ let selectedCards=[],quizAnswers={},selectedTags=[];
 // ══════ 農曆自動轉換 ══════
 function autoLunar(dateStr){
   if(!dateStr)return null;
-  try{var d=new Date(dateStr);var solar=Solar.fromYmd(d.getFullYear(),d.getMonth()+1,d.getDate());var lunar=solar.getLunar();return{month:Math.abs(lunar.getMonth()),day:lunar.getDay()}}catch(e){return null}
+  try{var d=new Date(dateStr);var solar=Solar.fromYmd(d.getFullYear(),d.getMonth()+1,d.getDate());var lunar=solar.getLunar();return{month:Math.abs(lunar.getMonth()),day:lunar.getDay(),isLeap:lunar.getMonth()<0}}catch(e){return null}
 }
 
 function digitSum(n){n=Math.abs(n);while(n>9&&n!==11&&n!==22&&n!==33)n=String(n).split('').reduce((a,b)=>a+Number(b),0);return n}
@@ -466,7 +466,7 @@ function buildPrompt(){
   if(lp||fl||tri){
     p+='\n══════ 數字命理資料 ══════\n';
     if(solar)p+='西曆生日：'+solar+'\n';
-    if(lunarM&&lunarD)p+='農曆生日：'+lunarM+'月'+lunarD+'日\n';
+    if(lunarM&&lunarD)p+='農曆生日：'+(lunar&&lunar.isLeap?'閏':'')+lunarM+'月'+lunarD+'日\n';
     if(lp){p+='\n▸ 生命靈數：'+lp+(lp>=11?' (大師數)':'')+'\n';if(ng){p+='  九宮格：';for(var k=1;k<=9;k++)p+=k+'='+ng.grid[k]+' ';p+='\n  空缺數：'+(ng.missing.length?ng.missing.join(','):'無')+'\n'}}
     if(tri)p+='\n▸ 三角生命密碼：主性格 O='+tri.O+' 潛意識='+tri.sub+' 外心='+tri.ext+'\n';
     if(fl)p+='\n▸ 馥靈秘碼：H='+fl.H+' O='+fl.O+' U='+fl.U+' R='+fl.R+'\n';
@@ -503,7 +503,23 @@ function buildPrompt(){
 }
 
 // ══════ AI Reading ══════
-async function requestAIReading(){
+
+function requestAIReading(){
+  // 付款牆攔截
+  if(typeof hlPaywall!=='undefined'){
+    var famPriceMap={3:199,5:399,7:599};
+    if(famPriceMap[currentSpread]){
+      hlPaywall.show({n:currentSpread,priceMap:famPriceMap,serviceName:'家族覺察智慧解讀'});
+      return;
+    }
+  }
+  if(typeof hlAIGateCheck==='function'){
+    hlAIGateCheck(function(){ _requestAIReadingOriginal(); });
+  }else{
+    _requestAIReadingOriginal();
+  }
+}
+async function _requestAIReadingOriginal(){
   document.getElementById('aiReadBtn').disabled=true;
   document.getElementById('aiReadBtn').textContent='🌳 生成中...';
   goScene(5);
@@ -539,6 +555,9 @@ function copyReading(){var t=document.getElementById('readingBox').textContent;n
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-referral.js?v=20260323"></script>
+<script src="assets/js/hl-castle-key.js"></script>
+<script src="assets/js/hl-ai-gate.js"></script>
 <script src="assets/js/hl-gate.js"></script>
 <script src="assets/js/hl-record.js"></script>
 <script src="assets/js/hl-member.js?v=20260314"></script>
@@ -557,7 +576,7 @@ function copyReading(){var t=document.getElementById('readingBox').textContent;n
       <a href="podcast.html" title="Podcast" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">🎙</a>
     </div>
         <div class="hl-footer-links">
-      <a href="app.html">🔑 會員工作台</a><a href="index.html">首頁</a>
+      <a href="app.html">🔑 我的內在城堡</a><a href="index.html">首頁</a>
       <a href="fuling-mima.html">生命秘碼</a><a href="draw-hl.html">線上抽牌</a>
       <a href="destiny-engine.html">命盤引擎</a><a href="services.html">服務項目</a>
       <a href="courses.html">課程學苑</a><a href="book.html">著作</a>
@@ -571,6 +590,7 @@ function copyReading(){var t=document.getElementById('readingBox').textContent;n
 <script src="assets/js/hl-topnav.js"></script>
 <script src="assets/js/hl-bottomnav.js"></script>
 <script src="assets/js/hl-email.js"></script>
+<script src="assets/js/hl-paywall.js"></script>
 <script src="assets/js/hl-chat.js"></script>
 <script src="assets/js/hl-aroma-fx.js" defer></script>
 <script src="assets/js/hl-share.js"></script>

@@ -1,0 +1,142 @@
+// Firestore Security Rules for hourlightkey.com
+// 版本：2026-03-23
+// Firebase Project: hourlight-key
+//
+// 部署方式：
+// 1. 到 Firebase Console → Firestore → Rules
+// 2. 貼上以下內容
+// 3. 點 Publish
+//
+// 或用 Firebase CLI：
+// firebase deploy --only firestore:rules
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ═══ 用戶主文件 ═══
+    // users/{uid} → 用戶資料（plan, email, displayName 等）
+    match /users/{userId} {
+      // 本人讀寫 + admin 讀
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+
+      // ═══ AI 每週計次 ═══
+      // users/{uid}/ai_weekly/{YYYY-WNN} → { count: N, lastUsed: timestamp }
+      // 每週一自然歸零（key 不同）
+      match /ai_weekly/{weekKey} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if request.auth != null && request.auth.uid == userId
+          && request.resource.data.keys().hasOnly(['count', 'lastUsed'])
+          && request.resource.data.count is int
+          && request.resource.data.count >= 0
+          && request.resource.data.count <= 100;
+      }
+
+      // ═══ 課程購買紀錄 ═══
+      // users/{uid}/courses/{productId} → { paid: true, paidAt: timestamp }
+      match /courses/{courseId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        // 只有 server（admin SDK）可以寫入，前端不可
+        allow write: if false;
+      }
+
+      // ═══ 抽牌歷史紀錄 ═══
+      match /draw_history/{drawId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow create: if request.auth != null && request.auth.uid == userId;
+        allow update, delete: if false;
+      }
+
+      // ═══ 測驗結果 ═══
+      match /quiz_results/{quizId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow create: if request.auth != null && request.auth.uid == userId;
+        allow update: if request.auth != null && request.auth.uid == userId;
+        allow delete: if false;
+      }
+    }
+
+    // ═══ 公開集合（無需登入）═══
+    // 例如公告、FAQ 等
+    match /public/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ═══ 管理員集合 ═══
+    // admin 帳號：judyanee@gmail.com, info@hourlightkey.com
+    match /admin/{docId} {
+      allow read, write: if request.auth != null
+        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com'];
+    }
+
+    // ═══ PAYUNi 付款紀錄 ═══
+    // 由 Vercel webhook 寫入，前端只讀
+    match /payments/{paymentId} {
+      allow read: if request.auth != null;
+      allow write: if false; // 只有 server 可寫
+    }
+
+    // ═══ 解鎖碼（AI 解讀用）═══
+    // unlock_codes/{CODE} → { n, price, used, memo, createdBy, createdAt, usedAt }
+    // admin 前端可讀寫（生成碼）；server 可寫（標記已使用）；一般用戶可讀（驗證碼）
+    match /unlock_codes/{codeId} {
+      // 所有登入用戶可讀（前端驗證用），未登入也放行（1張免費不需登入）
+      allow read: if true;
+      // 只有 admin 可從前端寫入（生成新碼）
+      allow create: if request.auth != null
+        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+      // server（admin SDK）負責標記 used，前端不可 update/delete
+      allow update, delete: if false;
+    }
+
+    // ═══ 合作者（推薦碼系統）═══
+    // partners/{partnerId} → { name, referral_code, role, status, line_url, ... }
+    // 所有人可讀（前端驗證推薦碼）；只有 admin 可寫
+    match /partners/{partnerId} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+    }
+
+    // ═══ 訂單紀錄（PAYUNi webhook 寫入）═══
+    match /orders/{orderId} {
+      allow read: if request.auth != null;
+      allow write: if false; // 只有 server 可寫
+    }
+
+    // ═══ 待付款訂單 ═══
+    match /pendingOrders/{orderId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if false; // server 負責更新狀態
+    }
+
+    // ═══ 美業合作商 ═══
+    match /biz_partners/{partnerId} {
+      // 管理員讀寫
+      allow read, write: if request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'curator'];
+      // 一般用戶可讀（驗證額度用）+ 可更新 usedThisMonth
+      allow read: if true;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['usedThisMonth', 'quotaResetDate']);
+
+      // 合作商代碼子集合
+      match /biz_codes/{codeId} {
+        allow read: if true;
+        allow write: if request.auth != null
+          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'curator'];
+        // 一般用戶可標記 used
+        allow update: if request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['used', 'usedAt']);
+      }
+    }
+
+    // collectionGroup 查詢（跨合作商查 biz_codes）
+    match /{path=**}/biz_codes/{codeId} {
+      allow read: if true;
+    }
+  }
+}
