@@ -53,114 +53,244 @@
 <script src="assets/js/hl-analytics.js?v=20260309" defer></script>
 
 <style>
-:root {
-  --gold:#d4a853;--gold-lt:#e8c87a;--gold-dk:#a07830;
-  --ink:#0e0c14;--cream:#faf6ee;
+:root{
+  --gold:#d4a853;--gold-lt:#f0d07a;--gold-dk:#a07830;
   --serif:'LXGW WenKai TC','Noto Serif TC',serif;
-  --sans:'Noto Serif TC','PingFang TC','Microsoft JhengHei',sans-serif;
+  --sans:'Noto Serif TC','PingFang TC',sans-serif;
   --italic:'Cormorant Garamond',Georgia,serif;
   --ease:cubic-bezier(.4,0,.2,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
   --red:#c0392b;--red-glow:rgba(192,57,43,.3);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
-body{font-family:var(--sans);color:#fff;background:#05030a;-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh;min-height:100svh;}
+html{scroll-behavior:smooth;height:100%;}
+body{font-family:var(--sans);color:#fff;background:#04020c;-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh;min-height:100svh;}
 .hl-cosmos,.hl-bg-castle{display:none!important;}
 .hl-logo-icon{width:28px;height:28px;border-radius:50%;object-fit:cover;display:inline-block;vertical-align:middle;margin-right:8px;flex-shrink:0;}
 
-/* ─── PAGE LAYOUT ─── */
-.poe-page{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;min-height:100svh;padding:80px 24px 120px;position:relative;overflow:hidden;}
-.poe-page::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 30%,rgba(212,168,83,.06),transparent),radial-gradient(ellipse 50% 50% at 50% 80%,rgba(192,57,43,.04),transparent);pointer-events:none;}
+#poeCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
 
-/* ─── INCENSE SMOKE ─── */
-.poe-smoke{position:absolute;top:0;left:50%;transform:translateX(-50%);width:2px;height:200px;pointer-events:none;opacity:.3;}
-.poe-smoke::before,.poe-smoke::after{content:'';position:absolute;bottom:0;left:50%;width:1px;height:100%;background:linear-gradient(to top,rgba(212,168,83,.4),transparent);animation:smokeRise 4s ease-in-out infinite;transform-origin:bottom center;}
-.poe-smoke::after{animation-delay:2s;opacity:.5;}
-@keyframes smokeRise{0%{transform:translateX(0) scaleY(0);opacity:0;}30%{opacity:.6;}60%{transform:translateX(8px) scaleY(1);opacity:.3;}100%{transform:translateX(-5px) scaleY(1.2);opacity:0;}}
-
-/* ─── HEADER ─── */
-.poe-header{text-align:center;margin-bottom:40px;position:relative;z-index:2;}
-.poe-header-icon{font-size:3rem;margin-bottom:12px;display:block;animation:gentleFloat 6s ease-in-out infinite;}
-@keyframes gentleFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
-.poe-title{font-family:var(--serif);font-size:clamp(1.8rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:6px;margin-bottom:8px;}
-.poe-subtitle{font-family:var(--italic);font-style:italic;font-size:clamp(.85rem,2vw,1rem);color:rgba(248,223,165,.5);letter-spacing:3px;}
-
-/* ─── QUESTION INPUT ─── */
-.poe-question-area{width:100%;max-width:480px;margin-bottom:36px;position:relative;z-index:2;}
-.poe-question-label{font-size:.85rem;color:rgba(248,223,165,.6);letter-spacing:2px;margin-bottom:10px;display:block;text-align:center;}
-.poe-question-input{width:100%;padding:14px 20px;background:rgba(248,223,165,.04);border:1px solid rgba(248,223,165,.15);border-radius:12px;color:#fff;font-family:var(--serif);font-size:1rem;letter-spacing:1px;text-align:center;outline:none;transition:all .3s;-webkit-appearance:none;}
-.poe-question-input::placeholder{color:rgba(255,255,255,.25);}
-.poe-question-input:focus{border-color:rgba(248,223,165,.4);box-shadow:0 0 20px rgba(248,223,165,.08);}
-
-/* ─── BLOCKS AREA (3D flip) ─── */
-.poe-blocks-stage{width:320px;height:200px;position:relative;z-index:2;margin-bottom:28px;perspective:600px;}
-.poe-block{position:absolute;top:50%;transform:translateY(-50%);transition:all .15s;width:130px;height:90px;}
-.poe-block-left{left:10px;}
-.poe-block-right{right:10px;}
-.jb-wrapper{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .5s var(--ease);}
-.jb-side{position:absolute;inset:0;backface-visibility:hidden;}
-.jb-side svg{width:130px;height:90px;filter:drop-shadow(0 8px 20px rgba(0,0,0,.6)) drop-shadow(0 2px 8px rgba(180,30,20,.2));}
-.jb-convex{z-index:2;}
-.jb-flat{transform:rotateX(180deg);}
-/* 翻面狀態 */
-.poe-block.flipped .jb-wrapper{transform:rotateX(180deg);}
-
-/* Idle wobble */
-.poe-blocks-idle .poe-block-left{animation:idleLeft 3s ease-in-out infinite;}
-.poe-blocks-idle .poe-block-right{animation:idleRight 3s ease-in-out infinite;}
-@keyframes idleLeft{0%,100%{transform:translateY(-50%) rotate(-2deg);}50%{transform:translateY(-50%) rotate(2deg);}}
-@keyframes idleRight{0%,100%{transform:translateY(-50%) rotate(2deg);}50%{transform:translateY(-50%) rotate(-2deg);}}
-
-/* Throw animation */
-.poe-blocks-throwing .poe-block-left{animation:throwLeft .8s var(--ease) forwards;}
-.poe-blocks-throwing .poe-block-right{animation:throwRight .8s var(--ease) forwards;}
-@keyframes throwLeft{0%{transform:translateY(-50%) rotate(0);opacity:1;}20%{transform:translateY(-180px) rotate(-180deg);opacity:1;}50%{transform:translateY(-220px) rotate(-360deg);opacity:.8;}100%{transform:translateY(0) rotate(-720deg);opacity:1;}}
-@keyframes throwRight{0%{transform:translateY(-50%) rotate(0);opacity:1;}20%{transform:translateY(-200px) rotate(200deg);opacity:1;}50%{transform:translateY(-240px) rotate(400deg);opacity:.8;}100%{transform:translateY(0) rotate(720deg);opacity:1;}}
-
-/* ─── ACTION BUTTON ─── */
-.poe-throw-btn{position:relative;z-index:2;padding:16px 48px;background:linear-gradient(135deg,rgba(248,223,165,.12),rgba(248,223,165,.06));border:1.5px solid rgba(248,223,165,.3);border-radius:999px;color:#f8dfa5;font-family:var(--serif);font-size:1rem;font-weight:500;letter-spacing:3px;cursor:pointer;transition:all .3s var(--ease);-webkit-tap-highlight-color:transparent;}
-.poe-throw-btn:hover{border-color:#f8dfa5;box-shadow:0 0 30px rgba(248,223,165,.12);transform:translateY(-2px);}
-.poe-throw-btn:active{transform:scale(.97);}
-.poe-throw-btn:disabled{opacity:.3;pointer-events:none;}
-.poe-throw-hint{font-size:.78rem;color:rgba(255,255,255,.3);letter-spacing:1.5px;margin-top:12px;text-align:center;position:relative;z-index:2;}
-
-/* ─── RESULT ─── */
-.poe-result{position:relative;z-index:2;text-align:center;margin-top:20px;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transform:translateY(20px);transition:all .6s var(--ease);}
-.poe-result.show{opacity:1;transform:translateY(0);}
-.poe-result-icon{font-size:4rem;margin-bottom:12px;animation:resultPulse 2s ease-in-out infinite;}
-@keyframes resultPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
-.poe-result-name{font-family:var(--serif);font-size:clamp(1.8rem,5vw,2.5rem);font-weight:700;letter-spacing:6px;margin-bottom:8px;}
-.poe-result-name.sheng{color:#f8dfa5;text-shadow:0 0 30px rgba(248,223,165,.4);}
-.poe-result-name.xiao{color:rgba(255,255,255,.7);}
-.poe-result-name.yin{color:rgba(192,57,43,.8);text-shadow:0 0 20px var(--red-glow);}
-.poe-result-meaning{font-size:.95rem;color:rgba(255,255,255,.6);line-height:2;max-width:380px;margin:0 auto 20px;font-weight:500;letter-spacing:.5px;}
-.poe-result-poem{font-family:var(--serif);font-size:.9rem;color:rgba(248,223,165,.5);line-height:2;font-style:normal;letter-spacing:1.5px;margin-bottom:24px;}
-.poe-retry-btn{padding:11px 28px;background:none;border:1px solid rgba(248,223,165,.2);border-radius:999px;color:rgba(248,223,165,.6);font-family:var(--serif);font-size:.88rem;cursor:pointer;letter-spacing:2px;transition:all .25s;}
-.poe-retry-btn:hover{border-color:#f8dfa5;color:#f8dfa5;}
-
-/* ─── COUNTER ─── */
-.poe-counter{position:relative;z-index:2;margin-top:20px;font-size:.78rem;color:rgba(255,255,255,.2);letter-spacing:1.5px;}
-
-/* ─── BOTTOM LINKS ─── */
-.poe-bottom{position:relative;z-index:2;margin-top:36px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
-.poe-bottom a{padding:9px 20px;border:1px solid rgba(248,223,165,.15);border-radius:999px;font-size:.85rem;color:rgba(248,223,165,.5);text-decoration:none;letter-spacing:1px;transition:all .25s;}
-.poe-bottom a:hover{border-color:rgba(248,223,165,.4);color:#f8dfa5;}
-
-/* ─── RESPONSIVE ─── */
-@media(max-width:480px){
-  .poe-blocks-stage{width:260px;height:170px;}
-  .poe-block{width:105px;height:75px;}
-  .jb-side svg{width:105px;height:75px;}
-  .poe-block-left{left:5px;}
-  .poe-block-right{right:5px;}
+.poe-page{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;min-height:100svh;
+  padding:80px 24px 140px;
+  position:relative;z-index:1;
 }
 
-/* ─── SHAKE INDICATOR ─── */
-.poe-shake-indicator{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 24px;background:rgba(248,223,165,.1);border:1px solid rgba(248,223,165,.2);border-radius:999px;font-size:.82rem;color:#f8dfa5;letter-spacing:1.5px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:10;backdrop-filter:blur(8px);}
-.poe-shake-indicator.show{opacity:1;}
+.poe-smoke{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:4px;height:220px;pointer-events:none;
+}
+.poe-smoke::before,.poe-smoke::after{
+  content:'';position:absolute;bottom:0;left:50%;
+  width:1.5px;height:100%;
+  background:linear-gradient(to top,rgba(212,168,83,.3),transparent);
+  animation:smokeRise 5s ease-in-out infinite;
+  transform-origin:bottom center;
+}
+.poe-smoke::after{animation-delay:2.5s;opacity:.6;}
+@keyframes smokeRise{
+  0%{transform:translateX(0) scaleY(0);opacity:0;}
+  25%{opacity:.5;}
+  60%{transform:translateX(10px) scaleY(1);opacity:.2;}
+  100%{transform:translateX(-6px) scaleY(1.3);opacity:0;}
+}
+
+.poe-header{text-align:center;margin-bottom:24px;position:relative;z-index:2;}
+.poe-header-icon{
+  font-size:2.8rem;margin-bottom:12px;display:block;
+  animation:gentleFloat 5s ease-in-out infinite;
+  filter:drop-shadow(0 0 16px rgba(212,168,83,.3));
+}
+@keyframes gentleFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.poe-title{
+  font-family:var(--serif);font-size:clamp(2rem,5.5vw,3rem);
+  font-weight:700;color:#fff;letter-spacing:.3em;margin-bottom:6px;
+  text-shadow:0 0 40px rgba(212,168,83,.15);
+}
+.poe-subtitle{
+  font-family:var(--italic);font-style:italic;
+  font-size:clamp(.82rem,2vw,.95rem);
+  color:rgba(248,223,165,.35);letter-spacing:.18em;
+}
+
+/* ─── 擲杯說明 ─── */
+.poe-instruction{
+  position:relative;z-index:2;
+  text-align:center;max-width:400px;
+  margin-bottom:22px;
+  padding:14px 18px;
+  background:rgba(212,168,83,.04);
+  border:1px solid rgba(212,168,83,.1);
+  border-radius:14px;
+}
+.poe-inst-main{
+  font-family:var(--serif);
+  font-size:.85rem;color:rgba(248,223,165,.7);
+  letter-spacing:.06em;line-height:1.8;margin-bottom:8px;
+}
+.poe-inst-note{
+  font-size:.74rem;color:rgba(248,223,165,.38);
+  letter-spacing:.04em;line-height:1.85;
+  border-top:1px solid rgba(212,168,83,.08);padding-top:8px;
+}
+
+.poe-question-area{width:100%;max-width:440px;margin-bottom:28px;position:relative;z-index:2;}
+.poe-question-label{
+  font-size:.78rem;color:rgba(248,223,165,.48);
+  letter-spacing:.12em;margin-bottom:10px;display:block;text-align:center;
+}
+.poe-question-input{
+  width:100%;padding:13px 18px;
+  background:rgba(248,223,165,.04);
+  border:1px solid rgba(248,223,165,.14);
+  border-radius:14px;color:#fff;
+  font-family:var(--serif);font-size:.96rem;letter-spacing:.06em;
+  text-align:center;outline:none;transition:all .3s;-webkit-appearance:none;
+}
+.poe-question-input::placeholder{color:rgba(255,255,255,.2);}
+.poe-question-input:focus{border-color:rgba(248,223,165,.32);box-shadow:0 0 20px rgba(248,223,165,.05);}
+
+.poe-blocks-stage{
+  width:320px;height:210px;position:relative;z-index:2;margin-bottom:24px;perspective:700px;
+}
+.poe-block{position:absolute;top:50%;transform:translateY(-50%);transition:all .18s;width:130px;height:90px;}
+.poe-block-left{left:8px;}
+.poe-block-right{right:8px;}
+.jb-wrapper{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .55s var(--ease);}
+.jb-side{position:absolute;inset:0;backface-visibility:hidden;}
+.jb-side svg{
+  width:130px;height:90px;
+  filter:drop-shadow(0 10px 24px rgba(0,0,0,.65));
+}
+.jb-convex{z-index:2;}
+.jb-flat{transform:rotateX(180deg);}
+.poe-block.flipped .jb-wrapper{transform:rotateX(180deg);}
+
+.poe-blocks-idle .poe-block-left{animation:idleLeft 3.2s ease-in-out infinite;}
+.poe-blocks-idle .poe-block-right{animation:idleRight 3.2s ease-in-out infinite;}
+@keyframes idleLeft{0%,100%{transform:translateY(-50%) rotate(-2.5deg);}50%{transform:translateY(-52%) rotate(2.5deg);}}
+@keyframes idleRight{0%,100%{transform:translateY(-50%) rotate(2.5deg);}50%{transform:translateY(-48%) rotate(-2.5deg);}}
+.poe-blocks-throwing .poe-block-left{animation:throwLeft .85s var(--ease) forwards;}
+.poe-blocks-throwing .poe-block-right{animation:throwRight .85s var(--ease) forwards;}
+@keyframes throwLeft{
+  0%{transform:translateY(-50%) rotate(0);opacity:1;}
+  20%{transform:translateY(-190px) rotate(-200deg);opacity:1;}
+  55%{transform:translateY(-230px) rotate(-390deg);opacity:.75;}
+  100%{transform:translateY(0) rotate(-720deg);opacity:1;}
+}
+@keyframes throwRight{
+  0%{transform:translateY(-50%) rotate(0);opacity:1;}
+  20%{transform:translateY(-210px) rotate(220deg);opacity:1;}
+  55%{transform:translateY(-250px) rotate(420deg);opacity:.75;}
+  100%{transform:translateY(0) rotate(720deg);opacity:1;}
+}
+
+.poe-throw-btn{
+  position:relative;z-index:2;
+  padding:17px 52px;
+  background:linear-gradient(135deg,rgba(212,168,83,.14),rgba(212,168,83,.06));
+  border:1.5px solid rgba(248,223,165,.25);
+  border-radius:999px;
+  color:#f8dfa5;
+  font-family:var(--serif);font-size:1.05rem;font-weight:500;
+  letter-spacing:.2em;cursor:pointer;
+  transition:all .35s var(--ease);-webkit-tap-highlight-color:transparent;
+  box-shadow:0 4px 24px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.04);
+  touch-action:manipulation;
+}
+.poe-throw-btn:hover{
+  border-color:rgba(248,223,165,.5);
+  box-shadow:0 0 30px rgba(212,168,83,.12),0 4px 24px rgba(0,0,0,.3);
+  transform:translateY(-3px);
+}
+.poe-throw-btn:active{transform:scale(.96);}
+.poe-throw-btn:disabled{opacity:.25;pointer-events:none;}
+
+.poe-throw-hint{font-size:.7rem;color:rgba(255,255,255,.2);letter-spacing:.1em;margin-top:14px;text-align:center;position:relative;z-index:2;}
+
+.poe-result{
+  position:relative;z-index:2;text-align:center;
+  margin-top:16px;min-height:200px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;transform:translateY(22px) scale(.97);
+  transition:all .6s var(--ease-spring);
+  width:100%;max-width:460px;
+}
+.poe-result.show{opacity:1;transform:translateY(0) scale(1);}
+
+.poe-result-card{
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(248,223,165,.1);
+  border-radius:18px;padding:26px 24px 22px;width:100%;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  position:relative;overflow:hidden;
+}
+.poe-result-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(248,223,165,.15),transparent);
+}
+
+.poe-result-icon{font-size:3rem;margin-bottom:10px;display:block;animation:resultPulse 2.5s ease-in-out infinite;line-height:1;}
+@keyframes resultPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+
+.poe-result-name{
+  font-family:var(--serif);
+  font-size:clamp(1.9rem,5vw,2.5rem);
+  font-weight:700;letter-spacing:.3em;margin-bottom:14px;line-height:1;
+}
+.poe-result-name.sheng{color:#f8dfa5;text-shadow:0 0 30px rgba(248,223,165,.35);}
+.poe-result-name.xiao{color:rgba(220,215,255,.85);}
+.poe-result-name.yin{color:rgba(180,180,200,.8);}
+
+.poe-result-divider{width:28px;height:1px;background:rgba(248,223,165,.2);margin:0 auto 14px;}
+.poe-result-meaning{font-size:.9rem;color:rgba(255,255,255,.62);line-height:2;max-width:340px;margin:0 auto 14px;letter-spacing:.04em;}
+.poe-result-poem{
+  font-family:var(--serif);font-size:.8rem;
+  color:rgba(248,223,165,.38);line-height:2.2;letter-spacing:.12em;
+  margin-bottom:18px;padding:10px 0;
+  border-top:1px solid rgba(248,223,165,.07);
+}
+.poe-retry-btn{
+  padding:10px 26px;background:none;
+  border:1px solid rgba(248,223,165,.16);
+  border-radius:999px;color:rgba(248,223,165,.5);
+  font-family:var(--serif);font-size:.84rem;
+  cursor:pointer;letter-spacing:.1em;transition:all .28s;
+  touch-action:manipulation;
+}
+.poe-retry-btn:hover{border-color:rgba(248,223,165,.45);color:#f8dfa5;}
+
+.poe-counter{position:relative;z-index:2;margin-top:14px;font-size:.7rem;color:rgba(255,255,255,.18);letter-spacing:.1em;}
+
+.poe-bottom{position:relative;z-index:2;margin-top:26px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.poe-bottom a{padding:8px 18px;border:1px solid rgba(248,223,165,.12);border-radius:999px;font-size:.78rem;color:rgba(248,223,165,.4);text-decoration:none;letter-spacing:.06em;transition:all .25s;touch-action:manipulation;}
+.poe-bottom a:hover{border-color:rgba(248,223,165,.32);color:#f8dfa5;}
+
+@media(max-width:480px){
+  .poe-blocks-stage{width:260px;height:175px;}
+  .poe-block{width:108px;height:76px;}
+  .jb-side svg{width:108px;height:76px;}
+  .poe-block-left{left:5px;}
+  .poe-block-right{right:5px;}
+  .poe-result-card{padding:20px 16px 18px;}
+}
+
+.poe-shake-indicator{
+  position:fixed;bottom:100px;left:50%;
+  transform:translateX(-50%) translateY(8px);
+  padding:10px 24px;background:rgba(212,168,83,.1);
+  border:1px solid rgba(248,223,165,.2);border-radius:999px;
+  font-size:.8rem;color:#f8dfa5;letter-spacing:.1em;
+  opacity:0;transition:all .3s;pointer-events:none;z-index:100;
+  backdrop-filter:blur(8px);
+}
+.poe-shake-indicator.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
+
+<canvas id="poeCanvas"></canvas>
 
 <div class="poe-page">
   <div class="poe-smoke"></div>
@@ -172,9 +302,15 @@ body{font-family:var(--sans);color:#fff;background:#05030a;-webkit-font-smoothin
     <p class="poe-subtitle">Divine Blocks Oracle</p>
   </div>
 
+  <!-- 擲杯說明 -->
+  <div class="poe-instruction">
+    <div class="poe-inst-main">🙏 誠心問菩薩，靜心後再行擲杯</div>
+    <div class="poe-inst-note">若面前沒有神像，請在心中觀想菩薩<br>或您所信奉的神明，心誠則靈</div>
+  </div>
+
   <!-- Question -->
   <div class="poe-question-area">
-    <label class="poe-question-label">在心中默念您的問題</label>
+    <label class="poe-question-label">🪔 在心中默念您的問題</label>
     <input type="text" class="poe-question-input" id="poeQuestion" placeholder="例：這件事適合現在行動嗎？" maxlength="60"/>
   </div>
 
@@ -271,18 +407,21 @@ body{font-family:var(--sans);color:#fff;background:#05030a;-webkit-font-smoothin
   </div>
 
   <!-- Throw Button -->
-  <button class="poe-throw-btn" id="poeThrowBtn" onclick="poeThrow()">
+  <button class="poe-throw-btn" data-no-gate id="poeThrowBtn" onclick="poeThrow()">
     🙏 擲杯
   </button>
   <p class="poe-throw-hint" id="poeHint">搖一搖手機，或點擊按鈕</p>
 
   <!-- Result -->
   <div class="poe-result" id="poeResult">
-    <div class="poe-result-icon" id="poeResultIcon"></div>
-    <div class="poe-result-name" id="poeResultName"></div>
-    <div class="poe-result-meaning" id="poeResultMeaning"></div>
-    <div class="poe-result-poem" id="poeResultPoem"></div>
-    <button class="poe-retry-btn" onclick="poeReset()">再擲一次</button>
+    <div class="poe-result-card">
+      <span class="poe-result-icon" id="poeResultIcon"></span>
+      <div class="poe-result-name" id="poeResultName"></div>
+      <div class="poe-result-divider"></div>
+      <div class="poe-result-meaning" id="poeResultMeaning"></div>
+      <div class="poe-result-poem" id="poeResultPoem"></div>
+      <button class="poe-retry-btn" data-no-gate onclick="poeReset()">再擲一次</button>
+    </div>
   </div>
 
   <!-- Counter -->
@@ -301,6 +440,42 @@ body{font-family:var(--sans);color:#fff;background:#05030a;-webkit-font-smoothin
 
 <!-- ─── Audio Context for wood-clack sound ─── -->
 <script>
+// ── 星空 Canvas ──
+(function(){
+  var cv=document.getElementById('poeCanvas');
+  var cx=cv.getContext('2d');
+  var W,H;
+  function rz(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
+  rz();addEventListener('resize',rz);
+  var C=[[255,220,165],[220,200,255],[200,220,255],[248,235,200],[210,200,240]];
+  var st=[];
+  for(var i=0;i<180;i++){
+    var c=C[Math.floor(Math.random()*C.length)];
+    st.push({x:Math.random(),y:Math.random(),r:.1+Math.random()*(i<20?1.5:i<80?.7:.3),p:Math.random()*Math.PI*2,s:.003+Math.random()*.04,c:c});
+  }
+  var me=[],MC=[[212,168,83],[200,190,255],[180,210,255],[240,220,180]];
+  function sm(){var c=MC[Math.floor(Math.random()*MC.length)];me.push({x:Math.random(),y:0,l:55+Math.random()*100,sp:.003+Math.random()*.005,a:Math.PI*.28+Math.random()*.44,li:0,c:c,w:.4+Math.random()*.8});}
+  function draw(){
+    cx.clearRect(0,0,W,H);
+    st.forEach(function(s){s.p+=s.s;var al=Math.max(.02,Math.min(.85,.5+Math.sin(s.p)*.42));cx.beginPath();cx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2);cx.fillStyle='rgba('+s.c[0]+','+s.c[1]+','+s.c[2]+','+al+')';cx.fill();});
+    for(var i=me.length-1;i>=0;i--){
+      var m=me[i];m.li+=.013;
+      if(m.li>=1){me.splice(i,1);continue;}
+      var al=m.li<.2?m.li/.2:m.li>.65?1-(m.li-.65)/.35:1;al=Math.max(0,Math.min(1,al));
+      m.x+=Math.cos(m.a)*m.sp;m.y+=Math.sin(m.a)*m.sp;
+      var sx=m.x*W,sy=m.y*H,tx=sx-Math.cos(m.a)*m.l,ty=sy-Math.sin(m.a)*m.l;
+      var g=cx.createLinearGradient(tx,ty,sx,sy);
+      g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba('+m.c[0]+','+m.c[1]+','+m.c[2]+','+al+')');
+      cx.save();cx.globalAlpha=al;cx.strokeStyle=g;cx.lineWidth=m.w;cx.lineCap='round';cx.beginPath();cx.moveTo(tx,ty);cx.lineTo(sx,sy);cx.stroke();cx.restore();
+      if(m.x<-.05||m.x>1.05||m.y>1.05)me.splice(i,1);
+    }
+    if(Math.random()<.0022&&me.length<3)sm();
+    requestAnimationFrame(draw);
+  }
+  draw();
+  setTimeout(sm,1500);setTimeout(sm,4000);
+})();
+
 (function(){
   'use strict';
 

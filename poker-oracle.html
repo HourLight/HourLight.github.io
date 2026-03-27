@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-BXP7K53QG6');</script>
+<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1333106288588347');fbq('track','PageView');</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>撲克牌覺察占卜｜夜深人靜，抽一張牌｜馥靈之鑰</title>
+<meta name="description" content="夜深人靜，心裡有點賭賭的？抽一張撲克牌，看看現在的座標。54張牌，牌義＋科學解析＋香氣落地。馥靈之鑰原創占卜。">
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="assets/css/hourlight-global.css">
+<link rel="stylesheet" href="assets/css/hl-design-tokens.css">
+<link rel="stylesheet" href="assets/css/hl-music.css">
+<link rel="canonical" href="https://hourlightkey.com/poker-oracle.html"/>
+<style>
+:root{
+  --bg:#04020c;
+  --gold:#f8dfa5;
+  --serif:"Noto Serif TC","Georgia",serif;
+  --sans:"Noto Sans TC","PingFang TC",system-ui,sans-serif;
+  --spade:#c8b4ff;--heart:#ff9eb5;--diamond:#ffd966;--club:#72e0a0;--joker:#c0c0c8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh}
+body{background:var(--bg);color:rgba(255,255,255,.9);font-family:var(--sans);overflow-x:hidden}
+
+#starCanvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ──── 畫面切換 ──── */
+.screen{position:relative;z-index:1;min-height:100vh;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px 100px}
+.screen.active{display:flex}
+
+/* ══════════ INTRO ══════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+
+.intro-eye{font-size:.66rem;letter-spacing:.22em;color:rgba(248,223,165,.32);text-transform:uppercase;margin-bottom:20px;animation:fadeUp .7s .15s both}
+.intro-h1{font-family:var(--serif);font-size:clamp(2.4rem,6vw,3.6rem);font-weight:400;letter-spacing:.18em;color:var(--gold);line-height:1.2;margin-bottom:6px;text-align:center;animation:fadeUp .7s .28s both}
+.intro-sub{font-size:.72rem;letter-spacing:.16em;color:rgba(248,223,165,.28);margin-bottom:28px;animation:fadeUp .7s .38s both}
+.intro-desc{font-size:.9rem;color:rgba(249,240,229,.45);line-height:2;max-width:320px;text-align:center;margin-bottom:44px;animation:fadeUp .7s .48s both}
+
+/* 牌組 */
+.deck-wrap{position:relative;width:160px;height:224px;margin:0 auto 36px;cursor:pointer;animation:fadeUp .7s .58s both;perspective:600px}
+.dk{position:absolute;inset:0;border-radius:14px;transform-origin:50% 100%;transition:transform .45s cubic-bezier(.34,1.56,.64,1)}
+.dk:nth-child(3){transform:translateY(-8px) rotate(-5deg)}
+.dk:nth-child(2){transform:translateY(-4px) rotate(-2.5deg)}
+.dk:nth-child(1){transform:translateY(0) rotate(0)}
+.deck-wrap:hover .dk:nth-child(3){transform:translateY(-18px) rotate(-8deg)}
+.deck-wrap:hover .dk:nth-child(2){transform:translateY(-9px) rotate(-4deg)}
+.deck-wrap:hover .dk:nth-child(1){transform:translateY(-5px) rotate(0)}
+.dk-face{width:100%;height:100%;border-radius:14px;background:linear-gradient(145deg,#1c1240,#0c0820);border:1px solid rgba(248,223,165,.13);box-shadow:0 12px 40px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.dk-face::before{content:'';position:absolute;inset:8px;border:1px solid rgba(248,223,165,.07);border-radius:8px}
+.dk-face::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(55deg,transparent,transparent 10px,rgba(248,223,165,.02) 10px,rgba(248,223,165,.02) 11px),repeating-linear-gradient(-55deg,transparent,transparent 10px,rgba(248,223,165,.02) 10px,rgba(248,223,165,.02) 11px)}
+.dk-logo{position:relative;z-index:1;font-family:var(--serif);font-size:.58rem;letter-spacing:.18em;color:rgba(248,223,165,.18);text-align:center;line-height:2.2}
+
+.intro-btn{display:inline-flex;align-items:center;gap:9px;padding:15px 42px;border-radius:999px;border:none;background:linear-gradient(135deg,#b8922a,#d4a83a);color:#0c0820;font-size:.96rem;font-weight:700;letter-spacing:.1em;cursor:pointer;font-family:var(--sans);transition:all .35s;box-shadow:0 4px 24px rgba(184,146,42,.4);animation:fadeUp .7s .72s both}
+.intro-btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 10px 32px rgba(184,146,42,.5)}
+.intro-btn:active{transform:scale(.97)}
+
+.suits-bar{display:flex;gap:24px;justify-content:center;margin-top:30px;animation:fadeUp .7s .88s both}
+.suit-pip{display:flex;flex-direction:column;align-items:center;gap:5px}
+.suit-pip-s{font-size:1.15rem;opacity:.55;transition:opacity .3s}
+.suit-pip-n{font-size:.58rem;letter-spacing:.1em;opacity:.28;transition:opacity .3s}
+.suit-pip:hover .suit-pip-s,.suit-pip:hover .suit-pip-n{opacity:.85}
+
+/* ══════════ 抽牌動畫 ══════════ */
+#drawScreen{text-align:center}
+.draw-card-wrap{position:relative;width:190px;height:266px;margin:0 auto;perspective:900px}
+.draw-card{width:100%;height:100%;transform-style:preserve-3d;position:relative}
+.draw-card.go{animation:flipCard 1s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes flipCard{
+  0%{transform:rotateY(0) scale(1) translateY(0)}
+  25%{transform:rotateY(90deg) scale(.88) translateY(-24px)}
+  55%{transform:rotateY(200deg) scale(.94) translateY(-12px)}
+  100%{transform:rotateY(360deg) scale(1) translateY(0)}
+}
+.draw-card-back{position:absolute;inset:0;border-radius:18px;background:linear-gradient(145deg,#1c1240,#0c0820);border:1px solid rgba(248,223,165,.13);box-shadow:0 20px 60px rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;font-size:2.8rem;color:rgba(248,223,165,.13)}
+.draw-card-back::before{content:'';position:absolute;inset:10px;border:1px solid rgba(248,223,165,.07);border-radius:10px}
+.ptcls{position:absolute;inset:-80px;pointer-events:none;overflow:visible}
+.draw-msg{margin-top:28px;font-family:var(--serif);font-size:.9rem;color:rgba(248,223,165,.45);letter-spacing:.1em;min-height:1.6em}
+
+/* ══════════ 結果 ══════════ */
+#resultScreen{
+  justify-content:flex-start;
+  padding-top:0;padding-bottom:120px;
+  align-items:stretch;
+}
+
+/* 英雄區 */
+.rh{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:64px 28px 36px;
+  text-align:center;
+  position:relative;
+}
+.rh-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 75% 55% at 50% 35%,var(--rc,rgba(200,180,255,.13)),transparent 65%)}
+
+/* 牌卡視覺 */
+.rcard{
+  width:min(210px,52vw);aspect-ratio:2/3;
+  border-radius:20px;
+  position:relative;overflow:hidden;
+  margin-bottom:32px;
+  box-shadow:0 28px 80px rgba(0,0,0,.75),0 0 80px var(--rs,rgba(200,180,255,.2));
+  animation:cardPop .7s cubic-bezier(.34,1.4,.64,1) both;
+  border:1px solid rgba(255,255,255,.1);
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  padding:20px 18px;
+}
+@keyframes cardPop{from{opacity:0;transform:scale(.55) rotateX(20deg) translateY(-40px)}to{opacity:1;transform:scale(1) rotateX(0) translateY(0)}}
+.rcard::before{content:'';position:absolute;inset:0;background:linear-gradient(145deg,rgba(255,255,255,.055) 0,transparent 50%,rgba(0,0,0,.12) 100%);pointer-events:none;border-radius:20px}
+.rcard-top,.rcard-bot{display:flex;justify-content:space-between;align-items:flex-start;width:100%;position:relative;z-index:1}
+.rcard-bot{transform:rotate(180deg)}
+.rcard-rank{font-family:var(--serif);font-size:1.5rem;font-weight:400;line-height:1;color:var(--rc,#c8b4ff)}
+.rcard-rsym{font-size:.85rem;color:var(--rc,#c8b4ff);opacity:.65}
+.rcard-corner{font-size:1.6rem;color:var(--rc,#c8b4ff);opacity:.4}
+.rcard-mid{text-align:center;position:relative;z-index:1}
+.rcard-sym{font-size:3.2rem;color:var(--rc,#c8b4ff);line-height:1;filter:drop-shadow(0 0 22px var(--rc,#c8b4ff));animation:glowPulse 3s ease-in-out infinite}
+@keyframes glowPulse{0%,100%{filter:drop-shadow(0 0 18px var(--rc,#c8b4ff))}50%{filter:drop-shadow(0 0 38px var(--rc,#c8b4ff)) brightness(1.25)}}
+.rcard-label{font-family:var(--serif);font-size:.88rem;letter-spacing:.1em;margin-top:9px;color:rgba(255,255,255,.7)}
+
+/* 文字區 */
+.r-suit-tag{font-size:.66rem;letter-spacing:.18em;margin-bottom:6px;animation:fadeUp .5s .25s both}
+.r-name{font-family:var(--serif);font-size:clamp(1.9rem,5.5vw,2.6rem);font-weight:400;letter-spacing:.14em;line-height:1.2;margin-bottom:24px;animation:fadeUp .5s .35s both}
+.r-body{max-width:460px;font-size:clamp(.9rem,2.4vw,1rem);color:rgba(249,240,229,.75);line-height:2.1;letter-spacing:.04em;animation:fadeUp .5s .45s both}
+.r-body p{margin-bottom:.55em}
+.r-body p:last-child{margin-bottom:0}
+.r-div{width:36px;height:1px;margin:28px auto;opacity:.25;animation:fadeUp .5s .55s both}
+
+/* 展開層 */
+.layers{width:100%;max-width:540px;padding:0 20px;animation:fadeUp .5s .6s both}
+.layer{border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.07);margin-bottom:9px;transition:border-color .3s}
+.layer:hover{border-color:rgba(255,255,255,.12)}
+.layer-hd{width:100%;display:flex;align-items:center;justify-content:space-between;padding:15px 18px;background:rgba(10,6,24,.85);border:none;cursor:pointer;font-family:var(--sans);font-size:.82rem;color:rgba(249,240,229,.48);letter-spacing:.06em;transition:all .3s;text-align:left;backdrop-filter:blur(8px)}
+.layer-hd:hover{background:rgba(18,10,36,.95);color:var(--rc,#c8b4ff)}
+.layer-hd-l{display:flex;align-items:center;gap:9px}
+.layer-arr{font-size:.85rem;color:var(--rc,#c8b4ff);opacity:.4;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.layer.open .layer-arr{transform:rotate(180deg)}
+.layer-bd{max-height:0;overflow:hidden;transition:max-height .48s cubic-bezier(.4,0,.2,1);background:rgba(6,3,14,.9)}
+.layer.open .layer-bd{max-height:420px}
+.layer-inner{padding:16px 18px 20px;font-size:.85rem;color:rgba(249,240,229,.58);line-height:1.95;letter-spacing:.03em}
+.layer-tag{font-size:.6rem;letter-spacing:.14em;margin-bottom:9px;text-transform:uppercase;border-bottom:1px solid;padding-bottom:3px;display:inline-block}
+
+/* 操作 */
+.r-acts{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;padding:22px 20px 0;animation:fadeUp .5s .72s both}
+.abtn{padding:10px 22px;border-radius:999px;font-size:.82rem;font-family:inherit;cursor:pointer;transition:all .3s;letter-spacing:.05em;display:flex;align-items:center;gap:6px}
+.abtn-g{background:linear-gradient(135deg,#b8922a,#d4a83a);color:#0c0820;border:none;font-weight:700;box-shadow:0 4px 16px rgba(184,146,42,.35)}
+.abtn-g:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(184,146,42,.45)}
+.abtn-o{background:rgba(255,255,255,.05);color:rgba(249,240,229,.6);border:1px solid rgba(255,255,255,.1)}
+.abtn-o:hover{background:rgba(255,255,255,.1);color:rgba(249,240,229,.9);transform:translateY(-1px)}
+
+.r-foot{text-align:center;padding:20px 20px 0;font-size:.72rem;color:rgba(249,240,229,.18);line-height:2;animation:fadeUp .5s .82s both}
+.r-foot a{color:rgba(248,223,165,.32);text-decoration:none}
+.r-foot a:hover{color:rgba(248,223,165,.65)}
+
+/* Toast & watermark */
+.pk-toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(12px);padding:9px 22px;border-radius:999px;background:rgba(248,223,165,.95);color:#1a0e00;font-size:.82rem;font-weight:600;z-index:9999;opacity:0;transition:all .32s;pointer-events:none;white-space:nowrap}
+.pk-toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.hl-wm{position:fixed;bottom:70px;right:12px;z-index:50;pointer-events:none;display:flex;align-items:center;gap:5px;background:rgba(4,2,12,.75);border:1px solid rgba(248,223,165,.13);border-radius:20px;padding:4px 11px 4px 8px;backdrop-filter:blur(8px)}
+.hl-wm-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);opacity:.45;flex-shrink:0}
+.hl-wm-t{font-size:.58rem;color:rgba(248,223,165,.38);letter-spacing:.05em;white-space:nowrap}
+
+/* particle keyframe 動態注入 */
+</style>
+</head>
+<body>
+
+<canvas id="starCanvas"></canvas>
+
+<!-- ══ INTRO ══ -->
+<div class="screen active" id="introScreen">
+  <div class="intro-eye">馥靈之鑰 · 覺察占卜系列</div>
+  <h1 class="intro-h1">撲克牌<br>覺察占卜</h1>
+  <div class="intro-sub">Poker Oracle · 54 Cards</div>
+  <p class="intro-desc">夜深人靜，心裡有點賭賭的。<br>不用找人問，抽一張牌，<br>看看現在站在哪個座標。</p>
+
+  <div class="deck-wrap" data-no-gate onclick="startDraw()">
+    <div class="dk"><div class="dk-face"><div class="dk-logo">馥靈之鑰<br>HOUR LIGHT</div></div></div>
+    <div class="dk"><div class="dk-face"></div></div>
+    <div class="dk"><div class="dk-face"></div></div>
+  </div>
+
+  <button class="intro-btn" data-no-gate onclick="startDraw()"><span>✦</span> 抽一張牌</button>
+
+  <div class="suits-bar">
+    <div class="suit-pip"><span class="suit-pip-s" style="color:var(--spade)">♠</span><span class="suit-pip-n" style="color:var(--spade)">蛻變</span></div>
+    <div class="suit-pip"><span class="suit-pip-s" style="color:var(--heart)">♥</span><span class="suit-pip-n" style="color:var(--heart)">感情</span></div>
+    <div class="suit-pip"><span class="suit-pip-s" style="color:var(--diamond)">♦</span><span class="suit-pip-n" style="color:var(--diamond)">資源</span></div>
+    <div class="suit-pip"><span class="suit-pip-s" style="color:var(--club)">♣</span><span class="suit-pip-n" style="color:var(--club)">行動</span></div>
+  </div>
+</div>
+
+<!-- ══ 抽牌動畫 ══ -->
+<div class="screen" id="drawScreen">
+  <div class="draw-card-wrap">
+    <svg class="ptcls" id="ptcls" viewBox="-80 -80 460 426"></svg>
+    <div class="draw-card" id="drawCard">
+      <div class="draw-card-back">✦</div>
+    </div>
+  </div>
+  <div class="draw-msg" id="drawMsg">凝神靜氣⋯</div>
+</div>
+
+<!-- ══ 結果 ══ -->
+<div class="screen" id="resultScreen">
+  <!-- 英雄 -->
+  <div class="rh" id="rh">
+    <div class="rh-glow" id="rhGlow"></div>
+
+    <div class="rcard" id="rcard">
+      <div class="rcard-top">
+        <div><div class="rcard-rank" id="rc-rn"></div><div class="rcard-rsym" id="rc-rs"></div></div>
+        <div class="rcard-corner" id="rc-c1"></div>
+      </div>
+      <div class="rcard-mid">
+        <div class="rcard-sym" id="rc-sym"></div>
+        <div class="rcard-label" id="rc-lbl"></div>
+      </div>
+      <div class="rcard-bot">
+        <div><div class="rcard-rank" id="rc-rn2"></div><div class="rcard-rsym" id="rc-rs2"></div></div>
+        <div class="rcard-corner" id="rc-c2"></div>
+      </div>
+    </div>
+
+    <div class="r-suit-tag" id="r-stag"></div>
+    <div class="r-name" id="r-name"></div>
+    <div class="r-body" id="r-body"></div>
+    <div class="r-div" id="r-div"></div>
+  </div>
+
+  <!-- 展開層 -->
+  <div class="layers">
+    <div class="layer" id="L-sci">
+      <button class="layer-hd" onclick="toggleL('sci')">
+        <div class="layer-hd-l"><span>🧠</span><span>科學怎麼說</span></div>
+        <span class="layer-arr">↓</span>
+      </button>
+      <div class="layer-bd"><div class="layer-inner"><div class="layer-tag" id="sci-tag">神經科學解析</div><div id="sci-body"></div></div></div>
+    </div>
+    <div class="layer" id="L-aroma">
+      <button class="layer-hd" onclick="toggleL('aroma')">
+        <div class="layer-hd-l"><span>🌿</span><span>香氣落地</span></div>
+        <span class="layer-arr">↓</span>
+      </button>
+      <div class="layer-bd"><div class="layer-inner"><div class="layer-tag" id="aroma-tag">精油覺察建議</div><div id="aroma-body"></div></div></div>
+    </div>
+  </div>
+
+  <!-- 操作 -->
+  <div class="r-acts">
+    <button class="abtn abtn-g" data-no-gate onclick="startDraw()">↺ 再抽一張</button>
+    <button class="abtn abtn-o" data-no-gate onclick="copyCard()">📋 複製</button>
+    <button class="abtn abtn-o" data-no-gate onclick="goBack()">← 回首頁</button>
+  </div>
+
+  <div class="r-foot">
+    <a href="yijing-oracle.html">易經覺察占卜</a> ·
+    <a href="draw-hl.html">130張智慧牌卡</a> ·
+    <a href="liuren-oracle.html">小六壬</a>
+  </div>
+</div>
+
+<div class="pk-toast" id="toast"></div>
+<div class="hl-wm"><div class="hl-wm-dot"></div><span class="hl-wm-t">馥靈之鑰 · hourlightkey.com</span></div>
+
+<script src="js/poker-cards.js"></script>
+<script>
+if(typeof POKER_CARDS==='undefined') window.POKER_CARDS=[];
+
+/* ── 花色設定 ── */
+const SC={
+  spade:  {s:'♠',l:'♠ 黑桃 · 蛻變之風',c:'#c8b4ff',g:'rgba(200,180,255,.14)',sh:'rgba(200,180,255,.28)',bg:'linear-gradient(160deg,#180c3a,#0c0820)'},
+  heart:  {s:'♥',l:'♥ 紅心 · 流動之水',c:'#ff9eb5',g:'rgba(255,158,181,.14)',sh:'rgba(255,158,181,.28)',bg:'linear-gradient(160deg,#2a0820,#160410)'},
+  diamond:{s:'♦',l:'♦ 方塊 · 落地之土',c:'#ffd966',g:'rgba(255,217,102,.14)',sh:'rgba(255,217,102,.28)',bg:'linear-gradient(160deg,#261808,#160e04)'},
+  club:   {s:'♣',l:'♣ 梅花 · 燃燒之火',c:'#72e0a0',g:'rgba(114,224,160,.14)',sh:'rgba(114,224,160,.28)',bg:'linear-gradient(160deg,#081e12,#04120a)'},
+  joker:  {s:'★',l:'★ 鬼牌 · 虛空之鏡',c:'#c0c0cc',g:'rgba(192,192,200,.1)',sh:'rgba(192,192,200,.18)',bg:'linear-gradient(160deg,#14101e,#0a0812)'},
+};
+const RL={'A':'A','2':'2','3':'3','4':'4','5':'5','6':'6','7':'7','8':'8','9':'9','10':'10','J':'J','Q':'Q','K':'K','大鬼':'☽','小鬼':'☀'};
+
+/* ── 星空 ── */
+(()=>{
+  const cv=document.getElementById('starCanvas');
+  const cx=cv.getContext('2d');
+  let W,H;
+  function rz(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
+  rz();addEventListener('resize',()=>{rz();});
+
+  // 星星顏色調色盤（帶彩色）
+  const STAR_COLORS=[
+    [255,245,220],  // 暖白
+    [220,210,255],  // 淡紫
+    [255,200,220],  // 淡粉
+    [180,220,255],  // 冰藍
+    [220,255,230],  // 薄荷
+    [255,235,180],  // 金黃
+    [200,180,255],  // 紫羅蘭
+  ];
+
+  // 靜態閃爍星（300顆，有彩色）
+  const stars=[];
+  for(let i=0;i<300;i++){
+    const col=STAR_COLORS[Math.floor(Math.random()*STAR_COLORS.length)];
+    stars.push({
+      x:Math.random()*1,  // 0-1 比例
+      y:Math.random()*1,
+      r:.12+Math.random()*(i<50?2.2:i<150?1.1:.55),
+      a:Math.random(),
+      da:(Math.random()-.5)*(i<30?.012:.005),
+      phase:Math.random()*Math.PI*2,
+      speed:.003+Math.random()*.008,
+      col:col,
+      twinkleSpeed:.02+Math.random()*.06,
+    });
+  }
+
+  // 流星
+  const meteors=[];
+  function spawnMeteor(){
+    const colors=[
+      [200,180,255],[255,180,200],[180,220,255],
+      [255,220,140],[180,255,210],[255,200,255],
+    ];
+    const col=colors[Math.floor(Math.random()*colors.length)];
+    // 從頂部或右側射入
+    const fromTop=Math.random()>.35;
+    meteors.push({
+      x:fromTop?Math.random():.95+Math.random()*.08,
+      y:fromTop?0:Math.random()*.4,
+      len:80+Math.random()*160,
+      speed:.004+Math.random()*.008,
+      angle:fromTop?(Math.PI*.3+Math.random()*.4):(Math.PI*.55+Math.random()*.3),
+      a:0, life:0, maxLife:1,
+      col:col,
+      width:.5+Math.random()*1.2,
+      fadeIn:.15, fadeOut:.7,
+    });
+  }
+
+  // 星雲光暈（3個大型漫射光）
+  const nebulas=[
+    {x:.2,y:.25,r:.32,col:[120,80,200],a:.08,drift:.0003},
+    {x:.78,y:.6,r:.28,col:[200,80,120],a:.06,drift:-.0002},
+    {x:.5,y:.15,r:.22,col:[80,140,220],a:.07,drift:.00015},
+  ];
+  let nebulaT=0;
+
+  let t=0;
+  function draw(){
+    cx.clearRect(0,0,W,H);
+
+    // ── 星雲 ──
+    nebulaT+=.0005;
+    nebulas.forEach((n,i)=>{
+      const ox=Math.sin(nebulaT*(i+1)*.7)*.015;
+      const oy=Math.cos(nebulaT*(i+1)*.5)*.01;
+      const grd=cx.createRadialGradient(
+        (n.x+ox)*W,(n.y+oy)*H,0,
+        (n.x+ox)*W,(n.y+oy)*H,n.r*Math.min(W,H)
+      );
+      const pulse=.06+Math.sin(nebulaT*(i+1)+i)*0.025;
+      grd.addColorStop(0,`rgba(${n.col[0]},${n.col[1]},${n.col[2]},${pulse})`);
+      grd.addColorStop(.5,`rgba(${n.col[0]},${n.col[1]},${n.col[2]},${pulse*.3})`);
+      grd.addColorStop(1,'rgba(0,0,0,0)');
+      cx.fillStyle=grd;
+      cx.fillRect(0,0,W,H);
+    });
+
+    // ── 星星 ──
+    t+=.016;
+    stars.forEach(s=>{
+      s.phase+=s.twinkleSpeed;
+      const twinkle=(.5+Math.sin(s.phase)*.5);
+      const alpha=Math.max(.02,Math.min(.95, twinkle*.7+.05 ));
+      const sx=s.x*W, sy=s.y*H;
+      const r=s.r;
+
+      // 光暈（大星才有）
+      if(r>1.2){
+        const grd=cx.createRadialGradient(sx,sy,0,sx,sy,r*4);
+        grd.addColorStop(0,`rgba(${s.col[0]},${s.col[1]},${s.col[2]},${alpha*.5})`);
+        grd.addColorStop(1,'rgba(0,0,0,0)');
+        cx.fillStyle=grd;
+        cx.beginPath();cx.arc(sx,sy,r*4,0,Math.PI*2);cx.fill();
+      }
+
+      // 星點
+      cx.beginPath();cx.arc(sx,sy,r,0,Math.PI*2);
+      cx.fillStyle=`rgba(${s.col[0]},${s.col[1]},${s.col[2]},${alpha})`;
+      cx.fill();
+
+      // 十字光芒（最亮的星）
+      if(r>1.5 && alpha>.6){
+        const len=r*5;
+        cx.save();
+        cx.globalAlpha=alpha*.25;
+        cx.strokeStyle=`rgb(${s.col[0]},${s.col[1]},${s.col[2]})`;
+        cx.lineWidth=.5;
+        cx.beginPath();cx.moveTo(sx-len,sy);cx.lineTo(sx+len,sy);cx.stroke();
+        cx.beginPath();cx.moveTo(sx,sy-len);cx.lineTo(sx,sy+len);cx.stroke();
+        cx.restore();
+      }
+    });
+
+    // ── 流星 ──
+    for(let i=meteors.length-1;i>=0;i--){
+      const m=meteors[i];
+      m.life+=.016/m.maxLife;
+      if(m.life>=1){meteors.splice(i,1);continue;}
+
+      // alpha：淡入淡出
+      let alpha;
+      if(m.life<m.fadeIn) alpha=m.life/m.fadeIn;
+      else if(m.life>m.fadeOut) alpha=1-(m.life-m.fadeOut)/(1-m.fadeOut);
+      else alpha=1;
+      alpha=Math.max(0,Math.min(1,alpha));
+
+      const dx=Math.cos(m.angle)*m.speed;
+      const dy=Math.sin(m.angle)*m.speed;
+      m.x+=dx; m.y+=dy;
+
+      const sx=m.x*W, sy=m.y*H;
+      const tailX=sx-Math.cos(m.angle)*m.len;
+      const tailY=sy-Math.sin(m.angle)*m.len;
+
+      const grd=cx.createLinearGradient(tailX,tailY,sx,sy);
+      grd.addColorStop(0,'rgba(0,0,0,0)');
+      grd.addColorStop(.6,`rgba(${m.col[0]},${m.col[1]},${m.col[2]},${alpha*.4})`);
+      grd.addColorStop(1,`rgba(${m.col[0]},${m.col[1]},${m.col[2]},${alpha})`);
+
+      cx.save();
+      cx.globalAlpha=alpha;
+      cx.strokeStyle=grd;
+      cx.lineWidth=m.width;
+      cx.lineCap='round';
+      cx.beginPath();cx.moveTo(tailX,tailY);cx.lineTo(sx,sy);cx.stroke();
+
+      // 流星頭部光點
+      const hdGrd=cx.createRadialGradient(sx,sy,0,sx,sy,m.width*3);
+      hdGrd.addColorStop(0,`rgba(${m.col[0]},${m.col[1]},${m.col[2]},${alpha})`);
+      hdGrd.addColorStop(1,'rgba(0,0,0,0)');
+      cx.fillStyle=hdGrd;
+      cx.beginPath();cx.arc(sx,sy,m.width*3,0,Math.PI*2);cx.fill();
+      cx.restore();
+
+      // 超出邊界就移除
+      if(m.x<-.1||m.x>1.1||m.y<-.1||m.y>1.1) meteors.splice(i,1);
+    }
+
+    // 流星觸發（隨機，平均每5秒一顆）
+    if(Math.random()<.003&&meteors.length<4) spawnMeteor();
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+  // 先觸發一顆流星
+  setTimeout(spawnMeteor,1200);
+  setTimeout(spawnMeteor,3000);
+})();
+
+/* ── 狀態 ── */
+let drawn=[],lastCard=null,busy=false;
+
+function getRandom(){
+  if(drawn.length>=POKER_CARDS.length) drawn=[];
+  let i,t=0;
+  do{i=Math.floor(Math.random()*POKER_CARDS.length);t++;}
+  while(drawn.includes(i)&&t<200);
+  drawn.push(i);return POKER_CARDS[i];
+}
+
+/* ── 畫面切換 ── */
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  scrollTo(0,0);
+}
+function goBack(){show('introScreen');lastCard=null;}
+
+/* ── 抽牌 ── */
+function startDraw(){
+  if(busy||!POKER_CARDS.length) return;
+  busy=true;
+  show('drawScreen');
+  const card=getRandom();lastCard=card;
+  const msgs=['凝神靜氣⋯','能量聚焦中⋯','牌象顯現⋯','座標校準中⋯'];
+  const dm=document.getElementById('drawMsg');
+  let mi=0;
+  const mt=setInterval(()=>{dm.textContent=msgs[mi++%msgs.length];},400);
+  const dc=document.getElementById('drawCard');
+  dc.classList.remove('go');void dc.offsetWidth;
+  dc.classList.add('go');
+  // 粒子
+  setTimeout(()=>burst(SC[card.suit]?.c||'#f8dfa5'),350);
+  setTimeout(()=>{clearInterval(mt);dm.textContent='';busy=false;render(card);},1550);
+}
+
+/* ── SVG 粒子爆炸 ── */
+function burst(color){
+  const svg=document.getElementById('ptcls');
+  svg.innerHTML='';
+  for(let i=0;i<28;i++){
+    const ang=Math.random()*Math.PI*2;
+    const dist=50+Math.random()*90;
+    const tx=Math.cos(ang)*dist+145;
+    const ty=Math.sin(ang)*dist+133;
+    const r=1.5+Math.random()*3.5;
+    const dur=(.5+Math.random()*.6).toFixed(2);
+    const del=(Math.random()*.18).toFixed(2);
+    const shape=Math.random()>.5?
+      `<circle cx="145" cy="133" r="${r}" fill="${color}" opacity="1"><animateMotion dur="${dur}s" begin="${del}s" fill="freeze" path="M 0 0 L ${tx-145} ${ty-133}"/><animate attributeName="opacity" dur="${dur}s" begin="${del}s" values="1;0" fill="freeze"/><animate attributeName="r" dur="${dur}s" begin="${del}s" values="${r};0" fill="freeze"/></circle>`:
+      `<rect x="${145-r}" y="${133-r}" width="${r*2}" height="${r*2}" fill="${color}" opacity="1"><animateMotion dur="${dur}s" begin="${del}s" fill="freeze" path="M 0 0 L ${tx-145} ${ty-133}"/><animate attributeName="opacity" dur="${dur}s" begin="${del}s" values="1;0" fill="freeze"/><animateTransform attributeName="transform" type="rotate" dur="${dur}s" begin="${del}s" values="0 ${145} ${133};${90+Math.random()*180} ${tx} ${ty}" fill="freeze"/></rect>`;
+    svg.insertAdjacentHTML('beforeend',shape);
+  }
+}
+
+/* ── 渲染結果 ── */
+function render(card){
+  const sc=SC[card.suit]||SC.joker;
+  const rn=RL[card.rank]||card.rank;
+
+  // 主色注入
+  const rh=document.getElementById('rh');
+  rh.style.background=sc.bg;
+  rh.style.setProperty('--rc',sc.c);
+  document.getElementById('rhGlow').style.background=`radial-gradient(ellipse 78% 58% at 50% 32%,${sc.g},transparent 65%)`;
+
+  const rc=document.getElementById('rcard');
+  rc.style.boxShadow=`0 28px 80px rgba(0,0,0,.75),0 0 80px ${sc.sh}`;
+  rc.style.setProperty('--rc',sc.c);
+
+  // 牌面
+  ['rc-rn','rc-rn2'].forEach(id=>{const e=document.getElementById(id);e.textContent=rn;e.style.color=sc.c;});
+  ['rc-rs','rc-rs2'].forEach(id=>{const e=document.getElementById(id);e.textContent=sc.s;e.style.color=sc.c;});
+  ['rc-c1','rc-c2'].forEach(id=>{const e=document.getElementById(id);e.textContent=sc.s;e.style.color=sc.c;});
+  const sym=document.getElementById('rc-sym');sym.textContent=sc.s;sym.style.color=sc.c;sym.style.setProperty('--rc',sc.c);
+  const lbl=document.getElementById('rc-lbl');lbl.textContent=card.name;lbl.style.color=`${sc.c}bb`;
+
+  // 文字
+  const st=document.getElementById('r-stag');st.textContent=sc.l;st.style.color=sc.c;
+  const nm=document.getElementById('r-name');nm.textContent=card.name;nm.style.color=sc.c;nm.style.textShadow=`0 0 40px ${sc.c}`;
+  document.getElementById('r-div').style.background=sc.c;
+  document.getElementById('r-body').innerHTML=card.body.split('\n').map(l=>l?`<p>${l}</p>`:'').join('');
+  document.getElementById('sci-body').textContent=card.science;
+  document.getElementById('aroma-body').textContent=card.aroma;
+  ['sci-tag','aroma-tag'].forEach(id=>{const e=document.getElementById(id);e.style.color=sc.c;e.style.borderColor=sc.c;});
+  document.querySelectorAll('.layer-arr').forEach(e=>e.style.color=sc.c);
+  document.querySelectorAll('.layer-hd').forEach(e=>e.style.setProperty('--rc',sc.c));
+
+  // 重置層
+  document.querySelectorAll('.layer').forEach(l=>l.classList.remove('open'));
+
+  show('resultScreen');
+  flash(sc.c);
+}
+
+/* 螢幕閃光 */
+function flash(c){
+  const d=document.createElement('div');
+  d.style.cssText=`position:fixed;inset:0;z-index:999;pointer-events:none;background:${c};opacity:.1;animation:po .55s ease-out forwards`;
+  const s=document.createElement('style');s.textContent='@keyframes po{to{opacity:0}}';
+  document.head.appendChild(s);document.body.appendChild(d);
+  setTimeout(()=>{d.remove();s.remove();},560);
+}
+
+/* ── 展開層 ── */
+function toggleL(id){document.getElementById('L-'+id).classList.toggle('open');}
+
+/* ── 複製 ── */
+function copyCard(){
+  if(!lastCard) return;
+  const sc=SC[lastCard.suit]||SC.joker;
+  const txt=`【撲克牌覺察占卜 · 馥靈之鑰】\n\n${sc.s} ${lastCard.rank} · ${lastCard.name}\n\n${lastCard.body}\n\n── 科學怎麼說 ──\n${lastCard.science}\n\n── 香氣落地 ──\n${lastCard.aroma}\n\n🔗 hourlightkey.com/poker-oracle.html`;
+  navigator.clipboard.writeText(txt).then(()=>toast('已複製！')).catch(()=>{const t=document.createElement('textarea');t.value=txt;t.style.cssText='position:fixed;opacity:0';document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);toast('已複製！');});
+}
+
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2000);}
+</script>
+
+<script src="assets/js/hl-music.js?v=20260309"></script>
+<script src="assets/js/hl-topnav.js"></script>
+<script src="assets/js/hl-bottomnav.js"></script>
+<script src="assets/js/hl-announce.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-referral.js?v=20260323"></script>
+<script src="assets/js/hl-gate.js"></script>
+<script src="assets/js/hl-email.js"></script>
+<script src="assets/js/hl-share.js"></script>
+<script src="assets/js/hl-tracker.js" data-tool="poker-oracle" data-tool-name="撲克牌覺察占卜" data-tool-type="oracle"></script>
+</body>
+</html>
