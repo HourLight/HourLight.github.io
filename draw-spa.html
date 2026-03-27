@@ -208,7 +208,7 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.90);z-ind
   </div>
   <div style="font-size:.68rem;color:rgba(233,194,125,.3);margin-top:8px;text-align:center;max-width:400px;margin-left:auto;margin-right:auto">🔒 系統自動將西曆轉為農曆計算馥靈秘碼，所有計算在您的裝置上完成</div>
 
-  <button class="spa-btn" onclick="goScene(3)" id="bodyNext" disabled>下一步</button>
+  <button class="spa-btn" data-no-gate onclick="goScene(3)" id="bodyNext" disabled>下一步</button>
 </div>
 
 <!-- ═══ SCENE 3：SPA 問卷 ═══ -->
@@ -217,7 +217,7 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.90);z-ind
   <div class="quiz-q" id="quizQ"></div>
   <div class="quiz-opts" id="quizOpts"></div>
   <textarea class="quiz-free" id="quizFree" placeholder="想補充什麼都可以（選填）" rows="2"></textarea>
-  <button class="spa-btn" id="quizNext" onclick="nextQuiz()" disabled>下一題</button>
+  <button class="spa-btn" data-no-gate id="quizNext" onclick="nextQuiz()" disabled>下一題</button>
 </div>
 
 <!-- ═══ SCENE 4：選牌陣 ═══ -->
@@ -236,7 +236,7 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.90);z-ind
   <div class="spa-title" id="drawTitle">🔮 為您抽牌中</div>
   <div class="spa-sub" id="drawHint">牌卡正在回應您的身體訊號...</div>
   <div class="draw-slots" id="drawSlots"></div>
-  <button class="spa-btn" id="drawDone" onclick="goScene(6)" style="display:none">生成覺察處方箋 ✨</button>
+  <button class="spa-btn" data-no-gate id="drawDone" onclick="goScene(6)" style="display:none">生成覺察處方箋 ✨</button>
 </div>
 
 <!-- ═══ SCENE 6：AI 解讀 ═══ -->
@@ -394,17 +394,35 @@ function goScene(n){
       return;
     }
   }
-  var old=document.getElementById('scene'+currentScene);
-  if(old){old.classList.add('fade-out');setTimeout(()=>{old.classList.remove('active','fade-out')},400)}
-  setTimeout(()=>{
-    var next=document.getElementById('scene'+n);
-    if(next)next.classList.add('active');
+  var oldEl=document.getElementById('scene'+currentScene);
+  var nextEl=document.getElementById('scene'+(n));
+
+  // 先讓新 scene 準備好（display:block 但透明），消除全黑空窗
+  if(nextEl){
+    nextEl.style.display='block';
+    nextEl.style.opacity='0';
+  }
+
+  if(oldEl){
+    oldEl.classList.add('fade-out');
+    setTimeout(function(){
+      oldEl.classList.remove('active','fade-out');
+      oldEl.style.display='';
+    },380);
+  }
+
+  setTimeout(function(){
+    if(nextEl){
+      nextEl.style.display='';
+      nextEl.style.opacity='';
+      nextEl.classList.add('active');
+    }
     currentScene=n;
     if(n===1)startBreath();
     if(n===3)showQuiz();
     if(n===5)initDraw();
     if(n===6)runReading();
-  },450);
+  },420);
 }
 
 // ══════ Breathing ══════
