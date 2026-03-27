@@ -203,7 +203,7 @@ body { padding-bottom: max(68px, calc(env(safe-area-inset-bottom) + 60px)); }
           var user = firebase.auth().currentUser;
           var lbl = memberBtn.querySelector('.hl-bn-label');
           if (user) {
-            memberBtn.href = 'member-dashboard.html';
+            memberBtn.href = 'app.html';
             if (lbl) lbl.textContent = '我的';
           } else {
             memberBtn.href = 'member-login.html';
