@@ -43,7 +43,7 @@
     'tarot-draw.html':'draw-hub.html','angel-oracle.html':'draw-hub.html',
     'past-life.html':'draw-hub.html','witch-power.html':'draw-hub.html',
     'projection-cards.html':'draw-hub.html',
-    'pet-reading.html':'draw-hub.html','draw-family.html':'draw-hub.html',
+    'pet-reading.html':'draw-hub.html','family-reading.html':'draw-hub.html',
     'draw-spa.html':'draw-hub.html','draw-nail.html':'draw-hub.html',
     // 命盤 hub
     'destiny-engine.html':'destiny-hub.html','destiny-match.html':'destiny-hub.html',

@@ -505,11 +505,23 @@ function buildPrompt(){
 // ══════ AI Reading ══════
 
 function requestAIReading(){
-  // 付款牆攔截
+  // 付款牆攔截（支援代碼兌換 onProceed）
   if(typeof hlPaywall!=='undefined'){
     var famPriceMap={3:199,5:399,7:599};
     if(famPriceMap[currentSpread]){
-      hlPaywall.show({n:currentSpread,priceMap:famPriceMap,serviceName:'家族覺察智慧解讀'});
+      hlPaywall.show({
+        n:currentSpread,
+        priceMap:famPriceMap,
+        serviceName:'家族覺察智慧解讀',
+        onProceed:function(){
+          // 代碼驗證成功後直接呼叫 AI
+          if(typeof hlAIGateCheck==='function'){
+            hlAIGateCheck(function(){ _requestAIReadingOriginal(); });
+          }else{
+            _requestAIReadingOriginal();
+          }
+        }
+      });
       return;
     }
   }

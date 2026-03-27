@@ -1994,6 +1994,7 @@ async function copyReadingText(readingId){
           <button class="admin-tab" onclick="switchAdminTab('activate')" data-tab="activate">🎫 開通</button>
           <button class="admin-tab" onclick="switchAdminTab('referral')" data-tab="referral">📱 推薦碼</button>
           <button class="admin-tab" onclick="switchAdminTab('bizpartner')" data-tab="bizpartner">🤝 美業合作</button>
+          <button class="admin-tab" onclick="switchAdminTab('readingcodes')" data-tab="readingcodes">🎟️ 解讀代碼</button>
           <button class="admin-tab" onclick="switchAdminTab('readings')" data-tab="readings">📜 解讀紀錄</button>
           <button class="admin-tab" onclick="switchAdminTab('analytics')" data-tab="analytics">📈 深度分析</button>
           <button class="admin-tab" onclick="switchAdminTab('chatlogs')" data-tab="chatlogs">💬 小馥對話</button>
@@ -2340,6 +2341,7 @@ async function copyReadingText(readingId){
                   <div style="flex:1">
                     <label style="font-size:.82rem;color:var(--mid);margin-bottom:4px;display:block">方案</label>
                     <select class="modal-select" id="act-plan">
+                      <option value="trial_pro">🎁 7天體驗（等同大師，到期自動降免費）</option>
                       <option value="plus">🔑 馥靈鑰友（$399/月）</option>
                       <option value="pro">👑 馥靈大師（$999/月）</option>
                     </select>
@@ -2347,8 +2349,8 @@ async function copyReadingText(readingId){
                   <div style="flex:1">
                     <label style="font-size:.82rem;color:var(--mid);margin-bottom:4px;display:block">天數</label>
                     <select class="modal-select" id="act-days">
-                      <option value="7">7 天（體驗）</option>
-                      <option value="30" selected>30 天</option>
+                      <option value="7" selected>7 天（體驗）</option>
+                      <option value="30">30 天</option>
                       <option value="60">60 天</option>
                       <option value="90">90 天</option>
                       <option value="180">180 天</option>
@@ -2365,6 +2367,38 @@ async function copyReadingText(readingId){
               <div style="margin-top:30px;border-top:1px solid var(--border);padding-top:20px">
                 <h4 style="font-size:.95rem;color:var(--text);margin-bottom:12px">📋 最近開通紀錄</h4>
                 <div id="act-history" style="font-size:.85rem;color:var(--mid)">載入中⋯</div>
+              </div>
+
+              <!-- ⭐ 7天體驗序號兌換 -->
+              <div style="margin-top:30px;border-top:1px solid var(--border);padding-top:20px">
+                <h4 style="font-size:.95rem;color:var(--text);margin-bottom:8px">⭐ 兌換7天無限體驗序號</h4>
+                <p style="font-size:.82rem;color:var(--mid);margin-bottom:14px;line-height:1.7">收到 HLT- 開頭序號？輸入後立即開通7天大師等級體驗，到期自動降為免費會員。</p>
+                <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;max-width:480px">
+                  <div style="flex:1;min-width:200px">
+                    <label style="font-size:.82rem;color:var(--mid);margin-bottom:4px;display:block">體驗序號</label>
+                    <input type="text" id="trial-code-input" placeholder="HLT-XXXXXX" class="member-search" style="width:100%;font-family:monospace;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"/>
+                  </div>
+                  <button class="btn-matrix-save" onclick="redeemTrialCode()" id="trial-redeem-btn" style="padding:12px 24px;white-space:nowrap">⭐ 立即兌換</button>
+                </div>
+                <div id="trial-result" style="display:none;margin-top:10px;padding:10px 14px;border-radius:8px;font-size:.85rem"></div>
+              </div>
+
+              <!-- 🔓 7天無限序號兌換（後台手動操作）-->
+              <div style="margin-top:30px;border-top:1px solid var(--border);padding-top:20px">
+                <h4 style="font-size:.95rem;color:var(--text);margin-bottom:8px">🔓 7天無限序號兌換</h4>
+                <p style="font-size:.82rem;color:var(--mid);margin-bottom:14px;line-height:1.7">輸入會員 Email + HLU 序號，立即開通 7 天大師方案。7 天後自動降回免費。</p>
+                <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;max-width:540px">
+                  <div style="flex:1;min-width:200px">
+                    <label style="font-size:.82rem;color:var(--mid);margin-bottom:4px;display:block">會員 Email</label>
+                    <input type="email" id="hlu-email" placeholder="輸入會員的 Email" class="member-search" style="width:100%"/>
+                  </div>
+                  <div style="flex:1;min-width:200px">
+                    <label style="font-size:.82rem;color:var(--mid);margin-bottom:4px;display:block">HLU 序號</label>
+                    <input type="text" id="hlu-code" placeholder="HLU-XXXXXX" class="member-search" style="width:100%;font-family:monospace;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"/>
+                  </div>
+                  <button class="btn-matrix-save" onclick="redeemUnlimitedCode()" id="hlu-btn" style="padding:12px 24px;white-space:nowrap">🔓 開通 7 天</button>
+                </div>
+                <div id="hlu-result" style="display:none;margin-top:10px;padding:10px 14px;border-radius:8px;font-size:.85rem"></div>
               </div>
 
               <!-- 📚 NAHA 課程存取權 -->
@@ -2499,6 +2533,127 @@ async function copyReadingText(readingId){
           </div>
         </div>
       </div>
+
+        <!-- 🎟️ 解讀代碼管理 -->
+        <div class="admin-sub" id="admin-readingcodes">
+          <div class="card">
+            <div class="card-body">
+              <h3 style="font-size:1.1rem;margin-bottom:8px;color:var(--text)">🎟️ 解讀代碼管理</h3>
+              <p style="font-size:.82rem;color:var(--mid);margin-bottom:16px;line-height:1.7">產生一次性解讀代碼，適用於轉帳確認後手動給碼。代碼格式：<code style="background:rgba(240,212,138,.1);padding:2px 6px;border-radius:4px;font-size:.78rem">HL3-XXXXXX</code></p>
+
+              <!-- 產生代碼 -->
+              <div style="background:rgba(240,212,138,.03);border:1px solid rgba(240,212,138,.1);border-radius:14px;padding:18px;margin-bottom:20px">
+                <h4 style="font-size:.92rem;color:var(--text);margin-bottom:12px">➕ 產生解讀代碼</h4>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;max-width:640px;align-items:flex-end">
+                  <div style="flex:1;min-width:160px">
+                    <label style="font-size:.78rem;color:var(--mid);display:block;margin-bottom:4px">解讀類型</label>
+                    <select id="rc-type" class="member-search" style="width:100%" onchange="rcUpdatePrice()">
+                      <option value="3card">3張牌 AI 解讀（$199）</option>
+                      <option value="5card">5張牌 AI 解讀（$399）</option>
+                      <option value="7card">7張牌 AI 解讀（$599）</option>
+                      <option value="promo">行銷贈送（免費3張）</option>
+                      <option value="unlimited7">7天無限暢玩（等同 $999 大師方案）</option>
+                    </select>
+                  </div>
+                  <div style="width:90px">
+                    <label style="font-size:.78rem;color:var(--mid);display:block;margin-bottom:4px">數量</label>
+                    <input type="number" id="rc-count" value="1" min="1" max="50" class="member-search" style="width:100%"/>
+                  </div>
+                  <div style="flex:1;min-width:160px">
+                    <label style="font-size:.78rem;color:var(--mid);display:block;margin-bottom:4px">備註（可留空）</label>
+                    <input type="text" id="rc-note" placeholder="例：王小明 2026/04" class="member-search" style="width:100%"/>
+                  </div>
+                  <button class="btn-matrix-save" onclick="generateReadingCodes()" style="padding:12px 24px;white-space:nowrap">🎟️ 產生代碼</button>
+                </div>
+                <div id="rc-gen-msg" style="font-size:.82rem;margin-top:8px;min-height:18px"></div>
+                <div id="rc-code-list" style="margin-top:12px;display:none">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                    <span style="font-size:.85rem;color:var(--text);font-weight:700">產生的代碼</span>
+                    <div style="display:flex;gap:8px">
+                      <button onclick="copyReadingCodes()" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(240,212,138,.3);background:rgba(240,212,138,.08);color:var(--gold);font-size:.78rem;cursor:pointer">📋 全部複製</button>
+                      <button onclick="sendReadingCodesEmail()" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(240,212,138,.3);background:rgba(240,212,138,.08);color:var(--gold);font-size:.78rem;cursor:pointer">📧 寄到信箱</button>
+                    </div>
+                  </div>
+                  <div id="rc-codes-output" style="font-family:monospace;font-size:.85rem;color:var(--gold);line-height:2;background:rgba(0,0,0,.2);padding:12px;border-radius:10px;max-height:200px;overflow-y:auto"></div>
+                  <div id="rc-email-row" style="margin-top:10px;display:flex;gap:8px;align-items:center">
+                    <input type="email" id="rc-send-email" placeholder="收件人 Email" class="member-search" style="flex:1"/>
+                    <button onclick="doSendReadingCodesEmail()" class="btn-matrix-save" style="padding:10px 20px">發送</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 行銷代碼批次發送 -->
+              <div style="background:rgba(240,212,138,.03);border:1px solid rgba(240,212,138,.1);border-radius:14px;padding:18px;margin-bottom:20px">
+                <h4 style="font-size:.92rem;color:var(--text);margin-bottom:8px">📣 行銷代碼批次發送</h4>
+                <p style="font-size:.82rem;color:var(--mid);margin-bottom:14px;line-height:1.7">
+                  自動撈取 Firestore 所有已登錄會員，每人產生一組免費 3 張解讀代碼，批次寄出。
+                </p>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;max-width:640px">
+                  <div style="flex:1;min-width:200px">
+                    <label style="font-size:.78rem;color:var(--mid);display:block;margin-bottom:4px">活動備註</label>
+                    <input type="text" id="promo-note" placeholder="例：2026/04 回流行銷" class="member-search" style="width:100%"/>
+                  </div>
+                  <div style="flex:1;min-width:200px">
+                    <label style="font-size:.78rem;color:var(--mid);display:block;margin-bottom:4px">發送對象</label>
+                    <select id="promo-target" class="member-search" style="width:100%">
+                      <option value="all">全部會員（含免費）</option>
+                      <option value="paid">僅付費會員</option>
+                      <option value="free">僅免費會員</option>
+                    </select>
+                  </div>
+                </div>
+                <!-- 信件主旨 -->
+                <div style="margin-top:12px">
+                  <label style="font-size:.78rem;color:var(--mid);display:block;margin-bottom:4px">信件主旨</label>
+                  <input type="text" id="promo-email-subject" class="member-search" style="width:100%"
+                    value="馥靈之鑰｜感謝您，這是我想親自送給您的禮物 🗝️"
+                    placeholder="信件主旨"/>
+                </div>
+                <!-- 信件內文（從 Notion 貼入，用 {name}/{code3}/{code5}/{code7}/{codeU} 作為變數）-->
+                <div style="margin-top:10px">
+                  <label style="font-size:.78rem;color:var(--mid);display:block;margin-bottom:4px">
+                    信件內文 <span style="color:rgba(240,212,138,.5);font-weight:400">（請在 Notion 修改後貼入；變數：{name} {code3} {code5} {code7} {codeU}）</span>
+                  </label>
+                  <textarea id="promo-email-body" rows="10" class="member-search"
+                    style="width:100%;resize:vertical;font-family:inherit;font-size:.82rem;line-height:1.8"
+                    placeholder="從 Notion 草稿複製修改好的信件內文貼入這裡。&#10;&#10;可用變數：&#10;{name} = 收件人姓名&#10;{code3} = 3張解讀代碼&#10;{code5} = 5張解讀代碼&#10;{code7} = 7張解讀代碼&#10;{codeU} = 7天無限序號&#10;&#10;留空則使用系統預設簡易版信件。"></textarea>
+                </div>
+                <div style="margin-top:12px">
+                  <button class="btn-matrix-save" onclick="confirmBatchPromo()" style="padding:12px 24px;white-space:nowrap;background:rgba(240,212,138,.15);color:var(--gold)">
+                    🚀 預覽並發送
+                  </button>
+                </div>
+                <div id="promo-preview" style="display:none;margin-top:12px;padding:12px 14px;border-radius:10px;background:rgba(240,212,138,.04);border:1px solid rgba(240,212,138,.1);font-size:.82rem;color:var(--mid)"></div>
+                <div id="promo-confirm-row" style="display:none;margin-top:10px;display:none">
+                  <button class="btn-matrix-save" onclick="executeBatchPromo()" style="padding:12px 28px">✅ 確認發送給以上 <span id="promo-count">0</span> 位會員</button>
+                  <button onclick="cancelBatchPromo()" style="margin-left:10px;padding:10px 18px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--mid);cursor:pointer">取消</button>
+                </div>
+                <div id="promo-msg" style="font-size:.82rem;margin-top:8px;min-height:18px"></div>
+              </div>
+
+              <!-- 代碼使用紀錄 -->
+              <div>
+                <h4 style="font-size:.92rem;color:var(--text);margin-bottom:12px">📋 代碼使用紀錄</h4>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
+                  <select id="rc-filter" onchange="loadReadingCodeLog()" class="member-search" style="width:140px">
+                    <option value="all">全部</option>
+                    <option value="unused">未使用</option>
+                    <option value="used">已使用</option>
+                  </select>
+                  <select id="rc-type-filter" onchange="loadReadingCodeLog()" class="member-search" style="width:160px">
+                    <option value="all">全部類型</option>
+                    <option value="3card">3張牌</option>
+                    <option value="5card">5張牌</option>
+                    <option value="7card">7張牌</option>
+                    <option value="promo">行銷贈送</option>
+                  </select>
+                  <button onclick="loadReadingCodeLog()" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;font-size:.82rem">🔄 刷新</button>
+                </div>
+                <div id="rc-log-list" style="font-size:.85rem;color:var(--mid)">載入中⋯</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- 📜 解讀紀錄 -->
         <div class="admin-sub" id="admin-readings">
@@ -3919,6 +4074,7 @@ function switchAdminTab(tab) {
   if (tab==='readings') loadReadings();
   if (tab==='analytics') loadAnalytics();
   if (tab==='bizpartner') loadBizPartners();
+  if (tab==='readingcodes') { loadReadingCodeLog(); }
   if (tab==='chatlogs') loadChatLogs();
 }
 
@@ -4465,10 +4621,15 @@ async function activateMember(){
     const userDoc=snap.docs[0];
     const uid=userDoc.id;
     const userData=userDoc.data();
-    const pInfo=HL_PLANS[plan]||HL_PLANS.plus;
+
+    // trial_pro = 大師等級但強制7天到期，不顯示在 HL_PLANS 裡，用 pro 替代
+    const isTrial = plan === 'trial_pro';
+    const actualPlan = isTrial ? 'pro' : plan;
+    const pInfo = HL_PLANS[actualPlan] || HL_PLANS.plus;
 
     // 計算到期日
-    const data={plan:plan};
+    const data = { plan: actualPlan };
+    if (isTrial) data.isTrial = true;
     let expiryLabel='';
     if(days===0){
       data.planExpiry='permanent';
@@ -4513,7 +4674,7 @@ async function activateMember(){
     resultEl.style.display='block';
     resultEl.style.background='rgba(52,168,83,.08)';
     resultEl.style.color='#34a853';
-    resultEl.innerHTML='✅ 開通成功！<br>'+pInfo.icon+' <strong>'+(userData.displayName||email)+'</strong> → '+pInfo.name+'<br>到期：'+expiryLabel+'<br>📧 已發送開通通知信至 '+email;
+    resultEl.innerHTML='✅ 開通成功！<br>'+(isTrial?'🎁':pInfo.icon)+' <strong>'+(userData.displayName||email)+'</strong> → '+(isTrial?'7天無限體驗（大師等級）':pInfo.name)+'<br>到期：'+expiryLabel+(isTrial?'<br><small>體驗期後自動降為免費會員</small>':'')+'<br>📧 已發送開通通知信至 '+email;
     document.getElementById('act-email').value='';
     loadActivateHistory();
   }catch(e){
@@ -4593,6 +4754,127 @@ async function grantNahaAccess(){
   btn.disabled=false;btn.textContent='📚 開通課程';
 }
 
+/* ═══ ⭐ 7天體驗序號兌換 ═══ */
+async function redeemTrialCode(){
+  var code=(document.getElementById('trial-code-input').value||'').trim().toUpperCase();
+  var resultEl=document.getElementById('trial-result');
+  var btn=document.getElementById('trial-redeem-btn');
+  if(!code||code.length<6){
+    resultEl.style.display='block';resultEl.style.background='rgba(217,48,37,.08)';resultEl.style.color='#d93025';
+    resultEl.textContent='請輸入序號（格式：HLT-XXXXXX）';return;
+  }
+  btn.disabled=true;btn.textContent='驗證中⋯';
+  try{
+    var codeDoc=await db.collection('trial_codes').doc(code).get();
+    if(!codeDoc.exists){
+      resultEl.style.display='block';resultEl.style.background='rgba(217,48,37,.08)';resultEl.style.color='#d93025';
+      resultEl.textContent='序號無效，請確認輸入是否正確';
+      btn.disabled=false;btn.textContent='⭐ 立即兌換';return;
+    }
+    var codeData=codeDoc.data();
+    if(codeData.used){
+      resultEl.style.display='block';resultEl.style.background='rgba(217,48,37,.08)';resultEl.style.color='#d93025';
+      resultEl.textContent='此序號已兌換過，無法再次使用';
+      btn.disabled=false;btn.textContent='⭐ 立即兌換';return;
+    }
+    var days=codeData.days||7;
+    var exp=new Date();exp.setDate(exp.getDate()+days);
+    // 更新用戶方案
+    await db.collection('users').doc(currentUser.uid).update({
+      plan:'pro',isTrial:true,
+      planExpiry:exp.toISOString()
+    });
+    // 標記序號已用
+    await db.collection('trial_codes').doc(code).update({
+      used:true,usedAt:firebase.firestore.FieldValue.serverTimestamp(),
+      usedBy:currentUser.uid,usedByEmail:currentUser.email||''
+    });
+    resultEl.style.display='block';resultEl.style.background='rgba(52,168,83,.08)';resultEl.style.color='#34a853';
+    resultEl.innerHTML='🎉 兌換成功！<br>已開通 <strong>7天無限體驗（大師等級）</strong><br>到期日：'+exp.toLocaleDateString('zh-TW')+'<br>到期後自動回復免費會員，每日仍享 3 次免費次數。<br><br>請重新整理頁面以套用新方案。';
+    document.getElementById('trial-code-input').value='';
+  }catch(e){
+    resultEl.style.display='block';resultEl.style.background='rgba(217,48,37,.08)';resultEl.style.color='#d93025';
+    resultEl.textContent='兌換失敗：'+e.message;
+  }
+  btn.disabled=false;btn.textContent='⭐ 立即兌換';
+}
+
+/* ═══ 🔓 HLU 7天無限序號兌換（後台操作）═══ */
+async function redeemUnlimitedCode(){
+  var email=document.getElementById('hlu-email').value.trim().toLowerCase();
+  var code=document.getElementById('hlu-code').value.trim().toUpperCase();
+  var resultEl=document.getElementById('hlu-result');
+  var btn=document.getElementById('hlu-btn');
+
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    resultEl.style.display='block';resultEl.style.background='rgba(217,48,37,.08)';resultEl.style.color='#d93025';
+    resultEl.textContent='請輸入正確的 Email';return;
+  }
+  if(!code||!code.startsWith('HLU-')){
+    resultEl.style.display='block';resultEl.style.background='rgba(217,48,37,.08)';resultEl.style.color='#d93025';
+    resultEl.textContent='請輸入有效的 HLU- 開頭序號';return;
+  }
+
+  btn.disabled=true;btn.textContent='處理中⋯';
+  try{
+    // 1. 驗證序號
+    var codeDoc=await db.collection('reading_codes').doc(code).get();
+    if(!codeDoc.exists){
+      resultEl.style.display='block';resultEl.style.background='rgba(217,48,37,.08)';resultEl.style.color='#d93025';
+      resultEl.textContent='序號無效，請確認輸入是否正確';
+      btn.disabled=false;btn.textContent='🔓 開通 7 天';return;
+    }
+    var codeData=codeDoc.data();
+    if(codeData.used){
+      resultEl.style.display='block';resultEl.style.background='rgba(217,48,37,.08)';resultEl.style.color='#d93025';
+      resultEl.textContent='此序號已使用過';
+      btn.disabled=false;btn.textContent='🔓 開通 7 天';return;
+    }
+
+    // 2. 查找會員
+    var snap=await db.collection('users').where('email','==',email).limit(1).get();
+    if(snap.empty){
+      resultEl.style.display='block';resultEl.style.background='rgba(217,48,37,.08)';resultEl.style.color='#d93025';
+      resultEl.textContent='找不到此 Email 的會員，請確認對方已註冊帳號';
+      btn.disabled=false;btn.textContent='🔓 開通 7 天';return;
+    }
+    var userDoc=snap.docs[0];
+    var uid=userDoc.id;
+    var userData=userDoc.data();
+
+    // 3. 計算到期日（7天後）
+    var exp=new Date();exp.setDate(exp.getDate()+7);
+    var expISO=exp.toISOString();
+
+    // 4. 開通 pro 方案
+    await db.collection('users').doc(uid).update({plan:'pro',planExpiry:expISO});
+
+    // 5. 標記序號已用
+    await db.collection('reading_codes').doc(code).update({
+      used:true,usedAt:firebase.firestore.FieldValue.serverTimestamp(),
+      usedBy:uid,usedByEmail:email
+    });
+
+    // 6. 記錄開通紀錄（與快速開通共用 log）
+    await db.collection('admin').doc('activate_log').set({
+      logs:firebase.firestore.FieldValue.arrayUnion({
+        email:email,name:userData.displayName||'',
+        plan:'pro',days:7,expiry:expISO,code:code,
+        activatedAt:new Date().toISOString(),activatedBy:currentUser.email
+      })
+    },{merge:true});
+
+    resultEl.style.display='block';resultEl.style.background='rgba(52,168,83,.08)';resultEl.style.color='#34a853';
+    resultEl.innerHTML='✅ 開通成功！<strong>'+(userData.displayName||email)+'</strong> 已開通 7 天大師方案<br>到期：'+exp.toLocaleDateString('zh-TW')+'（'+expISO.split('T')[0]+'）';
+    document.getElementById('hlu-email').value='';
+    document.getElementById('hlu-code').value='';
+  }catch(e){
+    resultEl.style.display='block';resultEl.style.background='rgba(217,48,37,.08)';resultEl.style.color='#d93025';
+    resultEl.textContent='開通失敗：'+e.message;
+  }
+  btn.disabled=false;btn.textContent='🔓 開通 7 天';
+}
+
 /* ═══ 🤝 美業合作 ═══ */
 async function addBizPartner(){
   var name=document.getElementById('biz-shop-name').value.trim();
@@ -4635,11 +4917,7 @@ async function loadBizPartners(){
       h+='<div><strong style="color:var(--text)">'+({nail:'💅',spa:'🧖‍♀️',both:'💅🧖‍♀️'}[d.type]||'')+' '+(d.shopName||'')+'</strong>';
       h+='<div style="font-size:.78rem;color:var(--mid)">'+(d.contact||'')+' · '+(d.email||'')+'</div></div>';
       h+='<div style="text-align:right">';
-      var spreadMap={biz600:'3張',biz900:'5張',biz1200:'9張'};
-      var priceMap2={biz600:'$600/月',biz900:'$900/月',biz1200:'$1,200/月'};
-      var spreadLabel2=spreadMap[d.plan]||'3張';
-      var priceLabel2=priceMap2[d.plan]||'$600/月';
-      h+='<div style="font-size:.85rem;color:var(--gold);font-weight:700">'+spreadLabel2+' '+priceLabel2+'｜剩餘 '+remain+' / '+(d.monthlyQuota||50)+' 次</div>';
+      h+='<div style="font-size:.85rem;color:var(--gold);font-weight:700">'+spreadLabel+' '+priceLabel+'｜剩餘 '+remain+' / '+(d.monthlyQuota||50)+' 次</div>';
       h+='<div style="font-size:.72rem;color:'+statusColor+'">● '+statusText+'</div>';
       h+='</div></div>';
       if(d.active) sel.innerHTML+='<option value="'+doc.id+'">'+(d.shopName||doc.id)+'</option>';
@@ -4670,37 +4948,6 @@ async function generateBizCodes(){
     outEl.textContent=codes.join('\n');
     listEl.style.display='';
     window._lastBizCodes=codes;
-
-    // 自動寄代碼給合作商 email
-    var partnerSnap=await db.collection('biz_partners').doc(partnerId).get();
-    if(partnerSnap.exists){
-      var pd=partnerSnap.data();
-      var shopName=pd.shopName||'合作商';
-      var toEmail=pd.email||'';
-      var spreadMap={biz600:'3張',biz900:'5張',biz1200:'9張'};
-      var priceMap2={biz600:'$600/月',biz900:'$900/月',biz1200:'$1,200/月'};
-      var planLabel=(spreadMap[pd.plan]||'3張')+' '+( priceMap2[pd.plan]||'$600/月');
-      if(toEmail){
-        try{
-          await fetch('https://app.hourlightkey.com/api/send-report',{
-            method:'POST',headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({
-              email:toEmail,
-              name:shopName,
-              subject:'馥靈之鑰｜'+count+' 組一次性兌換碼（'+planLabel+'）',
-              type:'notification',
-              content:'親愛的 '+shopName+'：\n\n以下是本次產生的 '+count+' 組一次性兌換碼（'+planLabel+'），每組代碼限一位客人使用一次：\n\n'+codes.join('\n')+'\n\n使用方式：\n客人前往 https://hourlightkey.com 輸入兌換碼，即可進行本次 AI 覺察解讀。\n\n如有任何問題，歡迎聯繫我們：\nLINE：lin.ee/RdQBFAN\nEmail：info@hourlightkey.com\n\n馥靈之鑰 Hour Light 敬上'
-            })
-          });
-          msg.style.color='#34a853';
-          msg.textContent='✅ 已產生 '+count+' 組代碼，並寄送至 '+toEmail;
-        }catch(mailErr){
-          console.warn('寄信失敗',mailErr);
-          // 寄信失敗不影響代碼已產生的成功狀態
-          msg.textContent='✅ 已產生 '+count+' 組代碼（寄信失敗，請手動複製）';
-        }
-      }
-    }
   }catch(e){msg.style.color='#d93025';msg.textContent='產生失敗：'+e.message;}
 }
 function genCode(){
@@ -4712,6 +4959,259 @@ function copyBizCodes(){
   navigator.clipboard.writeText(window._lastBizCodes.join('\n')).then(function(){
     event.target.textContent='✅ 已複製';setTimeout(function(){event.target.textContent='📋 全部複製';},2000);
   });
+}
+
+/* ═══ 🎟️ 解讀代碼管理系統 ═══ */
+
+function rcUpdatePrice(){
+  // 純 UI 更新，目前不需要動作
+}
+
+function rcGenRandom(){
+  var chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var c=''; for(var i=0;i<6;i++) c+=chars[Math.floor(Math.random()*chars.length)];
+  return c;
+}
+function rcGenCode(type){
+  var prefix = type==='3card'?'HL3':type==='5card'?'HL5':type==='7card'?'HL7':type==='unlimited7'?'HLU':'HLM';
+  return prefix+'-'+rcGenRandom();
+}
+
+async function generateReadingCodes(){
+  var type=document.getElementById('rc-type').value;
+  var count=parseInt(document.getElementById('rc-count').value)||1;
+  var note=(document.getElementById('rc-note').value||'').trim();
+  var msg=document.getElementById('rc-gen-msg');
+  var listEl=document.getElementById('rc-code-list');
+  var outEl=document.getElementById('rc-codes-output');
+
+  if(count<1||count>50){msg.style.color='#d93025';msg.textContent='數量 1-50';return;}
+  msg.style.color='var(--mid)';msg.textContent='產生中⋯';
+
+  var typeMap={
+    '3card':{spreads:3,price:199,label:'3張牌解讀 $199'},
+    '5card':{spreads:5,price:399,label:'5張牌解讀 $399'},
+    '7card':{spreads:7,price:599,label:'7張牌解讀 $599'},
+    'promo':{spreads:3,price:0,label:'行銷贈送（免費3張）'},
+    'unlimited7':{spreads:0,price:0,label:'7天無限暢玩（等同大師方案）'}
+  };
+  var typeInfo=typeMap[type]||typeMap['3card'];
+
+  try{
+    var codes=[];
+    var batch=db.batch();
+    for(var i=0;i<count;i++){
+      var code=rcGenCode(type);
+      var ref=db.collection('reading_codes').doc(code);
+      batch.set(ref,{
+        code:code,
+        type:type,
+        spreads:typeInfo.spreads,
+        price:typeInfo.price,
+        used:false,
+        usedAt:null,
+        usedBy:null,
+        usedByEmail:null,
+        createdBy:currentUser.email,
+        createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+        note:note,
+        unlimitedDays: type==='unlimited7' ? 7 : null
+      });
+      codes.push(code);
+    }
+    await batch.commit();
+    msg.style.color='#34a853';msg.textContent='✅ 已產生 '+count+' 組代碼（'+typeInfo.label+'）';
+    outEl.textContent=codes.join('\n');
+    listEl.style.display='';
+    window._lastReadingCodes=codes;
+    window._lastReadingCodesType=typeInfo;
+    loadReadingCodeLog();
+  }catch(e){msg.style.color='#d93025';msg.textContent='產生失敗：'+e.message;}
+}
+
+function copyReadingCodes(){
+  if(!window._lastReadingCodes)return;
+  navigator.clipboard.writeText(window._lastReadingCodes.join('\n')).then(function(){
+    event.target.textContent='✅ 已複製';setTimeout(function(){event.target.textContent='📋 全部複製';},2000);
+  });
+}
+
+function sendReadingCodesEmail(){
+  var row=document.getElementById('rc-email-row');
+  if(row) row.style.display=row.style.display==='none'?'flex':'none';
+}
+
+async function doSendReadingCodesEmail(){
+  var email=document.getElementById('rc-send-email').value.trim();
+  if(!email||!window._lastReadingCodes){return;}
+  var typeInfo=window._lastReadingCodesType||{label:'解讀代碼',spreads:3};
+  try{
+    await fetch('https://app.hourlightkey.com/api/send-report',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        email:email,
+        name:'',
+        subject:'馥靈之鑰｜您的解讀代碼（'+typeInfo.label+'）',
+        type:'notification',
+        content:'您好，以下是您的馥靈智慧牌解讀代碼（'+typeInfo.label+'）：\n\n'+window._lastReadingCodes.join('\n')+'\n\n使用方式：\n前往 https://hourlightkey.com/draw-hl.html\n抽牌後輸入代碼，即可進行 AI 深度解讀。\n\n每組代碼限使用一次，請妥善保存。\n\n如有任何問題，歡迎聯繫：\nLINE：lin.ee/RdQBFAN\nEmail：info@hourlightkey.com\n\n馥靈之鑰 Hour Light 敬上'
+      })
+    });
+    showToast('✅ 已寄送至 '+email);
+    document.getElementById('rc-email-row').style.display='none';
+    document.getElementById('rc-send-email').value='';
+  }catch(e){showToast('寄信失敗：'+e.message);}
+}
+
+async function loadReadingCodeLog(){
+  var el=document.getElementById('rc-log-list');
+  if(!el)return;
+  el.textContent='載入中⋯';
+  var filter=document.getElementById('rc-filter')?document.getElementById('rc-filter').value:'all';
+  var typeFilter=document.getElementById('rc-type-filter')?document.getElementById('rc-type-filter').value:'all';
+  try{
+    var q=db.collection('reading_codes').orderBy('createdAt','desc').limit(100);
+    var snap=await q.get();
+    var items=[];
+    snap.forEach(function(doc){
+      var d=doc.data();
+      if(filter==='unused'&&d.used)return;
+      if(filter==='used'&&!d.used)return;
+      if(typeFilter!=='all'&&d.type!==typeFilter)return;
+      items.push({id:doc.id,...d});
+    });
+    if(!items.length){el.innerHTML='<div class="empty"><p>沒有符合條件的代碼</p></div>';return;}
+    var typeLabels={'3card':'🃏 3張','5card':'🃏 5張','7card':'🃏 7張','promo':'🎁 贈送','unlimited7':'🔓 7天無限'};
+    el.innerHTML=items.map(function(d){
+      var ct=d.createdAt&&d.createdAt.toDate?d.createdAt.toDate().toLocaleString('zh-TW'):'';
+      var ut=d.usedAt&&d.usedAt.toDate?d.usedAt.toDate().toLocaleString('zh-TW'):'';
+      return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;font-size:.82rem">'
+        +'<code style="font-size:.88rem;color:var(--gold);letter-spacing:.06em;min-width:140px">'+d.code+'</code>'
+        +'<span style="padding:2px 8px;border-radius:10px;background:rgba(240,212,138,.1);font-size:.72rem">'+( typeLabels[d.type]||d.type)+'</span>'
+        +'<span style="padding:2px 8px;border-radius:10px;font-size:.72rem;'+(d.used?'background:rgba(217,48,37,.1);color:#e57373':'background:rgba(52,168,83,.1);color:#4caf50')+'">'+(d.used?'✗ 已使用':'✓ 未使用')+'</span>'
+        +'<div style="flex:1;min-width:120px;color:var(--light);font-size:.72rem">'
+          +(d.note?'備註：'+d.note+'<br>':'')
+          +'建立：'+ct.slice(0,16)
+          +(d.used?'<br>使用：'+ut.slice(0,16)+'（'+( d.usedByEmail||d.usedBy||'')+'）':'')
+        +'</div></div>';
+    }).join('');
+  }catch(e){el.textContent='載入失敗：'+e.message;}
+}
+
+/* ═══ 行銷代碼批次發送 ═══ */
+var _promoMembers=[];
+
+async function confirmBatchPromo(){
+  var target=document.getElementById('promo-target').value;
+  var note=document.getElementById('promo-note').value.trim()||'行銷贈送';
+  var previewEl=document.getElementById('promo-preview');
+  var confirmRow=document.getElementById('promo-confirm-row');
+
+  previewEl.style.display='none';
+  confirmRow.style.display='none';
+  document.getElementById('promo-msg').textContent='撈取會員中⋯';
+
+  try{
+    var snap=await db.collection('users').get();
+    _promoMembers=[];
+    snap.forEach(function(doc){
+      var d=doc.data();
+      if(!d.email)return;
+      if(target==='paid'&&(!d.plan||d.plan==='free'))return;
+      if(target==='free'&&d.plan&&d.plan!=='free')return;
+      _promoMembers.push({uid:doc.id,email:d.email,name:d.displayName||''});
+    });
+    document.getElementById('promo-msg').textContent='';
+    document.getElementById('promo-count').textContent=_promoMembers.length;
+    previewEl.style.display='block';
+    previewEl.innerHTML='📊 符合條件會員：<strong style="color:var(--gold)">'+_promoMembers.length+' 人</strong><br>每人各產生一組免費 3 張解讀代碼（'+note+'），並寄送 Email 通知。<br><span style="font-size:.75rem">預覽：'+_promoMembers.slice(0,5).map(m=>m.email).join('、')+(  _promoMembers.length>5?'⋯等 '+_promoMembers.length+' 人':'')+'</span>';
+    confirmRow.style.display='flex';
+  }catch(e){document.getElementById('promo-msg').textContent='撈取失敗：'+e.message;}
+}
+
+function cancelBatchPromo(){
+  document.getElementById('promo-preview').style.display='none';
+  document.getElementById('promo-confirm-row').style.display='none';
+  _promoMembers=[];
+}
+
+async function executeBatchPromo(){
+  var note=document.getElementById('promo-note').value.trim()||'行銷贈送';
+  var msgEl=document.getElementById('promo-msg');
+  if(!_promoMembers.length){showToast('沒有符合條件的會員');return;}
+
+  msgEl.style.color='var(--mid)';msgEl.textContent='批次產生代碼並寄信中，請稍候⋯（0/'+_promoMembers.length+'）';
+  document.getElementById('promo-confirm-row').style.display='none';
+
+  var success=0,fail=0;
+  for(var i=0;i<_promoMembers.length;i++){
+    var m=_promoMembers[i];
+    try{
+      // 每人產生 4 組代碼：3張 + 5張 + 7張 + 7天無限
+      var code3=rcGenCode('3card');
+      var code5=rcGenCode('5card');
+      var code7=rcGenCode('7card');
+      var codeU='HLU-'+rcGenRandom();
+
+      var batchPromo=db.batch();
+      batchPromo.set(db.collection('reading_codes').doc(code3),{
+        code:code3,type:'3card',spreads:3,price:199,used:false,
+        usedAt:null,usedBy:null,usedByEmail:null,
+        createdBy:currentUser.email,
+        createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+        note:note,targetEmail:m.email,targetUid:m.uid
+      });
+      batchPromo.set(db.collection('reading_codes').doc(code5),{
+        code:code5,type:'5card',spreads:5,price:399,used:false,
+        usedAt:null,usedBy:null,usedByEmail:null,
+        createdBy:currentUser.email,
+        createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+        note:note,targetEmail:m.email,targetUid:m.uid
+      });
+      batchPromo.set(db.collection('reading_codes').doc(code7),{
+        code:code7,type:'7card',spreads:7,price:599,used:false,
+        usedAt:null,usedBy:null,usedByEmail:null,
+        createdBy:currentUser.email,
+        createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+        note:note,targetEmail:m.email,targetUid:m.uid
+      });
+      batchPromo.set(db.collection('trial_codes').doc(codeU),{
+        code:codeU,type:'unlimited7',days:7,used:false,
+        usedAt:null,usedBy:null,usedByEmail:null,
+        createdBy:currentUser.email,
+        createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+        note:note,targetEmail:m.email,targetUid:m.uid
+      });
+      await batchPromo.commit();
+
+      // 寄信（主旨和內文從後台 promo-email-subject/body 讀取）
+      var emailSubject=document.getElementById('promo-email-subject')?document.getElementById('promo-email-subject').value.trim():'馥靈之鑰｜感謝您，這是我想親自送給您的禮物 🗝️';
+      var emailBody=document.getElementById('promo-email-body')?document.getElementById('promo-email-body').value.trim():'';
+      // 代入代碼
+      var finalBody=emailBody
+        .replace('{code3}',code3)
+        .replace('{code5}',code5)
+        .replace('{code7}',code7)
+        .replace('{codeU}',codeU)
+        .replace('{name}',m.name||'馥靈夥伴');
+      if(!finalBody){
+        // fallback 簡易版
+        finalBody='親愛的 '+(m.name||'馥靈夥伴')+'，\n\n感謝您一直以來的陪伴與支持。以下是為您準備的專屬體驗券：\n\n🎟️ 3張牌 AI 解讀：'+code3+'\n🎟️ 5張牌 AI 解讀：'+code5+'\n🎟️ 7張牌 AI 解讀：'+code7+'\n\n🔓 7天無限暢玩序號：'+codeU+'\n\n使用方式：前往 https://app.hourlightkey.com 登入後輸入序號即可開通 7 天大師方案。\n解讀代碼可在抽牌頁面輸入兌換。\n\n7天後自動回到免費方案（每天仍有3次免費次數）。\n\n有任何問題歡迎找我：LINE → lin.ee/RdQBFAN\n\n馥靈之鑰 王逸君 敬上';
+      }
+      try{
+        await fetch('https://app.hourlightkey.com/api/send-report',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({email:m.email,name:m.name||'',subject:emailSubject,type:'notification',content:finalBody})
+        });
+      }catch(mailErr){console.warn('寄信失敗',m.email,mailErr);}
+      success++;
+    }catch(err){fail++;console.warn('代碼產生失敗',m.email,err);}
+    if((i+1)%5===0) msgEl.textContent='批次處理中⋯（'+(i+1)+'/'+_promoMembers.length+'）';
+    await new Promise(r=>setTimeout(r,200)); // 避免 Firestore rate limit
+  }
+  msgEl.style.color='#34a853';
+  msgEl.textContent='✅ 完成！成功 '+success+' 人，失敗 '+fail+' 人。代碼已產生並寄出。';
+  _promoMembers=[];
+  loadReadingCodeLog();
 }
 
 /* ═══ 📱 推薦碼 QR Code ═══ */

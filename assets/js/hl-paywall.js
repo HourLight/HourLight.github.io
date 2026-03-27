@@ -24,6 +24,7 @@ window.hlPaywall = (function(){
     overlay.id = 'hlPaywallOverlay';
     overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:rgba(10,6,18,.92);display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto';
 
+    var overlayId = 'hlPaywallOverlay';
     overlay.innerHTML =
       '<div style="max-width:480px;width:100%;background:rgba(20,16,32,.95);border:1px solid rgba(240,212,138,.2);border-radius:20px;padding:32px 24px;max-height:90vh;overflow-y:auto">' +
         '<div style="text-align:center;margin-bottom:20px">' +
@@ -60,6 +61,27 @@ window.hlPaywall = (function(){
           '► 銀行：國泰世華銀行 同德分行（013）<br>' +
           '► 帳號：<span style="color:#f0d48a;font-family:monospace;font-weight:700">248-50-624013-3</span><br>' +
           '► 戶名：<span style="color:#f0d48a;font-weight:700">王逸君</span>' +
+        '</div>' +
+
+        // 代碼兌換區塊
+        '<div style="background:rgba(240,212,138,.05);border:1px solid rgba(240,212,138,.2);border-radius:14px;padding:16px;margin-bottom:16px">' +
+          '<div style="color:#f0d48a;font-weight:700;font-size:.88rem;margin-bottom:10px">🎟️ 已有解讀代碼？直接兌換</div>' +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">' +
+            '<input type="text" id="hlPaywallCodeInput" placeholder="輸入代碼，例如 HL3-ABCD12"' +
+              ' style="flex:1;min-width:160px;padding:10px 14px;border-radius:10px;border:1.5px solid rgba(240,212,138,.3);background:rgba(255,255,255,.04);color:#fff;font-size:.9rem;font-family:monospace;letter-spacing:.06em;outline:none;text-transform:uppercase"' +
+              ' oninput="this.value=this.value.toUpperCase()">' +
+            '<button onclick="window._hlPaywallRedeemCode()"' +
+              ' style="padding:10px 18px;border-radius:10px;background:linear-gradient(135deg,#f0d48a,#c9a060);color:#1a1520;font-weight:700;font-size:.85rem;border:none;cursor:pointer;white-space:nowrap">✨ 兌換</button>' +
+          '</div>' +
+          '<div id="hlPaywallCodeErr" style="display:none;margin-top:8px;padding:8px 12px;border-radius:8px;background:rgba(217,48,37,.08);color:#e57373;font-size:.78rem"></div>' +
+          '<div style="margin-top:6px;font-size:.72rem;color:rgba(255,255,255,.3)">代碼格式：HL3-XXXXXX（3張）/ HL5-XXXXXX（5張）/ HL7-XXXXXX（7張）</div>' +
+        '</div>' +
+
+        // 分隔線
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">' +
+          '<div style="flex:1;height:1px;background:rgba(255,255,255,.07)"></div>' +
+          '<div style="font-size:.75rem;color:rgba(255,255,255,.3)">或</div>' +
+          '<div style="flex:1;height:1px;background:rgba(255,255,255,.07)"></div>' +
         '</div>' +
 
         // LINE 按鈕
@@ -113,6 +135,69 @@ window.hlPaywall = (function(){
       document.body.appendChild(overlay);
       // 禁止背景滾動
       document.body.style.overflow = 'hidden';
+
+      // 注入代碼兌換邏輯
+      var _onProceed = config.onProceed || null;
+      var _n = n;
+      window._hlPaywallRedeemCode = async function() {
+        var input = document.getElementById('hlPaywallCodeInput');
+        var errEl = document.getElementById('hlPaywallCodeErr');
+        var code = input ? input.value.trim().toUpperCase() : '';
+        if (!code || code.length < 6) {
+          errEl.style.display = 'block';
+          errEl.textContent = '請輸入解讀代碼';
+          return;
+        }
+        // 驗證前 UI 更新
+        var btn = input && input.nextElementSibling;
+        if (btn) { btn.disabled = true; btn.textContent = '驗證中⋯'; }
+        errEl.style.display = 'none';
+
+        try {
+          var db = (typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore() : null;
+          if (!db) throw new Error('Firebase 未載入');
+
+          var codeDoc = await db.collection('reading_codes').doc(code).get();
+          if (!codeDoc.exists) {
+            errEl.style.display = 'block';
+            errEl.textContent = '代碼無效，請確認輸入是否正確';
+            if (btn) { btn.disabled = false; btn.textContent = '✨ 兌換'; }
+            return;
+          }
+          var codeData = codeDoc.data();
+          if (codeData.used) {
+            errEl.style.display = 'block';
+            errEl.textContent = '此代碼已使用過，無法再次兌換';
+            if (btn) { btn.disabled = false; btn.textContent = '✨ 兌換'; }
+            return;
+          }
+          var codeN = codeData.spreads || 3;
+          if (_n !== codeN) {
+            errEl.style.display = 'block';
+            errEl.textContent = '此代碼僅適用於 ' + codeN + ' 張解讀，您目前選擇了 ' + _n + ' 張';
+            if (btn) { btn.disabled = false; btn.textContent = '✨ 兌換'; }
+            return;
+          }
+          // 標記已用
+          var currentUser = firebase.auth().currentUser;
+          await db.collection('reading_codes').doc(code).update({
+            used: true,
+            usedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            usedBy: currentUser ? currentUser.uid : 'guest',
+            usedByEmail: currentUser ? (currentUser.email || '') : ''
+          });
+
+          // 關閉付款牆，觸發 onProceed
+          hlPaywall.close();
+          if (typeof _onProceed === 'function') {
+            _onProceed();
+          }
+        } catch(e) {
+          errEl.style.display = 'block';
+          errEl.textContent = '驗證失敗：' + (e.message || '請稍後再試');
+          if (btn) { btn.disabled = false; btn.textContent = '✨ 兌換'; }
+        }
+      };
     },
 
     close: function() {
