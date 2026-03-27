@@ -47,14 +47,14 @@
 
     // 排除：導航/footer/音樂/漢堡/LINE/彈窗自身
     if (el.closest){
-      if (el.closest('nav,.rb-topbar,.hl-home-nav,.hl-footer,footer,.concept-nav,.hl-bottomnav,.hl-line-fab,#hl-gate-overlay,#matchBtn,[data-no-gate]')) return false;
+      if (el.closest('nav,.rb-topbar,.hl-home-nav,.hl-footer,footer,.concept-nav,.hl-bottomnav,#hl-bottom-nav,.hl-line-fab,#hl-gate-overlay,#matchBtn,[data-no-gate]')) return false;
     }
     if (el.classList && (el.classList.contains('rb-hamburger')||el.classList.contains('hl-music-toggle')||el.classList.contains('hl-nav-toggle')||el.classList.contains('hl-line-fab'))) return false;
 
     // 純頁面導航連結（無 onclick）
     if (tag==='a') {
       var href = el.getAttribute('href')||'';
-      if (!el.getAttribute('onclick') && /^(https?:|mailto:|tel:|#|[a-z].*\.html)/.test(href)) return false;
+      if (!el.getAttribute('onclick') && /^(https?:|mailto:|tel:|#|[a-z].*\.html|\/[a-z])/.test(href)) return false;
     }
 
     // 互動元素

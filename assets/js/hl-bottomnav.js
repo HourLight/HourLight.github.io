@@ -21,7 +21,7 @@
   var SVG_MATCH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="5"/><circle cx="15" cy="15" r="5"/></svg>';
   var SVG_MEMBER='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
   var NAV_ITEMS = [
-    { icon: SVG_HOME,    label: '首頁',  tip: '回到首頁',          href: '/index.html' },
+    { icon: SVG_HOME,    label: '首頁',  tip: '回到首頁',          href: 'index.html' },
     { icon: SVG_CARD,    label: '抽牌',  tip: '馥靈牌卡抽牌',      href: 'draw-hl.html' },
     { icon: SVG_DESTINY, label: '命盤',  tip: '三十三大命理系統',  href: 'destiny-engine.html' },
     { icon: SVG_MATCH,   label: '合盤',  tip: '雙人合盤配對',      href: 'destiny-match.html' },
