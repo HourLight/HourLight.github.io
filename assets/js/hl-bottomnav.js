@@ -21,7 +21,7 @@
   var SVG_MATCH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="5"/><circle cx="15" cy="15" r="5"/></svg>';
   var SVG_MEMBER='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
   var NAV_ITEMS = [
-    { icon: SVG_HOME,    label: '首頁',  tip: '回到首頁',          href: 'index.html' },
+    { icon: SVG_HOME,    label: '首頁',  tip: '回到首頁',          href: '/index.html' },
     { icon: SVG_CARD,    label: '抽牌',  tip: '馥靈牌卡抽牌',      href: 'draw-hl.html' },
     { icon: SVG_DESTINY, label: '命盤',  tip: '三十三大命理系統',  href: 'destiny-engine.html' },
     { icon: SVG_MATCH,   label: '合盤',  tip: '雙人合盤配對',      href: 'destiny-match.html' },
@@ -32,7 +32,9 @@
   ];
 
   // 取得目前頁面檔名
-  var currentPage = location.pathname.split('/').pop() || 'index.html';
+  // 取得目前頁面檔名，根路徑視為 index.html
+  var _p = location.pathname.split('/').pop();
+  var currentPage = (_p === '' || _p === '/') ? 'index.html' : _p;
 
   // ── CSS ──
   var css = `
@@ -145,12 +147,12 @@
 @media (max-width: 480px) {
   #hl-bottom-nav { height: 54px; }
   .hl-bn-icon { width: 22px; height: 22px; }
-  .hl-bn-label { display: none; }
+  .hl-bn-label { display: block; font-size: 0.56rem; }
   .hl-bn-tip { display: none; }
 }
 /* body padding 避免內容被蓋住 */
-body { padding-bottom: 68px !important; }
-@media (max-width: 480px) { body { padding-bottom: 60px !important; } }
+body { padding-bottom: max(68px, calc(env(safe-area-inset-bottom) + 60px)); }
+@media (max-width: 480px) { body { padding-bottom: max(60px, calc(env(safe-area-inset-bottom) + 54px)); } }
 `;
 
   // ── 建立 style tag ──
@@ -176,7 +178,8 @@ body { padding-bottom: 68px !important; }
     if (item.id) el.id = item.id;
 
     // 標記當前頁
-    if (item.href !== '#' && item.href === currentPage) {
+    var _href = item.href.replace(/^\//, '');  // 拿掉開頭的 /
+    if (item.href !== '#' && _href === currentPage) {
       el.classList.add('active');
     }
 
