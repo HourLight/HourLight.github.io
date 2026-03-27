@@ -19,22 +19,56 @@
   var SVG_MUSIC_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3" fill="currentColor" opacity="0.4"/><circle cx="18" cy="16" r="3" fill="currentColor" opacity="0.4"/><path d="M19 8c1 .5 1.5 1.5 1 2.5" opacity="0.6"/></svg>';
 
   var SVG_MATCH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="5"/><circle cx="15" cy="15" r="5"/></svg>';
+  var SVG_DIVINATION='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/><circle cx="12" cy="12" r="2.5" opacity="0.4"/></svg>';
   var SVG_MEMBER='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+  var SVG_CASTLE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="1"/><path d="M3 11V7h3V4h2v3h2V4h2v3h2V4h2v3h3v4"/><path d="M9 22v-5a3 3 0 0 1 6 0v5" opacity="0.5"/></svg>';
   var NAV_ITEMS = [
-    { icon: SVG_HOME,    label: '首頁',  tip: '回到首頁',          href: 'index.html' },
-    { icon: SVG_CARD,    label: '抽牌',  tip: '馥靈牌卡抽牌',      href: 'draw-hl.html' },
-    { icon: SVG_DESTINY, label: '命盤',  tip: '三十三大命理系統',  href: 'destiny-engine.html' },
-    { icon: SVG_MATCH,   label: '合盤',  tip: '雙人合盤配對',      href: 'destiny-match.html' },
-    { icon: SVG_QUIZ,    label: '測驗',  tip: '覺察測驗中心',      href: 'quiz-hub.html' },
-    { icon: SVG_MAP,     label: '地圖',  tip: '完整工具地圖',      href: 'hourlight-sitemap.html' },
-    { icon: SVG_MEMBER,  label: '會員',  tip: '會員中心',          href: 'member-login.html', id: 'hl-bn-member' },
-    { icon: SVG_MUSIC,   label: '音樂',  tip: '背景音樂開關',      href: '#', id: 'hl-bn-music' }
+    { icon: SVG_HOME,       label: '首頁',  tip: '回到首頁',          href: 'index.html' },
+    { icon: SVG_CARD,       label: '抽牌',  tip: '抽牌中心',           href: 'draw-hub.html' },
+    { icon: SVG_DESTINY,    label: '命盤',  tip: '命盤中心・33大系統',  href: 'destiny-hub.html' },
+    { icon: SVG_QUIZ,       label: '測驗',  tip: '覺察測驗中心',        href: 'quiz-hub.html' },
+    { icon: SVG_DIVINATION, label: '占卜',  tip: '占卜中心',            href: 'divination-hub.html' },
+    { icon: SVG_CASTLE,     label: '城堡',  tip: '內在城堡探索',        href: 'castle-game.html' },
+    { icon: SVG_MEMBER,     label: '會員',  tip: '會員中心',            href: 'app.html' },
+    { icon: SVG_MUSIC,      label: '音樂',  tip: '背景音樂開關',        href: '#', id: 'hl-bn-music' }
   ];
 
   // 取得目前頁面檔名
-  // 取得目前頁面檔名，根路徑視為 index.html
-  var _p = location.pathname.split('/').pop();
-  var currentPage = (_p === '' || _p === '/') ? 'index.html' : _p;
+  var currentPage = location.pathname.split('/').pop() || 'index.html';
+
+  // hub 對應表：在這些頁面時，高亮對應的 hub 按鈕
+  var hubMap = {
+    // 抽牌 hub
+    'draw-hl.html':'draw-hub.html','draw-light.html':'draw-hub.html',
+    'tarot-draw.html':'draw-hub.html','angel-oracle.html':'draw-hub.html',
+    'past-life.html':'draw-hub.html','witch-power.html':'draw-hub.html',
+    'projection-cards.html':'draw-hub.html',
+    'pet-reading.html':'draw-hub.html','draw-family.html':'draw-hub.html',
+    'draw-spa.html':'draw-hub.html','draw-nail.html':'draw-hub.html',
+    // 命盤 hub
+    'destiny-engine.html':'destiny-hub.html','destiny-match.html':'destiny-hub.html',
+    'bazi-calculator.html':'destiny-hub.html','ziwei-calculator.html':'destiny-hub.html',
+    'astro-calculator.html':'destiny-hub.html','hd-calculator.html':'destiny-hub.html',
+    'maya-calculator.html':'destiny-hub.html','lifepath-calculator.html':'destiny-hub.html',
+    'triangle-calculator.html':'destiny-hub.html','fuling-mima.html':'destiny-hub.html',
+    'name-oracle.html':'destiny-hub.html','rainbow-number.html':'destiny-hub.html',
+    'cardology.html':'destiny-hub.html','celtic-tree.html':'destiny-hub.html',
+    'gene-keys.html':'destiny-hub.html','chiron-lilith.html':'destiny-hub.html',
+    'nakshatra.html':'destiny-hub.html','bg5-career.html':'destiny-hub.html',
+    'nine-star-ki.html':'destiny-hub.html','xiuyao.html':'destiny-hub.html',
+    'tieban.html':'destiny-hub.html','taiyi.html':'destiny-hub.html',
+    'wuyun-liuqi.html':'destiny-hub.html','helo-lishu.html':'destiny-hub.html',
+    'korean-saju.html':'destiny-hub.html','meihua-yishu.html':'destiny-hub.html',
+    // 占卜 hub
+    'yijing-oracle.html':'divination-hub.html','liuren-oracle.html':'divination-hub.html',
+    'poe-blocks.html':'divination-hub.html','qimen-dunjia.html':'divination-hub.html',
+    'liuren.html':'divination-hub.html','phone-oracle.html':'divination-hub.html',
+    'poker-oracle.html':'divination-hub.html','akashic-records.html':'divination-hub.html',
+    'yuan-chen-gong.html':'divination-hub.html','abundance-prayer.html':'divination-hub.html',
+    'moon-calendar.html':'divination-hub.html',
+    'scent-navigator.html':'divination-hub.html',
+  };
+  var activeHref = hubMap[currentPage] || currentPage;
 
   // ── CSS ──
   var css = `
@@ -147,12 +181,12 @@
 @media (max-width: 480px) {
   #hl-bottom-nav { height: 54px; }
   .hl-bn-icon { width: 22px; height: 22px; }
-  .hl-bn-label { display: block; font-size: 0.56rem; }
+  .hl-bn-label { display: none; }
   .hl-bn-tip { display: none; }
 }
 /* body padding 避免內容被蓋住 */
-body { padding-bottom: max(68px, calc(env(safe-area-inset-bottom) + 60px)); }
-@media (max-width: 480px) { body { padding-bottom: max(60px, calc(env(safe-area-inset-bottom) + 54px)); } }
+body { padding-bottom: 68px !important; }
+@media (max-width: 480px) { body { padding-bottom: 60px !important; } }
 `;
 
   // ── 建立 style tag ──
@@ -177,9 +211,8 @@ body { padding-bottom: max(68px, calc(env(safe-area-inset-bottom) + 60px)); }
     el.className = 'hl-bn-item';
     if (item.id) el.id = item.id;
 
-    // 標記當前頁
-    var _href = item.href.replace(/^\//, '');  // 拿掉開頭的 /
-    if (item.href !== '#' && _href === currentPage) {
+    // 標記當前頁（含 hub 對應）
+    if (item.href !== '#' && item.href === activeHref) {
       el.classList.add('active');
     }
 
@@ -192,34 +225,6 @@ body { padding-bottom: max(68px, calc(env(safe-area-inset-bottom) + 60px)); }
   });
 
   document.body.appendChild(nav);
-
-  // ── 會員按鈕整合 ──
-  var memberBtn = document.getElementById('hl-bn-member');
-  if (memberBtn) {
-    // 動態判斷登入狀態，更新跳轉目標和文字
-    function updateMemberBtn() {
-      if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
-        try {
-          var user = firebase.auth().currentUser;
-          var lbl = memberBtn.querySelector('.hl-bn-label');
-          if (user) {
-            memberBtn.href = 'app.html';
-            if (lbl) lbl.textContent = '我的';
-          } else {
-            memberBtn.href = 'member-login.html';
-            if (lbl) lbl.textContent = '會員';
-          }
-        } catch(e) {}
-      }
-    }
-    // 頁面載入後和 Firebase 認證狀態改變時更新
-    setTimeout(updateMemberBtn, 1200);
-    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
-      try {
-        firebase.auth().onAuthStateChanged(function() { updateMemberBtn(); });
-      } catch(e) {}
-    }
-  }
 
   // ── 音樂整合 ──
   var musicBtn = document.getElementById('hl-bn-music');
