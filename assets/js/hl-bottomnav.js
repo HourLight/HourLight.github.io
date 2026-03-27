@@ -19,15 +19,16 @@
   var SVG_MUSIC_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3" fill="currentColor" opacity="0.4"/><circle cx="18" cy="16" r="3" fill="currentColor" opacity="0.4"/><path d="M19 8c1 .5 1.5 1.5 1 2.5" opacity="0.6"/></svg>';
 
   var SVG_MATCH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="5"/><circle cx="15" cy="15" r="5"/></svg>';
+  var SVG_MEMBER='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
   var NAV_ITEMS = [
-    { icon: SVG_HOME,    label: '首頁',  tip: '回到首頁',      href: 'index.html' },
-    { icon: SVG_CARD,    label: '抽牌',  tip: '馥靈牌卡抽牌',  href: 'draw-hl.html' },
-    { icon: SVG_CODE,    label: '秘碼',  tip: '馥靈秘碼解析',  href: 'fuling-mima.html' },
+    { icon: SVG_HOME,    label: '首頁',  tip: '回到首頁',          href: 'index.html' },
+    { icon: SVG_CARD,    label: '抽牌',  tip: '馥靈牌卡抽牌',      href: 'draw-hl.html' },
     { icon: SVG_DESTINY, label: '命盤',  tip: '三十三大命理系統',  href: 'destiny-engine.html' },
     { icon: SVG_MATCH,   label: '合盤',  tip: '雙人合盤配對',      href: 'destiny-match.html' },
-    { icon: SVG_QUIZ,    label: '測驗',  tip: '覺察測驗中心',  href: 'quiz-hub.html' },
-    { icon: SVG_MAP,     label: '地圖',  tip: '完整網站地圖',  href: 'hourlight-sitemap.html' },
-    { icon: SVG_MUSIC,   label: '音樂',  tip: '背景音樂開關',  href: '#', id: 'hl-bn-music' }
+    { icon: SVG_QUIZ,    label: '測驗',  tip: '覺察測驗中心',      href: 'quiz-hub.html' },
+    { icon: SVG_MAP,     label: '地圖',  tip: '完整工具地圖',      href: 'hourlight-sitemap.html' },
+    { icon: SVG_MEMBER,  label: '會員',  tip: '會員中心',          href: 'member-login.html', id: 'hl-bn-member' },
+    { icon: SVG_MUSIC,   label: '音樂',  tip: '背景音樂開關',      href: '#', id: 'hl-bn-music' }
   ];
 
   // 取得目前頁面檔名
@@ -188,6 +189,34 @@ body { padding-bottom: 68px !important; }
   });
 
   document.body.appendChild(nav);
+
+  // ── 會員按鈕整合 ──
+  var memberBtn = document.getElementById('hl-bn-member');
+  if (memberBtn) {
+    // 動態判斷登入狀態，更新跳轉目標和文字
+    function updateMemberBtn() {
+      if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
+        try {
+          var user = firebase.auth().currentUser;
+          var lbl = memberBtn.querySelector('.hl-bn-label');
+          if (user) {
+            memberBtn.href = 'member-dashboard.html';
+            if (lbl) lbl.textContent = '我的';
+          } else {
+            memberBtn.href = 'member-login.html';
+            if (lbl) lbl.textContent = '會員';
+          }
+        } catch(e) {}
+      }
+    }
+    // 頁面載入後和 Firebase 認證狀態改變時更新
+    setTimeout(updateMemberBtn, 1200);
+    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
+      try {
+        firebase.auth().onAuthStateChanged(function() { updateMemberBtn(); });
+      } catch(e) {}
+    }
+  }
 
   // ── 音樂整合 ──
   var musicBtn = document.getElementById('hl-bn-music');
