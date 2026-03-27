@@ -4670,6 +4670,37 @@ async function generateBizCodes(){
     outEl.textContent=codes.join('\n');
     listEl.style.display='';
     window._lastBizCodes=codes;
+
+    // 自動寄代碼給合作商 email
+    var partnerSnap=await db.collection('biz_partners').doc(partnerId).get();
+    if(partnerSnap.exists){
+      var pd=partnerSnap.data();
+      var shopName=pd.shopName||'合作商';
+      var toEmail=pd.email||'';
+      var spreadMap={biz600:'3張',biz900:'5張',biz1200:'9張'};
+      var priceMap2={biz600:'$600/月',biz900:'$900/月',biz1200:'$1,200/月'};
+      var planLabel=(spreadMap[pd.plan]||'3張')+' '+( priceMap2[pd.plan]||'$600/月');
+      if(toEmail){
+        try{
+          await fetch('https://app.hourlightkey.com/api/send-report',{
+            method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+              email:toEmail,
+              name:shopName,
+              subject:'馥靈之鑰｜'+count+' 組一次性兌換碼（'+planLabel+'）',
+              type:'notification',
+              content:'親愛的 '+shopName+'：\n\n以下是本次產生的 '+count+' 組一次性兌換碼（'+planLabel+'），每組代碼限一位客人使用一次：\n\n'+codes.join('\n')+'\n\n使用方式：\n客人前往 https://hourlightkey.com 輸入兌換碼，即可進行本次 AI 覺察解讀。\n\n如有任何問題，歡迎聯繫我們：\nLINE：lin.ee/RdQBFAN\nEmail：info@hourlightkey.com\n\n馥靈之鑰 Hour Light 敬上'
+            })
+          });
+          msg.style.color='#34a853';
+          msg.textContent='✅ 已產生 '+count+' 組代碼，並寄送至 '+toEmail;
+        }catch(mailErr){
+          console.warn('寄信失敗',mailErr);
+          // 寄信失敗不影響代碼已產生的成功狀態
+          msg.textContent='✅ 已產生 '+count+' 組代碼（寄信失敗，請手動複製）';
+        }
+      }
+    }
   }catch(e){msg.style.color='#d93025';msg.textContent='產生失敗：'+e.message;}
 }
 function genCode(){
