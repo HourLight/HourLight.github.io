@@ -3059,20 +3059,47 @@ function switchTab(idx){
   if(btns[idx]){btns[idx].scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'})}
 }
 
+function _iosCopy(txt) {
+  try {
+    var t = document.createElement('textarea');
+    t.value = txt;
+    t.setAttribute('readonly', '');
+    t.style.cssText = 'position:fixed;top:50%;left:50%;width:2em;height:2em;'+'padding:0;border:none;outline:none;background:transparent;'+'font-size:16px;opacity:.01;transform:translate(-50%,-50%);z-index:99999';
+    document.body.appendChild(t);
+    if (navigator.userAgent.match(/ipad|iphone/i)) {
+      t.focus();
+      t.focus();
+      var range = document.createRange();
+      range.selectNodeContents(t);
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      t.setSelectionRange(0, 999999);
+    } else {
+      t.focus();
+      t.select();
+    }
+    document.execCommand('copy');
+    document.body.removeChild(t);
+  } catch(e) {}
+}
 function copyText(id){
   var el=document.getElementById(id);if(!el)return;
-  navigator.clipboard.writeText(el.textContent).then(function(){
-    var btn=el.parentNode.querySelector('.cp');
-    if(btn){btn.textContent='✅ 已複製';setTimeout(function(){btn.textContent='📋 複製命盤資料'},1500)}
-  });
+  var txt=el.textContent;
+  var btn=el.parentNode.querySelector('.cp');
+  function onOk(){if(btn){btn.textContent='✅ 已複製';setTimeout(function(){btn.textContent='📋 複製命盤資料'},1500);}}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(onOk).catch(function(){_iosCopy(txt);onOk();});
+  }else{_iosCopy(txt);onOk();}
 }
 function copyResult(id,btn){
   var el=document.getElementById(id);if(!el)return;
-  navigator.clipboard.writeText(el.textContent).then(function(){
-    var orig=btn.textContent;
-    btn.textContent='✅ 已複製！';btn.style.background='#4a7c59';
-    setTimeout(function(){btn.textContent=orig;btn.style.background=''},1800);
-  });
+  var txt=el.textContent;
+  var orig=btn.textContent;
+  function onOk(){btn.textContent='✅ 已複製！';btn.style.background='#4a7c59';setTimeout(function(){btn.textContent=orig;btn.style.background=''},1800);}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(onOk).catch(function(){_iosCopy(txt);onOk();});
+  }else{_iosCopy(txt);onOk();}
 }
 
 // ── 年月日自動跳欄 ──
@@ -3150,42 +3177,99 @@ function copyAIPrompt(preId, system) {
   var pre = document.getElementById(preId);
   if (!pre) return;
   var data = pre.textContent;
-  var btn = event.target;
+  // 用 event.currentTarget 或 event.target，並在進 gate 前就抓好 btn
+  var btn = (event && (event.currentTarget || event.target)) || null;
+
+  // 組好完整文字（在 user gesture context 內完成，不進 async）
+  var fw = (window.AI_FRAMEWORKS && window.AI_FRAMEWORKS[system]) || {};
+  var framework = fw.framework || '';
+  var txt = '═══ 馥靈之鑰｜' + (fw.title || system) + ' 深度解讀 AI 指令 ═══
+
+';
+  txt += data;
+  if (framework) { txt += '
+
+' + framework; }
+  txt += '
+
+═══ 語氣要求 ═══
+';
+  txt += '► 像一個很懂人的閨蜜在說真話，溫暖但不軟弱
+';
+  txt += '► 帶有香氣意象（精油、花草、自然元素的比喻）
+';
+  txt += '► 不使用「梳理」「節奏」等詞彙，不使用雙破折號
+';
+  txt += '► 請將術語轉譯為日常語言
+';
+  txt += '
+═══ H.O.U.R. 行動建議（必須回答）═══
+';
+  txt += 'H（靜心殿）→ 現在最需要先安頓什麼？
+';
+  txt += 'O（覺察廳）→ 這組資料在提醒什麼反覆出現的模式？
+';
+  txt += 'U（解鎖密室）→ 今天就能做的一個具體動作
+';
+  txt += 'R（啟程塔）→ 接下來一週的方向建議
+';
+  txt += '
+🔗 馥靈之鑰 hourlightkey.com';
 
   // 門控（hl-ai-gate.js 計次）
   if (typeof hlAIGateCheck === 'function') {
-    hlAIGateCheck(function() { _doCopyAI(data, system, btn); });
+    hlAIGateCheck(function() { _doCopyAI(txt, btn); });
     return;
   }
-  _doCopyAI(data, system, btn);
+  _doCopyAI(txt, btn);
 }
-function _doCopyAI(data, system, btn) {
-  var fw = (window.AI_FRAMEWORKS && window.AI_FRAMEWORKS[system]) || {};
-  var framework = fw.framework || '';
-  var txt = '═══ 馥靈之鑰｜' + (fw.title || system) + ' 深度解讀 AI 指令 ═══\n\n';
-  txt += data;
-  if (framework) { txt += '\n\n' + framework; }
-  txt += '\n\n═══ 語氣要求 ═══\n';
-  txt += '► 像一個很懂人的閨蜜在說真話，溫暖但不軟弱\n';
-  txt += '► 帶有香氣意象（精油、花草、自然元素的比喻）\n';
-  txt += '► 不使用「梳理」「節奏」等詞彙，不使用雙破折號\n';
-  txt += '► 請將術語轉譯為日常語言\n';
-  txt += '\n═══ H.O.U.R. 行動建議（必須回答）═══\n';
-  txt += 'H（靜心殿）→ 現在最需要先安頓什麼？\n';
-  txt += 'O（覺察廳）→ 這組資料在提醒什麼反覆出現的模式？\n';
-  txt += 'U（解鎖密室）→ 今天就能做的一個具體動作\n';
-  txt += 'R（啟程塔）→ 接下來一週的方向建議\n';
-  txt += '\n🔗 馥靈之鑰 hourlightkey.com';
-  navigator.clipboard.writeText(txt).then(function() {
+
+function _doCopyAI(txt, btn) {
+  // iOS/Android 最穩做法：先試 clipboard API，失敗用 textarea
+  function doFallback() {
+    try {
+      var t = document.createElement('textarea');
+      t.value = txt;
+      t.setAttribute('readonly', '');
+      t.style.cssText = 'position:fixed;top:50%;left:50%;width:2em;height:2em;'+'padding:0;border:none;outline:none;background:transparent;'+'font-size:16px;opacity:.01;transform:translate(-50%,-50%);z-index:99999';
+      document.body.appendChild(t);
+      // iOS 需要特殊選取方式
+      if (navigator.userAgent.match(/ipad|iphone/i)) {
+        var range = document.createRange();
+        range.selectNodeContents(t);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        t.setSelectionRange(0, 999999);
+      } else {
+        t.select();
+      }
+      document.execCommand('copy');
+      document.body.removeChild(t);
+    } catch(e) {}
+  }
+
+  function onSuccess() {
+    if (!btn) return;
     var orig = btn.textContent;
     btn.textContent = '✅ 已複製';
     btn.style.background = 'rgba(160,124,220,.25)';
-    setTimeout(function() { btn.textContent = orig; btn.style.background = ''; btn.disabled = false; }, 2000);
-  }).catch(function() {
-    var t = document.createElement('textarea'); t.value = txt; t.style.cssText = 'position:fixed;opacity:0';
-    document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
-    btn.textContent = '✅ 已複製'; setTimeout(function() { btn.textContent = '🔮 複製智慧解讀指令'; }, 2000);
-  });
+    setTimeout(function() {
+      btn.textContent = orig;
+      btn.style.background = '';
+      btn.disabled = false;
+    }, 2200);
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(onSuccess).catch(function() {
+      doFallback();
+      onSuccess();
+    });
+  } else {
+    doFallback();
+    onSuccess();
+  }
 }
 
 function runAll(){
@@ -5106,7 +5190,7 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
   var QM_STAR_CAREER=['研究、情報、策略；深水魚型人才，最適合幕後運籌','保守穩定型；適合行政、守業、農業，不適合冒險擴張','開創、運動、軍事；衝鋒型人才，行動力就是你的資本','教育、文化、輔佐；最適合協助別人成功的幕後推手','管理、協調、樞紐；四方通達，適合中間人角色','金融、法律、決策；公正果斷，適合需要明確裁決的崗位','銷售、談判、口才；說服力是你的天賦武器','土地、建設、執行；堅韌忠厚，長期承擔是你的本色','創意、演藝、名聲；適合需要被看見、被聽見的行業'];
   var QM_STAR_LOVE=['感情中喜歡深層連結，不愛表面，愛情要有深度才夠味','感情中保守穩重，慢熱但長情，最忌對方玩消失','感情中主動積極，愛得直接，但要學會等對方回應','感情中溫柔包容，容易成為對方的避風港','感情中靈活中立，容易在感情中扮演調和者而忘了自己的需求','感情中果斷不拖，要麼愛要麼不愛，不喜歡曖昧關係','感情中能言善道，善於說出對方想聽的話，但要確保真心','感情中忠厚長情，一旦付出就全力支持，最怕辜負','感情中光芒容易吸引人，但要找到能平等對話的伴侶'];
   var QM_STAR_OIL=['岩蘭草（天蓬：深潛扎根）','廣藿香（天芮：穩定保守）','薑、黑胡椒（天沖：啟動行動力）','薰衣草（天輔：溫柔輔助）','甜橙（天禽：居中調和）','乳香、雪松（天心：公正決斷）','佛手柑（天柱：化解緊繃）','茶樹（天任：扎實守護）','玫瑰、乳香（天英：才華綻放）'];
-  var QM_DOOR_CAREER=['養生療癒、休閒服務業；適合慢下來的工作','殯儀、回收、重整；能在終結中看見重生的價值','法律、工程、拆解；需要直接破除障礙的工作','資訊、保密、研究；適合不需要曝光的深度工作','（中宮）協調全局，沒有固定崗位但到哪都是核心','開創、創業、新事業；適合勇於起步的工作','公關、媒體、聲量；能在驚動中製造存在感','業務、招聘、求財；生機旺盛，此門最利求財','考試、出版、展演；適合需要被評估和展示的工作'];
+  var QM_DOOR_CAREER=['養生舒壓、休閒服務業；適合慢下來的工作','殯儀、回收、重整；能在終結中看見重生的價值','法律、工程、拆解；需要直接破除障礙的工作','資訊、保密、研究；適合不需要曝光的深度工作','（中宮）協調全局，沒有固定崗位但到哪都是核心','開創、創業、新事業；適合勇於起步的工作','公關、媒體、聲量；能在驚動中製造存在感','業務、招聘、求財；生機旺盛，此門最利求財','考試、出版、展演；適合需要被評估和展示的工作'];
   var QM_DOOR_LOVE=['感情中容易選擇安靜撤退而不是主動表達','感情中有時需要放手讓舊的結束才能迎接新的','感情中容易因為行動力強而讓對方壓力大','感情中容易把感情藏起來，建議練習開口說','（中宮）你是感情中的協調者，但要記得照顧自己','感情中敢愛敢表達，是主動出擊型','感情中容易製造戲劇感，建議回歸真實','感情中充滿生機，是能給對方能量的人','感情中浪漫而有創意，適合文字和藝術的表達方式'];
   hQM+='<div class="mkt-hook">💡 奇門遁甲是中國三式之首（太乙管天、六壬管人、奇門管地）。它整合九星、八門、三奇六儀，看的是「你在這個時空交叉點上，天地給了你什麼牌」。本結果為生辰簡化版。</div>';
   hQM+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 值符星深度解讀</div>';
@@ -5171,7 +5255,7 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
   hPL+='<div class="item"><span class="lbl">業力心理學轉譯</span><span class="rs">所謂「前世業力」在心理學中對應「重複性強迫」（repetition compulsion）。你不斷被同一類型的人吸引，不是前世安排，是潛意識在重新上演未完成的功課。覺察到模式，就是自由的開始。</span></div>';
 
   // 30-enrichment: 今生行動建議
-  var PL_ACTION={'守護者':'你在保護別人之前，先確認自己不是在填補自己的空洞。今生功課：先學習接受被照顧。','建設者':'停止等到萬事俱備再開始。今生功課：在不完美中起步，邊走邊修正。','探索者':'你害怕承諾，因為承諾意味著放棄其他可能。今生功課：選一個方向深挖，深比廣更值錢。','治癒者':'你最難治癒的那個人是你自己。今生功課：先照顧好自己，才有資格照顧別人。','智者':'你有答案，但你不願意被人看見你不確定的那一面。今生功課：允許自己不知道。','創造者':'你最大的敵人是你自己對「不夠完美」的焦慮。今生功課：完成比完美重要。','革命者':'你改變環境的動力，往往來自你不想面對的內心。今生功課：先革自己的命，再革世界的命。'};
+  var PL_ACTION={'守護者':'你在保護別人之前，先確認自己不是在填補自己的空洞。今生功課：先學習接受被照顧。','建設者':'停止等到萬事俱備再開始。今生功課：在不完美中起步，邊走邊修正。','探索者':'你害怕承諾，因為承諾意味著放棄其他可能。今生功課：選一個方向深挖，深比廣更值錢。','修復者':'你最難修復的那個人是你自己。今生功課：先照顧好自己，才有資格照顧別人。','智者':'你有答案，但你不願意被人看見你不確定的那一面。今生功課：允許自己不知道。','創造者':'你最大的敵人是你自己對「不夠完美」的焦慮。今生功課：完成比完美重要。','革命者':'你改變環境的動力，往往來自你不想面對的內心。今生功課：先革自己的命，再革世界的命。'};
   var PL_OIL_NN={'牡羊':'薑、黑胡椒（啟動勇氣）','金牛':'廣藿香、岩蘭草（扎根物質）','雙子':'薄荷、檸檬（清明思維）','巨蟹':'洋甘菊、薰衣草（滋養安全感）','獅子':'玫瑰、乳香（展現自信）','處女':'茶樹、尤加利（淨化完美主義）','天秤':'依蘭、佛手柑（平衡關係）','天蠍':'雪松、杜松（深層淨化）','射手':'甜橙、香茅（擴展視野）','摩羯':'乳香、雪松（成就結構）','水瓶':'迷迭香、薄荷（啟動創新）','雙魚':'檀香、乳香（靈性連結）'};
   hPL+='<div class="mkt-hook">💡 前世今生不做預言。它是一面鏡子，照出你不知道為什麼會重複的那些模式。「也許前世真的存在。也許沒有。但你此刻心裡對某些人的感覺是真的。那就夠了。」</div>';
   hPL+='<div style="margin:16px 0 8px;font-size:.95rem;color:var(--gd);border-bottom:1px solid rgba(240,212,138,.2);padding-bottom:8px">✦ 今生行動建議</div>';
@@ -5202,7 +5286,7 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
   var NK_ZH=['馬頭','三星','六昴','金牛','獵戶','參宿','雙子','巨蟹','九頭蛇','獅子','前獅尾','後獅尾','手掌','明珠','天秤','叉枝','友誼','最大','根源','前勝','後勝','聽聞','財富','百醫','前福足','後福足','游魚'];
   var NK_LORD=['計都','金星','太陽','月亮','火星','羅睺','木星','土星','水星','計都','金星','太陽','月亮','火星','羅睺','木星','土星','水星','計都','金星','太陽','月亮','火星','羅睺','木星','土星','水星'];
   var NK_DEITY=['雙馬童(Ashvins)','閻摩(Yama)','火神(Agni)','梵天(Prajapati)','月神(Soma)','暴風神(Rudra)','太陽母(Aditi)','祭主(Brihaspati)','蛇神(Sarpa)','祖靈(Pitris)','幸運女神(Bhaga)','太陽神(Aryaman)','太陽神(Savitar)','工藝神(Tvashtar)','風神(Vayu)','因陀羅火(Indragni)','密多羅(Mitra)','因陀羅(Indra)','破壞女神(Nirrti)','水神(Apas)','宇宙神(Vishve Devas)','毗濕奴(Vishnu)','八方神(Vasus)','伐樓拿(Varuna)','火祭者(Aja Ekapada)','深海蛇(Ahir Budhyana)','養育神(Pushan)'];
-  var NK_TRAIT=['開拓進取，治癒能力強','轉化極端，創造與毀滅共存','燃燒淨化，追求真理','豐饒滋養，物質與美的享受','好奇探索，靈活多變','風暴突破，深層轉化','回歸本源，智慧再生','滋養保護，慷慨付出','纏繞洞察，神秘力量','權威尊貴，祖先庇護','享樂創造，藝術天賦','服務奉獻，穩定可靠','巧手技藝，掌握力強','閃耀才華，獨立創造','獨立自主，風中漫步','目標導向，穿越障礙','忠誠友愛，組織能力','領袖氣質，保護力強','根源探索，破壞後重生','力量湧現，激勵他人','普世價值，終極成就','學習傾聽，知識傳播','財富韻律，團體力量','調理宇宙，隱遁智者','熱情猛烈，深層燃燒','深海智慧，內在覺悟','完成圓滿，滋養保護'];
+  var NK_TRAIT=['開拓進取，修復能力強','轉化極端，創造與毀滅共存','燃燒淨化，追求真理','豐饒滋養，物質與美的享受','好奇探索，靈活多變','風暴突破，深層轉化','回歸本源，智慧再生','滋養保護，慷慨付出','纏繞洞察，神秘力量','權威尊貴，祖先庇護','享樂創造，藝術天賦','服務奉獻，穩定可靠','巧手技藝，掌握力強','閃耀才華，獨立創造','獨立自主，風中漫步','目標導向，穿越障礙','忠誠友愛，組織能力','領袖氣質，保護力強','根源探索，破壞後重生','力量湧現，激勵他人','普世價值，終極成就','學習傾聽，知識傳播','財富韻律，團體力量','調理宇宙，隱遁智者','熱情猛烈，深層燃燒','深海智慧，內在覺悟','完成圓滿，滋養保護'];
   // Vimshottari Dasha
   var DASHA_ORDER=['Ketu','Venus','Sun','Moon','Mars','Rahu','Jupiter','Saturn','Mercury'];
   var DASHA_YEARS=[7,20,6,10,7,18,16,19,17];
