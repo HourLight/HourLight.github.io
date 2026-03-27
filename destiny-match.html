@@ -2378,9 +2378,26 @@ function _doCopy(text){
 }
 function _fbCopy(text){
   var ta=document.createElement('textarea');
-  ta.value=text;ta.style.cssText='position:fixed;opacity:0;top:0;left:0';
-  document.body.appendChild(ta);ta.select();
-  try{document.execCommand('copy')}catch(e){}
+  ta.value=text;
+  // iOS 必須在可視範圍內才能複製
+  ta.style.cssText='position:fixed;top:50%;left:50%;width:2em;height:2em;'+
+    'padding:0;border:none;outline:none;box-shadow:none;background:transparent;'+
+    'font-size:16px;opacity:.01;transform:translate(-50%,-50%);z-index:99999';
+  ta.setAttribute('readonly','');
+  document.body.appendChild(ta);
+  if(/ipad|iphone/i.test(navigator.userAgent)){
+    ta.focus();
+    var rng=document.createRange();
+    rng.selectNodeContents(ta);
+    var sel=window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(rng);
+    ta.setSelectionRange(0,999999);
+  }else{
+    ta.focus();
+    ta.select();
+  }
+  try{document.execCommand('copy');}catch(e){}
   document.body.removeChild(ta);
 }
 
@@ -2391,14 +2408,7 @@ function hlMatchCopy(preId, system, btn) {
   var data = pre.textContent;
   var rel = gv('relType') || 'any';
 
-  // 門控（hl-ai-gate.js 計次）
-  if (typeof hlAIGateCheck === 'function') {
-    hlAIGateCheck(function() { _doMatchCopy(data, system, rel, btn); });
-    return;
-  }
-  _doMatchCopy(data, system, rel, btn);
-}
-function _doMatchCopy(data, system, rel, btn) {
+  // 在 user gesture context 內組好完整文字
   var fw = (window.AI_MATCH_FRAMEWORKS && window.AI_MATCH_FRAMEWORKS[system]) || {};
   var relData = fw[rel] || fw['any'] || {};
   var title = relData.title || (system + ' 合盤');
@@ -2423,18 +2433,26 @@ function _doMatchCopy(data, system, rel, btn) {
   txt += 'R（啟程塔）→ 這段關係接下來的方向建議\n';
   txt += '\n🔗 馥靈之鑰 hourlightkey.com';
 
-  navigator.clipboard.writeText(txt).then(function() {
-    if (btn) {
-      var orig = btn.textContent;
-      btn.textContent = '✅ 已複製';
-      btn.style.background = 'rgba(160,124,220,.25)';
-      setTimeout(function() { btn.textContent = orig; btn.style.background = ''; }, 2000);
-    }
-  }).catch(function() {
-    var t = document.createElement('textarea'); t.value = txt; t.style.cssText = 'position:fixed;opacity:0';
-    document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
-    if (btn) { btn.textContent = '✅ 已複製'; setTimeout(function() { btn.textContent = '🔮 複製智慧解讀指令'; }, 2000); }
-  });
+  // 門控（hl-ai-gate.js 計次）— 文字已備好，callback 只做複製
+  if (typeof hlAIGateCheck === 'function') {
+    hlAIGateCheck(function() { _doMatchCopy(txt, btn); });
+    return;
+  }
+  _doMatchCopy(txt, btn);
+}
+function _doMatchCopy(txt, btn) {
+  function onOk() {
+    if (!btn) return;
+    var orig = btn.textContent;
+    btn.textContent = '✅ 已複製';
+    btn.style.background = 'rgba(160,124,220,.25)';
+    setTimeout(function() { btn.textContent = orig; btn.style.background = ''; }, 2200);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(onOk).catch(function() { _fbCopy(txt); onOk(); });
+  } else {
+    _fbCopy(txt); onOk();
+  }
 }
 
 function copyText(id,btn){
@@ -2447,8 +2465,11 @@ function copyText(id,btn){
 }
 function _doCopyText(id,btn){
   var el=document.getElementById(id);if(!el)return;
-  _doCopy(el.textContent||el.innerText);
-  if(btn){var t=btn.textContent;btn.textContent='✅ 已複製';setTimeout(function(){btn.textContent=t},1500);}
+  var txt=el.textContent||el.innerText;
+  function onOk(){if(btn){var t=btn.textContent;btn.textContent='✅ 已複製';setTimeout(function(){btn.textContent=t},1500);}}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(onOk).catch(function(){_fbCopy(txt);onOk();});
+  }else{_fbCopy(txt);onOk();}
 }
 // copyData = 資料複製（甲方/乙方），免費不計次，不經過 AI 門控
 function copyData(id,btn){
@@ -3787,7 +3808,7 @@ function renderMatch(a,b){
       h+='<div class="palace"><div class="pt">凱龍星（核心傷口）</div>';
       h+='<div class="rs"><b>凱龍星座：</b>'+p.chiron+'</div>';
       h+='<div class="rs"><b>傷口來源：</b>'+(CHIRON_DESC[p.chiron]||'此星座主題的深層恐懼')+'</div>';
-      h+='<div class="rs"><b>轉化方向：</b>你幫助別人走過'+p.chiron+'課題的那一刻，才是真正治癒自己的時刻</div></div>';
+      h+='<div class="rs"><b>轉化方向：</b>你幫助別人走過'+p.chiron+'課題的那一刻，才是真正修復自己的時刻</div></div>';
     }
     if(p.nn){
       h+='<div class="palace"><div class="pt">北交點（今生成長方向）</div>';
@@ -3829,7 +3850,7 @@ function renderMatch(a,b){
     var n=d.nakshatra2,h='';
     if(!n){return '<div class="item">需要出生時間（星曆載入後可用）</div>';}
     var NK_ZH={'Ashwini':'馬頭','Bharani':'三星','Krittika':'六昴','Rohini':'金牛','Mrigashira':'獵戶','Ardra':'參宿','Punarvasu':'雙子','Pushya':'巨蟹','Ashlesha':'九頭蛇','Magha':'獅子','Purva Phalguni':'前獅尾','Uttara Phalguni':'後獅尾','Hasta':'手掌','Chitra':'明珠','Swati':'天秤','Vishakha':'叉枝','Anuradha':'友誼','Jyeshtha':'最大','Mula':'根源','Purva Ashadha':'前勝','Uttara Ashadha':'後勝','Shravana':'聽聞','Dhanishtha':'財富','Shatabhisha':'百醫','Purva Bhadrapada':'前福足','Uttara Bhadrapada':'後福足','Revati':'游魚'};
-    var NK_TRAIT={'Ashwini':'開拓進取，治癒能力強，行動力第一','Bharani':'轉化力強，創造與毀滅共存，深刻的業力感','Krittika':'燃燒淨化，追求真理，不怕面對困難','Rohini':'豐饒滋養，對美與物質有天生鑑賞力','Mrigashira':'好奇探索，靈活多變，永遠在尋找下一個目標','Ardra':'風暴突破，能在極端中深層轉化','Punarvasu':'回歸本源，具備智慧再生的能力','Pushya':'滋養保護，慷慨付出，是他人的安全感來源','Ashlesha':'纏繞洞察，神秘力量，善用直覺和感知','Magha':'權威尊貴，祖先庇護，天生的領袖氣質','Purva Phalguni':'享樂創造，藝術天賦，生命的喜悅使者','Uttara Phalguni':'服務奉獻，穩定可靠，讓他人依靠','Hasta':'巧手技藝，掌握力強，善用雙手和行動','Chitra':'閃耀才華，獨立創造，需要被看見','Swati':'獨立自主，風中漫步，自由是生命核心','Vishakha':'目標導向，能穿越重重障礙到達目的地','Anuradha':'忠誠友愛，組織能力強，善於建立連結','Jyeshtha':'領袖氣質，保護力強，責任感重','Mula':'根源探索，破壞後重生，走極端才有收穫','Purva Ashadha':'力量湧現，能激勵他人，戰士能量','Uttara Ashadha':'普世價值，終極成就，有使命感','Shravana':'學習傾聽，知識傳播，善於接收信息','Dhanishtha':'財富韻律，團體力量，節奏感強','Shatabhisha':'調理宇宙，隱遁智者，獨特的療癒能量','Purva Bhadrapada':'熱情猛烈，深層燃燒，轉化力量強大','Uttara Bhadrapada':'深海智慧，內在覺悟，看穿表象','Revati':'完成圓滿，滋養保護，是旅程的終點守護者'};
+    var NK_TRAIT={'Ashwini':'開拓進取，修復能力強，行動力第一','Bharani':'轉化力強，創造與毀滅共存，深刻的業力感','Krittika':'燃燒淨化，追求真理，不怕面對困難','Rohini':'豐饒滋養，對美與物質有天生鑑賞力','Mrigashira':'好奇探索，靈活多變，永遠在尋找下一個目標','Ardra':'風暴突破，能在極端中深層轉化','Punarvasu':'回歸本源，具備智慧再生的能力','Pushya':'滋養保護，慷慨付出，是他人的安全感來源','Ashlesha':'纏繞洞察，神秘力量，善用直覺和感知','Magha':'權威尊貴，祖先庇護，天生的領袖氣質','Purva Phalguni':'享樂創造，藝術天賦，生命的喜悅使者','Uttara Phalguni':'服務奉獻，穩定可靠，讓他人依靠','Hasta':'巧手技藝，掌握力強，善用雙手和行動','Chitra':'閃耀才華，獨立創造，需要被看見','Swati':'獨立自主，風中漫步，自由是生命核心','Vishakha':'目標導向，能穿越重重障礙到達目的地','Anuradha':'忠誠友愛，組織能力強，善於建立連結','Jyeshtha':'領袖氣質，保護力強，責任感重','Mula':'根源探索，破壞後重生，走極端才有收穫','Purva Ashadha':'力量湧現，能激勵他人，戰士能量','Uttara Ashadha':'普世價值，終極成就，有使命感','Shravana':'學習傾聽，知識傳播，善於接收信息','Dhanishtha':'財富韻律，團體力量，節奏感強','Shatabhisha':'調理宇宙，隱遁智者，獨特的舒緩能量','Purva Bhadrapada':'熱情猛烈，深層燃燒，轉化力量強大','Uttara Bhadrapada':'深海智慧，內在覺悟，看穿表象','Revati':'完成圓滿，滋養保護，是旅程的終點守護者'};
     var NK_LOVE={'Ashwini':'感情中開創力強，愛得直接，需要學習等待','Bharani':'感情中情感強烈，容易全力投入或全力抽離','Krittika':'感情中原則性強，不妥協，但真誠深刻','Rohini':'感情中溫柔豐富，重視美感與物質享受','Mrigashira':'感情中好奇心旺盛，容易移情，需要持續新鮮感','Ardra':'感情中情緒波動，但深愛時能觸到靈魂深處','Punarvasu':'感情中需要精神共鳴，關係如常青樹般更新','Pushya':'感情中給予型，容易忽視自己的需求','Ashlesha':'感情中直覺敏銳，能感受到對方未說出口的情緒','Magha':'感情中重視傳統和承諾，需要被尊重和認可','Purva Phalguni':'感情中享受愛情本身，浪漫熱情，需要樂趣','Uttara Phalguni':'感情中穩定長情，但需要對方明確表達','Hasta':'感情中用行動表達，言語不多但行動說明一切','Chitra':'感情中需要美感和獨特性，不喜平凡','Swati':'感情中需要空間，不能被束縛，自由為先','Vishakha':'感情中目標明確，一旦認定全力以赴','Anuradha':'感情中忠誠專一，適合長期穩定關係','Jyeshtha':'感情中有強烈的保護欲，需要當主導者','Mula':'感情中走極端，要麼不愛要麼愛到底','Purva Ashadha':'感情中熱情衝勁，需要對方有同等能量','Uttara Ashadha':'感情中有使命感，重視關係的意義和價值','Shravana':'感情中善於傾聽，給予對方極大的理解感','Dhanishtha':'感情中有節奏感，喜歡有共同活動的伴侶','Shatabhisha':'感情中獨特而難以捉摸，需要懂你的伴侶','Purva Bhadrapada':'感情中燃燒型，高強度但容易過熱','Uttara Bhadrapada':'感情中深沉而穩定，適合長期陪伴','Revati':'感情中溫柔護佑，是對方安全感的來源'};
     var zh=NK_ZH[n.name]||'';
     var trait=NK_TRAIT[n.name]||'具備獨特的月亮星宿能量';
@@ -3849,7 +3870,7 @@ function renderMatch(a,b){
     if(!d.nakshatra2)return '【'+pn+'·Nakshatra】需要出生時間\n';
     var n=d.nakshatra2;
     var NK_ZH={'Ashwini':'馬頭','Bharani':'三星','Krittika':'六昴','Rohini':'金牛','Mrigashira':'獵戶','Ardra':'參宿','Punarvasu':'雙子','Pushya':'巨蟹','Ashlesha':'九頭蛇','Magha':'獅子','Purva Phalguni':'前獅尾','Uttara Phalguni':'後獅尾','Hasta':'手掌','Chitra':'明珠','Swati':'天秤','Vishakha':'叉枝','Anuradha':'友誼','Jyeshtha':'最大','Mula':'根源','Purva Ashadha':'前勝','Uttara Ashadha':'後勝','Shravana':'聽聞','Dhanishtha':'財富','Shatabhisha':'百醫','Purva Bhadrapada':'前福足','Uttara Bhadrapada':'後福足','Revati':'游魚'};
-    var NK_TRAIT={'Ashwini':'開拓進取，治癒能力強','Bharani':'轉化極端，創造毀滅共存','Krittika':'燃燒淨化，追求真理','Rohini':'豐饒滋養，物質美感','Mrigashira':'好奇探索，靈活多變','Ardra':'風暴突破，深層轉化','Punarvasu':'回歸本源，智慧再生','Pushya':'滋養保護，慷慨付出','Ashlesha':'纏繞洞察，神秘力量','Magha':'權威尊貴，天生領袖','Purva Phalguni':'享樂創造，藝術天賦','Uttara Phalguni':'服務奉獻，穩定可靠','Hasta':'巧手技藝，掌握力強','Chitra':'閃耀才華，獨立創造','Swati':'獨立自主，自由核心','Vishakha':'目標導向，穿越障礙','Anuradha':'忠誠友愛，組織力強','Jyeshtha':'領袖氣質，保護力強','Mula':'根源探索，破壞重生','Purva Ashadha':'力量湧現，激勵他人','Uttara Ashadha':'普世價值，使命感強','Shravana':'傾聽學習，知識傳播','Dhanishtha':'財富韻律，團體力量','Shatabhisha':'隱遁智者，療癒能量','Purva Bhadrapada':'熱情猛烈，深層燃燒','Uttara Bhadrapada':'深海智慧，內在覺悟','Revati':'完成圓滿，滋養保護'};
+    var NK_TRAIT={'Ashwini':'開拓進取，修復能力強','Bharani':'轉化極端，創造毀滅共存','Krittika':'燃燒淨化，追求真理','Rohini':'豐饒滋養，物質美感','Mrigashira':'好奇探索，靈活多變','Ardra':'風暴突破，深層轉化','Punarvasu':'回歸本源，智慧再生','Pushya':'滋養保護，慷慨付出','Ashlesha':'纏繞洞察，神秘力量','Magha':'權威尊貴，天生領袖','Purva Phalguni':'享樂創造，藝術天賦','Uttara Phalguni':'服務奉獻，穩定可靠','Hasta':'巧手技藝，掌握力強','Chitra':'閃耀才華，獨立創造','Swati':'獨立自主，自由核心','Vishakha':'目標導向，穿越障礙','Anuradha':'忠誠友愛，組織力強','Jyeshtha':'領袖氣質，保護力強','Mula':'根源探索，破壞重生','Purva Ashadha':'力量湧現，激勵他人','Uttara Ashadha':'普世價值，使命感強','Shravana':'傾聽學習，知識傳播','Dhanishtha':'財富韻律，團體力量','Shatabhisha':'隱遁智者，舒緩能量','Purva Bhadrapada':'熱情猛烈，深層燃燒','Uttara Bhadrapada':'深海智慧，內在覺悟','Revati':'完成圓滿，滋養保護'};
     var t='【'+pn+'·Nakshatra 印度月亮星宿】\n';
     t+='月亮星宿：'+n.name+'（'+(NK_ZH[n.name]||'')+'）\n';
     t+='核心特質：'+(NK_TRAIT[n.name]||'')+'\n';
@@ -3973,89 +3994,7 @@ function renderMatch(a,b){
 
   /* ── 🔮 整合合盤 AI 指令 ── */
   var rel=gv('relType'),relName=REL_NAMES[rel]||'全面分析',relFocus=REL_FOCUS[rel]||REL_FOCUS.any;
-  // 動態串接所有33個系統的合盤資料
-  var mega='═══ 馥靈之鑰｜33系統整合合盤 ═══\n';
-  mega+='關係類型：'+(relName||'全面分析')+'\n';
-  mega+='馥靈之鑰 hourlightkey.com\n\n';
-  mega+='════════════════════════════\n';
-  mega+='① 四柱八字\n'+bzCombined+'\n';
-  mega+='════════════════════════════\n';
-  mega+='② 紫微斗數\n'+zwC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='③ 西洋占星\n'+astC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='④ 人類圖\n'+hdC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='⑤ 七政四餘\n'+qzC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='⑥ 瑪雅曆法\n'+myC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='⑦ 生命靈數\n'+nmC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='⑧ 馥靈秘碼\n'+flC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='⑨ 三角生命密碼\n'+triC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='⑩ 大六壬\n'+lrC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='⑪ 九星氣學\n'+nskC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='⑫ 生日色彩\n'+clrC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='⑬ 凱龍莉莉絲\n'+clxC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='⑭ 吠陀占星\n'+vedC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='⑮ 姓名解碼\n'+ngC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='⑯ 卡巴拉\n'+kbC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='⑰ 宿曜占星\n'+xiuC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='⑱ 梅花易數\n'+meiC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='⑲ 基因天命\n'+gkC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='⑳ 彩虹數字\n'+rbC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='㉑ 撲克牌命理\n'+pkC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='㉒ 凱爾特樹曆\n'+trC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='㉓ 鐵板神數\n'+tbxC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='㉔ 太乙神數\n'+tyC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='㉕ 五運六氣\n'+wyC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='㉖ 韓國四柱\n'+sjC+'\n';
-  mega+='════════════════════════════\n';
-  mega+='㉗ 河洛理數\n'+hlC2+'\n';
-  mega+='════════════════════════════\n';
-  mega+='㉘ 易經\n'+yjC2+'\n';
-  mega+='════════════════════════════\n';
-  mega+='㉙ 奇門遁甲\n'+qmC2+'\n';
-  mega+='════════════════════════════\n';
-  mega+='㉚ 前世今生\n'+plC2+'\n';
-  mega+='════════════════════════════\n';
-  mega+='㉛ 月亮星宿 Nakshatra\n'+nkC2+'\n';
-  mega+='════════════════════════════\n';
-  mega+='㉜ BG5 商業人類圖\n'+bgC2+'\n';
-  mega+='════════════════════════════\n';
-  mega+='㉝ 五音五味\n'+wuC2+'\n';
-  mega+='════════════════════════════\n\n';
-  mega+='═══ 語氣要求 ═══\n';
-  mega+='► 像一個很懂人的閨蜜在說真話，溫暖但不軟弱\n';
-  mega+='► 整合33個系統的視角，找出共同指向的主題\n';
-  mega+='► 不只說好話，也要點出需要注意的方向\n';
-  mega+='► 帶有香氣意象，結尾推薦精油\n';
-  mega+='► 不使用「梳理」「節奏」等詞彙，不使用雙破折號\n\n';
-  mega+='═══ H.O.U.R. 行動建議（必須回答）═══\n';
-  mega+='H（靜心殿）→ 這段關係最需要先安頓什麼？\n';
-  mega+='O（覺察廳）→ 多系統共同指向的互動模式是什麼？\n';
-  mega+='U（解鎖密室）→ 今天就能為這段關係做的一件事\n';
-  mega+='R（啟程塔）→ 這段關係接下來最重要的方向建議\n\n';
-  mega+='🔗 馥靈之鑰 hourlightkey.com\n';
+  var mega='═══ 馥靈之鑰｜33系統整合合盤 ═══\n\n\n完整合盤資料 ✦ 深度分析請使用「🔮 複製智慧解讀指令」\n馥靈之鑰 hourlightkey.com\n';
   var hMega='';
   hMega+='<pre id="mega_ai" class="combined-pre">'+escHtml(mega)+'</pre>';
   hMega+='<div style="text-align:center;margin-top:14px">';
@@ -4072,7 +4011,7 @@ function renderMatch(a,b){
   if(a.zw){gpsData+='紫微五行局：'+a.zw.juS+'\n';}
   if(a.hd){gpsData+='人類圖：'+a.hd.type+(a.hd.profile?' · '+a.hd.profile:'')+'\n';}
   if(a.my){gpsData+='瑪雅：KIN '+a.my.kin+'\n';}
-  if(a.nm){gpsData+='生命數：'+a.nm.life+(a.nm.life>=11?' ✦大師數':'')+' / 流年：'+a.nm.py+'\n';}
+  if(a.nm){gpsData+='生命路徑數：'+a.nm.lifePath+'\n';}
   gpsData+='五運六氣：'+a.wuyun.yunWx+'運'+a.wuyun.nat+'  司天：'+a.wuyun.siTian+'\n';
   gpsData+='河洛本命卦：'+a.helo.gua+'  易經本卦：'+a.yijing.hex+'\n';
   gpsData+='奇門：'+a.qimen.star+' × '+a.qimen.door+'\n';
@@ -4083,7 +4022,7 @@ function renderMatch(a,b){
   if(b.zw){gpsData+='紫微五行局：'+b.zw.juS+'\n';}
   if(b.hd){gpsData+='人類圖：'+b.hd.type+(b.hd.profile?' · '+b.hd.profile:'')+'\n';}
   if(b.my){gpsData+='瑪雅：KIN '+b.my.kin+'\n';}
-  if(b.nm){gpsData+='生命數：'+b.nm.life+(b.nm.life>=11?' ✦大師數':'')+' / 流年：'+b.nm.py+'\n';}
+  if(b.nm){gpsData+='生命路徑數：'+b.nm.lifePath+'\n';}
   gpsData+='五運六氣：'+b.wuyun.yunWx+'運'+b.wuyun.nat+'  司天：'+b.wuyun.siTian+'\n';
   gpsData+='河洛本命卦：'+b.helo.gua+'  易經本卦：'+b.yijing.hex+'\n';
   gpsData+='奇門：'+b.qimen.star+' × '+b.qimen.door+'\n';
@@ -4192,6 +4131,7 @@ function renderMatch(a,b){
 <script src="assets/js/hl-bottomnav.js"></script>
 <script src="assets/js/hl-ai-gate.js"></script>
 <script src="assets/js/hl-gate.js"></script>
+<script src="assets/js/hl-premium-gate.js"></script>
 <script src="assets/js/hl-record.js"></script>
 <script src="assets/js/hl-announce.js"></script>
 <script src="assets/js/hl-email.js"></script>
