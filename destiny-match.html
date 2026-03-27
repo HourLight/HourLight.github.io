@@ -2407,14 +2407,11 @@ function hlMatchCopy(preId, system, btn) {
   if (!pre) return;
   var data = pre.textContent;
   var rel = gv('relType') || 'any';
-
-  // 在 user gesture context 內組好完整文字
   var fw = (window.AI_MATCH_FRAMEWORKS && window.AI_MATCH_FRAMEWORKS[system]) || {};
   var relData = fw[rel] || fw['any'] || {};
   var title = relData.title || (system + ' 合盤');
   var focus = relData.focus || [];
   var books = relData.books || '';
-
   var txt = '═══ 馥靈之鑰｜' + title + ' ═══\n\n';
   txt += '關係類型：' + rel + '\n\n';
   txt += data + '\n\n';
@@ -2432,13 +2429,12 @@ function hlMatchCopy(preId, system, btn) {
   txt += 'U（解鎖密室）→ 今天就能為這段關係做的一件事\n';
   txt += 'R（啟程塔）→ 這段關係接下來的方向建議\n';
   txt += '\n🔗 馥靈之鑰 hourlightkey.com';
-
-  // 門控（hl-ai-gate.js 計次）— 文字已備好，callback 只做複製
-  if (typeof hlAIGateCheck === 'function') {
-    hlAIGateCheck(function() { _doMatchCopy(txt, btn); });
-    return;
-  }
+  // ★ 先複製（在 user gesture context 內）
   _doMatchCopy(txt, btn);
+  // 然後 gate 計次（async，不影響複製）
+  if (typeof hlAIGateCheck === 'function') {
+    setTimeout(function() { hlAIGateCheck(function(){}); }, 80);
+  }
 }
 function _doMatchCopy(txt, btn) {
   function onOk() {
