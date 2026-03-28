@@ -27,7 +27,7 @@
     { icon: SVG_CARD,       label: '抽牌',  tip: '抽牌中心',           href: 'draw-hub.html' },
     { icon: SVG_DESTINY,    label: '命盤',  tip: '命盤中心・33大系統',  href: 'destiny-hub.html' },
     { icon: SVG_QUIZ,       label: '測驗',  tip: '覺察測驗中心',        href: 'quiz-hub.html' },
-    { icon: SVG_DIVINATION, label: '占卜',  tip: '占卜中心',            href: 'divination-hub.html' },
+    { icon: SVG_DIVINATION, label: '神祕學', tip: '神祕學工具',           href: 'divination-hub.html' },
     { icon: SVG_CASTLE,     label: '城堡',  tip: '內在城堡探索',        href: 'castle-game.html' },
     { icon: SVG_MEMBER,     label: '會員',  tip: '會員中心',            href: 'app.html' },
     { icon: SVG_MUSIC,      label: '音樂',  tip: '背景音樂開關',        href: '#', id: 'hl-bn-music' }
