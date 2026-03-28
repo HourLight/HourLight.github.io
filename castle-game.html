@@ -345,6 +345,7 @@ function todayRiddle(room){
 var CUR_ROOM = null;
 
 function upd(){
+  if(!window.hlCastle){ setTimeout(upd,200); return; }
   var st = hlCastle.getState();
   document.getElementById('dPts').textContent = st.points;
   document.getElementById('dRms').textContent = st.todayOpened + '/3';
@@ -361,6 +362,12 @@ function upd(){
 }
 
 function startGame(){
+  if(!window.hlCastle || !window.ROOMS){
+    var btn = document.querySelector('.btn-enter');
+    if(btn){ btn.textContent = '載入中...'; btn.disabled = true; }
+    setTimeout(startGame, 300);
+    return;
+  }
   document.getElementById('heroSec').style.display='none';
   document.getElementById('gameArea').classList.add('active');
   document.getElementById('topbar').classList.add('show');
