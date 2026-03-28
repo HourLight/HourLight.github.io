@@ -558,6 +558,7 @@ var csel=document.getElementById('csel'),
     rAct=document.getElementById('rAct'),
     cpyBtn=document.getElementById('cpyBtn'),
     aiBtn=document.getElementById('aiBtn'),
+    emailBtn=document.getElementById('emailBtn'),
     rdBtn=document.getElementById('rdBtn'),
     so=document.getElementById('so');
 
@@ -685,6 +686,38 @@ cpyBtn.addEventListener('click',function(){
   setTimeout(function(){cpyBtn.textContent=orig;cpyBtn.classList.remove('btn-p');},2200);
 });
 
+// ========== 寄到信箱 ==========
+emailBtn.addEventListener('click',function(){
+  if(!drawn.length){
+    showTarotToast('請先完成抽牌');
+    return;
+  }
+  var now=new Date();
+  var ds=now.getFullYear()+'-'+p2(now.getMonth()+1)+'-'+p2(now.getDate())+' '+p2(now.getHours())+':'+p2(now.getMinutes());
+  var pos=POSITIONS[selN]||[];
+  var txt='🎴 塔羅抽牌結果｜馥靈之鑰 Hour Light\n';
+  txt+='抽牌時間：'+ds+'\n';
+  txt+='───────────────────────\n\n';
+  if(q) txt+='❓ 我的提問：\n'+q+'\n\n───────────────────────\n\n';
+  txt+='📋 抽牌結果（共'+drawn.length+'張）：\n\n';
+  drawn.forEach(function(c,i){
+    var pp=pos[i]?'【'+pos[i]+'】':'第'+(i+1)+'張';
+    txt+=pp+'\n';
+    txt+='  牌名：'+c.zh+'（'+c.en+'）\n';
+    txt+='  方位：'+(c.rev?'🔻 逆位':'🔺 正位')+'\n\n';
+  });
+  txt+='───────────────────────\n';
+  txt+='\n💫 想了解牌卡的深層訊息？\n預約馥靈覺察師為您完整解讀 👉 https://lin.ee/RdQBFAN\n\n';
+  txt+='🔗 馥靈之鑰 hourlightkey.com';
+  if(typeof window.hlEmailOpen==='function'){
+    window.hlEmailOpen(txt,'塔羅解讀結果');
+  } else {
+    // hlEmailOpen 未載入則直接複製
+    doCopy(txt);
+    showTarotToast('📧 已複製內容，請貼到信箱寄出');
+  }
+});
+
 
 // ========== 複製 AI 解讀指令（豐富版）==========
 aiBtn.addEventListener('click',function(){
@@ -697,7 +730,7 @@ aiBtn.addEventListener('click',function(){
   // fallback：至少要登入
   var auth=window.firebase&&firebase.auth();
   if(!auth||!auth.currentUser){
-    alert('請先登入會員才能複製 AI 解讀指令');
+    showTarotToast('🔐 請先登入會員才能使用 AI 解讀指令');
     var lb=document.querySelector('[data-action="login"]');if(lb)lb.click();
     return;
   }
@@ -855,6 +888,25 @@ function _doTarotAICopy(){
   setTimeout(function(){aiBtn.textContent=orig;aiBtn.classList.remove('btn-p');},2200);
 }
 
+function showTarotToast(msg){
+  var t=document.getElementById('tarotToast');
+  if(!t){
+    t=document.createElement('div');
+    t.id='tarotToast';
+    t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(12px);'
+      +'background:rgba(13,9,23,0.97);color:#f8dfa5;padding:12px 22px;'
+      +'border-radius:12px;font-size:.88rem;z-index:99999;'
+      +'border:1px solid rgba(248,223,165,0.3);pointer-events:none;'
+      +'opacity:0;transition:all .3s;white-space:nowrap;max-width:90vw;';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg;
+  t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(t._tid);
+  t._tid=setTimeout(function(){
+    t.style.opacity='0';t.style.transform='translateX(-50%) translateY(12px)';
+  },2600);
+}
 function doCopy(s){
   if(navigator.clipboard){navigator.clipboard.writeText(s).catch(function(){fb(s);});}else{fb(s);}
 }

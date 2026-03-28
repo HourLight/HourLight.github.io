@@ -286,4 +286,101 @@
   if(document.readyState==='loading'){
     document.addEventListener('DOMContentLoaded',function(){window.hlCastle.autoGiveFromUrl();});
   }else{window.hlCastle.autoGiveFromUrl();}
+
+  /* ── 城堡任務回程 Banner ──────────────────────────────
+   * 偵測 ?castle=1 → 結果區出現時自動注入「帶著鑰匙回城堡」按鈕
+   * 支援三種結果區結構：
+   *   1. .quiz-result.active   (39 頁)
+   *   2. #quizResult.active    (9 頁)
+   *   3. #ra                   (1 頁)
+   * ─────────────────────────────────────────────────── */
+  (function(){
+    var p=new URLSearchParams(window.location.search);
+    if(p.get('castle')!=='1') return;
+
+    var injected=false;
+
+    function injectBanner(){
+      if(injected) return;
+      // 找已顯示的結果區
+      var el=document.querySelector('.quiz-result.active, #quizResult.active, #ra:not(:empty)');
+      if(!el || !el.offsetParent) return; // 還沒顯示
+      if(el.querySelector('.hl-castle-return')) return; // 已注入
+
+      injected=true;
+
+      var banner=document.createElement('div');
+      banner.className='hl-castle-return';
+      banner.style.cssText=[
+        'margin:0 0 20px 0',
+        'padding:18px 20px',
+        'background:linear-gradient(135deg,rgba(92,58,99,0.85),rgba(29,17,51,0.95))',
+        'border:1px solid rgba(233,194,125,0.45)',
+        'border-radius:18px',
+        'text-align:center',
+        'animation:hlCastlePopIn .5s cubic-bezier(.16,1,.3,1) both'
+      ].join(';');
+
+      banner.innerHTML=
+        '<div style="font-size:1.5rem;margin-bottom:6px">🗝️</div>'+
+        '<div style="font-size:.92rem;color:#f8dfa5;font-weight:600;margin-bottom:4px;letter-spacing:.5px">鑰匙已拿到！</div>'+
+        '<div style="font-size:.8rem;color:rgba(249,240,229,.7);margin-bottom:14px">帶著這份覺察，回城堡開啟今天的房間</div>'+
+        '<a href="castle-game.html" style="'+[
+          'display:inline-block',
+          'padding:11px 28px',
+          'background:linear-gradient(135deg,#b8922a,#e9c27d)',
+          'color:#1a0f2e',
+          'border-radius:999px',
+          'font-size:.92rem',
+          'font-weight:700',
+          'text-decoration:none',
+          'letter-spacing:.5px',
+          'transition:all .25s'
+        ].join(';')+'">🏰 回到城堡</a>';
+
+      // 插到結果區最前面
+      el.insertBefore(banner, el.firstChild);
+
+      // 注入動畫 keyframe（只注一次）
+      if(!document.getElementById('hl-castle-anim')){
+        var st=document.createElement('style');
+        st.id='hl-castle-anim';
+        st.textContent='@keyframes hlCastlePopIn{from{opacity:0;transform:translateY(-12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}';
+        document.head.appendChild(st);
+      }
+
+      // 自動滾到 banner
+      setTimeout(function(){
+        banner.scrollIntoView({behavior:'smooth',block:'nearest'});
+      },300);
+    }
+
+    // MutationObserver 監聽結果區 class 變化
+    var observer=new MutationObserver(function(){injectBanner();});
+    function startObserve(){
+      var targets=[
+        document.querySelector('.quiz-result'),
+        document.getElementById('quizResult'),
+        document.getElementById('ra')
+      ].filter(Boolean);
+      targets.forEach(function(t){
+        observer.observe(t,{attributes:true,childList:true,subtree:false,attributeFilter:['class']});
+      });
+      // 也輪詢一次（防止已顯示但 observer 來不及）
+      injectBanner();
+    }
+    if(document.readyState==='loading'){
+      document.addEventListener('DOMContentLoaded',function(){
+        setTimeout(startObserve,200);
+      });
+    }else{
+      setTimeout(startObserve,200);
+    }
+    // 定時補漏（有些頁面 JS 很晚才渲染結果）
+    var poll=setInterval(function(){
+      injectBanner();
+      if(injected) clearInterval(poll);
+    },800);
+    setTimeout(function(){clearInterval(poll);},60000);
+  })();
 })();
