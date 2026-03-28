@@ -74,10 +74,9 @@
     { id:'palace_light',   name:'宮燈碎光',   icon:'🏮', rarity:'rare',      weight:60, zone:'內在深宮' },
     { id:'flower_spirit',  name:'花靈露珠',   icon:'🌼', rarity:'rare',      weight:35, zone:'內在深宮' },
     { id:'realm_key',      name:'深宮鑰匙',   icon:'🗝️', rarity:'legendary', weight:5,  zone:'內在深宮' }
-  ]
-    ],
+  ],
 
-    oracle: [
+  oracle: [
       { id:'vision_shadow',    name:'靈視殘影',   icon:'🌫️', rarity:'common',    weight:45, zone:'神諭廳' },
       { id:'hexagram_mark',    name:'卦象印記',   icon:'☯️', rarity:'common',    weight:40, zone:'神諭廳' },
       { id:'oil_spirit',       name:'玫瑰精魄',   icon:'🌿', rarity:'rare',      weight:10, zone:'神諭廳' },
