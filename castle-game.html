@@ -656,17 +656,8 @@ function showCastleCard(card){
 
 function doShareCard(){
   var card = window._lastCastleCard || {};
-  var t = card.roomIcon+'【'+card.roomName+'】今日探索完成
-
-'+
-    (card.insight?'"'+card.insight.substring(0,40)+'"…
-
-':'')+
-    '連續第 '+card.streak+' 天 · 靈感 '+card.points+' 點
-
-'+
-    '每天10分鐘，走進自己的城堡 ✨
-👉 hourlightkey.com/castle-game.html';
+  var insight = card.insight ? '「'+card.insight.substring(0,40)+'」\n\n' : '';
+  var t = card.roomIcon+'【'+card.roomName+'】今日探索完成\n\n'+insight+'連續第 '+card.streak+' 天 · 靈感 '+card.points+' 點\n\n每天10分鐘，走進自己的城堡 ✨\n👉 hourlightkey.com/castle-game.html';
   if(navigator.share)navigator.share({title:'內在城堡探索者',text:t,url:'https://hourlightkey.com/castle-game.html'}).catch(function(){});
   else navigator.clipboard.writeText(t).then(function(){alert('✅ 已複製分享文案');});
   hlCastle.shareBonus();upd();
@@ -681,15 +672,15 @@ function updateRedeemUI(){
   var html='<div style="font-size:12px;color:#888;margin-bottom:12px">靈感點數：<strong style="color:#e9a060">'+st.points+' 點</strong></div>';
   items.forEach(function(item){
     var disabled=!item.canAfford;
-    html+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:10px;background:'+(disabled?'rgba(0,0,0,.03)':'rgba(233,160,96,.06)')+';border-radius:10px;border:1px solid '+(disabled?'rgba(0,0,0,.06)':'rgba(233,160,96,.2)')+'">'+
-      '<span style="font-size:20px">'+item.icon+'</span>'+
-      '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#3a2a1a">'+item.name+'</div>'+
-        '<div style="font-size:11px;color:#888">'+item.desc+'</div></div>'+
-      '<button onclick="doRedeem(''+item.id+'')" '+
-        (disabled?'disabled style="padding:6px 14px;background:#eee;color:#aaa;border:none;border-radius:12px;font-size:12px;cursor:not-allowed"':
-                  'style="padding:6px 14px;background:#e9a060;color:#fff;border:none;border-radius:12px;font-size:12px;font-family:inherit;cursor:pointer;font-weight:700"')+
-        '>'+item.cost+'pt</button>'+
-    '</div>';
+    var btnStyle=disabled
+      ? 'padding:6px 14px;background:#eee;color:#aaa;border:none;border-radius:12px;font-size:12px;cursor:not-allowed'
+      : 'padding:6px 14px;background:#e9a060;color:#fff;border:none;border-radius:12px;font-size:12px;font-family:inherit;cursor:pointer;font-weight:700';
+    html+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:10px;background:'+(disabled?'rgba(0,0,0,.03)':'rgba(233,160,96,.06)')+';border-radius:10px;border:1px solid '+(disabled?'rgba(0,0,0,.06)':'rgba(233,160,96,.2)') +'">';
+    html+='<span style="font-size:20px">'+item.icon+'</span>';
+    html+='<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#3a2a1a">'+item.name+'</div>';
+    html+='<div style="font-size:11px;color:#888">'+item.desc+'</div></div>';
+    html+='<button '+(disabled?'disabled ':'')+' data-rid="'+item.id+'" onclick="doRedeem(this.dataset.rid)" style="'+btnStyle+'">'+item.cost+'pt</button>';
+    html+='</div>';
   });
   panel.innerHTML=html;
 }
@@ -701,16 +692,15 @@ function doRedeem(itemId){
     return;
   }
   var item=result.item;
-  alert('🎉 兌換成功！
+  alert('🎉 兌換成功！\n「'+item.name+'」已加入您的帳戶。\n剩餘點數：'+hlCastle.getState().points+' 點');
 
-「'+item.name+'」已加入您的帳戶。
-剩餘點數：'+hlCastle.getState().points+' 點');
+
+
   if(result.newAchievements&&result.newAchievements.length)
     result.newAchievements.forEach(function(ach,i){setTimeout(function(){showAchToast(ach);},i*800);});
   updateRedeemUI();upd();
 }
 
-function _origShowCompleteToast(name){
 function showCompleteToast(name){
   var t=document.querySelector('.room-complete-toast');
   if(!t){t=document.createElement('div');t.className='room-complete-toast';document.body.appendChild(t);}
