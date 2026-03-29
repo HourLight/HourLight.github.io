@@ -302,8 +302,18 @@
 
     function injectBanner(){
       if(injected) return;
-      // 找已顯示的結果區
-      var el=document.querySelector('.quiz-result.active, #quizResult.active, #ra:not(:empty)');
+      // 找已顯示的結果區（涵蓋測驗/抽牌/占卜/馥靈頁面）
+      var el=document.querySelector([
+        '.quiz-result.active',
+        '#quizResult.active',
+        '#ra:not(:empty)',
+        '#aromaResult:not([style*="display: none"]):not([style*="display:none"])',
+        '#readingBox:not([style*="display: none"]):not([style*="display:none"]):not(:empty)',
+        '#spreadResult:not([style*="display: none"]):not([style*="display:none"])',
+        '#aiResultBlock:not([style*="display: none"]):not([style*="display:none"])',
+        '#fuyu-today:not([style*="display: none"]):not([style*="display:none"])',
+        '#fuyu-oil:not([style*="display: none"]):not([style*="display:none"])'
+      ].join(','));
       if(!el || !el.offsetParent) return; // 還沒顯示
       if(el.querySelector('.hl-castle-return')) return; // 已注入
 
@@ -361,10 +371,16 @@
       var targets=[
         document.querySelector('.quiz-result'),
         document.getElementById('quizResult'),
-        document.getElementById('ra')
+        document.getElementById('ra'),
+        document.getElementById('aromaResult'),
+        document.getElementById('readingBox'),
+        document.getElementById('spreadResult'),
+        document.getElementById('aiResultBlock'),
+        document.getElementById('fuyu-today'),
+        document.getElementById('fuyu-oil')
       ].filter(Boolean);
       targets.forEach(function(t){
-        observer.observe(t,{attributes:true,childList:true,subtree:false,attributeFilter:['class']});
+        observer.observe(t,{attributes:true,childList:true,subtree:false,attributeFilter:['class','style']});
       });
       // 也輪詢一次（防止已顯示但 observer 來不及）
       injectBanner();

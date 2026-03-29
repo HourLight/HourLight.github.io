@@ -463,13 +463,16 @@
 
     // 根據事件類型決定掉材料的 toolType
     var toolTypeMap = {
-      quiz_complete:       'quiz',
-      draw_complete:       'draw',
-      calculator_complete: 'calculator',
-      oracle_complete:     'oracle',
-      castle_complete:     'castle_riddle',
-      course_view:         'course',
-      brand_interact:      'brand'
+      quiz_complete:         'quiz',
+      draw_complete:         'draw',
+      calculator_complete:   'calculator',
+      calc_complete:         'calculator',       // destiny-engine.html 用這個名稱
+      oracle_complete:       'oracle',
+      castle_complete:       'castle_riddle',
+      match_complete:        'calculator',       // destiny-match.html 合盤完成
+      pet_reading_complete:  'draw',             // pet-reading.html 寵物占卜
+      course_view:           'course',
+      brand_interact:        'brand'
     };
     // 追蹤逐套命理完成（天命核心條件）
     if(eventType === 'calculator_complete' && detail && detail.toolId){
@@ -497,5 +500,53 @@
     if(result.ok) showDropToast(result.item);
     return result;
   };
+
+  // ═══ 節氣活動系統 ═══
+  // 每年四個節氣各有限定材料，當天進入城堡自動掉落一次
+  var SEASONAL_EVENTS = [
+    // [月, 日範圍起, 日範圍止, 材料id]
+    { month:3,  dayFrom:19, dayTo:22, matId:'spring_blossom',  name:'春分' },
+    { month:6,  dayFrom:20, dayTo:23, matId:'summer_thunder',  name:'夏至' },
+    { month:9,  dayFrom:22, dayTo:25, matId:'autumn_maple',    name:'秋分' },
+    { month:12, dayFrom:21, dayTo:24, matId:'winter_solstice', name:'冬至' }
+  ];
+
+  function checkSeasonalDrop(){
+    // 用 UTC+8 當天日期
+    var tw = new Date(new Date().getTime() + 8*3600000);
+    var m = tw.getUTCMonth() + 1; // 1-12
+    var d = tw.getUTCDate();
+    var today = todayKey();
+    var state = loadMaterials();
+
+    SEASONAL_EVENTS.forEach(function(ev){
+      if(m !== ev.month) return;
+      if(d < ev.dayFrom || d > ev.dayTo) return;
+      // 今天已掉過就跳過
+      var key = today + '_seasonal_' + ev.matId;
+      if(state.dailyDrops[key]) return;
+
+      // 掉落節氣材料
+      var pool = MATERIAL_DEFS['nature_event'];
+      var mat = pool.filter(function(m){ return m.id === ev.matId; })[0];
+      if(!mat) return;
+      state.inventory[mat.id] = (state.inventory[mat.id] || 0) + 1;
+      state.dailyDrops[key] = 1;
+      if(window.hlCastle) window.hlCastle.addPoints(5); // 節氣加 5 點
+      saveMaterials(state);
+      // 特別顯示節氣 toast
+      showDropToast(Object.assign({}, mat, { name: ev.name + '｜' + mat.name }));
+    });
+  }
+
+  // 頁面載入時執行節氣檢查
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', checkSeasonalDrop);
+  } else {
+    setTimeout(checkSeasonalDrop, 1000); // 等其他系統載入完畢
+  }
+
+  // 公開節氣檢查（方便測試）
+  window.HL_checkSeasonal = checkSeasonalDrop;
 
 })();

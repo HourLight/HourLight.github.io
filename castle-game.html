@@ -8,8 +8,18 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>內在城堡探索者｜每天10分鐘，走進自己的城堡｜馥靈之鑰 Hour Light</title>
 <meta name="description" content="每天解鎖一個房間，收集靈感點數，遇見那個您一直迴避的自己。免費互動式覺察遊戲，基於H.O.U.R.覺察框架。"/>
-<meta property="og:title" content="內在城堡探索者｜馥靈之鑰"/>
-<meta property="og:description" content="每天10分鐘，走進自己的城堡。您有12個房間，但有幾扇門從來沒推開過？"/>
+<meta property="og:title" content="您有12個房間，但有幾扇門從來沒推開過？｜內在城堡探索者"/>
+<meta property="og:description" content="每天10分鐘，走進自己的城堡。收集材料、解鎖謎語、遇見那個您一直迴避的自己。完全免費互動式覺察遊戲 🏰"/>
+<meta property="og:image" content="https://hourlightkey.com/castle-og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:url" content="https://hourlightkey.com/castle-game.html"/>
+<meta property="og:type" content="website"/>
+<meta property="og:locale" content="zh_TW"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="您有12個房間，但有幾扇門從來沒推開過？"/>
+<meta name="twitter:description" content="每天10分鐘，走進自己的城堡。完全免費互動式覺察遊戲。"/>
+<meta name="twitter:image" content="https://hourlightkey.com/castle-og-image.png"/>
 <link rel="canonical" href="https://hourlightkey.com/castle-game.html"/>
 <link rel="icon" href="favicon.ico"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet"/>
@@ -37,10 +47,19 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:linear-gradie
 .castle-wrap{position:relative;width:100%;max-width:720px;margin:0 auto 28px}
 .castle-svg{width:100%;height:auto}
 .room-zone{cursor:pointer;transition:all .3s}
-.room-zone:hover .zone-fill{opacity:.25}
-.room-zone.locked{cursor:default;opacity:.5}
+.room-zone:hover .zone-fill{opacity:.28}
+/* 未解鎖 */
+.room-zone.locked{cursor:default;opacity:.28;filter:grayscale(.7)}
 .room-zone.locked:hover .zone-fill{opacity:0}
-.room-zone.current .zone-fill{opacity:.18;animation:glow 2s ease-in-out infinite}
+/* 有鑰匙（待探索）*/
+.room-zone.current .zone-fill{opacity:.22;animation:glow 2s ease-in-out infinite}
+.room-zone.current{filter:drop-shadow(0 0 7px rgba(240,165,0,.6))}
+/* 已完成 */
+.room-zone.done .zone-fill{opacity:.14}
+.room-zone.done{filter:drop-shadow(0 0 5px rgba(46,196,182,.45))}
+/* 已解鎖等任務 */
+.room-zone.available .zone-fill{opacity:.08}
+.room-zone.available:hover .zone-fill{opacity:.22}
 .room-zone.done .zone-check{opacity:1}
 @keyframes glow{0%,100%{opacity:.12}50%{opacity:.28}}
 .zone-fill{opacity:0;transition:opacity .3s}
@@ -104,6 +123,16 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:linear-gradie
 @keyframes bannerWave{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
 @keyframes progressGlow{0%,100%{box-shadow:0 0 0 rgba(240,165,0,0)}50%{box-shadow:0 0 12px rgba(240,165,0,.4)}}
 @keyframes checkmark{0%{stroke-dashoffset:24}100%{stroke-dashoffset:0}}
+/* ── 傢具動畫 keyframes ── */
+@keyframes furnitureGlow{0%,100%{opacity:.7}50%{opacity:1}}
+@keyframes oracleGlow{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+@keyframes compassRotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes fountainRise{0%,100%{transform:scaleY(1);opacity:.6}50%{transform:scaleY(1.15);opacity:.9}}
+@keyframes waterRipple{0%{rx:28;opacity:.5}50%{rx:34;opacity:.2}100%{rx:28;opacity:.5}}
+@keyframes bookGlow{0%,100%{opacity:.6}50%{opacity:1;filter:brightness(1.2)}}
+@keyframes goldDust{0%{transform:translateY(0) scale(1);opacity:.8}50%{transform:translateY(-8px) scale(1.3);opacity:.5}100%{transform:translateY(-16px) scale(.5);opacity:0}}
+/* ── 完整度進度條 ── */
+@keyframes completenessShine{0%{background-position:-200% center}100%{background-position:200% center}}
 @keyframes roomComplete{0%{transform:scale(1)}30%{transform:scale(1.12)}60%{transform:scale(.95)}100%{transform:scale(1)}}
 
 /* ── Hero 升級 ── */
@@ -143,10 +172,20 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:linear-gradie
 .room-zone:not(.locked):not(.done):hover{animation:roomPulse 1.5s ease-in-out infinite}
 .room-zone:not(.locked):not(.done):hover .zone-icon{font-size:28px;transition:font-size .2s}
 .room-zone:not(.locked):not(.done):hover .zone-fill{opacity:.3!important}
+/* 已完成：金色光暈 */
 .room-zone.done{animation:roomDone .6s ease both}
 .room-zone.done .zone-icon{filter:drop-shadow(0 0 8px rgba(240,165,0,.7))}
+.room-zone.done .zone-label{fill:#1A936F!important;font-weight:700}
+/* 有鑰匙：橘紅脈衝 */
 .room-zone.current .zone-fill{opacity:.22!important}
-.room-zone.current{animation:roomPulse 2s ease-in-out infinite}
+.room-zone.current{animation:roomPulse 2s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(230,57,70,.5))}
+.room-zone.current .zone-label{fill:#E63946!important;font-weight:700}
+/* 已解鎖等任務：亮度正常但柔和 */
+.room-zone.available .zone-fill{opacity:.07!important}
+.room-zone.available:hover .zone-fill{opacity:.22!important}
+/* 未解鎖：更暗更灰 */
+.room-zone.locked{opacity:.22!important;filter:grayscale(.8)!important}
+.room-zone.locked:hover .zone-fill{opacity:0!important}
 
 /* ── 面板升級 ── */
 .panel.active{display:block;animation:panelSlide .4s cubic-bezier(.16,1,.3,1) both}
@@ -300,10 +339,134 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:linear-gradie
 <!-- 旗幟動畫 -->
 <polygon points="360,15 395,25 360,35" fill="#F0A500" opacity=".95" style="transform-origin:360px 25px;animation:bannerWave 2s ease-in-out infinite"/>
 
+<!-- ══ 傢具視覺層（初始隱藏，合成後顯示）══ -->
+
+<!-- 🪔 自省燈：左塔窗口亮起（鏡之廳 mirror）-->
+<g id="svg-lamp-left-tower" style="display:none">
+  <ellipse cx="140" cy="205" rx="22" ry="28"
+    fill="rgba(255,200,80,.18)"
+    style="animation:furnitureGlow 3s ease-in-out infinite"/>
+  <ellipse cx="140" cy="200" rx="14" ry="18"
+    fill="rgba(255,220,120,.12)"
+    style="animation:furnitureGlow 3s .5s ease-in-out infinite"/>
+  <!-- 窗口橙黃光 -->
+  <rect x="126" y="188" width="28" height="34" rx="14"
+    fill="rgba(255,180,60,.22)"
+    style="animation:furnitureGlow 3s ease-in-out infinite"/>
+</g>
+
+<!-- 🛋️ 芳療靠枕：城堡主體中段出現一個溫暖窗簾（通用傢具）-->
+<g id="svg-curtain-center" style="display:none">
+  <!-- 中段左窗加溫暖色調 -->
+  <rect x="197" y="282" width="26" height="32" rx="13"
+    fill="rgba(240,165,0,.2)"
+    style="animation:furnitureGlow 3.5s .3s ease-in-out infinite"/>
+  <!-- 窗台花飾 -->
+  <circle cx="210" cy="278" r="4" fill="rgba(240,165,0,.55)"/>
+  <circle cx="204" cy="276" r="2.5" fill="rgba(220,130,0,.5)"/>
+  <circle cx="216" cy="276" r="2.5" fill="rgba(220,130,0,.5)"/>
+</g>
+
+<!-- 🧭 星命羅盤：中央主塔旗幟下方出現羅盤圖樣（星象塔）-->
+<g id="svg-compass-flag" style="display:none">
+  <circle cx="360" cy="55" r="10"
+    fill="none" stroke="rgba(240,165,0,.7)" stroke-width="1.5"
+    style="animation:compassRotate 12s linear infinite;transform-origin:360px 55px"/>
+  <line x1="360" y1="46" x2="360" y2="64"
+    stroke="rgba(240,165,0,.6)" stroke-width="1"
+    style="animation:compassRotate 12s linear infinite;transform-origin:360px 55px"/>
+  <line x1="351" y1="55" x2="369" y2="55"
+    stroke="rgba(240,165,0,.6)" stroke-width="1"
+    style="animation:compassRotate 12s linear infinite;transform-origin:360px 55px"/>
+  <circle cx="360" cy="55" r="2.5" fill="rgba(240,165,0,.85)"/>
+</g>
+
+<!-- 🔮 神諭占卜台：右塔窗口發出藍紫微光（神諭廳）-->
+<g id="svg-glow-right-tower" style="display:none">
+  <ellipse cx="580" cy="205" rx="22" ry="28"
+    fill="rgba(100,130,200,.15)"
+    style="animation:oracleGlow 4s ease-in-out infinite"/>
+  <ellipse cx="580" cy="200" rx="14" ry="18"
+    fill="rgba(130,100,220,.12)"
+    style="animation:oracleGlow 4s .8s ease-in-out infinite"/>
+  <rect x="566" y="188" width="28" height="34" rx="14"
+    fill="rgba(100,120,200,.18)"
+    style="animation:oracleGlow 4s ease-in-out infinite"/>
+</g>
+
+<!-- ⛲ 月光噴泉：城堡前庭草地上出現噴泉輪廓（庭院）-->
+<g id="svg-fountain-yard" style="display:none">
+  <!-- 噴泉底座 -->
+  <ellipse cx="360" cy="487" rx="28" ry="8"
+    fill="rgba(70,170,200,.35)"/>
+  <rect x="354" y="470" width="12" height="20" rx="3"
+    fill="rgba(200,180,140,.6)"/>
+  <!-- 水柱 -->
+  <ellipse cx="360" cy="465" rx="5" ry="12"
+    fill="rgba(100,200,230,.45)"
+    style="animation:fountainRise 2s ease-in-out infinite"/>
+  <ellipse cx="350" cy="472" rx="3" ry="7"
+    fill="rgba(100,200,230,.3)"
+    style="animation:fountainRise 2s .4s ease-in-out infinite"/>
+  <ellipse cx="370" cy="472" rx="3" ry="7"
+    fill="rgba(100,200,230,.3)"
+    style="animation:fountainRise 2s .8s ease-in-out infinite"/>
+  <!-- 水波 -->
+  <ellipse cx="360" cy="487" rx="28" ry="8"
+    fill="none" stroke="rgba(100,200,230,.4)" stroke-width="1"
+    style="animation:waterRipple 2.5s ease-in-out infinite"/>
+</g>
+
+<!-- 🗂️ 智慧書桌：右側建築區出現書頁光（學院塔）-->
+<g id="svg-book-tower-glow" style="display:none">
+  <!-- 書頁翻動光 -->
+  <rect x="497" y="282" width="26" height="32" rx="4"
+    fill="rgba(240,200,100,.2)"
+    style="animation:bookGlow 4s ease-in-out infinite"/>
+  <line x1="510" y1="285" x2="510" y2="311"
+    stroke="rgba(240,200,100,.35)" stroke-width=".8"/>
+  <line x1="500" y1="292" x2="520" y2="292"
+    stroke="rgba(240,200,100,.25)" stroke-width=".6"/>
+  <line x1="500" y1="298" x2="520" y2="298"
+    stroke="rgba(240,200,100,.25)" stroke-width=".6"/>
+  <line x1="500" y1="304" x2="520" y2="304"
+    stroke="rgba(240,200,100,.2)" stroke-width=".6"/>
+</g>
+
+<!-- 📕 城堡年鑑（傳說）：主旗幟變金色，有粒子飄散 -->
+<g id="svg-golden-banner" style="display:none">
+  <!-- 金色旗幟覆蓋（疊在原旗幟上）-->
+  <polygon points="360,15 402,26 360,37"
+    fill="#FFD700"
+    style="filter:drop-shadow(0 0 6px rgba(255,215,0,.8));animation:bannerWave 2s ease-in-out infinite;transform-origin:360px 26px"/>
+  <!-- 金粒子 -->
+  <circle cx="375" cy="20" r="1.5" fill="#FFD700" opacity=".8"
+    style="animation:goldDust 3s .2s ease-in-out infinite"/>
+  <circle cx="385" cy="28" r="1" fill="#FFD700" opacity=".7"
+    style="animation:goldDust 3.5s .7s ease-in-out infinite"/>
+  <circle cx="368" cy="35" r="1.2" fill="#FFD700" opacity=".6"
+    style="animation:goldDust 2.8s 1.1s ease-in-out infinite"/>
+  <circle cx="392" cy="22" r="1" fill="#FFD700" opacity=".75"
+    style="animation:goldDust 4s .4s ease-in-out infinite"/>
+</g>
+
 </svg>
 </div>
 
 <div class="panel" id="panel"></div>
+
+<!-- ── 城堡完整度 ── -->
+<div id="completenessBar" style="margin-bottom:14px;background:rgba(255,255,255,.82);border:1px solid rgba(240,165,0,.18);border-radius:16px;padding:14px 16px;display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <span style="font-size:.72rem;letter-spacing:.08em;color:var(--muted)">城堡完整度</span>
+    <span style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--amber)" id="compPct">0%</span>
+  </div>
+  <div style="height:7px;background:rgba(240,165,0,.1);border-radius:4px;overflow:hidden;position:relative">
+    <div id="compFill" style="height:100%;width:0%;border-radius:4px;background:linear-gradient(90deg,var(--teal),var(--amber),var(--rose));background-size:200% auto;animation:completenessShine 4s linear infinite;transition:width .9s cubic-bezier(.23,1,.32,1)"></div>
+  </div>
+  <div id="compDesc" style="font-size:.68rem;color:var(--muted);margin-top:6px;text-align:center"></div>
+</div>
+
 <div style="display:flex;gap:10px;margin-bottom:12px">
 <a href="castle-pets.html" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;background:rgba(255,255,255,.85);border:1px solid rgba(233,160,96,.25);border-radius:14px;text-decoration:none;font-size:.8rem;font-weight:700;color:var(--warm)">🐱 城堡居民</a>
 <a href="castle-materials.html" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;background:rgba(255,255,255,.85);border:1px solid rgba(233,160,96,.25);border-radius:14px;text-decoration:none;font-size:.8rem;font-weight:700;color:var(--warm)">🧪 材料庫</a>
@@ -312,6 +475,32 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:linear-gradie
 <h3>🏰 分享您的城堡進度</h3>
 <p style="font-size:.78rem;color:var(--txt-l);margin-bottom:12px">分享一次，獲得 2 點靈感</p>
 <button class="btn-share" onclick="doShare()">✦ 分享到社群</button>
+</div>
+
+<!-- 邀請好友面板 -->
+<div class="share" id="inviteSec" style="display:none">
+<h3>🗝️ 邀請好友一起探索</h3>
+<div id="inviteRewardStatus" style="font-size:.75rem;color:var(--txt-l);margin-bottom:12px;min-height:18px"></div>
+<p style="font-size:.78rem;color:var(--txt-l);margin-bottom:6px">朋友透過您的連結完成探索</p>
+<div style="display:flex;align-items:center;background:rgba(240,165,0,.07);border:1px solid rgba(240,165,0,.2);border-radius:12px;padding:10px 12px;margin-bottom:12px;gap:8px">
+  <span style="font-size:1.1rem">✨</span>
+  <div>
+    <div style="font-size:.82rem;font-weight:700;color:var(--warm)">每邀請 1 位完成探索</div>
+    <div style="font-size:.72rem;color:var(--muted)">推薦人獲得 24 小時大師體驗（可累加，上限 30 天）</div>
+  </div>
+</div>
+<div id="inviteLinkWrap" style="display:flex;gap:8px;margin-bottom:10px">
+  <input id="inviteLinkInput" readonly
+    style="flex:1;padding:9px 12px;border-radius:10px;border:1px solid rgba(240,165,0,.25);background:rgba(255,255,255,.8);font-size:.75rem;color:var(--warm);font-family:inherit;outline:none"
+    value="登入後可取得專屬連結">
+  <button onclick="copyInviteLink()"
+    style="padding:9px 16px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap"
+    id="copyInviteBtn">複製</button>
+</div>
+<button onclick="doShareInvite()"
+  style="width:100%;padding:11px;background:linear-gradient(135deg,rgba(92,58,99,.8),rgba(29,17,51,.9));color:#f8dfa5;border:none;border-radius:14px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px">
+  🏰 分享邀請連結
+</button>
 </div>
 
 <div class="share" id="redeemSec" style="display:none">
@@ -353,13 +542,87 @@ function upd(){
   document.getElementById('progFill').style.width = Math.round(st.todayOpened/3*100) + '%';
   if(st.points > 0){
     document.getElementById('shareSec').style.display = 'block';
+    document.getElementById('inviteSec').style.display = 'block';
     document.getElementById('redeemSec').style.display = 'block';
     document.getElementById('achSec').style.display = 'block';
     updateRedeemUI();
     updateAchUI();
+    updateInviteUI();
   }
   renderZones();
+  renderFurnitureOnMap();
+  renderCompleteness();
 }
+
+// ── 傢具 ID → SVG 元素 ID 對照表 ──
+var FURNITURE_SVG_MAP = {
+  'reflection_lamp':    'svg-lamp-left-tower',
+  'aroma_pillow':       'svg-curtain-center',
+  'star_compass':       'svg-compass-flag',
+  'oracle_table':       'svg-glow-right-tower',
+  'moonlight_fountain': 'svg-fountain-yard',
+  'wisdom_desk':        'svg-book-tower-glow',
+  'castle_almanac':     'svg-golden-banner'
+};
+
+function renderFurnitureOnMap(){
+  if(!window.hlMaterial) return;
+  var furniture = hlMaterial.getFurniture(); // 回傳已合成傢具陣列
+  // 全部先隱藏
+  Object.values(FURNITURE_SVG_MAP).forEach(function(svgId){
+    var el = document.getElementById(svgId);
+    if(el) el.style.display = 'none';
+  });
+  // 有合成的才顯示
+  furniture.forEach(function(f){
+    var svgId = FURNITURE_SVG_MAP[f.id];
+    if(!svgId) return;
+    var el = document.getElementById(svgId);
+    if(el){
+      el.style.display = '';
+      // 首次出現加淡入動畫
+      if(!el.dataset.appeared){
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 1.2s ease';
+        el.dataset.appeared = '1';
+        setTimeout(function(){ el.style.opacity = '1'; }, 80);
+      }
+    }
+  });
+}
+
+// ── 城堡完整度計算 ──
+function calcCastleCompleteness(){
+  var st = hlCastle.getState();
+  // 房間解鎖分數（25分）
+  var roomScore = Math.round(st.unlockedRooms.length / 12 * 25);
+  // 謎語探索分數（30分）：累積完成次數，每次 +0.5，上限 30
+  var diary = hlCastle.getDiary(999);
+  var riddleScore = Math.min(30, Math.round(diary.length * 0.5));
+  // 傢具合成分數（42分）：每件 +6，7件滿分
+  var furnitureScore = window.hlMaterial ? Math.min(42, hlMaterial.getFurniture().length * 6) : 0;
+  // 連續天數分數（3分）：連續30天滿分
+  var streakScore = Math.min(3, Math.round(st.streak / 30 * 3));
+  return Math.min(100, roomScore + riddleScore + furnitureScore + streakScore);
+}
+
+function renderCompleteness(){
+  var c = calcCastleCompleteness();
+  var bar = document.getElementById('completenessBar');
+  var fill = document.getElementById('compFill');
+  var pct = document.getElementById('compPct');
+  var desc = document.getElementById('compDesc');
+  if(!bar) return;
+  bar.style.display = 'block';
+  fill.style.width = c + '%';
+  pct.textContent = c + '%';
+  var msg = c >= 100 ? '✦ 你的城堡，完整地站在這裡' :
+            c >= 60  ? '城堡開始有了自己的靈魂' :
+            c >= 30  ? '輪廓越來越清晰了' :
+                       '每一次探索，都讓城堡更真實';
+  desc.textContent = msg;
+}
+
 
 function startGame(){
   if(!window.hlCastle || !window.ROOMS){
@@ -408,15 +671,95 @@ function renderZones(){
     g.classList.toggle('done', isDone);
     g.classList.toggle('current', hasKey && !isDone);
     g.classList.toggle('locked', !hasKey && !isDone && !canOpenMore);
+    g.classList.toggle('available', !hasKey && !isDone && canOpenMore && isUnlocked);
 
     if(isDone){
-      g.style.cursor = 'default';
-      g.onclick = null;
+      g.style.cursor = 'pointer';
+      g.onclick = function(rid){ return function(){ openDoneRoom(rid); }; }(rid);
     } else {
       g.style.cursor = 'pointer';
       g.onclick = function(){ handleRoomClick(rid); };
     }
   });
+}
+
+// 傢具對應房間對照（哪些傢具屬於哪個房間）
+var FURNITURE_ROOM_MAP = {
+  reflection_lamp:    'mirror',
+  aroma_pillow:       null,      // 通用傢具，不屬於特定房間
+  star_compass:       'tower',
+  oracle_table:       'intuition',
+  moonlight_fountain: 'garden',
+  wisdom_desk:        'tower',
+  castle_almanac:     null       // 傳說傢具，整座城堡
+};
+
+function openDoneRoom(rid){
+  var room = ROOMS.find(function(r){ return r.id === rid; });
+  if(!room) return;
+  var p = document.getElementById('panel');
+
+  // 今日的謎語題目（供回顧）
+  var rd = todayRiddle(room);
+
+  // 這個房間的傢具
+  var roomFurniture = [];
+  if(window.hlMaterial){
+    var allFurniture = hlMaterial.getFurniture();
+    roomFurniture = allFurniture.filter(function(f){
+      return FURNITURE_ROOM_MAP[f.id] === rid || FURNITURE_ROOM_MAP[f.id] === null;
+    });
+  }
+
+  // 這個房間的探索日記（最近3筆）
+  var diary = hlCastle.getDiary(999).filter(function(d){ return d.roomId === rid; }).slice(0,3);
+
+  var h = '<h2>' + room.icon + ' ' + room.name + '</h2>';
+  h += '<div class="desc" style="color:var(--teal-d);font-weight:600">✓ 今日探索完成</div>';
+
+  // 今日謎語回顧
+  if(rd){
+    h += '<div style="margin:16px 0 8px;font-size:.72rem;letter-spacing:.08em;color:var(--txt-d)">今日謎語</div>';
+    h += '<div style="padding:12px 14px;background:rgba(29,53,87,.04);border-radius:12px;border-left:3px solid var(--teal);font-size:.88rem;color:var(--txt-l);line-height:1.7">' + rd.q + '</div>';
+  }
+
+  // 已放置的傢具
+  h += '<div style="margin:16px 0 8px;font-size:.72rem;letter-spacing:.08em;color:var(--txt-d)">這個房間的陳設</div>';
+  if(roomFurniture.length){
+    h += '<div style="display:flex;flex-wrap:wrap;gap:8px">';
+    roomFurniture.forEach(function(f){
+      h += '<div style="display:flex;align-items:center;gap:7px;padding:8px 12px;'
+         + 'background:rgba(240,165,0,.07);border:1px solid rgba(240,165,0,.2);'
+         + 'border-radius:10px;font-size:.82rem;color:var(--warm)">'
+         + f.icon + ' ' + f.name + '</div>';
+    });
+    h += '</div>';
+  } else {
+    h += '<div style="font-size:.8rem;color:var(--txt-d);padding:8px 0">'
+       + '還沒有傢具。去材料庫收集材料，合成後城堡會有變化。</div>';
+  }
+
+  // 探索歷史
+  if(diary.length){
+    h += '<div style="margin:16px 0 8px;font-size:.72rem;letter-spacing:.08em;color:var(--txt-d)">探索記憶（最近' + diary.length + '次）</div>';
+    diary.forEach(function(d){
+      h += '<div style="padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.025);margin-bottom:6px">';
+      h += '<div style="font-size:.65rem;color:var(--txt-d);margin-bottom:3px">' + d.date + '</div>';
+      if(d.answer) h += '<div style="font-size:.8rem;color:var(--txt-l)">選了：' + d.answer.substring(0,30) + '</div>';
+      h += '</div>';
+    });
+  }
+
+  // 明天繼續按鈕
+  h += '<button onclick="document.getElementById(\'panel\').classList.remove(\'active\')" '
+     + 'style="display:block;width:100%;margin-top:18px;padding:13px;'
+     + 'background:rgba(29,53,87,.06);border:1.5px solid rgba(29,53,87,.1);'
+     + 'border-radius:14px;font-family:inherit;font-size:.88rem;color:var(--txt-l);cursor:pointer;'
+     + 'transition:all .2s">明天繼續探索 →</button>';
+
+  p.innerHTML = h;
+  p.classList.add('active');
+  p.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 function showLockedMsg(rid){
@@ -524,6 +867,10 @@ function finish(){
   var result = hlCastle.completeRoom(CUR_ROOM, question, answer, insight);
   var room = ROOMS.find(function(r){return r.id===CUR_ROOM});
   var roomName = room ? room.name : '';
+
+  // 材料掉落 + 追蹤
+  if(window.HL_dropMaterial) HL_dropMaterial('castle_riddle');
+  if(window.HL_track) HL_track('castle_complete', {roomId: CUR_ROOM, roomName: roomName});
 
   showCompleteToast(roomName, result.ptsEarned||2, result.isFirstEver);
   confetti();
@@ -724,6 +1071,72 @@ function doShare(){
   hlCastle.shareBonus();
   upd();
 }
+
+// ── 邀請系統 ──
+var _inviteLink = '';
+var _inviteInited = false;
+
+function updateInviteUI(){
+  if(_inviteInited) return;
+  _inviteInited = true;
+  try{
+    if(!window.firebase || !firebase.auth) return;
+    firebase.auth().onAuthStateChanged(function(user){
+      if(!user) return;
+      // 產生邀請連結
+      _inviteLink = window.hlInvite
+        ? hlInvite.generateLink(user.uid)
+        : 'https://hourlightkey.com/castle-game.html?invite=' + user.uid;
+      var input = document.getElementById('inviteLinkInput');
+      if(input) input.value = _inviteLink;
+
+      // 顯示獎勵狀態
+      if(window.hlInvite){
+        hlInvite.getRewardStatus(user.uid, function(status){
+          var el = document.getElementById('inviteRewardStatus');
+          if(!el) return;
+          if(!status || status.total_invited === 0){
+            el.textContent = '尚未有朋友完成探索，快去邀請！';
+          } else if(status.active){
+            el.innerHTML = '🌟 已邀請 <strong>' + status.total_invited + '</strong> 位朋友'
+              + '・大師體驗剩餘 <strong>' + status.remaining_hours + ' 小時</strong>';
+            el.style.color = 'var(--amber)';
+          } else {
+            el.textContent = '已邀請 ' + status.total_invited + ' 位朋友（獎勵已到期）';
+          }
+        });
+      }
+    });
+  }catch(e){}
+}
+
+function copyInviteLink(){
+  var link = _inviteLink || document.getElementById('inviteLinkInput').value;
+  if(!link || link.indexOf('登入') >= 0){
+    alert('請先登入會員，才能取得專屬邀請連結。');
+    return;
+  }
+  navigator.clipboard.writeText(link).then(function(){
+    var btn = document.getElementById('copyInviteBtn');
+    if(btn){ btn.textContent = '✅ 已複製'; setTimeout(function(){ btn.textContent = '複製'; }, 2000); }
+  }).catch(function(){
+    // fallback
+    var inp = document.getElementById('inviteLinkInput');
+    if(inp){ inp.select(); document.execCommand('copy'); }
+  });
+}
+
+function doShareInvite(){
+  var link = _inviteLink || 'https://hourlightkey.com/castle-game.html';
+  var text = '🏰 來馥靈之鑰的內在城堡探索自己！\n\n每天10分鐘走進自己的城堡，回答覺察謎語、蒐集材料、讓城堡越來越完整 ✨\n\n我邀請您一起來探索：\n' + link;
+  if(navigator.share){
+    navigator.share({title:'內在城堡探索者', text:text, url:link}).catch(function(){});
+  } else {
+    navigator.clipboard.writeText(text).then(function(){
+      alert('✅ 已複製邀請文案，貼到 LINE / IG 分享給朋友！');
+    });
+  }
+}
 </script>
 <script src="assets/js/hourlight-global.js?v=20260325"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -731,6 +1144,7 @@ function doShare(){
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
 <script src="assets/js/hl-referral.js?v=20260323"></script>
+<script src="assets/js/hl-invite.js?v=20260329"></script>
 <footer style="background:rgba(255,240,229,.5);border-top:1px solid rgba(29,53,87,.04);padding:36px 24px;text-align:center">
 <div style="margin-bottom:10px"><img src="LOGO-1.png" alt="" style="height:26px;opacity:.6" loading="lazy"></div>
 <div style="font-size:.8rem;color:var(--txt-l);margin-bottom:6px">馥靈之鑰 Hour Light｜讀懂自己，活對人生</div>

@@ -246,6 +246,7 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.90);z-ind
   </div>
   <div style="font-size:.68rem;color:rgba(233,194,125,.3);margin-top:8px;text-align:center;max-width:400px;margin-left:auto;margin-right:auto">🔒 系統自動將西曆轉為農曆計算馥靈秘碼，所有計算在您的裝置上完成</div>
 
+  <div id="handNextHint" style="display:none;text-align:center;margin-bottom:6px;font-size:.8rem;color:rgba(233,100,100,.8)">⬆️ 請先點選上方手部狀態或美甲意圖</div>
   <button class="nail-btn" onclick="goScene(3)" id="handNext" disabled>下一步</button>
 </div>
 
@@ -472,7 +473,7 @@ function toggleIntent(el){
 }
 
 function checkHandNext(){
-  document.getElementById('handNext').disabled=(selectedHandItems.length===0 && selectedIntents.length===0);
+  var _d=(selectedHandItems.length===0&&selectedIntents.length===0);document.getElementById('handNext').disabled=_d;var _h=document.getElementById('handNextHint');if(_h)_h.style.display=_d?'block':'none';
 }
 
 // ══════ Quiz ══════
@@ -711,6 +712,7 @@ async function _runReadingOriginal(){
     var text=data.reading||'指尖能量報告生成中遇到了一點狀況 💅 請直接加 LINE 找逸君聊 → lin.ee/p5tBihbe';
     document.getElementById('readingLoading').style.display='none';
     document.getElementById('readingBox').style.display='block';
+  if(window.HL_track) HL_track('draw_complete',{toolId:'draw-nail',toolName:'美甲抽牌'});
     document.getElementById('readingBox').textContent=text;
     document.getElementById('readingActions').style.display='flex';
   }catch(e){

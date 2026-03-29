@@ -182,6 +182,9 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:linear-gradie
 <div class="pet-toast" id="pet-toast"></div>
 
 <script src="assets/js/firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/hl-castle-key.js"></script>
 <script src="assets/js/hl-castle-material.js"></script>
 <script src="assets/js/hl-castle-pets.js"></script>
@@ -206,14 +209,90 @@ function init(){
   document.getElementById('today-date').textContent =
     (tw.getUTCMonth()+1) + '月' + tw.getUTCDate() + '日';
 
-  // 初始化（Demo用：假設用戶1990年生=屬馬）
-  var birthYear = 1990; // 實際從 Firebase user 資料取
-  if(window.hlPets) hlPets.initZodiac(birthYear);
+  // 從 Firebase 讀取 birthYear
+  _loadBirthYear(function(birthYear){
+    if(window.hlPets) hlPets.initZodiac(birthYear);
+    renderLight();
+    renderZodiac();
+    renderDragon(birthYear);
+    renderCats();
+  });
+}
 
-  renderLight();
-  renderZodiac();
-  renderDragon(birthYear);
-  renderCats();
+// 從 Firebase users/{uid}.birthYear 讀取，fallback 到 localStorage，再 fallback 到詢問
+function _loadBirthYear(callback){
+  // 先看 localStorage 有沒有 cache
+  var cached = localStorage.getItem('hl_birth_year');
+  if(cached && parseInt(cached) > 1900){
+    callback(parseInt(cached));
+    return;
+  }
+
+  // 嘗試從 Firebase 讀取
+  try{
+    if(!window.FIREBASE_CONFIG || !firebase || !firebase.apps){ throw new Error('no firebase'); }
+    if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    var auth = firebase.auth();
+    var db = firebase.firestore();
+    auth.onAuthStateChanged(function(user){
+      if(!user){
+        // 未登入：顯示提示，預設用 2000（龍年邊界外）
+        _showBirthYearPrompt(callback);
+        return;
+      }
+      db.doc('users/' + user.uid).get().then(function(doc){
+        var data = doc.data() || {};
+        var by = data.birthYear || data.birth_year || 0;
+        if(by > 1900){
+          localStorage.setItem('hl_birth_year', by);
+          callback(by);
+        } else {
+          // Firebase 有用戶但沒有 birthYear 欄位
+          _showBirthYearPrompt(callback);
+        }
+      }).catch(function(){
+        _showBirthYearPrompt(callback);
+      });
+    });
+  }catch(e){
+    _showBirthYearPrompt(callback);
+  }
+}
+
+// 詢問出生年份的 UI（輕量，嵌入頁面）
+function _showBirthYearPrompt(callback){
+  var el = document.getElementById('zodiac-section');
+  if(!el){ callback(1990); return; }
+  el.innerHTML =
+    '<div style="margin:0 16px 16px;background:rgba(255,255,255,.92);border-radius:16px;padding:20px 18px;border:1px solid rgba(233,160,96,.2)">'
+    + '<div style="font-size:.88rem;font-weight:700;color:var(--warm);margin-bottom:8px">🐾 告訴我你的出生年份</div>'
+    + '<div style="font-size:.78rem;color:var(--muted);margin-bottom:14px;line-height:1.6">元辰動物根據你的農曆生肖決定，需要你的出生年份。</div>'
+    + '<input id="byInput" type="number" min="1940" max="2020" placeholder="例如：1990"'
+    + ' style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid rgba(233,160,96,.3);'
+    + 'font-size:.95rem;font-family:inherit;background:rgba(255,255,255,.9);margin-bottom:10px;box-sizing:border-box">'
+    + '<button onclick="_confirmBirthYear()" '
+    + 'style="width:100%;padding:11px;border-radius:10px;background:var(--gold);color:#fff;'
+    + 'border:none;font-size:.88rem;font-family:inherit;font-weight:700;cursor:pointer">確認</button>'
+    + '</div>';
+  window._birthYearCallback = callback;
+}
+
+function _confirmBirthYear(){
+  var val = parseInt(document.getElementById('byInput').value);
+  if(!val || val < 1900 || val > 2025){
+    document.getElementById('byInput').style.borderColor = 'rgba(230,57,70,.5)';
+    return;
+  }
+  localStorage.setItem('hl_birth_year', val);
+  // 嘗試寫回 Firebase
+  try{
+    var auth = firebase.auth();
+    var db = firebase.firestore();
+    if(auth.currentUser){
+      db.doc('users/' + auth.currentUser.uid).set({birthYear: val}, {merge:true}).catch(function(){});
+    }
+  }catch(e){}
+  if(window._birthYearCallback) window._birthYearCallback(val);
 }
 
 function renderLight(){
@@ -301,7 +380,7 @@ function renderCats(){
   cats.forEach(function(cat){
     if(cat.unlocked){
       html += '<div class="cat-card" onclick="openCatModal(\'' + cat.id + '\')">' +
-        '<div class="cat-big-icon">🐱</div>' +
+        '<div class="cat-big-icon">' + cat.emoji + '</div>' +
         '<div class="cat-name">' + cat.name + '</div>' +
         '<div class="cat-color">' + cat.color + '</div>' +
         '<div class="cat-mood-bar"><div class="cat-mood-fill" style="width:' + cat.mood + '%"></div></div>' +
@@ -309,7 +388,7 @@ function renderCats(){
         '</div>';
     } else {
       html += '<div class="cat-card locked-cat">' +
-        '<div class="cat-big-icon" style="filter:grayscale(1)">🐱</div>' +
+        '<div class="cat-big-icon" style="filter:grayscale(1)">' + cat.emoji + '</div>' +
         '<div class="cat-name" style="color:var(--muted)">' + cat.color + '</div>' +
         '<div class="cat-color">未解鎖</div>' +
         '<div class="cat-lock-msg">' + cat.unlockCond + '</div>' +
@@ -326,7 +405,7 @@ function openCatModal(catId){
   if(!cat || !cat.unlocked) return;
   _currentCatId = catId;
 
-  document.getElementById('m-icon').textContent = '🐱';
+  document.getElementById('m-icon').textContent = cat.emoji || '🐱';
   document.getElementById('m-name').textContent = cat.name;
   document.getElementById('m-color').textContent = cat.color;
   document.getElementById('m-desc').textContent = cat.desc;

@@ -189,7 +189,7 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.90);z-ind
       <input type="date" id="solarBday" style="width:100%;padding:10px;background:rgba(255,255,255,.04);border:1px solid rgba(233,194,125,.15);border-radius:8px;color:var(--ink);font-size:.85rem;font-family:inherit">
     </div>
     <div>
-      <label style="font-size:.75rem;color:var(--gold);display:block;margin-bottom:4px">出生時辰（選填）</label>
+            <label style="font-size:.75rem;color:var(--gold);display:block;margin-bottom:4px">出生時辰（選填）</label>
       <select id="birthHour" style="width:100%;padding:10px;background:rgba(255,255,255,.04);border:1px solid rgba(233,194,125,.15);border-radius:8px;color:var(--ink);font-size:.85rem;font-family:inherit">
         <option value="">不確定</option>
         <option value="23">子時（23:00-01:00）</option>
@@ -205,11 +205,12 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.90);z-ind
         <option value="19">戌時（19:00-21:00）</option>
         <option value="21">亥時（21:00-23:00）</option>
       </select>
-    </div>
   </div>
+  </div><!-- /grid -->
   <div style="font-size:.68rem;color:rgba(233,194,125,.3);margin-top:8px;text-align:center;max-width:400px;margin-left:auto;margin-right:auto">🔒 系統自動將西曆轉為農曆計算馥靈秘碼，所有計算在您的裝置上完成</div>
 
-  <button class="spa-btn" data-no-gate onclick="goScene(3)" id="bodyNext" disabled>下一步</button>
+  <div id="bodyNextHint" style="display:none;text-align:center;margin-bottom:6px;font-size:.8rem;color:rgba(233,100,100,.8)">⬆️ 請先點選上方至少一個身體部位</div>
+  <button class="spa-btn" onclick="goScene(3)" id="bodyNext" disabled>下一步</button>
 </div>
 
 <!-- ═══ SCENE 3：SPA 問卷 ═══ -->
@@ -218,7 +219,7 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.90);z-ind
   <div class="quiz-q" id="quizQ"></div>
   <div class="quiz-opts" id="quizOpts"></div>
   <textarea class="quiz-free" id="quizFree" placeholder="想補充什麼都可以（選填）" rows="2"></textarea>
-  <button class="spa-btn" data-no-gate id="quizNext" onclick="nextQuiz()" disabled>下一題</button>
+  <button class="spa-btn" id="quizNext" onclick="nextQuiz()" disabled>下一題</button>
 </div>
 
 <!-- ═══ SCENE 4：選牌陣 ═══ -->
@@ -237,7 +238,7 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.90);z-ind
   <div class="spa-title" id="drawTitle">🔮 為您抽牌中</div>
   <div class="spa-sub" id="drawHint">牌卡正在回應您的身體訊號...</div>
   <div class="draw-slots" id="drawSlots"></div>
-  <button class="spa-btn" data-no-gate id="drawDone" onclick="goScene(6)" style="display:none">生成覺察處方箋 ✨</button>
+  <button class="spa-btn" id="drawDone" onclick="goScene(6)" style="display:none">生成覺察處方箋 ✨</button>
 </div>
 
 <!-- ═══ SCENE 6：AI 解讀 ═══ -->
@@ -395,35 +396,17 @@ function goScene(n){
       return;
     }
   }
-  var oldEl=document.getElementById('scene'+currentScene);
-  var nextEl=document.getElementById('scene'+(n));
-
-  // 先讓新 scene 準備好（display:block 但透明），消除全黑空窗
-  if(nextEl){
-    nextEl.style.display='block';
-    nextEl.style.opacity='0';
-  }
-
-  if(oldEl){
-    oldEl.classList.add('fade-out');
-    setTimeout(function(){
-      oldEl.classList.remove('active','fade-out');
-      oldEl.style.display='';
-    },380);
-  }
-
-  setTimeout(function(){
-    if(nextEl){
-      nextEl.style.display='';
-      nextEl.style.opacity='';
-      nextEl.classList.add('active');
-    }
+  var old=document.getElementById('scene'+currentScene);
+  if(old){old.classList.add('fade-out');setTimeout(()=>{old.classList.remove('active','fade-out')},400)}
+  setTimeout(()=>{
+    var next=document.getElementById('scene'+n);
+    if(next)next.classList.add('active');
     currentScene=n;
     if(n===1)startBreath();
     if(n===3)showQuiz();
     if(n===5)initDraw();
     if(n===6)runReading();
-  },420);
+  },450);
 }
 
 // ══════ Breathing ══════
@@ -441,7 +424,10 @@ function togglePart(el){
   selectedParts=[];
   document.querySelectorAll('.body-part.selected').forEach(p=>selectedParts.push(p.dataset.part));
   document.getElementById('bodyCount').textContent='已選 '+selectedParts.length+' 個部位';
-  document.getElementById('bodyNext').disabled=selectedParts.length===0;
+  var disabled=selectedParts.length===0;
+  document.getElementById('bodyNext').disabled=disabled;
+  var hint=document.getElementById('bodyNextHint');
+  if(hint)hint.style.display=disabled?'block':'none';
 }
 
 // ══════ Quiz ══════
@@ -659,6 +645,7 @@ async function _runReadingOriginal(){
     var text=data.reading||'處方箋生成中遇到了一點狀況 🌿 請直接加 LINE 找覺察師聊 → lin.ee/RdQBFAN';
     document.getElementById('readingLoading').style.display='none';
     document.getElementById('readingBox').style.display='block';
+  if(window.HL_track) HL_track('draw_complete',{toolId:'draw-spa',toolName:'SPA抽牌'});
     document.getElementById('readingBox').textContent=text;
     document.getElementById('readingActions').style.display='flex';
   }catch(e){
