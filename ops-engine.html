@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>馥靈之鑰｜AI 營運引擎</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0612;--surface:#12091f;--surface2:#1a0f2e;--surface3:#231540;
+  --gold:#f8dfa5;--gold-dim:#c4a86a;--gold-bright:#ffe4a8;
+  --text:#e8e0f0;--text-dim:#8a7ea0;--text-muted:#5a4e6e;
+  --green:#4ade80;--yellow:#fbbf24;--red:#f87171;--blue:#60a5fa;--purple:#a78bfa;
+  --border:rgba(248,223,165,0.08);
+}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* Header */
+.header{background:linear-gradient(180deg,var(--surface2),var(--bg));border-bottom:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px)}
+.h-left{display:flex;align-items:center;gap:14px}
+.h-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--gold),var(--gold-dim));display:flex;align-items:center;justify-content:center;font-size:18px}
+.h-title{font-family:'Noto Serif TC',serif;font-size:18px;font-weight:700;color:var(--gold)}
+.h-sub{font-size:11px;color:var(--text-dim)}
+.h-right{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--text-dim)}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(74,222,128,.4)}50%{opacity:.8;box-shadow:0 0 0 5px rgba(74,222,128,0)}}
+
+/* Layout */
+.layout{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 64px)}
+
+/* Sidebar */
+.sidebar{background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;max-height:calc(100vh - 64px);position:sticky;top:64px}
+.sb-label{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text-muted);padding:14px 16px 6px}
+.sb-item{display:flex;align-items:center;gap:8px;padding:9px 16px;cursor:pointer;border-radius:7px;margin:1px 6px;transition:all .15s;font-size:12px}
+.sb-item:hover{background:var(--surface2)}
+.sb-item.active{background:var(--surface3);border:1px solid var(--border)}
+.sb-code{font-size:10px;font-weight:700;color:var(--gold-dim);width:30px;flex-shrink:0}
+.sb-name{color:var(--text);flex:1}
+.sb-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.st-active{background:var(--green)}.st-building{background:var(--yellow)}.st-planned{background:var(--text-muted)}
+
+/* Content */
+.content{padding:24px 32px;overflow-y:auto;max-height:calc(100vh - 64px)}
+
+/* Input Area */
+.input-zone{background:linear-gradient(135deg,var(--surface2),var(--surface));border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:28px;position:relative;overflow:hidden}
+.input-zone::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent)}
+.input-label{font-family:'Noto Serif TC',serif;font-size:16px;color:var(--gold);margin-bottom:4px}
+.input-sublabel{font-size:11px;color:var(--text-dim);margin-bottom:16px}
+.input-row{display:flex;gap:12px}
+.idea-input{flex:1;background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:14px 18px;color:var(--text);font-family:'Noto Sans TC',sans-serif;font-size:14px;resize:none;outline:none;min-height:56px;transition:border-color .2s}
+.idea-input:focus{border-color:var(--gold-dim)}
+.idea-input::placeholder{color:var(--text-muted)}
+.run-btn{background:linear-gradient(135deg,var(--gold),var(--gold-dim));color:var(--bg);border:none;border-radius:10px;padding:14px 28px;font-family:'Noto Sans TC',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;align-self:flex-end}
+.run-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(248,223,165,.2)}
+.run-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.philosophy{display:flex;gap:16px;margin-top:14px;font-size:11px;color:var(--text-dim)}
+.phil-tag{padding:4px 12px;border-radius:20px;border:1px solid var(--border)}
+
+/* Progress */
+.progress-bar{height:3px;background:var(--surface3);border-radius:2px;margin-top:16px;overflow:hidden;display:none}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-bright));width:0%;transition:width .4s;border-radius:2px}
+
+/* Department Flow */
+.flow-container{display:none}
+.flow-header{font-family:'Noto Serif TC',serif;font-size:18px;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.flow-header span{font-size:12px;color:var(--text-dim);font-family:'Noto Sans TC',sans-serif}
+
+.dept-flow-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden;transition:all .3s}
+.dept-flow-card.processing{border-color:var(--gold-dim);box-shadow:0 0 20px rgba(248,223,165,.05)}
+.dept-flow-card.complete{border-color:rgba(74,222,128,.2)}
+.dept-flow-card.skipped{opacity:.4}
+
+.dfc-header{display:flex;align-items:center;gap:10px;padding:14px 18px;cursor:pointer;transition:background .2s}
+.dfc-header:hover{background:var(--surface2)}
+.dfc-badge{font-size:10px;font-weight:700;color:var(--bg);background:var(--gold-dim);padding:3px 8px;border-radius:6px;min-width:32px;text-align:center}
+.dfc-name{font-size:13px;font-weight:500;color:var(--text);flex:1}
+.dfc-status{font-size:10px;padding:3px 10px;border-radius:12px}
+.dfc-waiting{background:rgba(90,78,110,.2);color:var(--text-muted)}
+.dfc-running{background:rgba(248,223,165,.1);color:var(--gold);animation:blink 1.5s infinite}
+.dfc-done{background:rgba(74,222,128,.12);color:var(--green)}
+.dfc-skip{background:rgba(90,78,110,.15);color:var(--text-muted)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
+
+.dfc-body{display:none;padding:0 18px 16px;border-top:1px solid var(--border)}
+.dfc-body.open{display:block}
+
+.dfc-output{margin-top:12px;font-size:13px;line-height:1.8;color:var(--text)}
+.dfc-output .wolf{color:var(--red);font-weight:500}
+.dfc-output .heart{color:var(--purple);font-weight:500}
+.dfc-output .action{color:var(--green);font-weight:500}
+.dfc-output .insight{color:var(--gold);font-weight:500}
+.dfc-output p{margin-bottom:8px}
+
+/* Summary */
+.summary-card{background:linear-gradient(135deg,var(--surface2),var(--surface));border:2px solid var(--gold-dim);border-radius:16px;padding:28px;margin-top:24px;display:none}
+.summary-title{font-family:'Noto Serif TC',serif;font-size:18px;color:var(--gold);margin-bottom:6px}
+.summary-sub{font-size:11px;color:var(--text-dim);margin-bottom:18px}
+.summary-content{font-size:13px;line-height:1.9;color:var(--text)}
+.summary-content h4{font-family:'Noto Serif TC',serif;color:var(--gold);font-size:14px;margin:16px 0 8px}
+.summary-actions{margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}
+.summary-actions h4{font-family:'Noto Serif TC',serif;color:var(--green);font-size:14px;margin-bottom:10px}
+.action-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;font-size:13px}
+.action-num{background:var(--gold-dim);color:var(--bg);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:2px}
+.action-text{color:var(--text);line-height:1.6}
+
+/* Stats Grid */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.sc-gold::before{background:linear-gradient(90deg,var(--gold),transparent)}
+.sc-green::before{background:linear-gradient(90deg,var(--green),transparent)}
+.sc-yellow::before{background:linear-gradient(90deg,var(--yellow),transparent)}
+.sc-blue::before{background:linear-gradient(90deg,var(--blue),transparent)}
+.stat-label{font-size:11px;color:var(--text-dim);margin-bottom:6px}
+.stat-value{font-family:'Noto Serif TC',serif;font-size:28px;font-weight:700;color:var(--gold)}
+.stat-sub{font-size:10px;color:var(--text-muted);margin-top:3px}
+
+/* History */
+.history-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:8px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px}
+.history-item:hover{border-color:var(--gold-dim)}
+.hi-time{font-size:10px;color:var(--text-muted);width:60px;flex-shrink:0}
+.hi-text{font-size:13px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hi-depts{font-size:10px;color:var(--gold-dim)}
+
+@media(max-width:1024px){.layout{grid-template-columns:1fr}.sidebar{display:none}.stats-grid{grid-template-columns:repeat(2,1fr)}.content{padding:16px}}
+@media(max-width:600px){.stats-grid{grid-template-columns:1fr}.input-row{flex-direction:column}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="h-left">
+    <div class="h-icon">🔑</div>
+    <div><div class="h-title">馥靈之鑰 AI 營運引擎</div><div class="h-sub">15 Department Operations Engine v2.0</div></div>
+  </div>
+  <div class="h-right"><div class="live-dot"></div><span id="clock"></span></div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sb-label">主控台</div>
+    <div class="sb-item active" onclick="showMain(this)"><span class="sb-code">⚡</span><span class="sb-name">投入想法</span></div>
+    <div class="sb-item" onclick="showDashboard(this)"><span class="sb-code">📊</span><span class="sb-name">部門總覽</span></div>
+    <div class="sb-item" onclick="showHistory(this)"><span class="sb-code">📜</span><span class="sb-name">歷史紀錄</span></div>
+    <div class="sb-label">15 部門</div>
+    <div id="sidebarDepts"></div>
+  </div>
+
+  <div class="content" id="content"></div>
+</div>
+
+<script>
+// ===== DATA =====
+const D = [
+  {c:"D01",n:"總指揮部",en:"Command",s:"active",
+   perspective:"wolf",
+   think:(idea)=>`從狼群首領的角度看「${idea}」：這個想法的攻擊面在哪裡？最大的獵物是什麼？我們要用什麼陣型包圍？不要分散兵力，集中火力打穿一個點。`},
+  {c:"D02",n:"品牌守護部",en:"Brand Guard",s:"active",
+   perspective:"guardian",
+   think:(idea)=>`品牌合規檢查「${idea}」：語感是否像逸君說的話？有沒有踩到禁忌詞（療癒/頻率/調頻/靈魂/治癒）？三層語境用對了嗎？視覺要維持黑金調性，不要AI感。`},
+  {c:"D03",n:"內容創作部",en:"Content",s:"active",
+   perspective:"creator",
+   think:(idea)=>`內容策略角度看「${idea}」：這個想法可以拆成什麼內容？自剖型、判讀型、翻譯型、還是作弊系統型？七個平台各要怎麼切？Threads 100字怎麼寫才讓人想截圖？`},
+  {c:"D04",n:"影音製作部",en:"Video",s:"building",
+   perspective:"director",
+   think:(idea)=>`影音角度看「${idea}」：能不能拍成不露臉的Reels？用什麼素材（精油瓶/翻牌/手寫）？字幕怎麼寫才有節奏感？前3秒的鉤子是什麼？`},
+  {c:"D05",n:"視覺設計部",en:"Design",s:"building",
+   perspective:"visual",
+   think:(idea)=>`視覺角度看「${idea}」：需要什麼圖？實拍質感圖、文字排版圖、還是數據圖卡？黑底(#06040e)金字(#f8dfa5)，Noto Serif TC，不要任何AI感的視覺。`},
+  {c:"D06",n:"技術工程部",en:"Engineering",s:"active",
+   perspective:"engineer",
+   think:(idea)=>`技術面看「${idea}」：需要改官網嗎？需要新的API嗎？Firebase要加什麼？跟現有的PAYUNi金流、hl-referral推薦碼系統有沒有衝突？部署流程怎麼走？`},
+  {c:"D07",n:"數據分析部",en:"Analytics",s:"building",
+   perspective:"analyst",
+   think:(idea)=>`數據面看「${idea}」：怎麼量化成效？要追蹤什麼指標？目前954會員、3付費、0%轉化率，這個想法能改善哪個環節？A/B測試怎麼設計？`},
+  {c:"D08",n:"商業開發部",en:"Business Dev",s:"building",
+   perspective:"wolf",
+   think:(idea)=>`商業面看「${idea}」：能變現嗎？成本多少？回本期多長？跟現有的399/999訂閱、39,800美業方案怎麼銜接？客戶旅程的哪一步可以優化？`},
+  {c:"D09",n:"課程培訓部",en:"Education",s:"planned",
+   perspective:"teacher",
+   think:(idea)=>`培訓面看「${idea}」：可以變成課程嗎？8小時基礎培訓能加進去嗎？覺察師學了之後用得上嗎？蘋蘋和朵朵可以怎麼配合？`},
+  {c:"D10",n:"產品研發部",en:"R&D",s:"planned",
+   perspective:"creator",
+   think:(idea)=>`系統面看「${idea}」：跟130張牌卡系統怎麼連結？馥靈秘碼能延伸嗎？AI解讀框架需要調整嗎？這能沉澱成什麼長期數位資產？`},
+  {c:"D11",n:"合作夥伴部",en:"Partnerships",s:"planned",
+   perspective:"connector",
+   think:(idea)=>`夥伴面看「${idea}」：玉萍老師的東南亞市場能用嗎？覺察夥伴可以怎麼參與？分潤機制要調整嗎？這會不會踩到多層次傳銷法規的紅線？`},
+  {c:"D12",n:"客戶服務部",en:"Service",s:"planned",
+   perspective:"heart",
+   think:(idea)=>`從使用者的角度看「${idea}」：一個完全不懂命理的普通人，看到這個會有什麼感覺？會覺得被服務到嗎？會覺得安全嗎？紅線情境有沒有考慮到？`},
+  {c:"D13",n:"法務合規部",en:"Legal",s:"planned",
+   perspective:"guardian",
+   think:(idea)=>`法務面看「${idea}」：有沒有法律風險？醫療宣稱、個資保護、消費者保護法、多層次傳銷法規，哪些要注意？商標權和著作權有沒有問題？`},
+  {c:"D14",n:"財務管理部",en:"Finance",s:"planned",
+   perspective:"analyst",
+   think:(idea)=>`財務面看「${idea}」：資本額150萬，這個想法要花多少？現金流撐得住嗎？鳳凰貸款100萬批下來之前，有沒有更省錢的做法？ROI怎麼算？`},
+  {c:"D15",n:"專案管理部",en:"PMO",s:"active",
+   perspective:"manager",
+   think:(idea)=>`專案面看「${idea}」：拆成幾個步驟？誰先做誰後做？30天內做得完嗎？跟現在手上最急的PAYUNi上線、megapatch部署會不會衝突？`},
+  {c:"D16",n:"資源開發部",en:"Resource Dev",s:"active",
+   perspective:"hunter",
+   think:(idea)=>`資源面看「${idea}」：有沒有政府補助可以用？經濟部SBIR、文化部、社會創新平台、勞動部微型創業鳳凰？有沒有異業合作機會？能不能上嘖嘖群募？先找別人的錢來做，不要只花自己的。`},
+  {c:"D17",n:"馥靈決策部",en:"Oracle Decision",s:"active",
+   perspective:"oracle",
+   think:(idea)=>`牌卡面看「${idea}」：讓馥靈之鑰自己的系統來說話。這個方向適合抽幾張牌？1張快速方向確認、3張情勢分析、還是7張全觀？牌卡提供的不是答案，是另一個角度和看不見的盲點。當商業分析和牌卡方向一致，就更有信心推進。`},
+  {c:"D18",n:"風險管理部",en:"Risk Management",s:"active",
+   perspective:"guardian",
+   think:(idea)=>`風險面看「${idea}」：六大風險掃描。法律風險（醫療宣稱？個資？）、品牌聲譽（會不會被貼標籤？）、合作方風險（夥伴行為可控嗎？）、技術風險（系統撐得住嗎？）、財務風險（現金流安全嗎？）、輿論風險（最壞情況是什麼？可逆嗎？）`}
+];
+
+const toolMap = {
+  D01:"Claude菁英團隊",D02:"Claude Brand SKILL",D03:"Gemini v4.0 / Claude",
+  D04:"剪映/CapCut",D05:"Canva MCP",D06:"Claude Web SKILL / Vercel / Firebase",
+  D07:"GA4 / Firebase Analytics",D08:"Claude / MailerLite MCP",D09:"Claude / Notion MCP",
+  D10:"Claude Reading SKILL",D11:"Notion MCP / LINE",D12:"LINE / Firebase",
+  D13:"Claude",D14:"Google Sheets",D15:"Notion MCP / Google Calendar MCP",
+  D16:"Web Search / 政府補助平台",D17:"Claude Reading SKILL / 主系統v91",D18:"Claude / Web Search"
+};
+
+let history = [];
+let currentRun = null;
+
+// ===== SIDEBAR =====
+function renderSidebar(){
+  document.getElementById('sidebarDepts').innerHTML = D.map(d=>`
+    <div class="sb-item" onclick="showDeptDetail('${d.c}',this)">
+      <span class="sb-code">${d.c}</span><span class="sb-name">${d.n}</span>
+      <span class="sb-dot st-${d.s}"></span>
+    </div>`).join('');
+}
+
+function setActive(el){
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  if(el)el.classList.add('active');
+}
+
+// ===== MAIN VIEW =====
+function showMain(el){
+  setActive(el);
+  document.getElementById('content').innerHTML = `
+    <div class="input-zone">
+      <div class="input-label">投入你的想法</div>
+      <div class="input-sublabel">丟進來，15個部門自動跑。狼性攻、心經守、利他為本、獲利為果。</div>
+      <div class="input-row">
+        <textarea class="idea-input" id="ideaInput" placeholder="例如：我想做一個「馥靈之鑰30天覺察挑戰」的社群活動，讓人每天抽一張牌⋯" rows="3"></textarea>
+        <button class="run-btn" id="runBtn" onclick="runEngine()">啟動引擎 ⚡</button>
+      </div>
+      <div class="philosophy">
+        <span class="phil-tag">🐺 狼性思維：集中火力、快速試錯、不分散兵力</span>
+        <span class="phil-tag">📿 心經智慧：不執著、留白、實驗心態</span>
+        <span class="phil-tag">🤝 利他獲利：先讓人有價值，錢自然來</span>
+      </div>
+      <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+    <div class="flow-container" id="flowContainer">
+      <div class="flow-header">部門運作流程 <span id="flowStatus"></span></div>
+      <div id="flowCards"></div>
+    </div>
+    <div class="summary-card" id="summaryCard"></div>
+  `;
+}
+
+// ===== ENGINE =====
+async function runEngine(){
+  const input = document.getElementById('ideaInput');
+  const idea = input.value.trim();
+  if(!idea) return;
+
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.textContent = '運轉中⋯';
+
+  const progress = document.getElementById('progressBar');
+  const fill = document.getElementById('progressFill');
+  const flow = document.getElementById('flowContainer');
+  const cards = document.getElementById('flowCards');
+  const status = document.getElementById('flowStatus');
+
+  progress.style.display = 'block';
+  flow.style.display = 'block';
+  fill.style.width = '0%';
+
+  // Determine which departments are relevant
+  const relevant = analyzeRelevance(idea);
+
+  // Render flow cards
+  cards.innerHTML = D.map(d => {
+    const isRelevant = relevant.includes(d.c);
+    return `
+      <div class="dept-flow-card ${isRelevant?'':'skipped'}" id="card-${d.c}">
+        <div class="dfc-header" onclick="toggleCard('${d.c}')">
+          <span class="dfc-badge">${d.c}</span>
+          <span class="dfc-name">${d.n}</span>
+          <span class="dfc-status ${isRelevant?'dfc-waiting':'dfc-skip'}" id="status-${d.c}">${isRelevant?'等待中':'略過'}</span>
+        </div>
+        <div class="dfc-body" id="body-${d.c}">
+          <div style="font-size:11px;color:var(--text-muted);margin-top:10px">對應工具：${toolMap[d.c]}</div>
+          <div class="dfc-output" id="output-${d.c}"></div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Run each relevant department
+  const total = relevant.length;
+  for(let i = 0; i < total; i++){
+    const code = relevant[i];
+    const dept = D.find(x=>x.c===code);
+    
+    // Update status
+    const statusEl = document.getElementById(`status-${code}`);
+    const cardEl = document.getElementById(`card-${code}`);
+    const outputEl = document.getElementById(`output-${code}`);
+    const bodyEl = document.getElementById(`body-${code}`);
+    
+    statusEl.className = 'dfc-status dfc-running';
+    statusEl.textContent = '分析中⋯';
+    cardEl.classList.add('processing');
+    bodyEl.classList.add('open');
+    status.textContent = `${i+1}/${total} 個部門運轉中`;
+    fill.style.width = `${((i+0.5)/total)*100}%`;
+
+    // Generate department output
+    await sleep(600 + Math.random()*800);
+    const output = generateDeptOutput(dept, idea, relevant);
+    outputEl.innerHTML = output;
+
+    // Mark complete
+    statusEl.className = 'dfc-status dfc-done';
+    statusEl.textContent = '完成';
+    cardEl.classList.remove('processing');
+    cardEl.classList.add('complete');
+    fill.style.width = `${((i+1)/total)*100}%`;
+  }
+
+  // Generate summary
+  status.textContent = `${total}/${total} 完成，產出總結中⋯`;
+  await sleep(800);
+  generateSummary(idea, relevant);
+
+  status.textContent = `全部完成`;
+  btn.disabled = false;
+  btn.textContent = '啟動引擎 ⚡';
+
+  // Save to history
+  history.unshift({
+    time: new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}),
+    idea: idea,
+    depts: relevant.join('/')
+  });
+}
+
+function analyzeRelevance(idea){
+  const keywords = {
+    D01:['決策','方向','策略','重大','菁英','會議','拿不定'],
+    D02:['品牌','語感','禁忌','合規','風格','視覺'],
+    D03:['內容','文案','社群','Threads','IG','FB','Podcast','小紅書','發文','貼文'],
+    D04:['影片','Reels','YouTube','拍','剪輯','音頻','Podcast'],
+    D05:['設計','圖','海報','配圖','排版','Canva','視覺'],
+    D06:['官網','網站','API','Firebase','PAYUNi','金流','程式','部署','頁面'],
+    D07:['數據','分析','流量','轉化','GA4','報告'],
+    D08:['商業','定價','合作','行銷','漏斗','變現','營收','客戶'],
+    D09:['課程','培訓','教材','學員','認證','覺察師'],
+    D10:['牌卡','秘碼','AI解讀','系統','模組','研發'],
+    D11:['夥伴','合作','分潤','玉萍','展會','馬來西亞','策引師'],
+    D12:['客服','會員','客人','服務','回饋'],
+    D13:['法律','合規','商標','個資','合約'],
+    D14:['財務','預算','成本','貸款','現金流','花多少'],
+    D15:['專案','進度','排程','計畫','本週','優先'],
+    D16:['補助','貸款','群募','找錢','資源','資金','嘖嘖','SBIR','經費','異業','贊助'],
+    D17:['抽牌','問牌','牌卡','方向','馥靈決策','這樣做對不對','牌怎麼說','問馥靈'],
+    D18:['風險','輿論','聲譽','會不會出事','問題','危機','被告','負評','安全']
+  };
+
+  let scores = {};
+  D.forEach(d => {
+    let score = 0;
+    (keywords[d.c]||[]).forEach(kw => {
+      if(idea.includes(kw)) score += 3;
+    });
+    // Always include: D01 (strategy), D02 (brand check), D08 (monetization), D14 (cost), D15 (plan), D17 (oracle), D18 (risk)
+    if(['D01','D02','D08','D14','D15','D17','D18'].includes(d.c)) score += 1;
+    scores[d.c] = score;
+  });
+
+  // Get all with score > 0, sorted by score desc
+  let result = Object.entries(scores)
+    .filter(([k,v])=>v>0)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([k])=>k);
+
+  // Ensure minimum 7 departments (always run core + oracle + risk)
+  if(result.length < 7){
+    const mustHave = ['D01','D02','D08','D14','D15','D17','D18'];
+    mustHave.forEach(c=>{if(!result.includes(c))result.push(c)});
+  }
+
+  // Sort by department number
+  result.sort((a,b)=>parseInt(a.slice(1))-parseInt(b.slice(1)));
+  return result;
+}
+
+function generateDeptOutput(dept, idea, relevant){
+  const c = dept.c;
+  const baseThink = dept.think(idea);
+  
+  const wolfLines = [
+    "不要等到完美才出手。先打一個最小版本試水溫，有數據再放大。",
+    "集中火力。現在最大的獵物是「把0%轉化率提升到5%」，所有動作都要指向這個目標。",
+    "速度就是優勢。先做了再說，完美是迭代出來的，不是規劃出來的。",
+    "狼群不會分散獵食。選一個打法，All in，不要同時開五個戰場。",
+    "先搶灘頭堡。做出一個讓人驚嘆的案例，比做十個普通的有效。",
+    "別怕搶市場。怕的應該是市場根本不知道你存在。"
+  ];
+  
+  const heartLines = [
+    "問自己：這個動作是在「抓」還是在「給」？抓得越緊，漏得越多。",
+    "留白也是設計。不是每個位置都要填滿，安靜的力量比嘈雜更持久。",
+    "不執著結果。把該做的做好，剩下的交給時間。種子種下了，不用每天挖出來看。",
+    "色即是空。看起來很重要的焦慮，放下來看，可能只是自我故事在作祟。",
+    "利他就是最好的行銷。真心幫到一個人，她會帶十個人來。",
+    "照見五蘊皆空。你覺得很急的事，拉到十年來看，可能根本不重要。"
+  ];
+
+  const wolf = wolfLines[Math.floor(Math.random()*wolfLines.length)];
+  const heart = heartLines[Math.floor(Math.random()*heartLines.length)];
+
+  let specific = '';
+  switch(c){
+    case 'D01': specific = `<p><span class="insight">策略判斷：</span>這個想法跟品牌聖經 v7.1 的年度主題「8號年收割」是否對齊？如果對齊就推進，如果不對齊就先放著。資源有限，選擇比努力重要。</p>`; break;
+    case 'D02': specific = `<p><span class="insight">品牌檢查：</span>注意三層語境的切換。如果是對自己人的活動可以直接說占卜；如果要對外推廣，要穿「情緒覺察系統」的外套。所有文案產出前過一次禁忌詞掃描。</p>`; break;
+    case 'D03': specific = `<p><span class="insight">內容拆解：</span>這個想法至少可以拆成：1. 自剖型（逸君自己參與的心路歷程）2. 判讀型（展示看人的方式）3. 翻譯型（把複雜概念白話化）。先存7篇草稿再開始發。</p>`; break;
+    case 'D04': specific = `<p><span class="insight">影音策略：</span>不露臉。用精油瓶、翻牌、手寫筆記的特寫畫面，加字幕。前3秒要有「讓人停下來滑」的鉤子。背景音樂選安靜有質感的。</p>`; break;
+    case 'D05': specific = `<p><span class="insight">視覺方向：</span>黑底(#06040e) + 金字(#f8dfa5)，Noto Serif TC。三種圖輪流用：實拍質感圖（手機就能拍）、文字排版圖（Canva做）、數據圖卡。不用AI生圖。</p>`; break;
+    case 'D06': specific = `<p><span class="insight">技術評估：</span>需要新頁面還是改現有頁面？Firebase要加新的collection嗎？跟megapatch-v3和PAYUNi上線的優先順序怎麼排？不要讓這個想法卡住最急的金流上線。</p>`; break;
+    case 'D07': specific = `<p><span class="insight">數據追蹤：</span>上線前先定義成功指標。參與人數？完成率？轉化到付費的比例？設定GA4事件追蹤，不要做完才想到要看數據。</p>`; break;
+    case 'D08': specific = `<p><span class="insight">變現路徑：</span>免費→體驗→訂閱→高端。這個想法放在漏斗的哪一層？不要一步到位，讓人先「用一次」，用過之後她自己會想知道更多。劑量哲學：少量、精準、慢慢來。</p>`; break;
+    case 'D09': specific = `<p><span class="insight">培訓價值：</span>這個經驗能變成覺察師培訓的教材嗎？如果做得好，SOP化之後可以複製給所有覺察夥伴，變成長期可複製的數位資產。</p>`; break;
+    case 'D10': specific = `<p><span class="insight">系統沉澱：</span>做完之後，這個東西能沉澱成什麼？新的牌卡維度？新的秘碼解讀角度？新的AI解讀框架？每一個產出都問：這可以變成什麼長期資產？</p>`; break;
+    case 'D11': specific = `<p><span class="insight">夥伴擴展：</span>覺察夥伴可以一起做嗎？玉萍老師的東南亞市場能複製嗎？如果可以讓夥伴參與，他們的分潤怎麼算？注意不要超過兩層分潤結構。</p>`; break;
+    case 'D12': specific = `<p><span class="insight">使用者聲音：</span>一個完全不懂命理的50歲美業姐姐，看到這個會怎麼反應？把自己放到她的位置想。如果她會猶豫，門檻就太高了。碩論金句：96.7%的人要的是被懂。</p>`; break;
+    case 'D13': specific = `<p><span class="insight">法律風險：</span>有沒有醫療宣稱的風險？個資蒐集有沒有合規？消費者保護法的退費規定符合嗎？如果涉及抽獎或贈品，要注意公平交易法。</p>`; break;
+    case 'D14': specific = `<p><span class="insight">財務分析：</span>這個想法要花多少錢？API成本、人力時間成本、行銷成本，加起來多少？現金流撐得住嗎？有沒有零成本或低成本的替代方案先試試？</p>`; break;
+    case 'D15': specific = `<p><span class="insight">30天行動計畫：</span>把這個想法拆成3個可執行的步驟。第一步是什麼？本週就能做嗎？跟手上其他任務的優先順序怎麼排？不要讓新想法擠掉最急的事。</p>`; break;
+  }
+
+  return `
+    <p>${baseThink}</p>
+    <p><span class="wolf">🐺 狼性：</span>${wolf}</p>
+    <p><span class="heart">📿 心經：</span>${heart}</p>
+    ${specific}
+  `;
+}
+
+function generateSummary(idea, relevant){
+  const card = document.getElementById('summaryCard');
+  card.style.display = 'block';
+  card.innerHTML = `
+    <div class="summary-title">會議結論｜人話版</div>
+    <div class="summary-sub">${relevant.length} 個部門完成分析</div>
+    <div class="summary-content">
+      <p>「${idea}」這個想法，${relevant.length}個部門跑完之後，核心判斷是：</p>
+      <p><span class="wolf">🐺 狼性面：</span>值得做，但要集中火力。不要同時開太多戰場，先做最小可行版本，拿到第一批數據再決定要不要放大。</p>
+      <p><span class="heart">📿 心經面：</span>問自己一個問題：做這件事的時候，是在「抓」還是在「給」？如果是真心想幫到人，做法自然會對。如果是焦慮驅動的「我應該做點什麼」，先停下來呼吸。</p>
+      <p><span class="insight">🤝 利他獲利：</span>先讓使用者感受到價值（免費體驗），再讓她自己決定要不要付費。逼不來的，只能吸過來。就像白千層的氣味，穿透力極強，但你不需要湊到別人鼻子前面。</p>
+      
+      <h4>執著掃描</h4>
+      <p>檢查一下：這個想法有沒有哪裡「抓太緊」？是不是想一步到位？是不是想讓所有人都喜歡？放下完美主義，先做60分的版本上線，剩下40分讓使用者告訴你怎麼改。</p>
+    </div>
+    <div class="summary-actions">
+      <h4>30天行動（現在就做得到的）</h4>
+      <div class="action-item"><div class="action-num">1</div><div class="action-text">本週：做出最小可行版本。不用完美，能跑就好。先讓10個人試用，收集回饋。</div></div>
+      <div class="action-item"><div class="action-num">2</div><div class="action-text">第二週：根據回饋調整。把試用者說「這個好」的部分放大，把「這裡卡住」的部分修掉。</div></div>
+      <div class="action-item"><div class="action-num">3</div><div class="action-text">第三到四週：如果數據正向，正式推出。如果數據不好，不要硬推，轉向或暫停都是好決策。</div></div>
+    </div>
+    <p style="margin-top:20px;font-family:'Noto Serif TC',serif;font-size:13px;color:var(--gold);text-align:center;">
+      看清了，不自責，仍然敢往前。
+    </p>
+  `;
+  card.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ===== DASHBOARD =====
+function showDashboard(el){
+  setActive(el);
+  const active=D.filter(d=>d.s==='active').length;
+  const building=D.filter(d=>d.s==='building').length;
+  const planned=D.filter(d=>d.s==='planned').length;
+  const roles=D.reduce((s,d)=>s+2,0); // approx
+
+  document.getElementById('content').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card sc-gold"><div class="stat-label">部門總數</div><div class="stat-value">15</div><div class="stat-sub">${active}啟用 / ${building}建置 / ${planned}規劃</div></div>
+      <div class="stat-card sc-green"><div class="stat-label">AI角色數</div><div class="stat-value">26</div><div class="stat-sub">橫跨15部門</div></div>
+      <div class="stat-card sc-blue"><div class="stat-label">外部工具</div><div class="stat-value">17/18</div><div class="stat-sub">PAYUNi審核中</div></div>
+      <div class="stat-card sc-yellow"><div class="stat-label">經營理念</div><div class="stat-value" style="font-size:18px">狼性佛心</div><div class="stat-sub">利他為本 獲利為果</div></div>
+    </div>
+    <div class="flow-header">全部門狀態</div>
+    ${D.map(d=>{
+      const label=d.s==='active'?'已啟用':d.s==='building'?'建置中':'規劃中';
+      const cls=d.s==='active'?'dfc-done':d.s==='building'?'dfc-running':'dfc-skip';
+      return `<div class="history-item" onclick="showDeptDetail('${d.c}')">
+        <span class="sb-code" style="font-weight:700">${d.c}</span>
+        <span class="hi-text" style="font-weight:500">${d.n}</span>
+        <span style="font-size:11px;color:var(--text-dim)">${d.en}</span>
+        <span class="dfc-status ${cls}" style="margin-left:auto">${label}</span>
+      </div>`;
+    }).join('')}
+  `;
+}
+
+// ===== DEPT DETAIL =====
+function showDeptDetail(code, el){
+  if(el)setActive(el);
+  const d=D.find(x=>x.c===code);
+  if(!d)return;
+  const label=d.s==='active'?'已啟用':d.s==='building'?'建置中':'規劃中';
+  const cls=d.s==='active'?'dfc-done':d.s==='building'?'dfc-running':'dfc-skip';
+  
+  document.getElementById('content').innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+      <span class="dfc-badge" style="font-size:14px;padding:6px 14px">${d.c}</span>
+      <div><div style="font-family:'Noto Serif TC',serif;font-size:20px;font-weight:700">${d.n}</div>
+      <div style="font-size:11px;color:var(--text-dim)">${d.en}</div></div>
+      <span class="dfc-status ${cls}" style="margin-left:auto">${label}</span>
+    </div>
+    <p style="font-size:13px;color:var(--text-dim);margin-bottom:20px;line-height:1.8">${d.think('（待輸入想法）')}</p>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px">
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">對應工具</div>
+      <div style="font-size:13px;color:var(--purple)">${toolMap[d.c]}</div>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:20px;text-align:center">
+      回到「投入想法」頁面，輸入具體想法後即可看到此部門的完整分析。
+    </p>
+  `;
+}
+
+// ===== HISTORY =====
+function showHistory(el){
+  setActive(el);
+  document.getElementById('content').innerHTML = `
+    <div class="flow-header">歷史紀錄</div>
+    ${history.length === 0 ? '<p style="font-size:13px;color:var(--text-muted);text-align:center;margin-top:40px">還沒有紀錄。去「投入想法」開始第一次運轉吧。</p>' :
+    history.map(h=>`
+      <div class="history-item">
+        <span class="hi-time">${h.time}</span>
+        <span class="hi-text">${h.idea}</span>
+        <span class="hi-depts">${h.depts}</span>
+      </div>`).join('')}
+  `;
+}
+
+// ===== UTILS =====
+function toggleCard(code){
+  const body = document.getElementById(`body-${code}`);
+  if(body) body.classList.toggle('open');
+}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+
+function updateClock(){
+  const now=new Date();
+  document.getElementById('clock').textContent=now.toLocaleString('zh-TW',{timeZone:'Asia/Taipei',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+}
+
+// ===== INIT =====
+renderSidebar();
+showMain(document.querySelector('.sb-item'));
+updateClock();
+setInterval(updateClock,1000);
+</script>
+</body>
+</html>
