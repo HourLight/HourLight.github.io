@@ -10,6 +10,15 @@ window.hlAICopy = function(preId, system, btn) {
   var pre = document.getElementById(preId);
   if (!pre) { alert('找不到命盤資料'); return; }
   var data = pre.textContent;
+
+  // iOS Safari 相容：同步階段先建立 textarea 取得剪貼板權限
+  var iosTa = document.createElement('textarea');
+  iosTa.value = ' ';
+  iosTa.style.cssText = 'position:fixed;opacity:0;top:0;left:0;font-size:16px;';
+  document.body.appendChild(iosTa);
+  iosTa.focus(); iosTa.select();
+  if (btn) btn._iosTa = iosTa;
+
   if (typeof hlAIGateCheck === 'function') {
     hlAIGateCheck(function() { _doCopy(data, system, btn); });
     return;
@@ -36,20 +45,42 @@ function _doCopy(data, system, btn) {
   txt += 'R（啟程塔）→ 接下來一週的方向建議\n';
   txt += '\n🔗 馥靈之鑰 hourlightkey.com';
 
-  navigator.clipboard.writeText(txt).then(function() {
+  // iOS Safari 相容：優先用預佔的 textarea 複製
+  var iosTa = btn && btn._iosTa;
+  if (iosTa) {
+    iosTa.value = txt;
+    iosTa.focus(); iosTa.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(iosTa);
+    if (btn) btn._iosTa = null;
     if (btn) {
       var orig = btn.textContent;
       btn.textContent = '✅ 已複製';
       btn.style.background = 'rgba(160,124,220,.25)';
       setTimeout(function() { btn.textContent = orig; btn.style.background = ''; }, 2000);
     }
-  }).catch(function() {
-    var t = document.createElement('textarea');
-    t.value = txt; t.style.cssText = 'position:fixed;opacity:0';
-    document.body.appendChild(t); t.select();
-    document.execCommand('copy'); document.body.removeChild(t);
-    if (btn) { var orig = btn.textContent; btn.textContent = '✅ 已複製'; setTimeout(function() { btn.textContent = orig; }, 2000); }
-  });
+    return;
+  }
+  // 一般瀏覽器
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(txt).then(function() {
+      if (btn) {
+        var orig = btn.textContent;
+        btn.textContent = '✅ 已複製';
+        btn.style.background = 'rgba(160,124,220,.25)';
+        setTimeout(function() { btn.textContent = orig; btn.style.background = ''; }, 2000);
+      }
+    }).catch(function() { _fbCopy(txt, btn); });
+  } else { _fbCopy(txt, btn); }
+}
+
+function _fbCopy(txt, btn) {
+  var t = document.createElement('textarea');
+  t.value = txt; t.style.cssText = 'position:fixed;opacity:0;font-size:16px;';
+  document.body.appendChild(t); t.focus(); t.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(t);
+  if (btn) { var orig = btn.textContent; btn.textContent = '✅ 已複製'; setTimeout(function() { btn.textContent = orig; }, 2000); }
 }
 
 })();
