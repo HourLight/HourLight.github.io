@@ -723,6 +723,16 @@ emailBtn.addEventListener('click',function(){
 // ========== 複製AI深度解讀指令（豐富版）==========
 aiBtn.addEventListener('click',function(){
   if(!drawn.length)return;
+
+  // iOS Safari 相容性：在同步階段先建立並 focus textarea，取得剪貼板權限
+  var _iosTa=document.createElement('textarea');
+  _iosTa.value=' ';
+  _iosTa.style.cssText='position:fixed;opacity:0;top:0;left:0;font-size:16px;';
+  document.body.appendChild(_iosTa);
+  _iosTa.focus();_iosTa.select();
+  // 存起來給非同步使用
+  aiBtn._iosTa=_iosTa;
+
   // AI 門控檢查（計次）
   if(typeof hlAIGateCheck==='function'){
     hlAIGateCheck(function(){ _doTarotAICopy(); });
@@ -733,6 +743,7 @@ aiBtn.addEventListener('click',function(){
   if(!auth||!auth.currentUser){
     showTarotToast('🔐 請先登入會員才能使用AI深度解讀指令');
     var lb=document.querySelector('[data-action="login"]');if(lb)lb.click();
+    if(aiBtn._iosTa){document.body.removeChild(aiBtn._iosTa);aiBtn._iosTa=null;}
     return;
   }
   _doTarotAICopy();
@@ -909,13 +920,27 @@ function showTarotToast(msg){
   },2600);
 }
 function doCopy(s){
-  if(navigator.clipboard){navigator.clipboard.writeText(s).catch(function(){fb(s);});}else{fb(s);}
+  // iOS Safari 相容：若有預先建立的 textarea，直接用它複製
+  var iosTa=aiBtn&&aiBtn._iosTa;
+  if(iosTa){
+    iosTa.value=s;
+    iosTa.focus();iosTa.select();
+    try{document.execCommand('copy');}catch(e){}
+    document.body.removeChild(iosTa);
+    aiBtn._iosTa=null;
+    return;
+  }
+  // 一般瀏覽器走 Clipboard API
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(s).catch(function(){fb(s);});
+  }else{fb(s);}
 }
 function fb(s){
   var t=document.createElement('textarea');t.value=s;
-  t.style.cssText='position:fixed;opacity:0;top:0;left:0;';
+  t.style.cssText='position:fixed;opacity:0;top:0;left:0;font-size:16px;';
   document.body.appendChild(t);t.focus();t.select();
-  document.execCommand('copy');document.body.removeChild(t);
+  try{document.execCommand('copy');}catch(e){}
+  document.body.removeChild(t);
 }
 function p2(n){return String(n).padStart(2,'0')}
 </script>
