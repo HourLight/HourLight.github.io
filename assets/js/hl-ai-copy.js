@@ -1,7 +1,11 @@
 /**
- * hl-ai-copy.js v3.0
+ * hl-ai-copy.js v4.0
  * 從 window.AI_FRAMEWORKS 讀取框架（由 js/ai-frameworks.js 載入）
  * 次數管控由 hl-ai-gate.js + hl-usage-wall.js 負責
+ *
+ * iOS Safari 正確策略：
+ * 先同步組內容+複製（在 user gesture context 內完成），
+ * 再非同步 hlAIGateCheck 計次，不影響複製結果。
  */
 (function(){
 'use strict';
@@ -11,25 +15,9 @@ window.hlAICopy = function(preId, system, btn) {
   if (!pre) { alert('找不到命盤資料'); return; }
   var data = pre.textContent;
 
-  // iOS Safari 相容：同步階段先建立 textarea 取得剪貼板權限
-  var iosTa = document.createElement('textarea');
-  iosTa.value = ' ';
-  iosTa.style.cssText = 'position:fixed;opacity:0;top:0;left:0;font-size:16px;';
-  document.body.appendChild(iosTa);
-  iosTa.focus(); iosTa.select();
-  if (btn) btn._iosTa = iosTa;
-
-  if (typeof hlAIGateCheck === 'function') {
-    hlAIGateCheck(function() { _doCopy(data, system, btn); });
-    return;
-  }
-  _doCopy(data, system, btn);
-};
-
-function _doCopy(data, system, btn) {
+  // 同步組好完整內容
   var fw = (window.AI_FRAMEWORKS && window.AI_FRAMEWORKS[system]) || {};
   var framework = fw.framework || '';
-
   var txt = '═══ 馥靈之鑰｜' + (fw.title || system) + ' 深度解讀 AI 指令 ═══\n\n';
   txt += data;
   if (framework) { txt += '\n\n' + framework; }
@@ -45,42 +33,50 @@ function _doCopy(data, system, btn) {
   txt += 'R（啟程塔）→ 接下來一週的方向建議\n';
   txt += '\n🔗 馥靈之鑰 hourlightkey.com';
 
-  // iOS Safari 相容：優先用預佔的 textarea 複製
-  var iosTa = btn && btn._iosTa;
-  if (iosTa) {
-    iosTa.value = txt;
-    iosTa.focus(); iosTa.select();
-    try { document.execCommand('copy'); } catch(e) {}
-    document.body.removeChild(iosTa);
-    if (btn) btn._iosTa = null;
-    if (btn) {
-      var orig = btn.textContent;
-      btn.textContent = '✅ 已複製';
-      btn.style.background = 'rgba(160,124,220,.25)';
-      setTimeout(function() { btn.textContent = orig; btn.style.background = ''; }, 2000);
-    }
-    return;
-  }
-  // 一般瀏覽器
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(txt).then(function() {
-      if (btn) {
-        var orig = btn.textContent;
-        btn.textContent = '✅ 已複製';
-        btn.style.background = 'rgba(160,124,220,.25)';
-        setTimeout(function() { btn.textContent = orig; btn.style.background = ''; }, 2000);
-      }
-    }).catch(function() { _fbCopy(txt, btn); });
-  } else { _fbCopy(txt, btn); }
-}
+  // 同步複製（iOS Safari 在 user gesture context 內，必須同步完成）
+  _syncCopy(txt);
 
-function _fbCopy(txt, btn) {
+  // UI 回饋
+  if (btn) {
+    var orig = btn.textContent;
+    btn.textContent = '✅ 已複製';
+    btn.style.background = 'rgba(160,124,220,.25)';
+    setTimeout(function() { btn.textContent = orig; btn.style.background = ''; }, 2000);
+  }
+
+  // 非同步計次（已複製完成，只記錄次數；未登入才彈登入框）
+  if (typeof hlAIGateCheck === 'function') {
+    setTimeout(function() { hlAIGateCheck(function(){}); }, 80);
+  }
+};
+
+function _syncCopy(txt) {
+  // 同步複製，iOS Safari 相容寫法（position:fixed + top:50% + opacity:.01）
   var t = document.createElement('textarea');
-  t.value = txt; t.style.cssText = 'position:fixed;opacity:0;font-size:16px;';
-  document.body.appendChild(t); t.focus(); t.select();
+  t.value = txt;
+  t.setAttribute('readonly', '');
+  t.style.cssText = 'position:fixed;top:50%;left:50%;width:2em;height:2em;'
+    + 'padding:0;border:none;outline:none;background:transparent;'
+    + 'font-size:16px;opacity:.01;transform:translate(-50%,-50%);z-index:99999;';
+  document.body.appendChild(t);
+  if (/ipad|iphone/i.test(navigator.userAgent)) {
+    t.focus();
+    var rng = document.createRange();
+    rng.selectNodeContents(t);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(rng);
+    t.setSelectionRange(0, 999999);
+  } else {
+    t.focus();
+    t.select();
+  }
   try { document.execCommand('copy'); } catch(e) {}
   document.body.removeChild(t);
-  if (btn) { var orig = btn.textContent; btn.textContent = '✅ 已複製'; setTimeout(function() { btn.textContent = orig; }, 2000); }
+  // 同時嘗試現代 API（非 iOS 的備援）
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(txt).catch(function(){});
+  }
 }
 
 })();

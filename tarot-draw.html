@@ -724,177 +724,243 @@ emailBtn.addEventListener('click',function(){
 aiBtn.addEventListener('click',function(){
   if(!drawn.length)return;
 
-  // iOS Safari 相容性：在同步階段先建立並 focus textarea，取得剪貼板權限
-  var _iosTa=document.createElement('textarea');
-  _iosTa.value=' ';
-  _iosTa.style.cssText='position:fixed;opacity:0;top:0;left:0;font-size:16px;';
-  document.body.appendChild(_iosTa);
-  _iosTa.focus();_iosTa.select();
-  // 存起來給非同步使用
-  aiBtn._iosTa=_iosTa;
-
-  // AI 門控檢查（計次）
-  if(typeof hlAIGateCheck==='function'){
-    hlAIGateCheck(function(){ _doTarotAICopy(); });
-    return;
-  }
-  // fallback：至少要登入
-  var auth=window.firebase&&firebase.auth();
-  if(!auth||!auth.currentUser){
+  // 登入檢查（同步）
+  var auth=window.firebase&&firebase.auth&&firebase.auth();
+  var user=auth&&auth.currentUser;
+  if(!user){
     showTarotToast('🔐 請先登入會員才能使用AI深度解讀指令');
     var lb=document.querySelector('[data-action="login"]');if(lb)lb.click();
-    if(aiBtn._iosTa){document.body.removeChild(aiBtn._iosTa);aiBtn._iosTa=null;}
     return;
   }
-  _doTarotAICopy();
+
+  // iOS Safari 正確策略：先同步組內容+複製，再非同步計次
+  var aiContent=_buildTarotAIContent();
+  if(!aiContent)return;
+  _syncCopy(aiContent);
+  var orig=aiBtn.textContent;
+  aiBtn.textContent='✅ 已複製！';aiBtn.classList.add('btn-p');
+  setTimeout(function(){aiBtn.textContent=orig;aiBtn.classList.remove('btn-p');},2200);
+
+  // 非同步計次（已複製，只記錄次數）
+  if(typeof hlAIGateCheck==='function'){
+    hlAIGateCheck(function(){});
+  }
 });
-function _doTarotAICopy(){
-  if(!drawn.length)return;
+function _buildTarotAIContent(){
+  if(!drawn.length)return null;
   var ds=new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'});
   var pos=POSITIONS[selN]||[];
   var n=drawn.length;
 
-  var ai='═══ 馥靈之鑰｜塔羅深度解讀 AI 指令 ═══\n';
-  ai+='抽牌時間：'+ds+'\n';
-  ai+='牌陣：'+n+' 張\n';
-  if(q) ai+='提問：'+q+'\n';
-  ai+='\n';
-
-  // 逐張牌資料
-  ai+='══════ 抽牌結果 ══════\n\n';
-  drawn.forEach(function(c,i){
-    var p=pos[i]?'【'+pos[i]+'】':'第'+(i+1)+'張';
-    ai+=p+'\n';
-    ai+='  牌名：'+c.zh+'（'+c.en+'）\n';
-    ai+='  編號：'+c.num+'\n';
-    ai+='  方位：'+(c.rev?'🔻 逆位':'🔺 正位')+'\n';
-    ai+='  關鍵詞：'+(c.rev?c.kr:c.ku)+'\n';
-    ai+='  類型：'+(c.num>=0&&c.num<=21?'大秘儀（重大生命主題）':'小秘儀（日常具體事件）')+'\n\n';
+  // ── 元素統計 ──
+  var elemCount={火:0,水:0,風:0,土:0,大秘儀:0};
+  var revCount=0;
+  drawn.forEach(function(c){
+    if(c.rev)revCount++;
+    if(c.b&&c.b.indexOf('火')>-1)elemCount['火']++;
+    else if(c.b&&c.b.indexOf('水')>-1)elemCount['水']++;
+    else if(c.b&&c.b.indexOf('風')>-1)elemCount['風']++;
+    else if(c.b&&c.b.indexOf('土')>-1)elemCount['土']++;
+    else elemCount['大秘儀']++;
+  });
+  var dominantElem='';
+  var maxE=0;
+  Object.keys(elemCount).forEach(function(k){
+    if(elemCount[k]>maxE){maxE=elemCount[k];dominantElem=k;}
   });
 
-  // 牌陣專屬解讀框架
+  var ai='╔══════════════════════════════════════════╗\n';
+  ai+='║  馥靈之鑰｜塔羅深度解讀 AI 指令 v2.0   ║\n';
+  ai+='╚══════════════════════════════════════════╝\n\n';
+
+  ai+='【基本資訊】\n';
+  ai+='抽牌時間：'+ds+'\n';
+  ai+='牌陣：'+n+' 張';
+  if(pos.length)ai+='（'+pos.join(' / ')+'）';
+  ai+='\n';
+  if(q){
+    ai+='提問：'+q+'\n';
+    // 問題生命面向自動判斷
+    var topic='';
+    var qLow=q;
+    if(/感情|愛|他|她|戀|婚|分手|交往|對方|關係|喜歡/.test(qLow))topic='感情與關係';
+    else if(/工作|職場|事業|升遷|轉職|創業|老闆|薪水|離職/.test(qLow))topic='事業與工作';
+    else if(/錢|財|投資|收入|賺|借|股票|生意/.test(qLow))topic='財富與資源';
+    else if(/家|父母|媽|爸|孩子|家人|原生|家族/.test(qLow))topic='家庭與家族';
+    else if(/健康|身體|生病|睡|痛|累|情緒|焦慮/.test(qLow))topic='身心健康';
+    else if(/選擇|決定|要不要|該不該|方向|怎麼辦/.test(qLow))topic='決策與方向';
+    else if(/我是誰|天賦|使命|人生意義|為什麼/.test(qLow))topic='自我覺察';
+    if(topic)ai+='問題面向：'+topic+'（請用此面向貫穿整組解讀）\n';
+  }
+
+  ai+='\n';
+  ai+='【牌面統計】\n';
+  ai+='元素分佈：';
+  var elemParts=[];
+  if(elemCount['大秘儀']>0)elemParts.push('大秘儀×'+elemCount['大秘儀']);
+  if(elemCount['火']>0)elemParts.push('火×'+elemCount['火']);
+  if(elemCount['水']>0)elemParts.push('水×'+elemCount['水']);
+  if(elemCount['風']>0)elemParts.push('風×'+elemCount['風']);
+  if(elemCount['土']>0)elemParts.push('土×'+elemCount['土']);
+  ai+=elemParts.join('  ')+' \n';
+  ai+='逆位數量：'+revCount+'/'+n+'張';
+  if(revCount===0)ai+='（全正位：外在行動力充沛，能量流動順暢）';
+  else if(revCount===n)ai+='（全逆位：強烈的內在調整訊號，需要向內看）';
+  else if(revCount>n/2)ai+='（逆位偏多：內在校準期，行動前先整理心理空間）';
+  else ai+='（正逆均衡：外在與內在都有訊息要給你）';
+  ai+='\n';
+  if(dominantElem&&maxE>1){
+    ai+='主導元素：'+dominantElem;
+    if(dominantElem==='大秘儀')ai+='（此問題涉及深層生命課題，不只是日常小事）';
+    else if(dominantElem==='火')ai+='（行動力能量強，小心衝動大於深思）';
+    else if(dominantElem==='水')ai+='（情感層面是核心，感受比事實更需要被看見）';
+    else if(dominantElem==='風')ai+='（思維活躍，可能想太多、真正需要的是行動）';
+    else if(dominantElem==='土')ai+='（實際層面的課題，回到身體和資源去找答案）';
+    ai+='\n';
+  }
+
+  // ── 逐張牌資料（加強版）──
+  ai+='\n══════ 抽牌結果（逐張）══════\n\n';
+  drawn.forEach(function(c,i){
+    var p=pos[i]?'【'+pos[i]+'】':'第'+(i+1)+'張';
+    var isMajor=(c.b&&c.b.indexOf('大秘儀')>-1);
+    ai+=p+' → '+c.zh+'（'+c.en+'）\n';
+    ai+='  方位：'+(c.rev?'🔻 逆位':'🔺 正位')+'  |  類型：'+(isMajor?'大秘儀・深層課題':'小秘儀・'+c.b.replace('小秘儀｜','')+'・日常具體事件')+'\n';
+    ai+='  核心關鍵詞：'+(c.rev?c.kr:c.ku)+'\n';
+    if(c.rev){
+      ai+='  逆位深化解讀方向：能量延遲或內化中｜向內探索此牌陰影面｜行動建議需先調整內在再外求\n';
+    }
+    ai+='\n';
+  });
+
+  // ── 牌陣專屬深度框架 ──
   ai+='══════ 牌陣解讀框架 ══════\n\n';
 
   if(n===1){
-    ai+='【單牌解讀】\n';
-    ai+='壹、這張牌作為「當下能量」的核心訊息是什麼？\n';
-    ai+='貳、正位 / 逆位在此情境中最直接的提醒\n';
-    ai+='叁、這張牌如果是一個人站在你面前，他會對你說什麼？\n';
-    ai+='肆、大秘儀=內在層面課題，小秘儀=生活具體事件\n';
-    ai+='伍、今日行動建議（一件具體的小事）\n\n';
+    ai+='【單牌聚焦解讀】\n';
+    ai+='壹、此牌的核心能量：用一個畫面感強的比喻描述這張牌現在傳達的主要訊息\n';
+    ai+='貳、正逆位精準拆解：不是泛泛而談，要結合提問說出「這個正位/逆位在這件事上的具體含義」\n';
+    ai+='叁、如果這張牌是一個人站在你面前，他想對你說的那一句話是什麼？（只寫那一句，不要多）\n';
+    ai+='肆、大秘儀出現 = 這件事不是日常雜事，是更深層的生命課題在叩門｜小秘儀 = 具體行動層面的訊息\n';
+    ai+='伍、今日最值得做的一個具體小行動（要夠具體，不是「好好照顧自己」這種模糊建議）\n\n';
   } else if(n===3){
-    ai+='【三張牌：時間軸解讀】\n';
-    ai+='壹、過去→現在→未來的能量流動方向\n';
-    ai+='  ► 三張牌的能量是漸進上升、下降、還是U型反轉？\n';
-    ai+='貳、三張牌的元素分佈（火/水/風/土/大秘儀）代表什麼傾向？\n';
-    ai+='叁、第一張和第三張是否形成呼應？過去的哪個模式會在未來重現或轉化？\n';
-    ai+='肆、「現在」這張是轉折點，你現在站在什麼座標上？\n';
-    ai+='伍、整組牌用一句話串成一個故事\n\n';
+    ai+='【三張牌：時間軸深度解讀】\n';
+    ai+='壹、能量曲線分析：過去→現在→未來，這三張牌的能量是在上升、下滑、還是U型轉折？用一句話概括曲線走向\n';
+    ai+='貳、點出「主要張力」：這三張牌中，哪兩張之間的關係最有衝突感？那個張力在說什麼？\n';
+    ai+='叁、過去與未來的鏡像關係：第一張和第三張有沒有呼應？過去的哪個模式正在未來重演或轉化？\n';
+    ai+='肆、現在這張是樞紐：你此刻站在什麼座標上？你有沒有選擇改變軌跡？\n';
+    ai+='伍、三張牌的故事：用三句話把這組牌串成一個有起承轉合的故事（不是逐牌翻譯）\n';
+    ai+='陸、結合提問的元素分析：這組牌的元素分佈跟問題的性質是否吻合？\n\n';
   } else if(n===5){
-    ai+='【五張牌：問題解決框架】\n';
-    ai+='壹、根源（第1張）：這個問題最底層的原因是什麼？\n';
-    ai+='貳、阻礙（第2張）：什麼在擋路？是外在還是內在的阻礙？\n';
-    ai+='叁、現在（第3張）：此刻你的能量狀態和核心課題\n';
-    ai+='肆、建議（第4張）：牌卡建議你現在做什麼？具體到可執行\n';
-    ai+='伍、結果（第5張）：如果你照做，最可能的發展方向\n';
-    ai+='陸、根源→阻礙→建議之間的邏輯：阻礙是根源的延伸嗎？建議有沒有直接對治阻礙？\n\n';
+    ai+='【五張牌：問題根源深掘】\n';
+    ai+='壹、根源（第1張）：這個問題的最底層原因是什麼？要說出那個「本人可能不想承認但感覺說中了」的真相\n';
+    ai+='貳、阻礙（第2張）：阻礙是外在環境還是內在信念？點名那個具體的卡點\n';
+    ai+='叁、現在（第3張）：此刻的能量狀態，結合元素說明：火=行動，水=情感，風=思維，土=實際面\n';
+    ai+='肆、建議（第4張）：建議要夠具體，不是「保持正向」，而是「今天就可以做的第一步是什麼」\n';
+    ai+='伍、結果（第5張）：如果照做，最可能的走向。如果逆位，說出需要調整什麼才能讓結果轉向\n';
+    ai+='陸、三角邏輯檢驗：根源→阻礙→建議之間的因果鏈通順嗎？建議有沒有直接解決根源問題？\n';
+    ai+='柒、最大的矛盾：這五張牌中，最有張力的兩張是哪兩張？那個矛盾就是整件事的核心。\n\n';
   } else if(n===7){
-    ai+='【七張牌：深度全景解讀】\n';
-    ai+='壹、時間軸：過去（1）→困境（2）→現在（3）→結果（7）的能量曲線\n';
-    ai+='貳、行動軸：行動建議（4）是否能解決困境（2）？\n';
-    ai+='叁、環境軸：外部環境（5）是助力還是阻力？\n';
-    ai+='肆、希望（6）和結果（7）是否一致？如果不一致，代表什麼？\n';
-    ai+='伍、七張牌中大秘儀和小秘儀的比例：大秘儀越多=內在層面課題越深\n';
-    ai+='陸、找出重複出現的元素或數字，那是整組牌的主旋律\n\n';
+    ai+='【七張牌：凱爾特十字深度版】\n';
+    ai+='壹、能量曲線：過去（1）→困境（2）→現在（3）→結果（7），畫出這條能量線的走勢\n';
+    ai+='貳、核心矛盾：困境（2）和行動建議（4）之間有沒有直接的因果關係？建議是否真的能解困境？\n';
+    ai+='叁、環境與自我：外部環境（5）vs 希望/恐懼（6），這兩個是在拉你還是推你？\n';
+    ai+='肆、希望vs結果的落差：如果（6）和（7）不一致，說明什麼？這個落差本身就是訊息\n';
+    ai+='伍、元素比例精讀：哪種元素主導？這組牌在說問題的根本是行動力、情感、思維還是實際資源的問題？\n';
+    ai+='陸、大秘儀定位：哪幾張是大秘儀？它們落在哪個位置？大秘儀在「困境」位 vs 在「結果」位，意義完全不同\n';
+    ai+='柒、一句話總結：用最直白的一句話說出這組牌的核心訊息（要讓提問者覺得「對，就是這樣」）\n\n';
   } else if(n===9){
-    ai+='【九張牌：自我覺察三維解讀】\n';
-    ai+='壹、三維度核心：身體（1）、心理（2）、精神（3）各自的訊息\n';
-    ai+='貳、時間軸：過去（4）→現在（5）→未來（6）的發展軌跡\n';
-    ai+='叁、動態分析：阻礙（7）和支持力量（8）的拉鋸\n';
-    ai+='肆、最終結果（9）綜合了前八張的能量，它是什麼調性？\n';
-    ai+='伍、自我覺察三維中最弱的一維是什麼？那就是現在最需要關注的方向\n';
-    ai+='陸、九張牌的元素統計：哪種元素最多？哪種最少？\n\n';
+    ai+='【九張牌：三維自我覺察深解】\n';
+    ai+='壹、三維核心訊息：身體（1）、心理（2）、精神（3），各自最重要的一個訊息是什麼？哪個維度最需要被關注？\n';
+    ai+='貳、時間軸張力：過去（4）→現在（5）→未來（6）的能量線，現在這個座標感覺更靠近過去還是未來？\n';
+    ai+='叁、最大阻力 vs 最強支持：阻礙（7）和支持力量（8）的具體內容是什麼？支持力量夠不夠強？\n';
+    ai+='肆、最終結果（9）的質地：是大秘儀還是小秘儀？正逆位？這個結果是「可以努力達到」還是「需要先調整內在才能到達」\n';
+    ai+='伍、最弱的維度：身/心/精神三維中，哪一個最弱？那就是現在最需要滋養的方向\n';
+    ai+='陸、元素能量圖：火/水/風/土的分佈，照見問題的本質屬於哪個能量層面\n';
+    ai+='柒、點出主要矛盾：這九張牌中，最有張力的兩張是哪兩張？那個張力就是整組牌的魂\n\n';
   } else if(n===12){
-    ai+='【十二張牌：十二宮位年度全景】\n';
-    ai+='壹、逐宮解讀：每張牌對應一個生命面向\n';
-    ai+='  1宮·自我　2宮·財富　3宮·溝通　4宮·家庭\n';
-    ai+='  5宮·創造　6宮·健康　7宮·關係　8宮·轉化\n';
-    ai+='  9宮·信念　10宮·事業　11宮·社交　12宮·覺察\n';
-    ai+='貳、找出三組對宮（1-7、2-8、3-9、4-10、5-11、6-12）的張力關係\n';
-    ai+='叁、哪些宮位是大秘儀？那些是你今年最核心的生命課題\n';
-    ai+='肆、哪些宮位出現逆位？那些是需要校準的方向\n';
-    ai+='伍、十二宮的能量分佈：上半（7-12社會面）vs 下半（1-6個人面）\n';
-    ai+='陸、整體年度主題用一句話概括\n\n';
+    ai+='【十二宮位年度全景深解】\n';
+    ai+='壹、逐宮重點解讀：每宮用兩句話，第一句描述牌面能量，第二句說出這個能量在這個生命面向的具體含義\n';
+    ai+='  1宮自我｜2宮財富｜3宮溝通｜4宮家庭｜5宮創造｜6宮健康\n';
+    ai+='  7宮關係｜8宮轉化｜9宮信念｜10宮事業｜11宮社群｜12宮覺察\n';
+    ai+='貳、三組對宮張力：（1-7自我vs關係）（2-8資源vs轉化）（4-10家庭vs事業），有衝突的對宮說出它的張力\n';
+    ai+='叁、今年最重要的三個宮位：找出能量最強（大秘儀或正位強牌）的三個宮位，這三個就是今年的主旋律\n';
+    ai+='肆、最需要校準的宮位：逆位大秘儀落在哪個宮？那是今年最需要往內看的方向\n';
+    ai+='伍、上半年vs下半年：哪一半的能量更充沛？今年的節奏更像是「先做後覺」還是「先覺後做」？\n';
+    ai+='陸、年度一句話主題：用最有畫面感的一句話描述這個人的2024/2025年（根據問題時間判斷）\n\n';
   }
 
-  // 通用解讀原則
-  ai+='══════ 通用解讀原則 ══════\n\n';
-  ai+='一、連牌交互分析（最關鍵的一步）\n';
-  ai+='► 相鄰的牌之間有什麼「化學反應」？訊息是疊加還是抵消？\n';
-  ai+='► 元素強弱：全火象＝行動力爆表但缺思考；全水象＝情緒滿載需要出口\n';
-  ai+='► 全風象＝想太多動太少；全土象＝實際但缺乏彈性\n';
-  ai+='► 重複出現的數字或元素 = 整組牌的主旋律\n';
-  ai+='► 大秘儀比例高 = 內在層面課題深，不是日常小事\n\n';
-  ai+='二、正位 vs 逆位\n';
-  ai+='► 正位 = 能量順暢流動的方向，給予肯定\n';
-  ai+='► 逆位 ≠ 壞，是能量被阻塞、延遲、或內化。邀請你往內看\n';
-  ai+='► 全正位 = 外在行動力強；逆位偏多 = 內在調整期\n\n';
-  ai+='三、元素對應\n';
-  ai+='► 權杖（火）= 行動、熱情、創造力、事業衝勁\n';
-  ai+='► 聖杯（水）= 情感、直覺、關係、內在感受\n';
-  ai+='► 寶劍（風）= 思維、溝通、衝突、真相\n';
-  ai+='► 錢幣（土）= 物質、身體、財富、穩定\n';
-  ai+='► 大秘儀 = 內在層面的重大課題和人生轉折點\n\n';
+  // ── 連牌交互分析（升級版）──
+  ai+='══════ 連牌交互深度分析 ══════\n\n';
+  ai+='【必做步驟：找出這組牌的主要矛盾】\n';
+  ai+='在所有牌中，找出能量最衝突或最有張力的兩張，點名它們，說出這個張力在問什麼問題。\n';
+  ai+='這個矛盾往往才是提問者真正在意的事，逐牌翻譯是表面，矛盾才是核心。\n\n';
+  ai+='【連牌化學反應】\n';
+  ai+='► 相鄰牌的元素若相生（火→土→金→水→木→火）：能量是流動順暢的，順勢而為\n';
+  ai+='► 相鄰牌的元素若相剋（火克金、金克木、木克土、土克水、水克火）：有摩擦，摩擦的地方就是需要注意的地方\n';
+  ai+='► 連續正位：能量在往外推，行動力強\n';
+  ai+='► 正逆交替：一進一退的模式，可能有猶豫或兩股力量在拉鋸\n';
+  ai+='► 連續逆位：強烈的向內收斂訊號，外求不如內省\n\n';
+  ai+='【元素比例診斷】\n';
+  ai+='► 火象偏多（權杖）：行動力充沛但容易急躁，需要加一點土象的接地氣\n';
+  ai+='► 水象偏多（聖杯）：情感需求是核心，感受比事實更需要被處理\n';
+  ai+='► 風象偏多（寶劍）：思維活躍，可能陷入分析麻痺，需要一個具體行動打破僵局\n';
+  ai+='► 土象偏多（錢幣）：重視實際，可能過於保守，需要一點勇氣突破舒適圈\n';
+  ai+='► 大秘儀偏多：這件事的課題超出了日常決策的範疇，是更深層的生命轉折點\n\n';
+  ai+='【逆位三層解讀法】\n';
+  ai+='逆位不是壞，是訊號。每張逆位牌都可以從三層來看：\n';
+  ai+='  第一層：能量延遲——時機還沒到，或前一個階段還沒收尾\n';
+  ai+='  第二層：需要向內——這張牌的能量正在往內部整合，不在外在顯現\n';
+  ai+='  第三層：陰影浮現——這張牌的負面模式正在作用，需要被看見和調整\n\n';
 
-  // H.O.U.R. 行動建議
-  ai+='══════ H.O.U.R. 行動建議（必須回答）══════\n\n';
-  ai+='H（靜心殿·靜下來）→ 根據牌面，現在最需要先安頓什麼？\n';
-  ai+='O（覺察廳·看清楚）→ 這組牌在提醒什麼反覆出現的模式？\n';
-  ai+='U（解鎖密室·做一件事）→ 今天就能做的一個具體動作是什麼？\n';
-  ai+='R（啟程塔·持續走）→ 接下來一週的方向和節奏建議\n\n';
+  // ── H.O.U.R. 行動建議（升級版）──
+  ai+='══════ H.O.U.R. 行動建議（必須回答，要夠具體）══════\n\n';
+  ai+='H（靜心殿）→ 根據牌面，現在最需要先安頓的是什麼？給出一個今天就能做的「讓身體靜下來」的具體動作\n';
+  ai+='O（覺察廳）→ 這組牌在提醒什麼「反覆出現的模式」？說出那個本人可能知道但不想正視的事\n';
+  ai+='U（解鎖密室）→ 這組牌指向的突破口在哪裡？今天就能踏出的第一步是什麼？要夠具體到「明天早上可以執行」\n';
+  ai+='R（啟程塔）→ 接下來一週的行動節奏建議，用三個關鍵字描述（例如：暫停 · 評估 · 小步前進）\n\n';
+  if(q){
+    ai+='【結合提問的收束】\n';
+    ai+='回到最開始的問題「'+q+'」——\n';
+    ai+='這組牌的整體訊息在回應這個問題時，最核心的一句話是什麼？\n';
+    ai+='（不是給答案，是給座標：你現在站在哪裡、需要往哪個方向調整）\n\n';
+  }
 
-  // 語氣設定
-  ai+='══════ 語氣要求 ══════\n\n';
-  ai+='► 像一個很懂人的閨蜜在說真話，溫暖但不軟弱\n';
-  ai+='► 帶有香氣意象（精油、花草、自然元素的比喻）\n';
-  ai+='► 不使用「梳理」「節奏」等詞彙，不使用雙破折號\n';
-  ai+='► 用「校準」代替「梳理」，用「座標」代替「命運」\n';
-  ai+='► 請將術語轉譯為日常語言，讓不懂塔羅的人也能秒懂\n';
-  ai+='► 結尾用一段帶有香氣的文字收尾\n\n';
+  // ── 語氣設定（升級版）──
+  ai+='══════ 語氣與風格要求 ══════\n\n';
+  ai+='► 像一個很懂人的閨蜜在說真話：溫暖，但不軟弱；直接，但不刺傷\n';
+  ai+='► 帶有香氣意象：每個段落至少一個精油或自然氣味的比喻（薰衣草的安定、迷迭香的清醒、乳香的沉靜等）\n';
+  ai+='► 禁用詞：梳理、療癒、調頻、靈魂、頻率、顯化、宇宙安排、命定、雙破折號——\n';
+  ai+='► 代用詞：用「校準」代替「梳理」，用「座標」代替「命運」，用「整合」代替「療癒」\n';
+  ai+='► 術語轉譯：逆位不說「能量受阻」，要說「就像門縫卡住了，不是門壞了，是需要換個角度推」\n';
+  ai+='► 結尾：用一段帶有香氣的收束語，讓人讀完有「被接住了」的感覺，而不是說教完了的感覺\n';
+  ai+='► 長度控制：整段解讀控制在可以一口氣讀完的長度。深刻 > 冗長\n\n';
 
-  // 參考書目
-  ai+='══════ 參考書目與解讀邏輯（交叉引用）══════\n\n';
-  ai+='▍連牌與交互作用\n';
-  ai+='· Josephine Ellershaw《塔羅組合解牌思路》\n';
-  ai+='  → A 牌遇到 B 牌時，訊息疊加還是抵消？用組合邏輯串聯整組牌\n';
-  ai+='· LUA《塔羅解牌研究所 4：跳脫單張思維》\n';
-  ai+='  → 兩張牌的組合情境對讀，具體且接地氣\n\n';
-  ai+='▍結構化深度解析\n';
-  ai+='· Benebell Wen《Holistic Tarot 整體塔羅》\n';
-  ai+='  → 占星、元素、數字、卡巴拉對應表，系統化解讀聖經\n';
-  ai+='· Rachel Pollack《78 度的智慧》\n';
-  ai+='  → 塔羅界聖經，深度心理學口吻\n';
-  ai+='· Mary K. Greer《Tarot for Yourself》\n';
-  ai+='  → 自我覺察取向的塔羅解讀法，適合個人成長\n\n';
-  ai+='▍實戰查閱\n';
-  ai+='· 丹尼爾《塔羅解牌字典》\n';
-  ai+='  → 台灣本土化，同一張牌在不同場景的差異化解讀\n';
-  ai+='· 向日葵《塔羅入門經典牌義全解析》\n';
-  ai+='  → 正逆位完整對照，適合快速查閱\n\n';
-  ai+='▍進階技法\n';
-  ai+='· 保羅·乏頓-凱斯《塔羅冥鑰》（BOTA 系統）\n';
-  ai+='  → 大秘儀與卡巴拉生命之樹路徑對應\n';
-  ai+='· Aleister Crowley《The Book of Thoth 托特之書》\n';
-  ai+='  → 托特塔羅深層象徵體系\n';
-  ai+='· Robert Place《The Tarot: History, Symbolism, and Divination》\n';
-  ai+='  → 塔羅歷史脈絡與圖像學\n\n';
+  // ── 參考書目（精選）──
+  ai+='══════ 解讀引用書目 ══════\n\n';
+  ai+='請交叉引用以下書目中的解讀邏輯（不需要直接引用，是提供解讀深度的背景框架）：\n\n';
+  ai+='▍連牌互動\n';
+  ai+='· Josephine Ellershaw《塔羅組合解牌思路》→ A牌+B牌的化學反應邏輯\n';
+  ai+='· LUA《塔羅解牌研究所4：跳脫單張思維》→ 接地氣的組合讀法\n\n';
+  ai+='▍深度解析\n';
+  ai+='· Benebell Wen《Holistic Tarot》→ 元素/占星/數字交叉系統\n';
+  ai+='· Rachel Pollack《78度的智慧》→ 深度心理學切入\n';
+  ai+='· Mary K. Greer《Tarot for Yourself》→ 自我覺察視角\n\n';
+  ai+='▍本土化\n';
+  ai+='· 丹尼爾《塔羅解牌字典》→ 同一張牌在不同提問場景的差異化解讀\n\n';
   ai+='══════ 馥靈座標哲學 ══════\n\n';
-  ai+='牌卡照出的是「現在站在哪個座標」。\n';
-  ai+='算的是方向，幫您做出更好的判斷。\n';
+  ai+='牌卡是鏡子，不是水晶球。\n';
+  ai+='它照出的是你此刻站在哪個座標——不是命定，是現在的能量狀態。\n';
+  ai+='知道座標，才能決定要不要走、往哪裡走。\n';
   ai+='鑰匙我遞給您，城堡自己開。\n\n';
   ai+='🔗 馥靈之鑰 hourlightkey.com';
 
-  doCopy(ai);
+  return ai;
+}
+function _doTarotAICopy(){
+  var ai=_buildTarotAIContent();
+  if(!ai)return;
+  _syncCopy(ai);
   var orig=aiBtn.textContent;
   aiBtn.textContent='✅ 已複製！';aiBtn.classList.add('btn-p');
   setTimeout(function(){aiBtn.textContent=orig;aiBtn.classList.remove('btn-p');},2200);
@@ -919,22 +985,17 @@ function showTarotToast(msg){
     t.style.opacity='0';t.style.transform='translateX(-50%) translateY(12px)';
   },2600);
 }
-function doCopy(s){
-  // iOS Safari 相容：若有預先建立的 textarea，直接用它複製
-  var iosTa=aiBtn&&aiBtn._iosTa;
-  if(iosTa){
-    iosTa.value=s;
-    iosTa.focus();iosTa.select();
-    try{document.execCommand('copy');}catch(e){}
-    document.body.removeChild(iosTa);
-    aiBtn._iosTa=null;
-    return;
-  }
-  // 一般瀏覽器走 Clipboard API
+function _syncCopy(s){
+  var t=document.createElement('textarea');
+  t.value=s;t.style.cssText='position:fixed;opacity:0;top:0;left:0;font-size:16px;';
+  document.body.appendChild(t);t.focus();t.select();
+  try{document.execCommand('copy');}catch(e){}
+  document.body.removeChild(t);
   if(navigator.clipboard&&window.isSecureContext){
-    navigator.clipboard.writeText(s).catch(function(){fb(s);});
-  }else{fb(s);}
+    navigator.clipboard.writeText(s).catch(function(){});
+  }
 }
+function doCopy(s){_syncCopy(s);}
 function fb(s){
   var t=document.createElement('textarea');t.value=s;
   t.style.cssText='position:fixed;opacity:0;top:0;left:0;font-size:16px;';
