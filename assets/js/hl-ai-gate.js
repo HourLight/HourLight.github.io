@@ -1,9 +1,9 @@
 /**
- * 馥靈之鑰 智慧解讀指令計次門控 v3.0
+ * 馥靈之鑰 AI深度解讀指令計次門控 v3.0
  *
  * 收費邏輯（逸君確認 2026/3/24）：
  * ► 免費（不計次）：命理資料複製、寄信、馥靈抽牌
- * ► 每日計次：智慧解讀指令的複製（單人/雙人/完整版/塔羅都算）
+ * ► 每日計次：AI深度解讀指令的複製（單人/雙人/完整版/塔羅都算）
  * ► 每日午夜 00:00 (UTC+8) 自動歸零，沒用完不累計
  *
  * 每日限額：
@@ -98,8 +98,8 @@
     m.style.cssText='position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(8px)';
     m.innerHTML='<div style="max-width:400px;padding:32px 24px;background:#0a0612;border:1px solid rgba(240,212,138,.2);border-radius:20px;text-align:center;color:#f0e8d8">'
       +'<div style="font-size:2rem;margin-bottom:12px">🔑</div>'
-      +'<div style="font-size:1rem;color:#f0d48a;font-weight:700;margin-bottom:8px">登入即可使用智慧解讀指令</div>'
-      +'<div style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.8;margin-bottom:16px">免費會員每天 3 次智慧解讀指令，登入後立即開始。</div>'
+      +'<div style="font-size:1rem;color:#f0d48a;font-weight:700;margin-bottom:8px">登入即可使用AI深度解讀指令</div>'
+      +'<div style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.8;margin-bottom:16px">免費會員每天 3 次AI深度解讀指令，登入後立即開始。</div>'
       +'<a href="member-login.html" style="display:block;padding:14px;background:linear-gradient(135deg,#c9a044,#f0d48a);color:#0a0612;font-weight:700;border-radius:12px;text-decoration:none;margin-bottom:10px">🔑 免費註冊 / 登入</a>'
       +'<button onclick="this.closest(\'#hl-ai-login-prompt\').remove()" style="display:block;width:100%;padding:10px;background:transparent;border:1px solid rgba(240,212,138,.2);border-radius:10px;color:rgba(255,255,255,.5);font-size:.85rem;cursor:pointer">← 返回</button></div>';
     m.addEventListener('click',function(e){if(e.target===m)m.remove();});
@@ -140,7 +140,7 @@
       +'<div style="font-size:2rem;margin-bottom:12px">🔒</div>'
       +'<div style="font-size:1rem;color:#f0d48a;font-weight:700;margin-bottom:8px">今日次數已用完</div>'
       +'<div style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.8;margin-bottom:16px">'
-      +'您的 '+pn+' 方案每天可使用 '+limit+' 次智慧解讀指令。<br>'
+      +'您的 '+pn+' 方案每天可使用 '+limit+' 次AI深度解讀指令。<br>'
       +'今日已使用 '+used+' 次。約 '+hr+' 小時後（午夜 00:00）自動歸零。</div>'
       +'<div style="text-align:left;font-size:.82rem;color:rgba(255,255,255,.5);line-height:2;margin-bottom:16px;padding:14px 16px;border-radius:12px;background:rgba(240,212,138,.04);border:1px solid rgba(240,212,138,.1)">'
       +'<div style="color:rgba(240,212,138,.8);font-weight:700;margin-bottom:8px">📋 方案一覽</div>'

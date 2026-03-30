@@ -36,8 +36,8 @@ overlay.innerHTML = `
     <div class="hla-section">
       <div class="hla-icon">💡</div>
       <div class="hla-text">
-        <strong>「智慧解讀指令」是什麼？</strong><br>
-        我們為每套命理系統打造了專業解讀框架（含書目、分析結構、座標哲學），點「🔮 複製智慧解讀指令」就會把資料＋框架一起複製，貼到 ChatGPT、Claude、Gemini 就能拿到高品質的深度解讀。這個按鈕每天可以免費用 3 次，午夜自動恢復。
+        <strong>「AI深度解讀指令」是什麼？</strong><br>
+        我們為每套命理系統打造了專業解讀框架（含書目、分析結構、座標哲學），點「🔮 複製AI深度解讀指令」就會把資料＋框架一起複製，貼到 ChatGPT、Claude、Gemini 就能拿到高品質的深度解讀。這個按鈕每天可以免費用 3 次，午夜自動恢復。
       </div>
     </div>
     

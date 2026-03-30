@@ -253,7 +253,7 @@ module.exports = async function handler(req, res) {
   try {
     var authHeader = req.headers.authorization || '';
     if (!authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: '需要登入才能使用智慧解讀指令', code: 'AUTH_REQUIRED' });
+      return res.status(401).json({ error: '需要登入才能使用AI深度解讀指令', code: 'AUTH_REQUIRED' });
     }
     var fb = getAdmin();
     var decoded;
