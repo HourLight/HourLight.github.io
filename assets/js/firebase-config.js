@@ -30,7 +30,8 @@ var HL_ROLES = {
     badge:   'linear-gradient(135deg,#fff0a0,#f8dfa5)',
     badgeText: '#1a1008',
     desc:    '系統最高權限，可調整所有會員身分與功能開放',
-    emails:  ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'],
+    // 管理員 email 改由 Firestore 動態查詢，不在前端暴露
+    // emails: → 請改用 Firestore /config/roles 集合
     canAccessAdmin: true,
     unlimitedAll:   true,
     canManageRoles: true,
@@ -141,13 +142,8 @@ var HL_ROLES = {
     badge:     'linear-gradient(135deg,#f080a0,#c06080)',
     badgeText: '#fff',
     desc:      '特殊貴賓身分（逸君的家人與特別指定者），享有與策展總監同等的工具使用權，所有頁面暢行無阻',
-    // 硬編碼貴賓 email（同管理員 email 邏輯，無需後台設定）
-    emails: [
-      'maxinerong17@gmail.com',   // 蘋蘋
-      'candywang5266@gmail.com',  // 妞妞
-      'bird548888@gmail.com',     // 博清
-      'hyukhae8611@gmail.com',    // 朵朵
-    ],
+    // 貴賓 email 改由 Firestore 動態查詢，不在前端暴露
+    // emails: → 請改用 Firestore /config/roles 集合
     canAccessAdmin: false,
     unlimitedAll:   true,
     canManageRoles: false,

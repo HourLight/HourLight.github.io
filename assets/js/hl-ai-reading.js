@@ -98,6 +98,7 @@
     btn.disabled=true; btn.textContent='🔮 解讀中，請稍候...'; btn.style.opacity='.5';
     var rd=document.getElementById('hlAIResult');
     var rb=document.getElementById('hlAIBox');
+    if (!rd || !rb) return;
     rd.style.display='block';
     rb.innerHTML='<div style="text-align:center;color:#fad5d3;font-family:\'LXGW WenKai TC\',serif;line-height:2.4">'
       +'<div style="width:40px;height:40px;border-radius:50%;border:1px solid rgba(240,181,179,.2);margin:0 auto 16px;animation:hlAIB 4s ease-in-out infinite"></div>'
@@ -107,6 +108,7 @@
     try{
       var pageName=(location.pathname.split('/').pop()||'').replace('.html','');
       var res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt,spread:pageName})});
+      if (!res.ok) throw new Error('API error: ' + res.status);
       var data=await res.json();
       rb.textContent=data.reading||data.error||'解讀過程發生問題，請重試或聯繫 LINE 客服。';
       if(typeof window.HL_track==='function') window.HL_track('ai_reading_complete',{tool:pageName});

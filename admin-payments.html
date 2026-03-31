@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-Hant-TW">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -182,7 +182,7 @@ tr:hover td{background:rgba(240,212,138,.03)}
 firebase.initializeApp(FIREBASE_CONFIG);
 var auth = firebase.auth();
 var db = firebase.firestore();
-var ADMIN_EMAILS = ['judyanee@gmail.com','info@hourlightkey.com','judyanee@hotmail.com'];
+var ADMIN_EMAILS = []; // 從 Firestore 動態載入
 var payments = []; // local cache
 
 function doLogin(){
@@ -191,12 +191,14 @@ function doLogin(){
   });
 }
 
-auth.onAuthStateChanged(function(user){
+auth.onAuthStateChanged(async function(user){
   if(!user){
     document.getElementById('guardArea').style.display='block';
     document.getElementById('mainArea').style.display='none';
     return;
   }
+  // 從 Firestore 載入管理員 email 清單
+  try { var rs = await db.doc('system/roles').get(); if(rs.exists) ADMIN_EMAILS = rs.data().adminEmails || []; } catch(e){}
   if(!ADMIN_EMAILS.includes(user.email)){
     document.getElementById('guardArea').innerHTML='<div class="icon">⛔</div><div class="msg">此帳號無管理權限<br>'+user.email+'</div>';
     return;

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -437,8 +437,9 @@ firebase.initializeApp(FB_CFG);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-/* ── 白名單 ── */
-const ALLOWED = ['judyanee@gmail.com','info@hourlightkey.com','judyanee@hotmail.com'];
+/* ── 白名單：從 Firestore 動態載入 ── */
+let ALLOWED = [];
+(async function(){ try { var rs = await db.doc('system/roles').get(); if(rs.exists) ALLOWED = rs.data().adminEmails || []; } catch(e){} })();
 
 /* ── 狀態 ── */
 let currentMode = 'general';

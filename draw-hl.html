@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-Hant-TW">
 <head>
 <!-- Google Analytics 4 -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
@@ -23,7 +23,7 @@
   fbq('track', 'PageView');
 </script>
 <noscript><img height="1" width="1" style="display:none"
-  src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1" loading="lazy"></noscript>
+  src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"></noscript>
 <!-- End Facebook Pixel -->
 
   <meta charset="UTF-8" />
@@ -2493,8 +2493,9 @@ document.addEventListener('DOMContentLoaded',function(){
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    /* 管理員白名單：不受配額限制 */
-    const ADMIN_EMAILS = ['info@hourlightkey.com', 'judyanee@gmail.com', 'judyanee@hotmail.com'];
+    /* 管理員白名單：從 Firestore 動態載入 */
+    let ADMIN_EMAILS = [];
+    try { const rs = await db.doc('system/roles').get(); if(rs.exists) ADMIN_EMAILS = rs.data().adminEmails || []; } catch(e){}
 
     window.HL_checkQuota = async function() {
       // ★ 2026/3/20 全面開放免費，PAYUNi串接後改 false 重啟限額

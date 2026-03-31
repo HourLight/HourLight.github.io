@@ -111,6 +111,7 @@
   }
 
   // ── 從 Firestore 載入管理員設定的權限矩陣 ──
+  var _roleEmails = { adminEmails: [], vipEmails: [] };
   async function loadPermMatrix() {
     _permMatrix = getDefaultPerms(); // 先用預設值
     if (!db) return;
@@ -118,23 +119,25 @@
       var snap = await db.doc('system/permissions').get();
       if (snap.exists) _permMatrix = snap.data();
     } catch(e) {}
+    // 從 Firestore 載入角色 email 清單（不在前端暴露）
+    try {
+      var rolesSnap = await db.doc('system/roles').get();
+      if (rolesSnap.exists) {
+        var d = rolesSnap.data();
+        _roleEmails.adminEmails = d.adminEmails || [];
+        _roleEmails.vipEmails   = d.vipEmails   || [];
+      }
+    } catch(e) {}
   }
 
   // ── 已登入 ──
   async function onLoggedIn(user) {
-    // 取得用戶角色
+    // 取得用戶角色（從 Firestore system/roles 動態判斷）
     var role = 'guest';
     try {
-      // 管理員 Email 硬設定
-      var adminEmails = (typeof HL_ROLES !== 'undefined' && HL_ROLES.admin) ? HL_ROLES.admin.emails : ['judyanee@gmail.com','info@hourlightkey.com'];
-      // 特殊貴賓 Email 硬設定（media curator 等級，無後台權限）
-      var vipEmails = (typeof HL_ROLES !== 'undefined' && HL_ROLES.vip_guest && HL_ROLES.vip_guest.emails)
-        ? HL_ROLES.vip_guest.emails
-        : ['maxinerong17@gmail.com','candywang5266@gmail.com','bird548888@gmail.com','hyukhae8611@gmail.com'];
-
-      if (adminEmails.includes(user.email)) {
+      if (_roleEmails.adminEmails.includes(user.email)) {
         role = 'admin';
-      } else if (vipEmails.includes(user.email)) {
+      } else if (_roleEmails.vipEmails.includes(user.email)) {
         role = 'vip_guest';
       } else {
         var snap = await db.doc('users/'+user.uid).get();

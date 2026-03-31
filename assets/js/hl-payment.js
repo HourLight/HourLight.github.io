@@ -47,6 +47,7 @@
           })
         });
 
+        if (!response.ok) throw new Error('HTTP ' + response.status);
         var result = await response.json();
 
         if (!result.success || !result.action || !result.formData) {

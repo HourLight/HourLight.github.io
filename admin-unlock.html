@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-Hant-TW">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -101,7 +101,7 @@ body{background:#0a0612;color:#f0e8d8;font-family:'Noto Sans TC',sans-serif;padd
 <script src="assets/js/firebase-config.js"></script>
 <script src="assets/js/hl-referral.js?v=20260323"></script>
 <script>
-var ADMIN_EMAILS = ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+var ADMIN_EMAILS = []; // 從 Firestore 動態載入
 var PRICES = { 3: 199, 5: 399, 7: 599 };
 
 // Firebase init
@@ -122,7 +122,9 @@ function doLogin() {
   });
 }
 
-auth.onAuthStateChanged(function(user) {
+auth.onAuthStateChanged(async function(user) {
+  // 從 Firestore 載入管理員 email 清單
+  if (user) { try { var rs = await db.doc('system/roles').get(); if(rs.exists) ADMIN_EMAILS = rs.data().adminEmails || []; } catch(e){} }
   if (user && ADMIN_EMAILS.includes(user.email.toLowerCase())) {
     document.getElementById('guardBlock').style.display = 'none';
     document.getElementById('mainContent').style.display = 'block';
