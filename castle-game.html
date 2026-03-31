@@ -538,9 +538,10 @@ function upd(){
   if(!window.hlCastle){ setTimeout(upd,200); return; }
   var st = hlCastle.getState();
   document.getElementById('dPts').textContent = st.points;
-  document.getElementById('dRms').textContent = st.todayOpened + '/3';
+  var maxDoors = 3 + (window._bonusDoors||0);
+  document.getElementById('dRms').textContent = st.todayOpened + '/' + maxDoors;
   document.getElementById('dStr').textContent = st.streak;
-  document.getElementById('progFill').style.width = Math.round(st.todayOpened/3*100) + '%';
+  document.getElementById('progFill').style.width = Math.round(st.todayOpened/maxDoors*100) + '%';
   if(st.points > 0){
     document.getElementById('shareSec').style.display = 'block';
     document.getElementById('inviteSec').style.display = 'block';
@@ -853,7 +854,7 @@ function openRoom(rid){
 
 function selOpt(i){var r=ROOMS.find(function(r){return r.id===CUR_ROOM});if(!r)return;var rd=todayRiddle(r);if(rd.isAroma)return;rd.opts.forEach(function(_,j){var e=document.getElementById('o'+j);if(e)e.className='riddle-opt'+(j===i?' sel':'')});showIns(rd.opts[i].insight)}
 function selAroma(i){var r=ROOMS.find(function(r){return r.id===CUR_ROOM});if(!r)return;var rd=todayRiddle(r);if(!rd.aromas)return;rd.aromas.forEach(function(_,j){var e=document.getElementById('a'+j);if(e)e.className='aroma-card'+(j===i?' sel':'')});showIns(rd.aromas[i].insight)}
-function showIns(t){var el=document.getElementById('ins');el.innerHTML='<div class="insight-txt">'+t.replace(/\\n/g,'<br>')+'</div>';el.classList.add('show');document.getElementById('btnDone').disabled=false;el.scrollIntoView({behavior:'smooth',block:'center'})}
+function showIns(t){var el=document.getElementById('ins');el.innerHTML='<div class="insight-txt">'+t.replace(/\n/g,'<br>')+'</div>';el.classList.add('show');document.getElementById('btnDone').disabled=false;el.scrollIntoView({behavior:'smooth',block:'center'})}
 
 function finish(){
   if(!CUR_ROOM) return;
@@ -1050,19 +1051,7 @@ function doRedeem(itemId){
   updateRedeemUI();upd();
 }
 
-function showCompleteToast(name){
-  var t=document.querySelector('.room-complete-toast');
-  if(!t){t=document.createElement('div');t.className='room-complete-toast';document.body.appendChild(t);}
-  var st=hlCastle.getState();
-  t.innerHTML='<span class="pts-earned">+5 ✨</span>「'+name+'」已解鎖<br><span style="font-size:.75rem;font-weight:400;opacity:.8">靈感點數 '+st.points+'</span>';
-  t.classList.add('show');
-  // 點數彈跳
-  setTimeout(function(){
-    var el=document.getElementById('dPts');
-    if(el){el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}
-  },300);
-  setTimeout(function(){t.classList.remove('show')},2200);
-}
+// (duplicate showCompleteToast removed — correct version is above)
 
 function doShare(){
   var st = hlCastle.getState();
