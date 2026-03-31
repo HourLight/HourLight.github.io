@@ -116,6 +116,11 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:linear-gradie
 .craft-btn.owned-btn{background:rgba(29,158,117,.1);color:#085041;cursor:default}
 .owned-badge{display:inline-flex;align-items:center;gap:4px;font-size:.68rem;color:#085041;margin-bottom:6px}
 
+/* ── 稀有材料來源提示 ── */
+.rare-source-hint{margin-top:8px;padding:8px 12px;border-radius:10px;background:rgba(233,194,125,.08);border:1px solid rgba(233,194,125,.18);font-size:.72rem;color:var(--txt-l);line-height:1.6}
+.rare-source-hint a{color:var(--warm);text-decoration:none;font-weight:600}
+.rare-source-hint a:hover{text-decoration:underline}
+
 /* ── 今日採集指南 ── */
 .guide-list{padding:0 16px;display:flex;flex-direction:column;gap:8px}
 .guide-card{background:var(--card);border:1px solid rgba(0,0,0,.06);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px}
@@ -401,6 +406,19 @@ function renderRecipes(){
     } else {
       var missingCount = r.ingredientList.filter(function(m){return m.have < m.need;}).length;
       html += '<button class="craft-btn not-ready">還差 ' + missingCount + ' 種材料</button>';
+      // 溫和提示：只在「缺的全是稀有/傳說材料、其他普通材料都夠」時顯示
+      var missingMats = r.ingredientList.filter(function(m){ return m.have < m.need; });
+      var hasMats = r.ingredientList.filter(function(m){ return m.have >= m.need; });
+      var allMissingAreRare = missingMats.length > 0 && missingMats.every(function(m){ return m.rarity === 'rare' || m.rarity === 'legendary'; });
+      var hasCommonMats = hasMats.length > 0;
+      if (allMissingAreRare && hasCommonMats) {
+        // 判斷缺的稀有材料是否來自抽牌（draw pool）
+        var drawRareIds = ['oil_spirit','angel_feather','oracle_essence'];
+        var missingFromDraw = missingMats.filter(function(m){ return drawRareIds.indexOf(m.id) > -1; });
+        if (missingFromDraw.length > 0) {
+          html += '<div class="rare-source-hint">&#10024; 這個材料可以從「<a href="draw-hl.html">3張牌深度覺察</a>」中獲得</div>';
+        }
+      }
     }
     html += '</div>';
   });

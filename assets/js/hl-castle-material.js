@@ -388,7 +388,7 @@
         Object.values(MATERIAL_DEFS).forEach(function(pool){
           pool.forEach(function(m){ if(m.id === matId) def = m; });
         });
-        return { id:matId, name: def ? def.name : matId, icon: def ? def.icon : '📦', need:need, have:have };
+        return { id:matId, name: def ? def.name : matId, icon: def ? def.icon : '📦', rarity: def ? def.rarity : 'common', need:need, have:have };
       });
       return Object.assign({}, recipe, {
         canCraft: canCraft,

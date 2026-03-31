@@ -1545,6 +1545,32 @@ function drawCards(n) {
   saveDrawToFirestore(selected.length, _codes, _titles, userQuestion);
   updateURL(selected.map(i => allFiles[i].replace('.png', '')).join(','));
   showAISection(n);
+
+  // 付費抽牌（3張以上）額外掉落稀有材料
+  if (n >= 3 && window.hlMaterial) {
+    var drawPool = hlMaterial.MATERIAL_DEFS && hlMaterial.MATERIAL_DEFS.draw;
+    if (drawPool) {
+      var rarePool = drawPool.filter(function(m){ return m.rarity === 'rare' || m.rarity === 'legendary'; });
+      if (rarePool.length) {
+        var totalW = rarePool.reduce(function(s,m){ return s + m.weight; }, 0);
+        var rand = Math.random() * totalW, acc = 0, pick = rarePool[0];
+        for (var ri = 0; ri < rarePool.length; ri++) {
+          acc += rarePool[ri].weight;
+          if (rand < acc) { pick = rarePool[ri]; break; }
+        }
+        var dropped = hlMaterial.drop('draw', pick);
+        if (dropped && dropped.ok) {
+          setTimeout(function(){
+            var t = document.createElement('div');
+            t.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1a1030,#2a1840);border:1px solid rgba(233,194,125,.4);color:#f8dfa5;padding:14px 24px;border-radius:16px;font-size:.9rem;z-index:9000;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:fadeUp .4s ease';
+            t.innerHTML = '&#10024; ' + (pick.rarity === 'legendary' ? '傳說材料掉落！' : '獲得稀有材料！') + '<br><strong>' + pick.icon + ' ' + pick.name + '</strong>';
+            document.body.appendChild(t);
+            setTimeout(function(){ t.style.opacity = '0'; t.style.transition = 'opacity .4s'; setTimeout(function(){ t.remove(); }, 500); }, 3000);
+          }, 2000);
+        }
+      }
+    }
+  }
 }
 
 function renderCards(showExplain) {
@@ -2513,6 +2539,7 @@ document.addEventListener('DOMContentLoaded',function(){
 })();
 </script>
 <script src="assets/js/hl-tracker.js" data-tool="draw-hl" data-tool-name="馥靈牌陣抽牌" data-tool-type="draw"></script>
+<script src="assets/js/hl-castle-material.js"></script>
 
 <script>
 /* ── 配額橋接：在 draw-hl.html 內實作 HL_checkQuota ── */
