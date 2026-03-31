@@ -5,7 +5,7 @@
 (function(){
 'use strict';
 
-var ANNOUNCE_VER = '2026-03-31-v5';
+var ANNOUNCE_VER = '2026-04-01-april-gift';
 var DISMISS_KEY = 'hl_announce_' + ANNOUNCE_VER;
 
 try { if(sessionStorage.getItem(DISMISS_KEY)) return; } catch(e){}
@@ -26,41 +26,26 @@ overlay.innerHTML = `
   
   <div class="hla-body">
     <div class="hla-section">
-      <div class="hla-icon">✨</div>
+      <div class="hla-icon">🎁</div>
       <div class="hla-text">
-        <strong>33 大命理、50+ 測驗、130 張牌卡，全部免費用</strong><br>
-        命盤資料免費複製不限次。點「🔮 AI 深度解讀指令」可產出專業框架，貼到任何 AI 即可深度解讀，每天免費 3 次。
-      </div>
-    </div>
-
-    <div class="hla-section">
-      <div class="hla-icon">🔑</div>
-      <div class="hla-text">
-        <strong>想用更多？</strong><br>
-        鑰友 $399/月（每天 10 次）｜大師 $999/月（無限次）｜加購 10 次 $199（永久有效）<br>
-        <a href="pricing.html" style="color:#f8dfa5">方案說明 →</a>
-      </div>
-    </div>
-
-    <div class="hla-section">
-      <div class="hla-icon">🔮</div>
-      <div class="hla-text">
-        <strong>抽牌</strong><br>
-        1 張免費。3 張以上搭配解讀，單次付費。9 張以上找覺察師一對一。
+        <strong>這不是愚人節玩笑</strong><br>
+        我們準備了一份禮物給你。翻開牌卡，看看你的運氣。<br>
+        最大獎：覺察師一對一 15 張深度解讀（價值 $3,600）
       </div>
     </div>
 
     <div class="hla-section hla-highlight">
-      <div class="hla-icon">💬</div>
+      <div class="hla-icon">🎴</div>
       <div class="hla-text">
-        有問題隨時敲 <span style="color:#f8dfa5">LINE @hourlight</span>
+        <strong>每人限抽一次，4/6 截止</strong><br>
+        <a href="april-gift.html" style="color:#f8dfa5;font-weight:700;font-size:1rem">👉 去拆禮物</a>
       </div>
     </div>
   </div>
   
   <div class="hla-footer">
     <button class="hla-btn" onclick="document.getElementById('hlAnnounce').remove();try{sessionStorage.setItem('${DISMISS_KEY}','1')}catch(e){}">
-      知道了，開始探索 ✨
+      我知道了
     </button>
   </div>
 </div>
