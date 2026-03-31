@@ -1029,15 +1029,14 @@ var ADMIN_EMAILS = []; // 從 Firestore 動態載入
 /* ── 登入守門 ── */
 function doLogin(){
   var provider = new firebase.auth.GoogleAuthProvider();
-  // 手機用 redirect（popup 在手機常被擋）
-  if(/iPhone|iPad|Android|Mobile/i.test(navigator.userAgent)){
-    auth.signInWithRedirect(provider);
-  } else {
-    auth.signInWithPopup(provider).catch(function(e){
-      // popup 被擋，fallback 到 redirect
-      auth.signInWithRedirect(provider);
-    });
-  }
+  document.querySelector('.guard-msg').textContent = '正在開啟 Google 登入⋯';
+  auth.signInWithPopup(provider).catch(function(e){
+    console.error('Login error:', e);
+    document.querySelector('.guard-msg').textContent = '登入失敗：' + (e.message || e.code || '未知錯誤');
+    document.querySelector('.guard-msg').style.fontSize = '.8rem';
+    // fallback 到 redirect
+    setTimeout(function(){ auth.signInWithRedirect(provider); }, 2000);
+  });
 }
 
 auth.onAuthStateChanged(async function(user){
