@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-BXP7K53QG6');</script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>花園｜你的內在城堡｜馥靈之鑰 Hour Light</title>
+<meta name="description" content="花園裡種的每一株植物，都是你曾經好好照顧過的情緒。"/>
+<link rel="canonical" href="https://hourlightkey.com/castle-room-garden.html"/>
+<link rel="icon" href="favicon.ico"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=LXGW+WenKai+TC&family=Noto+Serif+TC:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#fdf6ef;
+  --bg2:#f7ede2;
+  --card:rgba(255,255,255,.92);
+  --warm:#3e2a1a;
+  --warm2:#6b4a30;
+  --muted:#9a7a60;
+  --gold:#c8862a;
+  --gold-l:#e8b86d;
+  --gold-ll:#f5dfa8;
+  --teal:#2a8a7c;
+  --teal-l:#4eb8a8;
+  --rose:#c0334d;
+  --rose-l:#e85a72;
+  --navy:#1a3050;
+  --accent:#2a8a7c;
+  --border:rgba(200,134,42,.15);
+  --shadow:0 8px 32px rgba(62,42,26,.08);
+  --shadow-lg:0 20px 60px rgba(62,42,26,.14);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Noto Serif TC',serif;
+  color:var(--warm);
+  background:var(--bg);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── Topbar ── */
+.topbar{
+  position:sticky;top:0;z-index:300;
+  height:52px;
+  background:rgba(253,246,239,.94);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;
+}
+.topbar-back{
+  display:flex;align-items:center;gap:6px;
+  font-size:.78rem;color:var(--muted);text-decoration:none;
+  transition:color .2s;
+}
+.topbar-back:hover{color:var(--warm)}
+.topbar-title{
+  font-family:'Playfair Display',serif;
+  font-size:.95rem;font-weight:700;color:var(--warm);
+  letter-spacing:.06em;
+}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.room-completeness{
+  font-size:.7rem;color:var(--muted);
+  display:flex;align-items:center;gap:5px;
+}
+.completeness-bar{
+  width:48px;height:4px;
+  background:rgba(200,134,42,.15);
+  border-radius:2px;overflow:hidden;
+}
+.completeness-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--accent),var(--teal-l));
+  border-radius:2px;
+  transition:width .6s cubic-bezier(.16,1,.3,1);
+}
+
+/* ── 頁首裝飾條 ── */
+.room-header{
+  padding:20px 18px 0;
+  display:flex;align-items:baseline;gap:10px;
+}
+.room-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:.68rem;letter-spacing:.12em;color:var(--muted);
+  background:rgba(42,138,124,.08);
+  border:1px solid var(--border);
+  border-radius:20px;padding:3px 12px;
+  text-transform:uppercase;
+}
+.room-phase{
+  font-size:.68rem;color:var(--accent);letter-spacing:.1em;
+}
+
+/* ══════════════════════════════
+   SVG 房間場景
+══════════════════════════════ */
+.room-scene-wrap{
+  margin:12px 16px 0;
+  border-radius:24px;
+  overflow:hidden;
+  border:1.5px solid var(--border);
+  box-shadow:var(--shadow-lg);
+  background:#0e2018;
+  position:relative;
+  cursor:pointer;
+}
+.room-scene-wrap:hover .scene-hint{opacity:1}
+.scene-hint{
+  position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.55);color:rgba(255,248,235,.85);
+  font-size:.68rem;padding:5px 14px;border-radius:20px;
+  letter-spacing:.08em;white-space:nowrap;
+  opacity:0;transition:opacity .3s;pointer-events:none;
+  backdrop-filter:blur(4px);
+}
+
+.furniture-slot{cursor:pointer;transition:filter .25s}
+.furniture-slot:hover{filter:brightness(1.25) drop-shadow(0 0 8px rgba(78,184,168,.6))}
+.furniture-slot.occupied{cursor:default}
+.furniture-slot.occupied:hover{filter:drop-shadow(0 0 6px rgba(78,184,168,.4))}
+.slot-empty{opacity:.35;transition:opacity .25s}
+.furniture-slot:hover .slot-empty{opacity:.6}
+
+/* ══════════════════════════════
+   今日狀態區
+══════════════════════════════ */
+.status-strip{
+  margin:14px 16px 0;
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:8px;
+}
+.status-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:12px 10px;
+  text-align:center;
+}
+.status-icon{font-size:18px;margin-bottom:3px;display:block}
+.status-label{font-size:.62rem;color:var(--muted);letter-spacing:.06em;display:block;margin-bottom:2px}
+.status-val{font-size:.88rem;font-weight:700;color:var(--warm);display:block}
+
+/* ══════════════════════════════
+   謎語（覺察問答）區
+══════════════════════════════ */
+.riddle-section{margin:14px 16px 0}
+.section-label{
+  font-size:.68rem;letter-spacing:.12em;color:var(--muted);
+  text-transform:uppercase;margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.riddle-card{
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:20px;padding:20px 16px;box-shadow:var(--shadow);
+}
+.riddle-type-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:.63rem;letter-spacing:.1em;color:var(--accent);
+  border:1px solid rgba(42,138,124,.25);
+  border-radius:20px;padding:3px 10px;
+  margin-bottom:12px;background:rgba(42,138,124,.05);
+}
+.riddle-q{
+  font-family:'LXGW WenKai TC','Noto Serif TC',serif;
+  font-size:1rem;color:var(--warm);line-height:1.75;margin-bottom:16px;
+}
+.riddle-opts{display:flex;flex-direction:column;gap:8px}
+.riddle-opt{
+  padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;
+  background:rgba(200,134,42,.03);cursor:pointer;font-size:.88rem;color:var(--warm2);
+  line-height:1.55;transition:all .2s;position:relative;
+}
+.riddle-opt::before{
+  content:'';position:absolute;left:0;top:0;width:3px;height:100%;
+  background:var(--accent);border-radius:3px 0 0 3px;transform:scaleY(0);transition:transform .22s;
+}
+.riddle-opt:hover{border-color:rgba(42,138,124,.4);background:rgba(42,138,124,.07);transform:translateX(3px)}
+.riddle-opt:hover::before,.riddle-opt.sel::before{transform:scaleY(1)}
+.riddle-opt.sel{border-color:rgba(42,138,124,.4);background:rgba(42,138,124,.06);color:var(--warm);font-weight:500}
+.aroma-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.aroma-card{
+  padding:14px 10px;border:1.5px solid var(--border);border-radius:14px;
+  background:rgba(200,134,42,.03);cursor:pointer;text-align:center;transition:all .22s;
+}
+.aroma-card:hover{border-color:rgba(42,138,124,.4);background:rgba(42,138,124,.07);transform:translateY(-2px)}
+.aroma-card.sel{border-color:rgba(42,138,124,.45);background:rgba(42,138,124,.07)}
+.aroma-icon{font-size:24px;margin-bottom:5px;display:block}
+.aroma-name{font-size:.75rem;font-weight:700;color:var(--warm);margin-bottom:2px}
+.aroma-note{font-size:.65rem;color:var(--muted);line-height:1.4}
+.insight-box{
+  margin-top:14px;padding:16px;
+  background:linear-gradient(135deg,rgba(42,138,124,.04),rgba(78,184,168,.04));
+  border:1px solid rgba(42,138,124,.2);border-radius:14px;
+  display:none;animation:fadeSlideUp .5s ease;
+}
+.insight-box.show{display:block}
+.insight-txt{font-family:'LXGW WenKai TC','Noto Serif TC',serif;font-size:.88rem;color:var(--warm2);line-height:1.9}
+.insight-txt strong{color:var(--warm);font-weight:700}
+.btn-complete{
+  display:block;width:100%;margin-top:16px;padding:14px;
+  background:linear-gradient(135deg,var(--accent),var(--teal-l));
+  color:#fff;border:none;border-radius:14px;
+  font-family:'Playfair Display','Noto Serif TC',serif;
+  font-size:.95rem;font-weight:700;letter-spacing:.06em;
+  cursor:pointer;transition:all .25s;position:relative;overflow:hidden;
+}
+.btn-complete::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);
+  transform:translateX(-100%);transition:transform .5s;
+}
+.btn-complete:hover::after{transform:translateX(100%)}
+.btn-complete:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(42,138,124,.3)}
+.btn-complete:disabled{opacity:.35;cursor:default;transform:none;box-shadow:none}
+.btn-complete:disabled::after{display:none}
+
+/* ══════════════════════════════
+   傢具清單
+══════════════════════════════ */
+.furniture-section{
+  margin:14px 16px 0;background:var(--card);
+  border:1.5px solid var(--border);border-radius:20px;padding:18px 16px;
+}
+.furniture-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.furniture-item{
+  display:flex;align-items:center;gap:12px;padding:10px 12px;
+  border-radius:12px;background:rgba(200,134,42,.04);border:1px solid var(--border);
+}
+.furniture-item.placed{border-color:rgba(42,138,124,.3);background:rgba(42,138,124,.07)}
+.furniture-item-icon{font-size:20px;flex-shrink:0}
+.furniture-item-info{flex:1;min-width:0}
+.furniture-item-name{font-size:.82rem;font-weight:700;color:var(--warm)}
+.furniture-item-desc{font-size:.68rem;color:var(--muted);line-height:1.4;margin-top:1px}
+.furniture-item-action{
+  padding:5px 12px;border-radius:20px;font-size:.68rem;font-weight:700;
+  border:1px solid;cursor:pointer;transition:all .2s;font-family:inherit;
+}
+.btn-place{border-color:var(--accent);color:var(--accent);background:transparent}
+.btn-place:hover{background:var(--accent);color:#fff}
+.btn-placed{border-color:rgba(42,138,124,.4);color:var(--teal);background:rgba(42,138,124,.06);cursor:default}
+.furniture-empty{text-align:center;padding:20px;font-size:.78rem;color:var(--muted);line-height:1.8}
+.care-title{
+  font-family:'Playfair Display',serif;font-size:.88rem;font-weight:700;color:var(--warm);
+  letter-spacing:.06em;margin-bottom:14px;display:flex;align-items:center;gap:7px;
+}
+.care-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ══════════════════════════════
+   日記區
+══════════════════════════════ */
+.diary-section{
+  margin:14px 16px 0;background:var(--card);
+  border:1.5px solid var(--border);border-radius:20px;padding:18px 16px;
+}
+.diary-textarea{
+  width:100%;min-height:80px;border:1.5px solid var(--border);border-radius:12px;
+  padding:12px;font-family:'LXGW WenKai TC','Noto Serif TC',serif;
+  font-size:.88rem;color:var(--warm);background:rgba(42,138,124,.03);
+  resize:vertical;line-height:1.7;outline:none;transition:border-color .2s;
+}
+.diary-textarea:focus{border-color:rgba(42,138,124,.4)}
+.diary-textarea::placeholder{color:var(--muted);opacity:.6}
+.diary-saved{font-size:.65rem;color:var(--teal);margin-top:6px;opacity:0;transition:opacity .3s}
+.diary-saved.show{opacity:1}
+
+/* ══════════════════════════════
+   城堡完整度浮條
+══════════════════════════════ */
+.completion-banner{
+  margin:14px 16px 0;
+  background:linear-gradient(135deg,var(--navy),#2a4060);
+  border-radius:16px;padding:14px 16px;
+  display:flex;align-items:center;gap:12px;
+}
+.completion-pct{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:800;color:var(--gold-l);flex-shrink:0}
+.completion-info{flex:1}
+.completion-label{font-size:.72rem;color:rgba(245,223,168,.65);margin-bottom:4px;letter-spacing:.06em}
+.completion-track{height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+.completion-prog{
+  height:100%;background:linear-gradient(90deg,var(--accent),var(--teal-l));
+  border-radius:3px;transition:width .8s cubic-bezier(.16,1,.3,1);
+}
+.completion-sub{font-size:.65rem;color:rgba(245,223,168,.5);margin-top:4px}
+
+/* ── 底部 ── */
+.bottom-nav-row{margin:20px 16px 8px;display:flex;gap:8px}
+.room-nav-btn{
+  flex:1;padding:11px;border-radius:12px;font-size:.75rem;font-weight:700;
+  border:1.5px solid var(--border);background:var(--card);color:var(--warm2);
+  cursor:pointer;font-family:'Noto Serif TC',serif;transition:all .2s;text-decoration:none;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.room-nav-btn:hover{border-color:rgba(42,138,124,.4);background:rgba(42,138,124,.06)}
+.room-nav-btn.primary{background:linear-gradient(135deg,var(--accent),var(--teal-l));border-color:transparent;color:#fff}
+.room-nav-btn.primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(42,138,124,.25)}
+.bottom-pad{height:80px}
+
+/* ── 動畫 ── */
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes modalPop{from{opacity:0;transform:scale(.88) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes glowPulse{0%,100%{opacity:.5}50%{opacity:.85}}
+@keyframes dustFloat{0%{transform:translateY(0) translateX(0);opacity:0}20%{opacity:.6}80%{opacity:.3}100%{transform:translateY(-40px) translateX(8px);opacity:0}}
+@keyframes leafSway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+@keyframes butterflyFloat{0%{transform:translate(0,0) rotate(0deg)}25%{transform:translate(10px,-8px) rotate(5deg)}50%{transform:translate(20px,0) rotate(0deg)}75%{transform:translate(10px,8px) rotate(-5deg)}100%{transform:translate(0,0) rotate(0deg)}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="castle-game.html" class="topbar-back">&larr; 城堡地圖</a>
+  <span class="topbar-title">🌿 花園</span>
+  <div class="topbar-right">
+    <div class="room-completeness">
+      <span id="comp-label">完整度</span>
+      <div class="completeness-bar"><div class="completeness-fill" id="comp-bar" style="width:0%"></div></div>
+      <span id="comp-pct">0%</span>
+    </div>
+  </div>
+</div>
+
+<!-- 頁首標籤 -->
+<div class="room-header">
+  <span class="room-badge">🏰 H 塔樓 · 花園</span>
+  <span class="room-phase">Heal</span>
+</div>
+
+<!-- ══ SVG 房間場景 ══ -->
+<div class="room-scene-wrap" id="sceneWrap" onclick="toggleFurnitureMode()">
+  <svg id="roomSvg" viewBox="0 0 420 280" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%">
+    <defs>
+      <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:#1a3050"/>
+        <stop offset="60%" style="stop-color:#2a5060"/>
+        <stop offset="100%" style="stop-color:#3a6848"/>
+      </linearGradient>
+      <linearGradient id="grassGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:#2a6040"/>
+        <stop offset="100%" style="stop-color:#1a4030"/>
+      </linearGradient>
+      <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" style="stop-color:#ffe8d0;stop-opacity:.4"/>
+        <stop offset="100%" style="stop-color:#ffe8d0;stop-opacity:0"/>
+      </radialGradient>
+    </defs>
+
+    <!-- 天空 -->
+    <rect x="0" y="0" width="420" height="280" fill="url(#skyGrad)"/>
+
+    <!-- 月亮 -->
+    <circle cx="340" cy="50" r="20" fill="#f5e8c8" opacity=".85"/>
+    <ellipse cx="340" cy="50" rx="40" ry="40" fill="url(#moonGlow)" style="animation:glowPulse 4s ease-in-out infinite"/>
+
+    <!-- 星星 -->
+    <circle cx="60" cy="30" r="1" fill="#ffe8d0" opacity=".7"/>
+    <circle cx="120" cy="18" r="1.2" fill="#ffe8d0" opacity=".6"/>
+    <circle cx="200" cy="25" r=".8" fill="#ffe8d0" opacity=".5"/>
+    <circle cx="270" cy="15" r="1" fill="#ffe8d0" opacity=".65"/>
+    <circle cx="390" cy="28" r=".9" fill="#ffe8d0" opacity=".55"/>
+
+    <!-- 草地 -->
+    <rect x="0" y="170" width="420" height="110" fill="url(#grassGrad)"/>
+    <!-- 小徑 -->
+    <ellipse cx="210" cy="230" rx="60" ry="40" fill="#4a3020" opacity=".3"/>
+    <ellipse cx="210" cy="230" rx="50" ry="32" fill="#5a3a28" opacity=".2"/>
+
+    <!-- 樹（左）-->
+    <rect x="48" y="100" width="14" height="80" rx="4" fill="#4a3018"/>
+    <ellipse cx="55" cy="90" rx="35" ry="30" fill="#2a5a30" opacity=".85" style="transform-origin:55px 90px;animation:leafSway 4s ease-in-out infinite"/>
+    <ellipse cx="45" cy="80" rx="20" ry="18" fill="#3a6a3a" opacity=".7" style="transform-origin:45px 80px;animation:leafSway 3.5s .5s ease-in-out infinite"/>
+
+    <!-- 樹（右）-->
+    <rect x="358" y="110" width="12" height="70" rx="3" fill="#4a3018"/>
+    <ellipse cx="364" cy="100" rx="30" ry="28" fill="#2a5a30" opacity=".85" style="transform-origin:364px 100px;animation:leafSway 4.2s .3s ease-in-out infinite"/>
+    <ellipse cx="370" cy="88" rx="18" ry="16" fill="#3a6a3a" opacity=".7"/>
+
+    <!-- 花叢（左前）-->
+    <circle cx="100" cy="195" r="6" fill="#e85a72" opacity=".8"/>
+    <circle cx="88" cy="200" r="5" fill="#e8a0b0" opacity=".7"/>
+    <circle cx="112" cy="198" r="4" fill="#c0334d" opacity=".75"/>
+    <line x1="100" y1="201" x2="100" y2="215" stroke="#3a6a3a" stroke-width="1.5"/>
+    <line x1="88" y1="205" x2="88" y2="218" stroke="#3a6a3a" stroke-width="1.2"/>
+    <line x1="112" y1="202" x2="112" y2="214" stroke="#3a6a3a" stroke-width="1.2"/>
+
+    <!-- 花叢（右前）-->
+    <circle cx="310" cy="198" r="5" fill="#e8b86d" opacity=".8"/>
+    <circle cx="322" cy="195" r="6" fill="#4eb8a8" opacity=".7"/>
+    <circle cx="300" cy="200" r="4" fill="#e8c06d" opacity=".75"/>
+    <line x1="310" y1="203" x2="310" y2="216" stroke="#3a6a3a" stroke-width="1.2"/>
+    <line x1="322" y1="201" x2="322" y2="218" stroke="#3a6a3a" stroke-width="1.5"/>
+
+    <!-- 中央噴泉/石碗 -->
+    <ellipse cx="210" cy="185" rx="35" ry="12" fill="#5a6a7a" opacity=".7"/>
+    <rect x="195" y="175" width="30" height="12" rx="4" fill="#6a7a8a" opacity=".6"/>
+    <ellipse cx="210" cy="175" rx="20" ry="6" fill="#4a8090" opacity=".5"/>
+    <ellipse cx="210" cy="175" rx="15" ry="4" fill="#6aA0B0" opacity=".3"/>
+
+    <!-- 蝴蝶 -->
+    <g style="animation:butterflyFloat 6s ease-in-out infinite">
+      <ellipse cx="180" cy="140" rx="5" ry="3" fill="#e8a0d0" opacity=".7" transform="rotate(-20 180 140)"/>
+      <ellipse cx="186" cy="140" rx="5" ry="3" fill="#e8a0d0" opacity=".7" transform="rotate(20 186 140)"/>
+      <line x1="183" y1="137" x2="183" y2="143" stroke="#8a5a6a" stroke-width=".8"/>
+    </g>
+    <g style="animation:butterflyFloat 7s 2s ease-in-out infinite">
+      <ellipse cx="260" cy="120" rx="4" ry="2.5" fill="#a0d0e8" opacity=".6" transform="rotate(-15 260 120)"/>
+      <ellipse cx="265" cy="120" rx="4" ry="2.5" fill="#a0d0e8" opacity=".6" transform="rotate(15 265 120)"/>
+      <line x1="262" y1="118" x2="262" y2="123" stroke="#5a7a8a" stroke-width=".6"/>
+    </g>
+
+    <!-- 螢火蟲 -->
+    <circle cx="150" cy="130" r="2" fill="#e8e080" opacity="0" style="animation:dustFloat 3.5s 0.3s ease-in-out infinite"/>
+    <circle cx="250" cy="110" r="1.8" fill="#e8e080" opacity="0" style="animation:dustFloat 4s 1s ease-in-out infinite"/>
+    <circle cx="180" cy="160" r="1.5" fill="#e8e080" opacity="0" style="animation:dustFloat 4.5s 1.8s ease-in-out infinite"/>
+    <circle cx="300" cy="150" r="2" fill="#e8e080" opacity="0" style="animation:dustFloat 3.8s 0.7s ease-in-out infinite"/>
+
+    <!-- ══ 傢具插槽（3個）══ -->
+    <g class="furniture-slot" id="slot1" data-slot="1" onclick="clickSlot(1)">
+      <rect x="140" y="210" width="22" height="22" rx="4" fill="#2a8a7c" opacity=".08" class="slot-empty"/>
+      <rect x="140" y="210" width="22" height="22" rx="4" fill="none" stroke="#2a8a7c" stroke-width="1" stroke-dasharray="3,2" opacity=".35" class="slot-empty"/>
+      <text x="151" y="225" text-anchor="middle" font-size="10" fill="#2a8a7c" opacity=".45" class="slot-empty">+</text>
+      <text id="slot1-icon" x="151" y="227" text-anchor="middle" font-size="16" style="display:none"></text>
+    </g>
+    <g class="furniture-slot" id="slot2" data-slot="2" onclick="clickSlot(2)">
+      <rect x="255" y="210" width="22" height="22" rx="4" fill="#2a8a7c" opacity=".08" class="slot-empty"/>
+      <rect x="255" y="210" width="22" height="22" rx="4" fill="none" stroke="#2a8a7c" stroke-width="1" stroke-dasharray="3,2" opacity=".35" class="slot-empty"/>
+      <text x="266" y="225" text-anchor="middle" font-size="10" fill="#2a8a7c" opacity=".45" class="slot-empty">+</text>
+      <text id="slot2-icon" x="266" y="227" text-anchor="middle" font-size="18" style="display:none"></text>
+    </g>
+    <g class="furniture-slot" id="slot3" data-slot="3" onclick="clickSlot(3)">
+      <rect x="195" y="240" width="26" height="26" rx="4" fill="#2a8a7c" opacity=".08" class="slot-empty"/>
+      <rect x="195" y="240" width="26" height="26" rx="4" fill="none" stroke="#2a8a7c" stroke-width="1" stroke-dasharray="3,2" opacity=".35" class="slot-empty"/>
+      <text x="208" y="257" text-anchor="middle" font-size="10" fill="#2a8a7c" opacity=".45" class="slot-empty">+</text>
+      <text id="slot3-icon" x="208" y="259" text-anchor="middle" font-size="18" style="display:none"></text>
+    </g>
+  </svg>
+  <span class="scene-hint">點擊場景放置傢具</span>
+</div>
+
+<!-- 今日狀態 -->
+<div class="status-strip">
+  <div class="status-card">
+    <span class="status-icon">💭</span>
+    <span class="status-label">今日覺察</span>
+    <span class="status-val" id="riddle-status">待完成</span>
+  </div>
+  <div class="status-card">
+    <span class="status-icon">🌿</span>
+    <span class="status-label">探索次數</span>
+    <span class="status-val" id="visit-count">0</span>
+  </div>
+</div>
+
+<!-- 覺察謎語 -->
+<div class="riddle-section">
+  <div class="section-label">✦ 今日覺察</div>
+  <div class="riddle-card" id="riddleCard">
+    <div id="riddle-content"></div>
+  </div>
+</div>
+
+<!-- 日記 -->
+<div class="diary-section">
+  <div class="care-title">✦ 花園日記</div>
+  <textarea class="diary-textarea" id="diaryText" placeholder="今天你照顧了哪一份情緒？"></textarea>
+  <div class="diary-saved" id="diarySaved">✓ 已自動儲存</div>
+</div>
+
+<!-- 傢具清單 -->
+<div class="furniture-section">
+  <div class="care-title">✦ 花園陳設</div>
+  <div class="furniture-list" id="furniture-list"></div>
+</div>
+
+<!-- 城堡完整度 -->
+<div class="completion-banner">
+  <div class="completion-pct" id="total-pct">0%</div>
+  <div class="completion-info">
+    <div class="completion-label">城堡完整度</div>
+    <div class="completion-track">
+      <div class="completion-prog" id="total-prog" style="width:0%"></div>
+    </div>
+    <div class="completion-sub" id="total-sub">放置更多傢具，提升完整度</div>
+  </div>
+</div>
+
+<!-- 底部導航 -->
+<div class="bottom-nav-row">
+  <a href="castle-game.html" class="room-nav-btn">🏰 城堡地圖</a>
+  <a href="castle-materials.html" class="room-nav-btn primary">🧪 去合成傢具</a>
+</div>
+<div class="bottom-pad"></div>
+
+<!-- 傢具放置提示浮層 -->
+<div class="care-overlay" id="furnitureOverlay" onclick="closeFurnitureOverlay(event)" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.45);align-items:center;justify-content:center;backdrop-filter:blur(4px)">
+  <div class="care-modal" onclick="event.stopPropagation()" style="background:var(--bg);border:1.5px solid var(--border);border-radius:28px;padding:24px 20px 20px;max-width:340px;width:90%;text-align:center;box-shadow:var(--shadow-lg);animation:modalPop .5s cubic-bezier(.16,1,.3,1)">
+    <span style="font-size:3.2rem;margin-bottom:12px;display:block" id="fo-icon">🌿</span>
+    <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--warm);margin-bottom:4px" id="fo-name"></div>
+    <div style="font-size:.75rem;color:var(--muted);margin-bottom:14px" id="fo-desc"></div>
+    <div style="display:flex;flex-direction:column;gap:8px" id="fo-slots"></div>
+    <button style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:12px;background:transparent;color:var(--warm2);font-size:.88rem;cursor:pointer;font-family:'Noto Serif TC',serif;transition:all .2s;margin-top:12px" onclick="closeFurnitureOverlay()">取消</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+<script src="castle-riddles.js"></script>
+<script src="assets/js/hl-castle-key.js"></script>
+<script src="assets/js/hl-castle-material.js"></script>
+<script src="assets/js/hl-topnav.js"></script>
+<script src="assets/js/hl-bottomnav.js"></script>
+<script src="assets/js/hl-tracker.js" data-tool="castle-room-garden" data-tool-name="花園" data-tool-type="castle_room"></script>
+
+<script>
+'use strict';
+
+var ROOM_ID = 'garden';
+var ROOM_STORAGE = 'hl_room_garden_v1';
+
+var _roomRiddle = null;
+
+function todayKey(){
+  var tw = new Date(new Date().getTime() + 8*3600000);
+  return tw.getUTCFullYear() + '-' +
+    String(tw.getUTCMonth()+1).padStart(2,'0') + '-' +
+    String(tw.getUTCDate()).padStart(2,'0');
+}
+
+function getTodayRiddle(){
+  if(_roomRiddle) return _roomRiddle;
+  if(!window.ROOMS) return null;
+  var room = ROOMS.find(function(r){ return r.id === ROOM_ID; });
+  if(!room) return null;
+  var today = todayKey();
+  var seed = 0;
+  for(var i=0;i<today.length;i++) seed = ((seed<<5)-seed) + today.charCodeAt(i);
+  seed = Math.abs(seed) + 99;
+  _roomRiddle = room.riddles[seed % room.riddles.length];
+  return _roomRiddle;
+}
+
+function loadRoomState(){
+  var def = { totalVisits:0, riddleDone:{}, furniture:[], completeness:0 };
+  try{
+    var raw = localStorage.getItem(ROOM_STORAGE);
+    if(!raw) return def;
+    return Object.assign(def, JSON.parse(raw));
+  }catch(e){ return def; }
+}
+function saveRoomState(st){ try{ localStorage.setItem(ROOM_STORAGE, JSON.stringify(st)); }catch(e){} }
+function isRiddleDone(st){ return !!st.riddleDone[todayKey()]; }
+
+function calcCompleteness(st){
+  var furniturePts = Math.min(45, st.furniture.length * 15);
+  var riddleCount = Object.keys(st.riddleDone).length;
+  var riddlePts = Math.min(55, riddleCount * 5);
+  return Math.min(100, furniturePts + riddlePts);
+}
+
+var DIARY_KEY = 'hl_diary_garden_v1';
+function loadDiary(){ try{ return JSON.parse(localStorage.getItem(DIARY_KEY)) || {}; }catch(e){ return {}; } }
+function saveDiary(data){ try{ localStorage.setItem(DIARY_KEY, JSON.stringify(data)); }catch(e){} }
+function initDiary(){
+  var ta = document.getElementById('diaryText'); if(!ta) return;
+  var diary = loadDiary(); var today = todayKey();
+  if(diary[today]) ta.value = diary[today];
+  var saveTimer = null;
+  ta.addEventListener('input', function(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      var d = loadDiary(); d[today] = ta.value; saveDiary(d);
+      var saved = document.getElementById('diarySaved');
+      if(saved){ saved.classList.add('show'); setTimeout(function(){ saved.classList.remove('show'); }, 1800); }
+    }, 600);
+  });
+}
+
+var _state = null;
+var _furnitureModeItem = null;
+
+function init(){
+  if(!window.ROOMS || !window.hlCastle){ setTimeout(init, 200); return; }
+  _state = loadRoomState();
+  _state.totalVisits = (_state.totalVisits || 0) + 1;
+  saveRoomState(_state);
+  renderStatus(); renderRiddle(); renderFurnitureList();
+  renderCompleteness(); renderPlacedFurniture(); initDiary();
+}
+
+function renderStatus(){
+  document.getElementById('riddle-status').textContent = isRiddleDone(_state) ? '✓ 完成' : '待完成';
+  document.getElementById('visit-count').textContent = _state.totalVisits + ' 次';
+  var c = calcCompleteness(_state);
+  document.getElementById('comp-bar').style.width = c + '%';
+  document.getElementById('comp-pct').textContent = c + '%';
+}
+
+function renderRiddle(){
+  var rd = getTodayRiddle();
+  var done = isRiddleDone(_state);
+  var box = document.getElementById('riddle-content');
+  if(!rd){ box.innerHTML = '<p style="color:var(--muted);font-size:.82rem">今日謎語載入中…</p>'; return; }
+  var typeLabel = rd.type==='aroma' ? '🌿 認知芳療' : rd.type==='fuyu' ? '☯ 馥靈馥語' : '💭 覺察問答';
+  var h = '<div class="riddle-type-badge">' + typeLabel + '</div>';
+  h += '<div class="riddle-q">' + rd.q + '</div>';
+  if(done){
+    h += '<div class="insight-box show"><div class="insight-txt">✓ 今日覺察已完成。明天有新的問題等著你。</div></div>';
+  } else if(rd.isAroma && rd.aromas){
+    h += '<div class="aroma-grid">';
+    rd.aromas.forEach(function(a,i){
+      h += '<div class="aroma-card" onclick="selAroma('+i+')" id="a'+i+'"><span class="aroma-icon">'+a.icon+'</span><div class="aroma-name">'+a.name+'</div><div class="aroma-note">'+a.note+'</div></div>';
+    });
+    h += '</div><div class="insight-box" id="ins"></div>';
+    h += '<button class="btn-complete" id="btnDone" disabled onclick="finishRiddle()">✦ 收下這份覺察</button>';
+  } else {
+    h += '<div class="riddle-opts">';
+    rd.opts.forEach(function(o,i){ h += '<div class="riddle-opt" onclick="selOpt('+i+')" id="o'+i+'">'+o.text+'</div>'; });
+    h += '</div><div class="insight-box" id="ins"></div>';
+    h += '<button class="btn-complete" id="btnDone" disabled onclick="finishRiddle()">✦ 收下這份覺察</button>';
+  }
+  box.innerHTML = h;
+}
+
+function selOpt(i){
+  var rd = getTodayRiddle(); if(!rd||rd.isAroma) return;
+  rd.opts.forEach(function(_,j){ var e=document.getElementById('o'+j); if(e) e.className='riddle-opt'+(j===i?' sel':''); });
+  showInsight(rd.opts[i].insight);
+}
+function selAroma(i){
+  var rd = getTodayRiddle(); if(!rd||!rd.aromas) return;
+  rd.aromas.forEach(function(_,j){ var e=document.getElementById('a'+j); if(e) e.className='aroma-card'+(j===i?' sel':''); });
+  showInsight(rd.aromas[i].insight);
+}
+function showInsight(t){
+  var el=document.getElementById('ins'); if(!el) return;
+  el.innerHTML='<div class="insight-txt">'+t.replace(/\\n/g,'<br>').replace(/\n/g,'<br>')+'</div>';
+  el.classList.add('show');
+  var btn=document.getElementById('btnDone'); if(btn) btn.disabled=false;
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function finishRiddle(){
+  var insEl = document.getElementById('ins');
+  var insight = insEl ? insEl.textContent : '';
+  var qEl = document.querySelector('.riddle-q');
+  var question = qEl ? qEl.textContent : '';
+  var selEl = document.querySelector('.riddle-opt.sel, .aroma-card.sel');
+  var answer = selEl ? selEl.textContent : '';
+  if(window.hlCastle && hlCastle.hasKey(ROOM_ID)) hlCastle.completeRoom(ROOM_ID, question, answer, insight);
+  if(window.hlMaterial) hlMaterial.drop('castle_riddle');
+  _state.riddleDone[todayKey()] = true;
+  saveRoomState(_state); renderStatus(); renderCompleteness();
+  var btn = document.getElementById('btnDone');
+  if(btn){ btn.disabled=true; btn.textContent='✓ 已收下'; }
+  setTimeout(function(){ renderRiddle(); }, 800);
+}
+
+function renderFurnitureList(){
+  var container = document.getElementById('furniture-list');
+  var roomFurniture = getRoomFurniture();
+  var placed = _state.furniture.map(function(f){ return f.id; });
+  if(!roomFurniture.length){
+    container.innerHTML = '<div class="furniture-empty">還沒有適合花園的傢具。<br>去材料庫合成傢具，可以放在這裡。</div>';
+    return;
+  }
+  var html = '';
+  roomFurniture.forEach(function(item){
+    var isPlaced = placed.indexOf(item.id) > -1;
+    html += '<div class="furniture-item'+(isPlaced?' placed':'')+'">';
+    html += '<span class="furniture-item-icon">'+item.icon+'</span>';
+    html += '<div class="furniture-item-info"><div class="furniture-item-name">'+item.name+'</div><div class="furniture-item-desc">'+(item.desc||'')+'</div></div>';
+    html += isPlaced ? '<button class="furniture-item-action btn-placed">✓ 已放入</button>' :
+      '<button class="furniture-item-action btn-place" onclick="openFurniturePlace(\''+item.id+'\')">放入房間</button>';
+    html += '</div>';
+  });
+  container.innerHTML = html;
+}
+function getRoomFurniture(){
+  if(!window.hlMaterial) return [];
+  var furniture = hlMaterial.getFurniture();
+  var roomIds = ['garden_fountain'];
+  return furniture.filter(function(f){ return roomIds.indexOf(f.id) > -1; });
+}
+
+function openFurniturePlace(itemId){
+  if(!window.hlMaterial) return;
+  var recipes = hlMaterial.getRecipes();
+  var recipe = recipes.find(function(r){ return r.id === itemId; });
+  if(!recipe) return;
+  _furnitureModeItem = recipe;
+  document.getElementById('fo-icon').textContent = recipe.icon;
+  document.getElementById('fo-name').textContent = recipe.name;
+  document.getElementById('fo-desc').textContent = '「'+(recipe.desc||'')+'」';
+  var placedSlots = _state.furniture.map(function(f){ return f.slot; });
+  var slotsHtml = '';
+  [1,2,3].forEach(function(s){
+    var occupied = placedSlots.indexOf(s) > -1;
+    slotsHtml += '<button onclick="placeFurniture(\''+itemId+'\','+s+')" '+(occupied?'disabled style="opacity:.4;cursor:default"':'')+
+      ' style="width:100%;padding:10px;border-radius:10px;border:1.5px solid var(--border);background:'+(occupied?'rgba(0,0,0,.04)':'rgba(42,138,124,.06)')+
+      ';color:var(--warm2);font-size:.82rem;cursor:pointer;font-family:inherit;transition:all .2s">'+(occupied?'槽位 '+s+'（已佔用）':'放入槽位 '+s)+'</button>';
+  });
+  document.getElementById('fo-slots').innerHTML = slotsHtml;
+  document.getElementById('furnitureOverlay').style.display = 'flex';
+}
+function placeFurniture(itemId, slot){
+  if(!_furnitureModeItem) return;
+  _state.furniture = _state.furniture.filter(function(f){ return f.slot !== slot; });
+  _state.furniture.push({ id:itemId, slot:slot, icon:_furnitureModeItem.icon, name:_furnitureModeItem.name });
+  saveRoomState(_state); closeFurnitureOverlay();
+  renderFurnitureList(); renderPlacedFurniture(); renderCompleteness(); renderStatus();
+  showToast(_furnitureModeItem.icon+' '+_furnitureModeItem.name+' 已放入花園！');
+}
+function closeFurnitureOverlay(e){
+  if(e && e.target !== document.getElementById('furnitureOverlay') && e.type === 'click') return;
+  document.getElementById('furnitureOverlay').style.display = 'none';
+  _furnitureModeItem = null;
+}
+function toggleFurnitureMode(){}
+function clickSlot(slotNum){
+  var placed = _state.furniture.find(function(f){ return f.slot === slotNum; });
+  if(placed){ showToast(placed.icon+' '+placed.name+' 正放在這裡。'); return; }
+  showToast('這個位置還空著。去材料庫合成傢具，就能放在這裡。');
+}
+
+function renderPlacedFurniture(){
+  _state.furniture.forEach(function(f){
+    var iconEl = document.getElementById('slot'+f.slot+'-icon');
+    var emptyEls = document.querySelectorAll('#slot'+f.slot+' .slot-empty');
+    if(iconEl){ iconEl.textContent = f.icon; iconEl.style.display = ''; }
+    emptyEls.forEach(function(e){ e.style.display='none'; });
+    var slotEl = document.getElementById('slot'+f.slot);
+    if(slotEl) slotEl.classList.add('occupied');
+  });
+}
+
+function renderCompleteness(){
+  var c = calcCompleteness(_state);
+  var sub = c >= 100 ? '🎉 花園已完整！' : c >= 60 ? '繼續探索，越來越完整了' : c >= 30 ? '每天回來，完整度慢慢上升' : '放置傢具，提升完整度';
+  document.getElementById('total-pct').textContent = c + '%';
+  document.getElementById('total-prog').style.width = c + '%';
+  document.getElementById('total-sub').textContent = sub;
+  document.getElementById('comp-bar').style.width = c + '%';
+  document.getElementById('comp-pct').textContent = c + '%';
+}
+
+var _toastTimeout = null;
+function showToast(msg){
+  var t = document.getElementById('hlToast');
+  if(!t){
+    t = document.createElement('div'); t.id = 'hlToast';
+    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(12px);background:rgba(62,42,26,.97);color:#f5dfa8;padding:10px 20px;border-radius:12px;font-size:.82rem;z-index:9999;border:1px solid rgba(200,134,42,.35);pointer-events:none;opacity:0;transition:all .3s;white-space:nowrap;max-width:88vw;text-align:center;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(_toastTimeout);
+  _toastTimeout = setTimeout(function(){ t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(12px)'; }, 2600);
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var tries = 0;
+  var check = setInterval(function(){
+    tries++;
+    if((window.ROOMS && window.hlCastle) || tries > 25){ clearInterval(check); init(); }
+  }, 150);
+});
+</script>
+</body>
+</html>
