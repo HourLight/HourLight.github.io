@@ -2241,6 +2241,11 @@ async function copyReadingText(readingId){
           </div>
         </div>
         <div class="admin-sub" id="admin-members">
+          <div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap">
+            <button onclick="exportMemberEmails()" style="padding:8px 16px;border:1px solid var(--border);border-radius:20px;font-size:.82rem;background:var(--card);color:var(--text);cursor:pointer;font-family:inherit">📧 匯出會員 Email（CSV）</button>
+            <button onclick="exportPromoStats()" style="padding:8px 16px;border:1px solid var(--border);border-radius:20px;font-size:.82rem;background:var(--card);color:var(--text);cursor:pointer;font-family:inherit">🎁 兌換統計</button>
+            <button onclick="exportGiftStats()" style="padding:8px 16px;border:1px solid var(--border);border-radius:20px;font-size:.82rem;background:var(--card);color:var(--text);cursor:pointer;font-family:inherit">🎴 抽獎統計</button>
+          </div>
           <div class="member-filters">
             <input class="member-search" id="admin-member-search" type="text" placeholder="搜尋姓名或 Email" oninput="adminSearchMembers()">
             <select class="role-filter" id="admin-role-filter" onchange="adminSearchMembers()">
@@ -4170,6 +4175,55 @@ function calcPageNav(dir) {
   const total=Math.ceil(filteredCalcs.length/CALC_PAGE)||1;
   calcPage=Math.max(1,Math.min(total,calcPage+dir));
   renderCalcs();
+}
+
+// ── 匯出會員 Email CSV ──
+async function exportMemberEmails() {
+  try {
+    var snap = await db.collection('users').get();
+    var emails = new Set();
+    var rows = [['email','displayName','lastSeen','createdAt']];
+    snap.forEach(function(doc) {
+      var d = doc.data();
+      var email = d.email || '';
+      if (!email || emails.has(email)) return;
+      emails.add(email);
+      var ls = d.lastSeen && d.lastSeen.toDate ? d.lastSeen.toDate().toISOString().slice(0,10) : '';
+      var ca = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().toISOString().slice(0,10) : '';
+      rows.push([email, d.displayName || '', ls, ca]);
+    });
+    var csv = rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"'}).join(',')}).join('\n');
+    var blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'hourlight-members-'+new Date().toISOString().slice(0,10)+'.csv';
+    a.click(); URL.revokeObjectURL(url);
+    alert('已匯出 ' + (rows.length-1) + ' 筆會員 Email');
+  } catch(e) { alert('匯出失敗：' + e.message); }
+}
+async function exportPromoStats() {
+  try {
+    var snap = await db.collection('promo_redemptions').orderBy('ts','desc').get();
+    if (snap.empty) { alert('尚無兌換紀錄'); return; }
+    var stats = {};
+    snap.forEach(function(doc) { var d=doc.data(); stats[d.code||'?']=(stats[d.code||'?']||0)+1; });
+    var summary = '兌換統計：\n';
+    Object.keys(stats).forEach(function(k){ summary += k + '：' + stats[k] + ' 人\n'; });
+    summary += '\n總計：' + snap.size + ' 筆';
+    alert(summary);
+  } catch(e) { alert('查詢失敗：' + e.message); }
+}
+async function exportGiftStats() {
+  try {
+    var snap = await db.collection('april_gifts').orderBy('drawnAt','desc').get();
+    if (snap.empty) { alert('尚無抽獎紀錄'); return; }
+    var stats = {};
+    snap.forEach(function(doc) { var d=doc.data(); stats[d.prizeName||d.prizeId||'?']=(stats[d.prizeName||d.prizeId||'?']||0)+1; });
+    var summary = '🎁 愚人節抽獎統計：\n';
+    Object.keys(stats).forEach(function(k){ summary += k + '：' + stats[k] + ' 人\n'; });
+    summary += '\n總抽獎人數：' + snap.size;
+    alert(summary);
+  } catch(e) { alert('查詢失敗：' + e.message); }
 }
 
 function exportCalcsCSV() {
