@@ -44,15 +44,15 @@ window.hlPaywall = (function(){
         '<div style="margin-bottom:20px">' +
           '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">' +
             '<span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:rgba(240,212,138,.12);color:rgba(240,212,138,.85);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700">1</span>' +
-            '<span style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.7">點擊下方「📋 複製抽牌結果」複製您的資料</span>' +
+            '<span style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.7">匯款 <strong style="color:#f0d48a">NT$ ' + price.toLocaleString() + '</strong> 至下方帳戶</span>' +
           '</div>' +
           '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">' +
             '<span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:rgba(240,212,138,.12);color:rgba(240,212,138,.85);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700">2</span>' +
-            '<span style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.7">匯款 <strong style="color:#f0d48a">NT$ ' + price.toLocaleString() + '</strong> 至下方帳戶</span>' +
+            '<span style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.7">將<strong style="color:#f0d48a">匯款截圖</strong>傳到 LINE，索取解鎖碼</span>' +
           '</div>' +
           '<div style="display:flex;align-items:flex-start;gap:10px">' +
             '<span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:rgba(240,212,138,.12);color:rgba(240,212,138,.85);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700">3</span>' +
-            '<span style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.7">將<strong style="color:#f0d48a">匯款截圖 + 抽牌結果</strong>傳到 LINE，確認後為您生成完整報告</span>' +
+            '<span style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.7">輸入解鎖碼後即可抽牌，系統將自動生成完整智慧解讀報告</span>' +
           '</div>' +
         '</div>' +
 
@@ -74,7 +74,7 @@ window.hlPaywall = (function(){
               ' style="padding:10px 18px;border-radius:10px;background:linear-gradient(135deg,#f0d48a,#c9a060);color:#1a1520;font-weight:700;font-size:.85rem;border:none;cursor:pointer;white-space:nowrap">✨ 兌換</button>' +
           '</div>' +
           '<div id="hlPaywallCodeErr" style="display:none;margin-top:8px;padding:8px 12px;border-radius:8px;background:rgba(217,48,37,.08);color:#e57373;font-size:.78rem"></div>' +
-          '<div style="margin-top:6px;font-size:.72rem;color:rgba(255,255,255,.3)">代碼格式：HL3-XXXXXX（3張）/ HL5-XXXXXX（5張）/ HL7-XXXXXX（7張）</div>' +
+          '<div style="margin-top:6px;font-size:.72rem;color:rgba(255,255,255,.3)">付款完成後，請傳 LINE 索取解鎖碼</div>' +
         '</div>' +
 
         // 分隔線
@@ -86,7 +86,7 @@ window.hlPaywall = (function(){
 
         // LINE 按鈕
         '<div style="text-align:center;margin-bottom:16px">' +
-          '<a href="' + lineUrl + '" target="_blank" rel="noopener" style="display:inline-block;padding:14px 32px;border-radius:12px;font-size:1rem;font-weight:700;color:#1a1520;background:linear-gradient(135deg,#f0d48a,#e9c27d);text-decoration:none;letter-spacing:.04em;box-shadow:0 4px 16px rgba(240,212,138,.2)">💬 LINE 傳送匯款截圖 + 抽牌結果</a>' +
+          '<a href="' + lineUrl + '" target="_blank" rel="noopener" style="display:inline-block;padding:14px 32px;border-radius:12px;font-size:1rem;font-weight:700;color:#1a1520;background:linear-gradient(135deg,#f0d48a,#e9c27d);text-decoration:none;letter-spacing:.04em;box-shadow:0 4px 16px rgba(240,212,138,.2)">💬 LINE 傳送匯款截圖，索取解鎖碼</a>' +
         '</div>' +
 
         // 服務承諾
@@ -138,7 +138,7 @@ window.hlPaywall = (function(){
 
       // 注入代碼兌換邏輯
       var _onProceed = config.onProceed || null;
-      var _n = n;
+      var _n = config.n;
       window._hlPaywallRedeemCode = async function() {
         var input = document.getElementById('hlPaywallCodeInput');
         var errEl = document.getElementById('hlPaywallCodeErr');
@@ -171,7 +171,7 @@ window.hlPaywall = (function(){
             if (btn) { btn.disabled = false; btn.textContent = '✨ 兌換'; }
             return;
           }
-          var codeN = codeData.spreads || 3;
+          var codeN = codeData.n || codeData.spreads || 3;
           if (_n !== codeN) {
             errEl.style.display = 'block';
             errEl.textContent = '此代碼僅適用於 ' + codeN + ' 張解讀，您目前選擇了 ' + _n + ' 張';
@@ -187,6 +187,8 @@ window.hlPaywall = (function(){
             usedByEmail: currentUser ? (currentUser.email || '') : ''
           });
 
+          // 記錄使用的解鎖碼（供後續 Firestore 留底）
+          window._lastUsedUnlockCode = code;
           // 關閉付款牆，觸發 onProceed
           hlPaywall.close();
           if (typeof _onProceed === 'function') {

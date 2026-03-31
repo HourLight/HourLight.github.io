@@ -1364,6 +1364,19 @@ function hideModal() {
 function handleConfirm() {
   userQuestion = modalQuestion.value.trim();
   hideModal();
+
+  // 28 張付費牆攔截：需解鎖碼才能抽牌
+  if (typeof hlPaywall !== 'undefined') {
+    hlPaywall.show({
+      n: 28,
+      priceMap: { 28: 6800 },
+      serviceName: '馥靈輕盈｜身心平衡覺察服務',
+      onProceed: function() {
+        performDraw();
+      }
+    });
+    return;
+  }
   performDraw();
 }
 
@@ -1742,6 +1755,7 @@ function showToast(msg) {
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-paywall.js"></script>
 <script src="assets/js/hl-referral.js?v=20260323"></script>
 <script src="assets/js/hl-castle-key.js"></script>
 <script src="assets/js/hl-share.js"></script>

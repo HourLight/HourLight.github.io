@@ -71,6 +71,11 @@ body{background:#0a0612;color:#f0e8d8;font-family:'Noto Sans TC',sans-serif;padd
           <option value="3">3 張（$199）</option>
           <option value="5">5 張（$399）</option>
           <option value="7" selected>7 張（$599）</option>
+          <option value="9">9 張（$1,800 覺察師）</option>
+          <option value="12">12 張（$2,800 覺察師）</option>
+          <option value="15">15 張（$3,600 覺察師）</option>
+          <option value="21">21 張（$5,400 覺察師）</option>
+          <option value="28">28 張（$6,800 馥靈輕盈）</option>
         </select>
       </div>
       <div class="gen-row">
@@ -102,7 +107,7 @@ body{background:#0a0612;color:#f0e8d8;font-family:'Noto Sans TC',sans-serif;padd
 <script src="assets/js/hl-referral.js?v=20260323"></script>
 <script>
 var ADMIN_EMAILS = []; // 從 Firestore 動態載入
-var PRICES = { 3: 199, 5: 399, 7: 599 };
+var PRICES = { 3: 199, 5: 399, 7: 599, 9: 1800, 12: 2800, 15: 3600, 21: 5400, 28: 6800 };
 
 // Firebase init
 if (typeof FIREBASE_CONFIG !== 'undefined' && !firebase.apps.length) {
@@ -157,10 +162,10 @@ async function generateCode() {
     var user = auth.currentUser;
 
     // 檢查碼是否重複（極小機率）
-    var existing = await db.collection('unlock_codes').doc(code).get();
+    var existing = await db.collection('reading_codes').doc(code).get();
     if (existing.exists) code = makeCode();
 
-    await db.collection('unlock_codes').doc(code).set({
+    await db.collection('reading_codes').doc(code).set({
       n: n,
       price: PRICES[n] || 0,
       used: false,
@@ -192,7 +197,7 @@ function copyCode() {
 async function loadHistory() {
   var listEl = document.getElementById('historyList');
   try {
-    var snap = await db.collection('unlock_codes')
+    var snap = await db.collection('reading_codes')
       .orderBy('createdAt', 'desc')
       .limit(20)
       .get();

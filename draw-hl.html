@@ -1150,12 +1150,11 @@
       <button class="hl-v2-mode-btn" data-n="5">抽 5 張<small>五面向深度掃描</small><span class="hl-price-tip">$399 智慧解讀</span></button>
       <button class="hl-v2-mode-btn" data-n="7">抽 7 張<small>深層課題導航</small><span class="hl-price-tip">$599 智慧解讀</span></button>
     </div>
-    <div class="hl-v2-mode-grid" style="grid-template-columns: repeat(5, 1fr); max-width: 720px; margin: 0 auto 16px;">
+    <div class="hl-v2-mode-grid" style="grid-template-columns: repeat(4, 1fr); max-width: 720px; margin: 0 auto 16px;">
       <button class="hl-v2-mode-btn" data-n="9">抽 9 張<small>覺察師完整解盤</small><span class="hl-price-tip">$1,800 預約</span></button>
       <button class="hl-v2-mode-btn" data-n="12">抽 12 張<small>十二宮全盤掃描</small><span class="hl-price-tip">$2,800 文字+語音</span></button>
       <button class="hl-v2-mode-btn" data-n="15">抽 15 張<small>流年座標定位</small><span class="hl-price-tip">$3,600 線上對談</span></button>
       <button class="hl-v2-mode-btn" data-n="21">抽 21 張<small>人生藍圖矩陣</small><span class="hl-price-tip">$5,400 對談＋完整報告</span></button>
-      <button class="hl-v2-mode-btn" data-n="28">抽 28 張<small>28鑰完整解碼</small><span class="hl-price-tip">$6,800 對談＋完整報告</span></button>
     </div>
     <p class="hl-v2-hint">💡 <strong>1張</strong> 此刻快問快答｜<strong>3-7張</strong> 不同面向拆解您的問題｜<strong>9張以上</strong> 覺察師為您深度解盤<br>
     <a href="draw-hl-guide.html" style="color:rgba(233,194,125,.7);text-decoration:underline;font-size:.85rem">📋 各牌陣適合問什麼問題？</a></p>
@@ -1356,25 +1355,6 @@
     </div>
   </section>
 
-  <section class="hl-v2-light-section">
-    <div class="hl-v2-light-icon">🪶</div>
-    <h2 class="hl-v2-light-title">馥靈輕盈｜身心平衡協議</h2>
-    <p class="hl-v2-light-subtitle">28張牌卡 × 7種類型 × 4層面向｜<span style="color:rgba(233,194,125,.8)">NT$6,800</span>（90分鐘完整覺察服務）</p>
-    <p class="hl-v2-light-desc">
-      身心平衡卡關，很多時候不是不努力，而是節奏與壓力一直在打架。<br>
-      透過深度對話＋28張牌卡的線索整理，協助您看見慣性模式與日常節點，<br>
-      把可執行的小調整落地成行動，讓「更輕盈」變成您做得到的生活方式。
-    </p>
-    <div class="hl-v2-light-features">
-      <span class="hl-v2-light-feature">🔍 根源探索</span>
-      <span class="hl-v2-light-feature">😨 恐懼探究</span>
-      <span class="hl-v2-light-feature">✨ 內在對話</span>
-      <span class="hl-v2-light-feature">🌿 芳香照顧</span>
-    </div>
-    <div style="text-align:center;margin-top:20px;">
-      <a href="draw-light.html" style="display:inline-block;padding:14px 36px;border-radius:12px;font-size:1rem;font-weight:700;letter-spacing:1px;color:#ffffff;background:linear-gradient(135deg,rgba(240,181,179,0.25),rgba(233,194,125,0.25));border:1.5px solid rgba(240,181,179,0.4);text-decoration:none;transition:all 0.3s ease;">🪶 前往馥靈輕盈 28 張牌卡抽牌</a>
-    </div>
-  </section>
 
   <!-- 客戶分流 CTA 區塊 -->
   <section class="hl-v2-glass hl-v2-funnel">
@@ -1509,6 +1489,22 @@ modal.addEventListener('click', e => { if (e.target === modal) modal.classList.r
 modalConfirm.addEventListener('click', async () => {
   userQuestion = modalQuestion.value.trim();
   modal.classList.remove('show');
+
+  // 3 張以上：付費牆攔截，需解鎖碼才能抽牌
+  if (pendingN >= 3 && typeof hlPaywall !== 'undefined') {
+    var drawPriceMap = { 3: 199, 5: 399, 7: 599, 9: 1800, 12: 2800, 15: 3600, 21: 5400 };
+    if (drawPriceMap[pendingN]) {
+      hlPaywall.show({
+        n: pendingN,
+        priceMap: drawPriceMap,
+        serviceName: pendingN >= 9 ? '覺察師一對一深度解讀' : '馥靈智慧牌卡 AI 解讀',
+        onProceed: function() {
+          drawCards(pendingN);
+        }
+      });
+      return;
+    }
+  }
 
   // 單張牌（n=1）免費不計配額；2張以上計一次
   if (pendingN > 1 && typeof window.HL_checkQuota === 'function') {
@@ -1842,7 +1838,10 @@ copyBtn.addEventListener('click', () => {
   txt += `\n💫 想了解牌卡的深層訊息？\n預約馥靈覺察師為你完整解讀 👉 https://lin.ee/RdQBFAN`;
 
 
-  navigator.clipboard.writeText(txt).then(() => showToast('已複製！可貼到 LINE 預約解讀'));
+  navigator.clipboard.writeText(txt).then(() => {
+    showToast('已複製！可貼到 LINE 預約解讀');
+    updateDrawCopiedContent(txt);
+  });
 });
 
 // ========== 產生連結 ==========
@@ -2160,6 +2159,9 @@ async function triggerAIReading() {
     document.getElementById('aiResultTitle').textContent = data.spread || 'AI 解讀結果';
     document.getElementById('aiResultContent').textContent = data.reading || '（無解讀結果）';
 
+    // 留存 AI 回應到 Firestore（防消費糾紛）
+    updateDrawAIResponse(data.reading || '');
+
     // 滾動到結果
     document.getElementById('aiResultBlock').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
@@ -2216,6 +2218,7 @@ function copyFullReading() {
   txt += '馥靈之鑰 hourlightkey.com\n';
   navigator.clipboard.writeText(txt).then(function() {
     showToast('完整牌義已複製');
+    updateDrawCopiedContent(txt);
   });
 }
 
@@ -2639,20 +2642,66 @@ function toggleLegalContent(){
 <script src="assets/js/hl-chat.js"></script>
 <script src="assets/js/hl-aroma-fx.js" defer>
 // ── 抽牌紀錄存檔（所有張數，含免費）──
+// 全域變數：記錄本次抽牌的 Firestore doc ID，供後續更新用
+var _lastDrawDocRef = null;
+
 function saveDrawToFirestore(n, cardCodes, cardTitles, question) {
   try {
     if (!window.firebase || !firebase.auth().currentUser) return;
     var user = firebase.auth().currentUser;
     var db = firebase.firestore();
-    db.collection('users').doc(user.uid).collection('draw_history').add({
+    var docRef = db.collection('users').doc(user.uid).collection('draw_history').doc();
+    _lastDrawDocRef = docRef;
+    docRef.set({
       cardCodes: cardCodes,
       cardTitles: cardTitles,
       n: n,
       question: question || '',
       isPaid: n > 1,
       hasReading: false,
+      unlockCode: window._lastUsedUnlockCode || '',
+      copiedContent: '',
+      aiResponse: '',
+      email: user.email || '',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     }).catch(function(e) { console.warn('Draw save error:', e); });
+    // 同時存一份到全域 readings 集合（方便後台查詢）
+    db.collection('readings').add({
+      uid: user.uid,
+      email: user.email || '',
+      type: 'draw-hl',
+      cardCodes: cardCodes,
+      cardTitles: cardTitles,
+      n: n,
+      question: question || '',
+      unlockCode: window._lastUsedUnlockCode || '',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(function(e) {});
+  } catch(e) {}
+}
+
+// 更新抽牌紀錄：複製的內容
+function updateDrawCopiedContent(txt) {
+  try {
+    if (_lastDrawDocRef) {
+      _lastDrawDocRef.update({
+        copiedContent: txt,
+        copiedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(function(e) {});
+    }
+  } catch(e) {}
+}
+
+// 更新抽牌紀錄：AI 回應
+function updateDrawAIResponse(response) {
+  try {
+    if (_lastDrawDocRef) {
+      _lastDrawDocRef.update({
+        aiResponse: response,
+        hasReading: true,
+        readingAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(function(e) {});
+    }
   } catch(e) {}
 }
 </script>
