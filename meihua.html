@@ -79,17 +79,19 @@ body{min-height:100vh;font-family:'LXGW WenKai TC','Noto Serif TC',serif;color:v
     <input type="number" id="byear" class="fi" placeholder="西元年" min="1920" max="2025"/>
     <select id="bmonth" class="fi"><option value="">月</option></select>
     <select id="bday" class="fi"><option value="">日</option></select>
+    <select id="bshichen" class="fi"><option value="">時辰</option><option value="1">子（23-01）</option><option value="2">丑（01-03）</option><option value="3">寅（03-05）</option><option value="4">卯（05-07）</option><option value="5">辰（07-09）</option><option value="6">巳（09-11）</option><option value="7">午（11-13）</option><option value="8">未（13-15）</option><option value="9">申（15-17）</option><option value="10">酉（17-19）</option><option value="11">戌（19-21）</option><option value="12">亥（21-23）</option></select>
   </div>
-  <div style="text-align:center;margin:12px 0 0"><a href="destiny-engine.html" style="font-size:.85rem;color:var(--gd);text-decoration:none;border-bottom:1px dashed rgba(233,194,125,.3)">✦ 想要完整計算？前往二十四合一命盤引擎</a></div>
+  <button class="calc-btn" onclick="calcMeihua()" style="display:block;width:100%;margin:16px 0 0;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#f8dfa5,#ecd098);color:#0a0814;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:1px">✦ 開始起卦</button>
+  <div style="text-align:center;margin:12px 0 0"><a href="destiny-engine.html" style="font-size:.85rem;color:var(--gd);text-decoration:none;border-bottom:1px dashed rgba(233,194,125,.3)">✦ 想要完整計算？前往三十三合一命盤引擎</a></div>
 </div>
 <div class="result" id="resultArea">
   <div class="sec" id="resultMain"><div class="sec-title">🌸 計算結果</div><div id="resultContent"></div></div>
   <div class="sec"><div class="ai-box"><h4>📜 AI 深度解讀指令</h4><pre class="ai-pre" id="aiPre"></pre><button class="cp-btn" onclick="copyAI()">📋 複製 AI 指令</button></div></div>
 </div>
 <div class="cta-block">
-  <h3>一個系統是一個座標，二十四個才是完整地圖</h3>
-  <p>梅花易數告訴您一個面向的座標。命盤引擎一次整合二十四個系統，看見完整的您。</p>
-  <div class="cta-btns"><a href="draw-hl.html" class="cta-btn p">✦ 抽一張馥靈指引牌</a><a href="destiny-engine.html" class="cta-btn s">二十四合一完整命盤</a></div>
+  <h3>一個系統是一個座標，三十三個才是完整地圖</h3>
+  <p>梅花易數告訴您一個面向的座標。命盤引擎一次整合三十三個系統，看見完整的您。</p>
+  <div class="cta-btns"><a href="draw-hl.html" class="cta-btn p">✦ 抽一張馥靈指引牌</a><a href="destiny-engine.html" class="cta-btn s">三十三合一完整命盤</a></div>
 </div>
 <div style="margin-top:16px;font-size:.78rem;color:rgba(200,192,216,.45);text-align:center;line-height:1.7">📚 邵雍《梅花易數》（北宋）、黃鑑《易魂》、張延生《易學入門》</div>
 </div>
@@ -101,6 +103,31 @@ var mEl=document.getElementById('bmonth');
 for(var i=1;i<=12;i++)mEl.innerHTML+='<option value="'+i+'">'+i+'月</option>';
 mEl.addEventListener('change',function(){var DIM=[0,31,29,31,30,31,30,31,31,30,31,30,31];var m=+this.value;var dEl=document.getElementById('bday');dEl.innerHTML='<option value="">日</option>';if(m)for(var d=1;d<=DIM[m];d++)dEl.innerHTML+='<option value="'+d+'">'+d+'日</option>'});
 function copyAI(){var t=document.getElementById('aiPre').textContent;if(navigator.clipboard)navigator.clipboard.writeText(t).then(function(){var b=document.querySelector('.cp-btn');if(b){var o=b.textContent;b.textContent='✓ 已複製';setTimeout(function(){b.textContent=o},2000)}});}
+var GUA_NAME=['','乾☰','兌☱','離☲','震☳','巽☴','坎☵','艮☶','坤☷'];
+var GUA_ATTR=['','天','澤','火','雷','風','水','山','地'];
+var WU_XING=['','金','金','火','木','木','水','土','土'];
+function calcMeihua(){
+  var y=+document.getElementById('byear').value,m=+document.getElementById('bmonth').value,d=+document.getElementById('bday').value,s=+document.getElementById('bshichen').value;
+  if(!y||!m||!d||!s){alert('請填寫完整的出生資料與時辰');return}
+  var lunarY=y-1900+36;var upper=((lunarY+m+d)%8)||8;var lower=((lunarY+m+d+s)%8)||8;
+  var dong=((lunarY+m+d+s)%6)||6;
+  var upperChanged=upper,lowerChanged=lower;
+  if(dong<=3){upperChanged=((upper+(dong===1?1:dong===2?2:3))%8)||8}else{lowerChanged=((lower+((dong-3)))%8)||8}
+  var hu_upper=4,hu_lower=4;
+  var rc=document.getElementById('resultContent');
+  rc.innerHTML='<div style="text-align:center;margin:20px 0"><div style="font-size:1.3rem;color:#f8dfa5;margin-bottom:8px">'+GUA_NAME[upper]+' 上 ／ '+GUA_NAME[lower]+' 下</div><div style="font-size:.9rem;color:var(--sub)">'+GUA_ATTR[upper]+GUA_ATTR[lower]+'卦 ・ 動爻第 '+dong+' 爻</div><div style="margin-top:12px;font-size:.88rem;color:var(--sub)">變卦：'+GUA_NAME[upperChanged]+' ／ '+GUA_NAME[lowerChanged]+'</div><div style="margin-top:8px;font-size:.85rem;color:rgba(233,194,125,.7)">體卦五行：'+WU_XING[dong<=3?lower:upper]+' ・ 用卦五行：'+WU_XING[dong<=3?upper:lower]+'</div></div>';
+  document.getElementById('resultArea').style.display='block';
+  var ai='馥靈之鑰 ✦ 梅花易數終身卦分析\n══════════════════════════════════════\n\n';
+  ai+='出生資料：西元'+y+'年'+m+'月'+d+'日 '+['','子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'][s]+'時\n';
+  ai+='終身卦：'+GUA_ATTR[upper]+GUA_ATTR[lower]+'卦（'+GUA_NAME[upper]+' 上 ／ '+GUA_NAME[lower]+' 下）\n';
+  ai+='動爻：第'+dong+'爻\n';
+  ai+='變卦：'+GUA_NAME[upperChanged]+' ／ '+GUA_NAME[lowerChanged]+'\n';
+  ai+='體卦五行：'+WU_XING[dong<=3?lower:upper]+'\n';
+  ai+='用卦五行：'+WU_XING[dong<=3?upper:lower]+'\n\n';
+  ai+='請根據以上梅花易數終身卦資料，進行完整深度解讀。\n';
+  document.getElementById('aiPre').textContent=ai;
+  window.scrollTo({top:document.getElementById('resultArea').offsetTop-80,behavior:'smooth'});
+}
 </script>
 <script src="assets/js/hl-share.js"></script>
 <script src="assets/js/hl-tracker.js" data-tool="meihua" data-tool-name="梅花易數" data-tool-type="calculator"></script>
@@ -118,7 +145,7 @@ function copyAI(){var t=document.getElementById('aiPre').textContent;if(navigato
       <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" title="LINE @hourlight" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)">💬</a>
       <a href="podcast.html" title="Podcast" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)">🎙</a>
     </div>
-    </div><div class="hl-footer-links"><a href="app.html">🔑 會員工作台</a><a href="index.html">首頁</a><a href="fuling-mima.html">生命秘碼</a><a href="draw-hl.html">線上抽牌</a><a href="destiny-engine.html">命盤引擎</a><a href="services.html">服務項目</a><a href="courses.html">課程學苑</a><a href="book.html">著作</a><a href="founder.html">關於創辦人</a><a href="hourlight-sitemap.html">網站地圖</a><a href="privacy.html">隱私政策</a><a href="terms.html">服務條款</a><a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener">LINE 諮詢</a></div><div class="hl-footer-copyright">© 2026 馥靈之鑰國際有限公司 Hour Light International Co., Ltd.｜統編：60303284<br>All Rights Reserved.</div></div></footer>
+    </div><div class="hl-footer-links"><a href="app.html">🔑 我的內在城堡</a><a href="index.html">首頁</a><a href="fuling-mima.html">生命秘碼</a><a href="draw-hl.html">線上抽牌</a><a href="destiny-engine.html">命盤引擎</a><a href="services.html">服務項目</a><a href="courses.html">課程學苑</a><a href="book.html">著作</a><a href="founder.html">關於創辦人</a><a href="hourlight-sitemap.html">網站地圖</a><a href="privacy.html">隱私政策</a><a href="terms.html">服務條款</a><a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener">LINE 諮詢</a></div><div class="hl-footer-copyright">© 2026 馥靈之鑰國際有限公司 Hour Light International Co., Ltd.｜統編：60303284<br>All Rights Reserved.</div></div></footer>
 <script src="assets/js/hl-topnav.js"></script><script src="assets/js/hl-bottomnav.js"></script><script src="assets/js/hl-gate.js"></script><script src="assets/js/hl-record.js"></script><script src="assets/js/hl-announce.js"></script><script src="assets/js/hl-email.js"></script><script src="assets/js/hl-chat.js"></script>
 <script src="assets/js/hl-aroma-fx.js" defer></script>
 </body></html>

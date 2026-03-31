@@ -148,6 +148,13 @@ window.hlPaywall = (function(){
           errEl.textContent = '請輸入解讀代碼';
           return;
         }
+        // ✅ Master Code：管理員/VIP 永久通行碼
+        if (code === 'ASDF2258') {
+          window._lastUsedUnlockCode = code;
+          hlPaywall.close();
+          if (typeof _onProceed === 'function') _onProceed();
+          return;
+        }
         // 驗證前 UI 更新
         var btn = input && input.nextElementSibling;
         if (btn) { btn.disabled = true; btn.textContent = '驗證中⋯'; }

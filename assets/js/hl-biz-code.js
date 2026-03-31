@@ -97,6 +97,20 @@ window.hlBizCode = (function(){
       return;
     }
 
+    // ✅ Master Code：管理員/VIP 永久通行碼，跳過所有驗證
+    if(code === 'ASDF2258'){
+      msg.style.color = '#4caf50';
+      msg.textContent = '✦ VIP 通行碼驗證通過';
+      btn.disabled = true; btn.textContent = '✓ 通過';
+      window._hlBizVerified = true;
+      setTimeout(function(){
+        hlBizCode.close();
+        var cfg = window._hlBizConfig;
+        if(cfg && cfg.onSuccess) cfg.onSuccess();
+      }, 600);
+      return;
+    }
+
     btn.disabled = true;
     btn.textContent = '驗證中⋯';
     msg.style.color = 'rgba(255,255,255,.4)';

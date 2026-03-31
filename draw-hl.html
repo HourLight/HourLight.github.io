@@ -2010,6 +2010,7 @@ async function triggerAIReading() {
   if (!n || !selected.length) return;
 
   var unlockCode = '';
+  var HL_MASTER_CODE = 'ASDF2258';
   if (n > 1) {
     var codeInput = document.getElementById('unlockCodeInput');
     unlockCode = codeInput ? codeInput.value.trim().toUpperCase() : '';
@@ -2018,6 +2019,10 @@ async function triggerAIReading() {
       return;
     }
 
+    // ✅ Master Code：管理員/VIP 永久通行碼，跳過所有驗證
+    if (unlockCode === HL_MASTER_CODE) {
+      console.log('[HL] Master code accepted');
+    } else {
     // ✅ 前端直接驗證 Firestore 代碼（不需要額外 API）
     try {
       var db = firebase && firebase.firestore ? firebase.firestore() : null;
@@ -2062,6 +2067,7 @@ async function triggerAIReading() {
       console.warn('代碼驗證錯誤，繼續解讀:', codeErr);
       // 驗證失敗不阻擋（Fail-Open 原則）
     }
+    } // end non-master code
 
     document.getElementById('aiLoadingText').textContent = '馥靈 AI 正在為您啟鑰⋯⋯';
   }
@@ -2542,15 +2548,15 @@ document.addEventListener('DOMContentLoaded',function(){
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
           <div style="border:1px solid rgba(233,194,125,0.35);border-radius:14px;padding:16px 10px;cursor:pointer;transition:.2s;" onmouseover="this.style.borderColor='#f8dfa5'" onmouseout="this.style.borderColor='rgba(233,194,125,0.35)'">
             <div style="font-size:1.3rem;margin-bottom:5px;">🔑</div>
-            <div style="font-size:0.92rem;color:#ffffff;font-weight:600;margin-bottom:3px;">覺察學員</div>
-            <div style="font-size:0.95rem;color:#f8dfa5;margin-bottom:6px;">NT$ 299 / 月</div>
-            <div style="font-size:0.7rem;color:rgba(255,255,255,.7);">無限牌陣解讀</div>
+            <div style="font-size:0.92rem;color:#ffffff;font-weight:600;margin-bottom:3px;">馥靈鑰友</div>
+            <div style="font-size:0.95rem;color:#f8dfa5;margin-bottom:6px;">NT$ 399 / 月</div>
+            <div style="font-size:0.7rem;color:rgba(255,255,255,.7);">每日 10 次解讀</div>
           </div>
           <div style="border:1px solid rgba(233,194,125,0.35);border-radius:14px;padding:16px 10px;cursor:pointer;transition:.2s;" onmouseover="this.style.borderColor='#f8dfa5'" onmouseout="this.style.borderColor='rgba(233,194,125,0.35)'">
             <div style="font-size:1.3rem;margin-bottom:5px;">✨</div>
-            <div style="font-size:0.92rem;color:#ffffff;font-weight:600;margin-bottom:3px;">覺察修練者</div>
+            <div style="font-size:0.92rem;color:#ffffff;font-weight:600;margin-bottom:3px;">馥靈大師</div>
             <div style="font-size:0.95rem;color:#f8dfa5;margin-bottom:6px;">NT$ 999 / 月</div>
-            <div style="font-size:0.7rem;color:rgba(255,255,255,.7);">無限 + 解析記錄</div>
+            <div style="font-size:0.7rem;color:rgba(255,255,255,.7);">當月無限次</div>
           </div>
         </div>
         <a href="member-dashboard.html?tab=plans" style="display:block;width:100%;padding:14px;border-radius:999px;background:linear-gradient(135deg,#f8dfa5,#ecd098);color:#0a0814;font-size:0.92rem;font-weight:700;letter-spacing:1px;text-decoration:none;margin-bottom:10px;">立即升級 · 繼續探索 →</a>
