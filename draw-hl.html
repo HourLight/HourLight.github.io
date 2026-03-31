@@ -2005,6 +2005,13 @@ function hideAISection() {
   if (sec) sec.style.display = 'none';
 }
 
+// ✅ 愚人節促銷碼定義（4/6 到期，4/7 00:00 失效）
+window._HL_PROMO_CODES = {
+  'FOOL199': {n:3, expires:'2026-04-07'},
+  'FOOL399': {n:5, expires:'2026-04-07'},
+  'FOOL599': {n:7, expires:'2026-04-07'}
+};
+
 async function triggerAIReading() {
   var n = selected.length;
   if (!n || !selected.length) return;
@@ -2022,7 +2029,24 @@ async function triggerAIReading() {
     // ✅ Master Code：管理員/VIP 永久通行碼，跳過所有驗證
     if (unlockCode === HL_MASTER_CODE) {
       console.log('[HL] Master code accepted');
-    } else {
+    }
+    // ✅ 愚人節促銷碼（4/6 到期）
+    else if (window._HL_PROMO_CODES && window._HL_PROMO_CODES[unlockCode]) {
+      var _promo = window._HL_PROMO_CODES[unlockCode];
+      var _promoNow = new Date();
+      var _promoExp = new Date(_promo.expires);
+      if (_promoNow >= _promoExp) { showAIError('此兌換券已過期（4/6 截止）'); return; }
+      if (_promo.n !== n) { showAIError('此兌換券適用於 ' + _promo.n + ' 張解讀，您目前選了 ' + n + ' 張'); return; }
+      var _promoUsedKey = 'hl_promo_' + unlockCode;
+      if (localStorage.getItem(_promoUsedKey)) { showAIError('此兌換券已使用過（每人限用一次）'); return; }
+      localStorage.setItem(_promoUsedKey, Date.now());
+      console.log('[HL] Promo code accepted: ' + unlockCode);
+      // 寫入 Firestore 追蹤
+      try{ var _pdb=firebase&&firebase.firestore?firebase.firestore():null;var _pu=firebase.auth().currentUser;
+        if(_pdb)_pdb.collection('promo_redemptions').add({code:unlockCode,n:n,source:'draw-hl',uid:_pu?_pu.uid:'guest',email:_pu?_pu.email:'',ts:firebase.firestore.FieldValue.serverTimestamp()});
+      }catch(e){}
+    }
+    else {
     // ✅ 前端直接驗證 Firestore 代碼（不需要額外 API）
     try {
       var db = firebase && firebase.firestore ? firebase.firestore() : null;
@@ -2711,7 +2735,7 @@ function updateDrawAIResponse(response) {
   } catch(e) {}
 }
 </script>
-<!-- draw-hl 不計次，不鎖 -->
+<script src="assets/js/hl-paywall.js"></script>
 <script src="assets/js/hl-points.js"></script>
 </body>
 </html>

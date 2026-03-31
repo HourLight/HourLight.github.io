@@ -155,6 +155,29 @@ window.hlPaywall = (function(){
           if (typeof _onProceed === 'function') _onProceed();
           return;
         }
+        // ✅ 愚人節促銷碼（4/6 到期）
+        var _PW_PROMO = {
+          'FOOL199': {n:3, expires:'2026-04-07'},
+          'FOOL399': {n:5, expires:'2026-04-07'},
+          'FOOL599': {n:7, expires:'2026-04-07'}
+        };
+        if (_PW_PROMO[code]) {
+          var _pp = _PW_PROMO[code];
+          var _pNow = new Date(), _pExp = new Date(_pp.expires);
+          if (_pNow >= _pExp) { errEl.style.display='block'; errEl.textContent='此兌換券已過期（4/6 截止）'; return; }
+          if (_pp.n !== _n) { errEl.style.display='block'; errEl.textContent='此兌換券適用於 '+_pp.n+' 張解讀，您目前選了 '+_n+' 張'; return; }
+          var _pKey = 'hl_promo_' + code;
+          if (localStorage.getItem(_pKey)) { errEl.style.display='block'; errEl.textContent='此兌換券已使用過（每人限用一次）'; return; }
+          localStorage.setItem(_pKey, Date.now());
+          console.log('[HL] Paywall promo code accepted: ' + code);
+          try{var _pdb=(typeof firebase!=='undefined'&&firebase.firestore)?firebase.firestore():null;var _pu=firebase.auth().currentUser;
+            if(_pdb)_pdb.collection('promo_redemptions').add({code:code,n:_n,source:'paywall',uid:_pu?_pu.uid:'guest',email:_pu?_pu.email:'',ts:firebase.firestore.FieldValue.serverTimestamp()});
+          }catch(e){}
+          window._lastUsedUnlockCode = code;
+          hlPaywall.close();
+          if (typeof _onProceed === 'function') _onProceed();
+          return;
+        }
         // 驗證前 UI 更新
         var btn = input && input.nextElementSibling;
         if (btn) { btn.disabled = true; btn.textContent = '驗證中⋯'; }

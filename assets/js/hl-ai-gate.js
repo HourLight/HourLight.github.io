@@ -38,6 +38,20 @@
   function getUser(){
     try{if(typeof firebase!=='undefined'&&firebase.auth)return firebase.auth().currentUser;}catch(e){}return null;
   }
+  // ✅ 愚人節 FOOL999 試用檢查：有效期內視為 pro（無限次）
+  function _checkPromoTrial(plan){
+    try{
+      var trialUntil = localStorage.getItem('hl_promo_trial_until');
+      if(trialUntil){
+        var exp = new Date(trialUntil);
+        if(new Date() < exp){ return 'pro'; }
+        // 已過期，清除
+        localStorage.removeItem('hl_promo_trial_until');
+      }
+    }catch(e){}
+    return plan;
+  }
+
   function getUserPlan(uid,cb){
     try{firebase.firestore().collection('users').doc(uid).get().then(function(doc){
       var data=doc.exists?doc.data():{};
@@ -46,12 +60,12 @@
       // 檢查推薦邀請獎勵（有效期內升為 pro）
       if(window.hlInvite){
         hlInvite.applyBonus(uid, plan, function(finalPlan){
-          cb(finalPlan, bonus);
+          cb(_checkPromoTrial(finalPlan), bonus);
         });
       } else {
-        cb(plan, bonus);
+        cb(_checkPromoTrial(plan), bonus);
       }
-    }).catch(function(){cb('free',0);});}catch(e){cb('free',0);}
+    }).catch(function(){cb(_checkPromoTrial('free'),0);});}catch(e){cb(_checkPromoTrial('free'),0);}
   }
   function getDailyUsage(uid,cb){
     var dk=getDayKey();
@@ -152,10 +166,58 @@
       +'<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(240,212,138,.08)">'
       +'次數用途：塔羅抽牌、命盤測算等所有複製給 AI 的解讀框架<br>以上皆不影響：命理資料複製（免費不限次）、寄信（免費不限次）、馥靈抽牌（1張免費）</div></div>'
       +'<a href="pricing.html" style="display:block;padding:14px;background:linear-gradient(135deg,#c9a044,#f0d48a);color:#0a0612;font-weight:700;border-radius:12px;text-decoration:none;margin-bottom:10px">✦ 升級方案 / 加購次數</a>'
+      +'<div style="margin:12px 0;padding:14px;background:rgba(240,212,138,.04);border:1px solid rgba(240,212,138,.12);border-radius:12px">'
+      +'<div style="font-size:.82rem;color:rgba(240,212,138,.7);font-weight:700;margin-bottom:8px">🎟️ 有兌換券？</div>'
+      +'<div style="display:flex;gap:8px">'
+      +'<input type="text" id="hlPromoTrialInput" placeholder="輸入兌換碼" style="flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(240,212,138,.25);background:rgba(255,255,255,.04);color:#f0d48a;font-size:.88rem;font-family:monospace;letter-spacing:.08em;text-transform:uppercase;outline:none" oninput="this.value=this.value.toUpperCase()" autocomplete="off"/>'
+      +'<button id="hlPromoTrialBtn" onclick="window._hlRedeemPromoTrial()" style="padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,#f0d48a,#c9a060);color:#1a1520;font-weight:700;font-size:.82rem;border:none;cursor:pointer;white-space:nowrap">兌換</button>'
+      +'</div>'
+      +'<div id="hlPromoTrialMsg" style="font-size:.78rem;margin-top:6px;min-height:18px"></div>'
+      +'</div>'
       +'<button onclick="this.closest(\'#hl-ai-upgrade-modal\').remove()" style="display:block;width:100%;padding:10px;background:transparent;border:1px solid rgba(240,212,138,.2);border-radius:10px;color:rgba(255,255,255,.5);font-size:.85rem;cursor:pointer">明天再來</button></div>';
     m.addEventListener('click',function(e){if(e.target===m)m.remove();});
     document.body.appendChild(m);
   }
+
+  // ✅ 愚人節 FOOL999 兌換券兌換邏輯
+  window._hlRedeemPromoTrial = function(){
+    var inp = document.getElementById('hlPromoTrialInput');
+    var msg = document.getElementById('hlPromoTrialMsg');
+    if(!inp||!msg) return;
+    var code = inp.value.trim().toUpperCase();
+    if(!code){ msg.style.color='#d93025'; msg.textContent='請輸入兌換碼'; return; }
+
+    // FOOL999 = 7天馥靈大師免費試用
+    if(code === 'FOOL999'){
+      var now = new Date();
+      var exp = new Date('2026-04-07');
+      if(now >= exp){ msg.style.color='#d93025'; msg.textContent='此兌換券已過期（4/6 截止）'; return; }
+      var usedKey = 'hl_promo_FOOL999';
+      if(localStorage.getItem(usedKey)){ msg.style.color='#d93025'; msg.textContent='此兌換券已使用過（每人限用一次）'; return; }
+      localStorage.setItem(usedKey, Date.now());
+      localStorage.setItem('hl_promo_trial_until', '2026-04-07');
+      console.log('[HL] FOOL999 trial activated until 2026-04-07');
+      try{var _tdb=(typeof firebase!=='undefined'&&firebase.firestore)?firebase.firestore():null;var _tu=firebase.auth().currentUser;
+        if(_tdb)_tdb.collection('promo_redemptions').add({code:'FOOL999',source:'ai-gate-trial',uid:_tu?_tu.uid:'guest',email:_tu?_tu.email:'',ts:firebase.firestore.FieldValue.serverTimestamp()});
+      }catch(e){}
+      msg.style.color='#4caf50'; msg.textContent='✦ 馥靈大師 7 天免費試用已啟用！';
+      var btn = document.getElementById('hlPromoTrialBtn');
+      if(btn){ btn.disabled=true; btn.textContent='✓ 已啟用'; }
+      setTimeout(function(){
+        var modal = document.getElementById('hl-ai-upgrade-modal');
+        if(modal) modal.remove();
+      }, 1500);
+      return;
+    }
+
+    // 其他 FOOL 系列促銷碼不適用於此處
+    if(code.indexOf('FOOL')===0){
+      msg.style.color='#e8a040'; msg.textContent='此兌換碼請在抽牌頁面的「解讀代碼」欄位使用';
+      return;
+    }
+
+    msg.style.color='#d93025'; msg.textContent='兌換碼無效，請確認輸入是否正確';
+  };
 
   window.HL_AI_GATE_ACTIVE=isGateActive();
   window.HL_AI_DAILY_LIMITS=DAILY_LIMITS;

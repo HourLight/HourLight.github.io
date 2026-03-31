@@ -111,6 +111,36 @@ window.hlBizCode = (function(){
       return;
     }
 
+    // ✅ 愚人節促銷碼（4/6 到期）
+    var _BIZ_PROMO = {
+      'FOOL199': {n:3, expires:'2026-04-07'},
+      'FOOL399': {n:5, expires:'2026-04-07'},
+      'FOOL599': {n:7, expires:'2026-04-07'}
+    };
+    if(_BIZ_PROMO[code]){
+      var _bp = _BIZ_PROMO[code];
+      var _bNow = new Date(), _bExp = new Date(_bp.expires);
+      if(_bNow >= _bExp){ msg.style.color='#d93025'; msg.textContent='此兌換券已過期（4/6 截止）'; return; }
+      var cfg = window._hlBizConfig;
+      if(cfg && cfg.n && _bp.n !== cfg.n){ msg.style.color='#d93025'; msg.textContent='此兌換券適用於 '+_bp.n+' 張解讀，您目前選了 '+cfg.n+' 張'; return; }
+      var _bKey = 'hl_promo_' + code;
+      if(localStorage.getItem(_bKey)){ msg.style.color='#d93025'; msg.textContent='此兌換券已使用過（每人限用一次）'; return; }
+      localStorage.setItem(_bKey, Date.now());
+      console.log('[HL] Biz promo code accepted: ' + code);
+      try{var _bdb=getDB();var _bu=firebase.auth().currentUser;
+        if(_bdb)_bdb.collection('promo_redemptions').add({code:code,n:(cfg&&cfg.n)||0,source:'biz-code',uid:_bu?_bu.uid:'guest',email:_bu?_bu.email:'',ts:firebase.firestore.FieldValue.serverTimestamp()});
+      }catch(e){}
+      msg.style.color = '#4caf50';
+      msg.textContent = '✦ 愚人節兌換券驗證通過！';
+      btn.disabled = true; btn.textContent = '✓ 通過';
+      setTimeout(function(){
+        hlBizCode.close();
+        var cfg = window._hlBizConfig;
+        if(cfg && cfg.onSuccess) cfg.onSuccess();
+      }, 600);
+      return;
+    }
+
     btn.disabled = true;
     btn.textContent = '驗證中⋯';
     msg.style.color = 'rgba(255,255,255,.4)';
