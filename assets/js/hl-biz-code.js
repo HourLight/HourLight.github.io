@@ -262,7 +262,8 @@ window.hlBizCode = (function(){
       hlPaywall.show({
         n: cfg.n,
         priceMap: cfg.priceMap,
-        serviceName: cfg.serviceName
+        serviceName: cfg.serviceName,
+        onProceed: cfg.onSuccess
       });
     }
   }

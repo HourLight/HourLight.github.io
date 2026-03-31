@@ -3241,7 +3241,13 @@ async function doRegister() {
 async function doGoogleLogin() {
   try {
     const provider = new firebase.auth.GoogleAuthProvider();
-    const cred = await auth.signInWithPopup(provider);
+    var cred;
+    try { cred = await auth.signInWithPopup(provider); } catch(popupErr) {
+      if(popupErr.code==='auth/popup-blocked'||popupErr.code==='auth/cancelled-popup-request'){
+        await auth.signInWithRedirect(provider); return;
+      }
+      throw popupErr;
+    }
     const userRef = db.collection('users').doc(cred.user.uid);
     const snap = await userRef.get();
     if (!snap.exists) {
