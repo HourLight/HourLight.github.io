@@ -46,7 +46,13 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:linear-gradie
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--amber),var(--rose));border-radius:3px;transition:width .6s cubic-bezier(.23,1,.32,1)}
 .castle-wrap{position:relative;width:100%;max-width:720px;margin:0 auto 28px;border-radius:20px;overflow:hidden}
 .castle-bg{width:100%;height:auto;display:block;border-radius:20px}
-.castle-svg{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0}
+.castle-svg{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;pointer-events:none}
+.castle-svg .room-zone{pointer-events:all}
+.room-hotspot{position:absolute;width:48px;height:48px;border-radius:50%;background:rgba(233,194,125,.25);border:2px solid rgba(233,194,125,.5);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all .3s;animation:hotspotPulse 2.5s ease-in-out infinite;-webkit-tap-highlight-color:transparent}
+.room-hotspot:hover,.room-hotspot:active{background:rgba(233,194,125,.5);border-color:#f8dfa5;transform:scale(1.15);box-shadow:0 0 20px rgba(233,194,125,.4)}
+.room-hotspot .hs-label{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:.6rem;color:rgba(255,255,255,.8);background:rgba(29,53,87,.75);padding:2px 8px;border-radius:10px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
+.room-hotspot:hover .hs-label,.room-hotspot:active .hs-label{opacity:1}
+@keyframes hotspotPulse{0%,100%{box-shadow:0 0 8px rgba(233,194,125,.2)}50%{box-shadow:0 0 18px rgba(233,194,125,.45)}}
 .castle-watermark-cover{position:absolute;bottom:8px;right:10px;width:36px;height:36px;border-radius:50%;object-fit:cover;opacity:.85;pointer-events:none;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3))}
 .room-zone{cursor:pointer;transition:all .3s}
 .room-zone:hover .zone-fill{opacity:.28}
@@ -455,6 +461,26 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:linear-gradie
 </g>
 
 </svg>
+<div id="roomHotspots" style="position:absolute;top:0;left:0;width:100%;height:100%">
+<!-- 12 room hotspots positioned over the castle image -->
+<!-- H塔 (左前) -->
+<div class="room-hotspot" style="top:38%;left:8%" onclick="handleHotspot('mirror')" data-room="mirror">🪞<span class="hs-label">鏡之廳</span></div>
+<div class="room-hotspot" style="top:58%;left:15%" onclick="handleHotspot('garden')" data-room="garden">🌿<span class="hs-label">花園</span></div>
+<div class="room-hotspot" style="top:22%;left:16%" onclick="handleHotspot('dream')" data-room="dream">🌙<span class="hs-label">夢境室</span></div>
+<!-- O塔 (左後) -->
+<div class="room-hotspot" style="top:18%;left:32%" onclick="handleHotspot('treasure')" data-room="treasure">💎<span class="hs-label">寶藏室</span></div>
+<div class="room-hotspot" style="top:35%;left:38%" onclick="handleHotspot('music')" data-room="music">🎵<span class="hs-label">音樂廳</span></div>
+<!-- 主堡中央 -->
+<div class="room-hotspot" style="top:28%;left:50%" onclick="handleHotspot('throne')" data-room="throne">👑<span class="hs-label">王座廳</span></div>
+<div class="room-hotspot" style="top:50%;left:50%" onclick="handleHotspot('kitchen')" data-room="kitchen">🍳<span class="hs-label">廚房</span></div>
+<!-- U塔 (右後) -->
+<div class="room-hotspot" style="top:18%;left:65%" onclick="handleHotspot('key')" data-room="key">🔑<span class="hs-label">鑰匙房</span></div>
+<div class="room-hotspot" style="top:35%;left:62%" onclick="handleHotspot('alchemy')" data-room="alchemy">⚗️<span class="hs-label">煉金室</span></div>
+<!-- R塔 (右前) -->
+<div class="room-hotspot" style="top:25%;left:82%" onclick="handleHotspot('tower')" data-room="tower">⭐<span class="hs-label">星象台</span></div>
+<div class="room-hotspot" style="top:45%;left:85%" onclick="handleHotspot('library')" data-room="library">📚<span class="hs-label">圖書室</span></div>
+<div class="room-hotspot" style="top:62%;left:78%" onclick="handleHotspot('secret')" data-room="secret">🚪<span class="hs-label">秘密通道</span></div>
+</div>
 <img src="LOGO-1.png" alt="" class="castle-watermark-cover" aria-hidden="true">
 </div>
 
@@ -783,6 +809,7 @@ function showLockedMsg(rid){
   showUnlockToast('🔒 ' + msg);
 }
 
+function handleHotspot(rid){ handleRoomClick(rid); }
 function handleRoomClick(rid){
   if(hlCastle.isDone(rid)) return;
 
