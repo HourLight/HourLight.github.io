@@ -2563,11 +2563,22 @@ async function copyReadingText(readingId){
                   <div style="flex:1;min-width:160px">
                     <label style="font-size:.78rem;color:var(--mid);display:block;margin-bottom:4px">解讀類型</label>
                     <select id="rc-type" class="member-search" style="width:100%" onchange="rcUpdatePrice()">
-                      <option value="3card">3張牌 AI 解讀（$199）</option>
-                      <option value="5card">5張牌 AI 解讀（$399）</option>
-                      <option value="7card">7張牌 AI 解讀（$599）</option>
-                      <option value="promo">行銷贈送（免費3張）</option>
-                      <option value="unlimited7">7天無限暢玩（等同 $999 大師方案）</option>
+                      <optgroup label="AI 解讀（自助式）">
+                        <option value="3card">3張牌 AI 解讀（$199）</option>
+                        <option value="5card">5張牌 AI 解讀（$399）</option>
+                        <option value="7card">7張牌 AI 解讀（$599）</option>
+                      </optgroup>
+                      <optgroup label="覺察師一對一">
+                        <option value="9card">9張牌 覺察師一對一（$1,800）</option>
+                        <option value="12card">12張牌 覺察師一對一（$2,800）</option>
+                        <option value="15card">15張牌 覺察師一對一（$3,600）</option>
+                        <option value="21card">21張牌 覺察師一對一（$5,400）</option>
+                        <option value="28card">28張牌 覺察師一對一（$6,800）</option>
+                      </optgroup>
+                      <optgroup label="特殊">
+                        <option value="promo">行銷贈送（免費3張）</option>
+                        <option value="unlimited7">7天無限暢玩（等同 $999 大師方案）</option>
+                      </optgroup>
                     </select>
                   </div>
                   <div style="width:90px">
@@ -5043,7 +5054,8 @@ function rcGenRandom(){
   return c;
 }
 function rcGenCode(type){
-  var prefix = type==='3card'?'HL3':type==='5card'?'HL5':type==='7card'?'HL7':type==='unlimited7'?'HLU':'HLM';
+  var prefixMap={'3card':'HL3','5card':'HL5','7card':'HL7','9card':'HL9','12card':'H12','15card':'H15','21card':'H21','28card':'H28','unlimited7':'HLU','promo':'HLM'};
+  var prefix = prefixMap[type] || 'HLX';
   return prefix+'-'+rcGenRandom();
 }
 
@@ -5059,9 +5071,14 @@ async function generateReadingCodes(){
   msg.style.color='var(--mid)';msg.textContent='產生中⋯';
 
   var typeMap={
-    '3card':{spreads:3,price:199,label:'3張牌解讀 $199'},
-    '5card':{spreads:5,price:399,label:'5張牌解讀 $399'},
-    '7card':{spreads:7,price:599,label:'7張牌解讀 $599'},
+    '3card':{spreads:3,price:199,label:'3張牌 AI 解讀 $199'},
+    '5card':{spreads:5,price:399,label:'5張牌 AI 解讀 $399'},
+    '7card':{spreads:7,price:599,label:'7張牌 AI 解讀 $599'},
+    '9card':{spreads:9,price:1800,label:'9張牌 覺察師一對一 $1,800'},
+    '12card':{spreads:12,price:2800,label:'12張牌 覺察師一對一 $2,800'},
+    '15card':{spreads:15,price:3600,label:'15張牌 覺察師一對一 $3,600'},
+    '21card':{spreads:21,price:5400,label:'21張牌 覺察師一對一 $5,400'},
+    '28card':{spreads:28,price:6800,label:'28張牌 覺察師一對一 $6,800'},
     'promo':{spreads:3,price:0,label:'行銷贈送（免費3張）'},
     'unlimited7':{spreads:0,price:0,label:'7天無限暢玩（等同大師方案）'}
   };
