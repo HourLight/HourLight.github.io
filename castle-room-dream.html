@@ -544,7 +544,7 @@ function renderRiddle(){
   } else {
     h+='<div class="riddle-opts">';
     rd.opts.forEach(function(o,i){ h+='<div class="riddle-opt" onclick="selOpt('+i+')" id="o'+i+'">'+o.text+'</div>'; });
-    h+='</div><div class="insight-box" id="ins"></div><button class="btn-complete" id="btnDone" disabled onclick="finishRiddle()">✦ 收下這份覺察</button>';
+    h+='</div><div class="insight-box" id="ins2"></div><button class="btn-complete" id="btnDone2" disabled onclick="finishRiddle()">✦ 收下這份覺察</button>';
   }
   box.innerHTML=h;
 }
@@ -560,21 +560,21 @@ function selAroma(i){
   showInsight(rd.aromas[i].insight);
 }
 function showInsight(t){
-  var el=document.getElementById('ins'); if(!el) return;
+  var el=document.getElementById('ins')||document.getElementById('ins2'); if(!el) return;
   el.innerHTML='<div class="insight-txt">'+t.replace(/\\n/g,'<br>').replace(/\n/g,'<br>')+'</div>';
   el.classList.add('show');
-  var btn=document.getElementById('btnDone'); if(btn) btn.disabled=false;
+  var btn=document.getElementById('btnDone')||document.getElementById('btnDone2'); if(btn) btn.disabled=false;
   el.scrollIntoView({behavior:'smooth',block:'center'});
 }
 
 function finishRiddle(){
-  var insEl=document.getElementById('ins'); var insight=insEl?insEl.textContent:'';
+  var insEl=document.getElementById('ins')||document.getElementById('ins2'); var insight=insEl?insEl.textContent:'';
   var qEl=document.querySelector('.riddle-q'); var question=qEl?qEl.textContent:'';
   var selEl=document.querySelector('.riddle-opt.sel, .aroma-card.sel'); var answer=selEl?selEl.textContent:'';
   if(window.hlCastle&&hlCastle.hasKey(ROOM_ID)) hlCastle.completeRoom(ROOM_ID,question,answer,insight);
   if(window.hlMaterial) hlMaterial.drop('castle_riddle');
   _state.riddleDone[todayKey()]=true; saveRoomState(_state); renderStatus(); renderCompleteness();
-  var btn=document.getElementById('btnDone');
+  var btn=document.getElementById('btnDone')||document.getElementById('btnDone2');
   if(btn){ btn.disabled=true; btn.textContent='✓ 已收下'; }
   setTimeout(function(){ renderRiddle(); },800);
 }
