@@ -1028,8 +1028,16 @@ var ADMIN_EMAILS = []; // 從 Firestore 動態載入
 
 /* ── 登入守門 ── */
 function doLogin(){
-  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-    .catch(function(e){ console.warn(e); });
+  var provider = new firebase.auth.GoogleAuthProvider();
+  // 手機用 redirect（popup 在手機常被擋）
+  if(/iPhone|iPad|Android|Mobile/i.test(navigator.userAgent)){
+    auth.signInWithRedirect(provider);
+  } else {
+    auth.signInWithPopup(provider).catch(function(e){
+      // popup 被擋，fallback 到 redirect
+      auth.signInWithRedirect(provider);
+    });
+  }
 }
 
 auth.onAuthStateChanged(async function(user){
