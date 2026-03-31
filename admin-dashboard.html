@@ -207,6 +207,45 @@ body{background:var(--bg);color:var(--text);font-family:"Noto Sans TC",sans-seri
   .main{padding:20px 16px}
   .admin-stats{grid-template-columns:repeat(2,1fr)}
 }
+
+/* ─── Hide ─── */
+.hide{display:none!important}
+
+/* ─── Modals ─── */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,6,18,.7);z-index:1000;
+  display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:18px;
+  padding:28px;width:100%;max-width:440px;box-shadow:0 8px 40px rgba(0,0,0,.4)}
+.modal-title{font-family:"LXGW WenKai TC",serif;font-size:1.1rem;font-weight:500;
+  color:var(--gold);margin-bottom:6px}
+.modal-sub{font-size:.82rem;color:var(--mid);margin-bottom:20px;line-height:1.6}
+.modal-form{display:flex;flex-direction:column;gap:14px}
+.modal-label{font-size:.82rem;color:var(--mid);margin-bottom:3px;display:block}
+.modal-select{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;
+  font-size:.85rem;outline:none;background:var(--bg);color:var(--text);cursor:pointer;font-family:inherit}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}
+.btn-modal-cancel{padding:10px 22px;border:1px solid var(--border);border-radius:9px;
+  background:transparent;font-size:.85rem;color:var(--mid);cursor:pointer;font-family:inherit}
+.btn-modal-ok{padding:10px 22px;background:linear-gradient(135deg,#c9a044,#f0d48a);
+  border:none;border-radius:9px;font-size:.85rem;color:#0a0714;font-weight:600;cursor:pointer;font-family:inherit}
+.modal-err{font-size:.82rem;color:#ff6060;min-height:16px}
+.dur-btn{padding:8px 14px;border:1px solid var(--border);border-radius:9px;background:var(--bg);
+  color:var(--mid);font-size:.82rem;cursor:pointer;transition:all .2s;font-family:inherit}
+.dur-btn:hover{border-color:var(--gold);color:var(--gold)}
+.dur-btn.on{background:var(--gold);color:#0a0714;border-color:var(--gold);font-weight:600}
+
+/* ─── Profile display in member detail ─── */
+.profile-section{margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+.profile-section-title{font-size:.78rem;color:var(--gold);letter-spacing:.06em;margin-bottom:10px;font-weight:500}
+.profile-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:.85rem}
+.profile-label{flex-shrink:0;width:72px;color:var(--mid);font-size:.75rem;padding-top:2px;text-align:right}
+.profile-value{color:var(--text);flex:1;min-width:0}
+.profile-bio{background:rgba(240,212,138,.04);border-left:3px solid rgba(240,212,138,.25);
+  padding:10px 14px;border-radius:0 8px 8px 0;font-size:.82rem;color:rgba(249,240,229,.75);
+  line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.profile-tags{display:flex;flex-wrap:wrap;gap:5px}
+.profile-tag{padding:2px 10px;border-radius:12px;font-size:.7rem;font-weight:500;
+  background:rgba(240,212,138,.08);border:1px solid rgba(240,212,138,.15);color:var(--gold)}
 </style>
 </head>
 <body>
@@ -905,6 +944,58 @@ body{background:var(--bg);color:var(--text);font-family:"Noto Sans TC",sans-seri
           </div>
 </div>
 
+<!-- 會員足跡 Modal -->
+<div class="modal-overlay hide" id="modal-member-detail">
+  <div class="modal-box" style="max-width:600px;width:95%">
+    <div class="modal-title" id="detail-title">會員使用足跡</div>
+    <div class="modal-sub" id="detail-sub" style="margin-bottom:14px"></div>
+    <div id="detail-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px"></div>
+    <div id="detail-profile"></div>
+    <div style="font-size:.85rem;color:var(--mid);margin-bottom:8px;margin-top:16px;font-weight:500">使用記錄（最近 50 筆）</div>
+    <div id="detail-history-list" style="max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:6px"><div class="empty"><p>載入中⋯</p></div></div>
+    <div class="modal-btns" style="margin-top:16px"><button class="btn-modal-cancel" onclick="closeModal('modal-member-detail')">關閉</button></div>
+  </div>
+</div>
+
+<!-- 身分調整 Modal -->
+<div class="modal-overlay hide" id="modal-role">
+  <div class="modal-box">
+    <div class="modal-title">調整會員設定</div>
+    <div class="modal-sub" id="modal-role-sub">調整此會員的身分與方案</div>
+    <div class="modal-form">
+      <div><label class="modal-label">身分角色</label>
+        <select class="modal-select" id="role-select">
+          <option value="guest">🌱 馥靈訪客</option><option value="member">🔑 馥靈會員</option>
+          <option value="premium">💎 馥靈高階</option><option value="practitioner">✦ 馥靈覺察師</option>
+          <option value="mentor">🌟 馥靈覺察導師</option><option value="vip_guest">🌸 馥靈特殊貴賓</option>
+          <option value="curator">🎨 馥靈策展總監</option><option value="admin">⚜️ 馥靈管理員</option>
+        </select>
+      </div>
+      <div style="margin-top:12px"><label class="modal-label">訂閱方案</label>
+        <select class="modal-select" id="plan-select" onchange="toggleDuration()">
+          <option value="free">🌱 免費方案（$0）</option>
+          <option value="plus">🔑 馥靈鑰友（$399/月）</option>
+          <option value="pro">👑 馥靈大師（$999/月）</option>
+        </select>
+      </div>
+      <div style="margin-top:12px;display:none" id="duration-row">
+        <label class="modal-label">訂閱期限</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button type="button" class="dur-btn on" data-dur="1" onclick="pickDur(this)">1 個月</button>
+          <button type="button" class="dur-btn" data-dur="3" onclick="pickDur(this)">3 個月</button>
+          <button type="button" class="dur-btn" data-dur="6" onclick="pickDur(this)">半年</button>
+          <button type="button" class="dur-btn" data-dur="12" onclick="pickDur(this)">1 年</button>
+          <button type="button" class="dur-btn" data-dur="0" onclick="pickDur(this)">永久</button>
+        </div>
+        <div style="margin-top:8px;font-size:.75rem;color:var(--mid)" id="expiry-preview">到期日：-</div>
+      </div>
+      <div style="margin-top:8px;padding:10px 12px;background:var(--bg);border-radius:8px;font-size:.75rem;color:var(--mid);display:none" id="current-expiry-info"></div>
+      <div class="modal-err" id="role-err"></div>
+    </div>
+    <div class="modal-btns"><button class="btn-modal-cancel" onclick="closeModal('modal-role')">取消</button><button class="btn-modal-ok" onclick="saveRole()">確認修改</button></div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div id="toast"></div>
 
@@ -1347,7 +1438,7 @@ function adminSearchMembers() {
   const q=(document.getElementById('admin-member-search').value||'').toLowerCase();
   const rol=document.getElementById('admin-role-filter').value;
   const pln=document.getElementById('admin-plan-filter').value;
-  filteredMembers=allMembers.filter(m=>{ const match=!q||(m.displayName||'').toLowerCase().includes(q)||(m.email||'').toLowerCase().includes(q); const rm=!rol||(m.role||'guest')===rol; const pm=!pln||(m.plan||'free')===pln; return match&&rm&&pm; });
+  filteredMembers=allMembers.filter(m=>{ const nick=m.profile&&m.profile.nickname?m.profile.nickname:''; const match=!q||(m.displayName||'').toLowerCase().includes(q)||(m.email||'').toLowerCase().includes(q)||nick.toLowerCase().includes(q); const rm=!rol||(m.role||'guest')===rol; const pm=!pln||(m.plan||'free')===pln; return match&&rm&&pm; });
   adminPage=1; renderAdminMembers(); renderMemberCards();
 }
 
@@ -1369,8 +1460,9 @@ function renderAdminMembers() {
     if(exp&&exp!=='permanent'&&m.plan!=='free'){const ed=new Date(exp);const left=Math.ceil((ed-new Date())/(86400000));expLabel=left>0?'<div style="font-size:.6rem;margin-top:2px">剩 '+left+' 天</div>':'<div style="font-size:.6rem;margin-top:2px;color:#d93025">已過期</div>';}
     else if(exp==='permanent'&&m.plan!=='free'){expLabel='<div style="font-size:.6rem;margin-top:2px">永久</div>';}
     const expStr=exp||'';
+    const nick=m.profile&&m.profile.nickname?m.profile.nickname:'';
     return `<tr>
-      <td><div class="user-cell"><div class="user-cell-avatar">${av}</div><div><div class="user-cell-name">${escHtml(m.displayName||'-')}</div><div class="user-cell-email">${escHtml(m.email||'-')}</div></div></div></td>
+      <td><div class="user-cell"><div class="user-cell-avatar">${av}</div><div><div class="user-cell-name">${escHtml(m.displayName||'-')}${nick?' <span style="font-size:.7rem;color:var(--mid);font-weight:400">('+escHtml(nick)+')</span>':''}</div><div class="user-cell-email">${escHtml(m.email||'-')}</div></div></div></td>
       <td><span class="role-pill" style="background:${r.bg};color:${r.tc}">${r.icon} ${r.name}</span></td>
       <td><span class="role-pill" style="background:${p.bg};color:${p.tc}">${p.icon} ${p.name}</span>${expLabel}</td>
       <td>${m.totalDraws||0}</td><td>${m.totalQuizzes||0}</td><td>${m.totalCalcs||0}</td><td>${lastSeen}</td>
@@ -1392,11 +1484,12 @@ function renderMemberCards() {
     const r=HL_ROLES[m.role||'guest']||HL_ROLES.guest;
     const p=HL_PLANS[m.plan||'free']||HL_PLANS.free;
     const av=(m.displayName||m.email||'?').charAt(0).toUpperCase();
+    const nick=m.profile&&m.profile.nickname?m.profile.nickname:'';
     return `<div class="member-card">
       <div class="mc-top">
         <div class="user-cell-avatar" style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#1a1008;flex-shrink:0">${av}</div>
         <div style="flex:1;min-width:0;margin-left:12px">
-          <div style="font-size:.9rem;color:var(--text);margin-bottom:2px">${escHtml(m.displayName||'-')}</div>
+          <div style="font-size:.9rem;color:var(--text);margin-bottom:2px">${escHtml(m.displayName||'-')}${nick?' <span style="font-size:.72rem;color:var(--mid)">('+escHtml(nick)+')</span>':''}</div>
           <div style="font-size:.73rem;color:var(--light);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(m.email||'-')}</div>
           <div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">
             <span class="role-pill" style="background:${r.bg};color:${r.tc}">${r.icon} ${r.name}</span>
@@ -1424,12 +1517,15 @@ function adminNextPage() { const t=Math.ceil(filteredMembers.length/PAGE_SIZE); 
 async function openMemberDetail(uid, name) {
   document.getElementById('detail-title').textContent = name+' 的足跡';
   document.getElementById('detail-sub').textContent = 'UID: '+uid;
+  document.getElementById('detail-profile').innerHTML='';
   document.getElementById('detail-history-list').innerHTML='<div style="text-align:center;padding:20px;color:var(--light)">載入中⋯</div>';
   openModal('modal-member-detail');
   try {
     const userDoc = await db.collection('users').doc(uid).get();
     const ud = userDoc.exists?userDoc.data():{};
     document.getElementById('detail-stats').innerHTML=[['抽牌',ud.totalDraws||0],['測驗',ud.totalQuizzes||0],['計算',ud.totalCalcs||0]].map(([l,v])=>`<div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center"><div style="font-size:1.5rem;font-weight:500;color:var(--gold)">${v}</div><div style="font-size:.73rem;color:var(--mid);margin-top:4px">${l}</div></div>`).join('');
+    // 渲染個人檔案資訊
+    renderDetailProfile(ud);
     const snap = await db.collection('users/'+uid+'/history').orderBy('timestamp','desc').limit(50).get();
     const el = document.getElementById('detail-history-list');
     if (snap.empty) { el.innerHTML='<div class="empty"><p>尚無使用記錄</p></div>'; return; }
@@ -1437,6 +1533,45 @@ async function openMemberDetail(uid, name) {
     const tLabel={draw:'抽牌',quiz:'測驗',calculator:'計算',tool:'工具'};
     el.innerHTML=snap.docs.map(doc=>{ const d=doc.data(),tp=d.type||'tool',t=d.timestamp?.toDate?d.timestamp.toDate():null,ts=t?t.toLocaleDateString('zh-TW')+' '+t.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}):'｜'; return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--bg);border-radius:9px;margin-bottom:6px"><span style="flex-shrink:0;background:${tColor[tp]}22;color:${tColor[tp]};font-size:.7rem;padding:2px 8px;border-radius:20px;margin-top:2px">${tLabel[tp]||tp}</span><div style="flex:1;min-width:0"><div style="font-size:.92rem;color:var(--text)">${escHtml(d.title||d.toolName||'-')}</div>${d.detail?`<div style="font-size:.73rem;color:var(--mid)">${escHtml(d.detail)}</div>`:''}</div><span style="flex-shrink:0;font-size:.7rem;color:var(--light)">${ts}</span></div>`; }).join('');
   } catch(e) { document.getElementById('detail-history-list').innerHTML='<div class="empty"><p>讀取失敗</p></div>'; }
+}
+
+/* 渲染會員個人檔案區塊 */
+function renderDetailProfile(ud) {
+  const el = document.getElementById('detail-profile');
+  if (!el) return;
+  const p = ud.profile || {};
+  const genderMap = {male:'男', female:'女', other:'其他', '男':'男', '女':'女'};
+  const rows = [];
+  if (p.nickname) rows.push(`<div class="profile-row"><div class="profile-label">暱稱</div><div class="profile-value">${escHtml(p.nickname)}</div></div>`);
+  if (p.gender) rows.push(`<div class="profile-row"><div class="profile-label">性別</div><div class="profile-value">${escHtml(genderMap[p.gender]||p.gender)}</div></div>`);
+  if (p.birthYear) rows.push(`<div class="profile-row"><div class="profile-label">出生年份</div><div class="profile-value">${escHtml(String(p.birthYear))}</div></div>`);
+  if (p.city) rows.push(`<div class="profile-row"><div class="profile-label">所在城市</div><div class="profile-value">${escHtml(p.city)}</div></div>`);
+  if (p.bio) rows.push(`<div class="profile-row"><div class="profile-label">自我介紹</div><div class="profile-value"><div class="profile-bio">${escHtml(p.bio)}</div></div></div>`);
+  if (p.interests && Array.isArray(p.interests) && p.interests.length) {
+    rows.push(`<div class="profile-row"><div class="profile-label">感興趣</div><div class="profile-value"><div class="profile-tags">${p.interests.map(t=>`<span class="profile-tag">${escHtml(t)}</span>`).join('')}</div></div></div>`);
+  } else if (p.interests && typeof p.interests === 'string' && p.interests.trim()) {
+    const tags = p.interests.split(/[,、，\s]+/).filter(Boolean);
+    rows.push(`<div class="profile-row"><div class="profile-label">感興趣</div><div class="profile-value"><div class="profile-tags">${tags.map(t=>`<span class="profile-tag">${escHtml(t)}</span>`).join('')}</div></div></div>`);
+  }
+  // 基本資訊行（email、加入日期、最後上線）
+  const basicRows = [];
+  if (ud.email) basicRows.push(`<div class="profile-row"><div class="profile-label">Email</div><div class="profile-value" style="font-size:.82rem;color:var(--mid)">${escHtml(ud.email)}</div></div>`);
+  if (ud.createdAt) {
+    const d = ud.createdAt.toDate ? ud.createdAt.toDate() : new Date(ud.createdAt);
+    basicRows.push(`<div class="profile-row"><div class="profile-label">加入日期</div><div class="profile-value" style="font-size:.82rem;color:var(--mid)">${d.toLocaleDateString('zh-TW')}</div></div>`);
+  }
+  if (ud.lastSeen) {
+    const d = ud.lastSeen.toDate ? ud.lastSeen.toDate() : new Date(ud.lastSeen);
+    basicRows.push(`<div class="profile-row"><div class="profile-label">最後上線</div><div class="profile-value" style="font-size:.82rem;color:var(--mid)">${d.toLocaleDateString('zh-TW')} ${d.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})}</div></div>`);
+  }
+  let html = '';
+  if (basicRows.length) {
+    html += `<div class="profile-section"><div class="profile-section-title">基本資訊</div>${basicRows.join('')}</div>`;
+  }
+  if (rows.length) {
+    html += `<div class="profile-section"><div class="profile-section-title">個人檔案</div>${rows.join('')}</div>`;
+  }
+  el.innerHTML = html;
 }
 
 /* 身分調整 */

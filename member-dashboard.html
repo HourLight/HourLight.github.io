@@ -117,6 +117,23 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .btn-upd{padding:10px 20px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:8px;font-family:var(--body);font-size:.92rem;color:#2d1a00;cursor:pointer;transition:opacity .2s}
 .btn-upd:hover{opacity:.88}
 .pwdmsg{font-size:.9rem;margin-top:8px;color:var(--mid)}
+
+/* ===== PROFILE FORM ===== */
+.profile-section-header{margin-bottom:18px}
+.profile-section-header h3{font-family:var(--serif);font-size:1.15rem;font-weight:500;margin-bottom:4px}
+.profile-section-header p{font-size:.88rem;color:var(--mid);line-height:1.7}
+.form-select{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:9px;font-family:var(--body);font-size:.9rem;color:var(--text);background:#fdf8f2;outline:none;transition:border-color .2s;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6a58' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.form-select:focus{border-color:var(--gold);background-color:#fff}
+.form-textarea{width:100%;min-height:90px;padding:11px 14px;border:1px solid var(--border);border-radius:9px;font-family:var(--body);font-size:.9rem;color:var(--text);background:#fdf8f2;resize:vertical;outline:none;transition:border-color .2s;line-height:1.7}
+.form-textarea:focus{border-color:var(--gold);background:#fff}
+.form-textarea-footer{display:flex;justify-content:flex-end;margin-top:3px}
+.form-textarea-count{font-size:.8rem;color:var(--light)}
+.chk-group{display:flex;flex-wrap:wrap;gap:8px}
+.chk-item{display:flex;align-items:center;gap:5px;padding:7px 13px;border:1px solid var(--border);border-radius:20px;font-size:.88rem;color:var(--mid);cursor:pointer;transition:all .2s;user-select:none}
+.chk-item:hover{border-color:var(--gold);color:var(--text)}
+.chk-item input[type="checkbox"]{display:none}
+.chk-item.checked{background:linear-gradient(135deg,rgba(233,194,125,.18),rgba(205,168,110,.12));border-color:rgba(184,146,42,.35);color:var(--text)}
+.profile-msg{font-size:.9rem;margin-top:10px;min-height:20px;color:var(--mid)}
 .danger-zone{margin-top:48px;padding:0;border:none}
 .dz-toggle{font-size:.65rem;color:rgba(128,128,128,.2);cursor:pointer;text-align:right;padding:8px 0;user-select:none;transition:color .3s}
 .dz-toggle:hover{color:rgba(128,128,128,.35)}
@@ -255,6 +272,21 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
     </div>
 
     <div class="bcard">
+      <div class="profile-section-header">
+        <h3>✨ 個人資料</h3>
+        <p>讓我們更了解您，提供更精準的覺察體驗</p>
+      </div>
+      <div class="form-row"><label class="form-label">暱稱</label><input type="text" id="profNickname" class="form-input" placeholder="您希望被怎麼稱呼？"></div>
+      <div class="form-row"><label class="form-label">性別</label><select id="profGender" class="form-select"><option value="不透露">不透露</option><option value="女">女</option><option value="男">男</option><option value="其他">其他</option></select></div>
+      <div class="form-row"><label class="form-label">出生年份</label><input type="number" id="profBirthYear" class="form-input" placeholder="例如 1990" min="1920" max="2026"></div>
+      <div class="form-row"><label class="form-label">所在城市</label><input type="text" id="profCity" class="form-input" placeholder="例如 台北、高雄"></div>
+      <div class="form-row"><label class="form-label">自我介紹</label><textarea id="profBio" class="form-textarea" placeholder="簡單聊聊自己吧，最多 200 字" maxlength="200"></textarea><div class="form-textarea-footer"><span class="form-textarea-count" id="profBioCount">0 / 200</span></div></div>
+      <div class="form-row"><label class="form-label">感興趣的主題</label><div class="chk-group" id="profInterests"><label class="chk-item" onclick="toggleChk(this)"><input type="checkbox" value="命理">命理</label><label class="chk-item" onclick="toggleChk(this)"><input type="checkbox" value="塔羅">塔羅</label><label class="chk-item" onclick="toggleChk(this)"><input type="checkbox" value="精油">精油</label><label class="chk-item" onclick="toggleChk(this)"><input type="checkbox" value="心理測驗">心理測驗</label><label class="chk-item" onclick="toggleChk(this)"><input type="checkbox" value="美業">美業</label><label class="chk-item" onclick="toggleChk(this)"><input type="checkbox" value="覺察成長">覺察成長</label><label class="chk-item" onclick="toggleChk(this)"><input type="checkbox" value="寵物溝通">寵物溝通</label></div></div>
+      <button class="btn-upd" onclick="saveProfile()">儲存個人資料</button>
+      <div class="profile-msg" id="profileMsg"></div>
+    </div>
+
+    <div class="bcard">
       <div class="bcard-title">修改密碼</div>
       <div class="form-row"><label class="form-label">新密碼</label><input type="password" id="newPwd" class="form-input" placeholder="至少 6 個字元"></div>
       <div class="form-row"><label class="form-label">確認新密碼</label><input type="password" id="newPwd2" class="form-input" placeholder="再輸入一次"></div>
@@ -294,6 +326,7 @@ if(typeof FIREBASE_CONFIG!=='undefined'&&FIREBASE_CONFIG.apiKey!=='YOUR_API_KEY'
     await loadUserData(u);
     loadHistory();
     loadNotes();
+    loadProfile();
   });
 }
 
@@ -442,6 +475,61 @@ function confirmDel(){
     if(e.code==='auth/requires-recent-login')alert('請先重新登入再操作');
     else alert(e.message);
   });
+}
+
+// ===== PROFILE FORM =====
+function toggleChk(el){
+  const cb=el.querySelector('input[type="checkbox"]');
+  cb.checked=!cb.checked;
+  el.classList.toggle('checked',cb.checked);
+}
+
+const profBio=document.getElementById('profBio');
+profBio.addEventListener('input',()=>{
+  document.getElementById('profBioCount').textContent=profBio.value.length+' / 200';
+});
+
+async function loadProfile(){
+  try{
+    const snap=await db.doc(`users/${_uid}`).get();
+    if(!snap.exists)return;
+    const p=snap.data().profile;
+    if(!p)return;
+    if(p.nickname) document.getElementById('profNickname').value=p.nickname;
+    if(p.gender) document.getElementById('profGender').value=p.gender;
+    if(p.birthYear) document.getElementById('profBirthYear').value=p.birthYear;
+    if(p.city) document.getElementById('profCity').value=p.city;
+    if(p.bio){document.getElementById('profBio').value=p.bio;document.getElementById('profBioCount').textContent=p.bio.length+' / 200';}
+    if(p.interests&&Array.isArray(p.interests)){
+      document.querySelectorAll('#profInterests .chk-item').forEach(el=>{
+        const cb=el.querySelector('input[type="checkbox"]');
+        if(p.interests.includes(cb.value)){cb.checked=true;el.classList.add('checked');}
+      });
+    }
+  }catch(e){void 0;}
+}
+
+async function saveProfile(){
+  const msg=document.getElementById('profileMsg');
+  msg.style.color='';msg.textContent='儲存中...';
+  const interests=[];
+  document.querySelectorAll('#profInterests input[type="checkbox"]:checked').forEach(cb=>interests.push(cb.value));
+  const profile={
+    nickname:document.getElementById('profNickname').value.trim(),
+    gender:document.getElementById('profGender').value,
+    birthYear:parseInt(document.getElementById('profBirthYear').value)||null,
+    city:document.getElementById('profCity').value.trim(),
+    bio:document.getElementById('profBio').value.trim(),
+    interests:interests,
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  };
+  try{
+    await db.doc(`users/${_uid}`).set({profile:profile},{merge:true});
+    msg.style.color='#4a8a5a';msg.textContent='✅ 個人資料已儲存';
+    setTimeout(()=>{msg.textContent='';msg.style.color='';},3000);
+  }catch(e){
+    msg.style.color='#c05050';msg.textContent='儲存失敗，請稍後再試';
+  }
 }
 
 async function doLogout(){
