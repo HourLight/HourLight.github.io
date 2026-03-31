@@ -157,9 +157,9 @@ window.hlPaywall = (function(){
         }
         // ✅ 愚人節促銷碼（4/6 到期）
         var _PW_PROMO = {
-          'FOOL199': {n:3, expires:'2026-04-07'},
-          'FOOL399': {n:5, expires:'2026-04-07'},
-          'FOOL599': {n:7, expires:'2026-04-07'}
+          'FOOL199': {n:3, expires:'2026-04-07T23:59:59+08:00'},
+          'FOOL399': {n:5, expires:'2026-04-07T23:59:59+08:00'},
+          'FOOL599': {n:7, expires:'2026-04-07T23:59:59+08:00'}
         };
         if (_PW_PROMO[code]) {
           var _pp = _PW_PROMO[code];

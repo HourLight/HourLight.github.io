@@ -190,12 +190,12 @@
     // FOOL999 = 7天馥靈大師免費試用
     if(code === 'FOOL999'){
       var now = new Date();
-      var exp = new Date('2026-04-07');
+      var exp = new Date('2026-04-07T23:59:59+08:00');
       if(now >= exp){ msg.style.color='#d93025'; msg.textContent='此兌換券已過期（4/6 截止）'; return; }
       var usedKey = 'hl_promo_FOOL999';
       if(localStorage.getItem(usedKey)){ msg.style.color='#d93025'; msg.textContent='此兌換券已使用過（每人限用一次）'; return; }
       localStorage.setItem(usedKey, Date.now());
-      localStorage.setItem('hl_promo_trial_until', '2026-04-07');
+      localStorage.setItem('hl_promo_trial_until', '2026-04-07T23:59:59+08:00');
       console.log('[HL] FOOL999 trial activated until 2026-04-07');
       try{var _tdb=(typeof firebase!=='undefined'&&firebase.firestore)?firebase.firestore():null;var _tu=firebase.auth().currentUser;
         if(_tdb)_tdb.collection('promo_redemptions').add({code:'FOOL999',source:'ai-gate-trial',uid:_tu?_tu.uid:'guest',email:_tu?_tu.email:'',ts:firebase.firestore.FieldValue.serverTimestamp()});

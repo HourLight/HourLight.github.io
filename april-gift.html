@@ -496,7 +496,9 @@ body{
           _user = result.user;
           runDraw();
         }).catch(function(err) {
-          if (err.code !== 'auth/popup-closed-by-user') {
+          if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
+            firebase.auth().signInWithRedirect(provider);
+          } else if (err.code !== 'auth/popup-closed-by-user') {
             alert('請先登入才能拆禮物');
           }
         });
