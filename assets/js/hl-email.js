@@ -123,6 +123,12 @@
       // 跳過已經加過的
       if (btn.nextElementSibling && btn.nextElementSibling.classList.contains('hle-btn')) return;
       if (btn.parentNode.querySelector('.hle-btn')) return;
+      // 跳過非內容型的複製按鈕（邀請連結、推薦碼、URL 複製等）
+      var onclick = btn.getAttribute('onclick') || '';
+      var btnText = (btn.textContent || '').trim();
+      if (onclick.match(/copyLink|copyInvite|copyUrl|copyCode|copyRef/i)) return;
+      if (btn.closest('#inviteSec, #referralSec, .invite-section, .referral-section')) return;
+      if (btnText.match(/^複製連結$|^複製網址$|^複製推薦碼$/)) return;
 
       // 找到對應的 pre/textarea 內容來源
       var onclick = btn.getAttribute('onclick') || '';
