@@ -61,7 +61,7 @@
     'korean-saju.html':'destiny-hub.html','meihua-yishu.html':'destiny-hub.html',
     // 占卜 hub
     'yijing-oracle.html':'divination-hub.html','liuren-oracle.html':'divination-hub.html',
-    'poe-blocks.html':'divination-hub.html','qimen-dunjia.html':'divination-hub.html',
+    'qimen-dunjia.html':'divination-hub.html',
     'liuren.html':'divination-hub.html','phone-oracle.html':'divination-hub.html',
     'poker-oracle.html':'divination-hub.html','akashic-records.html':'divination-hub.html',
     'yuan-chen-gong.html':'divination-hub.html','abundance-prayer.html':'divination-hub.html',
