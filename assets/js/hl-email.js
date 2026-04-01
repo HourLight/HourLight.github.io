@@ -148,15 +148,20 @@
           if (el) content = el.textContent || el.innerText;
         }
         if (!content) {
-          // 嘗試從同層級的 pre 取
+          // 嘗試從同層級的 pre 或結果 div 取
           var pre = btn.parentNode.querySelector('pre');
           if (pre) content = pre.textContent || pre.innerText;
         }
         if (!content) {
+          // draw-hl AI 解讀結果（在 div#aiResultContent）
+          var aiDiv = document.getElementById('aiResultContent');
+          if (aiDiv && aiDiv.textContent.trim().length > 20) content = aiDiv.textContent;
+        }
+        if (!content) {
           // 從整個結果區取
-          var resultArea = btn.closest('.ai-box, .copy-section, .result-box, .ff-glass');
+          var resultArea = btn.closest('.ai-box, .copy-section, .result-box, .ff-glass, [id*="result"], [id*="Result"]');
           if (resultArea) {
-            var p = resultArea.querySelector('pre');
+            var p = resultArea.querySelector('pre, [style*="pre-wrap"], .result-text, .reading-text');
             if (p) content = p.textContent || p.innerText;
           }
         }
