@@ -249,12 +249,35 @@ function showResult(){
 
   document.getElementById('dimBars').innerHTML=`<div style="font-size:0.95rem;letter-spacing:1px;color:#8b6914;margin-bottom:16px;text-align:center">✦ 你的前 5 大天賦</div>`+top5.map((s,i)=>{const c=['#b8922a','#c9a060','#a87c3e','#8a6020','#6a4010'][i];return `<div class="ocean-item"><div class="ocean-top"><span class="ocean-label"><strong>${strIcons[s[0]]||'✦'} ${strNames[s[0]]||s[0]}</strong></span><span class="ocean-score">${s[1]}%</span></div><div class="ocean-track"><div class="ocean-fill" style="width:${s[1]}%;background:${c}"></div></div></div>`;}).join('')+`<div style="margin-top:18px;font-size:0.95rem;letter-spacing:1px;color:#8b6914;margin-bottom:12px;text-align:center">✦ 四大天賦領域</div>`+['EXE','INF','REL','STR'].map(d=>`<div class="ocean-item"><div class="ocean-top"><span class="ocean-label"><strong>${domNames[d]}</strong></span><span class="ocean-score">${domScores[d]}%</span></div><div class="ocean-track"><div class="ocean-fill" style="width:${domScores[d]}%;background:${domColors[d]}"></div></div></div>`).join('');
 
-  document.getElementById('resultSections').innerHTML=top5.map(s=>`<div class="result-section"><div class="result-section-title">${strIcons[s[0]]||'✦'} ${strNames[s[0]]}（${s[1]}%）</div><div class="result-section-content">這是你的招牌天賦。當你使用它的時候，你會覺得毫不費力卻效果驚人。這不是努力的結果，是你天生的設定。好好用它，它就是你最大的競爭優勢。</div></div>`).join('');
+  const strDescs={
+achiever:{desc:'你每天都需要完成一些事情才覺得活著。你的待辦清單是你的心跳節拍器，打勾的瞬間比吃甜食還爽。別人覺得你是工作狂，但你知道那不是在工作，那是你呼吸的方式。小心別把「產出」當成「價值」的唯一證明。',apply:'每天早上寫下 3 件「今天完成就算贏」的事。完成後允許自己慶祝，不要馬上填下一個。',oil:'迷迭香 2 滴 + 薄荷 1 滴，早上擴香啟動你的引擎',fortune:'你不是為了證明什麼而做，你做，是因為不做你會窒息。'},
+discipline:{desc:'你的世界有結構、有規則、有你親手搭好的框架。沒有計畫你會焦慮，有了計畫你比誰都穩。別人覺得你無聊，你覺得他們混亂。你的日曆可能比你的日記還誠實。',apply:'用你的紀律幫一個「很有天分但永遠完成不了事情」的人建立系統，你的天賦在協助別人時會加倍發光。',oil:'雪松 3 滴 + 茶樹 2 滴，工作時擴香維持你的秩序場',fortune:'自由不是沒有規則，是你選擇了屬於自己的規則。'},
+focus:{desc:'你能專注在一件事上直到它完成，旁邊的世界跟你無關。你的注意力是一把雷射，切割精準、不浪費一滴能量。但你也可能因為太專注而忘了吃飯、忘了回訊息、忘了別人的存在。',apply:'每天花 5 分鐘寫下「今天最重要的一件事」，然後把手機翻面。你的專注力會替你完成剩下的。',oil:'迷迭香 3 滴，滴在擴香石上專注工作時使用',fortune:'不是你選擇了專注，是專注選擇了你。別辜負它。'},
+responsibility:{desc:'答應了就一定做到，做不到你會失眠。你是那個「說到做到」的人，也是那個「別人忘了但你還記得」的人。你的可靠度是你最低調的超能力，但你也因此扛了太多不該扛的。',apply:'練習在答應之前停三秒問自己：「這真的是我該扛的嗎？」你的天賦是負責，但不是所有事都需要你負責。',oil:'薰衣草 3 滴 + 天竺葵 2 滴，下班後泡腳卸下一整天的責任感',fortune:'你最需要對誰負責？答案是你自己。'},
+restorative:{desc:'哪裡壞了你馬上看到，而且你會想辦法修好它。你像一台人形掃描器，專門偵測「不對勁」的地方。修好的那個瞬間，你的滿足感比別人獲獎還大。',apply:'把你的修復天賦用在人身上——當朋友卡住的時候，你能比任何人更快看到問題在哪裡。',oil:'茶樹 2 滴 + 尤加利 2 滴，清理空間的同時也清理思緒',fortune:'不是所有東西都需要被修好。有些裂縫是光照進來的地方。'},
+command:{desc:'關鍵時刻你能做出果斷的決定，即使那個決定不討人喜歡。你不怕帶頭，也不怕衝突。你走進一個混亂的場面，三句話就能讓所有人知道方向。你的氣場不是裝出來的，是骨子裡的。',apply:'在需要有人拍板的場合主動站出來。但也練習在做完決定後問一句：「你們覺得呢？」',oil:'黑胡椒 2 滴 + 乳香 2 滴，重要會議前塗在手腕深呼吸',fortune:'最強的統帥，不是聲音最大的，是知道什麼時候該閉嘴聽的。'},
+communication:{desc:'你能把複雜的事說得連小學生都懂，能用一個故事讓整個房間的人點頭。語言在你手上不只是工具，是武器，是魔法，是讓不可能變成可能的催化劑。',apply:'找一個需要被說服的場合（會議、提案、談判），刻意練習「用一句話說完」的能力。精煉是你下一層的天賦。',oil:'佛手柑 3 滴 + 甜橙 2 滴，社交場合前擴香暖場',fortune:'最好的故事不是你說得精彩，是聽的人覺得那是自己的故事。'},
+competition:{desc:'你不是非贏不可，但你就是會注意排名。你需要一個對手才會燃燒，需要一個標準才知道自己在哪裡。沒有人比的時候你反而不知道怎麼使力。這不是好勝，是你的動力系統就是這樣設計的。',apply:'找到一個值得你追的對象（不一定是人，可以是自己的紀錄），把競爭力導向正面成長。',oil:'薑 2 滴 + 黑胡椒 2 滴，運動前塗在手腕點燃鬥志',fortune:'你最大的對手從來不是別人，是昨天的你。'},
+maximizer:{desc:'「差不多」不是你能接受的標準。你不修補弱點，你把強項練到極致。你看到一個好東西會想：這能不能更好？你不是完美主義，你是極致主義——你追的不是沒有錯，是閃閃發光。',apply:'選一件你已經做得不錯的事，花三個月把它練到業界前 10%。放棄補短板，全力放大天賦。',oil:'乳香 3 滴 + 檀香 2 滴，冥想時擴香找到你的最高標準',fortune:'從好到極致，中間的距離不是努力，是你願不願意對自己誠實。'},
+activator:{desc:'想到就做，做了再說。你等不了太久，因為在你看來「想太多」就是浪費時間。你是團隊裡那個讓事情真的開始的人——沒有你，大家的想法永遠停留在白板上。',apply:'每次有新想法，給自己 24 小時啟動第一步。不需要完美計畫，你的天賦就是在行動中找到方向。',oil:'甜橙 3 滴 + 薄荷 2 滴，早上聞一聞就出發',fortune:'世界上最好的計畫，就是現在就開始的那一個。'},
+empathy:{desc:'你能感受到別人的情緒，有時候比他們自己還早知道。朋友在電話那頭說「我很好」，你馬上聽出他不好。你的心像一面鏡子，映照著身邊所有人的感受——包括那些他們自己都不敢面對的。',apply:'學會分辨「這是他的情緒，不是我的」。你的同理心是天賦，但你需要一個「情緒結界」保護自己。',oil:'玫瑰 2 滴 + 岩蘭草 2 滴，吸收太多情緒時塗在心口',fortune:'能感受所有人痛苦的你，也請記得感受自己的快樂。'},
+harmony:{desc:'你不喜歡衝突，你會自動找到大家都能接受的方案。你相信共識比勝利重要，合作比競爭有力。你是團隊裡的潤滑劑，有你在的地方吵架都吵不起來。',apply:'下次遇到衝突時，試著不只是當和事佬，而是當「把衝突轉化成共識」的引導者。',oil:'薰衣草 2 滴 + 天竺葵 2 滴，每日擴香維持你的和平場域',fortune:'真正的和諧不是沒有衝突，是衝突之後還能在一起。'},
+developer:{desc:'你能看到別人還沒看到的潛力。看到別人成長讓你比自己成功還開心。你是天生的教練、導師、伯樂——你的眼睛裡住著一個放大鏡，專門放大別人的優點。',apply:'找一個你覺得「有潛力但還沒被看見」的人，用三個月陪他成長。你會在他身上看到自己最好的版本。',oil:'佛手柑 3 滴 + 茉莉 1 滴，陪伴他人時的溫暖擴香',fortune:'你給別人的信任，比任何訓練課程都有力量。'},
+connectedness:{desc:'你覺得事情的發生都有某種意義，人與人之間有看不見的線把你們連在一起。你不是迷信，你是能感受到那個更大的東西——有人叫它命運，有人叫它宇宙，你叫它「我就是知道」。',apply:'當你覺得迷茫的時候，回想你生命中三個「意外但最後都很好」的事。你會看到那條線一直都在。',oil:'乳香 3 滴 + 檀香 2 滴，冥想時連結你的直覺',fortune:'你不是在找答案，你是在記起你一直都知道的事。'},
+includer:{desc:'你會注意到被排除在外的人。聚餐的時候你會主動跟落單的人說話，開會的時候你會問「還有誰沒發言？」你覺得每個人都應該有機會被看見。這不是禮貌，是你骨子裡的信念。',apply:'在下一次團隊活動中，刻意邀請那個最安靜的人分享意見。你的天賦是讓每個人都覺得自己屬於這裡。',oil:'天竺葵 2 滴 + 甜橙 2 滴，打造讓所有人都舒服的空間',fortune:'你圈的那個圓，要大到每個人都進得來。'},
+analytical:{desc:'你做決定需要數據和證據，不接受「因為大家都這樣做」的理由。你問問題的方式讓人又愛又怕——因為你會一直問到看見那個最底層的真相為止。你的邏輯是一把手術刀，精準、冷靜、不留情面。',apply:'當你分析完之後，試著用「故事」而不是「數據」把結論說給別人聽。真相需要穿外套，別人才聽得下去。',oil:'迷迭香 3 滴 + 檸檬 2 滴，需要清晰思維時擴香',fortune:'數字不會說謊，但真相有時候藏在數字看不到的地方。'},
+futuristic:{desc:'你花很多時間想像未來的樣子，你的願景常常比身邊的人超前好幾步。你說的話現在沒人懂，三年後大家才發現你是對的。你不是活在未來的人，你是把未來帶到現在的人。',apply:'每週花 30 分鐘寫下你看到的「未來畫面」，然後找到一個現在就能做的第一步。願景需要落地才有力量。',oil:'乳香 2 滴 + 佛手柑 2 滴，規劃未來時的靈感擴香',fortune:'你看到的不是幻想，是還沒有到來的現實。'},
+ideation:{desc:'你的腦子裡永遠有新點子在冒出來，你享受想法之間碰撞產生的火花。別人覺得你天馬行空，但你知道那些看似瘋狂的連結，往往藏著最好的答案。你的創意不是靈感，是你看世界的方式。',apply:'建一個「點子銀行」——手機開一個備忘錄，每次靈感來就記三句話。一個月後回頭看，你會發現寶藏。',oil:'佛手柑 3 滴 + 甜橙 2 滴，需要靈感時的創意擴香',fortune:'最好的點子不是想出來的，是不同的東西撞在一起的瞬間。'},
+learner:{desc:'學新東西的過程讓你興奮到忘我。你常常為了好奇而研究一個完全不相關的領域，結果那個「不相關的東西」在某天突然派上用場。你不是學霸，你是好奇心的奴隸——而且你心甘情願。',apply:'每個月選一個你完全不懂的領域，花 10 小時研究它。你的跨領域知識會在你最意想不到的時候救你。',oil:'薄荷 2 滴 + 迷迭香 2 滴，學習新事物時的專注擴香',fortune:'你不是在學習，你是在跟世界談戀愛。每個新知識都是一封情書。'},
+strategic:{desc:'你能在混亂中快速看到最佳路徑，常常在別人還在分析時就看到答案了。你不是猜的，你的腦子會自動跑完所有可能性然後挑出最好的那一條。這種能力你自己可能覺得很普通，但別人做不到。',apply:'下次做重大決定前，把你「腦中自動排除的選項」也寫下來，跟團隊分享你的思考過程。讓別人看見你為什麼選這條路。',oil:'迷迭香 3 滴 + 雪松 2 滴，做策略規劃時的清晰擴香',fortune:'看到路的人很多，看到最快那條路的人很少。你是後者。'}
+  };
+  document.getElementById('resultSections').innerHTML=top5.map(s=>{const d=strDescs[s[0]]||{desc:'這是你的招牌天賦，好好用它。',apply:'在日常生活中刻意練習這項天賦。',oil:'薰衣草 3 滴，擴香放鬆',fortune:'你的天賦就是你最好的武器。'};return`<div class="result-section"><div class="result-section-title">${strIcons[s[0]]||'✦'} ${strNames[s[0]]}（${s[1]}%）</div><div class="result-section-content">${d.desc}<br><br><strong>🎯 天賦應用建議：</strong>${d.apply}<br><strong>🌿 精油配方：</strong>${d.oil}<br><br><em>✦ 覺察小語：「${d.fortune}」</em></div></div>`}).join('');
 
   document.getElementById('resultHour').innerHTML=`<div class="hour-bridge-label">✦ 馥靈之鑰 × 你的天賦優勢</div><div class="hour-bridge-text">你的前五大天賦就是你城堡裡最堅固的五面牆。馥靈之鑰不修補弱點，只幫你把最強的那幾面，建得更高。</div><a href="draw-hl.html" class="hour-bridge-cta">抽一張牌，看見你的天賦 💎</a>`;
   document.getElementById('quizResult').classList.add('active');
   if(window.HL_track) HL_track('quiz_complete',{toolId:'quiz',toolName:'覺察測驗'});window.scrollTo({top:0,behavior:'smooth'});
   try{localStorage.setItem('hl_quiz_strengths',JSON.stringify({top5:top5.map(s=>({str:s[0],name:strNames[s[0]],pct:s[1]})),topDom,ts:Date.now()}));}catch(e){}
+  window._resultText='💪 我的第一天賦是「'+topStrName+'」！原來這不是後天練的，是我本來就有的超能力。放大天賦比修補弱點更有效。你的天賦優勢是什麼？ 👉 hourlightkey.com/quiz-strengths.html';
 }
 </script>
 
