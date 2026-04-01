@@ -787,148 +787,202 @@ function initScene() {
   throwBtn.disabled = false;
 }
 
-// ── Create Poe Block Geometry (半月形筊杯) ──
+// ── Create Poe Block Geometry (月牙形筊杯) ──
 function createBlockGeometry() {
-  // 筊杯 = half-moon shape: flat on one side, convex on the other
-  // We build this with a custom approach: half cylinder with modifications
-  const shape = new THREE.Shape();
-  const R = 0.4;  // radius
-  const L = 1.2;  // length
-
-  // Build cross-section path for extrusion: half-moon (D shape)
-  // Flat side + curved side
-  const pts = [];
-  const segments = 24;
-
-  // Use a LatheGeometry approach for better shape
-  // Profile: half circle cross section, extruded along a curve
-  // Actually, let's use a smarter approach: combine geometries
-
-  // Approach: Create a half-cylinder shape
-  // The block is roughly: length ~6cm, width ~3cm, one side flat, other side convex
-  // Scale: 1 unit = ~5cm for visual purposes
+  // 筊杯 = crescent / moon shape viewed from top
+  // Flat bottom (陽面), convex dome top (陰面)
+  // Proportions: length 3 : width 1.5 : height 1
+  // We use BufferGeometry with hand-crafted vertices
 
   const geo = new THREE.BufferGeometry();
-
-  // Build vertices for half-moon prism shape
-  const halfSegs = 20; // more segments for smoother curve
-  const lengthSegs = 1;
-  const width = 0.32;
-  const height = 0.32; // taller convex for more pronounced crescent arc
-  const length = 0.95;
-
   const vertices = [];
   const normals = [];
   const uvs = [];
   const indices = [];
 
-  // Generate cross-section: flat bottom, curved top
-  function getCrossSection(numPts) {
-    const pts = [];
-    for (let i = 0; i <= numPts; i++) {
-      const t = i / numPts;
-      const angle = t * Math.PI; // 0 to PI
-      const x = Math.cos(angle) * width;
-      const y = Math.sin(angle) * height;
-      pts.push({ x, y });
-    }
-    return pts;
+  // --- Parameters ---
+  const LENGTH = 1.0;       // Z-axis total (long axis of crescent)
+  const WIDTH = 0.38;       // X-axis max half-width at centre
+  const HEIGHT = 0.28;      // Y-axis max dome height
+  const zSegs = 32;         // segments along length
+  const arcSegs = 20;       // segments across width (half-circle dome cross-section)
+
+  // Helper: crescent half-width at a given z position (moon-shape outline)
+  // Two concentric arcs — outer larger, inner smaller, offset
+  // Produces a shape that is wide in the middle, pointed at both ends
+  function crescentHalfWidth(zNorm) {
+    // zNorm in [-1, 1], 0 = center
+    // Use a sine-based taper: zero at tips, max at centre
+    // Raise to a power < 1 for fatter crescent, > 1 for thinner
+    const t = 1 - zNorm * zNorm; // parabolic base
+    if (t <= 0) return 0;
+    return WIDTH * Math.pow(t, 0.75);
   }
 
-  const cross = getCrossSection(halfSegs);
+  // Helper: dome height factor — Gaussian-ish across width
+  function domeHeight(xNorm) {
+    // xNorm in [0, 1] where 0 = edge, 1 = centre ridge
+    // Use sine for smooth dome
+    return Math.sin(xNorm * Math.PI);
+  }
 
-  // Extrude along Z axis (length)
-  for (let zi = 0; zi <= lengthSegs; zi++) {
-    const z = (zi / lengthSegs - 0.5) * length;
-    // Taper slightly at ends
-    const taper = 1 - 0.15 * Math.pow((zi / lengthSegs - 0.5) * 2, 2);
+  // The crescent is NOT symmetric left-right: the inner edge is concave
+  // Outer edge: full half-width
+  // Inner edge: offset inward to create moon shape
+  // We define the crescent cross-section at each Z as going from
+  // inner edge (concave) across the dome to outer edge (convex)
+  const innerRatio = 0.35; // inner edge is at 35% of outer, creating concavity
 
-    for (let ci = 0; ci <= halfSegs; ci++) {
-      const pt = cross[ci];
-      vertices.push(pt.x * taper, pt.y * taper, z);
+  // Build the dome surface
+  // For each Z slice, the cross-section goes from inner edge to outer edge
+  // x ranges from -innerHW to +outerHW (but shifted so the piece is centred)
+  // Actually for a jiaobei, the crescent shape in top-view means:
+  // one side curves out (outer arc) and the other side curves in (inner arc)
+  // Let's define: outer boundary at +X, inner boundary at -X (less far)
 
-      // Normal
-      const nx = pt.x;
-      const ny = pt.y;
-      const nl = Math.sqrt(nx * nx + ny * ny) || 1;
-      normals.push(nx / nl, ny / nl, 0);
+  for (let zi = 0; zi <= zSegs; zi++) {
+    const zNorm = (zi / zSegs) * 2 - 1; // -1 to 1
+    const z = zNorm * LENGTH * 0.5;
+    const outerW = crescentHalfWidth(zNorm);
+    const innerW = outerW * innerRatio;
+    const totalW = outerW + innerW; // total width at this z
 
-      uvs.push(ci / halfSegs, zi / lengthSegs);
+    for (let ai = 0; ai <= arcSegs; ai++) {
+      const aNorm = ai / arcSegs; // 0 = inner edge, 1 = outer edge
+      // x position: from -innerW to +outerW
+      const x = -innerW + (innerW + outerW) * aNorm;
+      // dome height: peaks at the midpoint of the arc
+      const h = HEIGHT * domeHeight(aNorm) * Math.pow(Math.max(0, 1 - zNorm * zNorm), 0.3);
+      const y = h;
+
+      vertices.push(x, y, z);
+
+      // Normal (approximate via partial derivatives)
+      // We'll recompute with computeVertexNormals at the end
+      normals.push(0, 1, 0); // placeholder
+      uvs.push(aNorm, (zNorm + 1) * 0.5);
     }
   }
 
-  // Indices for the curved surface
-  for (let zi = 0; zi < lengthSegs; zi++) {
-    for (let ci = 0; ci < halfSegs; ci++) {
-      const a = zi * (halfSegs + 1) + ci;
+  // Dome surface indices
+  for (let zi = 0; zi < zSegs; zi++) {
+    for (let ai = 0; ai < arcSegs; ai++) {
+      const a = zi * (arcSegs + 1) + ai;
       const b = a + 1;
-      const c = a + halfSegs + 1;
+      const c = a + (arcSegs + 1);
       const d = c + 1;
       indices.push(a, c, b);
       indices.push(b, c, d);
     }
   }
 
-  // Flat bottom face
-  const baseIdx = vertices.length / 3;
-  // Front flat face
-  for (let zi = 0; zi <= lengthSegs; zi++) {
-    const z = (zi / lengthSegs - 0.5) * length;
-    const taper = 1 - 0.15 * Math.pow((zi / lengthSegs - 0.5) * 2, 2);
-    vertices.push(-width * taper, 0, z);
-    normals.push(0, -1, 0);
-    uvs.push(0, zi / lengthSegs);
+  // --- Flat bottom face ---
+  // Collect the bottom boundary (a polygon at y=0)
+  // For each Z, the bottom goes from x = -innerW to x = +outerW at y = 0
+  const flatBase = vertices.length / 3;
+  const flatPts = []; // store for triangulation
 
-    vertices.push(width * taper, 0, z);
+  for (let zi = 0; zi <= zSegs; zi++) {
+    const zNorm = (zi / zSegs) * 2 - 1;
+    const z = zNorm * LENGTH * 0.5;
+    const outerW = crescentHalfWidth(zNorm);
+    const innerW = outerW * innerRatio;
+
+    // Inner edge point
+    vertices.push(-innerW, 0, z);
     normals.push(0, -1, 0);
-    uvs.push(1, zi / lengthSegs);
+    uvs.push(0, (zNorm + 1) * 0.5);
+
+    // Outer edge point
+    vertices.push(outerW, 0, z);
+    normals.push(0, -1, 0);
+    uvs.push(1, (zNorm + 1) * 0.5);
   }
-  for (let zi = 0; zi < lengthSegs; zi++) {
-    const a = baseIdx + zi * 2;
+
+  for (let zi = 0; zi < zSegs; zi++) {
+    const a = flatBase + zi * 2;
     const b = a + 1;
     const c = a + 2;
     const d = a + 3;
+    // Winding so normal faces down (-Y)
     indices.push(a, b, c);
     indices.push(b, d, c);
   }
 
-  // End caps
-  const capVerts = [];
-  for (let ci = 0; ci <= halfSegs; ci++) {
-    capVerts.push(cross[ci]);
+  // --- Stitch dome edges to flat bottom ---
+  // Inner edge seam: connect dome inner edge (ai=0) to flat inner edge
+  const seamInnerDome = function(zi) { return zi * (arcSegs + 1); }; // dome ai=0
+  const seamInnerFlat = function(zi) { return flatBase + zi * 2; }; // flat inner
+
+  for (let zi = 0; zi < zSegs; zi++) {
+    const dA = seamInnerDome(zi);
+    const dB = seamInnerDome(zi + 1);
+    const fA = seamInnerFlat(zi);
+    const fB = seamInnerFlat(zi + 1);
+    indices.push(fA, dA, fB);
+    indices.push(dA, dB, fB);
   }
 
-  // Front cap (z = -length/2)
-  const frontCapBase = vertices.length / 3;
-  const zFront = -length / 2;
-  const taperFront = 1 - 0.15;
-  // Center vertex
-  vertices.push(0, 0, zFront);
+  // Outer edge seam: connect dome outer edge (ai=arcSegs) to flat outer edge
+  const seamOuterDome = function(zi) { return zi * (arcSegs + 1) + arcSegs; };
+  const seamOuterFlat = function(zi) { return flatBase + zi * 2 + 1; };
+
+  for (let zi = 0; zi < zSegs; zi++) {
+    const dA = seamOuterDome(zi);
+    const dB = seamOuterDome(zi + 1);
+    const fA = seamOuterFlat(zi);
+    const fB = seamOuterFlat(zi + 1);
+    indices.push(dA, fA, dB);
+    indices.push(fA, fB, dB);
+  }
+
+  // --- Tip caps (z = -L/2 and z = +L/2) ---
+  // At the tips, outerW and innerW are both ~0, so the tips close naturally.
+  // But we add small triangle-fan caps just in case there's a tiny gap.
+  // Front tip cap (zi = 0)
+  const tipFrontBase = vertices.length / 3;
+  const zFront = -LENGTH * 0.5;
+  vertices.push(0, 0, zFront); // center
   normals.push(0, 0, -1);
-  uvs.push(0.5, 0.5);
-  for (let ci = 0; ci <= halfSegs; ci++) {
-    vertices.push(cross[ci].x * taperFront, cross[ci].y * taperFront, zFront);
+  uvs.push(0.5, 0);
+  // Add dome edge vertices for zi=0
+  for (let ai = 0; ai <= arcSegs; ai++) {
+    const srcIdx = ai; // dome zi=0
+    vertices.push(
+      vertices[srcIdx * 3], vertices[srcIdx * 3 + 1], vertices[srcIdx * 3 + 2]
+    );
     normals.push(0, 0, -1);
-    uvs.push(cross[ci].x / width * 0.5 + 0.5, cross[ci].y / height * 0.5);
+    uvs.push(ai / arcSegs, 0);
   }
-  for (let ci = 0; ci < halfSegs; ci++) {
-    indices.push(frontCapBase, frontCapBase + ci + 2, frontCapBase + ci + 1);
+  // Also the flat bottom edge at zi=0
+  vertices.push(vertices[flatBase * 3], 0, zFront);
+  normals.push(0, 0, -1);
+  uvs.push(0, 0);
+  vertices.push(vertices[(flatBase + 1) * 3], 0, zFront);
+  normals.push(0, 0, -1);
+  uvs.push(1, 0);
+
+  for (let ai = 0; ai < arcSegs; ai++) {
+    indices.push(tipFrontBase, tipFrontBase + ai + 2, tipFrontBase + ai + 1);
   }
 
-  // Back cap (z = length/2)
-  const backCapBase = vertices.length / 3;
-  const zBack = length / 2;
-  const taperBack = 1 - 0.15;
+  // Back tip cap (zi = zSegs)
+  const tipBackBase = vertices.length / 3;
+  const zBack = LENGTH * 0.5;
   vertices.push(0, 0, zBack);
   normals.push(0, 0, 1);
-  uvs.push(0.5, 0.5);
-  for (let ci = 0; ci <= halfSegs; ci++) {
-    vertices.push(cross[ci].x * taperBack, cross[ci].y * taperBack, zBack);
+  uvs.push(0.5, 1);
+  const lastZRow = zSegs * (arcSegs + 1);
+  for (let ai = 0; ai <= arcSegs; ai++) {
+    const srcIdx = lastZRow + ai;
+    vertices.push(
+      vertices[srcIdx * 3], vertices[srcIdx * 3 + 1], vertices[srcIdx * 3 + 2]
+    );
     normals.push(0, 0, 1);
-    uvs.push(cross[ci].x / width * 0.5 + 0.5, cross[ci].y / height * 0.5);
+    uvs.push(ai / arcSegs, 1);
   }
-  for (let ci = 0; ci < halfSegs; ci++) {
-    indices.push(backCapBase, backCapBase + ci + 1, backCapBase + ci + 2);
+  for (let ai = 0; ai < arcSegs; ai++) {
+    indices.push(tipBackBase, tipBackBase + ai + 1, tipBackBase + ai + 2);
   }
 
   geo.setIndex(indices);
@@ -940,64 +994,22 @@ function createBlockGeometry() {
   return geo;
 }
 
-function createWoodMaterial() {
-  // Procedural dark rosewood (紫檀/花梨木) texture
-  const canvas = document.createElement('canvas');
-  canvas.width = 256;
-  canvas.height = 256;
-  const ctx = canvas.getContext('2d');
-
-  // Base dark rosewood color — deep reddish brown
-  ctx.fillStyle = '#5C2018';
-  ctx.fillRect(0, 0, 256, 256);
-
-  // Grain lines — darker and reddish
-  for (let i = 0; i < 50; i++) {
-    ctx.strokeStyle = `rgba(${60 + Math.random()*30}, ${18 + Math.random()*15}, ${10 + Math.random()*12}, ${0.12 + Math.random()*0.18})`;
-    ctx.lineWidth = 0.5 + Math.random() * 1.5;
-    ctx.beginPath();
-    const y = Math.random() * 256;
-    ctx.moveTo(0, y);
-    for (let x = 0; x < 256; x += 8) {
-      ctx.lineTo(x, y + Math.sin(x * 0.03 + i) * (2 + Math.random() * 3));
-    }
-    ctx.stroke();
-  }
-
-  // Lighter reddish grain highlights
-  for (let i = 0; i < 20; i++) {
-    ctx.strokeStyle = `rgba(${120 + Math.random()*30}, ${50 + Math.random()*20}, ${30 + Math.random()*15}, ${0.06 + Math.random()*0.08})`;
-    ctx.lineWidth = 0.3 + Math.random() * 1;
-    ctx.beginPath();
-    const y = Math.random() * 256;
-    ctx.moveTo(0, y);
-    for (let x = 0; x < 256; x += 8) {
-      ctx.lineTo(x, y + Math.sin(x * 0.025 + i * 0.7) * (1.5 + Math.random() * 2.5));
-    }
-    ctx.stroke();
-  }
-
-  // Subtle variation spots
-  for (let i = 0; i < 200; i++) {
-    ctx.fillStyle = `rgba(${40 + Math.random()*50}, ${15 + Math.random()*25}, ${8 + Math.random()*18}, ${Math.random()*0.06})`;
-    ctx.fillRect(Math.random()*256, Math.random()*256, 2 + Math.random()*6, 1 + Math.random()*3);
-  }
-
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-
-  return new THREE.MeshStandardMaterial({
-    map: tex,
-    color: 0x6B2A1A,  // dark rosewood tint
-    roughness: 0.55,
-    metalness: 0.05,
+function createRedLacquerMaterial() {
+  // 紅色漆面 — glossy red lacquer typical of traditional jiaobei
+  return new THREE.MeshPhysicalMaterial({
+    color: 0x9B1B1B,           // deep red (#9B1B1B, between #8B1A1A and #B22222)
+    roughness: 0.32,
+    metalness: 0.02,
+    clearcoat: 0.8,
+    clearcoatRoughness: 0.15,
+    reflectivity: 0.6,
     side: THREE.DoubleSide
   });
 }
 
 function createPoeBlocks() {
   const geo = createBlockGeometry();
-  const mat = createWoodMaterial();
+  const mat = createRedLacquerMaterial();
 
   block1 = new THREE.Mesh(geo, mat);
   block1.castShadow = true;
@@ -1051,8 +1063,9 @@ function initPhysics() {
   groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
   world.addBody(groundBody);
 
-  // Block physics bodies (box approximation for the half-moon shape)
-  const blockShape = new CANNON.Box(new CANNON.Vec3(0.32, 0.18, 0.48));
+  // Block physics bodies (box approximation for the crescent moon shape)
+  // Matches crescent proportions: width ~0.38+0.13, height ~0.28, half-length ~0.5
+  const blockShape = new CANNON.Box(new CANNON.Vec3(0.28, 0.14, 0.50));
 
   blockBody1 = new CANNON.Body({ mass: 0.15, material: blockMat });
   blockBody1.addShape(blockShape);
