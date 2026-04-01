@@ -1,6 +1,12 @@
 /**
- * hl-referral.js — 馥靈之鑰推薦碼系統 v1.1
- * 
+ * hl-referral.js — 馥靈之鑰推薦碼系統 v2.0
+ *
+ * v2.0 新增：
+ * ► 二層分潤系統：第一層 10%、第二層 5%
+ * ► recordCommission() — 每筆交易自動計算並記錄分潤
+ * ► queryCommissions() — 查詢合作夥伴累計分潤
+ * ► Firestore commissions 集合追蹤每筆分潤明細
+ *
  * v1.1 修正：
  * ► LINE 連結改為正確的官方 lin.ee/RdQBFAN
  * ► UI 全面改為深色主題（對齊官網正式版）
@@ -12,7 +18,8 @@
  * 1. 任何頁面帶 ?ref=XXXX → 捕獲並存入 localStorage
  * 2. 用戶註冊時 → 將推薦碼寫入 Firestore users/{uid}
  * 3. 付款完成頁 → 根據推薦碼顯示對應覺察師的 LINE/WhatsApp
- * 4. 合作者後台 → 可查看自己帶來的用戶數（未來擴充）
+ * 4. 交易完成時 → 自動計算二層分潤並寫入 commissions 集合
+ * 5. 合作者後台 → 可查看自己帶來的用戶數與累計分潤
  *
  * 安裝：在全站 JS 尾部加入（firebase-config.js 之後、hl-gate.js 之前）
  * <script src="assets/js/hl-referral.js?v=日期"></script>
@@ -21,7 +28,7 @@
  *   users/{uid}/referral_code: string
  *   users/{uid}/referral_date: timestamp
  *
- * Firestore 新增 collection：
+ * Firestore collections：
  *   partners/{partnerId}
  *     name: string
  *     referral_code: string（唯一）
@@ -33,9 +40,27 @@
  *     contact_type: 'line' | 'whatsapp' | 'both'
  *     bank_account: string
  *     status: 'active' | 'paused' | 'terminated'
- *     split_platform: number（0.30）
- *     split_ai: number（0.40）
+ *     split_tier1: number（0.10 = 10%）
+ *     split_tier2: number（0.05 = 5%）
+ *     total_commission: number（累計分潤金額）
+ *     total_referrals: number（累計推薦人數）
  *     created_at: timestamp
+ *
+ *   commissions/{autoId}
+ *     order_id: string（訂單編號）
+ *     order_amount: number（訂單金額）
+ *     buyer_uid: string（購買者 UID）
+ *     buyer_email: string
+ *     tier: number（1 或 2）
+ *     partner_id: string（分潤對象的 partner doc ID）
+ *     partner_name: string
+ *     partner_code: string（推薦碼）
+ *     rate: number（0.10 或 0.05）
+ *     amount: number（分潤金額）
+ *     status: 'pending' | 'paid' | 'cancelled'
+ *     created_at: timestamp
+ *     paid_at: timestamp（可為空）
+ *     source_service: string（來源服務，如 'draw-hl'、'nail-course'）
  *
  * © 2026 馥靈之鑰 Hour Light — 王逸君
  */
@@ -335,7 +360,7 @@
   }
 
   // ═══════════════════════════════════════
-  // 7. 管理員：分潤報表查詢（未來擴充）
+  // 7. 管理員：分潤報表查詢
   // ═══════════════════════════════════════
 
   function queryReferralUsers(refCode) {
@@ -361,6 +386,232 @@
   }
 
   // ═══════════════════════════════════════
+  // 8. 二層分潤系統
+  // ═══════════════════════════════════════
+  //
+  // 計算邏輯：
+  //   訂單金額 → 先扣除 10% 固定成本 → 淨額
+  //   第一層：直接推薦人拿淨額的 10%
+  //   第二層：推薦人的上線拿淨額的 5%
+  //
+  // 範例：訂單 $1,000
+  //   固定成本：$1,000 × 10% = $100
+  //   淨額：$1,000 - $100 = $900
+  //   第一層分潤：$900 × 10% = $90（直接推薦人）
+  //   第二層分潤：$900 × 5% = $45（推薦人的上線）
+
+  var FIXED_COST_RATE = 0.10;   // 10% 固定成本
+  var TIER1_RATE = 0.10;         // 第一層 10%
+  var TIER2_RATE = 0.05;         // 第二層 5%
+
+  /**
+   * 記錄分潤（交易完成時呼叫）
+   * @param {object} order - 訂單資訊
+   *   order.id       - 訂單編號
+   *   order.amount   - 訂單金額（NT$）
+   *   order.buyerUid - 購買者 UID
+   *   order.buyerEmail - 購買者 email
+   *   order.service  - 來源服務（如 'draw-hl'、'nail-course'）
+   * @returns {Promise<object>} 分潤結果
+   */
+  function recordCommission(order) {
+    if (!order || !order.amount || !order.buyerUid) {
+      return Promise.resolve({ success: false, reason: 'missing_order_data' });
+    }
+
+    try {
+      var db = firebase.firestore();
+
+      // 1. 查詢購買者的推薦碼
+      return db.collection('users').doc(order.buyerUid).get()
+        .then(function(userDoc) {
+          if (!userDoc.exists || !userDoc.data().referral_code) {
+            return { success: false, reason: 'no_referral' };
+          }
+          var refCode = userDoc.data().referral_code;
+
+          // 2. 查詢第一層合作夥伴
+          return db.collection('partners')
+            .where('referral_code', '==', refCode)
+            .where('status', '==', 'active')
+            .limit(1)
+            .get();
+        })
+        .then(function(result) {
+          if (result.success === false) return result;
+
+          if (result.empty) {
+            return { success: false, reason: 'partner_not_found' };
+          }
+
+          var tier1Doc = result.docs[0];
+          var tier1 = tier1Doc.data();
+          var tier1Id = tier1Doc.id;
+
+          // 計算淨額（扣除固定成本）
+          var netAmount = order.amount * (1 - FIXED_COST_RATE);
+
+          // 第一層分潤
+          var tier1Commission = Math.round(netAmount * TIER1_RATE);
+          var batch = db.batch();
+
+          // 寫入第一層分潤記錄
+          var comm1Ref = db.collection('commissions').doc();
+          batch.set(comm1Ref, {
+            order_id: order.id || '',
+            order_amount: order.amount,
+            net_amount: netAmount,
+            buyer_uid: order.buyerUid,
+            buyer_email: order.buyerEmail || '',
+            tier: 1,
+            partner_id: tier1Id,
+            partner_name: tier1.name || '',
+            partner_code: tier1.referral_code || '',
+            rate: TIER1_RATE,
+            amount: tier1Commission,
+            status: 'pending',
+            created_at: firebase.firestore.FieldValue.serverTimestamp(),
+            paid_at: null,
+            source_service: order.service || ''
+          });
+
+          // 更新第一層合作夥伴累計
+          var tier1PartnerRef = db.collection('partners').doc(tier1Id);
+          batch.update(tier1PartnerRef, {
+            total_commission: firebase.firestore.FieldValue.increment(tier1Commission),
+            total_referrals: firebase.firestore.FieldValue.increment(1)
+          });
+
+          var resultInfo = {
+            success: true,
+            tier1: { partnerId: tier1Id, name: tier1.name, amount: tier1Commission },
+            tier2: null
+          };
+
+          // 3. 檢查是否有第二層（推薦人的上線）
+          if (tier1.parent_strategist) {
+            return db.collection('partners').doc(tier1.parent_strategist).get()
+              .then(function(tier2Doc) {
+                if (tier2Doc.exists && tier2Doc.data().status === 'active') {
+                  var tier2 = tier2Doc.data();
+                  var tier2Commission = Math.round(netAmount * TIER2_RATE);
+
+                  // 寫入第二層分潤記錄
+                  var comm2Ref = db.collection('commissions').doc();
+                  batch.set(comm2Ref, {
+                    order_id: order.id || '',
+                    order_amount: order.amount,
+                    net_amount: netAmount,
+                    buyer_uid: order.buyerUid,
+                    buyer_email: order.buyerEmail || '',
+                    tier: 2,
+                    partner_id: tier1.parent_strategist,
+                    partner_name: tier2.name || '',
+                    partner_code: tier2.referral_code || '',
+                    rate: TIER2_RATE,
+                    amount: tier2Commission,
+                    status: 'pending',
+                    created_at: firebase.firestore.FieldValue.serverTimestamp(),
+                    paid_at: null,
+                    source_service: order.service || ''
+                  });
+
+                  // 更新第二層合作夥伴累計
+                  var tier2PartnerRef = db.collection('partners').doc(tier1.parent_strategist);
+                  batch.update(tier2PartnerRef, {
+                    total_commission: firebase.firestore.FieldValue.increment(tier2Commission)
+                  });
+
+                  resultInfo.tier2 = {
+                    partnerId: tier1.parent_strategist,
+                    name: tier2.name,
+                    amount: tier2Commission
+                  };
+                }
+
+                return batch.commit().then(function() { return resultInfo; });
+              });
+          }
+
+          return batch.commit().then(function() { return resultInfo; });
+        })
+        .catch(function(err) {
+          console.warn('[hl-referral] recordCommission error:', err.message);
+          return { success: false, reason: 'error', error: err.message };
+        });
+    } catch (err) {
+      console.warn('[hl-referral] recordCommission error:', err.message);
+      return Promise.resolve({ success: false, reason: 'error', error: err.message });
+    }
+  }
+
+  /**
+   * 查詢合作夥伴的分潤明細
+   * @param {string} partnerId - 合作夥伴的 Firestore doc ID
+   * @param {object} opts - 選項
+   *   opts.status  - 篩選狀態（'pending'/'paid'/'cancelled'）
+   *   opts.limit   - 筆數上限（預設 50）
+   * @returns {Promise<array>} 分潤記錄陣列
+   */
+  function queryCommissions(partnerId, opts) {
+    opts = opts || {};
+    try {
+      var db = firebase.firestore();
+      var query = db.collection('commissions')
+        .where('partner_id', '==', partnerId)
+        .orderBy('created_at', 'desc')
+        .limit(opts.limit || 50);
+
+      if (opts.status) {
+        query = query.where('status', '==', opts.status);
+      }
+
+      return query.get()
+        .then(function(snap) {
+          var results = [];
+          snap.forEach(function(doc) {
+            var d = doc.data();
+            d._id = doc.id;
+            results.push(d);
+          });
+          return results;
+        })
+        .catch(function() { return []; });
+    } catch (err) {
+      return Promise.resolve([]);
+    }
+  }
+
+  /**
+   * 查詢合作夥伴的分潤摘要
+   * @param {string} partnerId
+   * @returns {Promise<object>} { totalPending, totalPaid, count }
+   */
+  function queryCommissionSummary(partnerId) {
+    try {
+      var db = firebase.firestore();
+      return db.collection('commissions')
+        .where('partner_id', '==', partnerId)
+        .get()
+        .then(function(snap) {
+          var totalPending = 0;
+          var totalPaid = 0;
+          var count = 0;
+          snap.forEach(function(doc) {
+            var d = doc.data();
+            count++;
+            if (d.status === 'pending') totalPending += (d.amount || 0);
+            if (d.status === 'paid') totalPaid += (d.amount || 0);
+          });
+          return { totalPending: totalPending, totalPaid: totalPaid, count: count };
+        })
+        .catch(function() { return { totalPending: 0, totalPaid: 0, count: 0 }; });
+    } catch (err) {
+      return Promise.resolve({ totalPending: 0, totalPaid: 0, count: 0 });
+    }
+  }
+
+  // ═══════════════════════════════════════
   // 初始化
   // ═══════════════════════════════════════
 
@@ -372,7 +623,13 @@
     showPartnerContact: showPartnerContact,
     autoFillInput: autoFillReferralInput,
     queryUsers: queryReferralUsers,
-    VERSION: '1.1.0'
+    recordCommission: recordCommission,
+    queryCommissions: queryCommissions,
+    queryCommissionSummary: queryCommissionSummary,
+    FIXED_COST_RATE: FIXED_COST_RATE,
+    TIER1_RATE: TIER1_RATE,
+    TIER2_RATE: TIER2_RATE,
+    VERSION: '2.0.0'
   };
 
 })();
