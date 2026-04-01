@@ -134,6 +134,29 @@ const GENERAL_PRINCIPLES = `
 ► 不要結尾收在正能量金句
 ► 結尾用帶有香氣意象的文字收尾（馥靈馥語風格）
 
+格式絕對禁止（會造成顯示問題）：
+► 絕對不可使用 ** 粗體符號
+► 絕對不可使用 ═══ 或 ━━━ 或 --- 等長分隔線
+► 絕對不可使用 Markdown 格式（# ## ### 等標題符號）
+► 強調用「」括號或換行留白
+► 分隔用空行
+► 列點用 ► 或數字編號
+► 表情符號適量（每篇 5-8 個）
+
+解讀必須包含的內容（每一篇都要有）：
+► 精油建議：具體到怎麼用（滴幾滴、用在哪、搭配什麼動作），不是只報名字
+► 水晶建議：對應的水晶名稱 + 怎麼用（佩戴、冥想、放置位置）
+► 冥想/呼吸建議：具體的方法和步驟
+► 音頻建議：適合聆聽的音頻類型或頻率
+► 轉化行動：今天就能做的具體步驟（精確到場景和動作）
+
+解讀結構（先準再深再暖）：
+1. 精準抓到問題點（讓案主覺得「被看見了」）
+2. 說出牌卡顯現出來的洞察（一針見血但溫暖）
+3. 講到心坎裡（用生活化的比喻，觸動情感）
+4. 給出轉化方式（精油/水晶/冥想/行動，具體可執行）
+5. 馥靈偈收尾（讓人想收藏、覺得太有價值）
+
 DNA 維度交叉判讀原則：
 ► 每張牌現在有 20+ 個維度（塔羅原型、易經卦象、靈數、星象、脈輪、五行、精油、紫微星曜、奇門遁甲、水晶、音頻、原型、陰影面、補頻、角色語等）
 ► 不是把20個維度全部列出來（那是教科書），而是根據案主的問題，從中挑出最相關的3-5個維度做精準判讀
@@ -167,12 +190,12 @@ const DISCLAIMER = `
 
 4. 最後一行：🔗 馥靈之鑰 hourlightkey.com`;
 
-// ── 字數規格 ──
+// ── 字數規格（2026/04/01 更新）──
 const WORD_COUNTS = {
-  1: { min: 500, max: 800, tokens: 1200 },
-  3: { min: 500, max: 800, tokens: 1200 },
-  5: { min: 1500, max: 2500, tokens: 3500 },
-  7: { min: 1500, max: 2500, tokens: 3500 }
+  1: { min: 500, max: 800, tokens: 1500 },
+  3: { min: 1000, max: 1500, tokens: 3000 },
+  5: { min: 2000, max: 2500, tokens: 5000 },
+  7: { min: 3000, max: 3500, tokens: 7000 }
 };
 
 // ── 主函式 ──
@@ -217,8 +240,13 @@ module.exports = async function handler(req, res) {
       var db = getFirestore();
       if (db) {
         try {
-          var codeRef = db.collection('unlock_codes').doc(unlockCode);
+          // 先查 reading_codes，再查 unlock_codes（兩個集合都支援）
+          var codeRef = db.collection('reading_codes').doc(unlockCode);
           var codeDoc = await codeRef.get();
+          if (!codeDoc.exists) {
+            codeRef = db.collection('unlock_codes').doc(unlockCode);
+            codeDoc = await codeRef.get();
+          }
 
           if (!codeDoc.exists) {
             return res.status(403).json({ error: '解鎖碼無效', invalidCode: true });
@@ -230,7 +258,8 @@ module.exports = async function handler(req, res) {
             return res.status(403).json({ error: '此解鎖碼已使用過', usedCode: true });
           }
 
-          if (codeData.n && codeData.n !== n) {
+          var codeN = codeData.n || codeData.spreads || 0;
+          if (codeN && codeN !== n) {
             return res.status(403).json({
               error: '此解鎖碼適用 ' + codeData.n + ' 張牌陣，不適用 ' + n + ' 張',
               wrongN: true
