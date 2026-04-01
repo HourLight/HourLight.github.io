@@ -102,6 +102,32 @@
     tower:'瞭望塔在最高處等您。'
   };
 
+  // 12 位僕人系統
+  var SERVANTS = {
+    mirror: {name:'鏡靈', emoji:'🪞', personality:'安靜、誠實、有時毒舌', greeting:['今天，你敢看自己嗎？','鏡子不會說謊。你準備好了嗎？','有些真相，看見了就回不去了。']},
+    treasure: {name:'寶庫者', emoji:'💎', personality:'慷慨、溫暖、偶爾神秘', greeting:['你知道自己有多珍貴嗎？','寶藏不在遠方，在你忽略的地方。','今天，打開一個你一直沒勇氣看的抽屜。']},
+    key: {name:'鑰匙守', emoji:'🔑', personality:'沉穩、耐心、話不多', greeting:['每一把鑰匙都對應一個勇氣。','今天你想打開哪一扇門？','不急。鑰匙會在你準備好的時候出現。']},
+    throne: {name:'王座侍', emoji:'👑', personality:'莊重、鼓勵、有力量', greeting:['王座等的不是完美的人，是願意負責的人。','今天，為自己做一個決定。','你的人生，你說了算。']},
+    garden: {name:'花園精靈', emoji:'🌿', personality:'溫柔、療癒、愛說故事', greeting:['今天澆了水嗎？我說的是你自己。','花開不是為了誰，是因為時候到了。','慢慢來，花園不趕時間。']},
+    library: {name:'書靈', emoji:'📚', personality:'博學、幽默、愛引經據典', greeting:['答案都在書裡，但你得先問對問題。','今天讀了什麼？哪怕一句話也好。','知識是最輕的行李，也是最重的武器。']},
+    alchemy: {name:'煉金使', emoji:'⚗️', personality:'神秘、直覺、一針見血', greeting:['痛苦不是敵人，是原料。','今天，你想把什麼煉成什麼？','最好的煉金術，是把經歷變成智慧。']},
+    music: {name:'音律仙', emoji:'🎵', personality:'浪漫、感性、容易感動', greeting:['你有多久沒聽見自己的聲音了？','今天，讓自己發出一個不完美的音符。','音樂不需要完美，需要真實。']},
+    dream: {name:'夢行者', emoji:'🌙', personality:'朦朧、詩意、若即若離', greeting:['昨晚的夢，你還記得嗎？','潛意識在跟你說話，安靜一點就聽見了。','夢是另一個你寫的信。']},
+    tower: {name:'星占師', emoji:'⭐', personality:'冷靜、宏觀、話帶哲理', greeting:['站高一點看，困境就小了。','今天的星象說：適合放慢腳步。','看清方向比走得快重要。']},
+    kitchen: {name:'灶神', emoji:'🍳', personality:'務實、溫暖、愛碎念', greeting:['吃飽了嗎？吃好了嗎？','身體是靈魂的房子，要好好餵它。','今天為自己煮一頓飯，不為別人。']},
+    secret: {name:'暗道守', emoji:'🚪', personality:'低調、深沉、守口如瓶', greeting:['有些路只有你自己能走。','暗處不一定危險，有時候是安全。','今天，面對一個你一直逃避的事。']}
+  };
+
+  function getServantGreeting(roomId){
+    var s = SERVANTS[roomId];
+    if(!s) return null;
+    var dk = todayKey();
+    var hash = 0;
+    for(var i=0;i<dk.length;i++) hash=((hash<<5)-hash)+dk.charCodeAt(i);
+    var idx = Math.abs(hash) % s.greeting.length;
+    return {name:s.name, emoji:s.emoji, personality:s.personality, greeting:s.greeting[idx]};
+  }
+
   var ROOM_NAMES = {
     mirror:'鏡之廳',treasure:'價值寶庫',key:'解鎖密室',throne:'啟程塔',
     love:'愛之殿',intuition:'直覺閣',ground:'磐石廳',harmony:'和諧苑',
@@ -280,6 +306,8 @@
     getRoomHint:function(r){return ROOM_HINTS[r]||'';},
     getVisibleRooms:function(){return state.unlockedRooms.slice();},
     getCastleBonus:function(){return state.castleBonus||{};},
+    getServant:function(roomId){return getServantGreeting(roomId);},
+    getServants:function(){return SERVANTS;},
     reload:function(){state=loadState();todayTasks=getTodayTasks();}
   };
 
