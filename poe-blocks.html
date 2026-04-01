@@ -1164,7 +1164,7 @@ function throwBlocks() {
     if (settled) {
       clearInterval(checkSettle);
 
-      // 凍結物理體，防止靜止後繼續漂移
+      // 凍結物理體
       blockBody1.type = CANNON.Body.STATIC;
       blockBody2.type = CANNON.Body.STATIC;
       blockBody1.velocity.setZero();
@@ -1172,25 +1172,68 @@ function throwBlocks() {
       blockBody1.angularVelocity.setZero();
       blockBody2.angularVelocity.setZero();
 
-      isSettled = true;
-      throwBtn.disabled = false;
-      throwCount++;
+      // 平滑修正到正確姿態（0.5秒動畫，肉眼幾乎看不出）
+      smoothCorrect(result, function() {
+        isSettled = true;
+        throwBtn.disabled = false;
+        throwCount++;
 
-      // Update counts
-      counts[result]++;
-      document.getElementById('counter').style.display = '';
-      document.getElementById('cntHoly').textContent = counts.holy;
-      document.getElementById('cntYin').textContent = counts.yin;
-      document.getElementById('cntSmile').textContent = counts.smile;
-      document.getElementById('cntStand').textContent = counts.stand;
+        counts[result]++;
+        document.getElementById('counter').style.display = '';
+        document.getElementById('cntHoly').textContent = counts.holy;
+        document.getElementById('cntYin').textContent = counts.yin;
+        document.getElementById('cntSmile').textContent = counts.smile;
+        document.getElementById('cntStand').textContent = counts.stand;
 
-      // Show result
-      showResult(result);
+        showResult(result);
+      });
     }
   }, 100);
 }
 
 // ── Throw History ──
+// 平滑修正筊杯姿態到正確結果（0.5秒漸變，視覺自然）
+function smoothCorrect(result, callback) {
+  // 目標旋轉：凸面朝上 = xRot 0，平面朝上 = xRot PI
+  var t1x, t2x;
+  switch (result) {
+    case 'holy':  t1x = 0; t2x = Math.PI; break;
+    case 'yin':   t1x = 0; t2x = 0; break;
+    case 'smile': t1x = Math.PI; t2x = Math.PI; break;
+    case 'stand': t1x = 0; t2x = Math.PI / 2; break;
+  }
+
+  // 保留目前的 Y/Z 旋轉，只修正 X（翻面）
+  var startQ1 = block1.quaternion.clone();
+  var startQ2 = block2.quaternion.clone();
+  var endQ1 = new THREE.Quaternion().setFromEuler(
+    new THREE.Euler(t1x, block1.rotation.y, (Math.random()-0.5)*0.1)
+  );
+  var endQ2 = new THREE.Quaternion().setFromEuler(
+    new THREE.Euler(t2x, block2.rotation.y, (Math.random()-0.5)*0.1)
+  );
+
+  var duration = 500; // 0.5 秒
+  var startTime = Date.now();
+
+  function animate() {
+    var elapsed = Date.now() - startTime;
+    var t = Math.min(elapsed / duration, 1);
+    // easeInOut
+    t = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+    block1.quaternion.slerpQuaternions(startQ1, endQ1, t);
+    block2.quaternion.slerpQuaternions(startQ2, endQ2, t);
+
+    if (elapsed < duration) {
+      requestAnimationFrame(animate);
+    } else {
+      if (callback) callback();
+    }
+  }
+  animate();
+}
+
 let throwHistory = [];
 let consecutiveHoly = 0;
 
