@@ -98,84 +98,91 @@ body{font-family:'Noto Sans TC',sans-serif;background:linear-gradient(170deg,var
 <span class="hero-icon">🌟</span>
 <div class="quiz-badge"><span class="en">Rosenberg Self-Esteem Scale</span></div>
 <h1>自尊量表</h1>
-<p>經典 10 道題，全球最多人做的自尊量表。<br>不是測您好不好，是測您怎麼看自己。</p>
+<p>15 道情境題，不是問您「覺得自己好不好」，<br>而是看您在生活裡怎麼跟自己相處。</p>
 <div class="hero-badges">
-<span class="badge">🌟 Rosenberg RSES</span>
-<span class="badge">📊 1965 年經典量表</span>
-<span class="badge">🌍 翻譯超過 28 種語言</span>
-<span class="badge">⏱ 2 分鐘</span>
+<span class="badge">🌟 4 種自尊風格</span>
+<span class="badge">📊 情境式深度分析</span>
+<span class="badge">🌍 參考 Rosenberg RSES</span>
+<span class="badge">⏱ 3 分鐘</span>
 </div>
-<div class="hero-note">📖 Morris Rosenberg 教授開發｜全球引用超過 60,000 次</div>
+<div class="hero-note">📖 以 Rosenberg 自尊理論為基礎｜情境式升級版</div>
 <br><br>
 <button class="btn-start" onclick="startQuiz()">開始測驗 →</button>
 </div>
-<div class="pw" id="pw"><div class="pw-top"><span id="pTxt">Q1 / 10</span><span id="pPct">0%</span></div><div class="pw-bar"><div class="pw-fill" id="pFill"></div></div></div>
+<div class="pw" id="pw"><div class="pw-top"><span id="pTxt">Q1 / 15</span><span id="pPct">0%</span></div><div class="pw-bar"><div class="pw-fill" id="pFill"></div></div></div>
 <div class="qa" id="qa"></div>
 <div class="ra" id="ra"></div>
 </div>
 <script>
+var TYPES={
+confident:{name:'堅定自信型',icon:'☀️',cl:'#6AB04C',sub:'內在有根的人',
+desc:'你的自尊像一棵深根大樹，颱風來了會搖晃，但不會倒。別人的評價對你來說像天氣預報——聽一下參考就好，不會因為有人說「明天會下雨」你就不出門。你知道自己值多少，不需要別人幫你標價。這份穩定不是因為你沒有脆弱的時候，而是你學會了在脆弱的時候依然相信自己。有趣的是，你的自信裡帶著一種溫柔——不是「我最厲害」的那種傲氣，是「我很好，你也很好」的從容。',
+bridge:'你的內在已經很穩了，馥靈秘碼能幫你看見：這份穩定是天生的配置，還是後天修煉的成果？如果是天生的，你還有哪些沒被發現的寶藏。',
+oil:'佛手柑（自我接納·讓自信溫柔外放）× 甜橙（喜悅流動·分享的頻率）× 乳香（穩定根基·精油之王的底氣）',
+oilD:'你不需要修復什麼。佛手柑清新的柑橘調像春天早晨打開窗戶的第一口氣，幫你把這份自信輕盈地分享出去。乳香厚實的木質底調則是幫你的從容加一層地基——穩穩的，不張揚。',
+share:'我的自尊風格是「堅定自信型」——內在有根，颱風來了也不倒。想知道你是什麼型？'},
+torn:{name:'內外拉扯型',icon:'🌤️',cl:'#F9CA24',sub:'在自信與自疑之間擺盪的人',
+desc:'你的內心住著兩個房客：一個說「你很棒」，另一個說「你確定嗎？」。有些日子你覺得自己無所不能，有些日子你連自拍都想刪掉。被誇的時候心裡偷偷開花，被批評的時候整個人像洩了氣的氣球。這不是軟弱，這是全世界最多人的真實狀態。你的自尊像天氣一樣有晴有雨，關鍵不是讓它永遠放晴，是學會在下雨天也不否定自己。好消息是：你的覺察力超強，因為你一直在觀察自己，這本身就是一種高級能力。',
+bridge:'馥靈秘碼能幫你看見：那個「自疑的聲音」是哪裡學來的？你天生的配置裡，其實帶著哪些被低估的超能力。',
+oil:'玫瑰天竺葵（情緒平衡·讓兩個聲音和解）× 薰衣草（自我安撫·給內在小孩一個擁抱）× 岩蘭草（接地穩定·在擺盪中找到重心）',
+oilD:'你最需要的不是「提振自信」，是「穩定」。岩蘭草被稱為「寧靜之油」，它深沉的泥土氣息像是幫你在搖擺不定的時候找到一個可以站穩的地方。玫瑰天竺葵則溫柔地讓你內心那兩個聲音學會共處——不是消滅誰，是讓它們好好說話。',
+share:'我的自尊風格是「內外拉扯型」——內心住著兩個房客，一個說你很棒，另一個在質疑。你呢？'},
+quiet:{name:'安靜自足型',icon:'🌿',cl:'#00B894',sub:'不需要掌聲也能安穩的人',
+desc:'你的自尊不大聲，但很穩。你不會在社群上曬成就，也不會在飯局上搶話，但你心裡很清楚自己要什麼、值多少。別人可能覺得你「太低調」或「不夠積極」，但你知道那是因為你的能量不花在證明上，而是花在做事上。你的自信像一杯溫開水——沒有什麼花俏的味道，但身體最需要的就是這個。有時候你會覺得「是不是應該更外放一點」，但其實你這種內在的安穩，才是很多人修煉一輩子都到不了的境界。你不需要別人的五星好評，你自己就是自己的評審團。',
+bridge:'馥靈秘碼能幫你看見：你的安靜是天生的性格設定，還是某種自我保護？如果是天生的，你的配置裡藏著什麼獨特的光芒。',
+oil:'檀香（深層靜定·與內在對話）× 雪松（根基穩固·安靜的力量）× 苦橙葉（內在安定·不被外在動搖）',
+oilD:'檀香千年來都是冥想用油，它的厚實木質調像一個很深的擁抱——不是激動的那種，是「我在這裡，你很安全」的那種。雪松的沉穩氣息幫你把這份安靜的自信扎得更深，苦橙葉則像是在心裡種了一棵安定的樹。',
+share:'我的自尊風格是「安靜自足型」——不需要掌聲也很安穩，自己就是自己的評審團。你是什麼型？'},
+seeking:{name:'尋找認同型',icon:'🌧️',cl:'#E17055',sub:'正在尋找自己價值的人',
+desc:'你心裡有一個空位，上面寫著「請告訴我我夠好」。不是你真的不好，是你還沒學會自己填那個空位。你可能很會照顧別人、很會讀空氣、很努力想讓所有人滿意，但每次都忘了問：「那我自己呢？」。你的自尊地圖上有很多別人畫的路線，卻很少自己標記的景點。這不是因為你軟弱，很可能是因為在你成長的過程中，「被認可」這件事一直是有條件的。好消息是：你現在正在做這個測驗，代表你已經在找回那個自我認定的開關了。那個開關一直都在你身上，只是被太多別人的聲音蓋住了。',
+bridge:'馥靈秘碼能幫你看見：你天生帶了什麼配置？那些你以為「不夠好」的特質，在秘碼裡可能是最珍貴的設定。你值得重新認識自己。',
+oil:'依蘭依蘭（自我價值感·花中之花的寵愛）× 檀香（深層安撫·被接住的感覺）× 玫瑰（無條件的愛·你值得）',
+oilD:'依蘭依蘭被稱為「花中之花」，它甜美的氣息在提醒你：你值得被溫柔對待，不需要任何理由。檀香像一棵千年老樹靠在你背後，不是在推你往前走，是在告訴你「你可以先站在這裡，慢慢來」。玫瑰的氣息則像是宇宙寫給你的情書——無條件的，不需要你做什麼來交換。',
+share:'我的自尊風格是「尋找認同型」——心裡有一個空位等著被填滿，但其實答案一直在自己身上。你呢？'}
+};
 var QS=[
-{q:'整體來說，我對自己是滿意的。',d:'P',o:[['非常同意',4],['同意',3],['不同意',2],['非常不同意',1]]},
-{q:'有時候我覺得自己什麼都不好。',d:'N',o:[['非常同意',1],['同意',2],['不同意',3],['非常不同意',4]]},
-{q:'我覺得自己有一些好的特質。',d:'P',o:[['非常同意',4],['同意',3],['不同意',2],['非常不同意',1]]},
-{q:'我能把事情做得跟大多數人一樣好。',d:'P',o:[['非常同意',4],['同意',3],['不同意',2],['非常不同意',1]]},
-{q:'我覺得自己沒什麼值得驕傲的地方。',d:'N',o:[['非常同意',1],['同意',2],['不同意',3],['非常不同意',4]]},
-{q:'有時候我覺得自己真沒用。',d:'N',o:[['非常同意',1],['同意',2],['不同意',3],['非常不同意',4]]},
-{q:'我覺得自己是一個有價值的人，至少跟其他人一樣有價值。',d:'P',o:[['非常同意',4],['同意',3],['不同意',2],['非常不同意',1]]},
-{q:'我希望能更看得起自己。',d:'N',o:[['非常同意',1],['同意',2],['不同意',3],['非常不同意',4]]},
-{q:'整體而言，我傾向於認為自己是個失敗者。',d:'N',o:[['非常同意',1],['同意',2],['不同意',3],['非常不同意',4]]},
-{q:'我對自己持正面積極的態度。',d:'P',o:[['非常同意',4],['同意',3],['不同意',2],['非常不同意',1]]}
+{q:'朋友圈發了一張自拍，一個小時了只有三個讚。你的反應是：',o:[{t:'無所謂，我拍的時候自己就很開心了',a:'confident'},{t:'忍不住刪掉或加個濾鏡重發',a:'seeking'},{t:'有點在意但不會承認',a:'torn'},{t:'本來就不太發自拍',a:'quiet'}]},
+{q:'工作上你提的方案被主管全部打回來，你的第一個念頭是：',o:[{t:'好吧，我再調整，方向應該沒問題',a:'confident'},{t:'是不是我能力真的不夠',a:'seeking'},{t:'有點受挫但還是會重做',a:'torn'},{t:'嗯，回去想想哪裡可以改',a:'quiet'}]},
+{q:'聚餐時有人當著大家的面誇你，你會：',o:[{t:'開心接受，覺得自己值得',a:'confident'},{t:'臉紅然後瘋狂謙虛',a:'seeking'},{t:'心裡高興但嘴上說「沒有啦」',a:'torn'},{t:'微微笑，不太知道怎麼回應',a:'quiet'}]},
+{q:'伴侶／好友突然冷淡了一天，你最可能想的是：',o:[{t:'他可能有自己的事吧，不一定跟我有關',a:'confident'},{t:'是不是我做錯了什麼',a:'seeking'},{t:'心裡有點慌但理智告訴自己別想太多',a:'torn'},{t:'先觀察一下，不急著問',a:'quiet'}]},
+{q:'逛街試穿一件衣服，店員說「這件不太適合你」，你會：',o:[{t:'謝謝，但我覺得還不錯，買了',a:'confident'},{t:'立刻放下，覺得自己可能真的不適合',a:'seeking'},{t:'猶豫一下，最後還是沒買',a:'torn'},{t:'嗯，那我再看看別的',a:'quiet'}]},
+{q:'你在一群新認識的人裡面，通常你是：',o:[{t:'主動打招呼聊天的那個',a:'confident'},{t:'等別人先來跟我說話',a:'seeking'},{t:'看情況，有時活潑有時安靜',a:'torn'},{t:'在旁邊觀察，覺得這樣也挺好的',a:'quiet'}]},
+{q:'半夜突然想到一件三年前的糗事，你會：',o:[{t:'笑一下然後翻身繼續睡',a:'confident'},{t:'越想越尷尬，覺得別人一定還記得',a:'seeking'},{t:'有點不舒服但告訴自己別想了',a:'torn'},{t:'淡淡地想「那時候的我也蠻可愛的」',a:'quiet'}]},
+{q:'有人問你「你覺得自己最大的優點是什麼」，你的反應是：',o:[{t:'馬上能說出兩三個',a:'confident'},{t:'腦袋一片空白，想不到',a:'seeking'},{t:'想得到但不確定算不算「優點」',a:'torn'},{t:'有，但覺得不需要特別說',a:'quiet'}]},
+{q:'你剛完成一個重要項目，結果比預期還好。你會：',o:[{t:'開心慶祝，覺得自己很棒',a:'confident'},{t:'鬆一口氣，但覺得可能是運氣好',a:'seeking'},{t:'高興但已經開始擔心下一個任務',a:'torn'},{t:'滿意但不會到處說',a:'quiet'}]},
+{q:'你最好的朋友跟你說「你最近看起來好累」，你心裡想的是：',o:[{t:'被看見了，有人關心我蠻好的',a:'confident'},{t:'是不是我看起來很糟',a:'seeking'},{t:'有點感動又有點不想被看穿',a:'torn'},{t:'嗯，謝謝關心，我自己會處理',a:'quiet'}]},
+{q:'一個你不太認識的人在背後說你壞話，你會：',o:[{t:'他不了解我，無所謂',a:'confident'},{t:'很受傷，一直想為什麼他這樣說',a:'seeking'},{t:'理智上覺得不用在意，但心裡還是有點介意',a:'torn'},{t:'知道了但不想花力氣去解釋',a:'quiet'}]},
+{q:'選一句最像你內心獨白的話：',o:[{t:'我不完美，但我很喜歡現在的自己',a:'confident'},{t:'如果我再努力一點，也許大家就會喜歡我了',a:'seeking'},{t:'有時候覺得自己很好，有時候又覺得不夠好',a:'torn'},{t:'我沒有很厲害，但我過得很自在',a:'quiet'}]},
+{q:'照鏡子的時候，你通常看到的是：',o:[{t:'「嗯，還不錯嘛」',a:'confident'},{t:'先看到自己不滿意的地方',a:'seeking'},{t:'要看當天的心情',a:'torn'},{t:'不太會仔細看，照一下就走了',a:'quiet'}]},
+{q:'你犯了一個蠻明顯的錯誤，被當面指出來。你的內在反應：',o:[{t:'「好的我改，不影響我對自己的看法」',a:'confident'},{t:'「完了，大家一定覺得我很差」',a:'seeking'},{t:'表面冷靜但心裡翻攪了好一陣子',a:'torn'},{t:'「嗯，我知道了」然後安靜改正',a:'quiet'}]},
+{q:'如果「喜歡自己」是一道菜，你覺得你這道菜目前是：',o:[{t:'一道已經調好味的招牌菜',a:'confident'},{t:'缺了一味但不知道缺什麼的菜',a:'seeking'},{t:'有時好吃有時走味，看誰來評分',a:'torn'},{t:'家常菜，不驚艷但自己吃得很舒服',a:'quiet'}]}
 ];
 var ans={},cur=0;
 function startQuiz(){ans={};cur=0;document.getElementById('heroArea').style.display='none';document.getElementById('pw').style.display='block';document.getElementById('qa').style.display='block';document.getElementById('ra').style.display='none';rQ()}
-function rQ(){var q=QS[cur],h='<div class="qc"><div class="qn">Q'+(cur+1)+' / '+QS.length+'</div><div class="qt">'+q.q+'</div><div class="qos">';q.o.forEach(function(o,i){h+='<button class="qo" onclick="pk('+o[1]+',this)">'+o[0]+'</button>'});h+='</div></div>';document.getElementById('qa').innerHTML=h;var p=Math.round(cur/QS.length*100);document.getElementById('pFill').style.width=p+'%';document.getElementById('pTxt').textContent='Q'+(cur+1)+' / '+QS.length;document.getElementById('pPct').textContent=p+'%'}
+function rQ(){var q=QS[cur],h='<div class="qc"><div class="qn">Q'+(cur+1)+' / '+QS.length+'</div><div class="qt">'+q.q+'</div><div class="qos">';q.o.forEach(function(o){h+='<button class="qo" onclick="pk(\''+o.a+'\',this)">'+o.t+'</button>'});h+='</div></div>';document.getElementById('qa').innerHTML=h;var p=Math.round(cur/QS.length*100);document.getElementById('pFill').style.width=p+'%';document.getElementById('pTxt').textContent='Q'+(cur+1)+' / '+QS.length;document.getElementById('pPct').textContent=p+'%'}
 function pk(a,b){ans[cur]=a;document.querySelectorAll('.qo').forEach(function(x){x.classList.remove('sel')});b.classList.add('sel');setTimeout(function(){cur++;if(cur>=QS.length)sR();else rQ()},350)}
 function sR(){
-  var tot=0,pR=0,nR=0,pN=0,nN=0;
-  for(var k in ans){var v=ans[k],q=QS[k];tot+=v;if(q.d==='P'){pR+=v;pN++}else{nR+=v;nN++}}
-  var pP=Math.round((pR-pN)/(pN*3)*100),nP=Math.round((nR-nN)/(nN*3)*100),pct=Math.round(tot/40*100);
-  var L={};
-  if(tot>=30){
-    L.lv='高自尊';L.ic='☀️';L.cl='#6AB04C';L.sb='您對自己有穩定而正面的評價';
-    L.ds='您的自尊量表分數落在高自尊區間。這代表您對自己有相對穩定的正面認知，能看見自己的優點，也不會因為犯了一個錯就全盤否定自己。在心理學研究中，高自尊和較好的壓力調適能力、較穩定的人際關係有正相關（Baumeister et al., 2003）。但要注意：健康的高自尊不是「我什麼都好」，是「我知道自己哪裡不完美，但那不影響我認為自己值得被好好對待」。';
-    L.ins='您的正向自我評價分數很高，代表「我對自己的基本態度是肯定的」是穩定的。同時自我批評維度得分也偏高，代表那些負面的內在對話對您的影響力比較小。這是心理學定義中最健康的組合。Kernis（2003）把這種狀態叫做「安穩型高自尊」（secure high self-esteem），它的穩定來自內在，不依賴外在評價。';
-    L.tip='您的功課不是再提高自尊，而是覺察：這份自信是「無條件的」還是「有條件的」？有條件的自尊建立在成就、外貌、他人認可上，一旦這些東西動搖，自尊就會崩盤。問自己：如果明天您失去了最引以為豪的那件事，您還會喜歡自己嗎？如果答案有一絲猶豫，那就是覺察的入口。';
-    L.oil='佛手柑（自我接納）× 甜橙（喜悅流動）× 乳香（穩定自我價值）';
-    L.oilN='您不需要「修復」什麼，佛手柑的清新幫助您把這份自信自然地分享出去，而不是守著它。乳香被稱為「精油之王」，它穩定的木質底調像是幫您的自信加了一層地基。'
-  }else if(tot>=20){
-    L.lv='中等自尊';L.ic='🌤️';L.cl='#F9CA24';L.sb='您對自己的評價有時起伏';
-    L.ds='您的分數落在中等自尊區間，這是全球最多人的位置。您不是不喜歡自己，但也不是隨時都對自己有信心。有些日子覺得「我還不錯」，有些日子又覺得「我到底行不行？」。在 Rosenberg 的原始研究中，中等自尊的人最大的特徵是「狀態依賴」：您對自己的評價很容易被外在事件影響。被誇了就覺得很好，被批評了就往下掉。這不是軟弱，是大多數人的真實。';
-    L.ins='您的正向自我評價有一定基礎，但自我批評的影響力也不低。當這兩股力量拉扯的時候，您會感覺「我到底是好還是不好？」。這種拉扯本身就是覺察的入口。能同時看見自己的優點和缺點，是一種高級認知能力（Swann 的「自我驗證理論」），問題只在「您習慣先看哪邊」。';
-    L.tip='覺察練習：未來一週，每天睡前寫下「今天我做到了什麼」和「今天我對自己說了什麼負面的話」。七天後回看，您會發現「做到了」的清單比您以為的長得多，而那些負面的話大多數是自動化反應，不是事實。這個練習叫「認知解離」（cognitive defusion），是 ACT 接受與承諾治療的核心技巧。';
-    L.oil='玫瑰天竺葵（情緒平衡）× 薰衣草（自我安撫）× 岩蘭草（接地穩定）';
-    L.oilN='中等自尊的人最需要的是「穩定」，而不是「提振」。岩蘭草被稱為「寧靜之油」，它深沉的泥土氣息幫助您在情緒波動時找到重心。不是壓住情緒，是讓您有一個可以站穩的地方。'
-  }else{
-    L.lv='低自尊';L.ic='🌧️';L.cl='#E17055';L.sb='您目前對自己的評價偏低';
-    L.ds='您的分數落在低自尊區間。先說最重要的事：這個分數反映的是「您此刻怎麼看自己」，不是「您實際上是什麼樣的人」。就像戴了一副灰色濾鏡看世界，所有東西都變暗了，但不是世界真的變暗了。在臨床心理學中，持續的低自尊跟憂鬱、焦慮有顯著正相關（Orth et al., 2008）。如果這個狀態已經持續超過兩週並且影響日常生活，建議跟專業心理師聊聊。';
-    L.ins='您在正向自我評價維度得分較低，代表「我是有價值的」這個信念此刻比較薄弱。同時自我批評維度得分偏低，代表負面的內在對話對您有很大的影響力。重要的是：這些對話是「被學來的」，不是天生的。心理學家 Aaron Beck 稱這些為「自動化負面思考」（automatic negative thoughts），它們可能來自童年、來自某段關係、來自某次創傷。既然是學來的，就可以重新學。';
-    L.tip='此刻最需要做的一件事：找一張紙，寫下「如果我最好的朋友跟我經歷了一模一樣的事，我會怎麼對他說？」。您會發現，您對朋友說的話比對自己說的溫柔一百倍。那個溫柔的版本，才是真實的。Kristin Neff 教授把這個練習叫做「自我疼惜」（self-compassion），研究證實它比自尊提升更能有效降低焦慮和憂鬱。';
-    L.oil='檀香（深層安撫）× 依蘭依蘭（自我價值感）× 雪松（根基穩固）';
-    L.oilN='檀香是最古老的安撫用油，它的厚實木質調像是被一棵大樹靠著的感覺。此刻您不需要被激勵，您需要被接住。依蘭依蘭在芳療中被稱為「花中之花」，它甜美的氣息幫助您想起：您值得被溫柔對待。'
-  }
+  var sc={};Object.keys(TYPES).forEach(function(k){sc[k]=0});Object.values(ans).forEach(function(a){sc[a]=(sc[a]||0)+1});
+  var sorted=Object.keys(TYPES).sort(function(a,b){return sc[b]-sc[a]});
+  var top=sorted[0],f=TYPES[top],f2=TYPES[sorted[1]];
   document.getElementById('qa').style.display='none';document.getElementById('pw').style.display='none';
   var h='';
-  h+='<div class="rh"><span class="rh-icon">'+L.ic+'</span><div class="rh-tag">Rosenberg Self-Esteem Scale</div>';
-  h+='<div class="rh-lvl" style="color:'+L.cl+'">'+L.lv+'</div>';
-  h+='<div style="font-size:.88rem;color:var(--qlt);margin-bottom:8px">'+L.sb+'</div>';
-  h+='<div class="rh-sc">'+tot+' / 40 分（'+pct+'%）</div>';
-  h+='<div class="rh-bw"><div class="rh-bf" style="width:'+pct+'%;background:'+L.cl+'"></div></div>';
-  h+='<div class="rh-desc">'+L.ds+'</div></div>';
-  // 雙維度
-  h+='<div class="rs" style="animation-delay:.1s"><div class="rs-t">📊 雙維度分析</div>';
-  h+='<div class="dm"><div class="dm-top"><span class="dm-lb"><strong>☀️ 正向自我評價</strong>（Q1,3,4,7,10）</span><span class="dm-sc">'+pP+'%</span></div><div class="dm-tr"><div class="dm-fl" style="width:'+pP+'%;background:#6AB04C"></div></div></div>';
-  h+='<div class="dm"><div class="dm-top"><span class="dm-lb"><strong>🛡️ 抵抗自我批評</strong>（Q2,5,6,8,9）</span><span class="dm-sc">'+nP+'%</span></div><div class="dm-tr"><div class="dm-fl" style="width:'+nP+'%;background:#F9CA24"></div></div></div>';
-  h+='<div style="font-size:.82rem;color:var(--qlt);line-height:1.7;margin-top:12px;padding:12px;background:rgba(106,176,76,.04);border-radius:12px">'+L.ins+'</div></div>';
-  // 覺察建議
-  h+='<div class="rs" style="animation-delay:.2s"><div class="rs-t">✦ 覺察建議</div><div class="rs-c">'+L.tip+'</div></div>';
-  // 精油
-  h+='<div class="oil"><div class="oil-t">🌿 精油覺察建議</div><div class="oil-c"><strong>'+L.oil+'</strong><br><br>'+L.oilN+'</div></div>';
+  h+='<div class="rh"><span class="rh-icon">'+f.icon+'</span><div class="rh-tag">Self-Esteem Style</div>';
+  h+='<div class="rh-lvl" style="color:'+f.cl+'">'+f.name+'</div>';
+  h+='<div style="font-size:.88rem;color:var(--qlt);margin-bottom:12px">'+f.sub+'</div>';
+  h+='<div class="rh-desc">'+f.desc+'</div></div>';
+  // 分佈
+  h+='<div class="rs" style="animation-delay:.1s"><div class="rs-t">📊 四維度分佈</div>';
+  sorted.forEach(function(k){var fl=TYPES[k],pct=Math.round(sc[k]/QS.length*100);h+='<div class="dm"><div class="dm-top"><span class="dm-lb"><strong>'+fl.icon+' '+fl.name+'</strong></span><span class="dm-sc">'+pct+'%</span></div><div class="dm-tr"><div class="dm-fl" style="width:'+pct+'%;background:'+fl.cl+'"></div></div></div>'});
+  h+='</div>';
+  // 副型
+  if(f2){h+='<div class="rs" style="animation-delay:.15s"><div class="rs-t">'+f2.icon+' 副型：'+f2.name+'（'+f2.sub+'）</div><div class="rs-c">'+f2.desc+'</div></div>';}
   // HOUR bridge
-  h+='<div class="hb"><div class="hb-t">✦ 從自尊到馥靈座標</div><div class="hb-p">自尊量表測的是「您怎麼看自己」，馥靈秘碼看的是「您天生帶了什麼」。<br>如果此刻您對自己評價偏低，也許是因為您還沒看見自己真正的配置。</div><a href="fuling-mima.html" class="hb-a">🔮 免費解碼馥靈秘碼 →</a></div>';
+  h+='<div class="hb"><div class="hb-t">✦ 從自尊風格到馥靈座標</div><div class="hb-p">'+f.bridge+'</div><a href="fuling-mima.html" class="hb-a">🔮 免費解碼馥靈秘碼 →</a></div>';
+  // 精油
+  h+='<div class="oil"><div class="oil-t">🌿 精油覺察建議</div><div class="oil-c"><strong>'+f.oil+'</strong><br><br>'+f.oilD+'</div></div>';
+  // 分享文案
+  h+='<div class="rs" style="animation-delay:.3s"><div class="rs-t">📱 你的專屬分享文案</div><div class="rs-c" style="background:rgba(106,176,76,.04);padding:16px;border-radius:12px;cursor:pointer" onclick="navigator.clipboard.writeText(this.innerText).then(function(){alert(\'已複製！\')})"><strong>點一下複製 →</strong><br>'+f.share+' 馥靈之鑰自尊風格測驗 → hourlightkey.com/quiz-selfesteem.html</div></div>';
   // 交叉導航
   h+='<div class="cn"><div style="font-size:.92rem;margin-bottom:14px">想更深入了解自己？</div><div class="cn-links">';
   h+='<a href="quiz-innerchild.html" style="background:var(--qc1);color:#fff">🧸 內在小孩測驗（交叉比對）</a>';
@@ -185,25 +192,17 @@ function sR(){
   h+='</div></div>';
   // 分享
   h+='<div class="sr"><button onclick="shr()">📤 分享結果</button><button onclick="location.reload()">🔄 重新測驗</button></div>';
-  // 學術出處
-  h+='<div class="rs" style="animation-delay:.55s"><div class="rs-t">📚 學術出處</div><div class="rs-c" style="font-size:.82rem;line-height:1.7">';
-  h+='<strong>Rosenberg, M. (1965).</strong> <em>Society and the Adolescent Self-Image.</em> Princeton University Press.<br>';
-  h+='<strong>Schmitt, D. P., & Allik, J. (2005).</strong> 跨 53 國研究確認 RSES 的跨文化一致性。<br>';
-  h+='<strong>Orth, U., et al. (2008).</strong> 低自尊與憂鬱的前瞻性關聯。<em>J. of Abnormal Psychology.</em><br>';
-  h+='<strong>Kernis, M. H. (2003).</strong> 安穩型 vs 脆弱型高自尊的區分。<em>Psychological Inquiry.</em><br>';
-  h+='<strong>Neff, K. D. (2011).</strong> 自我疼惜比自尊更有效。<em>Self and Identity.</em>';
-  h+='</div></div>';
   // 法律
-  h+='<div class="rl">本測驗為 Rosenberg Self-Esteem Scale (1965) 正式量表。結果僅供<strong>自我覺察參考</strong>，<strong>不構成亦不取代</strong>專業心理評估或醫療診斷。如持續感到困擾，建議諮詢合格心理專業人員。<br>© 2026 馥靈之鑰國際有限公司 Hour Light International Co., Ltd.</div>';
+  h+='<div class="rl">本測驗參考 Rosenberg Self-Esteem Scale (1965) 理論設計，以情境式題目探索自尊風格。結果僅供<strong>自我覺察參考</strong>，<strong>不構成亦不取代</strong>專業心理評估或醫療診斷。如持續感到困擾，建議諮詢合格心理專業人員。<br>© 2026 馥靈之鑰國際有限公司 Hour Light International Co., Ltd.</div>';
   document.getElementById('ra').innerHTML=h;document.getElementById('ra').style.display='block';
   document.getElementById('ra').scrollIntoView({behavior:'smooth',block:'nearest'});
   if(window.HL_track) HL_track('quiz_complete',{toolId:'quiz',toolName:'覺察測驗'});
   setTimeout(function(){if(typeof HLPOINTS!=='undefined')HLPOINTS.triggerQuizEgg('selfesteem');},2000);
-  if(window.fbq)fbq('track','CompleteRegistration',{content_name:'quiz-selfesteem',value:tot,currency:'TWD'})
+  if(window.fbq)fbq('track','CompleteRegistration',{content_name:'quiz-selfesteem'})
   try{localStorage.setItem('hl_quiz_selfesteem',JSON.stringify({ts:Date.now()}));}catch(e){};
   if(window.hlCastle)hlCastle.giveKey('treasure');
 }
-function shr(){var t='我在馥靈之鑰做了自尊量表\nhttps://hourlightkey.com/quiz-selfesteem.html';if(navigator.share)navigator.share({title:'馥靈之鑰｜自尊量表',text:t,url:'https://hourlightkey.com/quiz-selfesteem.html'});else{navigator.clipboard.writeText(t).then(function(){alert('已複製分享連結')}).catch(function(){prompt('複製此連結：',t)})}}
+function shr(){var t='我在馥靈之鑰做了自尊風格測驗\nhttps://hourlightkey.com/quiz-selfesteem.html';if(navigator.share)navigator.share({title:'馥靈之鑰｜自尊風格測驗',text:t,url:'https://hourlightkey.com/quiz-selfesteem.html'});else{navigator.clipboard.writeText(t).then(function(){alert('已複製分享連結')}).catch(function(){prompt('複製此連結：',t)})}}
 </script>
 <script src="assets/js/hourlight-global.js?v=20260325"></script>
 <script src="assets/js/hl-music.js?v=20260325"></script>

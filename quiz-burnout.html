@@ -50,8 +50,8 @@ body{background:linear-gradient(170deg,var(--qbg),var(--qpch))!important;color:v
 <div class="quiz-hero">
 <div style="font-size:3.5rem;margin-bottom:12px">🔥</div>
 <h1>職業倦怠量表</h1>
-<p class="hero-sub" style="max-width:420px;margin:0 auto 20px;line-height:1.8">10 道題，看看您燒到什麼程度了。<br>倦怠不是因為不夠努力，是因為太努力了。</p>
-<div class="hero-badges" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:28px"><span class="badge">🔥 3 維度分析</span><span class="badge">📊 MBI 理論</span><span class="badge">⏱ 3 分鐘</span></div>
+<p class="hero-sub" style="max-width:420px;margin:0 auto 20px;line-height:1.8">15 道題，看看你的倦怠是哪一款。<br>倦怠不是因為不夠努力，是因為太努力了。</p>
+<div class="hero-badges" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:28px"><span class="badge">🔥 5 種倦怠人格</span><span class="badge">📊 MBI 理論延伸</span><span class="badge">⏱ 3 分鐘</span></div>
 <button class="btn-start-quiz" onclick="startQuiz()">開始測驗 →</button>
 </div>
 <div id="progressWrap" style="display:none;max-width:560px;margin:20px auto;padding:0 16px">
@@ -61,29 +61,80 @@ body{background:linear-gradient(170deg,var(--qbg),var(--qpch))!important;color:v
 <div id="questionsArea" style="display:none;max-width:560px;margin:0 auto;padding:0 16px 40px"></div>
 <div id="quizResult" style="display:none;max-width:600px;margin:0 auto;padding:0 16px 60px"></div>
 <script>
-var DIM={exhaust:'情緒耗竭',cynical:'去人格化',inefficacy:'低成就感'};var scores={exhaust:0,cynical:0,inefficacy:0};
+var TYPES={
+speed:{name:'高速運轉型',icon:'🚀',cl:'#E17055',sub:'停不下來的陀螺',
+desc:'你的倦怠來自「太快」。行事曆滿到像俄羅斯方塊，每一天都是極限操作。你不是不知道累，是怕一停下來就掉隊。你的身體已經在抗議了——肩頸痠痛、淺眠、週末補眠還是累。你以為自己是鋼鐵人，但鋼鐵人也要充電。你的「忙」有一半是真的忙，另一半是「不忙就焦慮」。你的價值感已經跟「生產力」綁在一起了，一旦沒在做事，就覺得自己在浪費生命。這是一種很隱蔽的倦怠，因為表面上你看起來超強，但內在已經快空了。',
+recovery:'第一步不是休息，是學會「不做事的時候也值得存在」。今天試著放空十分鐘，不滑手機不想事情，就是坐著。如果你覺得很難受，那就對了——那個難受就是你需要面對的東西。',
+oil:'薰衣草（強制減速·神經系統的安眠曲）× 甜馬鬱蘭（肌肉放鬆·身體的白旗）× 佛手柑（放下控制·允許自己慢下來）',
+share:'我的倦怠人格是「高速運轉型」——停不下來的陀螺，忙到連累都沒時間感覺。你是哪一款？'},
+frog:{name:'溫水煮蛙型',icon:'🐸',cl:'#FDCB6E',sub:'慢慢被煮熟的那隻',
+desc:'你的倦怠不是一夜之間發生的，是像溫水煮青蛙一樣慢慢升溫。三個月前你還覺得「還好」，一個月前開始覺得「有點累」，現在已經是「算了隨便吧」。你最危險的地方在於：你已經習慣了這個溫度。你以為「工作就是這樣」，但其實你已經在沸點邊緣了。你的倦怠沒有戲劇性的爆發，只有持續的、安靜的消耗。別人看你覺得「他好像還好啊」，但只有你知道，每天起床需要的意志力越來越多。',
+recovery:'第一步是承認「我不是還好，我已經很累了」。找一個你信任的人，跟他說實話。不是要解決方案，是要有人知道你的真實狀態。然後這週做一件「以前會讓你開心但你已經很久沒做」的事。',
+oil:'葡萄柚（重啟感知·叫醒麻木的神經）× 迷迭香（喚醒意識·從自動駕駛中醒來）× 黑胡椒（點燃火花·找回那個「在乎」的感覺）',
+share:'我的倦怠人格是「溫水煮蛙型」——不是突然倒下，是慢慢被煮熟都不知道。你呢？'},
+burnout:{name:'熱情燃盡型',icon:'🕯️',cl:'#636E72',sub:'曾經燒得最旺的那根蠟燭',
+desc:'你曾經是那個最有幹勁的人。加班不覺得累，週末也在想工作點子，同事都說你「好有熱情」。但現在那團火滅了，連灰燼都冷了。你的倦怠最痛的地方在於：你還記得自己曾經有多熱愛這件事，而現在你對它什麼感覺都沒有。不是討厭，是空。你甚至開始懷疑「我是不是從來就不是真的喜歡」。不是的。你是真的喜歡過。只是你把所有的燃料都用完了，忘了留一點給自己。',
+recovery:'不要急著「找回熱情」，現在的你需要的是先補充燃料。這週的功課：每天做一件「純粹因為好玩」的事，跟工作完全無關。烤餅乾、散步、看一部爛片。讓大腦記起「不是所有事情都要有產出」。',
+oil:'甜橙（找回純粹的快樂·像小時候的那種）× 茉莉（重新點燃·溫柔的火種）× 檀香（深層滋養·不是充電是換電池）',
+share:'我的倦怠人格是「熱情燃盡型」——曾經燒得最旺，現在連灰燼都冷了。你是哪一款？'},
+meaning:{name:'意義枯竭型',icon:'🏜️',cl:'#A29BFE',sub:'做得很多卻不知道為了什麼',
+desc:'你不是沒力氣，是沒有「為什麼」。每天的工作你都能完成，效率可能還不錯，但心裡有一個聲音一直在問「然後呢？」。你的倦怠不在身體，在靈魂。你開始懷疑這一切的意義——升職加薪又怎樣？做完這個案子又怎樣？你發現自己變成了一台很會運轉的機器，但機器不需要意義，人需要。你最需要的不是休息，是重新找到一個「值得為之努力」的理由。那個理由不一定在工作裡。',
+recovery:'問自己一個問題：「如果錢不是問題，我每天想做什麼？」不需要馬上辭職去追夢，但那個答案會告訴你，你的能量該往哪裡流。這週試著花一個小時做那件事，哪怕只是一小步。',
+oil:'乳香（連結更高的意義·看見全局）× 雪松（重建根基·你是誰比你做什麼重要）× 快樂鼠尾草（打開直覺·聽見內心的方向）',
+share:'我的倦怠人格是「意義枯竭型」——做得很多，但靈魂一直在問「然後呢？」你呢？'},
+escape:{name:'逃避高手型',icon:'🎮',cl:'#00CEC9',sub:'用各種方式假裝沒事的人',
+desc:'你的倦怠不是「做不動」，是「不想面對」。你可能瘋狂追劇、狂滑手機、暴吃零食、熬夜打遊戲——不是因為真的想做這些事，是因為只有在做這些事的時候，腦袋才能暫時不想工作的事。你是倦怠界的魔術師，把所有不舒服的感覺都變不見了。但它們沒有消失，只是被塞到沙發底下。你的逃避其實是一種自我保護，因為真正面對那些感覺太痛了。但躲得越久，沙發底下的東西越多。',
+recovery:'今天試著做一件事：下次你想拿起手機「逃避」的時候，先停三秒，問自己「我現在在逃避什麼感覺？」不需要解決它，只要認出它。累？煩？害怕？空虛？給它一個名字，就是覺察的開始。',
+oil:'尤加利（清理逃避的迷霧·看清真相）× 薄荷（當頭棒喝·清醒一下）× 岩蘭草（接地·不再飄著過日子）',
+share:'我的倦怠人格是「逃避高手型」——用各種方式假裝沒事，但沙發底下已經塞滿了。你是哪一款？'}
+};
 var QUESTIONS=[
-{q:'早上鬧鐘響的時候，您的第一個念頭是：',opts:[{t:'又要上班了（嘆氣）',a:'exhaust'},{t:'今天有什麼會議要撐過去',a:'cynical'},{t:'去了也不會有什麼不同',a:'inefficacy'},{t:'還好，今天應該不會太累',a:'ok'}]},
-{q:'下班後您的狀態通常是：',opts:[{t:'累到只想躺著，什麼都不想做',a:'exhaust'},{t:'還有力氣做自己的事',a:'ok'},{t:'身體不累但心很累',a:'cynical'},{t:'覺得今天又白過了一天',a:'inefficacy'}]},
-{q:'同事找您幫忙，您的第一反應：',opts:[{t:'又來了（內心翻白眼）',a:'cynical'},{t:'可以，但心裡在算自己還有多少事',a:'exhaust'},{t:'幫了也不會有人記得',a:'inefficacy'},{t:'看情況，能幫就幫',a:'ok'}]},
-{q:'工作上得到正面回饋，您的感覺：',opts:[{t:'開心，有動力繼續做好',a:'ok'},{t:'謝謝但已經沒什麼感覺了',a:'cynical'},{t:'覺得自己配不上這個稱讚',a:'inefficacy'},{t:'太累了沒有力氣開心',a:'exhaust'}]},
-{q:'最近的睡眠品質：',opts:[{t:'倒頭就睡但醒來還是累',a:'exhaust'},{t:'不太好，腦子停不下來',a:'exhaust'},{t:'正常',a:'ok'},{t:'睡得著但不想起來面對明天',a:'cynical'}]},
-{q:'如果可以選一天不上班：',opts:[{t:'想到就覺得解脫',a:'exhaust'},{t:'一天不夠，想要一個月',a:'cynical'},{t:'不上班也不知道要幹嘛',a:'inefficacy'},{t:'偶爾休一天就夠了',a:'ok'}]},
-{q:'回想這份工作帶給您的感覺：',opts:[{t:'曾經有熱情但現在燒完了',a:'exhaust'},{t:'只是在賺錢',a:'cynical'},{t:'做了這麼久好像也沒什麼成就',a:'inefficacy'},{t:'雖然有壓力但還是有成就感',a:'ok'}]},
-{q:'面對客戶/同事/學生，您的態度：',opts:[{t:'盡量保持專業但越來越敷衍',a:'cynical'},{t:'很想用心但已經沒有力氣了',a:'exhaust'},{t:'覺得自己的付出沒有被看見',a:'inefficacy'},{t:'大部分時候還是認真對待',a:'ok'}]},
-{q:'週末的時候您會想到工作嗎？',opts:[{t:'會，而且想到就焦慮',a:'exhaust'},{t:'會，但不是焦慮而是厭煩',a:'cynical'},{t:'會想自己是不是選錯了行業',a:'inefficacy'},{t:'偶爾想到但不影響休息',a:'ok'}]},
-{q:'如果用一個詞形容現在對工作的感覺：',opts:[{t:'掏空',a:'exhaust'},{t:'麻木',a:'cynical'},{t:'不值得',a:'inefficacy'},{t:'還行',a:'ok'}]}
+{q:'早上鬧鐘響了，你的第一個念頭是：',opts:[{t:'計算今天要完成幾件事（心裡已經開始排程）',a:'speed'},{t:'嗯……又是一天（沒有特別的感覺）',a:'frog'},{t:'想到工作就覺得整個人是空的',a:'burnout'},{t:'去上班也可以，但不知道為了什麼',a:'meaning'},{t:'再睡五分鐘……十分鐘……半小時',a:'escape'}]},
+{q:'下班後你通常會做什麼：',opts:[{t:'繼續處理工作的事，或準備明天的',a:'speed'},{t:'躺著滑手機，不知不覺就到睡覺時間',a:'escape'},{t:'做一些事但總覺得提不起勁',a:'frog'},{t:'什麼都不想做，什麼都沒有意義',a:'meaning'},{t:'躺著發呆，腦袋是空的',a:'burnout'}]},
+{q:'同事問你「最近好嗎」，你的真心話是：',opts:[{t:'忙到爆但還活著',a:'speed'},{t:'還好啊（其實不好但懶得解釋）',a:'frog'},{t:'不知道，我已經感覺不到了',a:'burnout'},{t:'我一直在想我到底在幹嘛',a:'meaning'},{t:'嗯嗯還好（然後迅速轉移話題）',a:'escape'}]},
+{q:'你上一次真心對工作感到興奮，是什麼時候的事：',opts:[{t:'上週吧，每天都有新的挑戰',a:'speed'},{t:'好像很久了，想不起來',a:'frog'},{t:'以前很常，但現在完全沒有了',a:'burnout'},{t:'興奮？工作又不是遊樂園',a:'meaning'},{t:'偶爾有，但很快就被其他事蓋過去了',a:'escape'}]},
+{q:'週五晚上你的理想活動是：',opts:[{t:'列週末的待辦清單',a:'speed'},{t:'窩在家裡什麼都不想',a:'frog'},{t:'睡覺，真的只想睡覺',a:'burnout'},{t:'一個人散步想想人生',a:'meaning'},{t:'追劇/打遊戲/吃大餐（越能忘記現實越好）',a:'escape'}]},
+{q:'你的身體最近在抗議的方式是：',opts:[{t:'肩頸痠痛、頭痛、胃痛（壓力三件套）',a:'speed'},{t:'沒有特別不舒服，就是整個人很沉',a:'frog'},{t:'免疫力下降，動不動就感冒',a:'burnout'},{t:'身體沒事但心裡有一種說不出的空洞',a:'meaning'},{t:'暴吃或失眠，用身體在補償情緒',a:'escape'}]},
+{q:'主管交代一個新任務，你的第一反應：',opts:[{t:'好，排進去（已經在想怎麼高效完成了）',a:'speed'},{t:'好……（內心其實很不想但不會說）',a:'frog'},{t:'又來了……好吧隨便（已經沒有抵抗的力氣）',a:'burnout'},{t:'可以，但做完又怎樣呢',a:'meaning'},{t:'先假裝沒看到訊息',a:'escape'}]},
+{q:'你跟工作的關係，最像哪一句話：',opts:[{t:'我離不開它，它也離不開我（互相綁架）',a:'speed'},{t:'就這樣吧，換了可能也差不多',a:'frog'},{t:'我曾經愛過它，但現在什麼感覺都沒有了',a:'burnout'},{t:'我不討厭它，但它給不了我想要的東西',a:'meaning'},{t:'想到它我就想看Netflix',a:'escape'}]},
+{q:'如果有一個按鈕可以幫你暫停工作一個月，你會：',opts:[{t:'不敢按，回來之後事情會更多',a:'speed'},{t:'想按但覺得「回來也是一樣」',a:'frog'},{t:'立刻按，拜託讓我喘口氣',a:'burnout'},{t:'按完之後想去做一件完全不同的事',a:'meaning'},{t:'按完之後大概會玩一個月然後一樣焦慮',a:'escape'}]},
+{q:'你已經多久沒有「發自內心覺得今天過得很好」了：',opts:[{t:'每天都覺得有完成很多事（但開心嗎？沒想過）',a:'speed'},{t:'偶爾有，但大部分時候是「還好」',a:'frog'},{t:'想不起來了，真的想不起來',a:'burnout'},{t:'有，但那些時刻都跟工作無關',a:'meaning'},{t:'打遊戲贏的時候算嗎',a:'escape'}]},
+{q:'你跟親近的人提過自己的工作狀態嗎：',opts:[{t:'提了，但他們覺得「你不是做得很好嗎」',a:'speed'},{t:'沒有，因為好像也沒什麼好說的',a:'frog'},{t:'提了但說不清楚，就是覺得空空的',a:'burnout'},{t:'提了，但他們不太理解「有工作為什麼還不快樂」',a:'meaning'},{t:'不想提，提了就要面對',a:'escape'}]},
+{q:'選一句最像你此刻的內心獨白：',opts:[{t:'我停不下來，一停下來就焦慮',a:'speed'},{t:'也不是不開心，就是……什麼感覺都很淡',a:'frog'},{t:'我的電池已經充不進去電了',a:'burnout'},{t:'我在做的事到底有什麼意義',a:'meaning'},{t:'我先追完這一季再說',a:'escape'}]},
+{q:'回想你進入這份工作的第一天，那時候的你跟現在的你差距有多大：',opts:[{t:'那時候也是這麼拼，只是現在身體越來越不配合',a:'speed'},{t:'差距？好像是慢慢變的，說不清楚從哪裡開始',a:'frog'},{t:'根本是兩個人。那時候的我充滿幹勁',a:'burnout'},{t:'那時候以為工作會帶來成就感，現在發現不一定',a:'meaning'},{t:'那時候比較認真，現在學會摸魚了',a:'escape'}]},
+{q:'如果工作是一杯飲料，你現在喝到的是：',opts:[{t:'第四杯美式——苦但能撐住',a:'speed'},{t:'冷掉的茶——沒味道但也不難喝',a:'frog'},{t:'空杯——什麼都倒不出來了',a:'burnout'},{t:'一杯看起來很高級但你不想喝的酒',a:'meaning'},{t:'泡了珍珠的快樂水——用甜的蓋住苦的',a:'escape'}]},
+{q:'最後，如果可以給現在的自己一句話，你會說：',opts:[{t:'你可以慢一點，不會掉隊的',a:'speed'},{t:'不要再假裝沒事了',a:'frog'},{t:'你已經很努力了，可以休息了',a:'burnout'},{t:'你值得找到讓你發光的事',a:'meaning'},{t:'面對它吧，逃不掉的',a:'escape'}]}
 ];
 var answers={},currentQ=0;
 function startQuiz(){answers={};currentQ=0;document.querySelector('.quiz-hero').style.display='none';document.getElementById('progressWrap').style.display='block';document.getElementById('questionsArea').style.display='block';document.getElementById('quizResult').style.display='none';renderQ()}
 function renderQ(){var q=QUESTIONS[currentQ];var html='<div class="quiz-question-card" style="padding:28px 22px;margin-bottom:16px"><div class="quiz-q-number" style="margin-bottom:10px">'+(currentQ+1)+' / '+QUESTIONS.length+'</div><div class="quiz-q-text" style="margin-bottom:20px">'+q.q+'</div><div class="quiz-options" style="display:flex;flex-direction:column;gap:10px">';q.opts.forEach(function(o){html+='<button class="quiz-option" onclick="pick(\''+o.a+'\',this)">'+o.t+'</button>'});html+='</div></div>';document.getElementById('questionsArea').innerHTML=html;document.getElementById('progressFill').style.width=((currentQ/QUESTIONS.length)*100)+'%';document.getElementById('progressText').textContent=(currentQ+1)+' / '+QUESTIONS.length}
 function pick(a,btn){answers[currentQ]=a;btn.classList.add('selected');setTimeout(function(){currentQ++;if(currentQ>=QUESTIONS.length)showResult();else renderQ()},350)}
-function showResult(){var sc={exhaust:0,cynical:0,inefficacy:0,ok:0};Object.values(answers).forEach(function(a){sc[a]=(sc[a]||0)+1});var total=sc.exhaust+sc.cynical+sc.inefficacy;var pct=Math.round(total/QUESTIONS.length*100);var level=pct>=70?'嚴重倦怠':pct>=40?'中度倦怠':pct>=20?'輕微倦怠':'狀態良好';var color=pct>=70?'#E17055':pct>=40?'#FDCB6E':pct>=20?'#00CEC9':'#00B894';var dims=[{k:'exhaust',n:'情緒耗竭',d:'您的能量被工作消耗殆盡。不是不想做，是做不動了。',tip:'今天做一件「純粹為了自己」的事。不是休息日的放空，是帶著意識地犒賞自己。'},{k:'cynical',n:'去人格化',d:'您開始對工作和人產生距離感。不是冷漠，是保護自己不再受傷。',tip:'找一個您曾經在乎的工作細節，今天用心做一次。不是為了表現，是找回那個「在乎」的感覺。'},{k:'inefficacy',n:'低成就感',d:'做了很多但覺得沒有意義。不是真的沒成就，是您已經看不見自己的價值了。',tip:'今天寫下三件「我做到了」的事。多小都算。起床、出門、看完這個測驗。都算。'}];document.getElementById('questionsArea').style.display='none';document.getElementById('progressWrap').style.display='none';var html='<div style="animation:hlFadeUp .6s ease both">';html+='<div style="background:#fff;border:3px solid '+color+';border-radius:20px;padding:32px 24px;text-align:center;margin-bottom:24px;box-shadow:0 8px 32px rgba(0,0,0,.06)">';html+='<div style="font-size:.7rem;color:var(--qc1);letter-spacing:.15em;margin-bottom:12px">HOUR LIGHT ✦ 馥靈之鑰</div>';html+='<div style="font-size:3rem;margin-bottom:8px">🔥</div>';html+='<div style="font-size:1.6rem;font-weight:700;color:'+color+';font-family:Playfair Display,serif;margin-bottom:4px">'+level+'</div>';html+='<div style="font-size:.88rem;color:var(--qlt);margin-bottom:16px">倦怠指數 '+pct+'%</div>';html+='<div style="height:10px;background:#f0f0f0;border-radius:5px;overflow:hidden;margin:0 20px"><div style="height:100%;width:'+pct+'%;background:'+color+';border-radius:5px;animation:hlBarGrow 1s ease both"></div></div></div>';dims.forEach(function(d){var v=sc[d.k],dp=Math.round(v/QUESTIONS.length*100);html+='<div style="background:#fff;border-radius:16px;padding:24px;margin-bottom:16px;border:1.5px solid #eee"><h3 style="font-size:1rem;margin-bottom:8px">'+d.n+'（'+dp+'%）</h3><div style="height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;margin-bottom:12px"><div style="height:100%;width:'+dp+'%;background:var(--qc1);border-radius:3px"></div></div><div style="font-size:.85rem;line-height:1.8;color:var(--qtxt);margin-bottom:10px">'+d.d+'</div><div style="font-size:.85rem;line-height:1.8;color:var(--qc2);font-weight:600">✦ '+d.tip+'</div></div>'});
-html+='<div style="background:linear-gradient(135deg,#f0fff0,#fefff5);border:1px solid rgba(106,176,76,.2);border-radius:20px;padding:28px 24px;margin-bottom:20px;animation:hlFadeUp .6s ease .3s both"><div style="font-size:.95rem;letter-spacing:2px;color:var(--qc1);margin-bottom:12px;text-align:center;font-weight:600">🌿 精油覺察建議</div><div style="font-size:.9rem;color:var(--qtxt);line-height:1.85;text-align:center"><strong>尤加利（清理疲勞·重啟呼吸）× 葡萄柚（提振能量·找回動力）× 雪松（穩定根基·建立界線）</strong><br><br>倦怠不是懶，是您的能量帳戶透支了。尤加利的清涼感像是幫肺部「重新開機」，雪松的沉穩木質調幫您重新建立工作與生活的界線。</div></div>';
-html+='<div style="background:linear-gradient(135deg,#f8f0ff,#fef9f0);border:1px solid rgba(156,110,219,.25);border-radius:20px;padding:28px 24px;margin-bottom:20px;text-align:center;animation:hlFadeUp .6s ease .4s both"><div style="font-size:.95rem;letter-spacing:2px;color:#7a5bb5;margin-bottom:12px">✦ 從覺察到馥靈座標</div><div style="font-family:var(--serif,serif);font-size:1.05rem;color:var(--qtxt);line-height:1.8;margin-bottom:16px">心理測驗測的是「此刻的您」，馥靈秘碼看的是「天生的您」。<br>兩個座標交叉比對，才能看見完整的自己。</div><a href="fuling-mima.html" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#9c6edb,#7a5bb5);color:#fff;border-radius:999px;font-size:.95rem;font-weight:500;text-decoration:none">🔮 免費解碼馥靈秘碼 →</a></div>';
+function showResult(){var sc={};Object.keys(TYPES).forEach(function(k){sc[k]=0});Object.values(answers).forEach(function(a){sc[a]=(sc[a]||0)+1});var sorted=Object.keys(TYPES).sort(function(a,b){return sc[b]-sc[a]});var top=sorted[0],f=TYPES[top],f2=TYPES[sorted[1]];
+document.getElementById('questionsArea').style.display='none';document.getElementById('progressWrap').style.display='none';
+var html='<div style="animation:hlFadeUp .6s ease both">';
+html+='<div style="background:#fff;border:3px solid '+f.cl+';border-radius:20px;padding:32px 24px;text-align:center;margin-bottom:24px;box-shadow:0 8px 32px rgba(0,0,0,.06)">';
+html+='<div style="font-size:.7rem;color:var(--qc1);letter-spacing:.15em;margin-bottom:12px">HOUR LIGHT ✦ 馥靈之鑰</div>';
+html+='<div style="font-size:3.5rem;margin-bottom:8px">'+f.icon+'</div>';
+html+='<div style="font-size:1.6rem;font-weight:700;color:'+f.cl+';font-family:Playfair Display,serif;margin-bottom:4px">'+f.name+'</div>';
+html+='<div style="font-size:.88rem;color:var(--qlt);margin-bottom:16px">'+f.sub+'</div>';
+html+='<div style="font-size:.9rem;color:var(--qtxt);line-height:1.85;text-align:left;padding:0 8px">'+f.desc+'</div></div>';
+// 分佈
+html+='<div style="background:#fff;border-radius:16px;padding:24px;margin-bottom:20px;border:1.5px solid #eee"><h3 style="font-size:1rem;color:var(--qtxt);margin-bottom:16px">五型分佈</h3>';
+sorted.forEach(function(k){var fl=TYPES[k],pct=Math.round(sc[k]/QUESTIONS.length*100);html+='<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:4px"><span>'+fl.icon+' '+fl.name+'</span><span style="color:var(--qlt)">'+pct+'%</span></div><div style="height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+fl.cl+';border-radius:3px;animation:hlBarGrow .8s ease both"></div></div></div>'});
+html+='</div>';
+// 副型
+if(f2){html+='<div style="background:#fff;border-radius:16px;padding:24px;margin-bottom:20px;border:1.5px solid #eee"><h3 style="font-size:1rem;margin-bottom:12px">'+f2.icon+' 副型：'+f2.name+'（'+f2.sub+'）</h3><div style="font-size:.85rem;line-height:1.8;color:var(--qtxt)">'+f2.desc+'</div></div>';}
+// 復原建議
+html+='<div style="background:#fff;border-radius:16px;padding:24px;margin-bottom:20px;border:1.5px solid #eee"><h3 style="font-size:1rem;color:var(--qtxt);margin-bottom:12px">✦ 專屬復原處方</h3><div style="font-size:.88rem;line-height:1.9;color:var(--qtxt)">'+f.recovery+'</div></div>';
+// 精油
+html+='<div style="background:linear-gradient(135deg,#f0fff0,#fefff5);border:1px solid rgba(106,176,76,.2);border-radius:20px;padding:28px 24px;margin-bottom:20px;animation:hlFadeUp .6s ease .3s both"><div style="font-size:.95rem;letter-spacing:2px;color:var(--qc1);margin-bottom:12px;text-align:center;font-weight:600">🌿 精油覺察建議</div><div style="font-size:.9rem;color:var(--qtxt);line-height:1.85;text-align:center"><strong>'+f.oil+'</strong></div></div>';
+// 分享文案
+html+='<div style="background:#fff;border-radius:16px;padding:24px;margin-bottom:20px;border:1.5px solid #eee"><h3 style="font-size:1rem;margin-bottom:12px">📱 你的專屬分享文案</h3><div style="font-size:.88rem;line-height:1.8;color:var(--qtxt);background:rgba(99,110,114,.04);padding:16px;border-radius:12px;cursor:pointer" onclick="navigator.clipboard.writeText(this.innerText).then(function(){alert(\'已複製！\')})"><strong>點一下複製 →</strong><br>'+f.share+' 馥靈之鑰職業倦怠測驗 → hourlightkey.com/quiz-burnout.html</div></div>';
+// HOUR bridge
+html+='<div style="background:linear-gradient(135deg,#f8f0ff,#fef9f0);border:1px solid rgba(156,110,219,.25);border-radius:20px;padding:28px 24px;margin-bottom:20px;text-align:center;animation:hlFadeUp .6s ease .4s both"><div style="font-size:.95rem;letter-spacing:2px;color:#7a5bb5;margin-bottom:12px">✦ 從覺察到馥靈座標</div><div style="font-family:var(--serif,serif);font-size:1.05rem;color:var(--qtxt);line-height:1.8;margin-bottom:16px">心理測驗測的是「此刻的你」，馥靈秘碼看的是「天生的你」。<br>也許你的倦怠，是因為你正在走一條不屬於自己的路。</div><a href="fuling-mima.html" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#9c6edb,#7a5bb5);color:#fff;border-radius:999px;font-size:.95rem;font-weight:500;text-decoration:none">🔮 免費解碼馥靈秘碼 →</a></div>';
 html+='<div style="background:#fff;border:1px solid rgba(106,176,76,.12);border-radius:18px;padding:24px;text-align:center;margin-bottom:20px;animation:hlFadeUp .6s ease .5s both"><div style="font-size:.92rem;margin-bottom:14px">想更深入了解自己？</div><div style="display:flex;flex-direction:column;gap:10px;max-width:360px;margin:0 auto"><a href="quiz-grit.html" style="display:block;padding:13px 16px;border-radius:14px;text-decoration:none;font-weight:600;font-size:.88rem;text-align:center;background:var(--qc1);color:#fff">💪 恆毅力測驗（交叉比對）</a><a href="quiz-boundary.html" style="display:block;padding:13px 16px;border-radius:14px;text-decoration:none;font-weight:600;font-size:.88rem;text-align:center;background:#9c6edb;color:#fff">🛡️ 心理界線測驗</a><a href="quiz-flexibility.html" style="display:block;padding:13px 16px;border-radius:14px;text-decoration:none;font-weight:600;font-size:.88rem;text-align:center;background:var(--qc2);color:var(--qtxt)">🌊 心理彈性測驗</a><a href="destiny-engine.html" style="display:block;padding:13px 16px;border-radius:14px;text-decoration:none;font-weight:600;font-size:.88rem;text-align:center;background:var(--qtxt);color:#fff">🔮 命盤引擎（30+ 系統）</a></div></div>';
-html+='<div style="display:flex;gap:10px;justify-content:center;margin:16px 0"><button onclick="if(navigator.share)navigator.share({title:\'職業倦怠量表｜馥靈之鑰\',url:location.href});else{navigator.clipboard.writeText(location.href).then(function(){alert(\'已複製連結\')});}" style="padding:10px 20px;border-radius:12px;border:1.5px solid rgba(106,176,76,.2);background:#fff;color:var(--qtxt);font-size:.82rem;cursor:pointer;font-family:inherit">📤 分享結果</button><button onclick="location.reload()" style="padding:10px 20px;border-radius:12px;border:1.5px solid rgba(106,176,76,.2);background:#fff;color:var(--qtxt);font-size:.82rem;cursor:pointer;font-family:inherit">🔄 重新測驗</button></div>';
-html+='<div style="text-align:center;font-size:.68rem;color:var(--qlt);line-height:1.8;margin-top:24px">本測驗參考 Maslach Burnout Inventory（MBI）三維度模型 設計。結果僅供<strong>自我覺察參考</strong>，<strong>不構成亦不取代</strong>專業心理評估或醫療診斷。如持續感到困擾，建議諮詢合格心理專業人員。<br>© 2026 馥靈之鑰國際有限公司 Hour Light International Co., Ltd.</div>';document.getElementById('quizResult').innerHTML=html;document.getElementById('quizResult').style.display='block';document.getElementById('quizResult').scrollIntoView({behavior:'smooth',block:'nearest'});
+html+='<div style="display:flex;gap:10px;justify-content:center;margin:16px 0"><button onclick="if(navigator.share)navigator.share({title:\'職業倦怠測驗｜馥靈之鑰\',url:location.href});else{navigator.clipboard.writeText(location.href).then(function(){alert(\'已複製連結\')});}" style="padding:10px 20px;border-radius:12px;border:1.5px solid rgba(106,176,76,.2);background:#fff;color:var(--qtxt);font-size:.82rem;cursor:pointer;font-family:inherit">📤 分享結果</button><button onclick="location.reload()" style="padding:10px 20px;border-radius:12px;border:1.5px solid rgba(106,176,76,.2);background:#fff;color:var(--qtxt);font-size:.82rem;cursor:pointer;font-family:inherit">🔄 重新測驗</button></div>';
+html+='<div style="text-align:center;font-size:.68rem;color:var(--qlt);line-height:1.8;margin-top:24px">本測驗參考 Maslach Burnout Inventory（MBI）理論延伸設計。結果僅供<strong>自我覺察參考</strong>，<strong>不構成亦不取代</strong>專業心理評估或醫療診斷。如持續感到困擾，建議諮詢合格心理專業人員。<br>© 2026 馥靈之鑰國際有限公司 Hour Light International Co., Ltd.</div>';document.getElementById('quizResult').innerHTML=html;document.getElementById('quizResult').style.display='block';document.getElementById('quizResult').scrollIntoView({behavior:'smooth',block:'nearest'});
   if(window.HL_track) HL_track('quiz_complete',{toolId:'quiz',toolName:'覺察測驗'});
   setTimeout(function(){if(typeof HLPOINTS!=='undefined')HLPOINTS.triggerQuizEgg('職業倦怠');},2000);if(window.fbq)fbq('track','CompleteRegistration',{content_name:'quiz-burnout'})
   try{localStorage.setItem('hl_quiz_burnout',JSON.stringify({ts:Date.now()}));}catch(e){};
