@@ -1048,6 +1048,10 @@ function initPhysics() {
 }
 
 function resetPhysicsBodies() {
+  // 恢復為動態物體（上次擲筊後被凍結為 STATIC）
+  blockBody1.type = CANNON.Body.DYNAMIC;
+  blockBody2.type = CANNON.Body.DYNAMIC;
+
   blockBody1.position.set(-0.5, 0.18, 0);
   blockBody1.quaternion.setFromEuler(0, 0.1, 0);
   blockBody1.velocity.setZero();
@@ -1128,6 +1132,14 @@ function throwBlocks() {
 
     if (settled) {
       clearInterval(checkSettle);
+
+      // 凍結物理體，防止靜止後繼續漂移
+      blockBody1.type = CANNON.Body.STATIC;
+      blockBody2.type = CANNON.Body.STATIC;
+      blockBody1.velocity.setZero();
+      blockBody2.velocity.setZero();
+      blockBody1.angularVelocity.setZero();
+      blockBody2.angularVelocity.setZero();
 
       // 讀取實際落地姿態，不強制翻轉
       var naturalResult = readNaturalResult();
