@@ -1610,6 +1610,17 @@ async function copyReadingText(readingId){
           <div style="margin-top:12px"><a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" style="display:inline-block;padding:10px 24px;border-radius:10px;font-size:.9rem;font-weight:700;color:var(--text);background:rgba(201,160,96,.1);border:1px solid rgba(201,160,96,.25);text-decoration:none">💬 LINE 傳送匯款截圖</a></div>
         </div>
 
+        <!-- 兌換碼入口 -->
+        <div style="margin-top:16px;padding:18px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius)">
+          <div style="font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:10px">🎟️ 有兌換碼？</div>
+          <div style="font-size:.82rem;color:var(--mid);margin-bottom:12px">活動贈送的免費體驗碼、7天大師試用碼，都可以在這裡兌換。</div>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="appPromoInput" placeholder="輸入兌換碼" style="flex:1;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:16px;font-family:monospace;letter-spacing:.08em;text-transform:uppercase;outline:none" oninput="this.value=this.value.toUpperCase()" autocomplete="off"/>
+            <button onclick="redeemAppPromo()" style="padding:12px 20px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1008;font-weight:700;font-size:.88rem;border:none;cursor:pointer;white-space:nowrap;min-height:44px">兌換</button>
+          </div>
+          <div id="appPromoMsg" style="font-size:.82rem;margin-top:8px;min-height:20px"></div>
+        </div>
+
         <div class="birthday-card">
           <div class="bc-title">🎂 生日月限定 · 生日禮</div>
           <div class="bc-sub">21 張牌卡全盤矩陣解析＋流年座標哲學＋Ruby 親選神祕禮物</div>
@@ -4034,6 +4045,51 @@ function loadSubscription() {
       if (plan === 'pro' && btnPlus) { btnPlus.style.display = 'none'; }
     });
   }
+}
+
+function redeemAppPromo() {
+  var inp = document.getElementById('appPromoInput');
+  var msg = document.getElementById('appPromoMsg');
+  if (!inp || !msg) return;
+  var code = inp.value.trim().toUpperCase();
+  if (!code) { msg.style.color = '#d93025'; msg.textContent = '請輸入兌換碼'; return; }
+
+  // FOOL999 = 7天馥靈大師免費試用
+  if (code === 'FOOL999') {
+    var now = new Date();
+    var exp = new Date('2026-04-07T23:59:59+08:00');
+    if (now >= exp) { msg.style.color = '#d93025'; msg.textContent = '此兌換碼已過期'; return; }
+    var usedKey = 'hl_promo_FOOL999';
+    if (localStorage.getItem(usedKey)) { msg.style.color = '#d93025'; msg.textContent = '此兌換碼已使用過（每人限用一次）'; return; }
+    localStorage.setItem(usedKey, Date.now());
+    localStorage.setItem('hl_promo_trial_until', '2026-04-07T23:59:59+08:00');
+    try {
+      var _db2 = firebase && firebase.firestore ? firebase.firestore() : null;
+      var _u2 = firebase.auth().currentUser;
+      if (_db2) _db2.collection('promo_redemptions').add({ code: 'FOOL999', source: 'app-redeem', uid: _u2 ? _u2.uid : 'guest', email: _u2 ? _u2.email : '', ts: firebase.firestore.FieldValue.serverTimestamp() });
+    } catch(e) {}
+    msg.style.color = '#4caf50';
+    msg.textContent = '✨ 馥靈大師 7 天免費試用已啟用！重新整理頁面即可生效。';
+    inp.disabled = true;
+    return;
+  }
+
+  // 其他 FOOL 系列
+  if (code === 'FOOL199' || code === 'FOOL399' || code === 'FOOL599') {
+    msg.style.color = '#e8a040';
+    msg.textContent = '此碼請在抽牌頁面（馥靈抽牌）的解讀代碼欄位使用';
+    return;
+  }
+
+  // HL 系列解鎖碼
+  if (code.indexOf('HL') === 0) {
+    msg.style.color = '#e8a040';
+    msg.textContent = '此碼請在抽牌頁面（馥靈抽牌）的解讀代碼欄位使用';
+    return;
+  }
+
+  msg.style.color = '#d93025';
+  msg.textContent = '無法辨識此兌換碼，請確認是否輸入正確';
 }
 
 function subscribePlan(plan) {
