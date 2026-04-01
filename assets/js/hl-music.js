@@ -90,7 +90,7 @@
         btn.setAttribute('title', '點擊暫停音樂');
         try { localStorage.setItem('hlMusicPlaying', 'true'); } catch(e) {}
       }).catch(function(err) {
-        console.log('播放需要使用者互動:', err);
+        console.warn('播放需要使用者互動:', err);
       });
     } else {
       fadeOut(audio, function() { audio.pause(); });

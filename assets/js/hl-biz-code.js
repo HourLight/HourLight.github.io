@@ -126,7 +126,6 @@ window.hlBizCode = (function(){
       var _bKey = 'hl_promo_' + code;
       if(localStorage.getItem(_bKey)){ msg.style.color='#d93025'; msg.textContent='此兌換券已使用過（每人限用一次）'; return; }
       localStorage.setItem(_bKey, Date.now());
-      console.log('[HL] Biz promo code accepted: ' + code);
       try{var _bdb=getDB();var _bu=firebase.auth().currentUser;
         if(_bdb)_bdb.collection('promo_redemptions').add({code:code,n:(cfg&&cfg.n)||0,source:'biz-code',uid:_bu?_bu.uid:'guest',email:_bu?_bu.email:'',ts:firebase.firestore.FieldValue.serverTimestamp()});
       }catch(e){}

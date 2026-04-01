@@ -44,7 +44,6 @@
       await swe.initSwissEph();
       ready = true;
       loading = false;
-      console.log('[hlSweph] Swiss Ephemeris WASM loaded ✓');
       return true;
     }catch(e){
       loading = false;
