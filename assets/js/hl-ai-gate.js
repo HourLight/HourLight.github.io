@@ -151,21 +151,20 @@
     var np=plan==='free'?'馥靈鑰友（$399/月，每天10次）':'馥靈大師（$999/月，無限次）';
     var hr=getHoursUntilReset();
     m.innerHTML='<div style="max-width:420px;padding:32px 24px;background:#0a0612;border:1px solid rgba(240,212,138,.2);border-radius:20px;text-align:center;color:#f0e8d8;max-height:90vh;overflow-y:auto">'
-      +'<div style="font-size:2rem;margin-bottom:12px">🔒</div>'
-      +'<div style="font-size:1rem;color:#f0d48a;font-weight:700;margin-bottom:8px">今日次數已用完</div>'
+      +'<div style="font-size:2rem;margin-bottom:12px">✨</div>'
+      +'<div style="font-size:1rem;color:#f0d48a;font-weight:700;margin-bottom:8px">今天的 '+limit+' 次覺察旅程完成了</div>'
       +'<div style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.8;margin-bottom:16px">'
-      +'您的 '+pn+' 方案每天可使用 '+limit+' 次AI深度解讀指令。<br>'
-      +'今日已使用 '+used+' 次。約 '+hr+' 小時後（午夜 00:00）自動歸零。</div>'
+      +'你今天已經認真地跟自己對話了 '+used+' 次，這很棒。<br><br>'
+      +'覺察不是越多越好，是每一次都認真消化。<br>'
+      +'今天看到的東西，先讓它沉澱一晚。<br><br>'
+      +'但如果你現在真的很想繼續探索⋯</div>'
       +'<div style="text-align:left;font-size:.82rem;color:rgba(255,255,255,.5);line-height:2;margin-bottom:16px;padding:14px 16px;border-radius:12px;background:rgba(240,212,138,.04);border:1px solid rgba(240,212,138,.1)">'
-      +'<div style="color:rgba(240,212,138,.8);font-weight:700;margin-bottom:8px">📋 方案一覽</div>'
-      +'► 免費會員：每天 3 次（午夜歸零）<br>'
-      +'► 馥靈鑰友 $399/月：每天 10 次（午夜歸零）<br>'
-      +'► 馥靈大師 $999/月：無限次<br>'
+      +'<div style="color:rgba(240,212,138,.8);font-weight:700;margin-bottom:8px">💛 讓小馥陪你走更深</div>'
+      +'► 馥靈鑰友 $399/月：每天 10 次，不到 13 元/天<br>'
+      +'► 馥靈大師 $999/月：無限次，想探索多少都可以<br>'
       +'<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(240,212,138,.08)">'
-      +'🎯 次數加購：10 次 / $199（永久有效，不歸零）</div>'
-      +'<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(240,212,138,.08)">'
-      +'次數用途：塔羅抽牌、命盤測算等所有複製給 AI 的解讀框架<br>以上皆不影響：命理資料複製（免費不限次）、寄信（免費不限次）、馥靈抽牌（1張免費）</div></div>'
-      +'<a href="pricing.html" style="display:block;padding:14px;background:linear-gradient(135deg,#c9a044,#f0d48a);color:#0a0612;font-weight:700;border-radius:12px;text-decoration:none;margin-bottom:10px">✦ 升級方案 / 加購次數</a>'
+      +'🎯 不想訂閱？也可以加購：10 次 / $199（永久有效）</div></div>'
+      +'<a href="pricing.html" style="display:block;padding:14px;background:linear-gradient(135deg,#c9a044,#f0d48a);color:#0a0612;font-weight:700;border-radius:12px;text-decoration:none;margin-bottom:10px">💛 加入馥靈鑰友</a>'
       +'<div style="margin:12px 0;padding:14px;background:rgba(240,212,138,.04);border:1px solid rgba(240,212,138,.12);border-radius:12px">'
       +'<div style="font-size:.82rem;color:rgba(240,212,138,.7);font-weight:700;margin-bottom:8px">🎟️ 有兌換券？</div>'
       +'<div style="display:flex;gap:8px">'
@@ -174,7 +173,7 @@
       +'</div>'
       +'<div id="hlPromoTrialMsg" style="font-size:.78rem;margin-top:6px;min-height:18px"></div>'
       +'</div>'
-      +'<button onclick="this.closest(\'#hl-ai-upgrade-modal\').remove()" style="display:block;width:100%;padding:10px;background:transparent;border:1px solid rgba(240,212,138,.2);border-radius:10px;color:rgba(255,255,255,.5);font-size:.85rem;cursor:pointer">明天再來</button></div>';
+      +'<button onclick="this.closest(\'#hl-ai-upgrade-modal\').remove()" style="display:block;width:100%;padding:10px;background:transparent;border:1px solid rgba(240,212,138,.2);border-radius:10px;color:rgba(255,255,255,.5);font-size:.85rem;cursor:pointer">好，讓今天的覺察先沉澱</button></div>';
     m.addEventListener('click',function(e){if(e.target===m)m.remove();});
     document.body.appendChild(m);
   }
