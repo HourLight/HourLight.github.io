@@ -258,6 +258,24 @@ module.exports = async function handler(req, res) {
         return res.status(403).json({ error: '需要解鎖碼', needCode: true });
       }
 
+      // ✅ Master Code：直接放行
+      var MASTER_CODE = 'ASDF2258';
+      if (unlockCode === MASTER_CODE) {
+        // Master code，跳過所有驗證
+      }
+      // ✅ 愚人節促銷碼：前端已驗證，後端放行
+      else if (unlockCode.indexOf('FOOL') === 0) {
+        var _foolMap = {'FOOL199':3,'FOOL399':5,'FOOL599':7};
+        var _foolExp = new Date('2026-04-07T23:59:59+08:00');
+        if (_foolMap[unlockCode] && new Date() < _foolExp && _foolMap[unlockCode] === n) {
+          // 促銷碼有效，放行
+        } else if (_foolMap[unlockCode] && _foolMap[unlockCode] !== n) {
+          return res.status(403).json({ error: '此兌換券適用 ' + _foolMap[unlockCode] + ' 張，您選了 ' + n + ' 張', wrongN: true });
+        } else {
+          return res.status(403).json({ error: '兌換券已過期或無效', invalidCode: true });
+        }
+      }
+      else {
       var db = getFirestore();
       if (db) {
         try {
@@ -300,6 +318,7 @@ module.exports = async function handler(req, res) {
         }
       }
       // 如果 Firestore 未設定（沒有 FIREBASE_SERVICE_ACCOUNT），放行
+      } // end else（非 Master/FOOL 碼）
     }
 
     // ── 組合 prompt ──
