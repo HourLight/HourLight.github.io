@@ -215,6 +215,7 @@ a{color:var(--gd3);text-decoration:none}
     <option value="love">💕 交往中</option>
     <option value="spouse">💍 夫妻</option>
     <option value="ambig">🌸 曖昧 / 曖昧對象</option>
+    <option value="unrequited">💭 單戀 / 狀況不明</option>
     <option value="ex">💔 前任</option>
     <option value="inlaw_mw">🏠 婆媳</option>
     <option value="inlaw_fi">🏠 翁婿（公媳）</option>
@@ -981,10 +982,11 @@ var LR_WX_TG_CONST=['木','木','火','火','土','土','金','金','水','水']
 var LR_JIANG_NAME_CONST=['神后','大吉','功曹','太沖','天罡','太乙','勝光','小吉','傳送','從魁','河魁','登明'];
 var SULI_NAME_CONST={1:'太極',2:'兩儀',3:'三才',4:'四象',5:'五行',6:'六合',7:'七政',8:'八卦',9:'九星',10:'十全大吉',11:'破敗',12:'厄薄',13:'自立',14:'離祖',15:'福德',16:'德高',17:'剛強',18:'發展',19:'苦難',20:'空虛',21:'独立',22:'秋草',23:'成功',24:'立業',25:'英俊',26:'波瀾',27:'中吉',28:'曲折',29:'不平',30:'非業',31:'旺夫',32:'貴人',33:'昌泰',34:'破家',35:'太平',36:'榮祿',37:'興家',38:'文藝',39:'富貴',40:'退財',41:'大吉',42:'富貴',43:'散財',44:'破家',45:'大成',46:'榮達',47:'大吉',48:'旺家',49:'浮沉',50:'不定',51:'吉慶',52:'先苦後甘',53:'進取',54:'破財',55:'先苦',56:'波折',57:'半吉',58:'大吉',59:'破財',60:'動亂',61:'吉慶',62:'苦難',63:'吉慶',64:'散財',65:'吉慶',66:'衰退',67:'吉慶',68:'富榮',69:'苦難',70:'空虛',71:'吉慶',72:'苦難',73:'吉慶',74:'苦難',75:'旺盛',76:'苦難',77:'吉慶',78:'苦難',79:'苦難',80:'苦難',81:'太極還原'};
 
-var REL_NAMES={love:'感情伴侶',ambig:'曖昧關係',ex:'前任關係',inlaw_mw:'婆媳關係',inlaw_fi:'翁婿關係',boss:'主管下屬',biz:'事業合作',parent:'親子關係',sibling:'兄弟姊妹',friend:'朋友同事',any:'全面分析'};
+var REL_NAMES={love:'感情伴侶',ambig:'曖昧關係',unrequited:'單戀關係',ex:'前任關係',inlaw_mw:'婆媳關係',inlaw_fi:'翁婿關係',boss:'主管下屬',biz:'事業合作',parent:'親子關係',sibling:'兄弟姊妹',friend:'朋友同事',any:'全面分析'};
 var REL_FOCUS={
   love:'重點分析：天干合化（是否構成「合」）、日主五行互補、紫微夫妻宮交叉、H.O.U.R.情感模式互補、吸引力動態與長期磨合模式',
   ambig:'重點分析：天干地支是否構成吸引力格局（桃花、合局）、日主互動張力、為何會曖昧，是真心還是空白填補？這段關係值得往前走嗎？',
+  unrequited:'重點分析：這份感情的源頭與動力、對方可能的回應模式、你的執著背後藏著什麼未被滿足的需求、什麼時候該堅持什麼時候該轉身、如何在沒有回應的狀態中照顧好自己',
   ex:'重點分析：過去這段關係的命理根源、日主五行為何吸引又分開、紫微夫妻宮宿命痕跡、這段關係真正教會你的是什麼、重來的可能性與風險',
   inlaw_mw:'重點分析：婆媳之間的日主五行生剋（天生的合拍或摩擦源頭）、紫微父母宮＋子女宮交叉、溝通模式差異、如何找到共處節奏',
   inlaw_fi:'重點分析：翁婿之間的日主五行互動、紫微父母宮＋夫妻宮交叉、世代能量差異、如何建立尊重又有溫度的連結',
@@ -1000,7 +1002,7 @@ var REL_FOCUS={
 // 10種關係 → 6大類，每套系統根據關係類型動態產出AI指令
 
 function relCat(r){
-  if(r==='love'||r==='spouse'||r==='ambig'||r==='ex') return 'romantic';
+  if(r==='love'||r==='spouse'||r==='ambig'||r==='unrequited'||r==='ex') return 'romantic';
   if(r==='parent') return 'parent';
   if(r==='sibling') return 'sibling';
   if(r==='inlaw_mw'||r==='inlaw_fi') return 'inlaw';
@@ -1009,7 +1011,7 @@ function relCat(r){
   return 'any';
 }
 
-var REL_LABEL={romantic:'感情',parent:'親子',sibling:'手足',inlaw:'姻親',work:'職場',social:'社交',any:'全面',love:'交往中',spouse:'夫妻',ambig:'曖昧',ex:'前任',colleague:'同事',friend:'朋友',boss:'主管下屬',biz:'事業合夥',inlaw_mw:'婆媳',inlaw_fi:'翁婿'};
+var REL_LABEL={romantic:'感情',parent:'親子',sibling:'手足',inlaw:'姻親',work:'職場',social:'社交',any:'全面',love:'交往中',spouse:'夫妻',ambig:'曖昧',unrequited:'單戀',ex:'前任',colleague:'同事',friend:'朋友',boss:'主管下屬',biz:'事業合夥',inlaw_mw:'婆媳',inlaw_fi:'翁婿'};
 
 // ── 各系統的關係焦點宮位 & 解讀框架 ──
 
@@ -1116,6 +1118,13 @@ var MEGA_FRAME={
     hour:'身心校準(H)：壓力來時誰接住誰？情緒容量互補嗎？｜智慧辨識(O)：決策模式差異，直覺派vs分析派能磨合嗎？｜潛能解鎖(U)：在一起時彼此的天花板被拉高還是壓低？｜行動進化(R)：成長方向一致嗎？會一起往前還是漸行漸遠？',
     verdict:'三大互補面向（最能互相加分的地方）\n► 三大衝突面向（最容易摩擦的議題，每個給出具體化解方式）\n► 感情續航指數：長期磨合的關鍵是什麼？',
     closing:'感情裡最難的不是相愛，是看懂對方的出廠配置以後，還願意留下來。'
+  },
+  unrequited:{
+    zw:'甲化祿/化忌各飛入乙哪個宮位？夫妻宮是否空宮或化忌？桃花星是否單向啟動？甲的命宮主星對乙的夫妻宮有什麼投射？',
+    ast:'甲金星×乙火星是否形成單向相位？甲月亮×乙月亮是否有連結？海王星是否介入造成投射幻象？甲的第五宮/第七宮主星是否落入乙的十二宮（隱藏的愛）？',
+    hour:'身心校準(H)：你在這段感情裡消耗了多少能量？對方有沒有接住過你的情緒？｜智慧辨識(O)：你喜歡的是真實的他，還是你腦中那個「理想版本」的他？你有沒有忽略明顯的訊號？｜潛能解鎖(U)：這份執著背後藏著什麼未被滿足的需求？是對方身上有你自己缺少的東西嗎？｜行動進化(R)：繼續等待vs轉身離開，哪一個選項讓你更接近真正想要的人生？',
+    verdict:'► 這份感情的真正源頭：是靈魂層面的吸引，還是未被滿足的需求在投射？\n► 對方的能量場有沒有回應你？從命理座標看，對方的情感模式是什麼？\n► 你在這段單戀中學到的三件事\n► 具體行動建議：現在可以為自己做的三件事（不是為了得到對方）',
+    closing:'單戀最難的不是得不到回應，是你一直在跟自己想像中的那個人談戀愛。真正的轉折不是他終於看見你，是你終於看見自己。'
   },
   parent:{
     zw:'甲化祿/化忌各飛入乙哪個宮位？父母宮×子女宮交叉？教養飛化落哪？',
@@ -2549,7 +2558,7 @@ function renderMatch(a,b){
 
     // 關係類型語
     var relNote={
-      love:'感情配對',ambig:'曖昧能量場',ex:'前任關係',
+      love:'感情配對',ambig:'曖昧能量場',unrequited:'單戀的執念與功課',ex:'前任關係',
       inlaw_mw:'婆媳能量',inlaw_fi:'翁婿連結',boss:'職場動態',
       biz:'合作默契',parent:'親子連結',friend:'朋友相性',any:'整體能量'
     }[rel]||'整體能量';
@@ -3031,12 +3040,16 @@ function renderMatch(a,b){
   function clr_html(d){
     var clr=d.clr,h='';
     if(!clr||!clr.mc)return'<div class="item">計算失敗</div>';
+    var CLR_INSIGHT={'紅':'你的生命力是炙熱的，你走進房間所有人都會感覺到。但你的課題是學會不在每一場戰鬥中都衝第一個','橙':'你的溫暖是自然散發的，不用刻意就能讓人放下防備。但你容易把自己的能量全部給出去，忘記留一點給自己','黃':'你的腦袋轉得比誰都快，點子源源不絕。但你最大的敵人是無聊，找不到刺激的時候你會自己製造混亂','綠':'你是天生的平衡者，任何失衡的場域你走進去就會變好。但你的和諧是不是建立在壓抑自己的不和諧之上？','藍':'你的沉靜是一種力量，你不說話的時候比說話更有份量。但太安靜會讓身邊的人不知道你在想什麼','靛':'你看見別人看不見的東西，你的直覺是你最大的天賦。但你要學會分辨哪些是直覺，哪些是恐懼','紫':'你天生帶有靈性和藝術感，你的存在本身就是一種啟發。但你容易活在自己的世界裡，忘記腳下的地面','粉紅':'你的柔軟是你的武器，你能看見每個人最脆弱的地方。但照顧別人之前，先確認你自己站穩了','白':'你追求純粹和完整，你的高標準讓你與眾不同。但完美主義有時候是恐懼的另一個名字','金':'你有王者的氣質，你的存在自帶光環。但你要學會讓光照到別人身上，而不是只照亮自己'};
+    var mcColor=clr.mc.n.replace(/色/,'');
     h+='<div class="item"><b>生命色：</b>'+clr.mc.n+'（'+clr.ln+'）';
     h+='<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:'+clr.mc.h+';margin-left:6px;vertical-align:middle"></span></div>';
     if(clr.ic)h+='<div class="item"><b>日色（內在）：</b>'+clr.ic.n+'</div>';
     if(clr.ec)h+='<div class="item"><b>月色（表達）：</b>'+clr.ec.n+'</div>';
     h+='<div class="item"><b>脈輪：</b>'+clr.mc.ck+'</div>';
     h+='<div class="item"><b>推薦精油：</b>'+clr.mc.ar+'</div>';
+    if(CLR_INSIGHT[mcColor]) h+='<div class="item" style="margin-top:6px;padding:10px;background:rgba(248,223,165,.06);border-radius:10px;border-left:3px solid '+clr.mc.h+'"><b style="color:'+clr.mc.h+'">✦ 生命色洞察</b><br>'+CLR_INSIGHT[mcColor]+'</div>';
+    if(clr.ic&&clr.ec&&clr.ic.n!==clr.ec.n) h+='<div class="item" style="font-size:.82rem;color:var(--inkm);margin-top:4px">日色（'+clr.ic.n+'）與月色（'+clr.ec.n+'）不同，代表你的內在感受和外在表達之間有落差。這不是偽裝，是你的豐富度。</div>';
     return h;
   }
   function clr_ai(d,pn){
@@ -3044,8 +3057,12 @@ function renderMatch(a,b){
     var mc=clr.mc;
     var t='【'+pn+'·生日色彩能量】\n';
     t+='主色：'+mc.n+'（'+mc.h+'）\n';
+    if(clr.ic)t+='日色（內在）：'+clr.ic.n+'\n';
+    if(clr.ec)t+='月色（表達）：'+clr.ec.n+'\n';
     t+='脈輪：'+mc.ck+'\n';
-    t+='精油：'+mc.ar+'\n\n';
+    t+='精油：'+mc.ar+'\n';
+    if(clr.ic&&clr.ec&&clr.ic.n!==clr.ec.n) t+='內外色差：日色與月色不同，表裡有豐富的層次感\n';
+    t+='\n';
     return t;
   }
   var clrA=clr_ai(a,nameA),clrB=clr_ai(b,nameB);
@@ -3063,16 +3080,27 @@ function renderMatch(a,b){
   function cl_html(d){
     if(!d.cl)return'<div class="item">需要星曆</div>';
     var cl=d.cl,h='';
-    if(cl.ch)h+='<div class="item"><b>凱龍 ⚷：</b>'+cl.ch.sign+' '+cl.ch.deg+'°'+cl.ch.min+"'<br><span style='font-size:.78rem;color:var(--inkm)'>"+cl.ch.interp+'</span></div>';
-    if(cl.li)h+='<div class="item"><b>莉莉絲 ⚸：</b>'+cl.li.sign+' '+cl.li.deg+'°'+cl.li.min+"'<br><span style='font-size:.78rem;color:var(--inkm)'>"+cl.li.interp+'</span></div>';
+    var CH_LOVE={'牡羊':'你怕自己不夠強，所以在感情裡永遠要當那個撐住一切的人。但你有沒有讓對方看過你軟弱的樣子？','金牛':'你怕自己不值得，所以拼命證明自己的價值。但愛你的人，不是因為你「有用」','雙子':'你怕自己的話沒人聽，所以要嘛說太多要嘛不說。找到一個真正在聽的人，你會鬆一口氣','巨蟹':'你怕「家」不安全，所以你要嘛過度保護要嘛不敢建立連結。你的安全感不用別人給，但可以一起創造','獅子':'你怕自己不夠被看見，所以你的愛裡藏著「你有沒有在看我」。其實你不用表演，存在本身就值得被愛','處女':'你怕自己不夠完美，所以你永遠在修正自己。但有些人愛的就是你那些「不完美」的部分','天秤':'你怕關係不平衡，所以你不斷在調整、在退讓。但真正的平衡不是五五分，是你們都覺得舒服','天蠍':'你怕被背叛、被控制，所以你在感情裡要嘛全給要嘛全收。學習灰色地帶是你的功課','射手':'你怕失去方向和自由，所以你在親密關係裡總留一個出口。但有些人值得你把門關上','摩羯':'你怕不被認可，所以你用成就來換取愛。但你值得被愛，不是因為你做了什麼，是因為你是誰','水瓶':'你怕自己不夠特別，所以你用疏離來保護獨特感。但親密不會讓你變平凡，反而讓你的獨特被真正看見','雙魚':'你怕失去自我、怕界線消融，所以你在拯救和逃離之間擺盪。你不用拯救任何人，包括自己'};
+    var LI_POWER={'牡羊':'你的野性力量在這裡：不需要許可就能行動。在感情中，這股力量讓你勇於追求想要的','金牛':'你的野性力量在這裡：對物質和感官的誠實渴望。你知道什麼讓你舒服，不用為此道歉','雙子':'你的野性力量在這裡：說出不被允許的話。你的真話有穿透力，敢說的時候最有魅力','巨蟹':'你的野性力量在這裡：情感的深度。你的愛不是溫吞的，是深海般的濃烈，你敢承認的時候最強大','獅子':'你的野性力量在這裡：不怕被看見。你的自信不是演出來的，是你骨子裡的光','處女':'你的野性力量在這裡：精準的洞察力。你看見別人看不到的細節，這是天賦不是挑剔','天秤':'你的野性力量在這裡：拒絕的能力。當你終於說「不」的時候，全世界都會重新認識你','天蠍':'你的野性力量在這裡：徹底的轉化。你能從灰燼中重生，這不是傷痛，是你最強的超能力','射手':'你的野性力量在這裡：打破框架。規則是別人定的，你天生就知道規則之外還有什麼','摩羯':'你的野性力量在這裡：不妥協的堅定。你的固執不是缺點，是你走到最後的原因','水瓶':'你的野性力量在這裡：顛覆。你看見系統的漏洞，然後用自己的方式重建','雙魚':'你的野性力量在這裡：無邊界的愛。你的柔軟不是軟弱，是能包容一切的力量'};
+    if(cl.ch){
+      h+='<div class="item"><b>凱龍 ⚷：</b>'+cl.ch.sign+' '+cl.ch.deg+'°'+cl.ch.min+"'<br><span style='font-size:.78rem;color:var(--inkm)'>"+cl.ch.interp+'</span></div>';
+      if(CH_LOVE[cl.ch.sign]) h+='<div class="item" style="padding:8px 10px;background:rgba(160,124,220,.08);border-radius:8px;border-left:3px solid var(--plum)"><b style="color:var(--plum)">凱龍在感情中：</b><br>'+CH_LOVE[cl.ch.sign]+'</div>';
+    }
+    if(cl.li){
+      h+='<div class="item"><b>莉莉絲 ⚸：</b>'+cl.li.sign+' '+cl.li.deg+'°'+cl.li.min+"'<br><span style='font-size:.78rem;color:var(--inkm)'>"+cl.li.interp+'</span></div>';
+      if(LI_POWER[cl.li.sign]) h+='<div class="item" style="padding:8px 10px;background:rgba(212,133,122,.08);border-radius:8px;border-left:3px solid var(--rose)"><b style="color:var(--rose)">莉莉絲的野性力量：</b><br>'+LI_POWER[cl.li.sign]+'</div>';
+    }
     return h;
   }
   function cl_ai(d,pn){
     if(!d.cl)return'【'+pn+'·凱龍莉莉絲】需要星曆\n';
     var cl=d.cl;
+    var CH_LOVE_AI={'牡羊':'怕不夠強，感情中永遠撐住一切','金牛':'怕不值得，拼命證明價值','雙子':'怕話沒人聽，要嘛說太多要嘛不說','巨蟹':'怕家不安全，過度保護或不敢連結','獅子':'怕不被看見，愛裡藏著被注意的渴望','處女':'怕不夠完美，永遠在修正自己','天秤':'怕關係不平衡，不斷調整退讓','天蠍':'怕被背叛控制，全給或全收','射手':'怕失去自由，親密中總留出口','摩羯':'怕不被認可，用成就換取愛','水瓶':'怕不夠特別，用疏離保護獨特感','雙魚':'怕失去自我，在拯救和逃離間擺盪'};
     var t='【'+pn+'·凱龍星與黑月莉莉絲】\n';
     t+='凱龍星：'+(cl.ch?cl.ch.sign+cl.ch.deg+'°':'需星曆')+'\n';
-    t+='黑月莉莉絲：'+(cl.li?cl.li.sign+cl.li.deg+'°':'需星曆')+'\n\n';
+    if(cl.ch&&CH_LOVE_AI[cl.ch.sign]) t+='凱龍感情模式：'+CH_LOVE_AI[cl.ch.sign]+'\n';
+    t+='黑月莉莉絲：'+(cl.li?cl.li.sign+cl.li.deg+'°':'需星曆')+'\n';
+    t+='\n';
     return t;
   }
   var clxA=cl_ai(a,nameA),clxB=cl_ai(b,nameB);
@@ -3161,12 +3189,16 @@ function renderMatch(a,b){
   function kb_html(d){
     if(!d.kb)return'<div class="item">需要輸入威妥瑪拼音英文名</div>';
     var kb=d.kb,h='';
+    var KB_LP_LOVE={'1':'感情中你是開創者，你主導節奏也承受壓力。你需要一個不怕你強的人','2':'感情中你是天生的夥伴，但太習慣配合會忘記自己要什麼','3':'感情中你帶來歡笑和創意，但深層的情感你不太敢碰','4':'感情中你是穩定的基石，但你的規矩有時讓對方喘不過氣','5':'感情中你渴望自由和變化，安定對你來說是一種挑戰','6':'感情中你是照顧者，但你有沒有讓對方也照顧你？','7':'感情中你需要深度和獨處空間，淺薄的互動讓你窒息','8':'感情中你掌控力強，但愛不是一筆生意，不用計算投報率','9':'感情中你胸懷寬廣，但你的大愛有時讓最親近的人覺得被忽略','11':'感情中你的敏銳讓你能感知對方沒說出口的需求，但這也讓你容易被消耗','22':'感情中你把關係當成一個要建設的工程，但愛需要的不只是建設，還有柔軟','33':'感情中你是天生的守護者，但你要先學會守護自己'};
+    var lps=String(kb.lp);
     h+='<div class="item"><b>英文名：</b>'+kb.name+'</div>';
     h+='<div class="item"><b>生命路徑：</b>'+kb.lp+'（'+(KB_SEPH[kbNTS(kb.lp)]||'')+'）</div>';
     h+='<div class="item"><b>表達數：</b>'+kb.expr+'（'+(KB_SEPH[kbNTS(kb.expr)]||'')+'）</div>';
     h+='<div class="item"><b>內在渴望：</b>'+kb.soul+'（'+(KB_SEPH[kbNTS(kb.soul)]||'')+'）</div>';
     h+='<div class="item"><b>人格面具：</b>'+kb.pers+'（'+(KB_SEPH[kbNTS(kb.pers)]||'')+'）</div>';
     h+='<div class="item"><b>使命數：</b>'+kb.mission+'</div>';
+    if(KB_LP_LOVE[lps]) h+='<div class="item" style="margin-top:6px;padding:10px;background:rgba(248,223,165,.06);border-radius:10px;border-left:3px solid var(--gd)"><b style="color:var(--gd)">✦ 生命路徑與感情：</b><br>'+KB_LP_LOVE[lps]+'</div>';
+    if(kb.soul!==kb.pers) h+='<div class="item" style="font-size:.82rem;color:var(--inkm);margin-top:4px">內在渴望（'+kb.soul+'）與人格面具（'+kb.pers+'）不同，代表你心裡想要的跟別人看到的你不一樣。這個落差就是你在關係中最容易被誤解的地方。</div>';
     return h;
   }
   function kb_ai(d,pn){
@@ -3176,7 +3208,9 @@ function renderMatch(a,b){
     t+='英文名：'+kb.name+'\n';
     t+='生命路徑：'+kb.lp+' | 表達數：'+kb.expr+'\n';
     t+='內在渴望：'+kb.soul+' | 人格面具：'+kb.pers+'\n';
-    t+='使命數：'+kb.mission+'\n\n';
+    t+='使命數：'+kb.mission+'\n';
+    if(kb.soul!==kb.pers) t+='內外落差：渴望數與面具數不同，心裡想要的跟別人看到的不一樣\n';
+    t+='\n';
     return t;
   }
   var kbA=kb_ai(a,nameA),kbB=kb_ai(b,nameB);
@@ -3557,8 +3591,13 @@ function renderMatch(a,b){
     h+='<div class="rs"><b>上半年體質提示：</b>'+(WY_TRAIT[w.siTian]||'')+'</div>';
     h+='<div class="rs"><b>在泉（下半年）：</b>'+w.zaiQuan+'</div>';
     h+='<div class="rs"><b>下半年體質提示：</b>'+(WY_TRAIT[w.zaiQuan]||'')+'</div></div>';
+    var WY_LOVE={'木':'感情中充滿理想和創意，但情緒波動讓對方有時接不住你的起伏。你需要一個能跟上你節奏又拉得住你的人','火':'感情中熱情主動，帶動力十足，但燃燒太快容易倦怠。你需要一個不會被你的火焰嚇到的人','土':'感情中是穩穩的安全基地，但太沉穩有時讓對方覺得無趣。你的踏實是寶，但偶爾也要來點驚喜','金':'感情中要求高、標準嚴，你的精準讓人折服也讓人壓力山大。學習接受「差不多」有時比完美更幸福','水':'感情中直覺準到可怕，你總是先感覺到問題。但預知了問題不代表要獨自扛，讓對方一起面對'};
+    var WY_STRESS={'木':'壓力來時肝氣橫逆，表現為頭痛、易怒、肋間脹悶。建議用薰衣草嗅聞 + 側身伸展，疏通肝經','火':'壓力來時心火上炎，表現為失眠、口乾、心悸。建議用玫瑰純露飲 + 掌心對搓覆眼，降心火','土':'壓力來時脾胃受困，表現為食慾不振、腹脹、思慮過重。建議用甜橙擴香 + 順時針揉腹','金':'壓力來時肺氣收斂過度，表現為呼吸淺、皮膚乾、莫名想哭。建議用尤加利蒸氣吸入 + 深呼吸','水':'壓力來時腎氣凝滯，表現為腰痠、膝軟、恐懼感加重。建議用杜松泡腳 + 搓熱湧泉穴'};
+    h+='<div class="palace"><div class="pt">感情與壓力</div>';
+    h+='<div class="rs"><b>💕 感情體質：</b>'+(WY_LOVE[w.yunWx]||'')+'</div>';
+    h+='<div class="rs"><b>⚡ 壓力反應：</b>'+(WY_STRESS[w.yunWx]||'')+'</div></div>';
     h+='<div class="item" style="margin-top:8px;padding:10px;background:rgba(248,223,165,.06);border-radius:10px;border-left:3px solid var(--gd)">';
-    h+='<b style="color:var(--gd)">✦ 體質底圖</b><br>'+w.yunWx+'運'+w.nat+'是這個出生年份的「共同體質底色」，'+w.siTian+'司天主導上半年的氣候與生理節奏</div>';
+    h+='<b style="color:var(--gd)">✦ 體質底圖</b><br>'+w.yunWx+'運'+w.nat+'是這個出生年份的「共同體質底色」，'+w.siTian+'司天主導上半年的氣候與生理節奏。兩人體質底色是互補還是同質，決定了共處時的身體共振頻率。</div>';
     return h;
   }
   function wy_ai(d,pn){
@@ -3567,10 +3606,14 @@ function renderMatch(a,b){
     var WY_OIL={'木':'薰衣草、佛手柑（疏肝理氣）','火':'玫瑰、乳香（清心安神）','土':'甜橙、生薑（健脾化濕）','金':'尤加利、茶樹（宣肺化痰）','水':'杜松、雪松（溫腎利水）'};
     var WY_CHAR={'木':'思維靈活充滿創意，喜突破規則，但容易衝動情緒起伏','火':'熱情外向感染力強，但容易過度亢奮精力燃盡','土':'踏實穩重包容性高，但容易想太多行動偏慢','金':'精準理性高標準，但容易過度批判難以放鬆','水':'直覺敏銳深度思考，但容易過度謹慎錯失機會'};
     var WY_TRAIT={'厥陰風木':'注意頭暈、筋攣、過敏反應','少陰君火':'注意心悸、口瘡、失眠','少陽相火':'注意咽痛、目赤、煩躁','太陰濕土':'注意腹脹、倦怠、水腫','陽明燥金':'注意乾咳、皮膚乾、便秘','太陽寒水':'注意腰痛、關節僵、畏冷'};
+    var WY_LOVE2={'木':'感情中充滿理想但情緒波動大','火':'感情中熱情帶動但燃燒太快容易倦怠','土':'感情中穩如基地但太沉穩有時無趣','金':'感情中要求高標準嚴讓人壓力山大','水':'感情中直覺準到可怕但容易獨自扛'};
+    var WY_STRESS2={'木':'壓力時肝氣橫逆易怒頭痛','火':'壓力時心火上炎失眠心悸','土':'壓力時脾胃受困食慾不振思慮重','金':'壓力時肺氣收斂呼吸淺莫名想哭','水':'壓力時腎氣凝滯腰痠恐懼感加重'};
     var t='【'+pn+'·五運六氣】\n';
     t+='出生年：'+w.ganZhi+'年\n';
     t+='主運：'+w.yunWx+'行（'+w.nat+'）　對應臟腑：'+(WY_ORGAN[w.yunWx]||'')+'\n';
     t+='人格底色：'+(WY_CHAR[w.yunWx]||'')+'\n';
+    t+='感情體質：'+(WY_LOVE2[w.yunWx]||'')+'\n';
+    t+='壓力反應：'+(WY_STRESS2[w.yunWx]||'')+'\n';
     t+='精油建議：'+(WY_OIL[w.yunWx]||'')+'\n';
     t+='司天（上半年）：'+w.siTian+'　'+(WY_TRAIT[w.siTian]||'')+'\n';
     t+='在泉（下半年）：'+w.zaiQuan+'　'+(WY_TRAIT[w.zaiQuan]||'')+'\n\n';
@@ -3580,7 +3623,11 @@ function renderMatch(a,b){
   var _rcWY=relCat(rel);
   var wyC='【五運六氣合盤·'+nameA+'×'+nameB+'】\n'+wyA+'\n'+wyB;
   wyC+='\n【合盤分析重點】\n甲方：'+a.wuyun.yunWx+'運'+a.wuyun.nat+'，司天：'+a.wuyun.siTian+'\n乙方：'+b.wuyun.yunWx+'運'+b.wuyun.nat+'，司天：'+b.wuyun.siTian+'\n';
-  wyC+='兩人出生年的五運五行生剋關係？司天六氣是否同向？體質底色是互補還是相剋？\n馥靈之鑰 hourlightkey.com\n';
+  wyC+='兩人五運五行生剋？→ 體質底色是互補還是相剋\n';
+  wyC+='司天六氣是否同向？→ 季節敏感度是否同步\n';
+  wyC+='感情體質是否互補？→ 一個燃燒型一個沉穩型怎麼配合\n';
+  wyC+='壓力反應模式是否相容？→ 一個壓力時暴怒一個壓力時沉默會怎樣\n';
+  wyC+='\n【關係視角：'+REL_OPENER[_rcWY]+'】\n馥靈之鑰 hourlightkey.com\n';
   var hWYm=mkDual(nameA,wy_html(a),nameB,wy_html(b));
   hWYm+=mkPre('wy_a',wyA);hWYm+=mkPre('wy_b',wyB);
   hWYm+='<div class="ai-box"><h4>📜 合盤資料</h4><pre id="wy_c">'+escHtml(wyC)+'</pre></div>';
@@ -3652,11 +3699,22 @@ function renderMatch(a,b){
     h+='<div class="rs"><b>先天數 '+e.xt+'：</b>你的「出廠設定」，天生帶來的底牌能量</div>';
     h+='<div class="rs"><b>後天數 '+e.ht+'：</b>你的「升級路徑」，後天修煉的成長方向</div>';
     h+='<div class="rs"><b>本命卦 '+e.gua+'：</b>'+(GUA9_TRAIT[guaIdx]||'')+'</div></div>';
+    var GUA9_SHADOW=['思慮太深容易困在自己的迷宮裡，需要有人把你拉出水面','承擔太多到忘記自己也會累，你不說，不代表你不需要','衝太快來不及回頭看，你的速度有時讓身邊的人跟不上','太會變通到別人不知道你的底線在哪，靈活是優勢但不是沒有原則','協調到最後所有人都滿意只有你自己不滿意','太過強勢會讓人想逃，你的果斷需要配一點柔軟','太會說好聽的話反而讓人分不清哪句是真心','沉穩到讓人以為你不在乎，你的慢熱需要對方有耐心等','你的光芒需要舞台，但沒有觀眾的時候你能不能還是你自己'];
+    var GUA9_STRESS=['壓力來時會退縮到內心深處，外表看不出來但已經快撐不住','壓力來時會加倍付出來換取安全感，越累越做、越做越累','壓力來時會更衝更快，用行動麻痺焦慮','壓力來時會逃避或轉移注意力，用忙碌假裝沒事','壓力來時會試圖調解所有人的問題，除了自己的','壓力來時會更嚴格地控制一切，讓人覺得你更難靠近','壓力來時會用話語掩飾，笑著說沒事但心裡很有事','壓力來時會把自己關起來，需要一個人消化完才能面對','壓力來時會更需要被認可，一旦得不到回應就開始懷疑自己'];
     h+='<div class="palace"><div class="pt">事業與感情</div>';
     h+='<div class="rs"><b>💼 事業方向：</b>'+(GUA9_CAREER[guaIdx]||'')+'</div>';
     h+='<div class="rs"><b>💕 感情能量：</b>'+(GUA9_LOVE[guaIdx]||'')+'</div></div>';
+    h+='<div class="palace"><div class="pt">陰影面與壓力模式</div>';
+    h+='<div class="rs"><b>容易踩的坑：</b>'+(GUA9_SHADOW[guaIdx]||'')+'</div>';
+    h+='<div class="rs"><b>壓力反應：</b>'+(GUA9_STRESS[guaIdx]||'')+'</div></div>';
+    h+='<div class="palace"><div class="pt">先天數與後天數的距離</div>';
+    var xtht=Math.abs(e.xt-e.ht);
+    if(xtht<=1) h+='<div class="rs">先天數與後天數極為接近，代表你的天賦跟後天發展方向一致。你不太需要「找自己」，你的課題是「把自己做到極致」。</div>';
+    else if(xtht<=3) h+='<div class="rs">先天數與後天數有適度差距，代表你有成長空間但不至於迷失。你的天賦是底牌，後天的努力會幫你打出更好的牌。</div>';
+    else h+='<div class="rs">先天數與後天數差距較大，代表你的天生配置跟人生要走的路有明顯落差。這不是缺陷，是你來這一趟要學的功課比較多。</div>';
+    h+='</div>';
     h+='<div class="item" style="margin-top:8px;padding:10px;background:rgba(248,223,165,.06);border-radius:10px;border-left:3px solid var(--gd)">';
-    h+='<b style="color:var(--gd)">✦ 合盤重點</b><br>兩人本命卦的五行生剋決定基礎相處節奏。先天數的差值反映天賦互補的程度</div>';
+    h+='<b style="color:var(--gd)">✦ 合盤重點</b><br>兩人本命卦的五行生剋決定基礎相處節奏。先天數的差值反映天賦互補的程度，壓力反應模式是否能互相接住是長期相處的關鍵。</div>';
     return h;
   }
   function hl2_ai(d,pn){
@@ -3665,18 +3723,27 @@ function renderMatch(a,b){
     var GUA9_TRAIT=['智謀深沉，善策略佈局','厚德包容，默默承擔','奮發進取，行動力強','靈活柔順，適應力極強','居中協調，四方通達','公正果斷，領導氣場強','和悅溝通，化解對立','沉靜積累，厚積薄發','才華洋溢，表達力強'];
     var GUA9_CAREER=['研究、哲學、幕後策略','行政、土地、服務業','業務、開創、行動型','貿易、外交、多工','中間人、協調者','領導、法律、金融','外交、諮詢、協調','學術、藝術、不動產','創意、演藝、行銷'];
     var guaIdx=GUA9_NAME.indexOf(e.gua)>=0?GUA9_NAME.indexOf(e.gua):4;
+    var GUA9_SHADOW2=['思慮太深容易困在迷宮','承擔太多忘記自己也累','衝太快讓人跟不上','太變通讓人找不到底線','所有人滿意只有自己不滿意','太強勢讓人想逃','好聽話太多分不清真心','慢熱到讓人以為不在乎','沒有舞台就失去自己'];
+    var GUA9_STRESS2=['壓力時退縮到內心深處外表看不出','壓力時加倍付出換安全感','壓力時更衝更快用行動麻痺焦慮','壓力時逃避轉移用忙碌假裝沒事','壓力時調解所有人問題除了自己的','壓力時更嚴格控制一切','壓力時用話語掩飾笑著說沒事','壓力時把自己關起來需要獨自消化','壓力時更需要被認可得不到就懷疑自己'];
     var t='【'+pn+'·河洛理數】\n';
     t+='先天數：'+e.xt+'（天生底牌能量）\n';
     t+='後天數：'+e.ht+'（後天成長方向）\n';
     t+='本命卦：'+e.gua+'（'+(GUA9_TRAIT[guaIdx]||'')+'）\n';
-    t+='事業方向：'+(GUA9_CAREER[guaIdx]||'')+'\n\n';
+    t+='事業方向：'+(GUA9_CAREER[guaIdx]||'')+'\n';
+    t+='陰影面：'+(GUA9_SHADOW2[guaIdx]||'')+'\n';
+    t+='壓力反應：'+(GUA9_STRESS2[guaIdx]||'')+'\n';
+    t+='先後天差距：'+Math.abs(e.xt-e.ht)+'\n\n';
     return t;
   }
   var hlA2=hl2_ai(a,nameA),hlB2=hl2_ai(b,nameB);
   var _rcHL=relCat(rel);
   var hlC2='【河洛理數合盤·'+nameA+'×'+nameB+'】\n'+hlA2+'\n'+hlB2;
   hlC2+='\n【合盤分析重點】\n甲本命卦：'+a.helo.gua+' 先天'+a.helo.xt+'/後天'+a.helo.ht+'　乙本命卦：'+b.helo.gua+' 先天'+b.helo.xt+'/後天'+b.helo.ht+'\n';
-  hlC2+='兩人本命卦的五行是否相生？先天數相加是否有特殊能量？後天數的差異代表什麼？\n馥靈之鑰 hourlightkey.com\n';
+  hlC2+='兩人本命卦五行是否相生？→ 基礎相處節奏\n';
+  hlC2+='先天數差距代表天賦互補的幅度，後天數差距代表成長方向是否同步\n';
+  hlC2+='壓力反應模式是否互相接住？一個退縮一個逼近會怎樣？\n';
+  hlC2+='陰影面是否互相觸發？兩人最容易踩到彼此哪個地雷？\n';
+  hlC2+='\n【關係視角：'+REL_OPENER[_rcHL]+'】\n馥靈之鑰 hourlightkey.com\n';
   var hHLm=mkDual(nameA,hl2_html(a),nameB,hl2_html(b));
   hHLm+=mkPre('hl2_a',hlA2);hHLm+=mkPre('hl2_b',hlB2);
   hHLm+='<div class="ai-box"><h4>📜 合盤資料</h4><pre id="hl_c">'+escHtml(hlC2)+'</pre></div>';
@@ -3702,11 +3769,26 @@ function renderMatch(a,b){
     h+='<div class="rs"><b>上卦 '+y.up+'：</b>'+(GUA8_TRAIT[y.up]||'')+'（外在表現）</div>';
     h+='<div class="rs"><b>下卦 '+y.lo+'：</b>'+(GUA8_TRAIT[y.lo]||'')+'（內在動機）</div>';
     h+='<div class="rs"><b>動爻第'+y.dong+'爻：</b>此生最關鍵的轉化力量在第'+y.dong+'爻，代表你改變命運的槓桿點</div></div>';
+    var GUA8_SHADOW={'坤':'過度承擔別人的重量，忘記自己也需要被撐住','震':'衝動行事容易傷人傷己，安靜下來反而找到力量','坎':'太習慣在險中求生，忘記岸上的安穩也是一種選擇','兌':'用愉悅的面具掩蓋真實情緒，說的開心不代表真的開心','艮':'停滯太久會變成逃避，靜止是為了看清，不是為了不動','離':'太需要被看見，一旦失去舞台就失去自己','巽':'過度配合到失去立場，柔軟不代表沒有脊椎','乾':'過度剛強會折斷，你不用永遠都是最強的那個人'};
+    var GUA8_LOVE={'坤':'感情中你是那個默默承接一切的人，但你有沒有問過自己想要什麼？','震':'感情中你習慣主動出擊，但對方需要的可能是你慢下來聽他說話','坎':'感情中你總能在困境中找到出路，但你有沒有讓對方一起走？','兌':'感情中你讓人如沐春風，但你的真心話有沒有說出口？','艮':'感情中你沉穩可靠，但你的沉默有時讓對方猜不透你在想什麼','離':'感情中你光芒萬丈，但對方需要的可能不是仰望你，而是跟你並肩','巽':'感情中你溫柔體貼，但過度退讓會讓對方不知道你的底線在哪','乾':'感情中你習慣主導一切，但愛不是贏，是願意輸給對的人'};
+    var DONG_INSIGHT=['','第一爻動：根基在動，此生最大的改變從最基礎的生活習慣開始','第二爻動：人際在動，你的轉捩點藏在某段重要關係裡','第三爻動：轉折在動，你的人生會經歷一次明顯的方向轉換','第四爻動：情感在動，你的突破口在於處理內心深處的感受','第五爻動：事業在動，你的天花板可以被一個關鍵決策打破','第六爻動：格局在動，你的人生課題是跳出現有框架看更大的圖'];
+    h+='<div class="palace"><div class="pt">卦象深層洞察</div>';
+    h+='<div class="rs"><b>內外落差：</b>上卦（'+y.up+'・'+upWx+'）是你讓別人看到的樣子，下卦（'+y.lo+'・'+loWx+'）是你獨處時的真實狀態。';
+    if(upWx!==loWx) h+='兩者五行不同，代表你的表裡有落差，這不是虛偽，是你的複雜度。';
+    else h+='內外同行，你是少數表裡如一的人，但也意味著你沒有緩衝空間。';
+    h+='</div>';
+    h+='<div class="rs"><b>上卦陰影面：</b>'+(GUA8_SHADOW[y.up]||'')+'</div>';
+    h+='<div class="rs"><b>下卦陰影面：</b>'+(GUA8_SHADOW[y.lo]||'')+'</div>';
+    h+='<div class="rs"><b>感情模式：</b>'+(GUA8_LOVE[y.up]||'')+'</div></div>';
+    h+='<div class="palace"><div class="pt">動爻與人生槓桿</div>';
+    h+='<div class="rs"><b>'+DONG_INSIGHT[y.dong]+'</b></div>';
+    h+='<div class="rs">動爻是你此生最關鍵的「翻轉開關」。第'+y.dong+'爻動，代表你在這個位置上有最大的改變潛力，也是你最容易卡住的地方。卡住不是壞事，是宇宙在提醒你：這裡值得你多花時間。</div></div>';
     h+='<div class="palace"><div class="pt">精油與能量</div>';
     h+='<div class="rs"><b>上卦精油：</b>'+(GUA8_OIL[y.up]||'')+'</div>';
-    h+='<div class="rs"><b>下卦精油：</b>'+(GUA8_OIL[y.lo]||'')+'</div></div>';
+    h+='<div class="rs"><b>下卦精油：</b>'+(GUA8_OIL[y.lo]||'')+'</div>';
+    h+='<div class="rs"><b>使用建議：</b>上卦精油用於外在場合前嗅聞，幫助你展現最好的對外狀態；下卦精油用於睡前或獨處時，安撫你的內在核心</div></div>';
     h+='<div class="item" style="margin-top:8px;padding:10px;background:rgba(248,223,165,.06);border-radius:10px;border-left:3px solid var(--gd)">';
-    h+='<b style="color:var(--gd)">✦ 合盤五行</b><br>甲的上卦五行（'+upWx+'）與乙的上卦五行的生剋，決定兩人外在表現是否相容；下卦五行的生剋決定內在動機是否共鳴</div>';
+    h+='<b style="color:var(--gd)">✦ 合盤五行</b><br>甲的上卦五行（'+upWx+'）與乙的上卦五行的生剋，決定兩人外在表現是否相容；下卦五行的生剋決定內在動機是否共鳴。動爻方向如果指向同一區域，代表兩人會在同一個人生議題上共振。</div>';
     return h;
   }
   function yj_ai(d,pn){
@@ -3715,19 +3797,34 @@ function renderMatch(a,b){
     var GUA8_TRAIT={'坤':'厚德載物包容承擔','震':'雷動萬物奮發進取','坎':'險中求通靈活穿透','兌':'柔和通達善於溝通','艮':'沉穩積累厚積薄發','離':'才華光明表達力強','巽':'靈活漸進見縫插針','乾':'剛健自強主動開創'};
     var YICI_SHORT={'乾為天':'天行健，主動出擊','坤為地':'厚德載物以柔克剛'};
     var upWx=GUA8_WX[y.up]||'', loWx=GUA8_WX[y.lo]||'';
+    var GUA8_SHADOW={'坤':'過度承擔到忘記自己','震':'衝動行事容易傷人','坎':'習慣險中求生忘記岸上安穩','兌':'用愉悅面具掩蓋真實','艮':'停滯太久變成逃避','離':'太需要被看見失去自己','巽':'過度配合失去立場','乾':'過度剛強容易折斷'};
+    var GUA8_LOVE2={'坤':'默默承接一切但忘記問自己想要什麼','震':'習慣主動出擊但需要學會慢下來','坎':'困境中找出路但要讓對方一起走','兌':'讓人如沐春風但真心話有沒有說','艮':'沉穩可靠但沉默讓人猜不透','離':'光芒萬丈但對方需要並肩不是仰望','巽':'溫柔體貼但過度退讓模糊底線','乾':'習慣主導一切但愛不是贏'};
+    var DONG_INSIGHT2=['','根基動：改變從最基礎的生活習慣開始','人際動：轉捩點藏在某段重要關係裡','轉折動：人生會經歷明顯的方向轉換','情感動：突破口在處理內心深處的感受','事業動：天花板可被一個關鍵決策打破','格局動：人生課題是跳出現有框架'];
     var t='【'+pn+'·易經生辰卦（梅花易數）】\n';
     t+='本卦：'+y.hex+'（上'+y.up+' 下'+y.lo+'）\n';
-    t+='上卦五行：'+upWx+'　下卦五行：'+loWx+'\n';
+    t+='上卦五行：'+upWx+'（外在表現）　下卦五行：'+loWx+'（內在動機）\n';
     t+='上卦特質：'+(GUA8_TRAIT[y.up]||'')+'\n';
     t+='下卦特質：'+(GUA8_TRAIT[y.lo]||'')+'\n';
-    t+='動爻：第'+y.dong+'爻（此生最關鍵的轉化槓桿點）\n\n';
+    t+='上卦陰影面：'+(GUA8_SHADOW[y.up]||'')+'\n';
+    t+='下卦陰影面：'+(GUA8_SHADOW[y.lo]||'')+'\n';
+    t+='感情模式：'+(GUA8_LOVE2[y.up]||'')+'\n';
+    t+='動爻：第'+y.dong+'爻（'+(DONG_INSIGHT2[y.dong]||'此生最關鍵的轉化槓桿點')+'）\n';
+    if(upWx!==loWx) t+='內外落差：表裡五行不同，人格有複雜度與緩衝空間\n';
+    else t+='內外一致：表裡同行，少數表裡如一的人，但缺少緩衝空間\n';
+    t+='\n';
     return t;
   }
   var yjA=yj_ai(a,nameA),yjB=yj_ai(b,nameB);
   var _rcYJ=relCat(rel);
   var yjC2='【易經合盤·'+nameA+'×'+nameB+'】\n'+yjA+'\n'+yjB;
-  yjC2+='\n【合盤分析重點】\n甲本卦：'+a.yijing.hex+'（上'+a.yijing.up+' 下'+a.yijing.lo+'）　乙本卦：'+b.yijing.hex+'（上'+b.yijing.up+' 下'+b.yijing.lo+'）\n';
-  yjC2+='兩人本卦的上卦五行生剋？下卦能量是否互補？動爻方向是否指向彼此？\n馥靈之鑰 hourlightkey.com\n';
+  yjC2+='\n【合盤分析重點】\n甲本卦：'+a.yijing.hex+'（上'+a.yijing.up+' 下'+a.yijing.lo+'）動爻第'+a.yijing.dong+'爻\n';
+  yjC2+='乙本卦：'+b.yijing.hex+'（上'+b.yijing.up+' 下'+b.yijing.lo+'）動爻第'+b.yijing.dong+'爻\n';
+  yjC2+='兩人上卦五行生剋？→ 外在互動是共鳴還是衝突\n';
+  yjC2+='兩人下卦五行生剋？→ 內在動機是否共振\n';
+  yjC2+='動爻是否落在同一層次？→ 人生課題是否重疊\n';
+  yjC2+='上卦相同 vs 下卦相同的意義？→ 表面投緣 vs 深層共鳴\n';
+  yjC2+='卦象整體能量：兩人的卦象是互補型（一陰一陽）還是同質型（能量共振）？\n';
+  yjC2+='\n【關係視角：'+REL_OPENER[_rcYJ]+'】\n馥靈之鑰 hourlightkey.com\n';
   var hYJm=mkDual(nameA,yj_html(a),nameB,yj_html(b));
   hYJm+=mkPre('yj_a',yjA);hYJm+=mkPre('yj_b',yjB);
   hYJm+='<div class="ai-box"><h4>📜 合盤資料</h4><pre id="yj_c">'+escHtml(yjC2)+'</pre></div>';
@@ -3751,29 +3848,44 @@ function renderMatch(a,b){
     h+='<div class="rs"><b>感情模式：</b>'+(STAR_LOVE[q.star]||'')+'</div></div>';
     h+='<div class="palace"><div class="pt">人盤 · 八門值使</div>';
     h+='<div class="rs"><b>'+q.door+'：</b>'+(DOOR_TRAIT[q.door]||'')+'</div></div>';
+    var STAR_SHADOW={'天蓬':'容易太過算計，讓人覺得你深不可測，不敢靠近','天芮':'太過保守會錯失時機，你的穩重有時是害怕改變的藉口','天沖':'衝太快不回頭，你的勇敢有時讓身邊的人來不及跟上','天輔':'太習慣輔助別人，忘記自己也可以當主角','天禽':'永遠在協調別人，到最後沒有人知道你自己想要什麼','天心':'決策太果斷會變得獨斷，你的公正有時讓人覺得冷','天柱':'口才太好反而讓人分不清你的真心跟場面話','天任':'承擔太多會壓垮自己，你的忠厚需要一個會心疼你的人','天英':'太需要舞台和掌聲，沒有聚光燈的日子你怎麼過？'};
+    var DOOR_LOVE={'休門':'需要在關係中保有獨處空間，不打擾是你表達愛的方式','死門':'感情中不輕易開口，一旦說出來都是深思熟慮的真心話','傷門':'感情中直來直往，不怕衝突但要注意殺傷力','杜門':'感情中容易封閉自己的感受，對方猜不透你在想什麼','中宮':'感情中扮演調和者，但你自己的需求常常被擱置','開門':'感情中主動積極，喜歡開創新的相處模式','驚門':'感情中善於製造驚喜，但有時對方需要的是穩定','生門':'感情中帶來生機和希望，你的陪伴讓人覺得日子有盼頭','景門':'感情中注重儀式感和表達，需要對方看見你的用心'};
     h+='<div class="palace"><div class="pt">神盤 · 三奇</div>';
     h+='<div class="rs"><b>'+q.sanqi+'：</b>'+(SANQI_DESC[q.sanqi]||q.sanqi+'·天時能量')+'</div>';
     h+='<div class="rs"><b>格局定位：</b>'+q.star+'×'+q.door+'×'+q.sanqi+'，是此人的天時戰略座標</div></div>';
+    h+='<div class="palace"><div class="pt">深層洞察</div>';
+    h+='<div class="rs"><b>九星陰影面：</b>'+(STAR_SHADOW[q.star]||'')+'</div>';
+    h+='<div class="rs"><b>八門感情模式：</b>'+(DOOR_LOVE[q.door]||'')+'</div>';
+    h+='<div class="rs"><b>戰略組合解讀：</b>'+q.star+'（天盤能力）配'+q.door+'（人盤行事），你的做事風格是先'+q.star.replace('天','')+'再'+q.door.replace('門','')+'。在關係中，這決定了你面對衝突時是先出招還是先觀察。</div></div>';
     h+='<div class="item" style="margin-top:8px;padding:10px;background:rgba(248,223,165,.06);border-radius:10px;border-left:3px solid var(--gd)">';
-    h+='<b style="color:var(--gd)">✦ 合盤視角</b><br>兩人值符星的五行生剋決定天時能量是否同頻；值使門的相合相剋決定行事風格是否配合</div>';
+    h+='<b style="color:var(--gd)">✦ 合盤視角</b><br>兩人值符星的五行生剋決定天時能量是否同頻；值使門的相合相剋決定行事風格是否配合；陰影面是否互相觸發是長期磨合的關鍵。</div>';
     return h;
   }
   function qm_ai(d,pn){
     var q=d.qimen;
     var STAR_TRAIT={'天蓬':'智謀深沉，善策略，能在混沌中找出路','天芮':'保守穩重，積累型','天沖':'果敢衝鋒，開創型','天輔':'溫和輔佐，貴人緣好','天禽':'居中調和，樞紐人物','天心':'公正果斷，決策力強','天柱':'口才犀利，善辯能言','天任':'堅韌忠厚，穩步前進','天英':'才華洋溢，需要舞台'};
     var DOOR_TRAIT={'休門':'養生休閒型','死門':'宜靜不宜動','傷門':'直接行動拆解問題','杜門':'封閉隱藏深思','中宮':'協調全局樞紐','開門':'開拓進取創新','驚門':'媒體公關善驚動','生門':'生機旺盛求財佳','景門':'文書展示被評估'};
+    var STAR_SHADOW2={'天蓬':'容易太算計讓人不敢靠近','天芮':'太保守會錯失時機','天沖':'衝太快讓人跟不上','天輔':'太習慣輔助忘記當主角','天禽':'永遠協調別人忘了自己','天心':'太果斷有時變獨斷','天柱':'口才太好讓人分不清真心','天任':'承擔太多壓垮自己','天英':'太需要舞台和掌聲'};
+    var DOOR_LOVE2={'休門':'需要獨處空間表達愛','死門':'不輕易開口但句句真心','傷門':'直來直往不怕衝突','杜門':'容易封閉感受讓人猜不透','中宮':'調和者但自己需求常被擱置','開門':'主動積極開創新相處模式','驚門':'善於製造驚喜但對方需要穩定','生門':'帶來生機和希望陪伴有盼頭','景門':'注重儀式感需要被看見用心'};
     var t='【'+pn+'·奇門遁甲】\n';
     t+='局數：第'+q.ju+'局\n';
     t+='值符（九星）：'+q.star+'（'+(STAR_TRAIT[q.star]||'')+'）\n';
     t+='值使（八門）：'+q.door+'（'+(DOOR_TRAIT[q.door]||'')+'）\n';
-    t+='三奇：'+q.sanqi+'\n\n';
+    t+='三奇：'+q.sanqi+'\n';
+    t+='九星陰影面：'+(STAR_SHADOW2[q.star]||'')+'\n';
+    t+='八門感情模式：'+(DOOR_LOVE2[q.door]||'')+'\n\n';
     return t;
   }
   var qmA=qm_ai(a,nameA),qmB=qm_ai(b,nameB);
   var _rcQM=relCat(rel);
   var qmC2='【奇門遁甲合盤·'+nameA+'×'+nameB+'】\n'+qmA+'\n'+qmB;
-  qmC2+='\n【合盤分析重點】\n甲值符：'+a.qimen.star+' 值使：'+a.qimen.door+'　乙值符：'+b.qimen.star+' 值使：'+b.qimen.door+'\n';
-  qmC2+='兩人值符星是否相合（天盤同氣）？值使門是否形成生扶格局？三奇組合如何影響合作運勢？\n馥靈之鑰 hourlightkey.com\n';
+  qmC2+='\n【合盤分析重點】\n甲值符：'+a.qimen.star+' 值使：'+a.qimen.door+' 三奇：'+a.qimen.sanqi+'\n';
+  qmC2+='乙值符：'+b.qimen.star+' 值使：'+b.qimen.door+' 三奇：'+b.qimen.sanqi+'\n';
+  qmC2+='兩人值符星是否相合（天盤同氣）？→ 天時能量同頻度\n';
+  qmC2+='值使門是否形成生扶格局？→ 行事風格配合度\n';
+  qmC2+='陰影面是否互相觸發？→ 兩人的弱點會不會剛好戳到對方的痛處\n';
+  qmC2+='感情模式（八門）是否互補？→ 一個需要空間一個需要陪伴怎麼辦？\n';
+  qmC2+='\n【關係視角：'+REL_OPENER[_rcQM]+'】\n馥靈之鑰 hourlightkey.com\n';
   var hQMm=mkDual(nameA,qm_html(a),nameB,qm_html(b));
   hQMm+=mkPre('qm_a',qmA);hQMm+=mkPre('qm_b',qmB);
   hQMm+='<div class="ai-box"><h4>📜 合盤資料</h4><pre id="qm_c">'+escHtml(qmC2)+'</pre></div>';
@@ -3954,12 +4066,17 @@ function renderMatch(a,b){
     h+='<div class="rs"><b>本命音：</b>'+w.yin+'音（'+w.wx+'行）</div>';
     h+='<div class="rs"><b>情緒特質：</b>'+WU_CHAR[wu5i]+'</div>';
     h+='<div class="rs"><b>感情能量：</b>'+WU_LOVE[wu5i]+'</div></div>';
+    var WU_SHADOW=['想太多到癱瘓行動力，你的周全計畫有時是不敢開始的藉口','同理心太強容易被別人的情緒淹沒，你需要學會分清哪些是你的感受哪些是別人的','正義感太強容易樹敵，你說的都對但方式讓人想逃','太開心太喜悅有時掩蓋了真正需要面對的事，笑著不代表沒有傷','直覺太準有時變成預言式焦慮，你看見了風險但也因此錯過了機會'];
+    var WU_REL_STYLE=['在關係中你是規劃者，凡事都想先想好再做。但對方可能只是想要你的一句「沒關係」','在關係中你是感受者，別人的喜怒哀樂你都接住了。但你有沒有問過自己：你的呢？','在關係中你是直球手，喜歡就說、不爽就講。但有些人需要你繞一圈再說','在關係中你是開心果，但你有沒有在對方面前哭過？讓他看見完整的你','在關係中你是先知型，你比對方先感覺到問題。但「我早就知道」不如「我們一起面對」'];
     h+='<div class="palace"><div class="pt">養生與精油</div>';
     h+='<div class="rs"><b>建議精油：</b>'+WU_OIL[wu5i]+'</div>';
     h+='<div class="rs"><b>食療方向：</b>'+WU_FOOD[wu5i]+'</div>';
     h+='<div class="rs"><b>聲音練習：</b>'+WU_SOUND[wu5i]+'</div></div>';
+    h+='<div class="palace"><div class="pt">陰影面與關係模式</div>';
+    h+='<div class="rs"><b>容易踩的坑：</b>'+WU_SHADOW[wu5i]+'</div>';
+    h+='<div class="rs"><b>關係互動風格：</b>'+WU_REL_STYLE[wu5i]+'</div></div>';
     h+='<div class="item" style="margin-top:8px;padding:10px;background:rgba(248,223,165,.06);border-radius:10px;border-left:3px solid var(--gd)">';
-    h+='<b style="color:var(--gd)">✦ 合盤共鳴</b><br>兩人五行的生剋關係決定聲音共鳴或相剋。五行相生（如木生火）代表天然支持；相剋（如金克木）代表需要有意識地調和</div>';
+    h+='<b style="color:var(--gd)">✦ 合盤共鳴</b><br>兩人五行的生剋關係決定聲音共鳴或相剋。五行相生（如木生火）代表天然支持；相剋（如金克木）代表需要有意識地調和。關係模式互補時如同和聲，同質時如同齊唱，各有美感。</div>';
     return h;
   }
   function wu_ai(d,pn){
@@ -3969,18 +4086,26 @@ function renderMatch(a,b){
     var WU_ZF=['脾胃','肺與大腸','肝膽','心與小腸','腎與膀胱'];
     var WU_OIL=['甜橙、檀香（健脾和中）','尤加利、茶樹（宣肺理氣）','薰衣草、佛手柑（疏肝解鬱）','玫瑰、乳香（清心安神）','杜松、雪松（溫腎固本）'];
     var WU_CHAR=['思慮細膩計畫周全，但容易想太多','悲憫深同理心強，情緒邊界容易模糊','情緒直接有正義感，壓力大容易爆發','喜悅感染力強，但能量容易分散','直覺敏銳謹慎，有時因恐懼錯失機會'];
+    var WU_SHADOW2=['想太多到癱瘓行動力','同理心太強被情緒淹沒','正義感太強容易樹敵','太喜悅掩蓋需要面對的事','直覺太準變成預言式焦慮'];
+    var WU_REL2=['關係中是規劃者凡事先想好','關係中是感受者接住所有人情緒','關係中是直球手喜歡不爽都直說','關係中是開心果但很少展現脆弱','關係中是先知型比對方先感覺到問題'];
     var t='【'+pn+'·五音五味】\n';
     t+='本命音：'+w.yin+'音（'+w.wx+'行）\n';
     t+='命味：'+WU_WEI[wu5i]+'　對應臟腑：'+WU_ZF[wu5i]+'\n';
     t+='精油：'+WU_OIL[wu5i]+'\n';
-    t+='情緒特質：'+WU_CHAR[wu5i]+'\n\n';
+    t+='情緒特質：'+WU_CHAR[wu5i]+'\n';
+    t+='陰影面：'+WU_SHADOW2[wu5i]+'\n';
+    t+='關係模式：'+WU_REL2[wu5i]+'\n\n';
     return t;
   }
   var wuA=wu_ai(a,nameA),wuB=wu_ai(b,nameB);
   var _rcWU=relCat(rel);
   var wuC2='【五音五味合盤·'+nameA+'×'+nameB+'】\n'+wuA+'\n'+wuB;
   wuC2+='\n【合盤分析重點】\n甲方：'+a.wuyin5.yin+'音（'+a.wuyin5.wx+'行）　乙方：'+b.wuyin5.yin+'音（'+b.wuyin5.wx+'行）\n';
-  wuC2+='兩人五行的生剋關係（'+a.wuyin5.wx+'×'+b.wuyin5.wx+'）？臟腑體質是否互補？聲音頻率是否共鳴？\n馥靈之鑰 hourlightkey.com\n';
+  wuC2+='兩人五行生剋（'+a.wuyin5.wx+'×'+b.wuyin5.wx+'）？→ 聲音共鳴或相剋\n';
+  wuC2+='臟腑體質是否互補？→ 生活節奏和健康習慣的搭配\n';
+  wuC2+='情緒特質互補還是同質？→ 一個直球一個迂迴怎麼溝通\n';
+  wuC2+='陰影面是否互相觸發？→ 兩人最容易吵架的模式\n';
+  wuC2+='\n【關係視角：'+REL_OPENER[_rcWU]+'】\n馥靈之鑰 hourlightkey.com\n';
   var hWUm=mkDual(nameA,wu_html(a),nameB,wu_html(b));
   hWUm+=mkPre('wu_a',wuA);hWUm+=mkPre('wu_b',wuB);
   hWUm+='<div class="ai-box"><h4>📜 合盤資料</h4><pre id="wu_c">'+escHtml(wuC2)+'</pre></div>';
