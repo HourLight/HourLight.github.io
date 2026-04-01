@@ -1077,9 +1077,6 @@ function throwBlocks() {
   isSettled = false;
   throwBtn.disabled = true;
 
-  // Determine result FIRST, then apply physics to match
-  const result = determineResult();
-
   // Hide previous result
   document.getElementById('result').classList.remove('show');
 
@@ -1117,7 +1114,7 @@ function throwBlocks() {
     (Math.random() - 0.5) * 12
   );
 
-  // After physics settles, force the final orientation to match result
+  // 等物理自然靜止後，讀取實際落地姿態判定結果
   let settleTimer = 0;
   const checkSettle = setInterval(function() {
     settleTimer += 100;
@@ -1132,15 +1129,15 @@ function throwBlocks() {
     if (settled) {
       clearInterval(checkSettle);
 
-      // Apply final orientation based on result
-      applyFinalOrientation(result);
+      // 讀取實際落地姿態，不強制翻轉
+      var naturalResult = readNaturalResult();
 
       isSettled = true;
       throwBtn.disabled = false;
       throwCount++;
 
       // Update counts
-      counts[result]++;
+      counts[naturalResult]++;
       document.getElementById('counter').style.display = '';
       document.getElementById('cntHoly').textContent = counts.holy;
       document.getElementById('cntYin').textContent = counts.yin;
@@ -1148,56 +1145,41 @@ function throwBlocks() {
       document.getElementById('cntStand').textContent = counts.stand;
 
       // Show result
-      showResult(result);
+      showResult(naturalResult);
     }
   }, 100);
 }
 
-function applyFinalOrientation(result) {
-  // 陽面 = convex side up (natural rest, curved up)
-  // 陰面 = flat side up (flipped, curved down)
+// 讀取筊杯自然落地後的實際姿態，判定杯相
+function readNaturalResult() {
+  // 筊杯建模：凸面（陰面）朝上 = Y+ 方向的法向量朝上
+  // 平面（陽面）朝上 = Y+ 方向的法向量朝下（翻轉）
+  // 讀取每個筊杯的 up vector (0,1,0) 經過旋轉後的 Y 分量
+  var up = new CANNON.Vec3(0, 1, 0);
+  var rotatedUp1 = blockBody1.quaternion.vmult(up);
+  var rotatedUp2 = blockBody2.quaternion.vmult(up);
 
-  // For physics body, rotation around X by PI means flipped
-  // Default (no flip) = 陽面 (convex up)
-  // Flipped (PI on X) = 陰面 (flat up)
+  // Y 分量 > 0：凸面朝上（陰面朝上）
+  // Y 分量 < 0：平面朝上（陽面朝上）
+  var block1ConvexUp = rotatedUp1.y > 0;  // 陰面朝上
+  var block2ConvexUp = rotatedUp2.y > 0;  // 陰面朝上
 
-  switch (result) {
-    case 'holy':
-      // One 陰 (flat up) + one 陽 (convex up)
-      // Block 1: 陽 (default), Block 2: 陰 (flipped)
-      smoothOrient(blockBody1, block1, 0, 0); // convex up
-      smoothOrient(blockBody2, block2, Math.PI, 0); // flat up
-      break;
-    case 'yin':
-      // 陰杯：兩凸面朝上（兩個陰面朝上）
-      smoothOrient(blockBody1, block1, 0, 0.1);
-      smoothOrient(blockBody2, block2, 0, -0.1);
-      break;
-    case 'smile':
-      // 笑杯：兩平面朝上（兩個陽面朝上）
-      smoothOrient(blockBody1, block1, Math.PI, 0.15);
-      smoothOrient(blockBody2, block2, Math.PI, -0.15);
-      break;
-    case 'stand':
-      // One standing! (rotated 90 on Z)
-      smoothOrient(blockBody1, block1, 0, 0);
-      // Block 2 stands on its edge
-      blockBody2.angularVelocity.setZero();
-      blockBody2.velocity.setZero();
-      blockBody2.quaternion.setFromEuler(0, 0, Math.PI / 2);
-      blockBody2.position.y = 0.35;
-      syncMeshToBody(block2, blockBody2);
-      break;
+  // 立杯判定：筊杯接近垂直（Y 分量接近 0）
+  var isStanding1 = Math.abs(rotatedUp1.y) < 0.3;
+  var isStanding2 = Math.abs(rotatedUp2.y) < 0.3;
+
+  if (isStanding1 || isStanding2) {
+    return 'stand';
+  } else if (block1ConvexUp && block2ConvexUp) {
+    // 兩凸面朝上 = 陰杯
+    return 'yin';
+  } else if (!block1ConvexUp && !block2ConvexUp) {
+    // 兩平面朝上 = 笑杯
+    return 'smile';
+  } else {
+    // 一凸一平 = 聖杯
+    return 'holy';
   }
-}
-
-function smoothOrient(body, mesh, xRot, yRot) {
-  // Snap orientation after settle
-  body.angularVelocity.setZero();
-  body.velocity.setZero();
-  body.quaternion.setFromEuler(xRot, yRot + (Math.random()-0.5)*0.3, (Math.random()-0.5)*0.1);
-  body.position.y = 0.18;
-  syncMeshToBody(mesh, body);
 }
 
 // ── Throw History ──
