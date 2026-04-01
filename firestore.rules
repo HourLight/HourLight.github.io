@@ -91,6 +91,65 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // ═══ 解讀代碼（reading_codes，新版）═══
+    // reading_codes/{CODE} → { n, price, used, memo, createdBy, createdAt, usedAt }
+    match /reading_codes/{codeId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+      allow update: if request.auth != null;
+    }
+
+    // ═══ 促銷碼兌換紀錄 ═══
+    match /promo_redemptions/{docId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+    }
+
+    // ═══ 分潤紀錄 ═══
+    match /commissions/{docId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null
+        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+    }
+
+    // ═══ 愚人節抽獎紀錄 ═══
+    match /april_gifts/{docId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+    }
+
+    // ═══ 推薦獎勵 ═══
+    match /referral_rewards/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // ═══ AI 每日計次 ═══
+    match /users/{userId}/ai_daily/{dayKey} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // ═══ 抵用券 ═══
+    match /users/{userId}/vouchers/{voucherId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // ═══ 使用紀錄 ═══
+    match /users/{userId}/history/{docId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // ═══ 事件追蹤 ═══
+    match /events/{docId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+    }
+
     // ═══ 合作者（推薦碼系統）═══
     // partners/{partnerId} → { name, referral_code, role, status, line_url, ... }
     // 所有人可讀（前端驗證推薦碼）；只有 admin 可寫
