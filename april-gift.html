@@ -371,12 +371,21 @@ body{
 
   /* ═══ PRIZE POOL ═══ */
   var PRIZES = [
-    {id:'card3',  name:'3 張牌深度解讀',      value:'NT$199',   weight:60, emoji:'🎴', code:'FOOL199', type:'code'},
-    {id:'card5',  name:'5 張牌深度解讀',      value:'NT$399',   weight:25, emoji:'✨', code:'FOOL399', type:'code'},
-    {id:'card7',  name:'7 張牌深度解讀',      value:'NT$599',   weight:9,  emoji:'💎', code:'FOOL599', type:'code'},
-    {id:'card12', name:'12 張覺察師一對一',   value:'NT$2,800', weight:5,  emoji:'👑', code:null,       type:'line'},
-    {id:'card15', name:'15 張覺察師一對一',   value:'NT$3,600', weight:1,  emoji:'🌟', code:null,       type:'line'}
+    {id:'card3',  name:'3 張牌深度解讀',      value:'NT$199',   weight:60, emoji:'🎴', n:3, price:199, type:'code'},
+    {id:'card5',  name:'5 張牌深度解讀',      value:'NT$399',   weight:25, emoji:'✨', n:5, price:399, type:'code'},
+    {id:'card7',  name:'7 張牌深度解讀',      value:'NT$599',   weight:9,  emoji:'💎', n:7, price:599, type:'code'},
+    {id:'card12', name:'12 張覺察師一對一',   value:'NT$2,800', weight:5,  emoji:'👑', n:12, price:2800, type:'line'},
+    {id:'card15', name:'15 張覺察師一對一',   value:'NT$3,600', weight:1,  emoji:'🌟', n:15, price:3600, type:'line'}
   ];
+
+  // 生成隨機解鎖碼
+  function generateRandomCode(n) {
+    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    var rand = '';
+    for (var i = 0; i < 6; i++) rand += chars[Math.floor(Math.random() * chars.length)];
+    var prefix = n <= 3 ? 'HL3' : n <= 5 ? 'HL5' : n <= 7 ? 'HL7' : n <= 9 ? 'HL9' : n <= 12 ? 'H12' : 'H15';
+    return prefix + '-' + rand;
+  }
 
   var EXPIRY = new Date('2026-04-07T23:59:59+08:00');
   var LINE_URL = 'https://lin.ee/RdQBFAN';
@@ -431,7 +440,7 @@ body{
         var data = doc.data();
         var prize = findPrizeById(data.prizeId);
         if (prize) {
-          var result = {id: prize.id, name: prize.name, value: prize.value, emoji: prize.emoji, code: prize.code, type: prize.type};
+          var result = {id: prize.id, name: prize.name, value: prize.value, emoji: prize.emoji, code: data.code || prize.code || null, type: prize.type};
           localStorage.setItem('hl_april_gift_drawn', JSON.stringify(result));
           showPreviousResult(result);
         }
@@ -519,11 +528,16 @@ body{
     btn.style.opacity = '0.5';
     btn.style.pointerEvents = 'none';
 
+    // 為 code 類型獎品生成隨機碼
+    if (prize.type === 'code') {
+      prize.code = generateRandomCode(prize.n);
+    }
+
     // Save to localStorage immediately to prevent double draw
-    var resultObj = {id: prize.id, name: prize.name, value: prize.value, emoji: prize.emoji, code: prize.code, type: prize.type};
+    var resultObj = {id: prize.id, name: prize.name, value: prize.value, emoji: prize.emoji, code: prize.code || null, type: prize.type};
     localStorage.setItem('hl_april_gift_drawn', JSON.stringify(resultObj));
 
-    // Save to Firestore
+    // Save to Firestore (含寫入 reading_codes)
     saveToFirestore(prize);
 
     // Start animation
@@ -543,8 +557,24 @@ body{
       prizeName: prize.name,
       prizeValue: prize.value,
       prizeType: prize.type,
+      code: prize.code || '',
       drawnAt: ts
     }).catch(function(e){ console.warn('april_gifts write failed:', e); });
+
+    // 如果是 code 類型，寫入 reading_codes（可在 draw-hl 兌換）
+    if (prize.type === 'code' && prize.code) {
+      _db.collection('reading_codes').doc(prize.code).set({
+        n: prize.n,
+        spreads: prize.n,
+        price: prize.price || 0,
+        used: false,
+        memo: '愚人節抽獎 - ' + _user.email,
+        source: 'april_gift',
+        createdBy: 'system',
+        createdFor: _user.email || '',
+        createdAt: ts
+      }).catch(function(e){ console.warn('reading_codes write failed:', e); });
+    }
 
     // Write to promo_redemptions for tracking
     _db.collection('promo_redemptions').add({
