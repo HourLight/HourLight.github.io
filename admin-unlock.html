@@ -145,12 +145,14 @@ auth.onAuthStateChanged(async function(user) {
 
 // 生成 6 位碼（英數混合，去掉容易混淆的字元）
 function makeCode() {
+  var n = parseInt(document.getElementById('selN').value) || 3;
+  var prefix = n <= 3 ? 'HL3' : n <= 5 ? 'HL5' : n <= 7 ? 'HL7' : n <= 9 ? 'HL9' : n <= 12 ? 'H12' : n <= 15 ? 'H15' : n <= 21 ? 'H21' : 'H28';
   var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  var code = '';
+  var rand = '';
   for (var i = 0; i < 6; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
+    rand += chars.charAt(Math.floor(Math.random() * chars.length));
   }
-  return code;
+  return prefix + '-' + rand;
 }
 
 async function generateCode() {
@@ -170,6 +172,7 @@ async function generateCode() {
 
     await db.collection('reading_codes').doc(code).set({
       n: n,
+      spreads: n,
       price: PRICES[n] || 0,
       used: false,
       memo: memo,
