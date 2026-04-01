@@ -95,6 +95,7 @@ body{
 .room-phase{
   font-size:.68rem;color:var(--accent);letter-spacing:.1em;
 }
+.servant-greeting{margin:8px 18px 0;padding:12px 16px;background:linear-gradient(135deg,rgba(200,134,42,.06),rgba(42,138,124,.04));border:1px solid var(--border);border-radius:14px;font-size:.82rem;color:var(--warm2);line-height:1.6;text-align:center}
 
 /* ══════════════════════════════
    SVG 房間場景
@@ -411,6 +412,18 @@ body{
 @keyframes dustFloat{0%{transform:translateY(0) translateX(0);opacity:0}20%{opacity:.6}80%{opacity:.3}100%{transform:translateY(-40px) translateX(8px);opacity:0}}
 @keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
 @keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+/* ── Story Intro ── */
+.story-intro{
+  margin:12px 16px 0;
+  padding:14px 18px;
+  background:linear-gradient(135deg,rgba(255,255,255,.6),rgba(255,255,255,.3));
+  border-left:3px solid var(--accent, var(--gold));
+  border-radius:0 14px 14px 0;
+  font-size:.85rem;color:var(--warm2, var(--warm));
+  line-height:1.8;
+  animation:storyFadeIn .8s ease both;
+}
+@keyframes storyFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
@@ -432,6 +445,9 @@ body{
   <span class="room-badge">🏰 O 塔樓 · 寶藏室</span>
   <span class="room-phase">Own</span>
 </div>
+<div class="servant-greeting" id="servantGreeting"></div>
+
+<div class="story-intro" id="storyIntro">從鏡子裡走出來的你，來到了寶藏室。鏡子讓你看見自己，這裡讓你看見自己的價值。</div>
 
 <!-- ══ SVG 房間場景 ══ -->
 <div class="room-scene-wrap" id="sceneWrap" onclick="toggleFurnitureMode()">
@@ -609,6 +625,8 @@ body{
 'use strict';
 
 var ROOM_ID = 'treasure';
+// 僕人問候
+(function(){function showServant(){if(window.hlCastle&&hlCastle.getServant){var s=hlCastle.getServant(ROOM_ID);if(s){var el=document.getElementById('servantGreeting');if(el)el.innerHTML=s.emoji+' '+s.name+'：「'+s.greeting+'」';}}else{setTimeout(showServant,300);}}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',showServant);}else{showServant();}})();
 var ROOM_STORAGE = 'hl_room_treasure_v1';
 
 // ── 房間謎語（從 castle-riddles.js 的 ROOMS 取寶藏室）──

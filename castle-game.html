@@ -264,6 +264,30 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:linear-gradie
 .onboard-btn{display:inline-block;padding:12px 36px;background:linear-gradient(135deg,var(--amber),#d4920a);color:#fff;font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;border:none;border-radius:22px;cursor:pointer;box-shadow:0 4px 16px rgba(240,165,0,.3);transition:all .3s;letter-spacing:.04em}
 .onboard-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(240,165,0,.4)}
 
+/* ── 城堡精品店 ── */
+.shop-panel{display:none;background:linear-gradient(160deg,#ffffff 0%,#fff8f4 100%);border-radius:20px;padding:24px 20px;margin-bottom:20px;box-shadow:0 8px 32px rgba(0,0,0,.06);border:1.5px solid rgba(240,165,0,.12);animation:fadeUp .4s ease}
+.shop-panel.active{display:block}
+.shop-title{font-family:'Playfair Display','Noto Serif TC',serif;font-size:1.2rem;font-weight:700;color:var(--navy);margin-bottom:6px;text-align:center}
+.shop-subtitle{font-size:.78rem;color:var(--txt-l);text-align:center;margin-bottom:18px;line-height:1.6}
+.shop-recipe{background:rgba(255,248,240,.8);border:1px solid rgba(240,165,0,.1);border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.shop-recipe-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.shop-recipe-icon{font-size:1.4rem}
+.shop-recipe-name{font-size:.9rem;font-weight:700;color:var(--navy)}
+.shop-recipe-desc{font-size:.72rem;color:var(--txt-d);margin-left:auto}
+.shop-ingredient{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:.82rem;color:var(--txt)}
+.shop-ingredient.has{color:var(--teal-d);opacity:.6}
+.shop-ingredient.missing{color:var(--rose)}
+.shop-ingredient-icon{font-size:1rem;width:22px;text-align:center}
+.shop-ingredient-hint{font-size:.72rem;color:var(--txt-d);margin-left:auto;font-style:italic}
+.shop-ingredient-hint a{color:var(--coral);text-decoration:none}
+.shop-ingredient-hint a:hover{text-decoration:underline}
+.shop-source-panel{margin-top:16px;padding:16px;background:rgba(46,196,182,.04);border:1px solid rgba(46,196,182,.12);border-radius:14px}
+.shop-source-title{font-size:.82rem;font-weight:700;color:var(--teal-d);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.shop-source-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.78rem;color:var(--txt-l)}
+.shop-source-zone{font-weight:700;color:var(--navy);min-width:60px}
+.shop-toggle-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;background:linear-gradient(135deg,rgba(240,165,0,.08),rgba(230,57,70,.04));border:1px solid rgba(240,165,0,.25);border-radius:14px;text-decoration:none;font-size:.8rem;font-weight:700;color:var(--amber);cursor:pointer;transition:all .2s}
+.shop-toggle-btn:hover{background:linear-gradient(135deg,rgba(240,165,0,.15),rgba(230,57,70,.08));transform:translateY(-1px);box-shadow:0 4px 12px rgba(240,165,0,.15)}
+
 </style>
 </head>
 <body>
@@ -295,6 +319,35 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:linear-gradie
 <div class="bar-item"><div class="bar-label">連續</div><div class="bar-val streak" id="dStr">1</div></div>
 </div>
 <div class="prog"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+
+<!-- 每週回顧 -->
+<div id="weeklyReview" style="display:none;margin-bottom:20px">
+<div style="background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(255,248,240,.98));border:1.5px solid rgba(240,165,0,.12);border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(29,53,87,.06)">
+<button id="weeklyToggle" onclick="toggleWeekly()" style="width:100%;padding:14px 20px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-family:'Noto Serif TC',serif;font-size:.92rem;font-weight:600;color:var(--navy)">
+<span>📋 每週回顧</span><span id="weeklyArrow" style="transition:transform .3s">▾</span>
+</button>
+<div id="weeklyBody" style="display:none;padding:0 20px 20px">
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px">
+<div style="background:rgba(46,196,182,.06);border-radius:12px;padding:14px;text-align:center">
+<div style="font-size:.65rem;color:var(--txt-d);letter-spacing:.1em;margin-bottom:4px">本週探索房間</div>
+<div id="wkRooms" style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--teal-d)">0</div>
+</div>
+<div style="background:rgba(230,57,70,.04);border-radius:12px;padding:14px;text-align:center">
+<div style="font-size:.65rem;color:var(--txt-d);letter-spacing:.1em;margin-bottom:4px">最常去的房間</div>
+<div id="wkFav" style="font-size:1rem;font-weight:600;color:var(--rose)">-</div>
+</div>
+<div style="background:rgba(240,165,0,.06);border-radius:12px;padding:14px;text-align:center">
+<div style="font-size:.65rem;color:var(--txt-d);letter-spacing:.1em;margin-bottom:4px">累積靈感點數</div>
+<div id="wkPts" style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--amber)">0</div>
+</div>
+<div style="background:rgba(29,53,87,.04);border-radius:12px;padding:14px;text-align:center">
+<div style="font-size:.65rem;color:var(--txt-d);letter-spacing:.1em;margin-bottom:4px">僕人週末寄語</div>
+<div id="wkServant" style="font-size:.85rem;color:var(--navy);line-height:1.6">-</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 
 <div class="castle-wrap">
 <img src="castle-main.png" alt="內在城堡" class="castle-bg" loading="eager">
@@ -536,6 +589,22 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:linear-gradie
 <div style="display:flex;gap:10px;margin-bottom:12px">
 <a href="castle-pets.html" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;background:rgba(255,255,255,.85);border:1px solid rgba(233,160,96,.25);border-radius:14px;text-decoration:none;font-size:.8rem;font-weight:700;color:var(--warm)">🐱 城堡居民</a>
 <a href="castle-materials.html" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;background:rgba(255,255,255,.85);border:1px solid rgba(233,160,96,.25);border-radius:14px;text-decoration:none;font-size:.8rem;font-weight:700;color:var(--warm)">🧪 材料庫</a>
+<div class="shop-toggle-btn" onclick="toggleShopPanel()">🏪 精品店</div>
+</div>
+
+<!-- 城堡精品店面板 -->
+<div class="shop-panel" id="shopPanel">
+  <div class="shop-title">🏪 城堡精品店</div>
+  <div class="shop-subtitle">看看還缺什麼材料，讓城堡更完整</div>
+  <div id="shopRecipeList"></div>
+  <div class="shop-source-panel">
+    <div class="shop-source-title">📍 稀有材料來源</div>
+    <div class="shop-source-row"><span class="shop-source-zone">覺察殿</span> 做測驗 → 洞見羽毛、情緒色彩、鏡中真相、心靈水晶</div>
+    <div class="shop-source-row"><span class="shop-source-zone">星象塔</span> 命理計算 → 星辰碎片、命盤墨跡、五行晶石、時辰碎片</div>
+    <div class="shop-source-row"><span class="shop-source-zone">神諭廳</span> 抽牌/占卜 → 靈視殘影、卦象印記、玫瑰精魄、橙花羽翼</div>
+    <div class="shop-source-row"><span class="shop-source-zone">城堡主堡</span> 城堡謎語 → 月光碎片、乳香低語、誠實碎鏡、薰衣草晨露</div>
+    <div class="shop-source-row" style="margin-top:8px;font-size:.72rem;color:var(--txt-d);font-style:italic">這些材料藏在覺察的過程裡，做一次探索就有機會掉落</div>
+  </div>
 </div>
 <div class="share" id="shareSec" style="display:none">
 <h3>🏰 分享您的城堡進度</h3>
@@ -619,6 +688,71 @@ function upd(){
   renderZones();
   renderFurnitureOnMap();
   renderCompleteness();
+  renderWeeklyReview();
+}
+
+// ═══ 每週回顧 ═══
+function renderWeeklyReview(){
+  var tw=new Date(new Date().getTime()+8*3600000);
+  var dayOfWeek=tw.getUTCDay(); // 0=Sunday
+  var el=document.getElementById('weeklyReview');
+  if(!el)return;
+  // Show on Sundays automatically, but always available via toggle
+  el.style.display='block';
+  // Calculate weekly stats from diary
+  try{
+    var diary=hlCastle.getDiary();
+    var now=new Date(new Date().getTime()+8*3600000);
+    var weekStart=new Date(now);
+    weekStart.setUTCDate(now.getUTCDate()-now.getUTCDay());
+    weekStart.setUTCHours(0,0,0,0);
+    var weekEntries=[];
+    var roomCount={};
+    for(var i=0;i<diary.length;i++){
+      var parts=diary[i].date.split('-');
+      var d=new Date(Date.UTC(+parts[0],+parts[1]-1,+parts[2]));
+      if(d>=weekStart){
+        weekEntries.push(diary[i]);
+        var rid=diary[i].roomId||'unknown';
+        roomCount[rid]=(roomCount[rid]||0)+1;
+      }
+    }
+    document.getElementById('wkRooms').textContent=weekEntries.length;
+    // Find most visited room
+    var maxRoom='';var maxC=0;
+    for(var r in roomCount){if(roomCount[r]>maxC){maxC=roomCount[r];maxRoom=r;}}
+    if(maxRoom&&hlCastle.getServant){
+      var sv=hlCastle.getServant(maxRoom);
+      if(sv){
+        document.getElementById('wkFav').innerHTML=sv.emoji+' '+sv.name;
+        document.getElementById('wkServant').innerHTML=sv.emoji+' '+sv.name+'：「'+sv.greeting+'」';
+      }else{
+        document.getElementById('wkFav').textContent=maxRoom;
+        document.getElementById('wkServant').textContent='本週繼續探索吧！';
+      }
+    }else{
+      document.getElementById('wkFav').textContent=weekEntries.length?maxRoom:'尚無紀錄';
+      document.getElementById('wkServant').textContent='本週繼續探索吧！';
+    }
+    var st=hlCastle.getState();
+    document.getElementById('wkPts').textContent=st.points;
+    // Auto-expand on Sunday
+    if(dayOfWeek===0){
+      document.getElementById('weeklyBody').style.display='block';
+      document.getElementById('weeklyArrow').style.transform='rotate(180deg)';
+    }
+  }catch(e){}
+}
+function toggleWeekly(){
+  var body=document.getElementById('weeklyBody');
+  var arrow=document.getElementById('weeklyArrow');
+  if(body.style.display==='none'){
+    body.style.display='block';
+    arrow.style.transform='rotate(180deg)';
+  }else{
+    body.style.display='none';
+    arrow.style.transform='rotate(0deg)';
+  }
 }
 
 // ── 傢具 ID → SVG 元素 ID 對照表 ──
@@ -1287,6 +1421,104 @@ function updateAchUI(){
     }
   }
 })();
+
+// ── 城堡精品店 ──
+function toggleShopPanel(){
+  var panel = document.getElementById('shopPanel');
+  if(!panel) return;
+  if(panel.classList.contains('active')){
+    panel.classList.remove('active');
+  } else {
+    panel.classList.add('active');
+    renderShopRecipes();
+  }
+}
+
+function renderShopRecipes(){
+  var container = document.getElementById('shopRecipeList');
+  if(!container || !window.hlMaterial) return;
+
+  var recipes = hlMaterial.RECIPES || [];
+  var inv = hlMaterial.getInventory ? hlMaterial.getInventory() : {};
+  var allDefs = hlMaterial.MATERIAL_DEFS || {};
+
+  // flatten material defs for lookup
+  var matLookup = {};
+  Object.keys(allDefs).forEach(function(zone){
+    (allDefs[zone]||[]).forEach(function(m){ matLookup[m.id] = m; });
+  });
+
+  var html = '';
+  recipes.forEach(function(recipe){
+    var ingredientKeys = Object.keys(recipe.ingredients || {});
+    var allHave = true;
+    var ingredientHtml = '';
+
+    ingredientKeys.forEach(function(matId){
+      var need = recipe.ingredients[matId];
+      var have = inv[matId] ? (inv[matId].count || 0) : 0;
+      var mat = matLookup[matId] || { name: matId, icon: '?' };
+      var enough = have >= need;
+      if(!enough) allHave = false;
+
+      ingredientHtml += '<div class="shop-ingredient ' + (enough ? 'has' : 'missing') + '">';
+      ingredientHtml += '<span class="shop-ingredient-icon">' + mat.icon + '</span>';
+      ingredientHtml += '<span>' + mat.name + ' ' + have + '/' + need + '</span>';
+
+      if(!enough){
+        // determine source and provide gentle hint
+        var hint = getSourceHint(matId, mat, allDefs);
+        ingredientHtml += '<span class="shop-ingredient-hint">' + hint + '</span>';
+      } else {
+        ingredientHtml += '<span class="shop-ingredient-hint" style="color:var(--teal-d)">&#10003;</span>';
+      }
+      ingredientHtml += '</div>';
+    });
+
+    // Show recipe even if complete (dimmed)
+    html += '<div class="shop-recipe" style="' + (allHave ? 'opacity:.55;' : '') + '">';
+    html += '<div class="shop-recipe-header">';
+    html += '<span class="shop-recipe-icon">' + recipe.icon + '</span>';
+    html += '<span class="shop-recipe-name">' + recipe.name + '</span>';
+    html += '<span class="shop-recipe-desc">' + (allHave ? '可合成' : '收集中') + '</span>';
+    html += '</div>';
+    html += ingredientHtml;
+    html += '</div>';
+  });
+
+  if(!html) html = '<div style="text-align:center;font-size:.82rem;color:var(--txt-d);padding:20px">材料系統載入中...</div>';
+  container.innerHTML = html;
+}
+
+function getSourceHint(matId, mat, allDefs){
+  // map zone keys to actions and links
+  var zoneMap = {
+    quiz:          { action: '做一次覺察測驗', link: '' },
+    calculator:    { action: '做一次命理計算', link: '' },
+    draw:          { action: '做一次3張牌覺察', link: 'draw-hl.html' },
+    draw_dna:      { action: '做一次3張牌覺察', link: 'draw-hl.html' },
+    oracle:        { action: '做一次占卜', link: '' },
+    castle_riddle: { action: '完成城堡謎語', link: '' },
+    course:        { action: '完成課程', link: '' },
+    inner_realm:   { action: '深入探索', link: '' }
+  };
+
+  // find which zone this material belongs to
+  var foundZone = '';
+  Object.keys(allDefs).forEach(function(zone){
+    (allDefs[zone]||[]).forEach(function(m){
+      if(m.id === matId) foundZone = zone;
+    });
+  });
+
+  var info = zoneMap[foundZone];
+  if(!info) return '繼續探索城堡';
+
+  if(info.link){
+    return '<a href="' + info.link + '">' + info.action + '，順便看看會掉什麼</a>';
+  }
+  return info.action + '，順便看看會掉什麼';
+}
 </script>
 </body>
 </html>
