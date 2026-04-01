@@ -1199,6 +1199,23 @@ async function copyReadingText(readingId){
           </div>
         </div>
 
+        <!-- 小馥今日洞察 -->
+        <div class="card" id="daily-insight-card" style="margin-bottom:16px;border:1.5px solid rgba(201,160,96,.25)">
+          <div class="card-body" style="padding:20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <div style="font-size:1rem;font-weight:600;color:var(--text)">🌙 小馥今日洞察</div>
+              <div style="font-size:.72rem;color:var(--light)">每天午夜更新</div>
+            </div>
+            <div id="di-content">
+              <div style="text-align:center;padding:16px;color:var(--light);font-size:.88rem">載入中⋯</div>
+            </div>
+            <div id="di-history" class="hide" style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+              <div style="font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:8px">最近 7 天</div>
+              <div id="di-history-list"></div>
+            </div>
+          </div>
+        </div>
+
         <!-- 今日任務 -->
         <div class="tasks-card" id="tasks-card" style="background:#ffffff;border:1px solid #ede7dc;border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(45,36,24,.08);margin-bottom:16px">
           <div class="tasks-head">
@@ -3437,6 +3454,9 @@ async function loadHome() {
 
     // 今日開運能量
     renderDailyEnergy(d);
+
+    // 小馥今日洞察
+    renderDailyInsight(d);
   } catch(e) { console.warn(e); }
 }
 
@@ -3553,6 +3573,227 @@ function getPersonalTip(myWX, dayWX) {
   if (myWX === dayWX) return '今天跟您同頻（都是' + myWX + '）。競爭多但機會也多，做出差異化是關鍵。';
   if (ke[myWX] === dayWX) return '今天您有掌控力（' + myWX + '剋' + dayWX + '）。適合談判、做決定，但別太強硬。';
   return '今天外在壓力稍大（' + dayWX + '剋' + myWX + '）。守比攻重要，做好手邊的事就好。';
+}
+
+/* ═══ 小馥今日洞察 ═══ */
+function renderDailyInsight(userData) {
+  try {
+    var el = document.getElementById('di-content');
+    if (!el) return;
+    if (typeof Solar === 'undefined') { el.innerHTML = '<div style="font-size:.88rem;color:var(--light);text-align:center">載入中，請稍候</div>'; return; }
+
+    var now = new Date();
+    var solar = Solar.fromYmdHms(now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), 0, 0);
+    var lunar = solar.getLunar();
+    var ec = lunar.getEightChar();
+    var dayGan = ec.getDayGan ? ec.getDayGan() : ec.getDay()[0];
+    var WX_MAP = {'甲':'木','乙':'木','丙':'火','丁':'火','戊':'土','己':'土','庚':'金','辛':'金','壬':'水','癸':'水'};
+    var dayWX = WX_MAP[dayGan] || '土';
+    var jqName = '';
+    try { jqName = lunar.getPrevJieQi().getName(); } catch(e2) {}
+
+    var hasProfile = userData && userData.yearWX;
+    var myWX = hasProfile ? userData.yearWX : null;
+    var userPlan = (userData && userData.plan) ? userData.plan : 'free';
+    var isPaid = (userPlan === 'plus' || userPlan === 'pro');
+
+    // 種子：每天不同
+    var dateSeed = now.getFullYear() * 10000 + (now.getMonth()+1) * 100 + now.getDate();
+    function pRand(s, off) { return ((s * 9301 + 49297 + off * 7919) % 32768) / 32768; }
+
+    // 五行基礎洞察（根據用戶命盤）
+    var WX_BASE = {
+      '水': [
+        '水命的你，天生感受力比別人強好幾倍。今天別急著回覆每一則訊息，讓自己像深潭一樣沉靜，最好的答案會自己浮上來。',
+        '你的水能量今天特別敏銳，像一面鏡子能照見別人沒說出口的話。但記得，照見歸照見，不用每件事都接住。',
+        '水命的人容易把別人的情緒當成自己的，今天練習一件事：分辨哪些感受是你的，哪些是別人寄放在你這裡的。',
+        '今天你的直覺特別準，腦中閃過的第一個念頭往往就是對的。別用理性去推翻它，試著信任那個聲音。',
+        '水命的你最怕停下來，但今天適合讓自己慢一點。泡杯花茶，在安靜裡聽聽自己真正想要什麼。'
+      ],
+      '木': [
+        '木命的你今天生長力很旺，腦袋裡全是新點子。挑一個最讓你興奮的，先踏出第一步就好，不用想到完美才開始。',
+        '你的木能量今天像春天的竹子，拔節的速度連自己都會嚇到。節奏對了，很多事情會加速到位。',
+        '木命的人習慣往前衝，今天提醒你回頭看看根扎得穩不穩。基礎打好了，才撐得住後面的快速成長。',
+        '今天適合去接觸大自然，哪怕只是公園走一圈。你的木元素需要和真正的綠意連結，充完電回來戰鬥力加倍。',
+        '木命的你容易心軟，今天練習溫柔地說不。保護自己的邊界不是自私，是讓你有餘裕去照顧真正重要的人。'
+      ],
+      '火': [
+        '火命的你今天能量滿到快溢出來，像一顆小太陽。把這股熱力用在你最在乎的事情上，別讓它散成煙火四處亂飄。',
+        '你的火能量今天閃閃發亮，特別適合上台、簡報、或任何需要你展現自己的場合。大方地讓別人看見你。',
+        '火命的人容易熱血上頭，今天的功課是：衝動浮起來的時候，深呼吸三次再行動。三秒鐘的緩衝能省三天的善後。',
+        '今天你說的話特別有感染力，一句鼓勵的話可能改變某個人的一整天。善用你的影響力，但別忘了也鼓勵自己。',
+        '火命的你需要適時熄火休息。今天睡前點一支檀香或薰衣草蠟燭，讓火焰從外在收回到內在，好好安頓自己。'
+      ],
+      '土': [
+        '土命的你今天特別穩，像大地一樣可以承接很多事。但穩不代表要扛所有人的事，記得你也需要被支撐。',
+        '你的土能量今天適合整理、歸納、把散亂的事情收攏成系統。那份拖了很久的清單，今天處理起來會特別順。',
+        '土命的人喜歡確定感，但今天試著擁抱一點不確定。有些最好的安排，是在你放手的那一刻才會出現。',
+        '今天適合好好吃一頓飯，不是速食、不是邊工作邊啃麵包，是真正坐下來品嚐每一口的那種。你的土元素需要被滋養。',
+        '土命的你常常是別人的靠山，今天問自己：誰是我的靠山？如果答案是自己，那更要善待自己一點。'
+      ],
+      '金': [
+        '金命的你今天判斷力像開了外掛，什麼該留、什麼該丟，看得特別清楚。趁這股清明，處理拖延已久的決定。',
+        '你的金能量今天散發一種不怒自威的氣場。不用多說什麼，你的態度本身就是最好的表達。',
+        '金命的人追求品質，今天提醒你：完美是好事，但「夠好」也是一種完美。先完成，再完善。',
+        '今天適合斷捨離，不只是物品，也包括不再適合的關係和習慣。金的本質就是提煉，留下最純粹的。',
+        '金命的你外表看起來很堅強，但今天允許自己柔軟一次。和信任的人聊聊心裡話，你會發現脆弱也是一種力量。'
+      ]
+    };
+
+    // 五行互動洞察（根據日行與命盤關係）
+    var INTERACT = {
+      'sheng_me': [
+        '今天的{dayWX}行能量正在滋養你的{myWX}命，像一場及時雨。那些卡住的事，趁勢推一把，阻力會比平常小很多。睡前用佛手柑擴香，讓今天的好運好好沉澱。',
+        '環境今天特別疼你，{dayWX}生{myWX}的能量流動得很順。之前猶豫不決的事，今天做決定會比較篤定。記得擦上一點柑橘類精油，把好能量封存起來。',
+        '今天像被宇宙偏愛的孩子，{dayWX}行在背後默默推著你往前。但被餵養不代表躺平等好事，主動出擊才能接住這份禮物。'
+      ],
+      'me_sheng': [
+        '今天{myWX}生{dayWX}，你的能量會自然往外流。幫別人可以，但設一個停損點。留三成力氣給自己，晚上用乳香精油幫自己充個電。',
+        '付出日不代表吃虧日，你今天種下的善意，會在意想不到的時候回來。但記得澆完別人的花園，也給自己的盆栽喝口水。',
+        '今天你是別人的貴人，有人會因為你的一句話或一個舉動受益。享受這個角色，但別累到忘記自己也需要被照顧。'
+      ],
+      'same': [
+        '今天跟你同頻共振，{myWX}遇{myWX}，像照鏡子。你會更清楚看見自己的優點和盲點。用迷迭香精油提神，在同頻的日子裡找到獨特的節奏。',
+        '同行日容易遇到跟你類似的人，是競爭也是共鳴。別怕撞型，你的獨特性不會因為遇到同類就消失。',
+        '今天的能量跟你很像，做事會特別順手，但也容易在舒適圈裡打轉。給自己一個小小的挑戰，讓同頻變成跳板。'
+      ],
+      'me_ke': [
+        '今天{myWX}剋{dayWX}，你的掌控力特別強。適合談判、做取捨、把搖擺不定的事情一刀切清楚。但力道控制好，果斷不等於冷酷。茶樹精油幫你保持清明。',
+        '掌控日適合做減法。你的衣櫃、行事曆、手機相簿，哪個最需要清理？今天清掉的東西，不會讓你後悔。',
+        '今天你說了算的機率特別高，但真正的高手知道什麼時候收手。贏了面子也要顧到裡子，留點餘地給未來的自己。'
+      ],
+      'ke_me': [
+        '{dayWX}行日碰上你的{myWX}命，今天有點磨。不是壞事，是在幫你修枝。該調整的地方，趁今天調了不會後悔。搭配薰衣草精油，安撫被修剪的不適感。',
+        '今天外在壓力比平常大一點，但壓力是碳變成鑽石的過程。不需要硬撐，找一個安全的角落喘口氣，然後繼續走。',
+        '磨合日反而適合觀察：什麼事讓你不舒服？那個不舒服裡面藏著你真正在意的東西。用岩蘭草精油接地，穩住自己再看清楚。'
+      ]
+    };
+
+    // 節氣加持語
+    var JQ_BOOST = {
+      '立春':'萬物初醒的節氣，你的洞察力也在甦醒。','雨水':'雨水滋潤大地，也在柔軟你心裡某個角落。','驚蟄':'驚蟄喚醒沉睡的力量，你今天可能突然想通一件事。','春分':'春分日夜等長，提醒你內外也需要平衡。','清明':'清明的風正在幫你吹散腦中的霧。','穀雨':'穀雨是耐心的節氣，你種下的東西正在發芽。','立夏':'立夏之後能量外放，適合讓別人看見你的光。','小滿':'小滿不是滿，是提醒你享受過程比追求結果更重要。','芒種':'芒種是最忙的節氣，忙的時候更要記得呼吸。','夏至':'夏至陽氣最盛，你的行動力今天也在最高點。','小暑':'小暑微熱，剛好是做事不急不緩的溫度。','大暑':'大暑極熱，練習在最熱的時候保持最涼的心。','立秋':'立秋開始收穫，盤點一下你上半年做了什麼。','處暑':'處暑暑氣漸退，適合靜下來看看自己的內在。','白露':'白露時節直覺特別靈敏，相信第一感覺。','秋分':'秋分再度平衡，放下不需要的才能擁抱新的。','寒露':'寒露向內收斂，今天適合獨處和深度思考。','霜降':'霜降提醒你為冬天儲備能量，別透支。','立冬':'立冬進入蟄伏，不是停滯是在蓄力。','小雪':'小雪的寂靜裡藏著清晰，安靜一點你就聽見了。','大雪':'大雪覆蓋一切，讓你看見什麼才是真正重要的。','冬至':'冬至是最深的夜，也是光開始回歸的起點。','小寒':'小寒考驗耐力，撐過這段你會變得更強韌。','大寒':'大寒離春天最近，黎明前的你比想像的更有力量。'
+    };
+
+    // 組合洞察文字
+    var insightText = '';
+    if (hasProfile) {
+      var sheng = {'木':'火','火':'土','土':'金','金':'水','水':'木'};
+      var ke = {'木':'土','土':'水','水':'火','火':'金','金':'木'};
+      var relType = '';
+      if (sheng[dayWX] === myWX) relType = 'sheng_me';
+      else if (sheng[myWX] === dayWX) relType = 'me_sheng';
+      else if (myWX === dayWX) relType = 'same';
+      else if (ke[myWX] === dayWX) relType = 'me_ke';
+      else relType = 'ke_me';
+
+      // 用種子選文案
+      var baseIdx = Math.floor(pRand(dateSeed, 10) * WX_BASE[myWX].length);
+      var interIdx = Math.floor(pRand(dateSeed, 20) * INTERACT[relType].length);
+
+      var baseText = WX_BASE[myWX][baseIdx];
+      var interText = INTERACT[relType][interIdx]
+        .replace(/\{dayWX\}/g, dayWX)
+        .replace(/\{myWX\}/g, myWX);
+
+      // 每天交替：偶數日顯示基礎洞察，奇數日顯示互動洞察
+      var dayOfYear = Math.floor((now - new Date(now.getFullYear(),0,0)) / 86400000);
+      insightText = (dayOfYear % 2 === 0) ? baseText : interText;
+
+      // 加上節氣點綴
+      if (jqName && JQ_BOOST[jqName]) {
+        insightText += ' ' + JQ_BOOST[jqName];
+      }
+    } else {
+      // 沒有命盤，顯示通用文案
+      var generalInsights = [
+        '今天的你，值得被好好對待。不管外面的世界多忙，記得留五分鐘給自己，深呼吸，聞一朵花，或只是安靜地喝杯水。',
+        '填入你的生日，小馥就能根據你的五行命盤，每天給你一段專屬的能量洞察。讓我更認識你，才能陪你走得更細膩。',
+        '每個人的能量節奏都不一樣，有人早上最清醒，有人深夜最有靈感。填入生日，讓小馥幫你找到你的最佳節奏。',
+        '你知道嗎？你的出生年份藏著你的五行密碼。填入生日，解鎖屬於你的每日專屬洞察。',
+        '小馥想更了解你，但需要你的生日資訊。五行命盤是一面讓你更認識自己的鏡子，試試看吧。'
+      ];
+      var gIdx = Math.floor(pRand(dateSeed, 30) * generalInsights.length);
+      insightText = generalInsights[gIdx];
+    }
+
+    // 存入 localStorage 歷史
+    var todayKey = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+    var historyKey = 'hl_daily_insight_history';
+    var history = {};
+    try { history = JSON.parse(localStorage.getItem(historyKey) || '{}'); } catch(e3) {}
+    history[todayKey] = insightText;
+    // 只保留最近 7 天
+    var keys = Object.keys(history).sort().reverse();
+    if (keys.length > 7) {
+      var trimmed = {};
+      keys.slice(0, 7).forEach(function(k) { trimmed[k] = history[k]; });
+      history = trimmed;
+    }
+    try { localStorage.setItem(historyKey, JSON.stringify(history)); } catch(e4) {}
+
+    // 渲染
+    var html = '';
+    if (isPaid || !hasProfile) {
+      // 付費會員完整顯示 / 無命盤時顯示通用文案
+      html += '<div style="padding:14px 16px;background:linear-gradient(135deg,rgba(201,160,96,.07),rgba(201,160,96,.02));border:1px solid rgba(201,160,96,.12);border-radius:10px;font-size:.88rem;color:var(--text);line-height:1.85">';
+      html += insightText;
+      html += '</div>';
+      if (!hasProfile) {
+        html += '<div style="text-align:center;margin-top:10px"><button onclick="showPage(\'settings\')" style="padding:8px 20px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:8px;color:#1a1008;font-size:.85rem;font-weight:500;cursor:pointer;font-family:inherit">填入生日，解鎖專屬洞察</button></div>';
+      }
+    } else {
+      // 免費會員：前 20 字 + 模糊
+      var preview = insightText.substring(0, 20);
+      var blurred = insightText.substring(20);
+      html += '<div style="padding:14px 16px;background:linear-gradient(135deg,rgba(201,160,96,.07),rgba(201,160,96,.02));border:1px solid rgba(201,160,96,.12);border-radius:10px;font-size:.88rem;color:var(--text);line-height:1.85;position:relative">';
+      html += '<span>' + preview + '</span>';
+      html += '<span style="filter:blur(4px);user-select:none;pointer-events:none">' + blurred + '</span>';
+      html += '</div>';
+      html += '<div style="text-align:center;margin-top:12px">';
+      html += '<div style="font-size:.82rem;color:var(--mid);margin-bottom:8px">加入馥靈鑰友，讓小馥每天陪你覺察</div>';
+      html += '<button onclick="showPage(\'subscription\')" style="padding:8px 20px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:8px;color:#1a1008;font-size:.85rem;font-weight:500;cursor:pointer;font-family:inherit">解鎖每日洞察</button>';
+      html += '</div>';
+    }
+
+    // 歷史按鈕（付費會員才顯示）
+    if (isPaid && hasProfile) {
+      var histKeys = Object.keys(history).sort().reverse();
+      if (histKeys.length > 1) {
+        html += '<div style="text-align:center;margin-top:12px"><button onclick="toggleInsightHistory()" id="di-hist-btn" style="background:none;border:none;color:var(--gold);font-size:.82rem;cursor:pointer;font-family:inherit;text-decoration:underline">查看最近 7 天 ▾</button></div>';
+        var histHtml = '';
+        histKeys.forEach(function(k) {
+          if (k === todayKey) return;
+          var parts = k.split('-');
+          var label = parseInt(parts[1]) + '/' + parseInt(parts[2]);
+          histHtml += '<div style="padding:10px 12px;margin-bottom:8px;background:var(--bg);border-radius:8px;font-size:.82rem;color:var(--mid);line-height:1.7">';
+          histHtml += '<div style="font-size:.75rem;color:var(--light);margin-bottom:4px">' + label + '</div>';
+          histHtml += history[k];
+          histHtml += '</div>';
+        });
+        var histList = document.getElementById('di-history-list');
+        if (histList) histList.innerHTML = histHtml;
+      }
+    }
+
+    el.innerHTML = html;
+  } catch(e) {
+    var el2 = document.getElementById('di-content');
+    if (el2) el2.innerHTML = '<div style="font-size:.88rem;color:var(--light);text-align:center">洞察載入中</div>';
+    console.warn('renderDailyInsight error:', e);
+  }
+}
+
+function toggleInsightHistory() {
+  var histEl = document.getElementById('di-history');
+  var btn = document.getElementById('di-hist-btn');
+  if (!histEl) return;
+  if (histEl.classList.contains('hide')) {
+    histEl.classList.remove('hide');
+    if (btn) btn.textContent = '收起 ▴';
+  } else {
+    histEl.classList.add('hide');
+    if (btn) btn.textContent = '查看最近 7 天 ▾';
+  }
 }
 
 function getGreeting() {
