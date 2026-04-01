@@ -467,6 +467,22 @@ function runNameAi(){
   var btn=document.getElementById('nameAiBtn2');
   var result=document.getElementById('nameAiResult2');
   var content=document.getElementById('nameAiContent2');
+  // 付費牆：$199 單次收費
+  if(typeof hlPaywall!=='undefined'){
+    hlPaywall.show({
+      n:1,
+      priceMap:{1:199},
+      serviceName:'姓名 AI 深度分析',
+      pageType:'name-oracle',
+      onSuccess:function(){
+        _doNameAnalysis(name,btn,content,result);
+      }
+    });
+    return;
+  }
+  _doNameAnalysis(name,btn,content,result);
+}
+function _doNameAnalysis(name,btn,content,result){
   btn.disabled=true;btn.textContent='⏳ AI 分析中...';btn.style.opacity='.6';
   content.textContent='正在分析「'+name+'」的字形字義，請稍候約 5-10 秒...';
   result.style.display='block';
@@ -600,6 +616,7 @@ function copyAIPrompt(){
 <script src="assets/js/hl-referral.js?v=20260323"></script>
 <script src="assets/js/hl-ai-gate.js"></script>
 <script src="assets/js/hl-gate.js"></script>
+<script src="assets/js/hl-paywall.js"></script>
 <script src="assets/js/hl-record.js"></script>
 <script src="assets/js/hl-email.js"></script>
 <script src="assets/js/hl-chat.js"></script>
