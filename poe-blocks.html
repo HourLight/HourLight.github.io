@@ -1074,6 +1074,10 @@ function determineResult() {
 }
 
 // ── Throw ──
+// 策略：先用機率決定結果，再設定初始旋轉偏向目標姿態
+// 物理引擎自然模擬落地過程，不做落地後強制翻轉
+// 視覺自然流暢，結果符合機率分佈
+
 function throwBlocks() {
   if (isThrown && !isSettled) return;
 
@@ -1089,36 +1093,61 @@ function throwBlocks() {
   // Reset physics
   resetPhysicsBodies();
 
-  // Apply upward + forward force with spin
-  const throwForce = 3 + Math.random() * 2;
+  // 先決定結果
+  var result = determineResult();
 
-  // Block 1
+  // 根據結果設定每個筊杯的目標初始旋轉
+  // 凸面朝上（陰面）= 自然姿態（xRot ≈ 0）
+  // 平面朝上（陽面）= 翻轉（xRot ≈ PI）
+  var target1X = 0, target2X = 0;
+  switch (result) {
+    case 'holy':  target1X = 0; target2X = Math.PI; break;           // 一凸一平
+    case 'yin':   target1X = 0; target2X = 0; break;                 // 兩凸
+    case 'smile': target1X = Math.PI; target2X = Math.PI; break;     // 兩平
+    case 'stand': target1X = 0; target2X = Math.PI / 2; break;       // 一正一立
+  }
+
+  // 加入隨機偏移讓每次看起來不同，但偏向目標姿態
+  var jitter = 0.4; // 少量隨機，不會翻到反面
+  var throwForce = 3 + Math.random() * 2;
+
+  // Block 1：從目標旋轉附近開始，加少量旋轉動能
   blockBody1.position.set(-0.3 + Math.random() * 0.2, 2.5 + Math.random() * 0.5, -0.5);
+  blockBody1.quaternion.setFromEuler(
+    target1X + (Math.random() - 0.5) * jitter,
+    Math.random() * Math.PI * 2,
+    (Math.random() - 0.5) * jitter
+  );
   blockBody1.velocity.set(
     (Math.random() - 0.5) * 1.5,
     throwForce,
     (Math.random() - 0.5) * 1
   );
   blockBody1.angularVelocity.set(
-    (Math.random() - 0.5) * 12,
-    (Math.random() - 0.5) * 8,
-    (Math.random() - 0.5) * 12
+    (Math.random() - 0.5) * 4,
+    (Math.random() - 0.5) * 6,
+    (Math.random() - 0.5) * 4
   );
 
   // Block 2
   blockBody2.position.set(0.3 + Math.random() * 0.2, 2.8 + Math.random() * 0.5, -0.3);
+  blockBody2.quaternion.setFromEuler(
+    target2X + (Math.random() - 0.5) * jitter,
+    Math.random() * Math.PI * 2,
+    (Math.random() - 0.5) * jitter
+  );
   blockBody2.velocity.set(
     (Math.random() - 0.5) * 1.5,
     throwForce + Math.random(),
     (Math.random() - 0.5) * 1
   );
   blockBody2.angularVelocity.set(
-    (Math.random() - 0.5) * 12,
-    (Math.random() - 0.5) * 8,
-    (Math.random() - 0.5) * 12
+    (Math.random() - 0.5) * 4,
+    (Math.random() - 0.5) * 6,
+    (Math.random() - 0.5) * 4
   );
 
-  // 等物理自然靜止後，讀取實際落地姿態判定結果
+  // 等物理自然靜止後顯示結果（不修改姿態）
   let settleTimer = 0;
   const checkSettle = setInterval(function() {
     settleTimer += 100;
@@ -1141,15 +1170,12 @@ function throwBlocks() {
       blockBody1.angularVelocity.setZero();
       blockBody2.angularVelocity.setZero();
 
-      // 讀取實際落地姿態，不強制翻轉
-      var naturalResult = readNaturalResult();
-
       isSettled = true;
       throwBtn.disabled = false;
       throwCount++;
 
       // Update counts
-      counts[naturalResult]++;
+      counts[result]++;
       document.getElementById('counter').style.display = '';
       document.getElementById('cntHoly').textContent = counts.holy;
       document.getElementById('cntYin').textContent = counts.yin;
@@ -1157,41 +1183,9 @@ function throwBlocks() {
       document.getElementById('cntStand').textContent = counts.stand;
 
       // Show result
-      showResult(naturalResult);
+      showResult(result);
     }
   }, 100);
-}
-
-// 讀取筊杯自然落地後的實際姿態，判定杯相
-function readNaturalResult() {
-  // 筊杯建模：凸面（陰面）朝上 = Y+ 方向的法向量朝上
-  // 平面（陽面）朝上 = Y+ 方向的法向量朝下（翻轉）
-  // 讀取每個筊杯的 up vector (0,1,0) 經過旋轉後的 Y 分量
-  var up = new CANNON.Vec3(0, 1, 0);
-  var rotatedUp1 = blockBody1.quaternion.vmult(up);
-  var rotatedUp2 = blockBody2.quaternion.vmult(up);
-
-  // Y 分量 > 0：凸面朝上（陰面朝上）
-  // Y 分量 < 0：平面朝上（陽面朝上）
-  var block1ConvexUp = rotatedUp1.y > 0;  // 陰面朝上
-  var block2ConvexUp = rotatedUp2.y > 0;  // 陰面朝上
-
-  // 立杯判定：筊杯必須完全垂直 90 度（Y 分量趨近 0，< 0.03）
-  var isStanding1 = Math.abs(rotatedUp1.y) < 0.03;
-  var isStanding2 = Math.abs(rotatedUp2.y) < 0.03;
-
-  if (isStanding1 || isStanding2) {
-    return 'stand';
-  } else if (block1ConvexUp && block2ConvexUp) {
-    // 兩凸面朝上 = 陰杯
-    return 'yin';
-  } else if (!block1ConvexUp && !block2ConvexUp) {
-    // 兩平面朝上 = 笑杯
-    return 'smile';
-  } else {
-    // 一凸一平 = 聖杯
-    return 'holy';
-  }
 }
 
 // ── Throw History ──
