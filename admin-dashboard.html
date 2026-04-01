@@ -62,12 +62,18 @@ body{background:var(--bg);color:var(--text);font-family:"Noto Sans TC",sans-seri
 .admin-sub.on{display:block;animation:fadeUp .3s ease}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
-/* ─── Charts ─── */
+/* ─── Charts（強制高度限制防止溢出）─── */
 .trend-bar-wrap{display:flex;align-items:flex-end;gap:4px;height:80px;overflow:hidden}
-.trend-bar-wrap>div{flex:1;min-height:3px;border-radius:3px 3px 0 0;background:linear-gradient(to top,var(--gold),var(--gold2,#e8c060));max-height:80px}
-#a-hour-chart{overflow:hidden}
-#a-hour-chart>div{max-height:70px}
-#a-growth-chart{overflow:hidden}
+.trend-bar-wrap>div{flex:1;min-height:3px;border-radius:3px 3px 0 0;background:linear-gradient(to top,var(--gold-bg,#f0d48a),var(--gold2,#a07820));max-height:80px!important}
+#a-hour-chart{overflow:hidden;height:80px}
+#a-hour-chart>div{max-height:70px!important}
+#a-growth-chart{overflow:hidden;max-height:120px}
+/* 增強儀表板圖表容器 */
+[id^="enh-"]{max-height:200px!important;overflow:hidden}
+.enh-card .card-body{max-height:220px;overflow:hidden}
+.admin-sub div[style*="flex:1"][style*="height:"]{max-height:160px!important}
+/* 所有內聯柱狀圖高度限制 */
+.admin-sub div[style*="display:flex"][style*="align-items:flex-end"]{max-height:160px!important;overflow:hidden}
 
 /* ─── Card ─── */
 .card{background:var(--card);border:1px solid var(--border);
@@ -2395,7 +2401,8 @@ function renderEnhancedDashboard(allEvts){
     if(trendEl&&trendEl.parentElement){
       var dayMap={};events.forEach(function(e){var dk=e._enhDay;if(!dayMap[dk])dayMap[dk]=0;dayMap[dk]++;});
       var days=Object.keys(dayMap).sort().slice(-7);
-      var bars=days.map(function(d){var cnt=dayMap[d];return '<div style="flex:1;text-align:center"><div style="height:'+(Math.max(8,cnt*4))+'px;background:var(--gold);border-radius:3px 3px 0 0;margin:0 2px"></div><div style="font-size:.6rem;color:var(--light);margin-top:4px">'+d.slice(5)+'</div></div>';}).join('');
+      var maxCnt=Math.max.apply(null,days.map(function(d){return dayMap[d]||1;}))||1;
+      var bars=days.map(function(d){var cnt=dayMap[d];var ht=Math.max(8,Math.round(cnt/maxCnt*120));return '<div style="flex:1;text-align:center"><div style="height:'+ht+'px;max-height:120px;background:var(--gold-bg,#f0d48a);border-radius:3px 3px 0 0;margin:0 2px"></div><div style="font-size:.6rem;color:var(--light);margin-top:4px">'+d.slice(5)+'</div></div>';}).join('');
       trendEl.parentElement.innerHTML='<div style="display:flex;align-items:flex-end;height:160px;padding:20px 10px 0">'+bars+'</div>';
     }
     var pieEl=document.getElementById('enh-pie-chart');

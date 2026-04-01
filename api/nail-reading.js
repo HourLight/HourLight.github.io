@@ -55,9 +55,9 @@ const NAIL_SPREAD_FRAMEWORKS = {
 
 // ── 字數規格 ──
 const WORD_COUNTS = {
-  3: { min: 800, max: 1200, tokens: 2000 },
-  5: { min: 1500, max: 2500, tokens: 3500 },
-  9: { min: 2500, max: 4000, tokens: 5000 }
+  3: { min: 2000, max: 2500, tokens: 5000 },
+  5: { min: 3000, max: 3500, tokens: 7000 },
+  9: { min: 8000, max: 10000, tokens: 16000 }
 };
 
 // ── 主函式 ──
