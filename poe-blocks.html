@@ -717,67 +717,18 @@ function initScene() {
 
   // Ground plane — wooden table surface
   const groundGeo = new THREE.PlaneGeometry(12, 12);
+  // 乾淨淺色地面（配合頁面淺色主題）
   const groundMaterial = new THREE.MeshStandardMaterial({
-    color: 0xd4b896,
-    roughness: 0.7,
+    color: 0xf0ebe4,
+    roughness: 0.9,
     metalness: 0.0,
   });
-  // Add procedural wood grain via canvas texture
-  const woodCanvas = document.createElement('canvas');
-  woodCanvas.width = 512;
-  woodCanvas.height = 512;
-  const wctx = woodCanvas.getContext('2d');
-  // Base color
-  wctx.fillStyle = '#d4b896';
-  wctx.fillRect(0, 0, 512, 512);
-  // Wood grain lines
-  wctx.strokeStyle = 'rgba(160, 120, 70, 0.15)';
-  for (let i = 0; i < 60; i++) {
-    wctx.beginPath();
-    wctx.lineWidth = 0.5 + Math.random() * 2;
-    const y = Math.random() * 512;
-    wctx.moveTo(0, y);
-    for (let x = 0; x < 512; x += 20) {
-      wctx.lineTo(x, y + Math.sin(x * 0.02) * (3 + Math.random() * 5));
-    }
-    wctx.stroke();
-  }
-  // Knots
-  for (let k = 0; k < 3; k++) {
-    const kx = 100 + Math.random() * 312;
-    const ky = 100 + Math.random() * 312;
-    const grad = wctx.createRadialGradient(kx, ky, 0, kx, ky, 12 + Math.random() * 10);
-    grad.addColorStop(0, 'rgba(120, 80, 40, 0.3)');
-    grad.addColorStop(1, 'rgba(120, 80, 40, 0)');
-    wctx.fillStyle = grad;
-    wctx.fillRect(kx - 25, ky - 25, 50, 50);
-  }
-  const woodTex = new THREE.CanvasTexture(woodCanvas);
-  woodTex.wrapS = woodTex.wrapT = THREE.RepeatWrapping;
-  woodTex.repeat.set(2, 2);
-  groundMaterial.map = woodTex;
 
   const ground = new THREE.Mesh(groundGeo, groundMaterial);
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = 0;
   ground.receiveShadow = true;
   scene.add(ground);
-
-  // Incense holder hint (small decorative cylinder)
-  const incenseGeo = new THREE.CylinderGeometry(0.12, 0.15, 0.06, 16);
-  const incenseMat = new THREE.MeshStandardMaterial({ color: 0x8b6914, roughness: 0.4, metalness: 0.3 });
-  const incense = new THREE.Mesh(incenseGeo, incenseMat);
-  incense.position.set(2.2, 0.03, -1.5);
-  incense.castShadow = true;
-  scene.add(incense);
-
-  // Incense stick
-  const stickGeo = new THREE.CylinderGeometry(0.008, 0.008, 0.8, 6);
-  const stickMat = new THREE.MeshStandardMaterial({ color: 0xcc9944, roughness: 0.9 });
-  const stick = new THREE.Mesh(stickGeo, stickMat);
-  stick.position.set(2.2, 0.43, -1.5);
-  stick.rotation.z = 0.05;
-  scene.add(stick);
 
   // Create poe blocks (筊杯)
   createPoeBlocks();
