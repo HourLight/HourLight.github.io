@@ -273,7 +273,7 @@ module.exports = async function handler(req, res) {
     // 結尾合規
     userMessage += '\n\n最後依序加上：';
     userMessage += '\n1. 溫柔引導：「如果想讓逸君的女兒親手幫您設計這套指尖能量，帶著這份報告來聊 → LINE：lin.ee/p5tBihbe」';
-    userMessage += '\n2. 免責：「⚠️ 馥靈之鑰指尖能量覺察為自我探索與情緒覺察參考工具，非醫療行為。如有身心健康疑慮，請諮詢專業醫療人員。」';
+    userMessage += '\n2. 免責：「⚠️ 馥靈之鑰指尖能量覺察為自我探索與自我導航參考工具，非醫療行為。如有身心健康疑慮，請諮詢專業醫療人員。」';
     userMessage += '\n3. 著作權：「📌 本內容著作權屬於《馥靈之鑰 Hour Light 王逸君》所有。」';
     userMessage += '\n4. 馥靈偈：用「✦ 馥靈偈 ✦」開頭，五言或七言絕句4句，押韻白話有韻味，把整篇解讀濃縮成韻文。';
     userMessage += '\n5. 最後一行：🔗 馥靈之鑰 hourlightkey.com';

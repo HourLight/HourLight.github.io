@@ -52,7 +52,7 @@
     {type:'quiz',   label:'恆毅力測驗',     hint:'您能撐多久？',                       url:'quiz-grit.html?castle=1'},
     {type:'quiz',   label:'自我疼惜測驗',   hint:'您對自己夠溫柔嗎？',                 url:'quiz-selfcompassion.html?castle=1'},
     {type:'quiz',   label:'身體覺察測驗',   hint:'您的身體在說什麼？',                 url:'quiz-somatic.html?castle=1'},
-    {type:'quiz',   label:'情緒覺察測驗',   hint:'此刻的情緒是什麼顏色？',             url:'quiz-emotion.html?castle=1'},
+    {type:'quiz',   label:'自我導航測驗',   hint:'此刻的情緒是什麼顏色？',             url:'quiz-emotion.html?castle=1'},
     {type:'quiz',   label:'VIA 性格優勢',  hint:'您的24項優勢裡最亮的是哪一個？',     url:'quiz-via.html?castle=1'},
     {type:'quiz',   label:'愛的語言',       hint:'您怎麼表達愛？',                     url:'quiz-lovelang.html?castle=1'},
     {type:'quiz',   label:'人格原型測驗',   hint:'您是哪一種原型角色？',               url:'quiz-archetype.html?castle=1'},

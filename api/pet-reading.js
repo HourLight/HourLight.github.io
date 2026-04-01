@@ -187,7 +187,7 @@ export default async function handler(req, res) {
 
 【合規聲明】
 
-馥靈之鑰寵物溝通服務為情緒覺察輔助工具，非獸醫診斷，非動物行為治療。
+馥靈之鑰寵物溝通服務為自我導航輔助工具，非獸醫診斷，非動物行為治療。
 如有寵物健康疑慮，請諮詢專業獸醫。`;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
