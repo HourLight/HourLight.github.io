@@ -1016,18 +1016,19 @@ function initPhysics() {
 
   // Block physics bodies (box approximation for the crescent moon shape)
   // Matches crescent proportions: width ~0.38+0.13, height ~0.28, half-length ~0.5
-  const blockShape = new CANNON.Box(new CANNON.Vec3(0.28, 0.14, 0.50));
+  // 碰撞體用極扁的盒子（像硬幣），確保一定倒向某一面，不會立起來
+  const blockShape = new CANNON.Box(new CANNON.Vec3(0.40, 0.06, 0.50));
 
   blockBody1 = new CANNON.Body({ mass: 0.15, material: blockMat });
   blockBody1.addShape(blockShape);
-  blockBody1.linearDamping = 0.3;
-  blockBody1.angularDamping = 0.4;
+  blockBody1.linearDamping = 0.4;
+  blockBody1.angularDamping = 0.5;
   world.addBody(blockBody1);
 
   blockBody2 = new CANNON.Body({ mass: 0.15, material: blockMat });
   blockBody2.addShape(blockShape);
-  blockBody2.linearDamping = 0.3;
-  blockBody2.angularDamping = 0.4;
+  blockBody2.linearDamping = 0.4;
+  blockBody2.angularDamping = 0.5;
   world.addBody(blockBody2);
 
   // Collision sound via body events
@@ -1125,9 +1126,9 @@ function throwBlocks() {
     (Math.random() - 0.5) * 1
   );
   blockBody1.angularVelocity.set(
+    (Math.random() - 0.5) * 3,
     (Math.random() - 0.5) * 4,
-    (Math.random() - 0.5) * 6,
-    (Math.random() - 0.5) * 4
+    (Math.random() - 0.5) * 3
   );
 
   // Block 2
@@ -1143,9 +1144,9 @@ function throwBlocks() {
     (Math.random() - 0.5) * 1
   );
   blockBody2.angularVelocity.set(
+    (Math.random() - 0.5) * 3,
     (Math.random() - 0.5) * 4,
-    (Math.random() - 0.5) * 6,
-    (Math.random() - 0.5) * 4
+    (Math.random() - 0.5) * 3
   );
 
   // 等物理自然靜止後顯示結果（不修改姿態）
