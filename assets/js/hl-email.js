@@ -148,21 +148,32 @@
           if (el) content = el.textContent || el.innerText;
         }
         if (!content) {
-          // 嘗試從同層級的 pre 或結果 div 取
+          // 嘗試從同層級的 pre 取
           var pre = btn.parentNode.querySelector('pre');
           if (pre) content = pre.textContent || pre.innerText;
         }
+        // 全站通用結果容器（依優先順序嘗試）
+        var RESULT_IDS = ['aiResultContent','readingBox','readingContent','quizResult','resultContent','resultArea','resultMain'];
         if (!content) {
-          // draw-hl AI 解讀結果（在 div#aiResultContent）
-          var aiDiv = document.getElementById('aiResultContent');
-          if (aiDiv && aiDiv.textContent.trim().length > 20) content = aiDiv.textContent;
+          for (var ri = 0; ri < RESULT_IDS.length; ri++) {
+            var rEl = document.getElementById(RESULT_IDS[ri]);
+            if (rEl && rEl.textContent.trim().length > 20) { content = rEl.textContent; break; }
+          }
         }
         if (!content) {
-          // 從整個結果區取
-          var resultArea = btn.closest('.ai-box, .copy-section, .result-box, .ff-glass, [id*="result"], [id*="Result"]');
-          if (resultArea) {
-            var p = resultArea.querySelector('pre, [style*="pre-wrap"], .result-text, .reading-text');
-            if (p) content = p.textContent || p.innerText;
+          // 從 class 選擇器找
+          var RESULT_CLASSES = '.reading-box, .quiz-result, .result-section, .ai-box, .copy-section, .result-box, .ff-glass, [id*="result"], [id*="Result"]';
+          var resultEls = document.querySelectorAll(RESULT_CLASSES);
+          for (var rci = 0; rci < resultEls.length; rci++) {
+            var txt = resultEls[rci].textContent.trim();
+            if (txt.length > 50) { content = txt; break; }
+          }
+        }
+        if (!content) {
+          // 最後嘗試從 pre 標籤取
+          var allPres = document.querySelectorAll('pre');
+          for (var pi = 0; pi < allPres.length; pi++) {
+            if (allPres[pi].textContent.trim().length > 30) { content = allPres[pi].textContent; break; }
           }
         }
         if (content) openModal(content, sysLabel);
