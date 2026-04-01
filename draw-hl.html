@@ -2458,57 +2458,72 @@ function useVoucher(){
       window.location.href='member-login.html';
     return;
   }
+  // 防止連續點擊
+  if(window._voucherUsing) return;
   var valid=window._validVouchers;
   if(!valid||valid.length===0){
     alert('您目前沒有可用的抵用券');
     return;
   }
+  // 二次確認
+  if(!confirm('確定要使用一張 $500 抵用券預約覺察師解讀嗎？\n（剩餘 '+valid.length+' 張）')) return;
+
+  window._voucherUsing=true;
   var user=firebase.auth().currentUser;
   var db=firebase.firestore();
   var target=valid[0]; // 用最舊的一張
   var useCode=_vGenUseCode();
   var vCode=target.data.code||('HL-V-'+target.id.slice(0,8).toUpperCase());
 
-  // 更新 Firestore
-  target.data.ref||db.collection('users').doc(user.uid).collection('vouchers').doc(target.id)
+  // 更新 Firestore：標記該張為已使用
+  db.collection('users').doc(user.uid).collection('vouchers').doc(target.id)
     .update({
       used:true,
       usedAt:Date.now(),
       usedFor:'draw-9plus',
       useCode:useCode
+    })
+    .then(function(){
+      // 全域 log（記錄成功才寫，失敗也不擋流程）
+      db.collection('voucher_log').add({
+        uid:user.uid,
+        email:user.email||'',
+        voucherCode:vCode,
+        useCode:useCode,
+        usedAt:Date.now(),
+        usedFor:'draw-9plus'
+      }).catch(function(){});
+    })
+    .catch(function(err){
+      // fail-open：Firestore 不可用時仍讓使用者走預約流程
+      console.warn('voucher update failed:',err);
+    })
+    .then(function(){
+      // 不論 Firestore 成功與否都進入預約流程
+      window._voucherUsing=false;
+
+      // 複製結果
+      var cpBtn=document.getElementById('cpyBtn');
+      if(cpBtn) cpBtn.click();
+
+      // LINE 訊息帶序號
+      var msg='【抵用券預約 '+useCode+'】\n'
+        +'我要預約 9 張以上覺察師解讀（$500 抵用券）\n'
+        +'抵用券序號：'+vCode+'\n'
+        +'使用代碼：'+useCode+'\n'
+        +'抽牌結果已複製，傳給您參考。';
+      window.open('https://social-plugins.line.me/lineit/share?url='
+        +encodeURIComponent('https://hourlightkey.com/draw-hl.html')
+        +'&text='+encodeURIComponent(msg),'_blank');
+
+      // 更新本地狀態
+      valid.shift();
+      window._validVouchers=valid;
+      var hint=document.getElementById('voucherHint');
+      var countEl=document.getElementById('voucherCount');
+      if(valid.length===0&&hint) hint.style.display='none';
+      else if(countEl) countEl.textContent=valid.length;
     });
-
-  // 全域 log
-  db.collection('voucher_log').add({
-    uid:user.uid,
-    email:user.email||'',
-    voucherCode:vCode,
-    useCode:useCode,
-    usedAt:Date.now(),
-    usedFor:'draw-9plus'
-  }).catch(function(){});
-
-  // 複製結果
-  var cpBtn=document.getElementById('cpyBtn');
-  if(cpBtn) cpBtn.click();
-
-  // LINE 訊息帶序號
-  var msg='【抵用券預約 '+useCode+'】\n'
-    +'我要預約 9 張以上覺察師解讀（$500 抵用券）\n'
-    +'抵用券序號：'+vCode+'\n'
-    +'使用代碼：'+useCode+'\n'
-    +'抽牌結果已複製，傳給您參考。';
-  window.open('https://social-plugins.line.me/lineit/share?url='
-    +encodeURIComponent('https://hourlightkey.com/draw-hl.html')
-    +'&text='+encodeURIComponent(msg),'_blank');
-
-  // 更新本地狀態
-  valid.shift();
-  window._validVouchers=valid;
-  var hint=document.getElementById('voucherHint');
-  var countEl=document.getElementById('voucherCount');
-  if(valid.length===0&&hint) hint.style.display='none';
-  else if(countEl) countEl.textContent=valid.length;
 }
 document.addEventListener('DOMContentLoaded',function(){
   setTimeout(function(){

@@ -23,6 +23,9 @@ window.saveResultImage=function(){
   var el=document.getElementById('quizResult')
         ||document.getElementById('result-area')
         ||document.getElementById('ra')
+        ||document.getElementById('readingDisplay')
+        ||document.getElementById('result')
+        ||document.getElementById('storyDisplay')
         ||document.querySelector('.quiz-result.active');
   if(!el){alert('請先完成測驗');return;}
   if(typeof html2canvas==='undefined'){alert('圖片功能載入中，請稍後再試');return;}
@@ -94,6 +97,9 @@ window.copyResult=function(){
   var el=document.getElementById('quizResult')
         ||document.getElementById('result-area')
         ||document.getElementById('ra')
+        ||document.getElementById('readingDisplay')
+        ||document.getElementById('result')
+        ||document.getElementById('storyDisplay')
         ||document.querySelector('.quiz-result.active');
   if(!el){alert('請先完成測驗');return;}
 
@@ -150,6 +156,9 @@ window.shareToLine=function(){
   var el=document.getElementById('quizResult')
         ||document.getElementById('result-area')
         ||document.getElementById('ra')
+        ||document.getElementById('readingDisplay')
+        ||document.getElementById('result')
+        ||document.getElementById('storyDisplay')
         ||document.querySelector('.quiz-result.active');
   if(!el) return;
   var title=document.title.replace(/[|｜].*/,'').trim();
