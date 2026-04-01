@@ -3469,12 +3469,17 @@ function renderDailyEnergy(userData) {
     var COLOR = {'水':'墨玉藍','木':'翠玉金','火':'赤焰金','土':'琥珀金','金':'霜銀白'};
     var WX_ICON = {'水':'💧','木':'🌿','火':'🔥','土':'🏔','金':'⚔'};
     var WX_MSG = {
-      '水':'水行日，直覺敏銳但容易想太多。重要決定睡一覺再說。',
-      '木':'木行日，生長力旺盛，適合開始新計畫、認識新朋友。',
-      '火':'火行日，行動力爆表但容易衝動。做完深呼吸再按送出。',
-      '土':'土行日，穩定踏實的一天。適合處理文件、整理空間、盤點財務。',
-      '金':'金行日，判斷力清明。適合談判、做取捨、剪掉不需要的東西。'
+      '水':'💧 水行日｜直覺敏銳但容易想太多。今天適合沉靜下來聽自己內心的聲音。重要決定不急，睡一覺再說。泡澡時滴兩滴薰衣草，讓水元素幫你洗掉多餘的念頭。',
+      '木':'🌿 木行日｜生長力旺盛，像春天的枝芽一樣充滿衝勁。適合開始新計畫、認識新朋友、種下一顆種子。早晨聞一下迷迭香，讓思緒跟身體一起甦醒。',
+      '火':'🔥 火行日｜行動力爆表，靈感像火花一樣噼啪作響。但小心衝動——做完三次深呼吸再按送出。甜橙精油幫你保持熱情但不燒過頭。',
+      '土':'🏔 土行日｜穩定踏實的能量，像大地一樣沉穩。適合處理文件、整理空間、盤點財務、把拖很久的事情收尾。岩蘭草的氣味讓你更接地。',
+      '金':'⚔ 金行日｜判斷力清明如刀鋒，適合談判、做取捨、剪掉生活中不需要的東西。茶樹精油幫你保持頭腦清晰，果斷但不冷酷。'
     };
+    var JQ_DESC = {};
+    try {
+      var jqList = {'立春':'萬物初醒，適合許願和設定新目標','雨水':'滋養的時刻，給自己一點溫柔','驚蟄':'沉睡的力量被喚醒，勇敢跨出第一步','春分':'日夜等長，找回內在平衡的好時機','清明':'清理舊能量，為新的自己騰出空間','穀雨':'播種後靜待發芽，相信時間的力量','立夏':'能量轉為外放，適合社交和展現自己','小滿':'小有成果但別急著收割，繼續灌溉','芒種':'忙碌但要記得照顧自己，別只顧著耕耘','夏至':'陽氣最盛，把握這股力量完成大事','小暑':'熱情高漲也要懂得散熱，找到你的涼風','大暑':'極致的火能量，學會在炎熱中保持清涼的心','立秋':'開始收穫的季節，盤點你上半年種下的種子','處暑':'暑氣漸退，適合沉澱和反思','白露':'敏感度提升，你的直覺在這段時間特別準','秋分':'再次平衡，放下不再需要的，留下珍貴的','寒露':'向內收斂的力量增強，適合深度覺察','霜降':'為即將到來的冬天做準備，儲存能量','立冬':'進入蟄伏期，不是停滯是在積蓄力量','小雪':'安靜的力量，在沉默中聽見真正的自己','大雪':'最深的冬天藏著最深的智慧','冬至':'最短的白天，最長的夜。黎明前的黑暗最值得等待','小寒':'寒冷中保持內心的火焰，你比想像的更堅韌','大寒':'一年最冷的時候，也是離春天最近的時候'};
+      JQ_DESC = jqList;
+    } catch(e3) {}
 
     var hasProfile = userData && userData.yearWX;
     var html = '';
@@ -3486,8 +3491,17 @@ function renderDailyEnergy(userData) {
       // 分數已移除（低分影響心情），只保留精油/水晶/方位/開運色/洞察
     }
 
+    // 節氣名稱顯示
+    if (jqName) {
+      var jqTip = JQ_DESC[jqName] || '';
+      html += '<div style="padding:10px 14px;margin-bottom:12px;background:linear-gradient(135deg,rgba(201,160,96,.08),rgba(201,160,96,.03));border:1px solid rgba(201,160,96,.15);border-radius:10px;text-align:center">';
+      html += '<div style="font-size:1rem;font-weight:700;color:var(--gold);letter-spacing:.1em;margin-bottom:4px">☀ ' + jqName + '</div>';
+      if (jqTip) html += '<div style="font-size:.82rem;color:var(--text);line-height:1.6">' + jqTip + '</div>';
+      html += '</div>';
+    }
+
     html += '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">';
-    html += '<div style="flex:1;min-width:120px;padding:10px;background:var(--bg);border-radius:10px;text-align:center"><div style="font-size:.75rem;color:var(--light)">精油</div><div style="font-size:.92rem;font-weight:600;color:var(--text)">🌿 ' + OIL[dayWX] + '</div></div>';
+    html += '<div style="flex:1;min-width:120px;padding:10px;background:var(--bg);border-radius:10px;text-align:center"><div style="font-size:.75rem;color:var(--light)">精油</div><div style="font-size:.92rem;font-weight:600;color:var(--text)">🌿 ' + OIL[dayWX] + '</div><div style="font-size:.72rem;color:var(--mid);margin-top:2px">搭配 ' + OIL2[dayWX] + '</div></div>';
     html += '<div style="flex:1;min-width:120px;padding:10px;background:var(--bg);border-radius:10px;text-align:center"><div style="font-size:.75rem;color:var(--light)">水晶</div><div style="font-size:.92rem;font-weight:600;color:var(--text)">💎 ' + CRYSTAL[dayWX] + '</div></div>';
     html += '<div style="flex:1;min-width:120px;padding:10px;background:var(--bg);border-radius:10px;text-align:center"><div style="font-size:.75rem;color:var(--light)">方位</div><div style="font-size:.92rem;font-weight:600;color:var(--text)">🧭 ' + DIR[dayWX] + '</div></div>';
     html += '<div style="flex:1;min-width:120px;padding:10px;background:var(--bg);border-radius:10px;text-align:center"><div style="font-size:.75rem;color:var(--light)">開運色</div><div style="font-size:.92rem;font-weight:600;color:var(--text)">🎨 ' + COLOR[dayWX] + '</div></div>';
@@ -3499,7 +3513,7 @@ function renderDailyEnergy(userData) {
       html += '<div style="padding:12px;background:linear-gradient(135deg,rgba(201,160,96,.06),rgba(201,160,96,.02));border:1px solid rgba(201,160,96,.15);border-radius:10px;font-size:.88rem;color:var(--text);line-height:1.8">' + WX_ICON[dayWX] + ' ' + tip + '</div>';
     } else {
       html += '<div style="padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;font-size:.88rem;color:var(--mid);line-height:1.8">' + WX_ICON[dayWX] + ' ' + WX_MSG[dayWX] + '</div>';
-      html += '<div style="text-align:center;margin-top:10px"><button onclick="showPage(&quot;settings&quot;)" style="padding:8px 20px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:8px;color:#1a1008;font-size:.85rem;font-weight:500;cursor:pointer;font-family:inherit">🔓 填入生日，解鎖專屬五維能量分數</button></div>';
+      html += '<div style="text-align:center;margin-top:10px"><button onclick="showPage(&quot;settings&quot;)" style="padding:8px 20px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:8px;color:#1a1008;font-size:.85rem;font-weight:500;cursor:pointer;font-family:inherit">🔓 填入生日，解鎖專屬節氣洞察</button></div>';
     }
 
     // 抽牌連結已移除（到處都是抽牌連結太煩）
