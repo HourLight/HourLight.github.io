@@ -25,7 +25,7 @@
 <noscript><img height="1" width="1" style="display:none"
   src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"></noscript>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=5">
 <title>馥靈投射卡｜馥靈之鑰 Hour Light</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="favicon.ico">
@@ -36,8 +36,8 @@
 :root{--bg:#05030a;--ink:#ffffff;--ink2:rgba(249,240,229,.55);--ink3:rgba(249,240,229,.3);
   --gold:#f8dfa5;--gold2:#ecd098;--glass:rgba(249,240,229,.04);--bdr:rgba(233,194,125,.12)}
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:'Noto Sans TC',sans-serif;font-weight:500;line-height:1.8;min-height:100vh}
-body::before{content:'';position:fixed;inset:0;z-index:-2;
+body{background:var(--bg);color:var(--ink);font-family:'Noto Sans TC',sans-serif;font-weight:500;line-height:1.8;min-height:100vh;min-height:100dvh}
+body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;z-index:-2;
   background:radial-gradient(ellipse at 50% 40%,rgba(92,58,99,.1),transparent 50%),
   radial-gradient(ellipse at 50% 60%,rgba(233,194,125,.05),transparent 45%),var(--bg)}
 .container{max-width:720px;margin:0 auto;padding:24px 16px 80px}
@@ -119,6 +119,29 @@ h1{font-family:'Noto Serif TC',serif;font-weight:600;font-size:clamp(1.4rem,4vw,
 .ff-footer a{color:rgba(233,194,125,0.70);text-decoration:none}
 #resultArea{display:none}
 @media(max-width:500px){.proj-card{width:100%;max-width:260px}}
+@media(max-width:480px){
+  .container{padding:16px 12px 72px}
+  .ff-glass{padding:20px 14px}
+  .btn-draw{padding:14px 32px;min-height:44px}
+  .proj-input{font-size:16px;padding:14px;min-height:44px}
+  .cp-btn{min-height:44px;padding:12px}
+  .card-pair{gap:12px}
+}
+@media(max-width:360px){
+  .container{padding:12px 8px 56px}
+  .ff-glass{padding:16px 10px}
+  .proj-card{max-width:100%}
+  .img-card{min-height:220px}
+  .word-card{min-height:220px;padding:28px 14px}
+}
+@media(hover:hover){
+  .btn-draw:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(233,194,125,.25)}
+  .cp-btn:hover{background:rgba(233,194,125,.12)}
+}
+@media(hover:none){
+  .btn-draw:active{transform:scale(.97)}
+  .cp-btn:active{background:rgba(233,194,125,.12)}
+}
 </style>
 <link rel="stylesheet" href="assets/css/hl-footer.css">
 <link rel="stylesheet" href="assets/css/hl-design-tokens.css">
@@ -523,7 +546,10 @@ function generateImage(canvas) {
 // ── 抽牌 ──
 var currentWord = null;
 
+var hasDrawn = false;
 function drawCards(){
+  if(hasDrawn && !confirm('確定要再抽一組嗎？目前的結果將會消失。')) return;
+  hasDrawn = true;
   var idx = Math.floor(Math.random()*WORDS.length);
   currentWord = WORDS[idx];
 
@@ -627,7 +653,7 @@ function drawCards(){
 
   // 顯示結果區
   document.getElementById('resultArea').style.display = 'block';
-  document.getElementById('resultArea').scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(function(){document.getElementById('resultArea').scrollIntoView({behavior:'smooth',block:'start'});},300);
 
   // 粒子
   if(window.HLFX) HLFX.particles({color:'rgba(233,194,125,0.3)',count:25,spread:'float',duration:3000});
