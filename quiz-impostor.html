@@ -140,6 +140,7 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"></n
     <div class="ocean-bars" id="dimBars"></div>
     <div id="resultSections"></div>
     <div class="result-hour-bridge" id="resultHour"></div>
+    <div class="result-section" id="resultMed" style="display:none"></div>
     <div class="share-row">
       <button class="share-btn" onclick="copyResult()">📋 複製結果</button>
       <button class="share-btn" onclick="shareToLine()">💬 分享到 LINE</button>
@@ -268,6 +269,21 @@ function showResult(){
   document.getElementById('dimBars').innerHTML=`<div class="ocean-item"><div class="ocean-top"><span class="ocean-label"><strong>冒牌感指數</strong></span><span class="ocean-score">${pct}%</span></div><div class="ocean-track"><div class="ocean-fill" style="width:${pct}%;background:linear-gradient(90deg,#5ba67a ${Math.min(pct,40)}%,#f4a340 ${Math.min(pct,70)}%,#e85050)"></div></div></div>`;
   document.getElementById('resultSections').innerHTML=`<div class="result-section"><div class="result-section-title">🎭 您的冒牌者模式</div><div class="result-section-content">${r.desc}</div></div><div class="result-section"><div class="result-section-title">🌑 藏在面具背後的真相</div><div class="result-section-content">${r.shadow}</div></div><div class="result-section"><div class="result-section-title">🔑 您的覺察洞見</div><div class="result-section-content">${r.insight}</div></div><div class="result-section"><div class="result-section-title">🌿 您的香氣指引</div><div class="result-section-content">${r.aroma}</div></div>`;
   window._resultText=r.share||'';
+  // ── 冥想著陸 ──
+  const impostorMed = {
+    'low': '「穩定擴張呼吸」：閉眼，吸氣 4 秒，感覺你的自信像一顆暖暖的光球穩穩地待在胸口。吐氣 6 秒，讓那顆光球慢慢往外擴大一圈。吸氣 4 秒，光球再大一點，包住你的肩膀。吐氣 6 秒，繼續擴張，包住你身邊的空間。做 5 輪。你的穩定不只屬於你，它正在安靜地影響身邊的人。試著在下一次有人自我懷疑的時候，把這份安定分享出去。',
+    'moderate': '「面具輕放呼吸」：閉眼，吸氣 4 秒，想像那個「我配嗎」的聲音是一顆小石頭，你正握在手心裡。吐氣 6 秒，不是用力丟掉它，是慢慢攤開手指讓它自己滾落。吸氣 4 秒，感覺空出來的手掌心很輕。吐氣 6 秒，輕聲對自己說：「這次的結果，是我做到的。」做 6 輪。那個聲音不需要消失，你只需要練習不再緊握它。',
+    'frequent': '「我值得呼吸」：閉眼，雙手放在膝蓋上。吸氣 4 秒，想像吸進來的空氣是金色的。吐氣 7 秒，那些金色的空氣停留在你胸口，形成一個小小的光點。每輪呼吸，光點都亮一點。做 6 輪之後，那個光點已經夠亮了。默念三次：「我不需要完美才值得擁有。」你花在準備的那三倍時間，有一半是恐懼，不是認真。允許自己用正常的力氣做事，結果不會比較差。',
+    'intense': '「安全著地呼吸」：閉眼，雙腳踩穩地面，感覺十根腳趾頭跟地板的接觸。吸氣 4 秒，想像腳底長出根鬚，慢慢往地面伸進去。吐氣 7 秒，根鬚越長越深，穩穩地扎進土裡。吸氣 4 秒，從土裡吸收一股溫暖的力量往上升。吐氣 7 秒，那股力量到達你的心口，輕輕地說：「你在這裡是因為你配得上。」做 6 輪。被揭穿的恐懼像一個從來不會兌現的恐嚇信，你可以看見它，但你不需要相信它。'
+  };
+  const medTextI = impostorMed[topType] || '';
+  if (medTextI) {
+    document.getElementById('resultMed').style.display = 'block';
+    document.getElementById('resultMed').innerHTML = `
+      <div class="result-section-title">🧘 隨時可做的覺察練習</div>
+      <div class="result-section-content">${medTextI}</div>`;
+  }
+
   document.getElementById('resultHour').innerHTML=`<div class="hour-bridge-label">✦ 馥靈之鑰 × 您的覺察密碼</div><div class="hour-bridge-text">${r.bridge}</div><a href="draw-hl.html" class="hour-bridge-cta">抽一張牌，聽聽自己真正的聲音 ✨</a>`;
   
   try{localStorage.setItem('hl_quiz_impostor',JSON.stringify({type:topType,total,pct,ts:Date.now()}));}catch(e){}
