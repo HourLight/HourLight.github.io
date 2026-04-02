@@ -373,6 +373,7 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:var(--bg-dark
 
 <!-- 合成配方 -->
 <div id="tab-recipes" class="tab-content" style="display:none">
+  <div id="seasonal-hint" style="display:none;margin:0 16px 12px;padding:12px 16px;background:linear-gradient(135deg,rgba(60,40,90,.85),rgba(45,30,70,.9));border:1.5px solid rgba(212,160,64,.3);border-radius:14px;text-align:center;font-size:.8rem;color:#f5dfa8;line-height:1.6;animation:craftReady 2.5s ease-in-out infinite"></div>
   <div class="recipe-list" id="recipes-content"></div>
 </div>
 
@@ -556,6 +557,80 @@ function init(){
   renderProgressBars();
   updateCodexDisplay();
   updateAlchemyBtn();
+  renderSeasonalHint();
+}
+
+// ── 節氣限定合成提示 ──
+function renderSeasonalHint(){
+  var el = document.getElementById('seasonal-hint');
+  if(!el) return;
+
+  // 24 節氣對照表（月/日為近似值，每年差 1-2 天）
+  var solarTerms = [
+    { name:'小寒', m:1, d:5 },  { name:'大寒', m:1, d:20 },
+    { name:'立春', m:2, d:4 },  { name:'雨水', m:2, d:19 },
+    { name:'驚蟄', m:3, d:6 },  { name:'春分', m:3, d:21 },
+    { name:'清明', m:4, d:5 },  { name:'穀雨', m:4, d:20 },
+    { name:'立夏', m:5, d:6 },  { name:'小滿', m:5, d:21 },
+    { name:'芒種', m:6, d:6 },  { name:'夏至', m:6, d:21 },
+    { name:'小暑', m:7, d:7 },  { name:'大暑', m:7, d:23 },
+    { name:'立秋', m:8, d:7 },  { name:'處暑', m:8, d:23 },
+    { name:'白露', m:9, d:8 },  { name:'秋分', m:9, d:23 },
+    { name:'寒露', m:10, d:8 }, { name:'霜降', m:10, d:23 },
+    { name:'立冬', m:11, d:7 }, { name:'小雪', m:11, d:22 },
+    { name:'大雪', m:12, d:7 }, { name:'冬至', m:12, d:22 }
+  ];
+
+  // 節氣 → 顯示文案 & 圖示
+  var seasonMsgs = {
+    '立春': { icon:'🌱', text:'立春限定配方醞釀中' },
+    '雨水': { icon:'🌧️', text:'雨水限定配方醞釀中' },
+    '驚蟄': { icon:'⚡', text:'驚蟄限定配方醞釀中' },
+    '春分': { icon:'🌸', text:'春分限定配方可用！' },
+    '清明': { icon:'🍃', text:'清明限定配方醞釀中' },
+    '穀雨': { icon:'🌾', text:'穀雨限定配方醞釀中' },
+    '立夏': { icon:'☀️', text:'立夏限定配方醞釀中' },
+    '小滿': { icon:'🌻', text:'小滿限定配方醞釀中' },
+    '芒種': { icon:'🌿', text:'芒種限定配方醞釀中' },
+    '夏至': { icon:'🔥', text:'夏至限定配方可用！' },
+    '小暑': { icon:'🌡️', text:'小暑限定配方醞釀中' },
+    '大暑': { icon:'💧', text:'大暑限定配方醞釀中' },
+    '立秋': { icon:'🍂', text:'立秋限定配方醞釀中' },
+    '處暑': { icon:'🌅', text:'處暑限定配方醞釀中' },
+    '白露': { icon:'💎', text:'白露限定配方醞釀中' },
+    '秋分': { icon:'🍁', text:'秋分限定配方可用！' },
+    '寒露': { icon:'🌙', text:'寒露限定配方醞釀中' },
+    '霜降': { icon:'❄️', text:'霜降限定配方醞釀中' },
+    '立冬': { icon:'🧣', text:'立冬限定配方醞釀中' },
+    '小雪': { icon:'🌨️', text:'小雪限定配方醞釀中' },
+    '大雪': { icon:'⛄', text:'大雪限定配方醞釀中' },
+    '冬至': { icon:'🕯️', text:'冬至限定配方可用！' },
+    '小寒': { icon:'🧊', text:'小寒限定配方醞釀中' },
+    '大寒': { icon:'🏔️', text:'大寒限定配方醞釀中' }
+  };
+
+  // 判斷當前節氣（取台灣時間）
+  var tw = new Date(new Date().getTime() + 8*3600000);
+  var mm = tw.getUTCMonth() + 1;
+  var dd = tw.getUTCDate();
+  var dayOfYear = mm * 100 + dd; // 簡化比較用
+
+  var currentTerm = null;
+  for(var i = solarTerms.length - 1; i >= 0; i--){
+    var t = solarTerms[i];
+    if(dayOfYear >= t.m * 100 + t.d){
+      currentTerm = t.name;
+      break;
+    }
+  }
+  // 如果在 1/1-1/5 之間，算上一年的冬至
+  if(!currentTerm) currentTerm = '冬至';
+
+  var msg = seasonMsgs[currentTerm];
+  if(msg){
+    el.innerHTML = msg.icon + ' ' + msg.text + '<br><span style="font-size:.68rem;opacity:.7">節氣：' + currentTerm + '｜限定配方即將開放，敬請期待</span>';
+    el.style.display = 'block';
+  }
 }
 
 function updateTopStats(){
