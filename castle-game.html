@@ -645,6 +645,12 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:linear-gradie
 <img src="LOGO-1.png" alt="" class="castle-watermark-cover" aria-hidden="true">
 </div>
 
+<!-- 分享城堡按鈕 -->
+<div style="display:flex;gap:10px;justify-content:flex-end;margin-bottom:14px">
+<button onclick="shareCastleImage()" style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:linear-gradient(135deg,var(--coral),var(--rose));color:#fff;border:none;border-radius:20px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(231,111,81,.25);transition:all .3s;letter-spacing:.3px">📸 分享我的城堡</button>
+<button onclick="shareCastleToLine()" style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:#06C755;color:#fff;border:none;border-radius:20px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(6,199,85,.25);transition:all .3s;letter-spacing:.3px">💬 分享到 LINE</button>
+</div>
+
 <div class="panel" id="panel"></div>
 
 <!-- ── 城堡完整度 ── -->
@@ -1962,6 +1968,176 @@ function renderShopRecipes(){
     setTimeout(checkDailyLogin, 1200);
   };
 })();
+
+// ═══ 分享我的城堡（截圖功能）═══
+function getCastleStats(){
+  var st = window.hlCastle ? hlCastle.getState() : {};
+  var unlockedRooms = (st.unlockedRooms || []).length;
+  var furnitureCount = 0;
+  var materialCount = 0;
+  var totalMaterials = 0;
+  if(window.hlMaterial){
+    furnitureCount = hlMaterial.getFurniture ? hlMaterial.getFurniture().length : 0;
+    var inv = hlMaterial.getInventory ? hlMaterial.getInventory() : {};
+    materialCount = Object.keys(inv).length;
+    // 計算全部材料種類（去重）
+    var allIds = {};
+    var defs = hlMaterial.MATERIAL_DEFS || {};
+    Object.keys(defs).forEach(function(zone){
+      (defs[zone]||[]).forEach(function(m){ allIds[m.id] = true; });
+    });
+    totalMaterials = Object.keys(allIds).length;
+  }
+  var totalFurniture = (window.hlMaterial && hlMaterial.RECIPES) ? hlMaterial.RECIPES.length : 7;
+  var streak = st.streak || 0;
+  return {
+    rooms: unlockedRooms,
+    totalRooms: 12,
+    furniture: furnitureCount,
+    totalFurniture: totalFurniture,
+    materials: materialCount,
+    totalMaterials: totalMaterials || 28,
+    streak: streak
+  };
+}
+
+function shareCastleImage(){
+  var wrap = document.querySelector('.castle-wrap');
+  if(!wrap){ alert('城堡尚未載入'); return; }
+
+  // 確保 html2canvas 已載入
+  if(typeof html2canvas === 'undefined'){
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload = function(){ shareCastleImage(); };
+    document.head.appendChild(s);
+    return;
+  }
+
+  var stats = getCastleStats();
+
+  // 載入提示
+  var toast = document.createElement('div');
+  toast.textContent = '🎨 正在生成城堡截圖⋯';
+  toast.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);'
+    + 'background:rgba(29,53,87,.95);color:#f8dfa5;padding:16px 28px;'
+    + 'border-radius:12px;font-size:.9rem;z-index:99999;'
+    + 'border:1px solid rgba(248,223,165,.3);pointer-events:none';
+  document.body.appendChild(toast);
+
+  html2canvas(wrap, {
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: null,
+    logging: false,
+    imageTimeout: 0,
+    removeContainer: true
+  }).then(function(castleCanvas){
+    // 建立最終畫布（加統計數據覆蓋層）
+    var padding = 40;
+    var statsHeight = 180;
+    var w = castleCanvas.width;
+    var h = castleCanvas.height;
+    var finalW = w + padding * 2;
+    var finalH = h + padding * 2 + statsHeight;
+
+    var canvas = document.createElement('canvas');
+    canvas.width = finalW;
+    canvas.height = finalH;
+    var ctx = canvas.getContext('2d');
+
+    // 背景漸層
+    var grad = ctx.createLinearGradient(0, 0, 0, finalH);
+    grad.addColorStop(0, '#FFF8F0');
+    grad.addColorStop(1, '#FFE8D6');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, finalW, finalH);
+
+    // 畫城堡截圖
+    ctx.drawImage(castleCanvas, padding, padding);
+
+    // 統計數據區域背景
+    var statsY = h + padding * 2 - 10;
+    ctx.fillStyle = 'rgba(29,53,87,.06)';
+    roundRect(ctx, padding, statsY, w, statsHeight, 20);
+    ctx.fill();
+
+    // 標題
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#1D3557';
+    ctx.font = 'bold ' + Math.round(w * 0.04) + 'px "Noto Serif TC", serif';
+    ctx.fillText('🏰 我的內在城堡', finalW / 2, statsY + 40);
+
+    // 統計數據
+    ctx.font = Math.round(w * 0.025) + 'px "Noto Serif TC", sans-serif';
+    ctx.fillStyle = '#4a4a5a';
+    var lineH = Math.round(w * 0.035);
+    var startY = statsY + 70;
+    var lines = [
+      '已探索 ' + stats.rooms + '/' + stats.totalRooms + ' 間房間',
+      '已合成 ' + stats.furniture + '/' + stats.totalFurniture + ' 件傢具',
+      '已收集 ' + stats.materials + '/' + stats.totalMaterials + ' 種材料',
+      '連續登入 ' + stats.streak + ' 天'
+    ];
+    lines.forEach(function(line, i){
+      ctx.fillText(line, finalW / 2, startY + i * lineH);
+    });
+
+    // 品牌浮水印
+    ctx.font = Math.round(w * 0.018) + 'px sans-serif';
+    ctx.fillStyle = 'rgba(29,53,87,.35)';
+    ctx.fillText('✦ 馥靈之鑰 Hour Light ✦ hourlightkey.com', finalW / 2, finalH - 16);
+
+    document.body.removeChild(toast);
+
+    // 下載
+    var link = document.createElement('a');
+    link.download = '馥靈之鑰_我的內在城堡_' + new Date().toLocaleDateString('sv-SE') + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }).catch(function(e){
+    document.body.removeChild(toast);
+    console.warn('castle screenshot error:', e);
+    alert('截圖生成失敗，請改用文字分享功能');
+  });
+
+  // 設定分享文案供 hl-share.js 使用
+  window._resultText = '🏰 我的內在城堡已探索 ' + stats.rooms + '/' + stats.totalRooms
+    + ' 間房間，收集了 ' + stats.materials + ' 種材料。你的城堡長什麼樣？來探索看看 👉 hourlightkey.com/castle-game.html';
+
+  // 分享加分
+  if(window.hlCastle && hlCastle.shareBonus) hlCastle.shareBonus();
+  if(typeof upd === 'function') upd();
+}
+
+// 圓角矩形輔助函數
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+// LINE 分享城堡
+function shareCastleToLine(){
+  var stats = getCastleStats();
+  var text = '🏰 我的內在城堡已探索 ' + stats.rooms + '/' + stats.totalRooms
+    + ' 間房間，收集了 ' + stats.materials + ' 種材料。\n你的城堡長什麼樣？來探索看看';
+  var url = 'https://hourlightkey.com/castle-game.html';
+  window.open('https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(text), '_blank');
+
+  // 分享加分
+  if(window.hlCastle && hlCastle.shareBonus) hlCastle.shareBonus();
+  if(typeof upd === 'function') upd();
+}
 </script>
 </body>
 </html>
