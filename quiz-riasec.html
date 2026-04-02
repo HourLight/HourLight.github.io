@@ -135,6 +135,7 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"></n
     <div class="result-hero" id="resultHero"></div>
     <div class="ocean-bars" id="dimBars"></div>
     <div id="resultSections"></div>
+    <div class="result-section" id="resultMed" style="display:none"></div>
     <div class="result-hour-bridge" id="resultHour"></div>
     <div class="share-row">
       <button class="share-btn" onclick="copyResult()">📋 複製結果</button><button class="share-btn" onclick="shareToLine()">💬 分享到 LINE</button></div>
@@ -254,6 +255,21 @@ function showResult(){
   document.getElementById('resultHero').innerHTML=`<span class="result-hero-icon">${topIcon}</span><div class="result-type-label">RIASEC 職業興趣代碼</div><div class="result-combo-name">你的代碼：${code}</div><div class="result-subtitle">${sorted.slice(0,3).map(s=>typeNames[s[0]]).join(' × ')}</div>`;
   document.getElementById('dimBars').innerHTML=['R','I','A','S','E','C'].map(d=>`<div class="ocean-item"><div class="ocean-top"><span class="ocean-label"><strong>${typeIcons[d]} ${d}｜${typeNames[d]}</strong></span><span class="ocean-score">${pct[d]}%</span></div><div class="ocean-track"><div class="ocean-fill" style="width:${pct[d]}%;background:${typeColors[d]}"></div></div></div>`).join('');
   document.getElementById('resultSections').innerHTML=sorted.slice(0,3).map(([k,v])=>`<div class="result-section"><div class="result-section-title">${typeIcons[k]} ${typeNames[k]}（${v}%）</div><div class="result-section-content">${typeDescs[k]}</div></div>`).join('');
+  // 冥想練習
+  const riasecMed = {
+    R: '「身體回來」呼吸：閉眼，吸氣 4 秒，把注意力放在雙手上，感覺掌心的溫度和手指的重量。吐氣 6 秒，想像你剛完成一件作品，雙手還留著材料的觸感。吸氣 4 秒，感覺手臂、肩膀、背部，每一塊肌肉都是活的。吐氣 6 秒，腳底踩穩地面，感覺大地在支撐你。做 5 輪。你的身體就是你最好的工具，偶爾讓它不做事、只是存在，也是一種保養。',
+    I: '「思維清場」呼吸：閉眼，吸氣 4 秒，想像腦子裡有一塊白板，上面寫滿了分析、假設、問號。吐氣 7 秒，拿起板擦從左到右慢慢擦掉，一個字一個字消失。吸氣 4 秒，白板空了，乾淨的。吐氣 7 秒，讓那片空白待著，什麼都不寫上去。做 5 輪。你的腦子太會運轉了，給它一段什麼都不用想的時間，反而會冒出最好的靈感。',
+    A: '「創意呼吸」：閉眼，吸氣 4 秒，想像你的身體是一支空白的畫筆。吐氣 6 秒，從腳底開始，一股顏色往上蔓延，什麼顏色都好，讓它自己選。吸氣 4 秒，顏色到達胸口，在那裡旋轉、擴散。吐氣 6 秒，顏色從指尖流出去，像在空氣裡畫了一道看不見的線。做 5 輪。靈感不是用力擠出來的，是在你放空的時候自己跑來找你的。',
+    S: '「能量邊界」呼吸：閉眼，吸氣 4 秒，想像你的身體周圍有一圈柔和的光，大概離你一個手臂的距離。吐氣 6 秒，那圈光不是牆，是半透明的，能讓愛進來，但不讓別人的焦慮穿透你。吸氣 4 秒，感覺光圈內的空間只屬於你。吐氣 6 秒，默念：「我可以關心你，但不需要扛你的重量。」做 6 輪。你幫別人充電的能力很強，但記得先確認自己的電量。',
+    E: '「鬆開控制」呼吸：閉眼，吸氣 4 秒，想像你的雙手緊緊握著一根方向盤，指節都白了。吐氣 7 秒，一根手指一根手指慢慢鬆開。吸氣 4 秒，手掌攤開放在膝蓋上，什麼都不抓。吐氣 7 秒，感覺車子還在動，但不是你在控制，它自己也能跑。做 5 輪。領導力最強的時候，不是你抓最緊的時候，是你放手了事情依然運轉的時候。',
+    C: '「允許彈性」呼吸：閉眼，吸氣 4 秒，想像你面前有一排整齊的積木，每一塊都在正確的位置。吐氣 6 秒，故意把其中一塊推歪，讓它斜斜地靠著旁邊那塊。吸氣 4 秒，看著那個不整齊的畫面，它有一種不同的美。吐氣 6 秒，默念：「亂一點也沒關係。」做 5 輪。秩序是你的天賦，但偶爾容許一點混亂，你會發現裡面藏著意想不到的東西。'
+  };
+  const medText = riasecMed[topType] || '';
+  if (medText) {
+    document.getElementById('resultMed').style.display = 'block';
+    document.getElementById('resultMed').innerHTML = `<div class="result-section-title">🧘 隨時可做的覺察練習</div><div class="result-section-content">${medText}</div>`;
+  }
+
   document.getElementById('resultHour').innerHTML=`<div class="hour-bridge-label">✦ 馥靈之鑰 × 你的職業方向</div><div class="hour-bridge-text">你的職業代碼 ${code} 就是你城堡的建築風格。馥靈之鑰幫你看清楚：你的天賦和你的職業，是不是蓋在同一個地基上？</div><a href="draw-hl.html" class="hour-bridge-cta">抽一張牌，看見你的方向 🧭</a>`;
   document.getElementById('quizResult').classList.add('active');
   if(window.HL_track) HL_track('quiz_complete',{toolId:'quiz',toolName:'覺察測驗'});window.scrollTo({top:0,behavior:'smooth'});
