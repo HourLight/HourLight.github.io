@@ -80,7 +80,12 @@
     {type:'quiz',   label:'能量漏洞',       hint:'您的能量漏洞在哪？',                 url:'quiz-energy-leak.html?castle=1'},
     {type:'quiz',   label:'覺察力%',        hint:'您的覺察力幾%？',                    url:'quiz-awareness-pct.html?castle=1'},
     {type:'quiz',   label:'指尖能量色',     hint:'指尖藏著什麼顏色？',                 url:'quiz-nail-energy.html?castle=1'},
-    {type:'quiz',   label:'SPA 處方箋',    hint:'您的身體在說什麼？',                 url:'quiz-spa-rx.html?castle=1'}
+    {type:'quiz',   label:'SPA 處方箋',    hint:'您的身體在說什麼？',                 url:'quiz-spa-rx.html?castle=1'},
+    {type:'quiz',   label:'討好指數',       hint:'您為別人犧牲了多少自己？',           url:'quiz-people-pleaser.html?castle=1'},
+    {type:'quiz',   label:'內在聲音',       hint:'腦子裡那個聲音在幫您還是罵您？',     url:'quiz-inner-voice.html?castle=1'},
+    {type:'quiz',   label:'能量體質',       hint:'您怎麼充電最有效？',                 url:'quiz-energy-type.html?castle=1'},
+    {type:'quiz',   label:'影子人格',       hint:'您最不想承認的那個自己',             url:'quiz-shadow-self.html?castle=1'},
+    {type:'quiz',   label:'依附深度版',     hint:'您的依附模式背後的故事',             url:'quiz-attachment-style-deep.html?castle=1'}
   ];
 
   var ROOM_IDS = ['mirror','treasure','key','throne','love','intuition','ground','harmony','transform','dream','garden','tower'];
