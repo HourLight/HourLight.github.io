@@ -1463,15 +1463,8 @@ async function redeemStoryCode() {
       return;
     }
 
-    // 前端標記已使用
-    var currentUser = firebase.auth().currentUser;
-    await db.collection('reading_codes').doc(code).update({
-      used: true,
-      usedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      usedBy: currentUser ? currentUser.uid : 'guest',
-      usedByEmail: currentUser ? (currentUser.email || '') : '',
-      service: 'past-life-story'
-    });
+    // 不在前端標記 used，讓後端 API 統一標記（避免雙重驗證）
+    window._lastUsedUnlockCode = code;
 
     msgEl.textContent = '代碼驗證成功，正在生成故事...';
     startStoryGeneration(code);
