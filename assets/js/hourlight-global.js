@@ -180,4 +180,12 @@
 
   // ==================== 浮動 LINE 聊聊按鈕（已移除，改用小馥客服）====================
 
+  // ==================== 覺察累積微互動 ====================
+  (function(){
+    var s = document.createElement('script');
+    s.src = 'assets/js/hl-awareness.js?v=20260401';
+    s.defer = true;
+    document.head.appendChild(s);
+  })();
+
 })();
