@@ -407,6 +407,22 @@ html, body {
   transform: translateX(-50%) translateY(0);
 }
 
+/* === Light TopNav Override === */
+#hl-top-nav {
+  background: rgba(248,245,240,.95) !important;
+  border-bottom-color: rgba(201,160,96,.15) !important;
+  box-shadow: 0 2px 12px rgba(45,36,24,.06) !important;
+}
+#hl-top-nav .htn-logo { color: var(--pb-gold-deep) !important }
+#hl-top-nav .htn-link { color: rgba(45,36,24,.55) !important }
+#hl-top-nav .htn-link:hover,
+#hl-top-nav .htn-link.active { color: var(--pb-gold-deep) !important; border-color: rgba(201,160,96,.2) !important; background: rgba(201,160,96,.06) !important }
+#hl-top-nav .htn-menu-btn { color: rgba(45,36,24,.6) !important }
+.htn-dropdown { background: rgba(248,245,240,.98) !important; border-bottom-color: rgba(201,160,96,.12) !important; box-shadow: 0 8px 32px rgba(45,36,24,.1) !important }
+.htn-dropdown a { color: rgba(45,36,24,.7) !important }
+.htn-dropdown a:hover, .htn-dropdown a.active { color: var(--pb-gold-deep) !important; background: rgba(201,160,96,.06) !important }
+.htn-dropdown .htn-group { color: rgba(45,36,24,.35) !important }
+
 /* === Loading Overlay === */
 .pb-loading {
   position: absolute;
@@ -945,29 +961,56 @@ function createBlockGeometry() {
   return geo;
 }
 
-function createRedLacquerMaterial() {
-  // 紅色漆面 — glossy red lacquer typical of traditional jiaobei
-  return new THREE.MeshPhysicalMaterial({
-    color: 0x9B1B1B,           // deep red (#9B1B1B, between #8B1A1A and #B22222)
+function createDualMaterials() {
+  // 外面（凸面/陰面）：紅漆 — glossy red lacquer
+  var outerMat = new THREE.MeshPhysicalMaterial({
+    color: 0x9B1B1B,
     roughness: 0.32,
     metalness: 0.02,
     clearcoat: 0.8,
     clearcoatRoughness: 0.15,
     reflectivity: 0.6,
-    side: THREE.DoubleSide
   });
+  // 內面（平面/陽面）：淺木色 — natural wood
+  var innerMat = new THREE.MeshPhysicalMaterial({
+    color: 0xD4A574,
+    roughness: 0.65,
+    metalness: 0.0,
+    clearcoat: 0.15,
+    clearcoatRoughness: 0.4,
+    reflectivity: 0.2,
+  });
+  return [outerMat, innerMat];
+}
+
+function assignMaterialGroups(geo) {
+  // 凸面（dome）在前面的頂點群組，平面（flat bottom）在後面
+  // dome 頂點: zi 0..zSegs, ai 0..arcSegs → 索引由 0 開始
+  // flat bottom 頂點起始在 flatBase
+  // 分組: dome 面 = group 0 (紅漆外面), flat 面 + seams + caps = group 1 (木色內面)
+  var zSegs = 32, arcSegs = 20;
+  var domeFaceCount = zSegs * arcSegs * 2; // dome 三角形數
+  var totalFaces = geo.index.count / 3;
+
+  // 設定材質分組
+  geo.clearGroups();
+  geo.addGroup(0, domeFaceCount * 3, 0);                                   // dome = 紅漆
+  geo.addGroup(domeFaceCount * 3, (totalFaces - domeFaceCount) * 3, 1);     // bottom + seams + caps = 木色
+
+  return geo;
 }
 
 function createPoeBlocks() {
   const geo = createBlockGeometry();
-  const mat = createRedLacquerMaterial();
+  assignMaterialGroups(geo);
+  const mats = createDualMaterials();
 
-  block1 = new THREE.Mesh(geo, mat);
+  block1 = new THREE.Mesh(geo, mats);
   block1.castShadow = true;
   block1.receiveShadow = true;
   scene.add(block1);
 
-  block2 = new THREE.Mesh(geo, mat.clone());
+  block2 = new THREE.Mesh(geo, [mats[0].clone(), mats[1].clone()]);
   block2.castShadow = true;
   block2.receiveShadow = true;
   scene.add(block2);
@@ -1110,7 +1153,7 @@ function throwBlocks() {
   }
 
   // 加入隨機偏移讓每次看起來不同，但偏向目標姿態
-  var jitter = 0.4; // 少量隨機，不會翻到反面
+  var jitter = 0.2; // 少量隨機，讓初始偏向更準確
   var throwForce = 3 + Math.random() * 2;
 
   // Block 1：從目標旋轉附近開始，加少量旋轉動能
@@ -1173,7 +1216,7 @@ function throwBlocks() {
       blockBody1.angularVelocity.setZero();
       blockBody2.angularVelocity.setZero();
 
-      // 平滑修正到正確姿態（0.5秒動畫，肉眼幾乎看不出）
+      // 平滑修正到正確姿態（0.3秒動畫，肉眼幾乎看不出）
       smoothCorrect(result, function() {
         isSettled = true;
         throwBtn.disabled = false;
@@ -1193,7 +1236,7 @@ function throwBlocks() {
 }
 
 // ── Throw History ──
-// 平滑修正筊杯姿態到正確結果（0.5秒漸變，視覺自然）
+// 平滑修正筊杯姿態到正確結果（0.3秒漸變，視覺自然）
 function smoothCorrect(result, callback) {
   // 目標旋轉：凸面朝上 = xRot 0，平面朝上 = xRot PI
   var t1x, t2x;
@@ -1214,7 +1257,7 @@ function smoothCorrect(result, callback) {
     new THREE.Euler(t2x, block2.rotation.y, (Math.random()-0.5)*0.1)
   );
 
-  var duration = 500; // 0.5 秒
+  var duration = 300; // 0.3 秒，修正更不明顯
   var startTime = Date.now();
 
   function animate() {
@@ -1342,7 +1385,7 @@ function animate() {
 
 // ── Device Shake Detection ──
 let lastShake = 0;
-let shakeThreshold = 15;
+let shakeThreshold = 20; // iOS 調高避免誤觸發
 
 function handleMotion(e) {
   const acc = e.accelerationIncludingGravity;
