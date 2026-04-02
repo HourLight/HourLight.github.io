@@ -2124,6 +2124,8 @@ async function triggerAIReading() {
           showAIError('此代碼僅適用於 ' + codeN + ' 張解讀，您目前抽了 ' + n + ' 張');
           return;
         }
+        // 驗證通過，記住這個碼（避免重試時被擋）
+        window._lastUsedUnlockCode = unlockCode;
         // 標記代碼已使用
         var currentUser = firebase.auth().currentUser;
         await db.collection('reading_codes').doc(unlockCode).update({
