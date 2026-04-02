@@ -151,14 +151,14 @@ module.exports = async function handler(req, res) {
 
 ══ 五大主題系列 ══
 
-► 財富顯化系列｜黃水晶、金色系 → 自信、行動力、吸引財富
+► 財富實現系列｜黃水晶、金色系 → 自信、行動力、吸引財富
 ► 防護守護系列｜黑曜石、深藍、銀灰 → 穩固磁場、隔絕負面
 ► 情感平衡系列｜玫瑰粉晶、柔和色調 → 情感覺察、人際和諧
 ► 平衡覺察系列｜薰衣草紫、薄荷綠、天空藍 → 緩解焦慮壓力
 ► 直覺覺察系列｜月光白、星辰紫、珍珠白 → 加強直覺覺察
 
 牌卡→主題歸屬快速判斷：
-→ 含「財富/豐盛/行動力/自信/熱情/勇氣」→ 財富顯化
+→ 含「財富/豐盛/行動力/自信/熱情/勇氣」→ 財富實現
 → 含「防護/穩定/界限/淨化/保護」→ 防護守護
 → 含「愛/魅力/情感/人際/溝通/表達」→ 情感平衡
 → 含「釋放/放鬆/舒緩/平靜/壓力」→ 平衡覺察
@@ -166,7 +166,7 @@ module.exports = async function handler(req, res) {
 
 ══ 九脈精油 × 五大主題 ══
 
-► 財富顯化 → 08 曜 LUMIERE｜鎏金覺察
+► 財富實現 → 08 曜 LUMIERE｜鎏金覺察
 ► 防護守護 → 01 蓄 RESERVE｜琥珀深根
 ► 情感平衡 → 04 謐 SERENE｜午夜降噪
 ► 平衡覺察 → 03 釋 UNBOUND｜破曉裂谷
@@ -191,7 +191,7 @@ module.exports = async function handler(req, res) {
 2026 最強技法：磁吸貓眼進化（銀河/愛心/冰川/玻璃質感）、液態金屬鏡面、微法式、氣場暈染、3D立體雕塑、果凍透明感＋極光粉＋水滴立體
 
 五大主題 × 趨勢融合指南：
-► 財富顯化：香檳金磁吸貓眼、能量橘漸層、正向黃＋液態金屬；金箔堆疊＋立體金豆＋液態金屬鏡面（金/玫瑰金）
+► 財富實現：香檳金磁吸貓眼、能量橘漸層、正向黃＋液態金屬；金箔堆疊＋立體金豆＋液態金屬鏡面（金/玫瑰金）
   AI出圖追加詞：champagne gold magnetic cat-eye, liquid metal chrome finish, gold foil accents, 3D gold bead embellishments
 ► 防護守護：變革藍綠磁吸貓眼、離線藍霧面、深墨黑絲絨貓眼；深色磁吸＋銀色金屬線條、煙燻大理石紋
   AI出圖追加詞：transformative teal magnetic cat-eye, matte black velvet texture, silver metallic border lines, dark smoky marble
