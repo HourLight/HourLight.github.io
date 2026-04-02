@@ -70,7 +70,17 @@
     {type:'quiz',   label:'情緒天氣',       hint:'您的內在天空是什麼天氣？',           url:'quiz-emotion-weather.html?castle=1'},
     {type:'quiz',   label:'溝通盲點',       hint:'您在溝通中最常踩的雷是什麼？',       url:'quiz-comm-blind.html?castle=1'},
     {type:'quiz',   label:'愛情劇本',       hint:'您在愛情裡重複演哪齣戲？',           url:'quiz-love-script.html?castle=1'},
-    {type:'quiz',   label:'心理韌性',       hint:'您被打倒後多快能站起來？',           url:'quiz-resilience.html?castle=1'}
+    {type:'quiz',   label:'心理韌性',       hint:'您被打倒後多快能站起來？',           url:'quiz-resilience.html?castle=1'},
+    {type:'quiz',   label:'情緒味道',       hint:'您的情緒是什麼味道？',               url:'quiz-emotion-scent.html?castle=1'},
+    {type:'quiz',   label:'壓力解方精油',   hint:'您的壓力長什麼形狀？',               url:'quiz-stress-oil.html?castle=1'},
+    {type:'quiz',   label:'聞香識人',       hint:'喜歡的味道透露人際模式',             url:'quiz-scent-people.html?castle=1'},
+    {type:'quiz',   label:'月亮類型',       hint:'您是哪種月亮？',                     url:'quiz-moon-type.html?castle=1'},
+    {type:'quiz',   label:'內在城堡',       hint:'您的城堡長什麼樣？',                 url:'quiz-inner-castle.html?castle=1'},
+    {type:'quiz',   label:'城堡角色',       hint:'您是城堡裡的誰？',                   url:'quiz-castle-role.html?castle=1'},
+    {type:'quiz',   label:'能量漏洞',       hint:'您的能量漏洞在哪？',                 url:'quiz-energy-leak.html?castle=1'},
+    {type:'quiz',   label:'覺察力%',        hint:'您的覺察力幾%？',                    url:'quiz-awareness-pct.html?castle=1'},
+    {type:'quiz',   label:'指尖能量色',     hint:'指尖藏著什麼顏色？',                 url:'quiz-nail-energy.html?castle=1'},
+    {type:'quiz',   label:'SPA 處方箋',    hint:'您的身體在說什麼？',                 url:'quiz-spa-rx.html?castle=1'}
   ];
 
   var ROOM_IDS = ['mirror','treasure','key','throne','love','intuition','ground','harmony','transform','dream','garden','tower'];
