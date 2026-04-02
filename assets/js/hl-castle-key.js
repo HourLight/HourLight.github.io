@@ -56,7 +56,7 @@
     {type:'quiz',   label:'VIA 性格優勢',  hint:'您的24項優勢裡最亮的是哪一個？',     url:'quiz-via.html?castle=1'},
     {type:'quiz',   label:'愛的語言',       hint:'您怎麼表達愛？',                     url:'quiz-lovelang.html?castle=1'},
     {type:'quiz',   label:'人格原型測驗',   hint:'您是哪一種原型角色？',               url:'quiz-archetype.html?castle=1'},
-    {type:'quiz',   label:'精油人格',       hint:'哪支精油最像您？',                   url:'quiz-aroma.html?castle=1'},
+    {type:'quiz',   label:'精油人格',       hint:'哪支精油最像您？',                   url:'quiz-oil-personality.html?castle=1'},
     {type:'quiz',   label:'天賦優勢',       hint:'您的天賦在哪裡？',                   url:'quiz-strengths.html?castle=1'},
     {type:'quiz',   label:'RIASEC 職業',   hint:'您適合什麼工作？',                   url:'quiz-riasec.html?castle=1'},
     {type:'quiz',   label:'完美主義測驗',   hint:'您的完美主義有多強？',               url:'quiz-perfectionism.html?castle=1'},
@@ -66,7 +66,11 @@
     {type:'quiz',   label:'夢境心理測驗',   hint:'您的夢在告訴您什麼？',               url:'quiz-dream.html?castle=1'},
     {type:'quiz',   label:'自尊量表',       hint:'您怎麼看待自己？',                   url:'quiz-selfesteem.html?castle=1'},
     {type:'quiz',   label:'花卉人格測驗',   hint:'看看您像哪朵花？',                   url:'quiz-flower.html?castle=1'},
-    {type:'quiz',   label:'左右腦偏好',     hint:'您是理性腦還是直覺腦？',             url:'quiz-brain.html?castle=1'}
+    {type:'quiz',   label:'左右腦偏好',     hint:'您是理性腦還是直覺腦？',             url:'quiz-brain.html?castle=1'},
+    {type:'quiz',   label:'情緒天氣',       hint:'您的內在天空是什麼天氣？',           url:'quiz-emotion-weather.html?castle=1'},
+    {type:'quiz',   label:'溝通盲點',       hint:'您在溝通中最常踩的雷是什麼？',       url:'quiz-comm-blind.html?castle=1'},
+    {type:'quiz',   label:'愛情劇本',       hint:'您在愛情裡重複演哪齣戲？',           url:'quiz-love-script.html?castle=1'},
+    {type:'quiz',   label:'心理韌性',       hint:'您被打倒後多快能站起來？',           url:'quiz-resilience.html?castle=1'}
   ];
 
   var ROOM_IDS = ['mirror','treasure','key','throne','love','intuition','ground','harmony','transform','dream','garden','tower'];
