@@ -109,6 +109,19 @@
     brand: [
       { id:'fuyu_ink',         name:'馥語墨滴',   icon:'🖋️', rarity:'common',    weight:60, zone:'馥語書房' },
       { id:'scent_memory',     name:'氣味記憶',   icon:'🌸', rarity:'rare',      weight:40, zone:'馥語書房' }
+    ],
+
+    // ── 鑰友專屬材料（plus 以上）──
+    member_plus: [
+      { id:'key_friend_seal',  name:'鑰友印記',   icon:'🔑', rarity:'rare',      weight:50, zone:'會員殿堂', memberOnly:'plus', dropHint:'每日登入自動掉落' },
+      { id:'awareness_crystal',name:'覺察水晶',   icon:'💎', rarity:'rare',      weight:40, zone:'會員殿堂', memberOnly:'plus', dropHint:'完成測驗時額外掉落' },
+      { id:'moonlight_essence',name:'月光精華',    icon:'🌙', rarity:'legendary', weight:10, zone:'會員殿堂', memberOnly:'plus', dropHint:'每月 1 號自動獲得' }
+    ],
+
+    // ── 大師專屬材料（pro）──
+    member_pro: [
+      { id:'master_star',      name:'大師之星',   icon:'👑', rarity:'legendary', weight:60, zone:'大師寶庫', memberOnly:'pro', dropHint:'每日登入自動掉落' },
+      { id:'fuling_essence',   name:'馥靈精髓',   icon:'✨', rarity:'legendary', weight:40, zone:'大師寶庫', memberOnly:'pro', dropHint:'完成抽牌解讀時掉落' }
     ]
   };
 
@@ -169,6 +182,26 @@
       desc: '放在學院塔，解鎖後僕人可以在這裡幫你整理洞見。',
       ingredients: { wisdom_tome: 1, heritage_candle: 2, chart_ink: 2 },
       zone: '學院塔傢具'
+    },
+    // ── 鑰友專屬傢具 ──
+    {
+      id: 'awareness_mirror',
+      name: '覺察之鏡',
+      icon: '🔮',
+      desc: '這面鏡子不照外表，照的是你不敢看的那一面。',
+      ingredients: { key_friend_seal: 3, awareness_crystal: 2, moonlight_essence: 1 },
+      zone: '會員殿堂傢具',
+      memberOnly: 'plus'
+    },
+    // ── 大師專屬傢具 ──
+    {
+      id: 'fuling_crown',
+      name: '馥靈之冠',
+      icon: '🌟',
+      desc: '戴上它的人不是成為了國王，是終於承認自己一直都是。',
+      ingredients: { master_star: 3, fuling_essence: 2, destiny_core: 1 },
+      zone: '大師寶庫傢具',
+      memberOnly: 'pro'
     }
   ];
 
@@ -184,7 +217,9 @@
     brand: 2,
     draw_dna: 2,         // 牌卡DNA每天最多2次
     nature_event: 999,   // 節氣活動不限（限時掉落）
-    inner_realm: 1       // 深宮材料每天最多1次
+    inner_realm: 1,      // 深宮材料每天最多1次
+    member_plus: 2,      // 鑰友材料每天最多2次（登入+測驗）
+    member_pro: 2        // 大師材料每天最多2次（登入+抽牌）
   };
 
   // ═══ 工具函數 ═══
@@ -276,6 +311,11 @@
   function craftFurniture(recipeId){
     var recipe = RECIPES.filter(function(r){ return r.id === recipeId; })[0];
     if(!recipe) return { ok:false, reason:'not_found' };
+
+    // 會員專屬配方檢查
+    if(recipe.memberOnly && !planAtLeast(_cachedPlan, recipe.memberOnly)){
+      return { ok:false, reason:'member_required', required: recipe.memberOnly };
+    }
 
     var state = loadMaterials();
 
@@ -484,6 +524,9 @@
 
     var result = dropMaterial(matType);
     if(result.ok) showDropToast(result.item);
+
+    // 會員額外掉落檢查
+    checkMemberBonusDrop(matType);
   }
 
   // 等 HL_track 準備好後再 patch
@@ -548,5 +591,154 @@
 
   // 公開節氣檢查（方便測試）
   window.HL_checkSeasonal = checkSeasonalDrop;
+
+  // ═══ 會員等級偵測 ═══
+  // 優先讀 Firebase（透過 hl-ai-gate.js 同邏輯），fallback localStorage
+  function getMemberPlan(cb){
+    // 1. 檢查促銷試用（和 hl-ai-gate 一致）
+    try{
+      var trialUntil = localStorage.getItem('hl_promo_trial_until');
+      if(trialUntil && new Date() < new Date(trialUntil)){
+        cb('pro'); return;
+      }
+    }catch(e){}
+
+    // 2. Firebase
+    try{
+      if(typeof firebase !== 'undefined' && firebase.auth){
+        var user = firebase.auth().currentUser;
+        if(user){
+          firebase.firestore().collection('users').doc(user.uid).get().then(function(doc){
+            var data = doc.exists ? doc.data() : {};
+            cb(data.plan || 'free');
+          }).catch(function(){ cb(_localPlan()); });
+          return;
+        }
+      }
+    }catch(e){}
+
+    // 3. localStorage fallback
+    cb(_localPlan());
+  }
+
+  function _localPlan(){
+    try{
+      var raw = localStorage.getItem('hl_user_plan');
+      if(raw) return raw;
+    }catch(e){}
+    return 'free';
+  }
+
+  // 同步版（快取）：給 UI 快速判斷用
+  var _cachedPlan = 'free';
+  function refreshCachedPlan(){
+    getMemberPlan(function(p){ _cachedPlan = p; });
+  }
+  function getCachedPlan(){ return _cachedPlan; }
+
+  // 判斷：plan 是否 >= 指定等級
+  function planAtLeast(plan, required){
+    var rank = { 'free':0, 'plus':1, 'pro':2 };
+    return (rank[plan] || 0) >= (rank[required] || 0);
+  }
+
+  // ═══ 會員每日登入自動掉落 ═══
+  function checkMemberDailyDrop(){
+    getMemberPlan(function(plan){
+      _cachedPlan = plan;
+      if(plan === 'free') return;
+
+      var state = loadMaterials();
+      var today = todayKey();
+
+      // 鑰友（plus）以上：每日掉落鑰友印記
+      if(planAtLeast(plan, 'plus')){
+        var plusKey = today + '_member_daily_plus';
+        if(!state.dailyDrops[plusKey]){
+          var seal = MATERIAL_DEFS['member_plus'][0]; // 鑰友印記
+          state.inventory[seal.id] = (state.inventory[seal.id] || 0) + 1;
+          state.dailyDrops[plusKey] = 1;
+          saveMaterials(state);
+          showDropToast(Object.assign({}, seal, { name: '🔑 ' + seal.name + '（鑰友專屬）' }));
+        }
+      }
+
+      // 大師（pro）：每日額外掉落大師之星
+      if(plan === 'pro'){
+        var proKey = today + '_member_daily_pro';
+        if(!state.dailyDrops[proKey]){
+          var star = MATERIAL_DEFS['member_pro'][0]; // 大師之星
+          state.inventory[star.id] = (state.inventory[star.id] || 0) + 1;
+          state.dailyDrops[proKey] = 1;
+          saveMaterials(state);
+          setTimeout(function(){
+            showDropToast(Object.assign({}, star, { name: '👑 ' + star.name + '（大師專屬）' }));
+          }, 3200); // 錯開鑰友 toast
+        }
+      }
+
+      // 每月 1 號：鑰友以上獲得月光精華
+      var tw = new Date(new Date().getTime() + 8*3600000);
+      if(tw.getUTCDate() === 1 && planAtLeast(plan, 'plus')){
+        var monthKey = today + '_member_monthly';
+        if(!state.dailyDrops[monthKey]){
+          state = loadMaterials(); // 重新讀取（前面可能改過）
+          var moonEss = MATERIAL_DEFS['member_plus'][2]; // 月光精華
+          state.inventory[moonEss.id] = (state.inventory[moonEss.id] || 0) + 1;
+          state.dailyDrops[monthKey] = 1;
+          saveMaterials(state);
+          setTimeout(function(){
+            showDropToast(Object.assign({}, moonEss, { name: '🌙 ' + moonEss.name + '（每月限定）' }));
+          }, 6400);
+        }
+      }
+    });
+  }
+
+  // ═══ 會員額外掉落：測驗完成 → 覺察水晶（plus+），抽牌完成 → 馥靈精髓（pro）═══
+  function checkMemberBonusDrop(eventType){
+    var plan = _cachedPlan;
+
+    // 鑰友以上 + 完成測驗 → 額外掉落覺察水晶
+    if(eventType === 'quiz' && planAtLeast(plan, 'plus')){
+      var crystal = MATERIAL_DEFS['member_plus'][1]; // 覺察水晶
+      var result = dropMaterial('member_plus', crystal);
+      if(result.ok){
+        setTimeout(function(){
+          showDropToast(Object.assign({}, crystal, { name: '💎 ' + crystal.name + '（鑰友專屬）' }));
+        }, 3200);
+      }
+    }
+
+    // 大師 + 完成抽牌解讀 → 額外掉落馥靈精髓
+    if(eventType === 'draw' && plan === 'pro'){
+      var essence = MATERIAL_DEFS['member_pro'][1]; // 馥靈精髓
+      var result2 = dropMaterial('member_pro', essence);
+      if(result2.ok){
+        setTimeout(function(){
+          showDropToast(Object.assign({}, essence, { name: '✨ ' + essence.name + '（大師專屬）' }));
+        }, 3200);
+      }
+    }
+  }
+
+  // 頁面載入時執行會員掉落檢查（等 Firebase 就緒）
+  function initMemberDrops(){
+    setTimeout(checkMemberDailyDrop, 2000);
+    refreshCachedPlan();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initMemberDrops);
+  } else {
+    setTimeout(initMemberDrops, 2000);
+  }
+
+  // ═══ 擴充公開 API ═══
+  window.hlMaterial.getMemberPlan    = getMemberPlan;
+  window.hlMaterial.getCachedPlan    = getCachedPlan;
+  window.hlMaterial.planAtLeast      = planAtLeast;
+  window.hlMaterial.refreshCachedPlan = refreshCachedPlan;
+  window.hlMaterial.checkMemberBonusDrop = checkMemberBonusDrop;
 
 })();
