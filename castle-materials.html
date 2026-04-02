@@ -18,144 +18,273 @@
 :root{
   --rose:#E63946;--teal:#2EC4B6;--navy:#1D3557;--coral:#E76F51;
   --amber:#F0A500;--amber-l:#FFD166;
-  --cream:#FFF8F0;--peach:#FFE8D6;--warm:#3e2a1a;--muted:#a08060;
-  --gold:#c8862a;--gold-d:#c47a30;
-  --bg:#fdf6ef;
-  --rare-bg:#FAEEDA;--rare-border:#BA7517;--rare-text:#633806;
-  --legend-bg:#EEEDFE;--legend-border:#7F77DD;--legend-text:#3C3489;
-  --card:rgba(255,255,255,.92);
-  --txt:#1a1a2e;--txt-l:#4a4a5a;--txt-d:#8a8a9a;
+  --cream:#FFF8F0;--peach:#FFE8D6;--warm:#f0d8b0;--muted:#9a8cb8;
+  --gold:#d4a040;--gold-d:#c8862a;--gold-glow:rgba(212,160,64,.5);
+  --bg-dark:#1a1128;--bg-card:rgba(40,28,60,.85);--bg-card-hover:rgba(55,40,80,.92);
+  --rare-bg:linear-gradient(135deg,#1a2a4a,#223366);
+  --rare-border:#5588cc;--rare-glow:rgba(85,136,204,.4);
+  --legend-bg:linear-gradient(135deg,#3a2a10,#5a4020);
+  --legend-border:#d4a040;--legend-glow:rgba(212,160,64,.5);
+  --common-bg:linear-gradient(135deg,#2a2240,#352b50);
+  --common-border:rgba(160,140,180,.3);
+  --card:rgba(40,28,60,.8);
+  --txt:#e8e0f0;--txt-l:#b8a8d0;--txt-d:#786898;
+  --success:#2EC4B6;--danger:#E63946;
 }
 html{scroll-behavior:smooth}
-body{font-family:'Noto Serif TC',serif;color:var(--txt);background:var(--bg);min-height:100vh;overflow-x:hidden}
+body{font-family:'Noto Serif TC',serif;color:var(--txt);background:var(--bg-dark);min-height:100vh;overflow-x:hidden}
+
+/* ── 星光粒子背景 ── */
+.starfield{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--dur) ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(.8)}50%{opacity:.7;transform:scale(1.2)}}
 
 /* ── topbar ── */
-.topbar{position:sticky;top:0;z-index:200;background:rgba(255,248,240,.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(233,160,96,.15);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.topbar-back{font-size:.78rem;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:4px}
-.topbar-title{font-size:.9rem;font-weight:700;color:var(--warm)}
+.topbar{position:sticky;top:0;z-index:200;background:rgba(26,17,40,.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(212,160,64,.15);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.topbar-back{font-size:.78rem;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:4px;transition:color .2s}
+.topbar-back:hover{color:var(--gold)}
+.topbar-title{font-size:.9rem;font-weight:700;color:var(--gold)}
 .topbar-pts{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--muted)}
-.pts-badge{background:var(--gold);color:#fff;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700}
+.pts-badge{background:linear-gradient(135deg,var(--gold),var(--amber));color:#1a1128;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;box-shadow:0 0 8px var(--gold-glow)}
+
+/* ── 收集進度條 ── */
+.progress-strip{margin:0 16px 12px;display:flex;flex-direction:column;gap:8px}
+.prog-row{display:flex;align-items:center;gap:10px}
+.prog-label{font-size:.72rem;color:var(--txt-l);min-width:110px;flex-shrink:0}
+.prog-bar{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;position:relative}
+.prog-fill{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.23,1,.32,1);position:relative;overflow:hidden}
+.prog-fill.material{background:linear-gradient(90deg,#5588cc,var(--teal),var(--amber))}
+.prog-fill.furniture{background:linear-gradient(90deg,var(--amber),var(--gold),var(--rose))}
+.prog-fill::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.3) 50%,transparent 100%);animation:progShine 2s ease-in-out infinite}
+@keyframes progShine{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.prog-num{font-size:.72rem;color:var(--gold);font-weight:700;min-width:50px;text-align:right}
 
 /* ── 頁首 ── */
-.hero{text-align:center;padding:32px 20px 20px}
-.hero h1{font-family:'Playfair Display','Noto Serif TC',serif;font-size:clamp(1.6rem,5vw,2.2rem);font-weight:800;color:var(--navy);margin-bottom:8px}
-.hero-sub{font-size:.85rem;color:var(--muted);line-height:1.7;max-width:320px;margin:0 auto}
+.hero{text-align:center;padding:28px 20px 16px;position:relative;z-index:1}
+.hero h1{font-family:'Playfair Display','Noto Serif TC',serif;font-size:clamp(1.6rem,5vw,2.2rem);font-weight:800;background:linear-gradient(135deg,var(--gold),var(--amber-l),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.hero-sub{font-size:.85rem;color:var(--txt-l);line-height:1.7;max-width:320px;margin:0 auto}
 
-/* ── 今日掉落進度條 ── */
-.daily-strip{margin:0 16px 16px;background:var(--card);border-radius:14px;padding:14px 16px;border:1px solid rgba(233,160,96,.2)}
-.daily-strip h3{font-size:.78rem;color:var(--muted);margin-bottom:10px;letter-spacing:.05em}
-.zone-rows{display:flex;flex-direction:column;gap:8px}
-.zone-row{display:flex;align-items:center;gap:10px}
-.zone-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
-.zone-name{font-size:.78rem;color:var(--warm);flex:1;min-width:60px}
-.zone-bar{flex:2;height:6px;background:rgba(0,0,0,.06);border-radius:3px;overflow:hidden}
-.zone-fill{height:100%;border-radius:3px;background:var(--gold);transition:width .4s}
-.zone-fill.full{background:#aaa}
-.zone-count{font-size:.72rem;color:var(--muted);min-width:30px;text-align:right;flex-shrink:0}
-.zone-btn{font-size:.68rem;padding:3px 10px;border-radius:12px;border:1px solid var(--gold);color:var(--gold-d);background:transparent;cursor:pointer;text-decoration:none;flex-shrink:0;white-space:nowrap}
-.zone-btn.full{border-color:#ccc;color:#bbb;cursor:default}
+/* ── 今日掉落進度（圓形進度環）── */
+.daily-strip{margin:0 16px 16px;background:var(--card);border-radius:16px;padding:16px;border:1px solid rgba(212,160,64,.12);position:relative;z-index:1}
+.daily-strip h3{font-size:.78rem;color:var(--muted);margin-bottom:14px;letter-spacing:.05em}
+.zone-rings{display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
+.zone-ring-item{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:70px}
+.zone-ring-svg{width:52px;height:52px;transform:rotate(-90deg)}
+.zone-ring-bg{fill:none;stroke:rgba(255,255,255,.06);stroke-width:4}
+.zone-ring-fill{fill:none;stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .6s ease}
+.zone-ring-fill.full{stroke:#555}
+.zone-ring-icon{font-size:16px;line-height:1}
+.zone-ring-name{font-size:.62rem;color:var(--txt-l);text-align:center;line-height:1.2}
+.zone-ring-count{font-size:.58rem;color:var(--muted)}
+.zone-ring-btn{font-size:.62rem;padding:3px 10px;border-radius:12px;border:1px solid var(--gold);color:var(--gold);background:transparent;cursor:pointer;text-decoration:none;white-space:nowrap;transition:all .2s;min-height:28px;display:flex;align-items:center}
+.zone-ring-btn:hover{background:rgba(212,160,64,.12)}
+.zone-ring-btn.full{border-color:#555;color:#666;cursor:default}
 
 /* ── tab ── */
-.tabs{display:flex;gap:0;margin:0 16px 16px;background:rgba(0,0,0,.04);border-radius:12px;padding:3px}
-.tab-btn{flex:1;padding:8px 4px;font-size:.78rem;color:var(--muted);background:transparent;border:none;border-radius:9px;cursor:pointer;font-family:inherit;transition:all .2s;font-weight:500}
-.tab-btn.active{background:var(--card);color:var(--warm);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.tabs{display:flex;gap:0;margin:0 16px 16px;background:rgba(255,255,255,.04);border-radius:14px;padding:3px;position:relative;z-index:1}
+.tab-btn{flex:1;padding:10px 4px;font-size:.78rem;color:var(--txt-d);background:transparent;border:none;border-radius:11px;cursor:pointer;font-family:inherit;transition:all .25s;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;min-height:44px;justify-content:center}
+.tab-btn .tab-icon{font-size:16px;line-height:1}
+.tab-btn.active{background:var(--bg-card);color:var(--gold);box-shadow:0 2px 12px rgba(212,160,64,.15)}
+.tab-btn.active::after{content:'';position:absolute;bottom:4px;left:30%;right:30%;height:2px;background:var(--gold);border-radius:1px;animation:tabLine .3s ease}
+@keyframes tabLine{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* ── tab 內容淡入 ── */
+.tab-content{position:relative;z-index:1}
+.tab-fade-in{animation:tabFade .35s ease}
+@keyframes tabFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── 材料庫 ── */
 .mat-section{padding:0 16px 8px}
-.zone-header{font-size:.72rem;color:var(--muted);letter-spacing:.08em;margin:16px 0 8px;display:flex;align-items:center;gap:8px}
-.zone-header::after{content:'';flex:1;height:1px;background:rgba(0,0,0,.06)}
-.mat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;margin-bottom:4px}
-.mat-card{background:var(--card);border:1px solid rgba(0,0,0,.06);border-radius:12px;padding:10px 6px 8px;text-align:center;cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative}
-.mat-card:hover{transform:scale(1.04);box-shadow:0 4px 16px rgba(0,0,0,.08)}
-.mat-card.rare{border-color:var(--rare-border);background:var(--rare-bg)}
-.mat-card.legendary{border-color:var(--legend-border);background:var(--legend-bg)}
-.mat-card.locked{opacity:.38;filter:grayscale(.8);cursor:default}
-.mat-card.locked:hover{transform:none;box-shadow:none}
-.mat-icon{font-size:22px;display:block;margin-bottom:4px;line-height:1}
-.mat-name{font-size:.62rem;color:var(--warm);font-weight:700;line-height:1.3;word-break:break-all}
-.mat-count{font-size:.6rem;color:var(--muted);margin-top:2px}
-.mat-count.rare{color:var(--rare-text)}
-.mat-count.legendary{color:var(--legend-text)}
-.mat-new{position:absolute;top:4px;right:4px;width:7px;height:7px;background:var(--rose);border-radius:50%}
+.zone-header{font-size:.72rem;color:var(--muted);letter-spacing:.08em;margin:16px 0 10px;display:flex;align-items:center;gap:8px}
+.zone-header::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.06)}
+.mat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(94px,1fr));gap:10px;margin-bottom:4px}
+.mat-card{background:var(--common-bg);border:1.5px solid var(--common-border);border-radius:14px;padding:12px 8px 10px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s;position:relative;min-height:94px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.mat-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.3);border-color:rgba(200,180,220,.4)}
+.mat-card:active{transform:translateY(-2px)}
+/* 稀有 */
+.mat-card.rare{background:var(--rare-bg);border-color:var(--rare-border)}
+.mat-card.rare::before{content:'';position:absolute;inset:-1px;border-radius:14px;background:linear-gradient(135deg,transparent,rgba(85,136,204,.2),transparent);animation:rareShimmer 3s ease-in-out infinite;pointer-events:none}
+@keyframes rareShimmer{0%,100%{opacity:.3}50%{opacity:.8}}
+.mat-card.rare:hover{box-shadow:0 8px 28px var(--rare-glow)}
+/* 傳說 */
+.mat-card.legendary{background:var(--legend-bg);border-color:var(--legend-border)}
+.mat-card.legendary::before{content:'';position:absolute;inset:-1px;border-radius:14px;background:linear-gradient(135deg,transparent,rgba(212,160,64,.25),transparent,rgba(212,160,64,.15));animation:legendShimmer 2s ease-in-out infinite;pointer-events:none}
+@keyframes legendShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.mat-card.legendary::after{content:'';position:absolute;inset:0;border-radius:14px;box-shadow:inset 0 0 15px var(--gold-glow);pointer-events:none;animation:legendPulse 2.5s ease-in-out infinite}
+@keyframes legendPulse{0%,100%{opacity:.3}50%{opacity:.7}}
+.mat-card.legendary:hover{box-shadow:0 8px 32px var(--legend-glow)}
+/* 鎖定 */
+.mat-card.locked{opacity:.3;filter:grayscale(.8);cursor:default;border-color:rgba(100,80,120,.15)}
+.mat-card.locked:hover{transform:none;box-shadow:none;border-color:rgba(100,80,120,.15)}
+.mat-card.locked::before,.mat-card.locked::after{display:none}
+/* 內容 */
+.mat-icon{font-size:28px;display:block;margin-bottom:5px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3))}
+.mat-name{font-size:.66rem;color:var(--warm);font-weight:700;line-height:1.3;word-break:break-all}
+.mat-count-badge{position:absolute;bottom:5px;right:5px;background:rgba(0,0,0,.5);color:var(--txt);font-size:.58rem;font-weight:700;padding:2px 6px;border-radius:10px;min-width:20px;text-align:center;backdrop-filter:blur(4px)}
+.mat-count-badge.rare{background:rgba(30,50,90,.7);color:#88bbee}
+.mat-count-badge.legendary{background:rgba(60,40,10,.7);color:var(--gold)}
+.mat-new{position:absolute;top:5px;right:5px;width:8px;height:8px;background:var(--rose);border-radius:50%;box-shadow:0 0 6px rgba(230,57,70,.5)}
 
 /* ── 材料詳情浮層 ── */
-.mat-detail{display:none;margin:0 16px 12px;background:var(--card);border-radius:14px;padding:16px;border:1px solid rgba(233,160,96,.25);animation:fadeUp .25s ease}
-.mat-detail.show{display:block}
-.mat-detail-top{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
-.mat-detail-icon{font-size:36px;line-height:1;flex-shrink:0}
+.mat-detail-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(10,6,20,.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px}
+.mat-detail-overlay.show{display:flex}
+.mat-detail{background:linear-gradient(135deg,#2a2040,#1e1530);border:1px solid rgba(212,160,64,.25);border-radius:20px;padding:24px 20px;max-width:380px;width:100%;animation:detailPop .3s cubic-bezier(.34,1.56,.64,1);position:relative}
+@keyframes detailPop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+.mat-detail-top{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
+.mat-detail-icon{font-size:44px;line-height:1;flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(0,0,0,.4))}
 .mat-detail-info{flex:1}
-.mat-detail-name{font-size:1rem;font-weight:700;color:var(--warm);margin-bottom:3px}
+.mat-detail-name{font-size:1.05rem;font-weight:700;color:var(--warm);margin-bottom:4px}
 .mat-detail-zone{font-size:.72rem;color:var(--muted);margin-bottom:6px}
-.mat-detail-rarity{display:inline-block;font-size:.65rem;padding:2px 10px;border-radius:20px;font-weight:700}
-.mat-detail-rarity.common{background:rgba(0,0,0,.05);color:var(--muted)}
-.mat-detail-rarity.rare{background:var(--rare-bg);color:var(--rare-text);border:1px solid var(--rare-border)}
-.mat-detail-rarity.legendary{background:var(--legend-bg);color:var(--legend-text);border:1px solid var(--legend-border)}
-.mat-detail-count{font-size:1.4rem;font-weight:800;color:var(--warm);line-height:1}
+.mat-detail-rarity{display:inline-block;font-size:.65rem;padding:3px 12px;border-radius:20px;font-weight:700}
+.mat-detail-rarity.common{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid rgba(255,255,255,.1)}
+.mat-detail-rarity.rare{background:rgba(85,136,204,.15);color:#88bbee;border:1px solid var(--rare-border)}
+.mat-detail-rarity.legendary{background:rgba(212,160,64,.15);color:var(--gold);border:1px solid var(--legend-border)}
+.mat-detail-count{font-size:1.6rem;font-weight:800;color:var(--gold);line-height:1}
 .mat-detail-sub{font-size:.7rem;color:var(--muted)}
-.mat-detail-how{font-size:.75rem;color:var(--txt-l);line-height:1.7;border-top:1px solid rgba(0,0,0,.05);padding-top:10px}
-.mat-detail-close{display:block;text-align:center;font-size:.72rem;color:var(--muted);margin-top:10px;cursor:pointer;padding:4px}
+.mat-detail-how{font-size:.75rem;color:var(--txt-l);line-height:1.8;border-top:1px solid rgba(255,255,255,.06);padding-top:12px;white-space:pre-line}
+.mat-detail-close{position:absolute;top:12px;right:14px;font-size:1.2rem;color:var(--muted);cursor:pointer;padding:6px;line-height:1;transition:color .2s}
+.mat-detail-close:hover{color:var(--gold)}
 
 /* ── 合成配方 ── */
-.recipe-list{padding:0 16px;display:flex;flex-direction:column;gap:10px}
-.recipe-card{background:var(--card);border:1px solid rgba(0,0,0,.06);border-radius:14px;padding:14px}
-.recipe-card.can-craft{border-color:rgba(233,160,96,.4);background:rgba(255,248,240,.95)}
-.recipe-card.owned{border-color:rgba(29,158,117,.3);background:rgba(225,245,238,.6)}
-.recipe-top{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
-.recipe-icon{font-size:32px;line-height:1;flex-shrink:0}
+.recipe-list{padding:0 16px;display:flex;flex-direction:column;gap:12px}
+.recipe-card{background:var(--card);border:1.5px solid rgba(255,255,255,.06);border-radius:16px;padding:16px;transition:all .3s;overflow:hidden;position:relative}
+.recipe-card.can-craft{border-color:rgba(212,160,64,.4);animation:craftReady 2.5s ease-in-out infinite}
+@keyframes craftReady{0%,100%{box-shadow:0 0 8px rgba(212,160,64,.1)}50%{box-shadow:0 0 20px rgba(212,160,64,.3)}}
+.recipe-card.owned{border-color:rgba(46,196,182,.3);background:rgba(46,196,182,.06)}
+.recipe-top{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px}
+.recipe-icon{font-size:36px;line-height:1;flex-shrink:0;filter:drop-shadow(0 3px 8px rgba(0,0,0,.4))}
 .recipe-meta{flex:1}
-.recipe-name{font-size:.9rem;font-weight:700;color:var(--warm);margin-bottom:2px}
-.recipe-zone-tag{display:inline-block;font-size:.62rem;padding:1px 8px;border-radius:10px;background:rgba(0,0,0,.05);color:var(--muted);margin-bottom:6px}
+.recipe-name{font-size:.92rem;font-weight:700;color:var(--warm);margin-bottom:3px}
+.recipe-zone-tag{display:inline-block;font-size:.62rem;padding:2px 10px;border-radius:10px;background:rgba(255,255,255,.06);color:var(--muted);margin-bottom:6px}
 .recipe-desc{font-size:.75rem;color:var(--txt-l);line-height:1.6;font-style:italic}
-.recipe-mats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.mat-pill{font-size:.68rem;padding:3px 10px;border-radius:20px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.08);color:var(--txt-l);display:flex;align-items:center;gap:4px}
-.mat-pill.has{background:rgba(29,158,117,.08);border-color:rgba(29,158,117,.3);color:#085041}
-.mat-pill.missing{background:rgba(226,75,74,.06);border-color:rgba(226,75,74,.2);color:#791F1F}
-.craft-btn{width:100%;padding:10px;border-radius:10px;font-size:.82rem;font-family:inherit;font-weight:700;border:none;cursor:pointer;transition:all .2s}
-.craft-btn.ready{background:var(--gold);color:#fff}
-.craft-btn.ready:hover{background:var(--gold-d)}
-.craft-btn.not-ready{background:rgba(0,0,0,.05);color:var(--muted);cursor:default}
-.craft-btn.owned-btn{background:rgba(29,158,117,.1);color:#085041;cursor:default}
-.owned-badge{display:inline-flex;align-items:center;gap:4px;font-size:.68rem;color:#085041;margin-bottom:6px}
-
-/* ── 稀有材料來源提示 ── */
-.rare-source-hint{margin-top:8px;padding:8px 12px;border-radius:10px;background:rgba(233,194,125,.08);border:1px solid rgba(233,194,125,.18);font-size:.72rem;color:var(--txt-l);line-height:1.6}
-.rare-source-hint a{color:var(--warm);text-decoration:none;font-weight:600}
+.recipe-mats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.mat-pill{font-size:.7rem;padding:4px 12px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--txt-l);display:flex;align-items:center;gap:5px;transition:all .2s}
+.mat-pill.has{background:rgba(46,196,182,.1);border-color:rgba(46,196,182,.3);color:var(--success)}
+.mat-pill.has::before{content:'\2713';font-weight:700;color:var(--success)}
+.mat-pill.missing{background:rgba(230,57,70,.08);border-color:rgba(230,57,70,.25);color:#ff8888}
+.craft-btn{width:100%;padding:12px;border-radius:14px;font-size:.85rem;font-family:inherit;font-weight:700;border:none;cursor:pointer;transition:all .25s;min-height:48px}
+.craft-btn.ready{background:linear-gradient(135deg,var(--gold),var(--amber));color:#1a1128;box-shadow:0 4px 16px var(--gold-glow);font-size:.9rem;letter-spacing:.05em}
+.craft-btn.ready:hover{transform:translateY(-2px);box-shadow:0 6px 24px var(--gold-glow)}
+.craft-btn.ready:active{transform:translateY(0)}
+.craft-btn.not-ready{background:rgba(255,255,255,.04);color:var(--txt-d);cursor:default;border:1px solid rgba(255,255,255,.06)}
+.craft-btn.owned-btn{background:rgba(46,196,182,.1);color:var(--success);cursor:default;border:1px solid rgba(46,196,182,.2)}
+.owned-badge{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;color:var(--success);margin-bottom:6px;font-weight:600}
+.rare-source-hint{margin-top:8px;padding:8px 12px;border-radius:10px;background:rgba(212,160,64,.06);border:1px solid rgba(212,160,64,.15);font-size:.72rem;color:var(--txt-l);line-height:1.6}
+.rare-source-hint a{color:var(--gold);text-decoration:none;font-weight:600}
 .rare-source-hint a:hover{text-decoration:underline}
 
+/* ── 合成動畫 ── */
+.craft-overlay{display:none;position:fixed;inset:0;z-index:600;background:rgba(10,6,20,.85);align-items:center;justify-content:center;flex-direction:column}
+.craft-overlay.show{display:flex}
+.craft-orb{width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,var(--gold),var(--amber),transparent);animation:orbSpin 1.5s ease-in-out;opacity:0;position:relative}
+@keyframes orbSpin{0%{transform:scale(.3) rotate(0deg);opacity:0}20%{opacity:1;transform:scale(.6) rotate(90deg)}80%{opacity:1;transform:scale(1) rotate(300deg)}100%{transform:scale(2.5) rotate(360deg);opacity:0}}
+.craft-result-icon{font-size:64px;opacity:0;animation:resultPop .5s ease forwards;animation-delay:1.6s;filter:drop-shadow(0 4px 20px var(--gold-glow))}
+@keyframes resultPop{0%{opacity:0;transform:scale(2)}60%{transform:scale(.9)}100%{opacity:1;transform:scale(1)}}
+.craft-result-text{font-size:1.1rem;font-weight:700;color:var(--gold);opacity:0;animation:textFade .4s ease forwards;animation-delay:2s;margin-top:12px}
+@keyframes textFade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.craft-confetti{position:absolute;width:8px;height:8px;border-radius:2px;opacity:0;animation:confettiFall 1.5s ease forwards}
+@keyframes confettiFall{0%{opacity:1;transform:translate(0,0) rotate(0deg)}100%{opacity:0;transform:translate(var(--cx),var(--cy)) rotate(var(--cr))}}
+.craft-fly-mat{position:absolute;font-size:24px;opacity:0;animation:flyToCenter .6s ease forwards}
+@keyframes flyToCenter{0%{opacity:1;transform:translate(var(--fx),var(--fy)) scale(1)}100%{opacity:0;transform:translate(0,0) scale(.3)}}
+
 /* ── 今日採集指南 ── */
-.guide-list{padding:0 16px;display:flex;flex-direction:column;gap:8px}
-.guide-card{background:var(--card);border:1px solid rgba(0,0,0,.06);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px}
-.guide-card.done{opacity:.5}
+.guide-list{padding:0 16px;display:flex;flex-direction:column;gap:10px}
+.guide-card{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;transition:all .2s;min-height:60px}
+.guide-card:hover{border-color:rgba(212,160,64,.2)}
+.guide-card.done{opacity:.4}
 .guide-left{flex:1}
-.guide-name{font-size:.82rem;font-weight:700;color:var(--warm);margin-bottom:2px}
-.guide-desc{font-size:.7rem;color:var(--muted)}
+.guide-name{font-size:.84rem;font-weight:700;color:var(--warm);margin-bottom:3px}
+.guide-desc{font-size:.72rem;color:var(--muted);line-height:1.5}
 .guide-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 .guide-remain{font-size:.68rem;color:var(--muted)}
-.guide-link{font-size:.72rem;padding:5px 14px;border-radius:20px;background:var(--gold);color:#fff;text-decoration:none;font-weight:700;white-space:nowrap}
-.guide-link.done-link{background:rgba(0,0,0,.08);color:var(--muted)}
+.guide-link{font-size:.74rem;padding:7px 16px;border-radius:20px;background:linear-gradient(135deg,var(--gold),var(--amber));color:#1a1128;text-decoration:none;font-weight:700;white-space:nowrap;min-height:34px;display:flex;align-items:center;transition:all .2s}
+.guide-link:hover{transform:translateY(-1px);box-shadow:0 4px 12px var(--gold-glow)}
+.guide-link.done-link{background:rgba(255,255,255,.06);color:var(--txt-d)}
 
 /* ── Toast ── */
-.drop-toast{position:fixed;bottom:80px;right:16px;z-index:9999;background:linear-gradient(135deg,var(--cream),var(--peach));color:var(--warm);padding:12px 18px;border-radius:16px;font-size:.8rem;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.15);opacity:0;transform:translateX(20px);transition:all .35s;pointer-events:none;max-width:240px}
+.drop-toast{position:fixed;bottom:80px;right:16px;z-index:9999;background:linear-gradient(135deg,#2a2040,#1e1530);color:var(--gold);padding:12px 18px;border-radius:16px;font-size:.8rem;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.4);border:1px solid rgba(212,160,64,.2);opacity:0;transform:translateX(20px);transition:all .35s;pointer-events:none;max-width:240px}
 .drop-toast.show{opacity:1;transform:translateX(0)}
 .drop-toast-sub{font-size:.68rem;opacity:.7;margin-top:3px;font-weight:400}
-.craft-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);z-index:9999;background:#E1F5EE;color:#085041;padding:12px 24px;border-radius:16px;font-size:.8rem;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.12);opacity:0;transition:all .35s;pointer-events:none;text-align:center;white-space:nowrap}
+.craft-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);z-index:9999;background:rgba(46,196,182,.12);color:var(--success);padding:12px 24px;border-radius:16px;font-size:.8rem;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.3);border:1px solid rgba(46,196,182,.25);opacity:0;transition:all .35s;pointer-events:none;text-align:center;white-space:nowrap}
 .craft-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── 煉金交換 ── */
+.alchemy-bar{margin:0 16px 16px;position:relative;z-index:1}
+.alchemy-btn{width:100%;padding:12px;border-radius:14px;font-size:.82rem;font-family:inherit;font-weight:700;border:1.5px solid rgba(156,100,220,.3);background:linear-gradient(135deg,rgba(80,50,120,.6),rgba(60,35,100,.6));color:#c8a8f0;cursor:pointer;transition:all .25s;min-height:48px;display:flex;align-items:center;justify-content:center;gap:8px;backdrop-filter:blur(4px)}
+.alchemy-btn:hover{border-color:rgba(156,100,220,.5);background:linear-gradient(135deg,rgba(90,55,140,.7),rgba(70,40,110,.7));box-shadow:0 4px 16px rgba(120,80,180,.25);transform:translateY(-1px)}
+.alchemy-btn:disabled{opacity:.4;cursor:default;transform:none;box-shadow:none}
+.alchemy-btn .alchemy-icon{font-size:18px}
+
+/* 煉金浮層 */
+.alchemy-overlay{display:none;position:fixed;inset:0;z-index:550;background:rgba(10,6,20,.8);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px}
+.alchemy-overlay.show{display:flex}
+.alchemy-panel{background:linear-gradient(135deg,#2a1a40,#1e1230);border:1px solid rgba(156,100,220,.3);border-radius:20px;padding:24px 20px;max-width:360px;width:100%;animation:detailPop .3s cubic-bezier(.34,1.56,.64,1);text-align:center}
+.alchemy-title{font-size:1rem;font-weight:700;color:#c8a8f0;margin-bottom:6px}
+.alchemy-desc{font-size:.75rem;color:var(--muted);margin-bottom:16px;line-height:1.6}
+.alchemy-common-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px;min-height:60px}
+.alchemy-common-item{width:56px;height:56px;border-radius:12px;border:1.5px solid rgba(160,140,180,.3);background:var(--common-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;position:relative;font-size:20px}
+.alchemy-common-item:hover{border-color:rgba(200,168,240,.5);transform:scale(1.05)}
+.alchemy-common-item.selected{border-color:#c8a8f0;box-shadow:0 0 10px rgba(156,100,220,.4)}
+.alchemy-common-item.selected::after{content:'\2713';position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:#c8a8f0;color:#1a1128;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.alchemy-common-item .alchemy-item-name{font-size:.5rem;color:var(--muted);margin-top:2px;line-height:1}
+.alchemy-common-item .alchemy-item-count{font-size:.48rem;color:var(--txt-d)}
+.alchemy-selected-count{font-size:.75rem;color:var(--muted);margin-bottom:12px}
+.alchemy-exchange-btn{padding:10px 32px;border-radius:14px;font-size:.85rem;font-family:inherit;font-weight:700;border:none;cursor:pointer;background:linear-gradient(135deg,#9c64dc,#7c44bc);color:#fff;box-shadow:0 4px 12px rgba(120,80,180,.3);transition:all .2s;min-height:44px}
+.alchemy-exchange-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(120,80,180,.4)}
+.alchemy-exchange-btn:disabled{opacity:.4;cursor:default;transform:none;box-shadow:none}
+.alchemy-close{font-size:.72rem;color:var(--muted);cursor:pointer;display:inline-block;margin-top:12px;padding:4px 8px;transition:color .2s}
+.alchemy-close:hover{color:var(--txt)}
+.alchemy-result{margin-top:16px;padding:16px;border-radius:14px;background:rgba(156,100,220,.1);border:1px solid rgba(156,100,220,.25);animation:detailPop .3s ease}
+.alchemy-result-icon{font-size:40px;filter:drop-shadow(0 4px 12px rgba(120,80,180,.4))}
+.alchemy-result-name{font-size:.9rem;font-weight:700;color:#c8a8f0;margin-top:6px}
+.alchemy-result-rarity{font-size:.65rem;color:var(--gold);margin-top:2px}
+
+/* 煉金動畫 */
+.alchemy-anim-overlay{display:none;position:fixed;inset:0;z-index:650;background:rgba(10,6,20,.9);align-items:center;justify-content:center;flex-direction:column}
+.alchemy-anim-overlay.show{display:flex}
+.alchemy-cauldron{font-size:64px;animation:cauldronBubble 1.2s ease-in-out;filter:drop-shadow(0 4px 20px rgba(120,80,180,.5))}
+@keyframes cauldronBubble{0%{transform:scale(.5) rotate(-10deg);opacity:0}30%{transform:scale(1.1) rotate(5deg);opacity:1}60%{transform:scale(.95) rotate(-3deg)}100%{transform:scale(1) rotate(0)}}
+.alchemy-sparks{position:absolute;width:6px;height:6px;border-radius:50%;background:#c8a8f0;opacity:0;animation:alchemySpark 1s ease forwards}
+@keyframes alchemySpark{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(0)}}
+
+/* ── 傢具故事浮層 ── */
+.furniture-story-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(10,6,20,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px}
+.furniture-story-overlay.show{display:flex}
+.furniture-story{background:linear-gradient(135deg,#2a2040,#1e1530);border:1px solid rgba(212,160,64,.3);border-radius:20px;padding:28px 24px;max-width:360px;width:100%;text-align:center;animation:detailPop .3s cubic-bezier(.34,1.56,.64,1)}
+.furniture-story-icon{font-size:52px;margin-bottom:12px;filter:drop-shadow(0 4px 16px var(--gold-glow))}
+.furniture-story-name{font-size:1.1rem;font-weight:700;color:var(--gold);margin-bottom:8px}
+.furniture-story-text{font-size:.82rem;color:var(--txt-l);line-height:1.8;font-style:italic;margin-bottom:14px}
+.furniture-story-close{font-size:.72rem;color:var(--muted);cursor:pointer;padding:6px 12px;transition:color .2s}
+.furniture-story-close:hover{color:var(--gold)}
+
+/* ── 圖鑑模式 ── */
+.codex-toggle{margin:0 16px 12px;position:relative;z-index:1;display:flex;align-items:center;gap:8px}
+.codex-toggle-btn{padding:6px 14px;border-radius:20px;font-size:.72rem;font-family:inherit;font-weight:600;border:1px solid rgba(212,160,64,.25);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;min-height:32px}
+.codex-toggle-btn.active{background:rgba(212,160,64,.12);color:var(--gold);border-color:var(--gold)}
+.codex-progress{font-size:.7rem;color:var(--muted);flex:1;text-align:right}
 
 /* ── 底部留白 ── */
 .bottom-pad{height:80px}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
 @media(max-width:600px){
-  .mat-section,.recipe-list,.guide-list,.daily-strip,.mat-detail{margin-left:8px;margin-right:8px}
-  .mat-grid{grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px}
+  .mat-section,.recipe-list,.guide-list,.daily-strip,.progress-strip{margin-left:8px;margin-right:8px}
+  .mat-grid{grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
   body{padding-bottom:72px}
+  .zone-rings{gap:10px}
+  .zone-ring-item{min-width:60px}
 }
 @media(min-width:1024px){
-  .mat-section,.recipe-list,.guide-list,.daily-strip,.mat-detail{max-width:640px;margin-left:auto;margin-right:auto}
+  .mat-section,.recipe-list,.guide-list,.daily-strip,.progress-strip{max-width:680px;margin-left:auto;margin-right:auto}
+  .mat-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}
 }
 </style>
 </head>
 <body>
+
+<!-- 星光粒子 -->
+<div class="starfield" id="starfield"></div>
 
 <div class="topbar">
   <a href="castle-game.html" class="topbar-back">← 城堡</a>
@@ -171,35 +300,70 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:var(--bg);min
   <p class="hero-sub">每次探索都留下了什麼。<br>收集夠了，就可以合成。</p>
 </div>
 
-<!-- 今日掉落進度 -->
+<!-- 收集進度 -->
+<div class="progress-strip" id="progress-strip">
+  <div class="prog-row">
+    <span class="prog-label">已收集材料</span>
+    <div class="prog-bar"><div class="prog-fill material" id="prog-mat" style="width:0%"></div></div>
+    <span class="prog-num" id="prog-mat-num">0/28</span>
+  </div>
+  <div class="prog-row">
+    <span class="prog-label">已合成傢具</span>
+    <div class="prog-bar"><div class="prog-fill furniture" id="prog-furn" style="width:0%"></div></div>
+    <span class="prog-num" id="prog-furn-num">0/7</span>
+  </div>
+</div>
+
+<!-- 今日掉落進度（圓形進度環）-->
 <div class="daily-strip">
   <h3>今日採集進度</h3>
-  <div class="zone-rows" id="zone-progress"></div>
+  <div class="zone-rings" id="zone-progress"></div>
 </div>
 
 <!-- Tab 切換 -->
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('inventory',this)">材料庫</button>
-  <button class="tab-btn" onclick="switchTab('recipes',this)">合成配方</button>
-  <button class="tab-btn" onclick="switchTab('guide',this)">採集指南</button>
+  <button class="tab-btn active" onclick="switchTab('inventory',this)">
+    <span class="tab-icon">&#128218;</span>材料庫
+  </button>
+  <button class="tab-btn" onclick="switchTab('recipes',this)">
+    <span class="tab-icon">&#9878;</span>合成配方
+  </button>
+  <button class="tab-btn" onclick="switchTab('guide',this)">
+    <span class="tab-icon">&#127807;</span>採集指南
+  </button>
 </div>
 
-<!-- 材料詳情 -->
-<div class="mat-detail" id="mat-detail">
-  <div class="mat-detail-top">
-    <div class="mat-detail-icon" id="d-icon">🌙</div>
-    <div class="mat-detail-info">
-      <div class="mat-detail-name" id="d-name">月光碎片</div>
-      <div class="mat-detail-zone" id="d-zone">城堡主堡</div>
-      <span class="mat-detail-rarity common" id="d-rarity">普通</span>
+<!-- 材料詳情浮層 -->
+<div class="mat-detail-overlay" id="mat-detail-overlay" onclick="closeDetailOverlay(event)">
+  <div class="mat-detail" id="mat-detail">
+    <span class="mat-detail-close" onclick="closeDetail()">&#10005;</span>
+    <div class="mat-detail-top">
+      <div class="mat-detail-icon" id="d-icon">&#127769;</div>
+      <div class="mat-detail-info">
+        <div class="mat-detail-name" id="d-name">月光碎片</div>
+        <div class="mat-detail-zone" id="d-zone">城堡主堡</div>
+        <span class="mat-detail-rarity common" id="d-rarity">普通</span>
+      </div>
+      <div style="text-align:right">
+        <div class="mat-detail-count" id="d-count">&times;0</div>
+        <div class="mat-detail-sub">持有數量</div>
+      </div>
     </div>
-    <div style="text-align:right">
-      <div class="mat-detail-count" id="d-count">×0</div>
-      <div class="mat-detail-sub">持有數量</div>
-    </div>
+    <div class="mat-detail-how" id="d-how">每天完成城堡謎語掉落。</div>
   </div>
-  <div class="mat-detail-how" id="d-how">每天完成城堡謎語掉落。</div>
-  <span class="mat-detail-close" onclick="closeDetail()">收起 ▲</span>
+</div>
+
+<!-- 圖鑑模式切換 + 煉金交換 -->
+<div id="codex-area" class="tab-content">
+  <div class="codex-toggle">
+    <button class="codex-toggle-btn active" id="codex-btn" onclick="toggleCodex()">圖鑑模式</button>
+    <span class="codex-progress" id="codex-progress">圖鑑完成度 0/28</span>
+  </div>
+  <div class="alchemy-bar">
+    <button class="alchemy-btn" id="alchemy-btn" onclick="openAlchemy()">
+      <span class="alchemy-icon">&#9883;</span> 煉金交換：3 個普通材料 → 1 個隨機稀有材料
+    </button>
+  </div>
 </div>
 
 <!-- 材料庫 -->
@@ -223,6 +387,35 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:var(--bg);min
 <div class="drop-toast" id="drop-toast"></div>
 <div class="craft-toast" id="craft-toast"></div>
 
+<!-- 煉金交換浮層 -->
+<div class="alchemy-overlay" id="alchemy-overlay" onclick="closeAlchemyOverlay(event)">
+  <div class="alchemy-panel" id="alchemy-panel">
+    <div class="alchemy-title">&#9883; 煉金交換</div>
+    <div class="alchemy-desc">選擇 3 個普通材料，交換 1 個隨機稀有材料。<br>材料一旦投入就無法取回。</div>
+    <div class="alchemy-common-grid" id="alchemy-grid"></div>
+    <div class="alchemy-selected-count" id="alchemy-selected-count">已選 0/3</div>
+    <button class="alchemy-exchange-btn" id="alchemy-exchange-btn" disabled onclick="doAlchemy()">煉金交換</button>
+    <div id="alchemy-result-area"></div>
+    <span class="alchemy-close" onclick="closeAlchemy()">關閉</span>
+  </div>
+</div>
+
+<!-- 煉金動畫 -->
+<div class="alchemy-anim-overlay" id="alchemy-anim-overlay"></div>
+
+<!-- 傢具故事浮層 -->
+<div class="furniture-story-overlay" id="furniture-story-overlay" onclick="closeFurnitureStory(event)">
+  <div class="furniture-story" id="furniture-story">
+    <div class="furniture-story-icon" id="fs-icon"></div>
+    <div class="furniture-story-name" id="fs-name"></div>
+    <div class="furniture-story-text" id="fs-text"></div>
+    <span class="furniture-story-close" onclick="closeFurnitureStoryDirect()">關閉</span>
+  </div>
+</div>
+
+<!-- 合成動畫覆蓋層 -->
+<div class="craft-overlay" id="craft-overlay"></div>
+
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -233,6 +426,19 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:var(--bg);min
 <script src="assets/js/hl-bottomnav.js"></script>
 <script src="assets/js/hl-tracker.js" data-tool="castle-materials" data-tool-name="材料庫" data-tool-type="game"></script>
 <script>
+
+// ── 星光粒子 ──
+(function(){
+  var sf = document.getElementById('starfield');
+  var count = Math.min(80, Math.floor(window.innerWidth * window.innerHeight / 8000));
+  for(var i=0;i<count;i++){
+    var s = document.createElement('div');
+    s.className='star';
+    var size = Math.random()*2.5+1;
+    s.style.cssText='width:'+size+'px;height:'+size+'px;left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;--dur:'+(2+Math.random()*4)+'s;animation-delay:'+(-Math.random()*4)+'s';
+    sf.appendChild(s);
+  }
+})();
 
 // ── 材料說明（掉落方式 + 芳療知識）──
 var MAT_HOW = {
@@ -273,27 +479,83 @@ var MAT_HOW = {
 
 // ── 區域採集指南資料 ──
 var ZONES = [
-  { icon:'🏰', name:'城堡主堡', type:'castle_riddle', link:'castle-game.html', limit:3,
-    desc:'每天完成城堡謎語，今日還可掉落 {n} 次' },
-  { icon:'🧠', name:'覺察殿', type:'quiz', link:'quiz-hub.html', limit:5,
-    desc:'完成心理測驗，今日還可掉落 {n} 次' },
-  { icon:'🔭', name:'星象塔', type:'calculator', link:'destiny-hub.html', limit:4,
-    desc:'完成命理計算，今日還可掉落 {n} 次' },
-  { icon:'🔮', name:'神諭廳', type:'draw', link:'draw-hub.html', limit:3,
-    desc:'完成抽牌占卜，今日還可掉落 {n} 次' },
-  { icon:'📚', name:'學院塔', type:'course', link:'courses.html', limit:1,
-    desc:'購課後自動掉落（每次購課計一次）' },
-  { icon:'🌸', name:'季節庭院', type:'nature_event', link:'moon-calendar.html', limit:999,
-    desc:'特定節氣限定，需在對應日期採集' }
+  { icon:'\u{1F3F0}', name:'城堡主堡', type:'castle_riddle', link:'castle-game.html', limit:3,
+    desc:'每天完成城堡謎語，今日還可掉落 {n} 次', color:'#d4a040' },
+  { icon:'\u{1F9E0}', name:'覺察殿', type:'quiz', link:'quiz-hub.html', limit:5,
+    desc:'完成心理測驗，今日還可掉落 {n} 次', color:'#2EC4B6' },
+  { icon:'\u{1F52D}', name:'星象塔', type:'calculator', link:'destiny-hub.html', limit:4,
+    desc:'完成命理計算，今日還可掉落 {n} 次', color:'#457B9D' },
+  { icon:'\u{1F52E}', name:'神諭廳', type:'draw', link:'draw-hub.html', limit:3,
+    desc:'完成抽牌占卜，今日還可掉落 {n} 次', color:'#9b59b6' },
+  { icon:'\u{1F4DA}', name:'學院塔', type:'course', link:'courses.html', limit:1,
+    desc:'購課後自動掉落（每次購課計一次）', color:'#E76F51' },
+  { icon:'\u{1F338}', name:'季節庭院', type:'nature_event', link:'moon-calendar.html', limit:999,
+    desc:'特定節氣限定，需在對應日期採集', color:'#FF6B7A' }
 ];
+
+// ── 傢具故事 ──
+var FURNITURE_STORIES = {
+  reflection_lamp: '你點燃了自省燈。\n\n它不照亮房間，而是照亮你不敢看的角落。有些光，需要勇氣才能打開。',
+  star_compass: '星命羅盤掛上牆的那一刻，它動了一下。\n\n不是機械的轉動，是像呼吸一樣微微的震顫。你算過的每張命盤，都在這裡留下了痕跡。',
+  oracle_table: '占卜台落地時，空氣裡有了沒藥的氣息。\n\n這張桌子記得你抽過的每一張牌，以及那些你假裝沒看見的訊息。',
+  aroma_pillow: '這個靠枕柔軟得讓人想哭。\n\n它混合了薰衣草的安撫和玫瑰的包容。據說城堡裡的寵物第一個認領的傢具，永遠是它。',
+  castle_almanac: '城堡年鑑翻開的第一頁，寫著你的名字和今天的日期。\n\n後面的頁面都是空白，等著被你的故事填滿。傳說級傢具，因為你的故事本身就是傳說。',
+  moonlight_fountain: '噴泉開始流動時，是月光的顏色。\n\n薰衣草晨露變成了真正的水，城堡裡的寵物每天清晨都會來喝一口。',
+  wisdom_desk: '這張書桌的抽屜打開後，裡面已經有東西了。\n\n是一封信，字跡像是你自己寫的，但你不記得。也許，是未來的你寫給現在的你的。'
+};
+
+// ── 圖鑑紀錄（localStorage）──
+var CODEX_KEY = 'hl_mat_codex_v1';
+var _codexMode = true;
+
+function loadCodex(){
+  try{
+    var raw = localStorage.getItem(CODEX_KEY);
+    return raw ? JSON.parse(raw) : {};
+  }catch(e){ return {}; }
+}
+function saveCodex(data){
+  try{ localStorage.setItem(CODEX_KEY, JSON.stringify(data)); }catch(e){}
+}
+function updateCodexFromInventory(){
+  var inv = hlMaterial ? hlMaterial.getInventory() : {};
+  var codex = loadCodex();
+  var changed = false;
+  Object.keys(inv).forEach(function(id){
+    if(!codex[id]){
+      codex[id] = true;
+      changed = true;
+    }
+  });
+  if(changed) saveCodex(codex);
+  return codex;
+}
+
+// ── 煉金交換 localStorage ──
+var ALCHEMY_KEY = 'hl_alchemy_v1';
+var _alchemySelected = []; // [{id, icon, name}]
+
+function loadAlchemyState(){
+  try{
+    var raw = localStorage.getItem(ALCHEMY_KEY);
+    return raw ? JSON.parse(raw) : { totalExchanges:0 };
+  }catch(e){ return { totalExchanges:0 }; }
+}
+function saveAlchemyState(data){
+  try{ localStorage.setItem(ALCHEMY_KEY, JSON.stringify(data)); }catch(e){}
+}
 
 // ── 核心函數 ──
 var _currentDetail = null;
 
 function init(){
+  updateCodexFromInventory();
   updateTopStats();
   renderZoneProgress();
   renderInventory();
+  renderProgressBars();
+  updateCodexDisplay();
+  updateAlchemyBtn();
 }
 
 function updateTopStats(){
@@ -301,27 +563,66 @@ function updateTopStats(){
   document.getElementById('pts-display').textContent = st.points;
 }
 
+function renderProgressBars(){
+  var inv = hlMaterial ? hlMaterial.getInventory() : {};
+  var allDefs = hlMaterial ? hlMaterial.getAllDefs() : {};
+  var totalMats = 0; var collectedMats = 0;
+  Object.keys(allDefs).forEach(function(zone){
+    allDefs[zone].forEach(function(m){
+      totalMats++;
+      if(inv[m.id] && inv[m.id].count > 0) collectedMats++;
+    });
+  });
+  // dedupe
+  var seen = {};
+  totalMats = 0; collectedMats = 0;
+  Object.keys(allDefs).forEach(function(zone){
+    allDefs[zone].forEach(function(m){
+      if(seen[m.id]) return;
+      seen[m.id] = true;
+      totalMats++;
+      if(inv[m.id] && inv[m.id].count > 0) collectedMats++;
+    });
+  });
+  if(totalMats === 0) totalMats = 28;
+  var matPct = Math.round(collectedMats / totalMats * 100);
+  document.getElementById('prog-mat').style.width = matPct + '%';
+  document.getElementById('prog-mat-num').textContent = collectedMats + '/' + totalMats;
+
+  var recipes = hlMaterial ? hlMaterial.getRecipes() : [];
+  var totalFurn = recipes.length || 7;
+  var ownedFurn = recipes.filter(function(r){return r.owned;}).length;
+  var furnPct = Math.round(ownedFurn / totalFurn * 100);
+  document.getElementById('prog-furn').style.width = furnPct + '%';
+  document.getElementById('prog-furn-num').textContent = ownedFurn + '/' + totalFurn;
+}
+
 function renderZoneProgress(){
   var container = document.getElementById('zone-progress');
   var html = '';
+  var circumference = 2 * Math.PI * 20; // r=20
   ZONES.forEach(function(z){
     var remaining = hlMaterial ? hlMaterial.getDailyRemaining(z.type) : z.limit;
     var used = z.limit === 999 ? 0 : z.limit - remaining;
-    var pct = z.limit === 999 ? 0 : Math.round(used / z.limit * 100);
+    var pct = z.limit === 999 ? 0 : used / z.limit;
     var isFull = remaining <= 0 && z.limit !== 999;
-    var desc = z.desc.replace('{n}', remaining);
-    html += '<div class="zone-row">' +
-      '<span class="zone-icon">' + z.icon + '</span>' +
-      '<span class="zone-name">' + z.name + '</span>';
-    if(z.limit !== 999){
-      html += '<div class="zone-bar"><div class="zone-fill' + (isFull?' full':'') +
-        '" style="width:' + pct + '%"></div></div>' +
-        '<span class="zone-count">' + (isFull ? '已滿' : remaining + '/' + z.limit) + '</span>';
-    } else {
-      html += '<div class="zone-bar"><div class="zone-fill" style="width:0%"></div></div>' +
-        '<span class="zone-count">限定</span>';
-    }
-    html += '<a href="' + z.link + '" class="zone-btn' + (isFull?' full':'') + '">' +
+    var offset = circumference * (1 - pct);
+    var strokeColor = isFull ? '#555' : (z.color || 'var(--gold)');
+
+    html += '<div class="zone-ring-item">' +
+      '<div style="position:relative;width:52px;height:52px">' +
+      '<svg class="zone-ring-svg" viewBox="0 0 44 44">' +
+      '<circle class="zone-ring-bg" cx="22" cy="22" r="20"/>' +
+      '<circle class="zone-ring-fill' + (isFull?' full':'') + '" cx="22" cy="22" r="20" ' +
+      'stroke="' + strokeColor + '" ' +
+      'stroke-dasharray="' + circumference + '" ' +
+      'stroke-dashoffset="' + offset + '"/>' +
+      '</svg>' +
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">' +
+      '<span class="zone-ring-icon">' + z.icon + '</span></div></div>' +
+      '<span class="zone-ring-name">' + z.name + '</span>' +
+      '<span class="zone-ring-count">' + (z.limit===999 ? '限定' : (isFull ? '已滿' : remaining+'/'+z.limit)) + '</span>' +
+      '<a href="' + z.link + '" class="zone-ring-btn' + (isFull?' full':'') + '">' +
       (isFull ? '明天再來' : '前往') + '</a></div>';
   });
   container.innerHTML = html;
@@ -330,6 +631,7 @@ function renderZoneProgress(){
 function renderInventory(){
   var inv = hlMaterial ? hlMaterial.getInventory() : {};
   var allDefs = hlMaterial ? hlMaterial.getAllDefs() : {};
+  var codex = loadCodex();
   var container = document.getElementById('inventory-content');
   var html = '';
   var zoneOrder = [
@@ -352,12 +654,10 @@ function renderInventory(){
     rendered[z.key] = true;
     var pool = allDefs[z.key];
     if(!pool || !pool.length) return;
-    // 去重標籤（oracle和draw共用神諭廳）
     var zoneLabel = z.label;
     if(zoneSeen[zoneLabel]) return;
     zoneSeen[zoneLabel] = true;
 
-    // 合併同區域的池子（draw + oracle）
     var combinedPool = pool.slice();
     if(z.key === 'draw' && allDefs['oracle']){
       allDefs['oracle'].forEach(function(m){
@@ -369,15 +669,41 @@ function renderInventory(){
     html += '<div class="zone-header">' + zoneLabel + '</div><div class="mat-grid">';
     combinedPool.forEach(function(mat){
       var count = inv[mat.id] ? inv[mat.id].count : 0;
-      var locked = count === 0;
-      var cls = 'mat-card' + (locked?' locked':'') + (mat.rarity==='rare'&&!locked?' rare':'') + (mat.rarity==='legendary'&&!locked?' legendary':'');
-      var countCls = 'mat-count' + (mat.rarity==='rare'?' rare':'') + (mat.rarity==='legendary'?' legendary':'');
-      var onclick = locked ? '' : 'onclick="showDetail(\''+mat.id+'\',\''+mat.name+'\',\''+mat.icon+'\',\''+mat.rarity+'\',\''+z.label+'\',' + count + ')"';
-      html += '<div class="' + cls + '" ' + onclick + '>' +
-        '<span class="mat-icon">' + mat.icon + '</span>' +
-        '<div class="mat-name">' + mat.name + '</div>' +
-        '<div class="' + countCls + '">' + (locked ? '未取得' : '×' + count) + '</div>' +
-        '</div>';
+      var hasNow = count > 0;
+      var everCollected = !!codex[mat.id];
+
+      // 圖鑑模式：曾經擁有過的顯示圖標+名字（但如果現在沒有則灰色）
+      // 從未擁有過的顯示黑影+???
+      var neverSeen = _codexMode && !everCollected;
+
+      var rarityClass = '';
+      if(hasNow){
+        if(mat.rarity==='rare') rarityClass = ' rare';
+        if(mat.rarity==='legendary') rarityClass = ' legendary';
+      }
+      var locked = !hasNow;
+      var cls = 'mat-card' + (locked?' locked':'') + rarityClass;
+      var countBadgeCls = 'mat-count-badge' + (mat.rarity==='rare'?' rare':'') + (mat.rarity==='legendary'?' legendary':'');
+
+      if(neverSeen){
+        // 從未收集：黑影 + ???
+        html += '<div class="mat-card locked" style="opacity:.2">' +
+          '<span class="mat-icon" style="filter:brightness(0)">&#10068;</span>' +
+          '<div class="mat-name">???</div>' +
+          '<span class="mat-count-badge">?</span></div>';
+      } else {
+        var onclick = locked ? '' : 'onclick="showDetail(\''+mat.id+'\',\''+mat.name+'\',\''+mat.icon+'\',\''+mat.rarity+'\',\''+z.label+'\',' + count + ')"';
+        html += '<div class="' + cls + '" ' + onclick + '>' +
+          '<span class="mat-icon">' + mat.icon + '</span>' +
+          '<div class="mat-name">' + mat.name + '</div>';
+        if(locked){
+          // 曾擁有但目前沒有
+          html += '<span class="mat-count-badge">\u00d70</span>';
+        } else {
+          html += '<span class="' + countBadgeCls + '">\u00d7' + count + '</span>';
+        }
+        html += '</div>';
+      }
     });
     html += '</div>';
   });
@@ -386,46 +712,103 @@ function renderInventory(){
   container.innerHTML = html;
 }
 
+function updateCodexDisplay(){
+  var codex = loadCodex();
+  var allDefs = hlMaterial ? hlMaterial.getAllDefs() : {};
+  var seen = {};
+  var total = 0;
+  var collected = 0;
+  Object.keys(allDefs).forEach(function(zone){
+    allDefs[zone].forEach(function(m){
+      if(seen[m.id]) return;
+      seen[m.id] = true;
+      total++;
+      if(codex[m.id]) collected++;
+    });
+  });
+  if(total === 0) total = 28;
+  document.getElementById('codex-progress').textContent = '圖鑑完成度 ' + collected + '/' + total;
+}
+
+function toggleCodex(){
+  _codexMode = !_codexMode;
+  var btn = document.getElementById('codex-btn');
+  btn.classList.toggle('active', _codexMode);
+  renderInventory();
+}
+
+function updateAlchemyBtn(){
+  var inv = hlMaterial ? hlMaterial.getInventory() : {};
+  var commonCount = 0;
+  Object.keys(inv).forEach(function(id){
+    var m = inv[id];
+    if(m.rarity === 'common' && m.count >= 1) commonCount += m.count;
+  });
+  var btn = document.getElementById('alchemy-btn');
+  btn.disabled = commonCount < 3;
+}
+
 function renderRecipes(){
   var recipes = hlMaterial ? hlMaterial.getRecipes() : [];
+  var inv = hlMaterial ? hlMaterial.getInventory() : {};
   var container = document.getElementById('recipes-content');
   var html = '';
   recipes.forEach(function(r){
+    // 配方解鎖邏輯：至少收集到 1 個需要的材料才顯示
+    var hasAnyIngredient = r.ingredientList.some(function(m){ return m.have > 0; });
+    var isRevealed = r.owned || hasAnyIngredient;
+
+    if(!isRevealed){
+      // 未發現的配方：神秘配方
+      html += '<div class="recipe-card" style="opacity:.5">';
+      html += '<div class="recipe-top"><div class="recipe-icon" style="filter:brightness(0);font-size:32px">&#10068;</div><div class="recipe-meta">';
+      html += '<div class="recipe-name" style="color:var(--txt-d)">??? 神秘配方</div>';
+      html += '<span class="recipe-zone-tag">收集到相關材料後揭曉</span>';
+      html += '<div class="recipe-desc" style="color:var(--txt-d)">「這個配方的秘密，藏在某處的材料裡...」</div>';
+      html += '</div></div>';
+      html += '<div class="recipe-mats">';
+      r.ingredientList.forEach(function(){
+        html += '<span class="mat-pill" style="opacity:.3">&#10068; ??? \u00d7?</span>';
+      });
+      html += '</div>';
+      html += '<button class="craft-btn not-ready" style="opacity:.3">配方未解鎖</button>';
+      html += '</div>';
+      return;
+    }
+
     var cls = 'recipe-card' + (r.owned?' owned':r.canCraft?' can-craft':'');
     html += '<div class="' + cls + '">';
     html += '<div class="recipe-top"><div class="recipe-icon">' + r.icon + '</div><div class="recipe-meta">';
-    if(r.owned) html += '<div class="owned-badge">✓ 已合成</div>';
+    if(r.owned) html += '<div class="owned-badge">\u2713 已合成</div>';
     html += '<div class="recipe-name">' + r.name + '</div>';
     html += '<span class="recipe-zone-tag">' + r.zone + '</span>';
-    html += '<div class="recipe-desc">「' + r.desc + '」</div>';
+    html += '<div class="recipe-desc">\u300c' + r.desc + '\u300d</div>';
     html += '</div></div>';
     html += '<div class="recipe-mats">';
     r.ingredientList.forEach(function(mat){
       var enough = mat.have >= mat.need;
       html += '<span class="mat-pill' + (r.owned?'':enough?' has':' missing') + '">' +
-        mat.icon + ' ' + mat.name + ' ×' + mat.need +
-        (r.owned ? '' : enough ? '' : '（缺' + (mat.need - mat.have) + '）') +
+        mat.icon + ' ' + mat.name + ' \u00d7' + mat.need +
+        (r.owned ? '' : enough ? '' : '\uff08\u7f3a' + (mat.need - mat.have) + '\uff09') +
         '</span>';
     });
     html += '</div>';
     if(r.owned){
-      html += '<button class="craft-btn owned-btn">✓ 已放入城堡</button>';
+      html += '<button class="craft-btn owned-btn" onclick="showFurnitureStory(\''+r.id+'\',\''+r.icon+'\',\''+r.name+'\')">\u2713 已放入城堡（點擊看故事）</button>';
     } else if(r.canCraft){
-      html += '<button class="craft-btn ready" onclick="doCraft(\''+r.id+'\',\''+r.name+'\')">✦ 立刻合成</button>';
+      html += '<button class="craft-btn ready" onclick="doCraft(\''+r.id+'\',\''+r.name+'\',\''+r.icon+'\')">\u2726 立刻合成</button>';
     } else {
       var missingCount = r.ingredientList.filter(function(m){return m.have < m.need;}).length;
       html += '<button class="craft-btn not-ready">還差 ' + missingCount + ' 種材料</button>';
-      // 溫和提示：只在「缺的全是稀有/傳說材料、其他普通材料都夠」時顯示
       var missingMats = r.ingredientList.filter(function(m){ return m.have < m.need; });
       var hasMats = r.ingredientList.filter(function(m){ return m.have >= m.need; });
       var allMissingAreRare = missingMats.length > 0 && missingMats.every(function(m){ return m.rarity === 'rare' || m.rarity === 'legendary'; });
       var hasCommonMats = hasMats.length > 0;
       if (allMissingAreRare && hasCommonMats) {
-        // 判斷缺的稀有材料是否來自抽牌（draw pool）
         var drawRareIds = ['oil_spirit','angel_feather','oracle_essence'];
         var missingFromDraw = missingMats.filter(function(m){ return drawRareIds.indexOf(m.id) > -1; });
         if (missingFromDraw.length > 0) {
-          html += '<div class="rare-source-hint">&#10024; 這個材料可以從「<a href="draw-hl.html">3張牌深度覺察</a>」中獲得</div>';
+          html += '<div class="rare-source-hint">\u2728 這個材料可以從「<a href="draw-hl.html">3張牌深度覺察</a>」中獲得</div>';
         }
       }
     }
@@ -443,7 +826,7 @@ function renderGuide(){
     var isFull = remaining <= 0 && z.limit !== 999;
     var isSpecial = z.limit === 999;
     html += '<div class="guide-card' + (isFull?' done':'') + '">';
-    html += '<div style="font-size:24px;flex-shrink:0">' + z.icon + '</div>';
+    html += '<div style="font-size:28px;flex-shrink:0;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3))">' + z.icon + '</div>';
     html += '<div class="guide-left"><div class="guide-name">' + z.name + '</div>';
     html += '<div class="guide-desc">' + z.desc.replace('{n}', remaining) + '</div></div>';
     html += '<div class="guide-right">';
@@ -458,36 +841,95 @@ function renderGuide(){
 function switchTab(name, btn){
   document.querySelectorAll('.tab-content').forEach(function(el){ el.style.display='none'; });
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
-  document.getElementById('tab-' + name).style.display = '';
+  var target = document.getElementById('tab-' + name);
+  target.style.display = '';
+  target.classList.remove('tab-fade-in');
+  void target.offsetWidth; // force reflow
+  target.classList.add('tab-fade-in');
   btn.classList.add('active');
+  // 圖鑑區和煉金按鈕只在材料庫 tab 顯示
+  var codexArea = document.getElementById('codex-area');
+  codexArea.style.display = (name === 'inventory') ? '' : 'none';
   closeDetail();
   if(name === 'recipes') renderRecipes();
   if(name === 'guide')   renderGuide();
 }
 
 function showDetail(id, name, icon, rarity, zone, count){
-  if(_currentDetail === id){ closeDetail(); return; }
   _currentDetail = id;
   document.getElementById('d-icon').textContent = icon;
   document.getElementById('d-name').textContent = name;
   document.getElementById('d-zone').textContent = zone;
-  document.getElementById('d-count').textContent = '×' + count;
+  document.getElementById('d-count').textContent = '\u00d7' + count;
   var rb = document.getElementById('d-rarity');
   rb.textContent = rarity === 'rare' ? '稀有材料' : rarity === 'legendary' ? '傳說材料' : '普通材料';
   rb.className = 'mat-detail-rarity ' + rarity;
   document.getElementById('d-how').textContent = MAT_HOW[id] || '探索城堡和全站工具後掉落。';
-  var detail = document.getElementById('mat-detail');
-  detail.classList.add('show');
-  detail.scrollIntoView({behavior:'smooth', block:'nearest'});
+  document.getElementById('mat-detail-overlay').classList.add('show');
 }
 
 function closeDetail(){
   _currentDetail = null;
-  document.getElementById('mat-detail').classList.remove('show');
+  document.getElementById('mat-detail-overlay').classList.remove('show');
 }
 
-function doCraft(recipeId, recipeName){
+function closeDetailOverlay(e){
+  if(e.target === document.getElementById('mat-detail-overlay')) closeDetail();
+}
+
+// ── 合成動畫 ──
+function playCraftAnimation(recipeName, recipeIcon, ingredientIcons, callback){
+  var overlay = document.getElementById('craft-overlay');
+  var html = '';
+
+  // 材料飛向中心
+  var angles = [];
+  for(var i=0;i<ingredientIcons.length;i++){
+    var angle = (i / ingredientIcons.length) * 360;
+    angles.push(angle);
+    var rad = angle * Math.PI / 180;
+    var fx = Math.cos(rad) * 120;
+    var fy = Math.sin(rad) * 120;
+    html += '<div class="craft-fly-mat" style="--fx:'+fx+'px;--fy:'+fy+'px;animation-delay:'+(i*0.1)+'s">' + ingredientIcons[i] + '</div>';
+  }
+
+  // 光球
+  html += '<div class="craft-orb" style="animation-delay:.6s"></div>';
+
+  // 結果
+  html += '<div class="craft-result-icon">' + recipeIcon + '</div>';
+  html += '<div class="craft-result-text">\u300c' + recipeName + '\u300d\u5408\u6210\u6210\u529f\uff01</div>';
+
+  // confetti
+  var confettiColors = ['#d4a040','#FFD166','#2EC4B6','#E63946','#9b59b6','#FF6B7A'];
+  for(var j=0;j<24;j++){
+    var cx = (Math.random()-0.5)*300;
+    var cy = Math.random()*200 + 100;
+    var cr = Math.random()*720;
+    var color = confettiColors[j % confettiColors.length];
+    html += '<div class="craft-confetti" style="--cx:'+cx+'px;--cy:'+cy+'px;--cr:'+cr+'deg;background:'+color+';left:calc(50% + '+(Math.random()-0.5)*40+'px);top:calc(50% - 20px);animation-delay:'+(1.5+Math.random()*0.5)+'s"></div>';
+  }
+
+  overlay.innerHTML = html;
+  overlay.classList.add('show');
+
+  setTimeout(function(){
+    overlay.classList.remove('show');
+    overlay.innerHTML = '';
+    if(callback) callback();
+  }, 3200);
+}
+
+function doCraft(recipeId, recipeName, recipeIcon){
   if(!hlMaterial) return;
+
+  // 先取得配方的材料圖標
+  var recipes = hlMaterial.getRecipes();
+  var recipe = recipes.find(function(r){return r.id === recipeId;});
+  if(!recipe || !recipe.canCraft) return;
+
+  var ingredientIcons = recipe.ingredientList.map(function(m){return m.icon;});
+
   var result = hlMaterial.craft(recipeId);
   if(!result.ok){
     if(result.reason === 'missing_materials'){
@@ -495,24 +937,231 @@ function doCraft(recipeId, recipeName){
     }
     return;
   }
-  showCraftToast('「' + recipeName + '」合成成功！回城堡看看變化。', true);
+
+  // 播放合成動畫
+  playCraftAnimation(recipeName, recipeIcon || '\u{1F3E0}', ingredientIcons, function(){
+    showCraftToast('\u300c' + recipeName + '\u300d\u5408\u6210\u6210\u529f\uff01\u56de\u57ce\u5821\u770b\u770b\u8b8a\u5316\u3002', true);
+    // 合成後顯示傢具故事
+    setTimeout(function(){
+      showFurnitureStory(recipeId, recipeIcon || '\u{1F3E0}', recipeName);
+    }, 600);
+  });
+
   updateTopStats();
   renderRecipes();
   renderInventory();
+  renderProgressBars();
+  updateCodexFromInventory();
+  updateCodexDisplay();
+  updateAlchemyBtn();
 }
 
 function showCraftToast(msg, success){
   var t = document.getElementById('craft-toast');
-  t.textContent = (success ? '🎉 ' : '⚠️ ') + msg;
-  t.style.background = success ? '#E1F5EE' : '#FCEBEB';
-  t.style.color = success ? '#085041' : '#791F1F';
+  t.textContent = (success ? '\u{1F389} ' : '\u26A0\uFE0F ') + msg;
+  t.style.background = success ? 'rgba(46,196,182,.12)' : 'rgba(230,57,70,.12)';
+  t.style.color = success ? '#2EC4B6' : '#ff8888';
+  t.style.borderColor = success ? 'rgba(46,196,182,.25)' : 'rgba(230,57,70,.25)';
   t.classList.add('show');
   setTimeout(function(){ t.classList.remove('show'); }, 2800);
 }
 
+// ── 煉金交換 ──
+function openAlchemy(){
+  _alchemySelected = [];
+  document.getElementById('alchemy-result-area').innerHTML = '';
+  renderAlchemyGrid();
+  updateAlchemyUI();
+  document.getElementById('alchemy-overlay').classList.add('show');
+}
+
+function closeAlchemy(){
+  document.getElementById('alchemy-overlay').classList.remove('show');
+  _alchemySelected = [];
+  renderInventory();
+  renderProgressBars();
+  updateAlchemyBtn();
+  updateCodexFromInventory();
+  updateCodexDisplay();
+}
+
+function closeAlchemyOverlay(e){
+  if(e.target === document.getElementById('alchemy-overlay')) closeAlchemy();
+}
+
+function renderAlchemyGrid(){
+  var inv = hlMaterial ? hlMaterial.getInventory() : {};
+  var grid = document.getElementById('alchemy-grid');
+  var html = '';
+  Object.keys(inv).forEach(function(id){
+    var m = inv[id];
+    if(m.rarity !== 'common' || m.count < 1) return;
+    for(var i=0; i<m.count; i++){
+      var selIdx = _alchemySelected.findIndex(function(s){return s._uid === id+'_'+i;});
+      var selected = selIdx > -1;
+      html += '<div class="alchemy-common-item' + (selected?' selected':'') + '" onclick="toggleAlchemySelect(\''+id+'\','+i+',\''+m.icon+'\',\''+m.name+'\')">' +
+        m.icon +
+        '<span class="alchemy-item-name">' + m.name + '</span>' +
+        '</div>';
+    }
+  });
+  if(!html) html = '<div style="color:var(--muted);font-size:.75rem;padding:16px">沒有普通材料可以交換。</div>';
+  grid.innerHTML = html;
+}
+
+function toggleAlchemySelect(id, idx, icon, name){
+  var uid = id + '_' + idx;
+  var existing = _alchemySelected.findIndex(function(s){return s._uid === uid;});
+  if(existing > -1){
+    _alchemySelected.splice(existing, 1);
+  } else if(_alchemySelected.length < 3){
+    _alchemySelected.push({id:id, _uid:uid, icon:icon, name:name});
+  }
+  renderAlchemyGrid();
+  updateAlchemyUI();
+}
+
+function updateAlchemyUI(){
+  document.getElementById('alchemy-selected-count').textContent = '已選 ' + _alchemySelected.length + '/3';
+  document.getElementById('alchemy-exchange-btn').disabled = _alchemySelected.length < 3;
+}
+
+function doAlchemy(){
+  if(_alchemySelected.length < 3 || !hlMaterial) return;
+
+  // 扣除材料（直接操作 localStorage）
+  var STORAGE_KEY = 'hl_materials_v1';
+  var raw = localStorage.getItem(STORAGE_KEY);
+  var state = raw ? JSON.parse(raw) : {inventory:{},furniture:[],dailyDrops:{},totalDrops:0};
+
+  // 計算每個 id 需要扣多少
+  var deductions = {};
+  _alchemySelected.forEach(function(s){
+    deductions[s.id] = (deductions[s.id]||0) + 1;
+  });
+
+  // 檢查庫存
+  var valid = true;
+  Object.keys(deductions).forEach(function(id){
+    if((state.inventory[id]||0) < deductions[id]) valid = false;
+  });
+  if(!valid){
+    showCraftToast('材料不足，請重新選擇。', false);
+    return;
+  }
+
+  // 扣除
+  Object.keys(deductions).forEach(function(id){
+    state.inventory[id] -= deductions[id];
+    if(state.inventory[id] <= 0) delete state.inventory[id];
+  });
+
+  // 隨機稀有材料
+  var allDefs = hlMaterial.getAllDefs();
+  var rarePools = [];
+  Object.keys(allDefs).forEach(function(zone){
+    allDefs[zone].forEach(function(m){
+      if(m.rarity === 'rare' && !rarePools.find(function(x){return x.id===m.id;})){
+        rarePools.push(m);
+      }
+    });
+  });
+  var reward = rarePools[Math.floor(Math.random()*rarePools.length)];
+
+  // 加入庫存
+  state.inventory[reward.id] = (state.inventory[reward.id]||0) + 1;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+  // 更新圖鑑
+  var codex = loadCodex();
+  codex[reward.id] = true;
+  saveCodex(codex);
+
+  // 記錄交換次數
+  var alchState = loadAlchemyState();
+  alchState.totalExchanges++;
+  saveAlchemyState(alchState);
+
+  // 播放動畫
+  var selIcons = _alchemySelected.map(function(s){return s.icon;});
+  _alchemySelected = [];
+  document.getElementById('alchemy-overlay').classList.remove('show');
+
+  playAlchemyAnimation(selIcons, reward, function(){
+    document.getElementById('alchemy-overlay').classList.add('show');
+    renderAlchemyGrid();
+    updateAlchemyUI();
+    document.getElementById('alchemy-result-area').innerHTML =
+      '<div class="alchemy-result">' +
+      '<div class="alchemy-result-icon">' + reward.icon + '</div>' +
+      '<div class="alchemy-result-name">' + reward.name + '</div>' +
+      '<div class="alchemy-result-rarity">&#10023; 稀有材料</div>' +
+      '</div>';
+    renderInventory();
+    renderProgressBars();
+    updateAlchemyBtn();
+    updateCodexDisplay();
+  });
+}
+
+function playAlchemyAnimation(icons, reward, callback){
+  var overlay = document.getElementById('alchemy-anim-overlay');
+  var html = '';
+
+  // 飛入的材料
+  icons.forEach(function(icon, i){
+    var angle = (i/icons.length)*360;
+    var rad = angle*Math.PI/180;
+    var fx = Math.cos(rad)*100;
+    var fy = Math.sin(rad)*100;
+    html += '<div class="craft-fly-mat" style="--fx:'+fx+'px;--fy:'+fy+'px;animation-delay:'+(i*0.15)+'s;font-size:28px">' + icon + '</div>';
+  });
+
+  // 煉金釜
+  html += '<div class="alchemy-cauldron" style="animation-delay:.5s">\u2697\uFE0F</div>';
+
+  // 火花
+  for(var j=0;j<16;j++){
+    var sx = (Math.random()-0.5)*200;
+    var sy = -(Math.random()*150+50);
+    html += '<div class="alchemy-sparks" style="--sx:'+sx+'px;--sy:'+sy+'px;left:calc(50% + '+(Math.random()-0.5)*30+'px);top:calc(50% - 10px);animation-delay:'+(0.8+Math.random()*0.4)+'s"></div>';
+  }
+
+  // 結果
+  html += '<div class="craft-result-icon" style="animation-delay:1.5s">' + reward.icon + '</div>';
+  html += '<div class="craft-result-text" style="animation-delay:1.8s">' + reward.name + ' \u2014 稀有材料！</div>';
+
+  overlay.innerHTML = html;
+  overlay.classList.add('show');
+
+  setTimeout(function(){
+    overlay.classList.remove('show');
+    overlay.innerHTML = '';
+    if(callback) callback();
+  }, 2800);
+}
+
+// ── 傢具故事 ──
+function showFurnitureStory(id, icon, name){
+  var story = FURNITURE_STORIES[id] || '這件傢具安靜地等在那裡。\n\n也許它的故事，要等你來寫。';
+  document.getElementById('fs-icon').textContent = icon;
+  document.getElementById('fs-name').textContent = name;
+  document.getElementById('fs-text').textContent = story;
+  document.getElementById('furniture-story-overlay').classList.add('show');
+}
+
+function closeFurnitureStory(e){
+  if(e.target === document.getElementById('furniture-story-overlay')){
+    closeFurnitureStoryDirect();
+  }
+}
+
+function closeFurnitureStoryDirect(){
+  document.getElementById('furniture-story-overlay').classList.remove('show');
+}
+
 // 啟動
 document.addEventListener('DOMContentLoaded', function(){
-  // 等 hl-castle-material.js 載入
   var tries = 0;
   var check = setInterval(function(){
     tries++;
