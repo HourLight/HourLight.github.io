@@ -42,7 +42,7 @@
       if (typeof HLCore !== 'undefined') {
         _status.core = HLCore.init(_KEYS.core);
         if (_status.core) {
-          console.log('✓ HLCore 初始化成功');
+          if(window.HL_DEBUG) console.log('✓ HLCore 初始化成功');
         }
       } else {
         console.warn('HLCore 模組未載入');
@@ -52,7 +52,7 @@
       if (typeof HLCalc !== 'undefined') {
         _status.calc = HLCalc.init(_KEYS.calc);
         if (_status.calc) {
-          console.log('✓ HLCalc 初始化成功');
+          if(window.HL_DEBUG) console.log('✓ HLCalc 初始化成功');
         }
       } else {
         console.warn('HLCalc 模組未載入');
@@ -63,7 +63,7 @@
         HLCards.init(_KEYS.card, function(success) {
           _status.card = success;
           if (success) {
-            console.log('✓ HLCards 初始化成功');
+            if(window.HL_DEBUG) console.log('✓ HLCards 初始化成功');
           }
           if (callback) callback(HLSystem.getStatus());
         });

@@ -143,7 +143,7 @@
     init: function(key) {
       if (key === _k) {
         _ready = true;
-        console.log('\u2713 HLTriangle \u521d\u59cb\u5316\u6210\u529f');
+        if(window.HL_DEBUG) console.log('\u2713 HLTriangle \u521d\u59cb\u5316\u6210\u529f');
         return true;
       }
       return false;

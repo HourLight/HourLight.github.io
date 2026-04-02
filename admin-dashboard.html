@@ -1431,8 +1431,8 @@ async function loadAdminDashboard() {
           _enhHour: ts.getHours()
         });
       });
-      console.log('[增強儀表板] 準備完成，共 ' + enhEvents.length + ' 筆事件');
-      if(enhEvents.length > 0) console.log('[增強儀表板] 樣本:', JSON.stringify(enhEvents[0]));
+      if(window.HL_DEBUG) console.log('[增強儀表板] 準備完成，共 ' + enhEvents.length + ' 筆事件');
+      if(window.HL_DEBUG && enhEvents.length > 0) console.log('[增強儀表板] 樣本:', JSON.stringify(enhEvents[0]));
       renderEnhancedDashboard(enhEvents);
     } catch(enhErr) { 
       console.warn('Enhanced dashboard error:', enhErr);
@@ -1749,7 +1749,7 @@ async function checkPlanExpiry(uid){
     if(exp<now){
       // 已過期 → 降回免費 + 發到期通知
       await db.collection('users').doc(uid).update({plan:'free',planExpiry:null});
-      console.log('Plan expired, downgraded to free');
+      if(window.HL_DEBUG) console.log('Plan expired, downgraded to free');
       if(d.email){
         try{
           const pName=(HL_PLANS[d.plan]||{}).name||d.plan;
@@ -2375,7 +2375,7 @@ function renderEnhancedDashboard(allEvts){
   var now=new Date(); now.setHours(23,59,59,999);
   var cutoff=new Date(now); cutoff.setDate(cutoff.getDate()-enhPeriod); cutoff.setHours(0,0,0,0);
   var events=allEvts.filter(function(e){return e._enhDate>=cutoff;});
-  console.log('[增強儀表板] 總事件:'+allEvts.length+', 篩選後:'+events.length+', 期間:'+enhPeriod+'天, Chart.js:'+(typeof Chart!=='undefined'));
+  if(window.HL_DEBUG) console.log('[增強儀表板] 總事件:'+allEvts.length+', 篩選後:'+events.length+', 期間:'+enhPeriod+'天, Chart.js:'+(typeof Chart!=='undefined'));
 
   // 如果沒有事件，所有容器顯示空值提示
   if(!events.length){

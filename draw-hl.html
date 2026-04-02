@@ -2086,7 +2086,7 @@ async function triggerAIReading() {
       // 同一次抽牌 session 允許重複使用（paywall 已驗證過一次）
       if (localStorage.getItem(_promoUsedKey) && window._lastUsedUnlockCode !== unlockCode) { showAIError('此兌換券已使用過（每人限用一次）'); return; }
       localStorage.setItem(_promoUsedKey, Date.now());
-      console.log('[HL] Promo code accepted: ' + unlockCode);
+      if(window.HL_DEBUG) console.log('[HL] Promo code accepted: ' + unlockCode);
       // 寫入 Firestore 追蹤
       try{ var _pdb=firebase&&firebase.firestore?firebase.firestore():null;var _pu=firebase.auth().currentUser;
         if(_pdb)_pdb.collection('promo_redemptions').add({code:unlockCode,n:n,source:'draw-hl',uid:_pu?_pu.uid:'guest',email:_pu?_pu.email:'',ts:firebase.firestore.FieldValue.serverTimestamp()});
