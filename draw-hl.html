@@ -2124,16 +2124,9 @@ async function triggerAIReading() {
           showAIError('此代碼僅適用於 ' + codeN + ' 張解讀，您目前抽了 ' + n + ' 張');
           return;
         }
-        // 驗證通過，記住這個碼（避免重試時被擋）
+        // 驗證通過，記住碼（避免重試被擋）
+        // 注意：不在前端標記 used，讓後端 API 來標記（避免雙重標記導致第二次驗證失敗）
         window._lastUsedUnlockCode = unlockCode;
-        // 標記代碼已使用
-        var currentUser = firebase.auth().currentUser;
-        await db.collection('reading_codes').doc(unlockCode).update({
-          used: true,
-          usedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          usedBy: currentUser ? currentUser.uid : 'guest',
-          usedByEmail: currentUser ? (currentUser.email || '') : ''
-        });
       }
     } catch(codeErr) {
       console.warn('代碼驗證錯誤，繼續解讀:', codeErr);
