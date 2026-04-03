@@ -515,13 +515,22 @@ function buildPrompt(){
 // ══════ AI Reading ══════
 
 function requestAIReading(){
-  // 12/21 張走一對一預約（LINE 聯繫）
+  // 12/21 張走一對一預約（LINE 聯繫）—— 先打包資料
   if(currentSpread>=12){
-    var lineUrl='https://lin.ee/RdQBFAN';
-    var msg='為確保每一次牌卡解讀的完整性與準確度，'+currentSpread+' 張牌陣將由覺察師為您一對一抽牌與深度解讀。\n\n自行將牌面貼至其他 AI 工具，可能會得到不完整甚至不正確的回應，因為缺少馥靈之鑰的專業解讀框架與覺察脈絡。';
-    if(confirm(msg+'\n\n點擊「確定」前往 LINE 預約')){
-      window.open(lineUrl,'_blank');
-    }
+    var prompt=buildPrompt();
+    goScene(5);
+    document.getElementById('readingBox').innerHTML=
+      '<div style="text-align:center;margin-bottom:20px">'+
+        '<div style="font-size:1.1rem;color:var(--gold);margin-bottom:12px">📋 完整資料已打包好</div>'+
+        '<p style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.8;margin-bottom:16px">'+currentSpread+' 張牌陣將由覺察師為您做一對一深度解讀。<br>請複製以下資料傳給覺察師，不用重新回答問題。</p>'+
+      '</div>'+
+      '<div style="background:rgba(248,223,165,.05);border:1px solid rgba(248,223,165,.15);border-radius:12px;padding:16px;font-size:.82rem;color:rgba(255,255,255,.7);line-height:1.7;max-height:300px;overflow-y:auto;white-space:pre-wrap;font-family:monospace">'+prompt.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>'+
+      '<div style="display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap">'+
+        '<button onclick="navigator.clipboard.writeText(window._famPromptData);this.textContent=\'✅ 已複製！\';setTimeout(()=>{this.textContent=\'📋 複製完整資料\'},2000)" style="padding:12px 24px;border-radius:50px;background:linear-gradient(135deg,#f0d48a,#e9c27d);color:#1a1520;font-weight:600;border:none;cursor:pointer;font-size:.9rem">📋 複製完整資料</button>'+
+        '<a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" style="padding:12px 24px;border-radius:50px;border:1px solid rgba(248,223,165,.3);color:#f0d48a;text-decoration:none;font-size:.9rem;display:inline-flex;align-items:center">💬 前往 LINE 預約解讀</a>'+
+      '</div>';
+    document.getElementById('resultBtns').style.display='none';
+    window._famPromptData=prompt;
     return;
   }
   // 付款牆攔截（支援代碼兌換 onProceed）
