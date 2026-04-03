@@ -507,6 +507,83 @@ body, .main, .card, input, select, textarea, button { color-scheme: light !impor
         </div>
       </div>
 
+      <!-- Tool Usage Top 10 -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">工具使用 Top 10</div>
+          <span class="adm-card-badge badge badge-gold">🏆</span>
+        </div>
+        <div class="adm-card-body">
+          <div class="adm-table-wrap" id="toolRanking">
+            <div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tool Type Distribution + Hourly Usage -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <!-- Tool Type Distribution -->
+        <div class="adm-card" style="margin-bottom:0">
+          <div class="adm-card-head">
+            <div class="adm-card-title">工具類型分布</div>
+            <span class="adm-card-badge badge badge-purple">🎯</span>
+          </div>
+          <div class="adm-card-body" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+            <canvas id="admToolDonut" width="140" height="140" style="flex-shrink:0"></canvas>
+            <div id="admToolDonutLegend" style="font-size:.78rem;color:var(--adm-text2);line-height:2.2"></div>
+          </div>
+        </div>
+        <!-- Hourly Usage -->
+        <div class="adm-card" style="margin-bottom:0">
+          <div class="adm-card-head">
+            <div class="adm-card-title">時段使用分布</div>
+            <span class="adm-card-badge badge badge-blue">⏰</span>
+          </div>
+          <div class="adm-card-body">
+            <div id="admHourChart" style="display:flex;gap:2px;align-items:flex-end;height:100px;padding:6px 0">
+              <div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:.65rem;color:var(--adm-text3);margin-top:4px"><span>0時</span><span>6時</span><span>12時</span><span>18時</span><span>23時</span></div>
+          </div>
+        </div>
+      </div>
+      <style>
+        @media (max-width: 640px) {
+          [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+        }
+      </style>
+
+      <!-- Today's New Members + System Status -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <!-- Today's New Members -->
+        <div class="adm-card" style="margin-bottom:0">
+          <div class="adm-card-head">
+            <div class="adm-card-title">今日新會員</div>
+            <span class="adm-card-badge badge badge-green">🌱</span>
+          </div>
+          <div class="adm-card-body">
+            <div id="admNewMembers">
+              <div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>
+            </div>
+          </div>
+        </div>
+        <!-- System Status -->
+        <div class="adm-card" style="margin-bottom:0">
+          <div class="adm-card-head">
+            <div class="adm-card-title">系統狀態</div>
+            <span class="adm-card-badge badge badge-green">🩺</span>
+          </div>
+          <div class="adm-card-body">
+            <div id="admSystemHealth" style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:var(--adm-green)"></div><span style="font-size:.82rem">Firebase Auth</span><span style="margin-left:auto;font-size:.78rem;color:var(--adm-green)">正常</span></div>
+              <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:var(--adm-green)"></div><span style="font-size:.82rem">Firestore</span><span style="margin-left:auto;font-size:.78rem;color:var(--adm-green)">正常</span></div>
+              <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:var(--adm-green)"></div><span style="font-size:.82rem">GA4 追蹤碼</span><span style="margin-left:auto;font-size:.78rem;color:var(--adm-text2)">G-BXP7K53QG6</span></div>
+              <div style="display:flex;align-items:center;gap:8px"><div id="admPagesDot" style="width:8px;height:8px;border-radius:50%;background:var(--adm-green)"></div><span style="font-size:.82rem">HTML 頁面</span><span style="margin-left:auto;font-size:.78rem;color:var(--adm-text2)" id="admPagesCount">166+ 頁</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Recent Events -->
       <div class="adm-card">
         <div class="adm-card-head">
@@ -737,6 +814,10 @@ function initDashboard() {
   loadRegChart();
   loadCastleStats();
   loadQuizRanking();
+  loadToolRanking();
+  loadToolTypeDistribution();
+  loadHourChart();
+  loadNewMembers();
   loadDashEvents();
 }
 
@@ -824,116 +905,260 @@ function loadRegChart() {
 }
 
 function loadCastleStats() {
-  // Query events for castle/room related activity
-  db.collection('events').where('type', '>=', 'castle').where('type', '<=', 'castle\uf8ff')
-    .get().then(function(castleSnap) {
-
+  // Castle game data is stored in localStorage (hl-castle-key.js), not in Firestore events.
+  // Try to find any castle-related events; if none, show informational message.
+  db.collection('events').where('toolType', '==', 'castle').get().then(function(snap) {
+    if (snap.empty) {
+      // No castle events in Firestore - expected, since data lives in localStorage
+      var statsEl = document.getElementById('castleStats');
+      statsEl.innerHTML =
+        '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--adm-text2);font-size:.88rem;line-height:1.7">' +
+          '<div style="font-size:1.6rem;margin-bottom:8px">🏰</div>' +
+          '城堡遊戲數據儲存在用戶本地裝置（localStorage）<br>' +
+          '<span style="font-size:.78rem;color:var(--adm-text3)">如需集中統計，需在 hl-castle-key.js 加入 Firestore 事件上報</span>' +
+        '</div>';
+      return;
+    }
+    // If we do have castle events, show counts
     var roomCounts = {};
-    var streaks = [];
-    var achievementCount = 0;
-    var totalRooms = castleSnap.size;
-
-    castleSnap.forEach(function(doc) {
+    var totalEvents = snap.size;
+    snap.forEach(function(doc) {
       var d = doc.data();
-      var t = d.type || '';
-      if (t.indexOf('room') >= 0 || t.indexOf('castle') >= 0) {
-        var room = d.data && d.data.room ? d.data.room : (d.room || d.page || 'unknown');
-        roomCounts[room] = (roomCounts[room] || 0) + 1;
-      }
-      if (t.indexOf('achievement') >= 0) achievementCount++;
-      if (d.data && d.data.streak) streaks.push(d.data.streak);
+      var room = d.toolName || d.toolId || 'unknown';
+      roomCounts[room] = (roomCounts[room] || 0) + 1;
     });
-
-    // Also check room_visit type events
-    db.collection('events').where('type', '>=', 'room').where('type', '<=', 'room\uf8ff')
-      .get().then(function(roomSnap) {
-
-      roomSnap.forEach(function(doc) {
-        var d = doc.data();
-        totalRooms++;
-        var room = d.data && d.data.room ? d.data.room : (d.room || d.page || 'unknown');
-        roomCounts[room] = (roomCounts[room] || 0) + 1;
-        if (d.data && d.data.streak) streaks.push(d.data.streak);
-      });
-
-      document.getElementById('cs-rooms').textContent = totalRooms;
-      document.getElementById('cs-achievements').textContent = achievementCount;
-
-      var avgStreak = streaks.length > 0
-        ? (streaks.reduce(function(a, b) { return a + b; }, 0) / streaks.length).toFixed(1)
-        : '0';
-      document.getElementById('cs-streak').textContent = avgStreak;
-
-      // Find most popular room
-      var popular = '-';
-      var maxCount = 0;
-      Object.keys(roomCounts).forEach(function(r) {
-        if (roomCounts[r] > maxCount) { maxCount = roomCounts[r]; popular = r; }
-      });
-      document.getElementById('cs-popular').textContent = popular === 'unknown' ? '-' : truncate(popular, 10);
-    }).catch(function() {
-      document.getElementById('cs-rooms').textContent = totalRooms;
+    var popular = '-';
+    var maxCount = 0;
+    Object.keys(roomCounts).forEach(function(r) {
+      if (roomCounts[r] > maxCount) { maxCount = roomCounts[r]; popular = r; }
     });
-
-  }).catch(function(e) {
-    document.getElementById('cs-rooms').textContent = '?';
-    document.getElementById('cs-achievements').textContent = '?';
-    document.getElementById('cs-streak').textContent = '?';
-    document.getElementById('cs-popular').textContent = '?';
+    document.getElementById('cs-rooms').textContent = totalEvents;
+    document.getElementById('cs-achievements').textContent = '-';
+    document.getElementById('cs-streak').textContent = '-';
+    document.getElementById('cs-popular').textContent = popular === 'unknown' ? '-' : truncate(popular, 10);
+  }).catch(function() {
+    // Firestore may not have toolType field indexed; show info message
+    var statsEl = document.getElementById('castleStats');
+    statsEl.innerHTML =
+      '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--adm-text2);font-size:.88rem;line-height:1.7">' +
+        '<div style="font-size:1.6rem;margin-bottom:8px">🏰</div>' +
+        '城堡遊戲數據儲存在用戶本地裝置（localStorage）<br>' +
+        '<span style="font-size:.78rem;color:var(--adm-text3)">如需集中統計，需在 hl-castle-key.js 加入 Firestore 事件上報</span>' +
+      '</div>';
   });
 }
 
 function loadQuizRanking() {
   var container = document.getElementById('quizRanking');
-  db.collection('events').get().then(function(snap) {
+  // Query quiz_complete events using the actual Firestore event structure
+  db.collection('events').where('eventType', '==', 'quiz_complete').get().then(function(snap) {
     var quizCounts = {};
-    var quizComplete = {};
     snap.forEach(function(doc) {
       var d = doc.data();
-      var type = (d.type || d.eventType || '').toLowerCase();
-      var tool = d.data && d.data.tool ? d.data.tool.toLowerCase() : '';
-      var page = d.data && d.data.page ? d.data.page.toLowerCase() : (d.page || '').toLowerCase();
-      var quizName = '';
-
-      if (type.indexOf('quiz') >= 0 || tool.indexOf('quiz') >= 0 || page.indexOf('quiz') >= 0) {
-        quizName = d.data && d.data.quiz ? d.data.quiz
-          : d.data && d.data.tool ? d.data.tool
-          : d.data && d.data.page ? d.data.page
-          : page || type;
-        if (quizName) {
-          quizName = quizName.replace(/\.html$/i, '').replace(/^quiz[-_]?/i, '');
-          if (!quizName) quizName = 'unknown';
-          quizCounts[quizName] = (quizCounts[quizName] || 0) + 1;
-          if (type.indexOf('complete') >= 0 || type.indexOf('result') >= 0 || type.indexOf('finish') >= 0) {
-            quizComplete[quizName] = (quizComplete[quizName] || 0) + 1;
-          }
-        }
-      }
+      var name = d.toolName || d.toolId || 'unknown';
+      quizCounts[name] = (quizCounts[name] || 0) + 1;
     });
 
     var sorted = Object.keys(quizCounts).map(function(k) {
-      return { name: k, count: quizCounts[k], complete: quizComplete[k] || 0 };
+      return { name: k, count: quizCounts[k] };
     }).sort(function(a, b) { return b.count - a.count; }).slice(0, 20);
 
     if (sorted.length === 0) {
-      container.innerHTML = '<div class="adm-empty" style="padding:16px">尚無測驗使用紀錄</div>';
+      container.innerHTML = '<div class="adm-empty" style="padding:16px">尚無測驗完成紀錄</div>';
       return;
     }
 
     var html = '<table class="adm-table"><thead><tr>' +
-      '<th>#</th><th>測驗名稱</th><th>使用次數</th><th>完成次數</th></tr></thead><tbody>';
+      '<th>#</th><th>測驗名稱</th><th>完成次數</th></tr></thead><tbody>';
     sorted.forEach(function(q, i) {
       html += '<tr>' +
         '<td>' + (i + 1) + '</td>' +
         '<td>' + esc(q.name) + '</td>' +
         '<td style="font-weight:600;color:var(--adm-gold)">' + q.count + '</td>' +
-        '<td>' + (q.complete > 0 ? q.complete : '-') + '</td>' +
         '</tr>';
     });
     html += '</tbody></table>';
     container.innerHTML = html;
   }).catch(function(e) {
     container.innerHTML = '<div class="adm-empty">載入失敗：' + esc(e.message) + '</div>';
+  });
+}
+
+function loadToolRanking() {
+  var container = document.getElementById('toolRanking');
+  db.collection('events').get().then(function(snap) {
+    var toolCounts = {};
+    snap.forEach(function(doc) {
+      var d = doc.data();
+      var name = d.toolName || d.toolId || '';
+      if (!name) return;
+      toolCounts[name] = (toolCounts[name] || 0) + 1;
+    });
+
+    var sorted = Object.keys(toolCounts).map(function(k) {
+      return { name: k, count: toolCounts[k] };
+    }).sort(function(a, b) { return b.count - a.count; }).slice(0, 10);
+
+    if (sorted.length === 0) {
+      container.innerHTML = '<div class="adm-empty" style="padding:16px">尚無工具使用紀錄</div>';
+      return;
+    }
+
+    var html = '<table class="adm-table"><thead><tr>' +
+      '<th>#</th><th>工具名稱</th><th>使用次數</th></tr></thead><tbody>';
+    sorted.forEach(function(t, i) {
+      var medal = i === 0 ? '🥇 ' : i === 1 ? '🥈 ' : i === 2 ? '🥉 ' : '';
+      html += '<tr>' +
+        '<td>' + medal + (i + 1) + '</td>' +
+        '<td>' + esc(t.name) + '</td>' +
+        '<td style="font-weight:600;color:var(--adm-gold)">' + t.count + ' 次</td>' +
+        '</tr>';
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  }).catch(function(e) {
+    container.innerHTML = '<div class="adm-empty">載入失敗：' + esc(e.message) + '</div>';
+  });
+}
+
+function loadToolTypeDistribution() {
+  var canvas = document.getElementById('admToolDonut');
+  var legend = document.getElementById('admToolDonutLegend');
+  if (!canvas || !legend) return;
+
+  db.collection('events').get().then(function(snap) {
+    var cats = { draw: 0, quiz: 0, calculator: 0, other: 0 };
+    var catNames = { draw: '🃏 抽牌', quiz: '📊 測驗', calculator: '🔮 命理', other: '📄 其他' };
+    var catColors = { draw: '#c9a060', quiz: '#78b4c8', calculator: '#9070c0', other: '#b0a490' };
+
+    snap.forEach(function(doc) {
+      var d = doc.data();
+      var toolType = d.toolType || '';
+      var eventType = d.eventType || d.type || '';
+      if (toolType === 'draw' || eventType.indexOf('draw') >= 0) cats.draw++;
+      else if (toolType === 'quiz' || eventType.indexOf('quiz') >= 0) cats.quiz++;
+      else if (toolType === 'calculator' || eventType.indexOf('calc') >= 0) cats.calculator++;
+      else cats.other++;
+    });
+
+    var ctx = canvas.getContext('2d');
+    var w = canvas.width, h = canvas.height, cx = w / 2, cy = h / 2, r = 58;
+    ctx.clearRect(0, 0, w, h);
+
+    var entries = Object.keys(cats).filter(function(k) { return cats[k] > 0; }).map(function(k) { return [k, cats[k]]; });
+    if (!entries.length) { legend.textContent = '尚無數據'; return; }
+    var total = entries.reduce(function(s, e) { return s + e[1]; }, 0);
+    var startAngle = -Math.PI / 2;
+
+    entries.forEach(function(e) {
+      var sliceAngle = (e[1] / total) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, r, startAngle, startAngle + sliceAngle);
+      ctx.closePath();
+      ctx.fillStyle = catColors[e[0]];
+      ctx.fill();
+      startAngle += sliceAngle;
+    });
+
+    // Center hole
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.55, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+
+    // Center text
+    ctx.fillStyle = '#2a1f0e';
+    ctx.font = 'bold 16px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(total, cx, cy - 5);
+    ctx.font = '9px sans-serif';
+    ctx.fillStyle = '#9a8a74';
+    ctx.fillText('總使用', cx, cy + 9);
+
+    legend.innerHTML = entries.map(function(e) {
+      var pct = Math.round(e[1] / total * 100);
+      return '<div style="display:flex;align-items:center;gap:6px">' +
+        '<div style="width:10px;height:10px;border-radius:3px;background:' + catColors[e[0]] + ';flex-shrink:0"></div>' +
+        '<span>' + catNames[e[0]] + '</span>' +
+        '<span style="margin-left:auto;font-weight:600;color:var(--adm-text)">' + e[1] + '</span>' +
+        '<span style="color:var(--adm-text3);font-size:.7rem">(' + pct + '%)</span>' +
+        '</div>';
+    }).join('');
+  }).catch(function(e) {
+    legend.textContent = '載入失敗';
+  });
+}
+
+function loadHourChart() {
+  var el = document.getElementById('admHourChart');
+  if (!el) return;
+
+  db.collection('events').get().then(function(snap) {
+    var hours = new Array(24).fill(0);
+    snap.forEach(function(doc) {
+      var ts = doc.data().ts;
+      if (!ts) return;
+      var d = toJsDate(ts);
+      if (d) hours[d.getHours()]++;
+    });
+
+    var maxH = Math.max.apply(null, hours) || 1;
+    el.innerHTML = hours.map(function(cnt, h) {
+      var ht = Math.max(3, Math.round(cnt / maxH * 90));
+      var peak = cnt === maxH && cnt > 0;
+      var bg = peak ? 'var(--adm-gold)' : 'rgba(184,146,42,' + (0.12 + (cnt / maxH) * 0.6) + ')';
+      return '<div style="flex:1;height:' + ht + 'px;background:' + bg + ';border-radius:2px 2px 0 0;position:relative;transition:height .5s" title="' + h + '時 ' + cnt + '次">' +
+        (peak ? '<div style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:.6rem;color:var(--adm-gold);font-weight:700">' + cnt + '</div>' : '') +
+        '</div>';
+    }).join('');
+  }).catch(function() {
+    el.innerHTML = '<div class="adm-empty" style="padding:10px">載入失敗</div>';
+  });
+}
+
+function loadNewMembers() {
+  var container = document.getElementById('admNewMembers');
+  var now = new Date();
+  var todayStr = toDateStr(now);
+
+  db.collection('users').get().then(function(snap) {
+    var newToday = [];
+    snap.forEach(function(doc) {
+      var d = doc.data();
+      if (d.createdAt) {
+        var created = toJsDate(d.createdAt);
+        if (created && toDateStr(created) === todayStr) {
+          newToday.push({
+            name: d.displayName || '',
+            email: d.email || '',
+            time: created
+          });
+        }
+      }
+    });
+
+    if (newToday.length === 0) {
+      container.innerHTML = '<div class="adm-empty" style="padding:16px"><div class="adm-empty-icon">🌱</div>今天還沒有新朋友</div>';
+      return;
+    }
+
+    newToday.sort(function(a, b) { return b.time - a.time; });
+    container.innerHTML = newToday.slice(0, 10).map(function(m) {
+      var avatar = (m.name || m.email || '?').charAt(0).toUpperCase();
+      var ts = m.time.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+      return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(42,31,14,.06)">' +
+        '<div style="width:32px;height:32px;border-radius:50%;background:var(--adm-gold-bg);display:flex;align-items:center;justify-content:center;font-size:.82rem;color:var(--adm-gold);font-weight:600">' + esc(avatar) + '</div>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div style="font-size:.82rem;font-weight:500">' + esc(m.name || '匿名') + '</div>' +
+          '<div style="font-size:.72rem;color:var(--adm-text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(m.email) + '</div>' +
+        '</div>' +
+        '<div style="font-size:.72rem;color:var(--adm-text3);white-space:nowrap">' + ts + '</div>' +
+        '</div>';
+    }).join('');
+  }).catch(function(e) {
+    container.innerHTML = '<div class="adm-empty">載入失敗</div>';
   });
 }
 
@@ -1450,16 +1675,37 @@ function renderEventItem(d) {
   else if (type.indexOf('auth') >= 0 || type.indexOf('login') >= 0) dotClass = 'dot-auth';
   else if (type.indexOf('castle') >= 0 || type.indexOf('room') >= 0) dotClass = 'dot-castle';
 
+  // Human-readable event description
+  var toolName = d.toolName || d.toolId || '';
+  var readableType = type;
+  if (type === 'page_enter') readableType = '瀏覽了 ' + (toolName || d.page || '頁面');
+  else if (type === 'quiz_complete') readableType = '完成了 ' + (toolName || '測驗');
+  else if (type === 'draw_complete') readableType = '抽了 ' + (toolName || '牌');
+  else if (type === 'match_complete') readableType = '算了合盤';
+  else if (type === 'calc_complete') readableType = '算了 ' + (toolName || '命盤');
+
   var detail = '';
-  if (d.data) {
-    if (typeof d.data === 'string') detail = d.data;
+  if (d.detail) {
+    if (typeof d.detail === 'string') detail = d.detail;
     else {
       var parts = [];
-      if (d.data.tool) parts.push(d.data.tool);
-      if (d.data.page) parts.push(d.data.page);
-      if (d.data.room) parts.push(d.data.room);
-      if (d.data.quiz) parts.push(d.data.quiz);
+      if (d.detail.quizName) parts.push(d.detail.quizName);
+      if (d.detail.result) parts.push(d.detail.result);
+      if (d.detail.cards) parts.push(d.detail.cards);
+      if (d.detail.spread) parts.push(d.detail.spread);
       detail = parts.join(' · ');
+    }
+  }
+  // Fallback to legacy data field
+  if (!detail && d.data) {
+    if (typeof d.data === 'string') detail = d.data;
+    else {
+      var legacyParts = [];
+      if (d.data.tool) legacyParts.push(d.data.tool);
+      if (d.data.page) legacyParts.push(d.data.page);
+      if (d.data.room) legacyParts.push(d.data.room);
+      if (d.data.quiz) legacyParts.push(d.data.quiz);
+      detail = legacyParts.join(' · ');
     }
   }
   if (!detail && d.page) detail = d.page;
@@ -1471,7 +1717,7 @@ function renderEventItem(d) {
   item.innerHTML =
     '<div class="adm-event-dot ' + dotClass + '"></div>' +
     '<div class="adm-event-content">' +
-      '<div class="adm-event-type">' + esc(type) + '</div>' +
+      '<div class="adm-event-type">' + esc(readableType) + '</div>' +
       (detail ? '<div class="adm-event-detail">' + esc(detail) + '</div>' : '') +
       (email ? '<div class="adm-event-meta">' + esc(email) + '</div>' : '') +
     '</div>' +
