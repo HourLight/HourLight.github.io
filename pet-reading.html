@@ -328,6 +328,7 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.86);point
 </div>
 
 <script src="js/cardData-protected.js"></script>
+<script src="js/petCardDNA.js"></script>
 <script src="js/awareness-modules.js"></script>
 <script>
 // ══════ Spreads ══════
@@ -433,6 +434,8 @@ function initDraw(){
     var slot=document.createElement('div');
     slot.className='card-slot';
     slot.id='slot-'+i;
+    var petDNA=window.petCardDNA?window.petCardDNA[card.code]:null;
+    var petMsg=petDNA?petDNA.core:'';
     slot.innerHTML=
       '<div class="card-inner">'+
         '<div class="card-back"><div class="card-pos">'+pos.label+'</div></div>'+
@@ -442,14 +445,18 @@ function initDraw(){
           '<div class="card-name">'+card.name+'</div>'+
           '<div class="card-type">'+typeLabel+'</div>'+
         '</div>'+
-      '</div>';
+      '</div>'+
+      (petMsg?'<div class="pet-msg" style="display:none;margin-top:8px;font-size:.78rem;color:var(--paw);font-style:italic;line-height:1.5;text-align:center;font-family:var(--kai);">「'+petMsg+'」</div>':'');
     grid.appendChild(slot);
   });
   document.getElementById('drawBtnRow').style.display='none';
   // 逐張翻牌
   selectedCards.forEach(function(card,i){
     setTimeout(function(){
-      document.getElementById('slot-'+i).classList.add('flipped');
+      var slotEl=document.getElementById('slot-'+i);
+      slotEl.classList.add('flipped');
+      var petMsgEl=slotEl.querySelector('.pet-msg');
+      if(petMsgEl)setTimeout(function(){petMsgEl.style.display='block';},600);
       if(i===selectedCards.length-1){
         setTimeout(function(){
           document.getElementById('drawTitle').textContent='✨ '+pn+' 的牌已就位';
@@ -564,6 +571,16 @@ function buildPrompt(){
       else if(isOil)typeHint='（單方精油牌→看'+pn+'感受到的氛圍訊息）';
       p+='▸ '+sp.positions[i].label+'：'+card.code+' '+(info.name||info.title||'')+typeHint;
       if(sense)p+='\n  覺察關鍵字：'+sense;
+      // 加入寵物版 DNA
+      var petDNA=window.petCardDNA?window.petCardDNA[card.code]:null;
+      if(petDNA){
+        p+='\n  🐾 寵物核心訊息：「'+petDNA.core+'」';
+        p+='\n  日常解讀：'+petDNA.daily;
+        if(ps==='sick'&&petDNA.healing)p+='\n  療癒情境：'+petDNA.healing;
+        if(petDNA.behavior)p+='\n  行為引導：'+petDNA.behavior;
+        p+='\n  精油安全：貓咪→'+petDNA.catSafe+'／狗狗→'+petDNA.dogSafe;
+        p+='\n  行動建議：'+petDNA.action;
+      }
       p+='\n';
     }
   });
