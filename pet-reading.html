@@ -107,10 +107,13 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.86);point
 
 /* ═══ Card draw（塔羅翻牌風格）═══ */
 #cardGrid{display:flex;flex-wrap:wrap;gap:20px 14px;justify-content:center;margin:20px 0;perspective:1000px}
-.card-slot{width:96px;min-height:140px;position:relative;cursor:default;perspective:800px;margin-bottom:12px}
-.card-slot .card-inner{position:relative;width:100%;height:100%;transition:transform .8s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d;transform:rotateY(0deg)}
+.card-slot{width:96px;height:140px;position:relative;cursor:default;perspective:800px;margin-bottom:48px}
+.card-slot .card-inner{position:relative;width:100%;height:140px;transition:transform .8s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d;transform:rotateY(0deg)}
 .card-slot.flipped .card-inner{transform:rotateY(180deg)}
 .card-back,.card-face{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.card-face img+.card-icon,.card-face img+.card-icon~*{display:none}
+.card-face.no-img img{display:none!important}
+.card-face.no-img .card-icon,.card-face.no-img .card-icon~*{display:block}
 /* 牌背：寵物元素 */
 .card-back{background:linear-gradient(135deg,rgba(92,58,99,.6),rgba(18,13,28,.9));border:1.5px solid rgba(240,181,179,.2);z-index:2}
 .card-back::before{content:'🐾';font-size:1.8rem;opacity:.5;display:block}
@@ -505,14 +508,12 @@ function initDraw(){
     slot.innerHTML=
       '<div class="card-inner">'+
         '<div class="card-back"><div class="card-pos">'+pos.label+'</div></div>'+
-        '<div class="card-face '+typeClass+'" style="position:relative;overflow:hidden">'+
-          '<img src="images/pet-cards-web/'+card.code+'.webp" alt="'+card.name+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px;position:absolute;top:0;left:0" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'+
-          '<div style="display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%">'+
-            '<div class="card-icon">'+typeIcon+'</div>'+
-            '<div class="card-code">'+card.code+'</div>'+
-            '<div class="card-name">'+card.name+'</div>'+
-            '<div class="card-type">'+typeLabel+'</div>'+
-          '</div>'+
+        '<div class="card-face '+typeClass+'">'+
+          '<img src="images/pet-cards-web/'+card.code+'.webp" alt="'+card.name+'" style="width:100%;height:100%;object-fit:cover;border-radius:10px" onerror="this.style.display=\'none\';this.parentElement.classList.add(\'no-img\')">'+
+          '<div class="card-icon">'+typeIcon+'</div>'+
+          '<div class="card-code">'+card.code+'</div>'+
+          '<div class="card-name">'+card.name+'</div>'+
+          '<div class="card-type">'+typeLabel+'</div>'+
         '</div>'+
       '</div>'+
       (petMsg?'<div class="pet-msg" style="display:none;margin-top:8px;font-size:.78rem;color:var(--paw);font-style:italic;line-height:1.5;text-align:center;font-family:var(--kai);">「'+petMsg+'」</div>':'');
