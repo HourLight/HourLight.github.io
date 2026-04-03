@@ -212,7 +212,7 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.86);point
       <div class="form-row"><label>如果牠聽得懂，您最想問牠什麼？</label>
         <textarea id="petQuestion" placeholder="不用想太多，第一個跑進腦袋的問題就好。"></textarea>
       </div>
-      <div class="btn-row"><button class="btn-p" onclick="goScene(2)">繼續 →</button></div>
+      <div class="btn-row"><button class="btn-p" onclick="switchQuizByStatus();goScene(2)">繼續 →</button></div>
     </section>
   </div>
 
@@ -344,7 +344,17 @@ let currentScene=0,currentSpread=0,quizIndex=0;
 let selectedCards=[];
 let quizAnswers={};
 const petModule=typeof AWARENESS_MODULES!=='undefined'&&AWARENESS_MODULES.pet?AWARENESS_MODULES.pet:null;
-const quizQs=petModule?petModule.qs:[];
+const petRainbowModule=typeof AWARENESS_MODULES!=='undefined'&&AWARENESS_MODULES.pet_rainbow?AWARENESS_MODULES.pet_rainbow:null;
+var quizQs=petModule?petModule.qs:[];
+// 根據寵物狀態切換題組
+function switchQuizByStatus(){
+  var ps=document.getElementById('petStatus').value;
+  if(ps==='rainbow'&&petRainbowModule){
+    quizQs=petRainbowModule.qs;
+  }else{
+    quizQs=petModule?petModule.qs:[];
+  }
+}
 
 // ══════ Scene navigation ══════
 function goScene(n){
@@ -376,7 +386,8 @@ function renderQuiz(){
   document.getElementById('quizNext').textContent=quizIndex===quizQs.length-1?'完成 →':'下一題';
   let html='<div class="quiz-q">'+q.q+'</div><div class="quiz-opts">';
   q.opts.forEach(function(o){
-    var sel=quizAnswers[quizIndex]===o.t?'selected':'';
+    var answers=quizAnswers[quizIndex]||[];
+    var sel=(Array.isArray(answers)?answers.indexOf(o.t)>=0:answers===o.t)?'selected':'';
     html+='<div class="quiz-opt '+sel+'" onclick="pickOpt('+quizIndex+',this,\''+o.t.replace(/'/g,"\\'")+'\')">'+o.t+'</div>';
   });
   html+='</div>';
@@ -387,7 +398,13 @@ function renderQuiz(){
   html+='<button class="quiz-skip" onclick="quizNav(1)">跳過這題</button>';
   document.getElementById('quizContainer').innerHTML=html;
 }
-function pickOpt(qi,el,val){quizAnswers[qi]=val;el.parentElement.querySelectorAll('.quiz-opt').forEach(function(o){o.classList.remove('selected')});el.classList.add('selected');}
+function pickOpt(qi,el,val){
+  // 複選模式
+  if(!Array.isArray(quizAnswers[qi]))quizAnswers[qi]=quizAnswers[qi]?[quizAnswers[qi]]:[];
+  var idx=quizAnswers[qi].indexOf(val);
+  if(idx>=0){quizAnswers[qi].splice(idx,1);el.classList.remove('selected');}
+  else{quizAnswers[qi].push(val);el.classList.add('selected');}
+}
 function quizNav(dir){
   quizIndex+=dir;
   if(quizIndex>=quizQs.length){goScene(4);return;}
@@ -552,7 +569,8 @@ function buildPrompt(){
   p+='\n══════ 問卷答案 ══════\n';
   quizQs.forEach(function(q,i){
     var ans=quizAnswers[i];var free=quizAnswers['free_'+i];
-    if(ans||free){p+='Q'+(i+1)+'. '+q.q+'\n';if(ans)p+='  → '+ans+'\n';if(free)p+='  補充：'+free+'\n';}
+    var ansText=Array.isArray(ans)?ans.join('、'):ans;
+    if(ansText||free){p+='Q'+(i+1)+'. '+q.q+'\n';if(ansText)p+='  → '+ansText+'\n';if(free)p+='  補充：'+free+'\n';}
   });
 
   p+='\n══════ 牌陣：'+sp.name+'（'+currentSpread+' 張）══════\n\n';
