@@ -108,16 +108,37 @@ def step_generate(materials=None):
         else:
             print(f"  ❌ 文案生成失敗：{content.get('error','')[:80]}")
 
-        # Find image
-        print(f"  🖼️ 搜尋配圖...")
-        image = find_best_image(topic, save_dir=os.path.join(DATA_DIR, 'images'))
-        image_url = image['url_medium'] if image else None
+        # Generate image with DALL-E (preferred) or fallback to Unsplash
+        image_url = None
+        image_photographer = None
+        image_local = None
+        openai_key = os.environ.get('OPENAI_API_KEY', '')
+        if openai_key and content['success']:
+            print(f"  🎨 DALL-E 生成配圖...")
+            from content_generator import generate_image_prompt, generate_dalle_image
+            img_prompt = generate_image_prompt(content['fb_post'], topic)
+            img_path = os.path.join(DATA_DIR, 'images', f'dalle_{today_str()}_{slot}.png')
+            result_path = generate_dalle_image(openai_key, img_prompt, img_path)
+            if result_path:
+                image_local = result_path
+                print(f"  ✅ DALL-E 配圖已生成：{result_path}")
+            else:
+                print(f"  ⚠️ DALL-E 失敗，改用 Unsplash...")
+                image = find_best_image(topic, save_dir=os.path.join(DATA_DIR, 'images'))
+                image_url = image['url_medium'] if image else None
+                image_photographer = image['photographer'] if image else None
+        else:
+            print(f"  🖼️ 搜尋配圖...")
+            image = find_best_image(topic, save_dir=os.path.join(DATA_DIR, 'images'))
+            image_url = image['url_medium'] if image else None
+            image_photographer = image['photographer'] if image else None
 
         results.append({
             'slot': slot,
             'topic': topic,
             'image_url': image_url,
-            'image_photographer': image['photographer'] if image else None,
+            'image_local': image_local,
+            'image_photographer': image_photographer,
             **content
         })
 
@@ -162,7 +183,9 @@ def step_post(slot='all', dry_run=False):
         if content.get('hashtags') and '#' not in fb_msg:
             fb_msg += '\n\n' + ' '.join(f'#{h}' for h in content['hashtags'])
 
+        # DALL-E 本地圖優先，否則用 URL
         image_url = content.get('image_url')
+        image_local = content.get('image_local')
 
         if dry_run:
             print(f"  📘 FB（測試）: {fb_msg[:80]}...")

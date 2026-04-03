@@ -85,6 +85,50 @@ def generate_content(api_key, topic, time_slot="evening", extra_context=""):
         return {'success': False, 'error': str(e)}
 
 
+def generate_image_prompt(fb_post, topic):
+    """從文案內容自動產生 DALL-E 配圖 prompt"""
+    # 取文案前 100 字作為主題參考
+    snippet = fb_post[:100] if fb_post else topic
+    return f"Professional social media banner, warm aesthetic photography style. Theme: {topic}. Abstract representation related to wellness, self-awareness, and personal growth. Warm golden light, soft bokeh background, minimal and elegant composition. NO text, NO letters, NO words, NO watermark. Cinematic quality, Instagram-worthy, 16:9 landscape ratio."
+
+
+def generate_dalle_image(openai_key, prompt, save_path):
+    """用 DALL-E 3 生成配圖"""
+    try:
+        request_body = json.dumps({
+            "model": "dall-e-3",
+            "prompt": prompt,
+            "n": 1,
+            "size": "1792x1024",
+            "quality": "standard"
+        }).encode('utf-8')
+
+        req = urllib.request.Request(
+            'https://api.openai.com/v1/images/generations',
+            data=request_body,
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {openai_key}'
+            },
+            method='POST'
+        )
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            result = json.loads(resp.read().decode())
+            img_url = result['data'][0]['url']
+
+            # Download image
+            img_req = urllib.request.Request(img_url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(img_req, timeout=60) as img_resp:
+                import os
+                os.makedirs(os.path.dirname(save_path), exist_ok=True)
+                with open(save_path, 'wb') as f:
+                    f.write(img_resp.read())
+            return save_path
+    except Exception as e:
+        print(f"  DALL-E error: {e}")
+        return None
+
+
 def generate_daily_content(api_key, topics):
     """
     為一天三個時段生成文案
