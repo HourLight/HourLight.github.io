@@ -184,13 +184,35 @@ window.shareToThreads=function(){
   var title=document.title.replace(/[|｜].*/,'').trim();
   var hero=el.querySelector('.result-hero-title,.rh-type,.result-title,.witch-name,.past-life-title,.result-combo-name,.archetype-name');
   var sub=el.querySelector('.result-hero-sub,.rh-sub,.result-sub,.core-line');
-  var openers=['欸我剛測了一個超酷的東西','好啦我承認我又在玩心理測驗了','半夜不睡覺在測這個','被推坑測了這個，結果也太準'];
+  // 抓更多洞察內容
+  var insight=el.querySelector('.result-insight,.result-body,.palmInsight,.result-desc,.analysis-text,.hl-bestie-opener,.report-text,.result-section-content');
+  var gift=el.querySelector('.hiddenGift,.gift-shadow-text,.result-gift,.result-strength');
+  var shadow=el.querySelector('.shadowSide,.result-shadow,.result-weakness');
+
+  var openers=['好啦我承認我又在玩心理測驗了','被推坑測了這個，結果準到我不敢看','半夜測這個差點哭出來','朋友叫我測的，結果比算命還準'];
   var opener=openers[Math.floor(Math.random()*openers.length)];
-  var t=opener+' 🔮\n';
+  var t=opener+' 🔮\n\n';
   if(hero) t+='我的結果是「'+hero.textContent.trim()+'」\n\n';
   if(sub) t+='「'+sub.textContent.trim()+'」\n\n';
-  t+='每個人都有一個藏在骨子裡的版本，你的是什麼？💜\n\n';
-  t+='#馥靈之鑰 #'+title.replace(/[｜|].*$/,'').trim();
+  // 加入洞察段落（截取前 80 字）
+  if(insight){
+    var insightText=insight.textContent.trim().replace(/\s+/g,' ');
+    if(insightText.length>80) insightText=insightText.substring(0,80)+'⋯';
+    if(insightText) t+=insightText+'\n\n';
+  }
+  // 加入天賦或陰影（如果有）
+  if(gift){
+    var giftText=gift.textContent.trim();
+    if(giftText.length>50) giftText=giftText.substring(0,50)+'⋯';
+    if(giftText) t+='隱藏天賦：'+giftText+'\n';
+  }
+  if(shadow){
+    var shadowText=shadow.textContent.trim();
+    if(shadowText.length>50) shadowText=shadowText.substring(0,50)+'⋯';
+    if(shadowText) t+='要小心的：'+shadowText+'\n';
+  }
+  t+='\n你也來測測看，保證被戳到 💜\n\n';
+  t+='#馥靈之鑰 #'+title.replace(/[｜|].*$/,'').trim()+' #心理測驗';
   try{
     navigator.clipboard.writeText(t).then(function(){
       var btn=event&&event.target;
