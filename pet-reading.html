@@ -528,6 +528,8 @@ function initDraw(){
           document.getElementById('drawTitle').textContent='✨ '+pn+' 的牌已就位';
           document.getElementById('drawHint').innerHTML='<span style="color:var(--paw)">這是'+pn+'想對您說的。</span><br>點下方按鈕，聽聽牠的話。';
           document.getElementById('drawBtnRow').style.display='';
+          // Save session to Firestore after all cards flipped
+          saveSessionToFirestore();
         },600);
       }
     },(i+1)*800);
@@ -550,14 +552,14 @@ function requestAIReading(){
     // 顯示資料打包畫面
     goScene(8);
     var pn=document.getElementById('petName').value.trim()||'毛孩';
+    var sessionKeyHTML=_petSessionKey?renderSessionKeyHTML(_petSessionKey):'';
     document.getElementById('readingBox').innerHTML=
       '<div style="text-align:center;margin-bottom:20px">'+
         '<div style="font-size:1.1rem;color:var(--paw);margin-bottom:12px">📋 '+pn+' 的完整資料已打包好</div>'+
-        '<p style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.8;margin-bottom:16px">'+currentSpread+' 張牌陣將由覺察師為您做一對一深度解讀。<br>請複製以下資料，傳給覺察師，這樣就不用重新回答問題了。</p>'+
+        '<p style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.8;margin-bottom:16px">'+currentSpread+' 張牌陣將由覺察師為您做一對一深度解讀。<br>您的紀錄已自動儲存，覺察師可透過編號調取完整資料。</p>'+
       '</div>'+
-      '<div style="background:rgba(240,181,179,.05);border:1px solid rgba(240,181,179,.15);border-radius:12px;padding:16px;font-size:.82rem;color:rgba(255,255,255,.7);line-height:1.7;max-height:300px;overflow-y:auto;white-space:pre-wrap;font-family:monospace">'+prompt.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>'+
+      sessionKeyHTML+
       '<div style="display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap">'+
-        '<button onclick="navigator.clipboard.writeText(window._petPromptData);this.textContent=\'✅ 已複製！\';setTimeout(()=>{this.textContent=\'📋 複製完整資料\'},2000)" style="padding:12px 24px;border-radius:50px;background:linear-gradient(135deg,var(--paw),var(--paw-dk));color:#0a0814;font-weight:600;border:none;cursor:pointer;font-size:.9rem">📋 複製完整資料</button>'+
         '<a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" style="padding:12px 24px;border-radius:50px;background:linear-gradient(135deg,#f8dfa5,#e9c27d);color:#1a1520;font-weight:600;text-decoration:none;font-size:.9rem;display:inline-flex;align-items:center">💬 前往 LINE 預約解讀</a>'+
       '</div>';
     document.getElementById('resultBtns').style.display='none';
@@ -600,7 +602,8 @@ async function _requestAIReadingOriginal(){
     var res=await fetch('https://app.hourlightkey.com/api/pet-reading',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt,spread:currentSpread})});
     var data=await res.json();
     var text=data.reading||data.error||'連結過程出了一點狀況。請重試，或直接聯繫 LINE 客服。';
-    document.getElementById('readingBox').textContent=text;
+    var sessionKeyHTML=_petSessionKey?renderSessionKeyHTML(_petSessionKey):'';
+    document.getElementById('readingBox').innerHTML='<div style="white-space:pre-wrap">'+text.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>'+sessionKeyHTML;
     document.getElementById('resultBtns').style.display='';
     if(typeof window.HL_track==='function')window.HL_track('pet_reading_complete',{spread:currentSpread,petName:document.getElementById('petName').value,petStatus:document.getElementById('petStatus').value});
   }catch(e){document.getElementById('readingBox').textContent='連結過程出了一點狀況。請確認網路連線後重試，或直接聯繫 LINE 客服。';document.getElementById('resultBtns').style.display='';}
@@ -697,6 +700,73 @@ function copyReading(){
   navigator.clipboard.writeText(t).then(function(){
     event.target.textContent='✅ 已複製';setTimeout(function(){event.target.textContent='📋 複製解讀結果';},2000);
   });
+}
+
+// ══════ Session Storage System ══════
+var _petSessionKey=null;
+
+function generateSessionKey(){
+  var now=new Date();
+  var y=now.getFullYear();
+  var m=String(now.getMonth()+1).padStart(2,'0');
+  var d=String(now.getDate()).padStart(2,'0');
+  var chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  var rand='';
+  for(var i=0;i<4;i++) rand+=chars.charAt(Math.floor(Math.random()*chars.length));
+  return 'PET-'+y+m+d+'-'+rand;
+}
+
+function buildSessionData(sessionKey){
+  var sp=PET_SPREADS[currentSpread];
+  return {
+    sessionKey: sessionKey,
+    uid: (typeof firebase!=='undefined'&&firebase.auth&&firebase.auth().currentUser)?firebase.auth().currentUser.uid:null,
+    createdAt: (typeof firebase!=='undefined'&&firebase.firestore)?firebase.firestore.FieldValue.serverTimestamp():new Date().toISOString(),
+    petInfo: {
+      name: document.getElementById('petName').value.trim()||'',
+      breed: document.getElementById('petBreed').value.trim()||'',
+      age: document.getElementById('petAge').value.trim()||'',
+      gender: document.getElementById('petGender').value||'',
+      status: document.getElementById('petStatus').value||'',
+      question: document.getElementById('petQuestion').value.trim()||''
+    },
+    quizAnswers: JSON.parse(JSON.stringify(quizAnswers)),
+    spread: {
+      n: currentSpread,
+      name: sp?sp.name:'',
+      cards: selectedCards.map(function(card,i){
+        return {
+          code: card.code,
+          name: card.name||'',
+          position: sp&&sp.positions[i]?sp.positions[i].label:''
+        };
+      })
+    }
+  };
+}
+
+function saveSessionToFirestore(){
+  _petSessionKey=generateSessionKey();
+  try{
+    if(typeof firebase!=='undefined'&&firebase.firestore){
+      var db=firebase.firestore();
+      var data=buildSessionData(_petSessionKey);
+      db.collection('pet_sessions').doc(_petSessionKey).set(data)
+        .then(function(){console.log('[PetSession] saved:',_petSessionKey);})
+        .catch(function(e){console.warn('[PetSession] save error:',e);});
+    }else{
+      console.warn('[PetSession] Firestore not available, session key generated but not saved');
+    }
+  }catch(e){console.warn('[PetSession] error:',e);}
+  return _petSessionKey;
+}
+
+function renderSessionKeyHTML(key){
+  return '<div style="margin-top:28px;padding:20px;background:rgba(240,181,179,.05);border:1px solid rgba(240,181,179,.18);border-radius:14px;text-align:center">'+
+    '<div style="font-size:.85rem;color:var(--ink-s);margin-bottom:8px">📋 您的紀錄編號</div>'+
+    '<div style="font-size:1.3rem;font-weight:600;color:var(--paw);letter-spacing:3px;margin-bottom:10px;font-family:var(--en);user-select:all">'+key+'</div>'+
+    '<div style="font-size:.82rem;color:rgba(255,255,255,.5);line-height:1.7">請將此編號提供給覺察師，<br>讓覺察師可以調取您的完整紀錄。</div>'+
+  '</div>';
 }
 </script>
 
