@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-BXP7K53QG6');</script>
+<!-- Facebook Pixel -->
+<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1333106288588347');fbq('track','PageView');</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"></noscript>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>夥伴控制台｜馥靈之鑰</title>
+<meta name="robots" content="noindex,nofollow"/>
+<link rel="icon" href="favicon.ico"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400&family=Noto+Serif+TC:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/css/hourlight-global.css"/>
+<link rel="stylesheet" href="assets/css/hl-design-tokens.css"/>
+<style>
+/* ── Light theme override ── */
+body{
+  background:#faf6ef !important;
+  color:#2c2418 !important;
+  font-family:"Noto Serif TC","PingFang TC",serif;
+  line-height:1.8;min-height:100vh;
+}
+body::before{display:none !important}
+
+/* ── Layout ── */
+.pd-wrap{max-width:720px;margin:0 auto;padding:100px 20px 80px;position:relative;z-index:1}
+@media(max-width:560px){.pd-wrap{padding:88px 16px 60px}}
+
+.pd-title{text-align:center;margin-bottom:36px}
+.pd-title h1{font-family:"LXGW WenKai TC",serif;font-size:clamp(1.3rem,3vw,1.7rem);color:#5a4320;font-weight:500;letter-spacing:3px;margin-bottom:6px}
+.pd-title p{font-size:.85rem;color:#9a8a6e;letter-spacing:1px}
+
+/* ── Auth gate ── */
+.pd-gate{text-align:center;padding:80px 20px}
+.pd-gate .icon{font-size:2.4rem;margin-bottom:16px}
+.pd-gate .msg{font-size:1rem;color:#7a6a50;line-height:2}
+
+/* ── Search box ── */
+.pd-search{display:flex;gap:10px;margin-bottom:28px}
+.pd-search input{flex:1;padding:14px 18px;border:1.5px solid #d6c9a8;border-radius:12px;font-size:.95rem;font-family:inherit;color:#2c2418;background:#fff;outline:none;transition:border-color .25s}
+.pd-search input:focus{border-color:#b8922a}
+.pd-search input::placeholder{color:#bfac8a}
+.pd-search button{padding:14px 24px;background:#b8922a;color:#fff;border:none;border-radius:12px;font-size:.95rem;font-family:inherit;cursor:pointer;letter-spacing:1px;white-space:nowrap;transition:background .2s}
+.pd-search button:hover{background:#a07e22}
+.pd-search button:disabled{background:#ccc;cursor:not-allowed}
+
+/* ── Status messages ── */
+.pd-status{text-align:center;padding:24px;font-size:.92rem;color:#9a8a6e}
+.pd-error{text-align:center;padding:24px;font-size:.92rem;color:#c4583a}
+
+/* ── Result cards ── */
+.pd-card{background:#fff;border:1px solid #e8dcc4;border-radius:16px;padding:28px 24px;margin-bottom:20px}
+@media(max-width:560px){.pd-card{padding:22px 18px}}
+.pd-card h2{font-family:"LXGW WenKai TC",serif;font-size:1.05rem;color:#b8922a;margin-bottom:14px;letter-spacing:2px;font-weight:500;border-bottom:1px solid #efe5d0;padding-bottom:10px}
+.pd-card .field{margin-bottom:10px;font-size:.92rem}
+.pd-card .field .label{color:#9a8a6e;min-width:80px;display:inline-block}
+.pd-card .field .value{color:#2c2418}
+
+/* ── Quiz answers ── */
+.pd-qa-list{list-style:none;padding:0;margin:0}
+.pd-qa-list li{padding:10px 0;border-bottom:1px solid #f3ebe0;font-size:.9rem;line-height:1.9}
+.pd-qa-list li:last-child{border-bottom:none}
+.pd-qa-list .q{color:#9a8a6e;margin-bottom:2px}
+.pd-qa-list .a{color:#2c2418;font-weight:500}
+
+/* ── Card grid ── */
+.pd-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.pd-card-item{background:#faf6ef;border:1px solid #e8dcc4;border-radius:12px;padding:16px;text-align:center}
+.pd-card-item .pos{font-size:.78rem;color:#b8922a;letter-spacing:1px;margin-bottom:6px}
+.pd-card-item .code{font-size:.82rem;color:#9a8a6e}
+.pd-card-item .name{font-size:.92rem;color:#2c2418;margin-top:4px;font-weight:500}
+
+/* ── Print button ── */
+.pd-actions{display:flex;gap:10px;margin-bottom:20px}
+.pd-actions button{padding:10px 20px;border:1.5px solid #b8922a;background:transparent;color:#b8922a;border-radius:10px;font-size:.88rem;font-family:inherit;cursor:pointer;letter-spacing:1px;transition:all .2s}
+.pd-actions button:hover{background:#b8922a;color:#fff}
+
+/* ── Print styles ── */
+@media print{
+  .hl-topnav,.hl-bottomnav,.hl-footer,.pd-search,.pd-actions,nav{display:none !important}
+  body{background:#fff !important}
+  .pd-wrap{padding:20px !important}
+  .pd-card{break-inside:avoid;border:1px solid #ccc}
+}
+</style>
+</head>
+<body>
+
+<div class="pd-wrap">
+  <!-- Auth gate -->
+  <div id="authGate" class="pd-gate">
+    <div class="icon">🔐</div>
+    <div class="msg">載入中，請稍候...</div>
+  </div>
+
+  <!-- Dashboard (hidden until auth) -->
+  <div id="dashboard" style="display:none">
+    <div class="pd-title">
+      <h1>夥伴控制台</h1>
+      <p>查詢個案紀錄</p>
+    </div>
+
+    <div class="pd-search">
+      <input type="text" id="sessionKeyInput" placeholder="例如 PET-20260403-A7X3" autocomplete="off"/>
+      <button id="searchBtn" onclick="lookupSession()">查詢</button>
+    </div>
+
+    <div id="resultArea"></div>
+  </div>
+</div>
+
+<!-- Footer placeholder for bottomnav -->
+<footer class="hl-footer"><div class="hl-footer-inner"></div></footer>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+
+<script>
+/* ── Admin whitelist ── */
+const ADMIN_EMAILS = [
+  'info@hourlightkey.com',
+  'judyanee@gmail.com',
+  'judyanee@hotmail.com'
+];
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+/* ── Auth check ── */
+auth.onAuthStateChanged(function(user) {
+  const gate = document.getElementById('authGate');
+  const dash = document.getElementById('dashboard');
+
+  if (!user) {
+    gate.innerHTML = '<div class="icon">🔐</div><div class="msg">請先登入管理員帳號</div>';
+    gate.style.display = '';
+    dash.style.display = 'none';
+    return;
+  }
+
+  const email = (user.email || '').toLowerCase();
+  if (!ADMIN_EMAILS.includes(email)) {
+    gate.innerHTML = '<div class="icon">🚫</div><div class="msg">此帳號無管理員權限</div>';
+    gate.style.display = '';
+    dash.style.display = 'none';
+    return;
+  }
+
+  /* Authenticated admin */
+  gate.style.display = 'none';
+  dash.style.display = '';
+  document.getElementById('sessionKeyInput').focus();
+});
+
+/* ── Enter key support ── */
+document.getElementById('sessionKeyInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') lookupSession();
+});
+
+/* ── Lookup ── */
+async function lookupSession() {
+  const key = document.getElementById('sessionKeyInput').value.trim();
+  const area = document.getElementById('resultArea');
+  const btn = document.getElementById('searchBtn');
+
+  if (!key) {
+    area.innerHTML = '<div class="pd-error">請輸入紀錄編號</div>';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '查詢中...';
+  area.innerHTML = '<div class="pd-status">查詢中...</div>';
+
+  try {
+    const doc = await db.collection('pet_sessions').doc(key).get();
+
+    if (!doc.exists) {
+      area.innerHTML = '<div class="pd-error">找不到此紀錄編號：' + escHtml(key) + '</div>';
+      btn.disabled = false;
+      btn.textContent = '查詢';
+      return;
+    }
+
+    const d = doc.data();
+    area.innerHTML = renderSession(key, d);
+    btn.disabled = false;
+    btn.textContent = '查詢';
+
+  } catch (err) {
+    console.error(err);
+    area.innerHTML = '<div class="pd-error">查詢失敗：' + escHtml(err.message) + '</div>';
+    btn.disabled = false;
+    btn.textContent = '查詢';
+  }
+}
+
+/* ── Render session data ── */
+function renderSession(key, d) {
+  let html = '';
+
+  /* Actions */
+  html += '<div class="pd-actions">';
+  html += '<button onclick="window.print()">列印</button>';
+  html += '</div>';
+
+  /* Pet info */
+  html += '<div class="pd-card"><h2>毛孩資料</h2>';
+  html += field('紀錄編號', key);
+  html += field('名字', d.petName || d.name || '-');
+  html += field('品種', d.breed || '-');
+  html += field('年齡', d.age || '-');
+  html += field('性別', d.gender || '-');
+  html += field('狀態', d.status || d.petStatus || '-');
+  html += field('想問的問題', d.question || d.concern || '-');
+  if (d.createdAt) {
+    html += field('建立時間', formatTime(d.createdAt));
+  }
+  html += '</div>';
+
+  /* Quiz answers */
+  if (d.quizAnswers || d.answers) {
+    const answers = d.quizAnswers || d.answers;
+    html += '<div class="pd-card"><h2>問卷答案</h2><ol class="pd-qa-list">';
+    if (Array.isArray(answers)) {
+      answers.forEach(function(item, i) {
+        if (typeof item === 'object' && item !== null) {
+          html += '<li><div class="q">Q' + (i + 1) + '：' + escHtml(item.question || item.q || '') + '</div>';
+          html += '<div class="a">' + escHtml(item.answer || item.a || '') + '</div></li>';
+        } else {
+          html += '<li><div class="a">A' + (i + 1) + '：' + escHtml(String(item)) + '</div></li>';
+        }
+      });
+    } else if (typeof answers === 'object') {
+      Object.keys(answers).forEach(function(qKey, i) {
+        html += '<li><div class="q">Q' + (i + 1) + '：' + escHtml(qKey) + '</div>';
+        html += '<div class="a">' + escHtml(String(answers[qKey])) + '</div></li>';
+      });
+    }
+    html += '</ol></div>';
+  }
+
+  /* Spread / Cards */
+  if (d.cards || d.spread || d.cardCodes) {
+    html += '<div class="pd-card"><h2>牌陣資料</h2>';
+    if (d.spreadName || d.spread) {
+      html += field('牌陣', d.spreadName || d.spread);
+    }
+    const cards = d.cards || d.cardCodes;
+    if (Array.isArray(cards) && cards.length) {
+      html += '<div class="pd-card-grid">';
+      cards.forEach(function(c, i) {
+        html += '<div class="pd-card-item">';
+        if (typeof c === 'object' && c !== null) {
+          html += '<div class="pos">' + escHtml(c.position || c.pos || ('位置 ' + (i + 1))) + '</div>';
+          html += '<div class="code">' + escHtml(c.code || c.cardCode || '') + '</div>';
+          html += '<div class="name">' + escHtml(c.name || c.cardName || '') + '</div>';
+        } else {
+          html += '<div class="pos">位置 ' + (i + 1) + '</div>';
+          html += '<div class="code">' + escHtml(String(c)) + '</div>';
+        }
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+
+  /* Raw data fallback for any extra fields */
+  var shown = ['petName','name','breed','age','gender','status','petStatus','question','concern',
+    'createdAt','quizAnswers','answers','cards','cardCodes','spread','spreadName'];
+  var extra = Object.keys(d).filter(function(k){ return shown.indexOf(k) === -1; });
+  if (extra.length) {
+    html += '<div class="pd-card"><h2>其他資料</h2>';
+    extra.forEach(function(k) {
+      var val = d[k];
+      if (typeof val === 'object') val = JSON.stringify(val, null, 2);
+      html += field(k, val);
+    });
+    html += '</div>';
+  }
+
+  return html;
+}
+
+/* ── Helpers ── */
+function field(label, value) {
+  return '<div class="field"><span class="label">' + escHtml(label) + '</span> <span class="value">' + escHtml(String(value || '-')) + '</span></div>';
+}
+
+function escHtml(s) {
+  var div = document.createElement('div');
+  div.appendChild(document.createTextNode(s));
+  return div.innerHTML;
+}
+
+function formatTime(ts) {
+  if (!ts) return '-';
+  var date;
+  if (ts.toDate) date = ts.toDate();
+  else if (ts.seconds) date = new Date(ts.seconds * 1000);
+  else date = new Date(ts);
+  return date.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
+}
+</script>
+
+<script src="assets/js/hl-topnav.js"></script>
+<script src="assets/js/hl-bottomnav.js"></script>
+</body>
+</html>
