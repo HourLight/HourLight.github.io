@@ -560,6 +560,8 @@ function initDraw(){
           document.getElementById('drawTitle').textContent='✨ 牌卡已就位';
           document.getElementById('drawHint').textContent='這是指尖此刻想告訴您的';
           document.getElementById('drawDone').style.display='block';
+          // Save session to Firestore after all cards flipped
+          saveSessionToFirestore();
         },600);
       }
     },(i+1)*600);
@@ -720,7 +722,8 @@ async function _runReadingOriginal(){
     document.getElementById('readingLoading').style.display='none';
     document.getElementById('readingBox').style.display='block';
   if(window.HL_track) HL_track('draw_complete',{toolId:'draw-nail',toolName:'美甲抽牌'});
-    document.getElementById('readingBox').textContent=text;
+    var sessionKeyHTML=_nailSessionKey?renderSessionKeyHTML(_nailSessionKey):'';
+    document.getElementById('readingBox').innerHTML='<div style="white-space:pre-wrap">'+text.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>'+sessionKeyHTML;
     document.getElementById('readingActions').style.display='flex';
   }catch(e){
     document.getElementById('readingLoading').style.display='none';
@@ -753,6 +756,71 @@ function copyImagePrompt(){
   navigator.clipboard.writeText(prompt).then(()=>{
     event.target.textContent='✅ 已複製出圖指令';setTimeout(()=>{event.target.textContent='📸 複製出圖指令'},2000);
   });
+}
+
+// ══════ Session Storage System (Firestore: nail_sessions) ══════
+var _nailSessionKey=null;
+
+function generateSessionKey(prefix){
+  var now=new Date(Date.now()+8*3600000);
+  var date=now.getUTCFullYear().toString()+
+    String(now.getUTCMonth()+1).padStart(2,'0')+
+    String(now.getUTCDate()).padStart(2,'0');
+  var chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var rand='';
+  for(var i=0;i<4;i++) rand+=chars[Math.floor(Math.random()*chars.length)];
+  return prefix+'-'+date+'-'+rand;
+}
+
+function buildSessionData(sessionKey){
+  var sp=NAIL_SPREADS[currentSpread];
+  return {
+    sessionKey: sessionKey,
+    uid: (typeof firebase!=='undefined'&&firebase.auth&&firebase.auth().currentUser)?firebase.auth().currentUser.uid:null,
+    createdAt: (typeof firebase!=='undefined'&&firebase.firestore)?firebase.firestore.FieldValue.serverTimestamp():new Date().toISOString(),
+    clientInfo: {
+      handState: selectedHandItems.slice(),
+      intents: selectedIntents.slice(),
+      birthday: document.getElementById('solarBday').value||'',
+      birthHour: document.getElementById('birthHour').value||''
+    },
+    quizAnswers: JSON.parse(JSON.stringify(quizAnswers)),
+    spread: {
+      n: currentSpread,
+      name: sp?sp.name:'',
+      cards: selectedCards.map(function(card,i){
+        return {
+          code: card.code,
+          name: card.name||'',
+          position: sp&&sp.positions[i]?sp.positions[i].label:''
+        };
+      })
+    }
+  };
+}
+
+function saveSessionToFirestore(){
+  _nailSessionKey=generateSessionKey('NAIL');
+  try{
+    if(typeof firebase!=='undefined'&&firebase.firestore){
+      var db=firebase.firestore();
+      var data=buildSessionData(_nailSessionKey);
+      db.collection('nail_sessions').doc(_nailSessionKey).set(data)
+        .then(function(){console.log('[NailSession] saved:',_nailSessionKey);})
+        .catch(function(e){console.warn('[NailSession] save error:',e);});
+    }else{
+      console.warn('[NailSession] Firestore not available, session key generated but not saved');
+    }
+  }catch(e){console.warn('[NailSession] error:',e);}
+  return _nailSessionKey;
+}
+
+function renderSessionKeyHTML(key){
+  return '<div style="margin-top:28px;padding:20px;background:rgba(233,194,125,.05);border:1px solid rgba(233,194,125,.18);border-radius:14px;text-align:center">'+
+    '<div style="font-size:.85rem;color:var(--gold,#f8dfa5);margin-bottom:8px">📋 您的紀錄編號</div>'+
+    '<div style="font-size:1.3rem;font-weight:600;color:var(--gold,#f8dfa5);letter-spacing:3px;margin-bottom:10px;user-select:all">'+key+'</div>'+
+    '<div style="font-size:.82rem;color:rgba(255,255,255,.5);line-height:1.7">請將此編號提供給覺察師，<br>讓覺察師可以調取您的完整紀錄。</div>'+
+  '</div>';
 }
 </script>
 
