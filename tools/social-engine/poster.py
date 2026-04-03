@@ -8,16 +8,57 @@ import json
 import sys
 import time
 
-def post_to_fb(page_id, page_token, message, image_url=None):
-    """發文到 Facebook 粉專"""
-    if image_url:
-        # 帶圖發文
+def post_to_fb(page_id, page_token, message, image_url=None, image_local=None):
+    """發文到 Facebook 粉專（支援本地圖片上傳）"""
+    import os
+
+    if image_local and os.path.exists(image_local):
+        # 本地圖片上傳（DALL-E 生成的）
+        import mimetypes
+        boundary = '----WebKitFormBoundary' + str(int(time.time()))
+        body = b''
+        # message field
+        body += f'--{boundary}\r\nContent-Disposition: form-data; name="message"\r\n\r\n{message}\r\n'.encode('utf-8')
+        # access_token field
+        body += f'--{boundary}\r\nContent-Disposition: form-data; name="access_token"\r\n\r\n{page_token}\r\n'.encode('utf-8')
+        # image file
+        filename = os.path.basename(image_local)
+        mime = mimetypes.guess_type(image_local)[0] or 'image/png'
+        body += f'--{boundary}\r\nContent-Disposition: form-data; name="source"; filename="{filename}"\r\nContent-Type: {mime}\r\n\r\n'.encode('utf-8')
+        with open(image_local, 'rb') as f:
+            body += f.read()
+        body += f'\r\n--{boundary}--\r\n'.encode('utf-8')
+
+        url = f"https://graph.facebook.com/v21.0/{page_id}/photos"
+        try:
+            req = urllib.request.Request(url, data=body, method='POST')
+            req.add_header('Content-Type', f'multipart/form-data; boundary={boundary}')
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                result = json.loads(resp.read().decode())
+                post_id = result.get('id') or result.get('post_id', 'unknown')
+                return {'success': True, 'post_id': post_id}
+        except urllib.error.HTTPError as e:
+            error = e.read().decode()
+            return {'success': False, 'error': f'Local upload failed: {error}'}
+
+    elif image_url:
+        # URL 圖片發文
         post_data = urllib.parse.urlencode({
             'message': message,
             'url': image_url,
             'access_token': page_token
         }).encode('utf-8')
         url = f"https://graph.facebook.com/v21.0/{page_id}/photos"
+        try:
+            req = urllib.request.Request(url, data=post_data, method='POST')
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                result = json.loads(resp.read().decode())
+                post_id = result.get('id') or result.get('post_id', 'unknown')
+                return {'success': True, 'post_id': post_id}
+        except urllib.error.HTTPError as e:
+            error = e.read().decode()
+            return {'success': False, 'error': error}
+
     else:
         # 純文字發文
         post_data = urllib.parse.urlencode({
@@ -25,16 +66,15 @@ def post_to_fb(page_id, page_token, message, image_url=None):
             'access_token': page_token
         }).encode('utf-8')
         url = f"https://graph.facebook.com/v21.0/{page_id}/feed"
-
-    try:
-        req = urllib.request.Request(url, data=post_data, method='POST')
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            result = json.loads(resp.read().decode())
-            post_id = result.get('id') or result.get('post_id', 'unknown')
-            return {'success': True, 'post_id': post_id}
-    except urllib.error.HTTPError as e:
-        error = e.read().decode()
-        return {'success': False, 'error': error}
+        try:
+            req = urllib.request.Request(url, data=post_data, method='POST')
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                result = json.loads(resp.read().decode())
+                post_id = result.get('id') or result.get('post_id', 'unknown')
+                return {'success': True, 'post_id': post_id}
+        except urllib.error.HTTPError as e:
+            error = e.read().decode()
+            return {'success': False, 'error': error}
 
 
 def post_to_threads(user_id, token, message, image_url=None):

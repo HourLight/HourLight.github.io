@@ -195,7 +195,7 @@ def step_post(slot='all', dry_run=False):
 
         # Post to FB (with image if available)
         print(f"  📘 發文到 FB...")
-        fb_result = post_to_fb(FB_PAGE_ID, FB_PAGE_TOKEN, fb_msg, image_url)
+        fb_result = post_to_fb(FB_PAGE_ID, FB_PAGE_TOKEN, fb_msg, image_url, image_local)
         if fb_result['success']:
             print(f"     ✅ Post ID: {fb_result['post_id']}")
         else:
