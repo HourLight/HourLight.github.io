@@ -213,7 +213,7 @@ async function loadHistory() {
   try {
     var snap = await db.collection('reading_codes')
       .orderBy('createdAt', 'desc')
-      .limit(20)
+      .limit(50)
       .get();
 
     if (snap.empty) {
@@ -224,14 +224,20 @@ async function loadHistory() {
     var html = '';
     snap.forEach(function(doc) {
       var d = doc.data();
+      var codeId = doc.id;
+      var n = d.n || d.spreads || '?';
+      var price = d.price || 0;
       var status = d.used
-        ? '<span class="used">已使用</span>'
-        : '<span class="unused">未使用</span>';
+        ? '<span class="used">✗ 已使用</span>'
+        : '<span class="unused">✓ 未使用</span>';
+      var usedInfo = '';
+      if (d.used && d.usedBy) usedInfo = '<br>使用：' + (d.usedAt ? new Date(d.usedAt.seconds * 1000).toLocaleString('zh-TW', {timeZone:'Asia/Taipei'}) : '') + '（' + d.usedBy + '）';
       var date = d.createdAt ? new Date(d.createdAt.seconds * 1000).toLocaleString('zh-TW', {timeZone:'Asia/Taipei'}) : '';
-      var memo = d.memo ? ' (' + d.memo + ')' : '';
+      var memo = d.memo ? '<br>備註：' + d.memo : '';
+      var source = d.source ? ' · ' + d.source : '';
       html += '<div class="history-item">'
-        + '<div><span class="code-text">' + doc.id + '</span> ' + status + '</div>'
-        + '<div class="meta">' + d.n + '張 $' + (d.price||0) + memo + '<br>' + date + '</div>'
+        + '<div><span class="code-text">' + codeId + '</span></div>'
+        + '<div class="meta">🃏 ' + n + '張 $' + price + source + '<br>' + status + memo + '<br>建立：' + date + usedInfo + '</div>'
         + '</div>';
     });
     listEl.innerHTML = html;
