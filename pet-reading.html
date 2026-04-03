@@ -597,20 +597,29 @@ function requestAIReading(){
     _requestAIReadingOriginal();
   }
 }
-async function _requestAIReadingOriginal(){
+async function _requestAIReadingOriginal(retryCount){
+  retryCount=retryCount||0;
   document.getElementById('aiReadBtn').disabled=true;
   document.getElementById('aiReadBtn').textContent='🐾 連結中...';
   goScene(8);
   var prompt=buildPrompt();
+  var loadingEl=document.getElementById('readingBox');
+  loadingEl.innerHTML='<div style="text-align:center;padding:40px 20px"><div style="width:40px;height:40px;border:2px solid rgba(240,181,179,.2);border-radius:50%;margin:0 auto 16px;animation:breathCircle 4s ease-in-out infinite"></div><div style="color:var(--paw);font-size:.9rem">正在聆聽牠想說的話⋯⋯</div><div style="color:var(--ink-dim);font-size:.78rem;margin-top:8px">'+(retryCount>0?'重新連結中，請稍候':'通常需要 15-30 秒')+'</div></div>';
   try{
     var res=await fetch('https://app.hourlightkey.com/api/pet-reading',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt,spread:currentSpread})});
     var data=await res.json();
-    var text=data.reading||data.error||'連結過程出了一點狀況。請重試，或直接聯繫 LINE 客服。';
+    var text=data.reading||data.error||'';
+    if(!text&&retryCount<2){return _requestAIReadingOriginal(retryCount+1);}
+    if(!text)text='連結過程出了一點狀況。請稍後重試，或直接聯繫 LINE 客服。';
     var sessionKeyHTML=_petSessionKey?renderSessionKeyHTML(_petSessionKey):'';
     document.getElementById('readingBox').innerHTML='<div style="white-space:pre-wrap">'+text.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>'+sessionKeyHTML;
     document.getElementById('resultBtns').style.display='';
     if(typeof window.HL_track==='function')window.HL_track('pet_reading_complete',{spread:currentSpread,petName:document.getElementById('petName').value,petStatus:document.getElementById('petStatus').value});
-  }catch(e){document.getElementById('readingBox').textContent='連結過程出了一點狀況。請確認網路連線後重試，或直接聯繫 LINE 客服。';document.getElementById('resultBtns').style.display='';}
+  }catch(e){
+    if(retryCount<2){return _requestAIReadingOriginal(retryCount+1);}
+    document.getElementById('readingBox').innerHTML='<div style="text-align:center;padding:20px"><div style="color:var(--paw);margin-bottom:12px">連結過程出了一點狀況</div><div style="font-size:.85rem;color:var(--ink-dim);margin-bottom:16px">可能是網路不穩，請重試一次</div><button onclick="_requestAIReadingOriginal(0)" style="padding:12px 24px;border-radius:50px;background:linear-gradient(135deg,var(--paw),var(--paw-dk));color:#0a0814;border:none;cursor:pointer;font-size:.9rem">🔄 重新連結</button></div>';
+    document.getElementById('resultBtns').style.display='';
+  }
 }
 
 function buildPrompt(){
