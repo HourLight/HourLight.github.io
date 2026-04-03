@@ -2325,15 +2325,25 @@ document.getElementById('copyTextBtn').addEventListener('click', function() {
 // ── 分享到 Threads（不放連結）──
 document.getElementById('shareThreadsBtn').addEventListener('click', function() {
   var r = {};
-  ['archetypeName','archetypeEn','coreLine'].forEach(function(id) {
+  ['archetypeName','archetypeEn','coreLine','hiddenGift','shadowSide','elementNote'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) r[id] = el.textContent;
   });
-  var text = '欸我剛測了一個超酷的東西 🔮\n' +
-    '我的巫力原型居然是「' + r.archetypeName + '」哈哈哈\n\n' +
+  // 隨機開頭語，讓每次分享不一樣
+  var openers = [
+    '欸我剛測了一個超酷的東西 🔮',
+    '好啦我承認我又在玩心理測驗了 🔮',
+    '半夜不睡覺在測自己的巫力原型 🔮',
+    '被朋友推坑測了這個，結果也太準 🔮'
+  ];
+  var opener = openers[Math.floor(Math.random()*openers.length)];
+  var text = opener + '\n' +
+    '我的巫力原型是「' + r.archetypeName + '」\n\n' +
     '「' + r.coreLine + '」\n\n' +
-    '每個人都有一種藏在骨子裡的超能力啦～你的是什麼？去測測看就知道了 💜\n\n' +
-    '#女巫原力 #馥靈之鑰';
+    '隱藏天賦：' + (r.hiddenGift||'').substring(0,40) + '⋯\n' +
+    '要小心的陷阱：' + (r.shadowSide||'').substring(0,40) + '⋯\n\n' +
+    '每個人都有一種藏在骨子裡的超能力啦～你的是什麼？💜\n\n' +
+    '#女巫原力 #馥靈之鑰 #巫力原型';
   navigator.clipboard.writeText(text).then(function() {
     var btn = document.getElementById('shareThreadsBtn');
     btn.textContent = '✅ 已複製！貼到 Threads 發文';
