@@ -26,9 +26,9 @@
   ];
 
   var REDEEM_ITEMS = [
-    {id:'ai_read',   cost:50,  icon:'🤖', name:'AI 解讀指令 1 次',  desc:'在任何命理工具使用一次深度解讀', action:'add_ai_quota'},
-    {id:'deep_quiz', cost:100, icon:'🔮', name:'深潛測驗解鎖',      desc:'解鎖任一深潛覺察測驗完整版',    action:'unlock_deep_quiz'},
-    {id:'match_try', cost:200, icon:'💞', name:'合盤試用 1 次',     desc:'解鎖合盤引擎試用一次',           action:'unlock_match'}
+    {id:'coupon_199', cost:200, icon:'🎟️', name:'$199 折價券',  desc:'折抵 3 張牌卡 AI 解讀', action:'generate_coupon', couponValue:199, couponN:3},
+    {id:'coupon_399', cost:400, icon:'🎟️', name:'$399 折價券',  desc:'折抵 5 張牌卡 AI 解讀', action:'generate_coupon', couponValue:399, couponN:5},
+    {id:'coupon_599', cost:600, icon:'🎟️', name:'$599 折價券',  desc:'折抵 7 張牌卡 AI 解讀', action:'generate_coupon', couponValue:599, couponN:7}
   ];
 
   var TASK_POOL = [
@@ -543,12 +543,30 @@
       state.redeemCount=(state.redeemCount||0)+1;
       state.redeemHistory=(state.redeemHistory||[]);
       state.redeemHistory.unshift({item:itemId,cost:item.cost,date:todayKey()});
+      // 生成折價券碼並寫入 Firestore
+      var couponCode = null;
+      if(item.action==='generate_coupon'){
+        var chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        var rand='';for(var ci=0;ci<6;ci++)rand+=chars[Math.floor(Math.random()*chars.length)];
+        couponCode='HL'+item.couponN+'-'+rand;
+        // 寫入 Firestore reading_codes
+        try{
+          if(typeof firebase!=='undefined'&&firebase.firestore){
+            var u=firebase.auth().currentUser;
+            firebase.firestore().collection('reading_codes').doc(couponCode).set({
+              n:item.couponN,spreads:item.couponN,price:0,used:false,
+              memo:'城堡靈感點數兌換（'+item.cost+'pt）',source:'castle_redeem',
+              createdBy:'system',createdFor:u?u.email:'',
+              createdAt:firebase.firestore.FieldValue.serverTimestamp()
+            });
+          }
+        }catch(e){}
+      }
       state.castleBonus=state.castleBonus||{};
-      if(item.action==='add_ai_quota')state.castleBonus.aiQuota=(state.castleBonus.aiQuota||0)+1;
-      else if(item.action==='unlock_deep_quiz')state.castleBonus.deepQuizUnlock=(state.castleBonus.deepQuizUnlock||0)+1;
-      else if(item.action==='unlock_match')state.castleBonus.matchTry=(state.castleBonus.matchTry||0)+1;
+      state.coupons=state.coupons||[];
+      if(couponCode)state.coupons.unshift({code:couponCode,value:item.couponValue,n:item.couponN,date:todayKey()});
       var na=checkAch(state);saveState(state);
-      return{ok:true,item:item,newAchievements:na};
+      return{ok:true,item:item,couponCode:couponCode,newAchievements:na};
     },
     getRedeemItems:function(){
       return REDEEM_ITEMS.map(function(i){return Object.assign({},i,{canAfford:state.points>=i.cost});});
