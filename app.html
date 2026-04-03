@@ -2038,6 +2038,7 @@ async function copyReadingText(readingId){
         <div class="admin-sub on" id="admin-dashboard">
           <!-- Row 1: 核心指標 -->
           <div class="admin-stats" id="admin-stats-grid">
+            <div class="admin-stat" style="border-color:rgba(76,175,80,.3)"><div class="as-n" id="a-realtime-users" style="color:#4caf50">-</div><div class="as-l">即時在線</div><div class="as-sub" id="a-realtime-sub">最近30分鐘</div></div>
             <div class="admin-stat"><div class="as-n" id="a-total-users">-</div><div class="as-l">總會員數</div><div class="as-sub" id="a-today-new">-</div></div>
             <div class="admin-stat"><div class="as-n" id="a-today-active">-</div><div class="as-l">今日活躍</div><div class="as-sub" id="a-active-rate">-</div></div>
             <div class="admin-stat"><div class="as-n" id="a-total-events">-</div><div class="as-l">總使用次數</div><div class="as-sub" id="a-today-events">-</div></div>
@@ -4621,6 +4622,12 @@ async function loadAdminDashboard() {
     document.getElementById('a-active-rate').textContent=total?Math.round(todayActive/total*100)+'% 活躍率':'';
     document.getElementById('a-today-events').textContent='今日 '+todayEvents+' 次';
     document.getElementById('a-premium-rate').textContent=total?Math.round(premium/total*100)+'% 付費率':'';
+    // 即時在線（最近30分鐘有 lastSeen 的用戶）
+    var thirtyMinAgo=new Date(Date.now()-30*60*1000);
+    var realtimeCount=0;
+    usersSnap.forEach(d=>{var u=d.data();if(u.lastSeen?.toDate&&u.lastSeen.toDate()>=thirtyMinAgo)realtimeCount++;});
+    document.getElementById('a-realtime-users').textContent=realtimeCount;
+    document.getElementById('a-realtime-sub').textContent='最近30分鐘 · '+new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
     // 7日趨勢條
     const vals=days.map(d=>regByDay[d.toLocaleDateString('sv-SE')]||0);
     const maxV=Math.max(...vals,1);
