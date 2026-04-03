@@ -1254,7 +1254,13 @@ body::after {
     <!-- 分享按鈕 -->
     <div class="share-buttons">
       <button class="share-btn share-btn-primary" id="saveImageBtn" type="button">
-        📥 儲存圖片
+        📥 儲存結果卡（可直接分享到 IG 限動）
+      </button>
+      <button class="share-btn share-btn-secondary" id="shareThreadsBtn" type="button">
+        🧵 分享到 Threads
+      </button>
+      <button class="share-btn share-btn-secondary" id="shareLINEBtn" type="button">
+        💬 分享給朋友（LINE）
       </button>
       <button class="share-btn share-btn-secondary" id="copyTextBtn" type="button">
         📋 複製文字
@@ -2314,6 +2320,38 @@ document.getElementById('copyTextBtn').addEventListener('click', function() {
     btn.textContent = '✅ 已複製！';
     setTimeout(function() { btn.innerHTML = '📋 複製文字'; }, 2000);
   });
+});
+
+// ── 分享到 Threads（不放連結）──
+document.getElementById('shareThreadsBtn').addEventListener('click', function() {
+  var r = {};
+  ['archetypeName','archetypeEn','coreLine'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) r[id] = el.textContent;
+  });
+  var text = '我的巫力原型是「' + r.archetypeName + '」✨\n\n' +
+    '「' + r.coreLine + '」\n\n' +
+    '你也有一種藏在骨子裡的超能力，只是你可能還不知道叫什麼。\n\n' +
+    '#女巫原力 #馥靈之鑰';
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.getElementById('shareThreadsBtn');
+    btn.textContent = '✅ 已複製！貼到 Threads 發文';
+    setTimeout(function() { btn.innerHTML = '🧵 分享到 Threads'; }, 3000);
+  });
+});
+
+// ── 分享給朋友（LINE）──
+document.getElementById('shareLINEBtn').addEventListener('click', function() {
+  var r = {};
+  ['archetypeName','archetypeEn','coreLine'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) r[id] = el.textContent;
+  });
+  var text = '我剛測了「女巫原力」，我的巫力原型是「' + r.archetypeName + '」！\n' +
+    '「' + r.coreLine + '」\n\n' +
+    '你也來測測看～ hourlightkey.com/witch-power.html';
+  var lineUrl = 'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent('https://hourlightkey.com/witch-power.html') + '&text=' + encodeURIComponent(text);
+  window.open(lineUrl, '_blank');
 });
 
 // ── 重新測驗 ──
