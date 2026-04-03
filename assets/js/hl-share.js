@@ -170,3 +170,34 @@ window.shareToLine=function(){
   if(sub)  t+='\n'+sub.textContent.trim();
   window.open('https://social-plugins.line.me/lineit/share?url='+encodeURIComponent(url)+'&text='+encodeURIComponent(t),'_blank');
 };
+
+/* ═══ 分享到 Threads（複製文字，不放連結）═══ */
+window.shareToThreads=function(){
+  var el=document.getElementById('quizResult')
+        ||document.getElementById('result-area')
+        ||document.getElementById('ra')
+        ||document.getElementById('readingDisplay')
+        ||document.getElementById('result')
+        ||document.getElementById('storyDisplay')
+        ||document.querySelector('.quiz-result.active');
+  if(!el) return;
+  var title=document.title.replace(/[|｜].*/,'').trim();
+  var hero=el.querySelector('.result-hero-title,.rh-type,.result-title,.witch-name,.past-life-title,.result-combo-name,.archetype-name');
+  var sub=el.querySelector('.result-hero-sub,.rh-sub,.result-sub,.core-line');
+  var openers=['欸我剛測了一個超酷的東西','好啦我承認我又在玩心理測驗了','半夜不睡覺在測這個','被推坑測了這個，結果也太準'];
+  var opener=openers[Math.floor(Math.random()*openers.length)];
+  var t=opener+' 🔮\n';
+  if(hero) t+='我的結果是「'+hero.textContent.trim()+'」\n\n';
+  if(sub) t+='「'+sub.textContent.trim()+'」\n\n';
+  t+='每個人都有一個藏在骨子裡的版本，你的是什麼？💜\n\n';
+  t+='#馥靈之鑰 #'+title.replace(/[｜|].*$/,'').trim();
+  try{
+    navigator.clipboard.writeText(t).then(function(){
+      var btn=event&&event.target;
+      if(btn){btn.textContent='✅ 已複製！貼到 Threads 發文';setTimeout(function(){btn.innerHTML='🧵 分享到 Threads';},3000);}
+    });
+  }catch(e){
+    var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    alert('已複製！貼到 Threads 發文');
+  }
+};
