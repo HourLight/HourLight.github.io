@@ -900,12 +900,20 @@ let currentUser = null;
 let currentTab = 'overview';
 
 /* ── Auth ── */
+// Timeout fallback：5秒後還在載入就顯示登入按鈕
+setTimeout(function(){
+  var gate=document.getElementById('authGate');
+  if(gate&&gate.style.display!=='none'&&gate.querySelector('.msg').textContent.indexOf('載入')>-1){
+    gate.querySelector('.msg').innerHTML='請先登入管理員帳號<br><br><button onclick="firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function(e){if(e.code===\'auth/popup-blocked\')firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider())})" style="padding:12px 28px;border-radius:12px;background:linear-gradient(135deg,#b8922a,#a07820);color:#fff;border:none;font-size:.95rem;font-weight:600;cursor:pointer">Google 登入</button>';
+  }
+},5000);
+
 auth.onAuthStateChanged(function(user) {
   var gate = document.getElementById('authGate');
   var shell = document.getElementById('dashShell');
 
   if (!user) {
-    gate.querySelector('.msg').textContent = '請先登入管理員帳號';
+    gate.querySelector('.msg').innerHTML='請先登入管理員帳號<br><br><button onclick="firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function(e){if(e.code===\'auth/popup-blocked\')firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider())})" style="padding:12px 28px;border-radius:12px;background:linear-gradient(135deg,#b8922a,#a07820);color:#fff;border:none;font-size:.95rem;font-weight:600;cursor:pointer">Google 登入</button>';
     gate.style.display = '';
     shell.style.display = 'none';
     return;
