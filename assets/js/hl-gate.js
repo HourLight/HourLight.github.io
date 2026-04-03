@@ -67,8 +67,8 @@
       // href 是 javascript: 的連結
       if (/^javascript:/i.test(el.getAttribute('href')||'')) return true;
     }
-    if (tag==='select'||tag==='textarea') return true;
-    if (tag==='input' && el.closest && el.closest('form') && !/^(hidden|search)$/i.test(el.type||'')) return true;
+    // select / textarea / 一般 input 是資料輸入元素，不攔截
+    // 原本攔截 select/textarea 會導致用戶無法填寫生日、性別、問題等欄位
 
     return false;
   }
