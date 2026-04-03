@@ -230,6 +230,8 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 
 /* 手機版 tab */
 @media (max-width: 768px) { .tab-btn { font-size: 0.75rem; padding: 0.5rem; } }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* 載入畫面 - 深色宇宙 */
 .loading-screen { position: fixed; inset: 0; background: radial-gradient(ellipse at center, #f5f0e8 0%, #05030a 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
@@ -1084,7 +1086,7 @@ body.night-mode .hl-bg-castle { opacity: 1; }
         // 頁面元件
         // ========================================
         const BasicPage = ({ result, setResult, isNight, onDrawCard }) => {
-            if (!result) return (<div className="max-w-xl mx-auto"><div className="text-center mb-8"><h2 className="text-3xl font-bold gold-text serif">開啟你的內在城堡</h2><p className="text-sm mt-2 opacity-60">輸入出生資料，找到你的生命密碼</p><p className="text-xs mt-1 opacity-40">🔐 v8.3 核心數據保護版</p></div><InputForm onCalculate={(data) => {
+            if (!result) return (<div className="max-w-xl mx-auto"><div className="text-center mb-8"><h2 className="text-3xl font-bold gold-text serif">開啟你的內在城堡</h2><p className="text-sm mt-2 opacity-60">你的內在是一座城堡，有 12 個房間</p><p className="text-sm mt-1 opacity-50">每個房間對應一條經絡、一種情緒、一把鑰匙</p><p className="text-xs mt-3 opacity-40">🔐 v8.3 核心數據保護版</p></div><div className={'grid grid-cols-3 gap-2 mb-6 text-center text-xs'}>{[{icon:'🌙',t:'農曆維度',d:'情緒潮汐・內在設定'},{icon:'☀️',t:'西曆維度',d:'社會身份・外在呈現'},{icon:'🕐',t:'時辰維度',d:'經絡潛能・身體密碼'}].map((v,i)=>(<div key={i} className={'card p-3 ' + (isNight ? '' : '')}><div className="text-lg mb-1">{v.icon}</div><div className="font-bold">{v.t}</div><div className="opacity-50">{v.d}</div></div>))}</div><div className={'text-center text-xs opacity-50 mb-6'}>三維時間座標：農曆＋西曆＋時辰，才是完整的你</div><InputForm onCalculate={(data) => {
               const r = calculateHourLight(data);
               setResult(r);
               // 同步命盤快取到 Dashboard
@@ -1111,7 +1113,8 @@ body.night-mode .hl-bg-castle { opacity: 1; }
                     <section className="grid grid-cols-1 lg:grid-cols-2 gap-6"><div><h3 className="text-2xl font-bold gold-text mb-4 pl-4 border-l-4 border-current serif">✨ L.I.G.H.T. 五能量</h3><div className="card p-6"><div className="aspect-square max-w-xs mx-auto"><RadarChart data={light} isNight={isNight} /></div></div></div><div className="space-y-2">{[{ k: 'l', n: 'L 愛之力', d: '自我接納、給予與接受愛的能力' }, { k: 'i', n: 'I 直覺力', d: '內在智慧、第六感' }, { k: 'g', n: 'G 根基力', d: '安全感、穩定、紮根' }, { k: 'h', n: 'H 和諧力', d: '關係、連結、共鳴' }, { k: 't', n: 'T 蛻變力', d: '轉化、成長、破繭' }].map(item => { const v = light[item.k]; const level = v <= 3 ? 'weak' : v <= 6 ? 'medium' : 'strong'; return (<div key={item.k} className={'card p-3 ' + (level === 'weak' ? (isNight ? 'bg-red-900/30' : 'bg-red-50') : level === 'medium' ? (isNight ? 'bg-yellow-900/30' : 'bg-yellow-50') : (isNight ? 'bg-green-900/30' : 'bg-green-50'))}><div className="flex justify-between items-center"><div><span className="font-bold">{item.n}</span><div className="text-xs opacity-60">{item.d}</div></div><div className="flex items-center gap-2"><span className="text-2xl font-bold gold-text">{v}</span><span className={'text-xs px-2 py-1 rounded ' + (level === 'weak' ? 'bg-red-200 text-red-700' : level === 'medium' ? 'bg-yellow-200 text-yellow-700' : 'bg-green-200 text-green-700')}>{level === 'weak' ? '需培養' : level === 'medium' ? '中等' : '天賦'}</span></div></div></div>); })}</div></section>
                     {(analysis.missingNumbers.length > 0 || analysis.excessNumbers.length > 0) && (<section className="grid grid-cols-1 md:grid-cols-2 gap-4">{analysis.missingNumbers.length > 0 && (<div className={'card p-6 ' + (isNight ? 'bg-red-900/20' : 'bg-red-50')}><h4 className="font-bold text-red-600 mb-3">⚠️ 空缺數字 ｜ 需要學習的課題</h4><div className="space-y-2">{analysis.missingNumbers.map(n => <div key={n} className="flex items-center gap-2"><span className="text-2xl font-bold text-red-500">{n}</span><span className="text-sm">{getNumData(n)?.title} ｜ {getNumData(n)?.essence}</span></div>)}</div></div>)}{analysis.excessNumbers.length > 0 && (<div className={'card p-6 ' + (isNight ? 'bg-amber-900/20' : 'bg-amber-50')}><h4 className="font-bold text-amber-600 mb-3">⚡ 重複數字 ｜ 強化的能量</h4><div className="space-y-2">{analysis.excessNumbers.map(n => <div key={n} className="flex items-center gap-2"><span className="text-2xl font-bold text-amber-500">{n}</span><span className="text-sm">{getNumData(n)?.title} ｜ 能量強但要注意過度</span></div>)}</div></div>)}</section>)}
                     <TransformBridge isNight={isNight} onDrawCard={onDrawCard} />
-                    <section><h3 className="text-2xl font-bold gold-text mb-4 pl-4 border-l-4 border-current serif">🏰 12宮位・內在城堡</h3><p className="text-sm mb-4" style={{color:'#6B5B4F'}}>點擊任一宮位卡片可展開詳細解讀</p><div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">{[1,2,3,4,5,6,7,8,9,10,11,12].map(id => <PalaceDeepCard key={id} palaceId={id} palaceNum={palaces[id]} isNight={isNight} />)}</div></section>
+                    <section><h3 className="text-2xl font-bold gold-text mb-4 pl-4 border-l-4 border-current serif">🏰 12宮位・內在城堡</h3><p className="text-sm mb-4" style={{color:'#6B5B4F'}}>12個房間，每個對應一條經絡、一種情緒。點擊展開詳細解讀</p><div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">{[1,2,3,4,5,6,7,8,9,10,11,12].map(id => <PalaceDeepCard key={id} palaceId={id} palaceNum={palaces[id]} isNight={isNight} />)}</div></section>
+                    <section className={'card p-5 ' + (isNight ? '' : 'bg-amber-50/60')}><h4 className="font-bold gold-text mb-3 serif">📐 三套數字系統（不可混用）</h4><div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">{[{icon:'🌙',t:'馥靈秘碼',src:'農曆生日',d:'內在設定・逸君原創 IP',tag:'你看到的就是這套'},{icon:'△',t:'三角生命密碼',src:'西曆生日',d:'市面既有系統・非 IP',tag:'基礎命盤已含'},{icon:'📐',t:'馥靈三角秘碼',src:'身分證字號',d:'外在使命・逸君全新自創',tag:'前往「三角秘碼」分頁'}].map((v,i)=>(<div key={i} className={'p-3 rounded-lg ' + (isNight ? 'bg-white/5' : 'bg-white/80')}><div className="font-bold mb-1">{v.icon} {v.t}</div><div className="opacity-60">來源：{v.src}</div><div className="opacity-60">{v.d}</div><div className={'mt-1 text-xs ' + (isNight ? 'text-amber-300' : 'text-amber-700')}>{v.tag}</div></div>))}</div><p className="text-xs opacity-50 mt-3">三套交叉比對才是完整的你。網頁上是快速版，完整版需要認證覺察師做交叉解讀。</p></section>
                     <div className="text-center space-y-4"><div><button onClick={() => { const palaceNames = {1:'勇氣殿',2:'力量廳',3:'告別苑',4:'家族苑',5:'創造殿',6:'執行廳',7:'合作殿',8:'轉化廳',9:'遠航苑',10:'榮耀殿',11:'群聚廳',12:'靜觀苑'}; const p12 = [1,2,3,4,5,6,7,8,9,10,11,12].map(id => id + '宮 ' + palaceNames[id] + '：' + palaces[id] + (isMasterNumber(palaces[id]) ? '✨' : '')).join('\n'); const rs = n => { while (n > 9) n = String(n).split('').reduce((a, b) => parseInt(a) + parseInt(b), 0); return n; }; const dStr = String(inputData.day).padStart(2, '0'); const mStr = String(inputData.month).padStart(2, '0'); const yStr = String(inputData.year).padStart(4, '0'); const tA = +dStr[0], tB = +dStr[1], tC = +mStr[0], tD = +mStr[1], tE = +yStr[0], tF = +yStr[1], tG = +yStr[2], tH = +yStr[3]; const tI = rs(tA + tB), tJ = rs(tC + tD), tK = rs(tE + tF), tL = (tG===0&&tH===0) ? 5 : rs(tG + tH); const tM = rs(tI + tJ), tN = rs(tK + tL); const tO = rs(tM + tN); const tT = rs(tI + tM), tS = rs(tJ + tM), tU = rs(tT + tS); const tV = rs(tK + tN), tW = rs(tL + tN), tX = rs(tV + tW); const tP = rs(tM + tO), tQ = rs(tN + tO), tR = rs(tP + tQ); const triText = '═══ △ 生命數字三角形（陽曆）═══\n陽曆出生日期：' + inputData.year + '/' + mStr + '/' + dStr + '\n\n三角形（內）\n底層：' + tI + '(日) ' + tJ + '(月) ' + tK + '(年前) ' + tL + '(年後)\n中層：' + tM + '(左) ' + tN + '(右)\n頂尖：' + tO + '（命數／主性格）\n\n三角形（外）\n左邊（工作/朋友/21-40歲）：' + tT + ' ' + tS + ' → ' + tU + '\n上方（下屬/兒女/41-60歲）：' + tP + ' ' + tQ + ' → ' + tR + '\n右邊（晚年/家庭/61歲後）：' + tV + ' ' + tW + ' → ' + tX + '\n\n父親基因：' + tI + ', ' + tJ + '\n母親基因：' + tK + ', ' + tL + '\n潛意識：' + rs(tI + tL + tO) + '\n外心密碼：' + rs(tU + tR + tX); const text = '【馥靈秘碼完整報告】\n\n═══ H.O.U.R. 四主數 ═══\nH數：' + hour.h + ' ｜ ' + getNumData(hour.h)?.title + '\nO數：' + hour.o + ' ｜ ' + getNumData(hour.o)?.title + '\nU數：' + (hour.u || '｜') + (hour.u ? ' ｜ ' + getNumData(hour.u)?.title : '') + '\nR數：' + hour.r + ' ｜ ' + getNumData(hour.r)?.title + '\n\n═══ L.I.G.H.T. 五能量 ═══\nL愛之力：' + light.l + ' | I直覺力：' + light.i + ' | G根基力：' + light.g + '\nH和諧力：' + light.h + ' | T蛻變力：' + light.t + '\n\n═══ 🏰 12宮位 ═══\n' + p12 + '\n\n' + triText + '\n\n📖 參考書目\n· 王逸君《藏在農曆生日裡的秘碼》（核心系統）：https://www.pubu.com.tw/ebook/645548\n· Dan Millman《生命數字全書》｜各數字禮物×挑戰深度詮釋\n\n🔑 想要更深的轉化？LINE: judyanee\n✧ 馥靈秘碼 v8.3 ✧'; navigator.clipboard.writeText(text); alert('完整報告已複製！'); }} className="gold-btn px-8 py-3 rounded-lg text-lg">📋 複製完整報告</button></div><div className="flex justify-center gap-3 flex-wrap"><a href="https://www.pubu.com.tw/ebook/645548" target="_blank" rel="noopener" className="inline-flex items-center px-5 py-2 rounded-lg bg-gradient-to-r from-amber-600 to-orange-500 text-white font-bold hover:from-amber-700 hover:to-orange-600 transition-all shadow-lg">📖 購買完整解讀書籍</a><a href="fuling-mima.html" className="inline-flex items-center px-5 py-2 rounded-lg border-2 border-amber-600 font-bold hover:bg-amber-50 transition-all" style={{color:'#996515'}}>✨ 免費試讀</a></div></div>
                     {/* Google Form 已移除 ｜ Email 訂閱統一使用頁尾 MailerLite 區塊 */}
                 </div>
@@ -1238,6 +1241,11 @@ body.night-mode .hl-bg-castle { opacity: 1; }
                   <div className={'inline-block px-4 py-1 rounded-full text-xs mb-4 ' + (isNight ? 'bg-purple-900/40 text-purple-300' : 'bg-amber-100 text-amber-800')}>馥靈之鑰 × 企業人才管理</div>
                   <h2 className="text-3xl font-bold gold-text serif mb-2">HR 快速識人系統</h2>
                   <p className="opacity-70 leading-relaxed">輸入一組生日，3 秒生成五維人格報告<br/>涵蓋管理風格、職位適配、團隊搭配與風險預警</p>
+                  <div className={'mt-4 p-4 rounded-lg text-sm text-left leading-relaxed ' + (isNight ? 'bg-white/5' : 'bg-amber-50/80')}>
+                    <p className="opacity-70">面試的時候，對方準備了完美的回答。但你想知道的，其實是那些沒說出口的東西。</p>
+                    <p className="opacity-70 mt-2">HR 識人系統把馥靈秘碼的 H.O.U.R. 四主數轉換成職場語言：這個人是需要舞台的開創者，還是需要穩定的建構者？放在哪個位置會發光，擺錯了會出事？</p>
+                    <p className="opacity-50 mt-2 text-xs">搭配馥靈三角秘碼（身份證解碼），還能看到這個人帶著什麼外在使命進入職場。</p>
+                  </div>
                 </div>
                 <div className="grid grid-cols-3 gap-3 mb-6">
                   {[{icon:'⚡',title:'3 秒出報告',desc:'輸入生日即刻生成'},{icon:'📊',title:'五維雷達圖',desc:'獨立性 / 服從性 / 協作 / 抗壓 / 穩定'},{icon:'🔒',title:'資料零傳輸',desc:'所有計算在你的裝置完成'}].map((v,i) => (
@@ -1658,13 +1666,13 @@ body.night-mode .hl-bg-castle { opacity: 1; }
             const confirmAge = () => { setIsNight(true); setShowAgeConfirm(false); };
 
             const tabs = [
-                { id: 'basic', label: '🔑 基礎命盤', icon: '🔑' },
-                { id: 'year', label: '🗓️ 流年運勢', icon: '🗓️' },
-                { id: 'fortune', label: '⏳ 大運時間軸', icon: '⏳' },
-                { id: 'compat', label: '💕 關係合盤', icon: '💕' },
-                { id: 'hr', label: '💼 HR識人', icon: '💼' },
-                ...(isNight ? [{ id: 'intimacy', label: '🔥 親密指南', icon: '🔥' }] : []),
-                { id: 'social', label: '🔺 三角秘碼', icon: '🔺' }
+                { id: 'basic', label: '🔑 基礎命盤', icon: '🔑', desc: '四主數・五能量・12宮' },
+                { id: 'year', label: '🗓️ 流年運勢', icon: '🗓️', desc: '今年走什麼運' },
+                { id: 'hr', label: '💼 HR識人', icon: '💼', desc: '3秒五維人格報告' },
+                { id: 'fortune', label: '⏳ 大運時間軸', icon: '⏳', desc: '人生大週期' },
+                { id: 'compat', label: '💕 關係合盤', icon: '💕', desc: '兩人能量互動' },
+                ...(isNight ? [{ id: 'intimacy', label: '🔥 親密指南', icon: '🔥', desc: '身體記得' }] : []),
+                { id: 'social', label: '🔺 三角秘碼', icon: '🔺', desc: '身份證解碼' }
             ];
 
             return (
@@ -1693,7 +1701,7 @@ body.night-mode .hl-bg-castle { opacity: 1; }
                                     <button onClick={handleNightToggle} className="gold-btn px-3 py-1 rounded-full text-xs">{isNight ? '🔥 深夜' : '☀️ 白天'}</button>
                                 </div>
                             </div>
-                            <div className="flex gap-1 overflow-x-auto pb-1">{tabs.map(tab => <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`tab-btn px-3 py-2 text-sm whitespace-nowrap ${activeTab === tab.id ? 'active font-bold' : 'opacity-60'}`}><span className="hidden md:inline">{tab.label}</span><span className="md:hidden">{tab.icon}</span></button>)}</div>
+                            <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide" style={{WebkitOverflowScrolling:'touch',scrollbarWidth:'none'}}>{tabs.map(tab => <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`tab-btn px-3 py-2 text-sm whitespace-nowrap flex-shrink-0 ${activeTab === tab.id ? 'active font-bold' : 'opacity-60'}`}><span className="hidden md:inline">{tab.label}</span><span className="md:hidden">{tab.icon}</span>{tab.desc && <span className="hidden lg:inline text-[10px] opacity-50 ml-1">({tab.desc})</span>}</button>)}</div>
                         </div>
                     </header>
 
