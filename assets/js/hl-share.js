@@ -80,11 +80,23 @@ window.saveResultImage=function(){
     }
   }).then(function(canvas){
     document.body.removeChild(toast);
-    var title=document.title.replace(/[|｜].*/,'').trim().replace(/\s+/g,'_');
-    var link=document.createElement('a');
-    link.download='馥靈之鑰_'+title+'_'+new Date().toLocaleDateString('sv-SE')+'.png';
-    link.href=canvas.toDataURL('image/png');
-    link.click();
+    var dataUrl=canvas.toDataURL('image/png');
+    var isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+    if(isIOS){
+      // iOS Safari 不支援 <a download>，改為顯示圖片讓用戶長按儲存
+      var overlay=document.createElement('div');
+      overlay.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto';
+      overlay.innerHTML='<div style="color:#f8dfa5;font-size:.95rem;margin-bottom:16px;text-align:center">長按圖片 → 儲存到相簿<br>即可分享到 IG 限動 💜</div>'
+        +'<img src="'+dataUrl+'" style="max-width:90%;max-height:70vh;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.5)">'
+        +'<button onclick="this.parentElement.remove()" style="margin-top:20px;padding:12px 32px;border-radius:50px;background:rgba(248,223,165,.15);border:1px solid rgba(248,223,165,.3);color:#f8dfa5;font-size:.9rem;cursor:pointer">關閉</button>';
+      document.body.appendChild(overlay);
+    }else{
+      var title=document.title.replace(/[|｜].*/,'').trim().replace(/\s+/g,'_');
+      var link=document.createElement('a');
+      link.download='馥靈之鑰_'+title+'_'+new Date().toLocaleDateString('sv-SE')+'.png';
+      link.href=dataUrl;
+      link.click();
+    }
   }).catch(function(e){
     document.body.removeChild(toast);
     console.warn('html2canvas error:',e);
