@@ -157,9 +157,9 @@ def step_post(slot='all', dry_run=False):
 
         print(f"\n⏰ [{content['slot']}] {content['topic'][:30]}...")
 
-        # Prepare FB message with hashtags
+        # Prepare FB message with hashtags (避免重複：AI 文案已含 # 就不再加)
         fb_msg = content['fb_post']
-        if content.get('hashtags'):
+        if content.get('hashtags') and '#' not in fb_msg:
             fb_msg += '\n\n' + ' '.join(f'#{h}' for h in content['hashtags'])
 
         image_url = content.get('image_url')
