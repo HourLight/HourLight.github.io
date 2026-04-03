@@ -238,6 +238,30 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:linear-gradie
 .room-scene-banner.loaded{opacity:1}
 .hero-castle-img{width:100%;max-width:480px;border-radius:20px;margin:0 auto 24px;display:block;box-shadow:0 12px 40px rgba(29,53,87,.15);opacity:0;transition:opacity .6s ease}
 .hero-castle-img.loaded{opacity:1}
+/* ── Hero 互動地圖 ── */
+.hero-map-wrap{position:relative;width:100%;max-width:600px;margin:0 auto 24px;border-radius:20px;overflow:visible;box-shadow:0 12px 40px rgba(29,53,87,.18)}
+.hero-map-wrap img.hero-map-img{width:100%;height:auto;display:block;border-radius:20px;opacity:0;transition:opacity .6s ease}
+.hero-map-wrap img.hero-map-img.loaded{opacity:1}
+.hero-map-hotspots{position:absolute;top:0;left:0;width:100%;height:100%}
+.hero-map-hotspot{position:absolute;width:46px;height:46px;border-radius:50%;background:rgba(233,194,125,.22);border:2px solid rgba(233,194,125,.5);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.05rem;transition:background .3s,border-color .3s,box-shadow .3s;animation:castleFloat 3.2s ease-in-out infinite,heroHotspotPulse 2.8s ease-in-out infinite;-webkit-tap-highlight-color:transparent;transform:translate(-50%,-50%);z-index:2;filter:drop-shadow(0 4px 6px rgba(29,53,87,.15))}
+.hero-map-hotspot:hover,.hero-map-hotspot:active{background:rgba(233,194,125,.55);border-color:#f8dfa5;animation-play-state:paused;transform:translate(-50%,-50%) scale(1.18);box-shadow:0 0 22px rgba(233,194,125,.5);filter:drop-shadow(0 2px 4px rgba(29,53,87,.1))}
+.hero-map-hotspot:nth-child(1){animation-delay:0s,.1s}
+.hero-map-hotspot:nth-child(2){animation-delay:.3s,.4s}
+.hero-map-hotspot:nth-child(3){animation-delay:.6s,.2s}
+.hero-map-hotspot:nth-child(4){animation-delay:.9s,.5s}
+.hero-map-hotspot:nth-child(5){animation-delay:1.2s,.3s}
+.hero-map-hotspot:nth-child(6){animation-delay:.15s,.6s}
+.hero-map-hotspot:nth-child(7){animation-delay:.45s,.15s}
+.hero-map-hotspot:nth-child(8){animation-delay:.75s,.45s}
+.hero-map-hotspot:nth-child(9){animation-delay:1.05s,.25s}
+.hero-map-hotspot:nth-child(10){animation-delay:.2s,.55s}
+.hero-map-hotspot:nth-child(11){animation-delay:.5s,.35s}
+.hero-map-hotspot:nth-child(12){animation-delay:.8s,.65s}
+@keyframes castleFloat{0%,100%{transform:translate(-50%,-50%) translateY(0);filter:drop-shadow(0 4px 6px rgba(29,53,87,.15))}50%{transform:translate(-50%,-50%) translateY(-6px);filter:drop-shadow(0 10px 10px rgba(29,53,87,.1))}}
+.hero-map-hotspot .hm-label{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:.58rem;color:rgba(255,255,255,.9);background:rgba(29,53,87,.8);padding:2px 8px;border-radius:10px;white-space:nowrap;opacity:0;transition:opacity .25s;pointer-events:none}
+.hero-map-hotspot:hover .hm-label,.hero-map-hotspot:active .hm-label{opacity:1}
+@keyframes heroHotspotPulse{0%,100%{box-shadow:0 0 6px rgba(233,194,125,.15)}50%{box-shadow:0 0 20px rgba(233,194,125,.5)}}
+@media(max-width:480px){.hero-map-hotspot{width:40px;height:40px;font-size:.95rem}.hero-map-hotspot .hm-label{font-size:.52rem;bottom:-18px}}
 .light-hour-banner{width:100%;max-height:160px;object-fit:cover;border-radius:14px;margin-bottom:14px;opacity:0;transition:opacity .5s ease}
 .light-hour-banner.loaded{opacity:1}
 @media(min-width:521px){.room-scene-banner{max-height:250px}}
@@ -387,9 +411,29 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:linear-gradie
 <div class="topbar" id="topbar"><a href="index.html">← 回首頁</a><span style="font-size:.7rem;color:var(--txt-d)">內在城堡探索者</span></div>
 
 <section class="hero" id="heroSec">
-<img src="images/castle-web/castle-exterior.webp" alt="內在城堡" class="hero-castle-img" onload="this.classList.add('loaded')" loading="eager">
 <h1>內在城堡探索者</h1>
 <p class="hero-sub">每天10分鐘，走進自己的城堡。<br>您有12個房間，但有幾扇門從來沒推開過？</p>
+<div class="hero-map-wrap">
+<img src="images/castle-web/castle-map.webp" alt="內在城堡地圖" class="hero-map-img" onload="this.classList.add('loaded')" loading="eager">
+<div class="hero-map-hotspots">
+<!-- H.O.U.R. 四主房（四角）-->
+<div class="hero-map-hotspot" style="top:30%;left:22%" onclick="handleHotspot('mirror')" data-room="mirror">🪞<span class="hm-label">鏡之廳</span></div>
+<div class="hero-map-hotspot" style="top:30%;left:78%" onclick="handleHotspot('treasure')" data-room="treasure">💎<span class="hm-label">價值寶庫</span></div>
+<div class="hero-map-hotspot" style="top:65%;left:22%" onclick="handleHotspot('key')" data-room="key">🔑<span class="hm-label">解鎖密室</span></div>
+<div class="hero-map-hotspot" style="top:65%;left:78%" onclick="handleHotspot('throne')" data-room="throne">👑<span class="hm-label">啟程塔</span></div>
+<!-- 中央主堡 -->
+<div class="hero-map-hotspot" style="top:35%;left:50%" onclick="handleHotspot('tower')" data-room="tower">🔭<span class="hm-label">瞭望塔</span></div>
+<!-- L.I.G.H.T. 五房 -->
+<div class="hero-map-hotspot" style="top:22%;left:35%" onclick="handleHotspot('love')" data-room="love">💕<span class="hm-label">愛之殿</span></div>
+<div class="hero-map-hotspot" style="top:22%;left:65%" onclick="handleHotspot('intuition')" data-room="intuition">🔮<span class="hm-label">直覺閣</span></div>
+<div class="hero-map-hotspot" style="top:42%;left:30%" onclick="handleHotspot('ground')" data-room="ground">🏔️<span class="hm-label">磐石廳</span></div>
+<div class="hero-map-hotspot" style="top:42%;left:70%" onclick="handleHotspot('harmony')" data-room="harmony">🌿<span class="hm-label">和諧苑</span></div>
+<div class="hero-map-hotspot" style="top:50%;left:50%" onclick="handleHotspot('transform')" data-room="transform">🦋<span class="hm-label">蛻變室</span></div>
+<!-- 探索房 -->
+<div class="hero-map-hotspot" style="top:58%;left:36%" onclick="handleHotspot('dream')" data-room="dream">🌙<span class="hm-label">夢境走廊</span></div>
+<div class="hero-map-hotspot" style="top:58%;left:64%" onclick="handleHotspot('garden')" data-room="garden">🌸<span class="hm-label">記憶花園</span></div>
+</div>
+</div>
 <div class="hero-tags"><span class="hero-tag">🏰 12個覺察房間</span><span class="hero-tag">🔮 每日謎語</span><span class="hero-tag">✨ 靈感點數</span><span class="hero-tag">🌿 認知芳療</span></div>
 <button class="btn-enter" onclick="startGame()">推開城門 →</button>
 <a href="castle-room-mirror.html" style="display:inline-block;margin-top:12px;font-size:.85rem;color:var(--txt-d);text-decoration:underline;opacity:.7;transition:opacity .2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">🪞 鏡之廳 — 每日覺察日記 →</a>
