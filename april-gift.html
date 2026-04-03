@@ -421,13 +421,13 @@ body{
     }
 
     // Check localStorage for previous draw
-    var cached = localStorage.getItem('hl_april_gift_drawn');
+    var cached = localStorage.getItem('hl_april_gift_drawn_r2');
     if (cached) {
       try {
         var prev = JSON.parse(cached);
         showPreviousResult(prev);
       } catch(e) {
-        localStorage.removeItem('hl_april_gift_drawn');
+        localStorage.removeItem('hl_april_gift_drawn_r2');
       }
     }
   }
@@ -435,13 +435,13 @@ body{
   /* ═══ CHECK FIRESTORE FOR PREVIOUS DRAW ═══ */
   function checkAlreadyDrawn() {
     if (!_db || !_user) return;
-    _db.collection('april_gifts').doc(_user.uid).get().then(function(doc) {
+    _db.collection('april_gifts_r2').doc(_user.uid).get().then(function(doc) {
       if (doc.exists) {
         var data = doc.data();
         var prize = findPrizeById(data.prizeId);
         if (prize) {
           var result = {id: prize.id, name: prize.name, value: prize.value, emoji: prize.emoji, code: data.code || prize.code || null, type: prize.type};
-          localStorage.setItem('hl_april_gift_drawn', JSON.stringify(result));
+          localStorage.setItem('hl_april_gift_drawn_r2', JSON.stringify(result));
           showPreviousResult(result);
         }
       }
@@ -490,7 +490,7 @@ body{
     }
 
     // Already drawn check
-    var cached = localStorage.getItem('hl_april_gift_drawn');
+    var cached = localStorage.getItem('hl_april_gift_drawn_r2');
     if (cached) {
       try { showPreviousResult(JSON.parse(cached)); } catch(e){}
       return;
@@ -535,7 +535,7 @@ body{
 
     // Save to localStorage immediately to prevent double draw
     var resultObj = {id: prize.id, name: prize.name, value: prize.value, emoji: prize.emoji, code: prize.code || null, type: prize.type};
-    localStorage.setItem('hl_april_gift_drawn', JSON.stringify(resultObj));
+    localStorage.setItem('hl_april_gift_drawn_r2', JSON.stringify(resultObj));
 
     // Save to Firestore (含寫入 reading_codes)
     saveToFirestore(prize);
@@ -549,8 +549,8 @@ body{
     if (!_db || !_user) return;
     var ts = firebase.firestore.FieldValue.serverTimestamp();
 
-    // Write to april_gifts collection
-    _db.collection('april_gifts').doc(_user.uid).set({
+    // Write to april_gifts_r2 collection
+    _db.collection('april_gifts_r2').doc(_user.uid).set({
       uid: _user.uid,
       email: _user.email || '',
       prizeId: prize.id,
@@ -559,7 +559,7 @@ body{
       prizeType: prize.type,
       code: prize.code || '',
       drawnAt: ts
-    }).catch(function(e){ console.warn('april_gifts write failed:', e); });
+    }).catch(function(e){ console.warn('april_gifts_r2 write failed:', e); });
 
     // 如果是 code 類型，寫入 reading_codes（可在 draw-hl 兌換）
     if (prize.type === 'code' && prize.code) {
