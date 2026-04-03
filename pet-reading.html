@@ -139,6 +139,21 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.86);point
 .reading-loading{text-align:center;color:var(--paw);font-size:.95rem;letter-spacing:1.5px;white-space:normal;font-family:var(--kai);line-height:2.4}
 .reading-loading .breath-anim{width:40px;height:40px;border-radius:50%;border:1px solid rgba(240,181,179,.2);margin:24px auto;animation:breathCircle 4s ease-in-out infinite}
 
+/* ═══ 彩虹橋蠟燭儀式 ═══ */
+.candle-ceremony{position:fixed;inset:0;z-index:9998;background:radial-gradient(ellipse at 50% 60%,rgba(15,10,30,.95),rgba(5,3,10,.98));display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 1s}
+.candle-ceremony.active{opacity:1;pointer-events:auto}
+.candle-flame{width:24px;height:36px;background:radial-gradient(ellipse at 50% 90%,#ffd56b,#ff9d2e 40%,transparent 70%);border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;animation:candleFlicker 2s ease-in-out infinite alternate;filter:blur(0.5px);position:relative}
+.candle-flame::after{content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:16px;height:4px;background:radial-gradient(ellipse,rgba(255,213,107,.3),transparent);border-radius:50%}
+.candle-body{width:20px;height:60px;background:linear-gradient(180deg,#f5e6d0,#e8d5b8);border-radius:2px 2px 4px 4px;margin-top:-2px}
+.candle-glow{position:absolute;width:200px;height:200px;background:radial-gradient(circle,rgba(255,200,100,.08),transparent 70%);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-60%);animation:candleGlow 3s ease-in-out infinite alternate}
+.candle-wrap{position:relative;display:flex;flex-direction:column;align-items:center}
+.candle-text{margin-top:40px;text-align:center;color:rgba(255,255,255,.6);font-size:.9rem;line-height:2;font-family:var(--kai);max-width:300px;opacity:0;animation:candleTextIn 2s ease 1.5s forwards}
+.candle-name{color:var(--paw);font-size:1.1rem;font-weight:500;margin-bottom:8px}
+.candle-action{margin-top:32px;opacity:0;animation:candleTextIn 1s ease 4s forwards}
+@keyframes candleFlicker{0%{transform:scaleY(1) scaleX(1)}25%{transform:scaleY(1.05) scaleX(.95)}50%{transform:scaleY(.95) scaleX(1.02)}75%{transform:scaleY(1.03) scaleX(.98)}100%{transform:scaleY(1) scaleX(1)}}
+@keyframes candleGlow{0%{opacity:.5;transform:translate(-50%,-60%) scale(.9)}100%{opacity:1;transform:translate(-50%,-60%) scale(1.1)}}
+@keyframes candleTextIn{to{opacity:1}}
+
 /* ═══ Buttons ═══ */
 .btn-p{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:linear-gradient(135deg,var(--paw),var(--paw-dk));color:#0a0814;font-size:.94rem;font-weight:500;letter-spacing:1.5px;border:none;border-radius:50px;cursor:pointer;font-family:var(--serif);transition:all .35s var(--ease)}
 .btn-p:hover{box-shadow:0 6px 24px rgba(240,181,179,.35);transform:translateY(-2px)}
@@ -162,6 +177,26 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.86);point
 </style>
 </head>
 <body>
+<!-- 彩虹橋蠟燭儀式 -->
+<div class="candle-ceremony" id="candleCeremony">
+  <div class="candle-wrap">
+    <div class="candle-glow"></div>
+    <div class="candle-flame"></div>
+    <div class="candle-body"></div>
+  </div>
+  <div class="candle-text">
+    <div class="candle-name" id="candlePetName"></div>
+    為牠點一支蠟燭。<br>
+    不急，慢慢來。<br><br>
+    這一支燭光，<br>
+    是你們之間還在的那條線。<br>
+    牠聽得見。
+  </div>
+  <div class="candle-action">
+    <button class="btn-p" onclick="closeCandleCeremony()" style="background:linear-gradient(135deg,var(--rainbow),rgba(155,123,212,.8));font-size:.88rem;padding:12px 28px">🕯️ 我準備好了，開始對話</button>
+  </div>
+</div>
+
 <div class="wrap">
 
   <!-- 呼吸指示燈 -->
@@ -212,7 +247,7 @@ body::before{content:'';position:fixed;inset:0;background:rgba(5,3,10,.86);point
       <div class="form-row"><label>如果牠聽得懂，您最想問牠什麼？</label>
         <textarea id="petQuestion" placeholder="不用想太多，第一個跑進腦袋的問題就好。"></textarea>
       </div>
-      <div class="btn-row"><button class="btn-p" onclick="switchQuizByStatus();goScene(2)">繼續 →</button></div>
+      <div class="btn-row"><button class="btn-p" onclick="switchQuizByStatus();if(document.getElementById('petStatus').value!=='rainbow')goScene(2);">繼續 →</button></div>
     </section>
   </div>
 
@@ -351,9 +386,17 @@ function switchQuizByStatus(){
   var ps=document.getElementById('petStatus').value;
   if(ps==='rainbow'&&petRainbowModule){
     quizQs=petRainbowModule.qs;
+    // 彩虹橋：顯示蠟燭儀式
+    var pn=document.getElementById('petName').value.trim()||'牠';
+    document.getElementById('candlePetName').textContent=pn;
+    document.getElementById('candleCeremony').classList.add('active');
   }else{
     quizQs=petModule?petModule.qs:[];
   }
+}
+function closeCandleCeremony(){
+  document.getElementById('candleCeremony').classList.remove('active');
+  goScene(2);
 }
 
 // ══════ Scene navigation ══════
