@@ -2369,34 +2369,88 @@ document.getElementById('retryBtn').addEventListener('click', function() {
 
 </script>
 
-<!-- 星空粒子引擎 -->
+<!-- 星空粒子引擎 v2（三層深度+星雲+流星） -->
 <script>
 (function(){
   var cv=document.getElementById('witch-stars');if(!cv)return;
-  var ctx=cv.getContext('2d'),w,h,stars=[];
+  var ctx=cv.getContext('2d'),w,h,stars=[],shooters=[];
   function resize(){w=cv.width=window.innerWidth;h=cv.height=window.innerHeight}
   window.addEventListener('resize',resize);resize();
-  var colors=['rgba(248,223,165,','rgba(200,188,220,','rgba(155,123,212,','rgba(255,255,255,'];
-  for(var i=0;i<120;i++){
-    stars.push({
-      x:Math.random()*w,y:Math.random()*h*3,
-      r:Math.random()*1.2+.2,
-      baseA:Math.random()*.35+.05,
-      sp:Math.random()*.008+.002,
-      ph:Math.random()*Math.PI*2,
-      ci:Math.floor(Math.random()*colors.length)
-    });
+  // 三層星空：遠景(小暗) → 中景 → 近景(大亮)
+  var layers=[
+    {count:200,rMin:.15,rMax:.5,aMin:.03,aMax:.12,speed:.05,colors:['rgba(180,175,200,','rgba(200,195,215,']},
+    {count:120,rMin:.4,rMax:1.0,aMin:.08,aMax:.3,speed:.1,colors:['rgba(248,223,165,','rgba(200,188,220,','rgba(255,255,255,']},
+    {count:40,rMin:.8,rMax:1.8,aMin:.15,aMax:.5,speed:.2,colors:['rgba(248,223,165,','rgba(155,123,212,','rgba(255,245,230,']}
+  ];
+  layers.forEach(function(L){
+    for(var i=0;i<L.count;i++){
+      stars.push({
+        x:Math.random()*w,y:Math.random()*h*3,
+        r:Math.random()*(L.rMax-L.rMin)+L.rMin,
+        baseA:Math.random()*(L.aMax-L.aMin)+L.aMin,
+        sp:Math.random()*.006+.001,
+        ph:Math.random()*Math.PI*2,
+        color:L.colors[Math.floor(Math.random()*L.colors.length)],
+        pSpeed:L.speed,
+        glow:L.rMax>1&&Math.random()>.6
+      });
+    }
+  });
+  // 星雲區（柔和漸層）
+  var nebulae=[
+    {x:.2,y:.3,rx:250,ry:120,c:'rgba(155,123,212,.025)'},
+    {x:.7,y:.6,rx:300,ry:150,c:'rgba(248,223,165,.02)'},
+    {x:.5,y:.15,rx:200,ry:100,c:'rgba(100,80,160,.02)'}
+  ];
+  // 流星
+  function spawnShooter(){
+    if(shooters.length<2&&Math.random()<.003){
+      shooters.push({
+        x:Math.random()*w*.8+w*.1,y:Math.random()*h*.3,
+        vx:2+Math.random()*3,vy:1.5+Math.random()*2,
+        life:1,decay:.015+Math.random()*.01,len:40+Math.random()*60
+      });
+    }
   }
   function draw(){
     ctx.clearRect(0,0,w,h);
-    var sc=window.scrollY*.15,t=Date.now()*.001;
+    var sc=window.scrollY,t=Date.now()*.001;
+    // 星雲
+    nebulae.forEach(function(n){
+      var ny=n.y*h*3-sc*.05;if(ny<-200||ny>h+200)return;
+      var g=ctx.createRadialGradient(n.x*w,ny,0,n.x*w,ny,n.rx);
+      g.addColorStop(0,n.c);g.addColorStop(1,'transparent');
+      ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    });
+    // 星星
     for(var i=0;i<stars.length;i++){
-      var s=stars[i],y=(s.y-sc)%(h*3);
-      if(y<0)y+=h*3;if(y>h)continue;
-      var a=s.baseA*(0.4+0.6*Math.sin(t*s.sp*50+s.ph));
+      var s=stars[i],y=(s.y-sc*s.pSpeed)%(h*3);
+      if(y<0)y+=h*3;if(y>h+5)continue;
+      var a=s.baseA*(0.3+0.7*Math.sin(t*s.sp*40+s.ph));
+      ctx.globalAlpha=1;
+      if(s.glow){
+        var gg=ctx.createRadialGradient(s.x,y,0,s.x,y,s.r*4);
+        gg.addColorStop(0,s.color+(a*.4)+')');gg.addColorStop(1,'transparent');
+        ctx.fillStyle=gg;ctx.fillRect(s.x-s.r*4,y-s.r*4,s.r*8,s.r*8);
+      }
       ctx.beginPath();ctx.arc(s.x,y,s.r,0,Math.PI*2);
-      ctx.fillStyle=colors[s.ci]+a+')';
-      ctx.fill();
+      ctx.fillStyle=s.color+a+')';ctx.fill();
+    }
+    // 流星
+    spawnShooter();
+    for(var j=shooters.length-1;j>=0;j--){
+      var sh=shooters[j];
+      sh.x+=sh.vx;sh.y+=sh.vy;sh.life-=sh.decay;
+      if(sh.life<=0){shooters.splice(j,1);continue;}
+      var sg=ctx.createLinearGradient(sh.x,sh.y,sh.x-sh.vx*sh.len*.3,sh.y-sh.vy*sh.len*.3);
+      sg.addColorStop(0,'rgba(248,223,165,'+(sh.life*.6)+')');
+      sg.addColorStop(1,'transparent');
+      ctx.strokeStyle=sg;ctx.lineWidth=1.2;ctx.globalAlpha=sh.life;
+      ctx.beginPath();ctx.moveTo(sh.x,sh.y);
+      ctx.lineTo(sh.x-sh.vx*sh.len*.3,sh.y-sh.vy*sh.len*.3);
+      ctx.stroke();ctx.globalAlpha=1;
+      ctx.beginPath();ctx.arc(sh.x,sh.y,.8,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,250,230,'+(sh.life*.8)+')';ctx.fill();
     }
     requestAnimationFrame(draw);
   }
