@@ -5,6 +5,13 @@
  */
 (function () {
   'use strict';
+  // -- iOS img onerror global fallback --
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('img').forEach(function(img){
+      if(!img.onerror) img.onerror = function(){ this.style.display='none'; };
+    });
+  });
+
 
   // ── 告訴 hl-music.js 不要自己建浮動按鈕 ──
   window.HLBottomNavActive = true;
