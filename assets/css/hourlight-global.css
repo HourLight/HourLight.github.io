@@ -86,6 +86,7 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -660,6 +661,7 @@ img {
 /* ==================== 表格 ==================== */
 .hl-table-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   margin: 24px 0;
   border-radius: 12px;
   border: 1px solid var(--hl-border-soft);
@@ -1413,20 +1415,57 @@ body a:hover { text-shadow: 0 0 8px rgba(248,223,165,0.2); }
   box-shadow: 0 0 12px rgba(248,223,165,0.2) !important;
 }
 
-/* --- 手機觸控優化（全站） --- */
+/* ═══════════════════════════════════════════════════════════
+   iOS 手機全面優化（2026/4/3）
+   ═══════════════════════════════════════════════════════════ */
+
+/* --- iOS 防縮放：input/select/textarea 字級必須 ≥16px（全螢幕寬度皆適用） --- */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+/* --- App-like 觸控體驗 --- */
+body {
+  -webkit-tap-highlight-color: transparent;
+}
+* {
+  -webkit-touch-callout: none;
+}
+input, textarea, [contenteditable] {
+  -webkit-touch-callout: default;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* --- 按鈕按下回饋感 --- */
+button:active, .btn:active, [onclick]:active,
+a.rb-btn-primary:active, a.rb-btn-ghost:active,
+.btn-next:active, .btn-prev:active,
+.share-btn:active, .quiz-opt:active, .likert-opt:active,
+.hub-card:active, .hl-bn-item:active {
+  transform: scale(0.97);
+  transition: transform 0.08s ease;
+}
+
+/* --- 手機觸控目標最低 48px --- */
 @media (max-width: 767px) {
   button, a.rb-btn-primary, a.rb-btn-ghost,
   .btn-next, .btn-prev, .share-btn,
   .likert-opt, .hub-card {
     min-height: 48px;
-    -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
-  
+
   input, select, textarea {
-    font-size: 16px; /* iOS 不縮放 */
     min-height: 48px;
   }
+}
+
+/* --- 手機防水平溢出 --- */
+@media (max-width: 480px) {
+  img { max-width: 100%; height: auto; }
+  table { width: 100%; overflow-x: auto; display: block; }
+  pre, code { overflow-x: auto; max-width: 100%; }
 }
 
 /* --- 深色主題 select option 背景（iOS/Android 預設白底修正） --- */

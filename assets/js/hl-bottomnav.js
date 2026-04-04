@@ -76,7 +76,8 @@
   position: fixed;
   bottom: 0; left: 0; right: 0;
   z-index: 9999;
-  height: 58px;
+  height: calc(58px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   background: rgba(14, 9, 28, 0.97);
   border-top: 1px solid rgba(233,194,125,0.18);
   backdrop-filter: blur(12px);
@@ -179,14 +180,14 @@
 }
 /* 手機：隱藏 label，縮小 */
 @media (max-width: 480px) {
-  #hl-bottom-nav { height: 54px; }
+  #hl-bottom-nav { height: calc(54px + env(safe-area-inset-bottom, 0px)); }
   .hl-bn-icon { width: 22px; height: 22px; }
   .hl-bn-label { display: none; }
   .hl-bn-tip { display: none; }
 }
-/* body padding 避免內容被蓋住 */
-body { padding-bottom: 68px !important; }
-@media (max-width: 480px) { body { padding-bottom: 60px !important; } }
+/* body padding 避免內容被蓋住（含 iPhone 底部安全區域） */
+body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important; }
+@media (max-width: 480px) { body { padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important; } }
 `;
 
   // ── 建立 style tag ──
