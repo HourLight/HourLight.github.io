@@ -136,6 +136,10 @@ select,input[type=text],textarea{font-size:16px!important}
   <textarea class="dm-textarea" id="dreamInput" placeholder="盡量寫下您記得的內容。場景、人物、感覺、顏色、物品，越具體越好。例如：我夢到自己在一片很大的海邊，水是透明的，遠處有一座高塔..." maxlength="1000" oninput="updateCount()"></textarea>
   <div class="dm-char-count"><span id="charCount">0</span>/1000</div>
   <div class="dm-hint">至少 20 個字，越詳細解碼越精準</div>
+  <div style="margin-top:12px">
+    <label style="font-size:.88rem;color:#8b7a60">想要更精準？輸入生日（選填）</label>
+    <input type="date" id="birthInput" style="font-size:16px;padding:10px 14px;border:1px dashed rgba(184,146,42,.3);border-radius:10px;background:transparent;color:#2a1f0e;width:100%;margin-top:6px;min-height:48px">
+  </div>
   <div style="text-align:center">
     <button class="dm-btn dm-btn-gold" id="decodeBtn" onclick="decodeDream()">解碼夢境</button>
   </div>
@@ -161,6 +165,13 @@ select,input[type=text],textarea{font-size:16px!important}
     <div class="dm-section">
       <div class="dm-section-title">🧭 整體夢境訊息</div>
       <div class="dm-overall" id="overallReading"></div>
+    </div>
+  </div>
+
+  <div class="dm-card" id="crossValidCard" style="display:none">
+    <div class="dm-section">
+      <div class="dm-section-title">🔮 交叉驗證</div>
+      <div id="crossValidResult"></div>
     </div>
   </div>
 
@@ -203,8 +214,10 @@ select,input[type=text],textarea{font-size:16px!important}
 
 <div class="dm-toast" id="toast"></div>
 
+<script src="js/lunar.min.js"></script>
+<script src="js/hl-cross-validator.js"></script>
 <script>
-/* ═══════════ 夢境解碼器 核心引擎 ═══════════ */
+/* ═══════════ 夢境解碼器 核心引擎 v2.0 ═══════════ */
 
 var DREAM_SYMBOLS={
   '水':{icon:'💧',archetype:'潛意識/情緒流動',emotion:'情緒的深度與流動性',area:'情感關係、內心狀態',hour:'H（身心校準）',desc:'水在夢裡幾乎永遠跟情緒有關。清澈的水代表情緒通透，混濁的水可能是壓抑已久的感受正在浮現。海洋代表潛意識本身，河流代表生命的流動方向。留意水的狀態，它映照的就是您此刻的內在。'},
@@ -313,6 +326,58 @@ var KEYWORD_MAP={
   '沙漠':['沙漠','沙','沙灘','沙地','荒原','荒野','曠野']
 };
 
+/* ═══ 夢境五行映射 ═══ */
+var DREAM_WUXING={
+  water:['水','海','河','雨','魚','鯨','島'],
+  fire:['火','太陽','鳳'],
+  wood:['樹','花','林','蛇','龍','園'],
+  metal:['劍','鏡','鑰匙','鐘','冠','戒'],
+  earth:['山','土','房','洞','塔','沙漠']
+};
+
+function getDreamElement(matched){
+  var votes={water:0,fire:0,wood:0,metal:0,earth:0};
+  for(var i=0;i<matched.length;i++){
+    for(var el in DREAM_WUXING){
+      if(DREAM_WUXING[el].indexOf(matched[i])!==-1)votes[el]++;
+    }
+  }
+  var best=null,max=0;
+  for(var e in votes){if(votes[e]>max){max=votes[e];best=e;}}
+  return {element:best,votes:votes,count:max};
+}
+
+function getBaziBalance(bEight){
+  var stems=[bEight.getYearGan(),bEight.getMonthGan(),bEight.getDayGan(),bEight.getTimeGan()];
+  var branches=[bEight.getYearZhi(),bEight.getMonthZhi(),bEight.getDayZhi(),bEight.getTimeZhi()];
+  var count={wood:0,fire:0,earth:0,metal:0,water:0};
+  var STEM_EL={'甲':'wood','乙':'wood','丙':'fire','丁':'fire','戊':'earth','己':'earth','庚':'metal','辛':'metal','壬':'water','癸':'water'};
+  var BRANCH_EL={'子':'water','丑':'earth','寅':'wood','卯':'wood','辰':'earth','巳':'fire','午':'fire','未':'earth','申':'metal','酉':'metal','戌':'earth','亥':'water'};
+  for(var i=0;i<stems.length;i++){var se=STEM_EL[stems[i]];if(se)count[se]++;}
+  for(var j=0;j<branches.length;j++){var be=BRANCH_EL[branches[j]];if(be)count[be]++;}
+  var weakest=null,wMin=99,strongest=null,sMax=0;
+  for(var k in count){
+    if(count[k]<wMin){wMin=count[k];weakest=k;}
+    if(count[k]>sMax){sMax=count[k];strongest=k;}
+  }
+  return{count:count,weakest:weakest,strongest:strongest};
+}
+
+function buildDreamCrossText(cvResult,readings,personalInsight){
+  var t='\n【交叉驗證】'+cvResult.agreementText+'｜'+cvResult.signalStrength+'\n';
+  for(var i=0;i<readings.length;i++){
+    var r=readings[i];
+    var elCN=(HLCross.ELEMENT_CN[r.element]||r.element);
+    var agree=cvResult.supportingSystems.indexOf(r.system)>=0;
+    t+=(agree?'✓':'✗')+' '+r.system+' → '+elCN+'\n';
+  }
+  if(personalInsight)t+=personalInsight+'\n';
+  if(cvResult.oil){
+    t+='認知芳療建議（'+cvResult.dominantElementCN+'）：'+cvResult.oil.primary.join('、')+'\n';
+  }
+  return t;
+}
+
 var currentResult=null;
 
 function updateCount(){
@@ -377,7 +442,67 @@ function decodeDream(){
   }
   document.getElementById('overallReading').innerHTML=overallText;
 
-  currentResult={text:text,matched:matched};
+  currentResult={text:text,matched:matched,crossText:'',personalInsight:''};
+
+  /* ═══ 交叉驗證 v2 ═══ */
+  if(window.HLCross && matched.length>0){
+    var dreamEl=getDreamElement(matched);
+    var readings=[];
+    if(dreamEl.element){
+      readings.push({system:'夢境意象',element:dreamEl.element,themes:['self'],confidence:0.8});
+    }
+
+    var personalInsight='';
+    var birthVal=document.getElementById('birthInput').value;
+    if(birthVal){
+      try{
+        var bp=birthVal.split('-');
+        var bY=parseInt(bp[0]),bM=parseInt(bp[1]),bD=parseInt(bp[2]);
+        var bSolar=Lunar.Solar.fromYmd(bY,bM,bD);
+        var bLunar=bSolar.getLunar();
+        var bEight=bLunar.getEightChar();
+        var dayStem=bEight.getDayGan();
+        var dayElement=HLCross.STEM_ELEMENT[dayStem]||'earth';
+        readings.push({system:'八字日主（'+dayStem+'）',element:dayElement,themes:['self'],confidence:0.9});
+
+        var balance=getBaziBalance(bEight);
+        if(dreamEl.element && dreamEl.element===balance.weakest){
+          personalInsight='💡 您的命盤「'+HLCross.ELEMENT_CN[dreamEl.element]+'」元素不足，潛意識正在用夢境提醒您補充這股能量。這不是巧合，是內在的自我校準機制在運作。';
+        }else if(dreamEl.element && dreamEl.element===balance.strongest){
+          personalInsight='💡 您的「'+HLCross.ELEMENT_CN[dreamEl.element]+'」能量本來就旺，夢境在反映您過度使用的狀態。適度收斂，讓其他元素有空間浮現。';
+        }
+
+        var bLunarM=Math.abs(bLunar.getMonth());
+        var bLunarD=bLunar.getDay();
+        var hNum=HLCross.rdp(bLunarM+bLunarD);
+        var hElement=HLCross.NUMBER_ELEMENT[hNum]||'earth';
+        readings.push({system:'馥靈H數（'+hNum+'）',element:hElement,themes:['self','healing'],confidence:0.75});
+
+        var lpSum=0;var lpStr=String(bY)+String(bM)+String(bD);
+        for(var li=0;li<lpStr.length;li++)lpSum+=parseInt(lpStr[li]);
+        var lpNum=HLCross.rdp(lpSum);
+        var lpElement=HLCross.NUMBER_ELEMENT[lpNum]||'earth';
+        readings.push({system:'生命路徑數（'+lpNum+'）',element:lpElement,themes:['self','growth'],confidence:0.7});
+      }catch(e){}
+    }
+
+    if(readings.length>=2){
+      var cvResult=HLCross.validate(readings);
+      var cvHtml=HLCross.renderHTML(cvResult,readings);
+      if(personalInsight){
+        cvHtml+='<div style="background:rgba(123,94,167,.06);border:1px solid rgba(123,94,167,.2);border-radius:12px;padding:16px 18px;margin-top:14px;font-size:.9rem;color:#2a1f0e;line-height:1.8">'+personalInsight+'</div>';
+      }
+      document.getElementById('crossValidResult').innerHTML=cvHtml;
+      document.getElementById('crossValidCard').style.display='block';
+      currentResult.crossText=buildDreamCrossText(cvResult,readings,personalInsight);
+      currentResult.personalInsight=personalInsight;
+    }else{
+      document.getElementById('crossValidCard').style.display='none';
+    }
+  }else{
+    document.getElementById('crossValidCard').style.display='none';
+  }
+
   document.getElementById('resultArea').classList.add('show');
   document.getElementById('resultArea').scrollIntoView({behavior:'smooth',block:'start'});
 
@@ -425,6 +550,7 @@ function copyReading(){
       text+='► '+r.matched[i]+'（'+s.archetype+'）'+s.hour+'\n  '+s.desc+'\n\n';
     }
   }
+  if(r.crossText){text+=r.crossText+'\n';}
   text+='請根據以上夢境解碼結果，提供更深入的潛意識分析、情緒覺察建議，以及可執行的行動方案。'
     +'\n\n🔗 馥靈之鑰 hourlightkey.com';
 
