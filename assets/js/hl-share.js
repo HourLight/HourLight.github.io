@@ -39,18 +39,29 @@ window.saveResultImage=function(){
     +'border:1px solid rgba(248,223,165,0.3);pointer-events:none';
   document.body.appendChild(toast);
 
+  /* 自動偵測深色/淺色主題 */
+  var isLightTheme = (function(){
+    var bg = getComputedStyle(document.body).backgroundColor;
+    if(!bg || bg === 'transparent') return false;
+    var m = bg.match(/\d+/g);
+    if(!m || m.length < 3) return false;
+    return (+m[0] + +m[1] + +m[2]) / 3 > 128;
+  })();
+  var bgColor = isLightTheme ? '#fdf7f0' : '#0d0917';
+  var wmColor = isLightTheme ? 'rgba(139,105,20,0.7)' : 'rgba(248,223,165,0.7)';
+
   html2canvas(el,{
     scale:2,
     useCORS:true,
     allowTaint:true,
-    backgroundColor:'#0d0917',
+    backgroundColor:bgColor,
     logging:false,
     imageTimeout:0,
     removeContainer:true,
     onclone:function(doc,clone){
-      /* 強制給截圖元素一個不透明深色底 */
+      /* 強制給截圖元素一個不透明底色（自動適配深/淺色主題） */
       clone.style.cssText+=(clone.style.cssText?';':'')
-        +'background:#0d0917!important;'
+        +'background:'+bgColor+'!important;'
         +'padding:28px 24px!important;'
         +'border-radius:20px!important;'
         +'max-width:600px!important;'
@@ -70,10 +81,10 @@ window.saveResultImage=function(){
       st.textContent='*{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}';
       doc.head.appendChild(st);
 
-      /* 品牌浮水印（金字） */
+      /* 品牌浮水印（自動適配主題顏色） */
       var wm=doc.createElement('div');
       wm.style.cssText='text-align:center;padding:18px 0 6px;'
-        +'font-size:11px;color:rgba(248,223,165,0.7);'
+        +'font-size:11px;color:'+wmColor+';'
         +'letter-spacing:2.5px;font-family:sans-serif;';
       wm.textContent='✦ 馥靈之鑰 Hour Light ✦ hourlightkey.com';
       clone.appendChild(wm);
