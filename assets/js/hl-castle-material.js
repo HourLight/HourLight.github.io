@@ -649,41 +649,41 @@
     var boxCount = 4; // 固定4個盲盒
 
     if(n >= 3){
-      // 普通 ×1-2（70%機率各格）
-      for(var i=0;i<2;i++) if(commonDef && Math.random() < 0.70) drops.push(commonDef);
+      // 普通 ×1-2（65%機率各格）
+      for(var i=0;i<2;i++) if(commonDef && Math.random() < 0.65) drops.push(commonDef);
     }
     if(n >= 5){
-      // 稀有 ×1（35%機率）+ 普通 ×1
+      // 稀有 ×1（30%機率）+ 普通 ×1
       if(commonDef) drops.push(commonDef);
-      if(rareDef && Math.random() < 0.35) drops.push(rareDef);
-    }
-    if(n >= 7){
-      // 稀有 ×1（60%）+ 稀有 ×1（30%）
-      if(rareDef && Math.random() < 0.60) drops.push(rareDef);
       if(rareDef && Math.random() < 0.30) drops.push(rareDef);
     }
+    if(n >= 7){
+      // 稀有 ×1（55%）+ 稀有 ×1（25%）
+      if(rareDef && Math.random() < 0.55) drops.push(rareDef);
+      if(rareDef && Math.random() < 0.25) drops.push(rareDef);
+    }
     if(n >= 9){
-      // 九宮全觀印記（25%機率，不是每次都有！）
+      // 九宮全觀印記（20%機率，不是每次都有！）
       var nineP = paidDefs.find(function(d){ return d.id === 'nine_palace_mark'; });
-      if(nineP && Math.random() < 0.25) drops.push(nineP);
-      if(rareDef && Math.random() < 0.50) drops.push(rareDef);
+      if(nineP && Math.random() < 0.20) drops.push(nineP);
+      if(rareDef && Math.random() < 0.45) drops.push(rareDef);
     }
     if(n >= 12){
-      // 季節限定碎片（20%機率）
+      // 季節限定碎片（15%機率）
       var season = paidDefs.find(function(d){ return d.id === 'season_fragment'; });
-      if(season && Math.random() < 0.20) drops.push(season);
+      if(season && Math.random() < 0.15) drops.push(season);
       if(rareDef) drops.push(rareDef);
     }
     if(n >= 21){
-      // 馥靈矩陣核心（15%機率！非常稀有）
+      // 馥靈矩陣核心（10%機率！非常稀有）
       var matrix = paidDefs.find(function(d){ return d.id === 'matrix_core'; });
-      if(matrix && Math.random() < 0.15) drops.push(matrix);
+      if(matrix && Math.random() < 0.10) drops.push(matrix);
       if(rareDef) drops.push(rareDef);
     }
     if(n >= 28){
-      // 完整校準之鑰（10%機率！極稀有，要買多次才能集齊）
+      // 完整校準之鑰（5%機率！極稀有，要買非常多次才能集齊）
       var calKey = paidDefs.find(function(d){ return d.id === 'calibration_key'; });
-      if(calKey && Math.random() < 0.10) drops.push(calKey);
+      if(calKey && Math.random() < 0.05) drops.push(calKey);
       if(rareDef) drops.push(rareDef);
     }
 

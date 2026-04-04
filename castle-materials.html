@@ -809,6 +809,7 @@ function renderInventory(){
     { key:'course',        label:'學院塔' },
     { key:'nature_event',  label:'季節庭院' },
     { key:'inner_realm',   label:'內在深宮' },
+    { key:'paid_reading',  label:'付費殿堂' },
     { key:'member_plus',   label:'會員殿堂' },
     { key:'member_pro',    label:'大師寶庫' }
   ];
@@ -866,6 +867,19 @@ function renderInventory(){
       var locked = !hasNow;
       var cls = 'mat-card' + (locked?' locked':'') + rarityClass;
       var countBadgeCls = 'mat-count-badge' + (mat.rarity==='rare'?' rare':'') + (mat.rarity==='legendary'?' legendary':'');
+
+      // 付費專屬材料：金色鎖頭 + 購買解讀解鎖
+      var isPaidMat = !!mat.paidOnly;
+      if(isPaidMat && !hasNow && !everCollected){
+        var paidN = mat.paidOnly;
+        html += '<div class="mat-card locked" style="opacity:.6;position:relative;border-color:rgba(212,160,64,.3)">' +
+          '<span class="mat-icon" style="filter:brightness(.4) sepia(1) hue-rotate(15deg) saturate(3)">' + mat.icon + '</span>' +
+          '<div class="mat-name" style="color:rgba(212,160,64,.6)">' + mat.name + '</div>' +
+          '<span style="position:absolute;top:3px;right:3px;font-size:.6rem;background:linear-gradient(135deg,rgba(212,160,64,.3),rgba(180,120,40,.3));padding:1px 6px;border-radius:6px;color:var(--gold)">🔒</span>' +
+          '<a href="draw-hl.html" style="font-size:.55rem;color:var(--gold);text-decoration:none;margin-top:2px;display:block;opacity:.7">' + paidN + '張解讀</a>' +
+          '</div>';
+        return;
+      }
 
       // 非會員看到會員材料：鎖定 + 升級提示
       if(isMemberMat && !matAccess){
