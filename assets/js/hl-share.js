@@ -18,7 +18,7 @@
   }
 })();
 
-/* ═══ 儲存圖片 ═══ */
+/* ═══ 儲存圖片 v3.0（純 DOM 分享卡，不依賴 html2canvas）═══ */
 window.saveResultImage=function(){
   var el=document.getElementById('quizResult')
         ||document.getElementById('result-area')
@@ -28,91 +28,92 @@ window.saveResultImage=function(){
         ||document.getElementById('storyDisplay')
         ||document.querySelector('.quiz-result.active');
   if(!el){alert('請先完成測驗');return;}
-  if(typeof html2canvas==='undefined'){alert('圖片功能載入中，請稍後再試');return;}
-
-  /* 載入提示 */
-  var toast=document.createElement('div');
-  toast.textContent='🎨 正在生成圖片⋯';
-  toast.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);'
-    +'background:rgba(13,9,23,0.97);color:#f8dfa5;padding:16px 28px;'
-    +'border-radius:12px;font-size:0.9rem;z-index:99999;'
-    +'border:1px solid rgba(248,223,165,0.3);pointer-events:none';
-  document.body.appendChild(toast);
 
   /* 自動偵測深色/淺色主題 */
-  var isLightTheme = (function(){
+  var isLight = (function(){
     var bg = getComputedStyle(document.body).backgroundColor;
     if(!bg || bg === 'transparent') return false;
     var m = bg.match(/\d+/g);
     if(!m || m.length < 3) return false;
     return (+m[0] + +m[1] + +m[2]) / 3 > 128;
   })();
-  var bgColor = isLightTheme ? '#fdf7f0' : '#0d0917';
-  var wmColor = isLightTheme ? 'rgba(139,105,20,0.7)' : 'rgba(248,223,165,0.7)';
 
-  html2canvas(el,{
-    scale:2,
-    useCORS:true,
-    allowTaint:true,
-    backgroundColor:bgColor,
-    logging:false,
-    imageTimeout:0,
-    removeContainer:true,
-    onclone:function(doc,clone){
-      /* 強制給截圖元素一個不透明底色（自動適配深/淺色主題） */
-      clone.style.cssText+=(clone.style.cssText?';':'')
-        +'background:'+bgColor+'!important;'
-        +'padding:28px 24px!important;'
-        +'border-radius:20px!important;'
-        +'max-width:600px!important;'
-        +'margin:0!important;'
-        +'box-sizing:border-box!important;';
+  /* 擷取結果文字 */
+  var title = document.title.replace(/[|｜].*/,'').trim();
+  var resultTitle = '';
+  var resultDesc = '';
+  var resultIcon = '';
 
-      /* 移除 backdrop-filter（html2canvas 不支援） */
-      var all=clone.querySelectorAll('*');
-      for(var i=0;i<all.length;i++){
-        var cs=all[i].style;
-        if(cs.backdropFilter||cs.webkitBackdropFilter){
-          cs.backdropFilter='none';
-          cs.webkitBackdropFilter='none';
-        }
-      }
-      var st=doc.createElement('style');
-      st.textContent='*{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}';
-      doc.head.appendChild(st);
+  // 嘗試從結果元素中擷取關鍵資訊
+  var h2 = el.querySelector('h2,h3,.result-title,.gauge-label,strong');
+  if(h2) resultTitle = h2.textContent.trim();
+  var desc = el.querySelector('.result-section-content,p,.result-desc,.desc');
+  if(desc) resultDesc = desc.textContent.trim().substring(0, 120) + (desc.textContent.length > 120 ? '...' : '');
+  var icon = el.querySelector('.quiz-hero-icon,.result-icon,.gauge-number');
+  if(icon) resultIcon = icon.textContent.trim();
+  if(!resultIcon) resultIcon = '✦';
 
-      /* 品牌浮水印（自動適配主題顏色） */
-      var wm=doc.createElement('div');
-      wm.style.cssText='text-align:center;padding:18px 0 6px;'
-        +'font-size:11px;color:'+wmColor+';'
-        +'letter-spacing:2.5px;font-family:sans-serif;';
-      wm.textContent='✦ 馥靈之鑰 Hour Light ✦ hourlightkey.com';
-      clone.appendChild(wm);
+  // 分數（如果有的話）
+  var scoreEl = el.querySelector('.gauge-number,.score-number,.ocean-score');
+  var scoreText = scoreEl ? scoreEl.textContent.trim() : '';
+
+  /* 建立品牌分享卡（純 CSS，不依賴截圖） */
+  var cardBg = isLight
+    ? 'linear-gradient(135deg,#fdf7f0 0%,#f5e6d0 100%)'
+    : 'linear-gradient(135deg,#0d0917 0%,#1a1030 100%)';
+  var cardText = isLight ? '#3a2a1a' : '#f8dfa5';
+  var cardSub = isLight ? '#8b7a60' : 'rgba(248,223,165,.6)';
+  var cardBorder = isLight ? 'rgba(184,146,42,.25)' : 'rgba(248,223,165,.2)';
+  var cardAccent = isLight ? '#b8922a' : '#f8dfa5';
+
+  var overlay = document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto;-webkit-tap-highlight-color:transparent';
+
+  var cardHtml = '<div id="hlShareCard" style="'
+    +'width:320px;max-width:90%;background:'+cardBg+';'
+    +'border:1.5px solid '+cardBorder+';border-radius:20px;'
+    +'padding:32px 24px;text-align:center;'
+    +'box-shadow:0 16px 48px rgba(0,0,0,.3);'
+    +'">'
+    +'<div style="font-size:3rem;margin-bottom:12px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.15))">'+resultIcon+'</div>'
+    +'<div style="font-size:.72rem;letter-spacing:2px;color:'+cardSub+';margin-bottom:8px;text-transform:uppercase">'+title+'</div>'
+    +'<div style="font-size:1.3rem;font-weight:700;color:'+cardText+';margin-bottom:8px;line-height:1.4">'+resultTitle+'</div>'
+    +(scoreText ? '<div style="font-size:2.5rem;font-weight:800;color:'+cardAccent+';margin-bottom:8px">'+scoreText+'</div>' : '')
+    +(resultDesc ? '<div style="font-size:.82rem;color:'+cardSub+';line-height:1.7;margin-bottom:16px;text-align:left">'+resultDesc+'</div>' : '')
+    +'<div style="height:1px;background:'+cardBorder+';margin:12px 0"></div>'
+    +'<div style="font-size:.68rem;color:'+cardSub+';letter-spacing:1.5px;margin-top:8px">✦ 馥靈之鑰 Hour Light ✦</div>'
+    +'<div style="font-size:.6rem;color:'+cardSub+';opacity:.7;margin-top:4px">hourlightkey.com</div>'
+    +'</div>';
+
+  overlay.innerHTML =
+    '<div style="color:#f8dfa5;font-size:.92rem;margin-bottom:16px;text-align:center">長按卡片 → 截圖分享 📸</div>'
+    + cardHtml
+    + '<div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;justify-content:center">'
+    + '<button onclick="hlShareCopyText()" style="padding:10px 20px;border-radius:50px;background:rgba(248,223,165,.15);border:1px solid rgba(248,223,165,.3);color:#f8dfa5;font-size:.82rem;cursor:pointer;font-family:inherit;min-height:44px">📋 複製文字</button>'
+    + '<button onclick="hlShareToLine()" style="padding:10px 20px;border-radius:50px;background:rgba(248,223,165,.15);border:1px solid rgba(248,223,165,.3);color:#f8dfa5;font-size:.82rem;cursor:pointer;font-family:inherit;min-height:44px">💬 分享 LINE</button>'
+    + '<button onclick="this.closest(\'[style]\').remove()" style="padding:10px 20px;border-radius:50px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);font-size:.82rem;cursor:pointer;font-family:inherit;min-height:44px">關閉</button>'
+    + '</div>';
+
+  overlay.onclick = function(e){ if(e.target === overlay) overlay.remove(); };
+  document.body.appendChild(overlay);
+
+  /* 嘗試用 html2canvas 生成真正的圖片（背景執行，成功才顯示） */
+  if(typeof html2canvas !== 'undefined'){
+    var card = document.getElementById('hlShareCard');
+    if(card){
+      setTimeout(function(){
+        html2canvas(card,{scale:2,backgroundColor:isLight?'#fdf7f0':'#0d0917',logging:false,useCORS:true}).then(function(canvas){
+          var img = document.createElement('img');
+          img.src = canvas.toDataURL('image/png');
+          img.style.cssText='max-width:90%;max-height:50vh;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.5);margin-top:12px;display:block';
+          var hint = overlay.querySelector('div');
+          if(hint) hint.textContent = '長按圖片 → 儲存到相簿 → 分享 IG 限動 💜';
+          card.parentNode.insertBefore(img, card.nextSibling);
+          card.style.display = 'none';
+        }).catch(function(){});
+      }, 300);
     }
-  }).then(function(canvas){
-    document.body.removeChild(toast);
-    var dataUrl=canvas.toDataURL('image/png');
-    var isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
-    if(isIOS){
-      // iOS Safari 不支援 <a download>，改為顯示圖片讓用戶長按儲存
-      var overlay=document.createElement('div');
-      overlay.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto';
-      overlay.innerHTML='<div style="color:#f8dfa5;font-size:.95rem;margin-bottom:16px;text-align:center">長按圖片 → 儲存到相簿<br>即可分享到 IG 限動 💜</div>'
-        +'<img src="'+dataUrl+'" style="max-width:90%;max-height:70vh;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.5)">'
-        +'<button onclick="this.parentElement.remove()" style="margin-top:20px;padding:12px 32px;border-radius:50px;background:rgba(248,223,165,.15);border:1px solid rgba(248,223,165,.3);color:#f8dfa5;font-size:.9rem;cursor:pointer">關閉</button>';
-      document.body.appendChild(overlay);
-    }else{
-      var title=document.title.replace(/[|｜].*/,'').trim().replace(/\s+/g,'_');
-      var link=document.createElement('a');
-      link.download='馥靈之鑰_'+title+'_'+new Date().toLocaleDateString('sv-SE')+'.png';
-      link.href=dataUrl;
-      link.click();
-    }
-  }).catch(function(e){
-    document.body.removeChild(toast);
-    console.warn('html2canvas error:',e);
-    alert('圖片生成失敗，請改用複製文字功能');
-  });
+  }
 };
 
 /* ═══ 複製完整結果 ═══ */
