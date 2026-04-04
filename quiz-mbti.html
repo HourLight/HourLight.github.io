@@ -158,6 +158,9 @@ button:active,.likert-opt:active,.quiz-option:active,.option-btn:active{transfor
   .likert-opt,.quiz-option,.option-btn{min-height:48px}
   button[type=submit],button[onclick]{min-height:48px}
 }
+
+/* ── 修正自動滾動被 topnav 遮住 ── */
+.quiz-card,.quiz-result,[id^="qcard-"]{scroll-margin-top:70px}
 </style>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#0a0612">
@@ -643,7 +646,7 @@ function goTo(idx){
   currentQ=idx;
   document.querySelectorAll('.quiz-card').forEach(c=>c.classList.remove('active'));
   const t=document.getElementById('qcard-'+idx);
-  if(t){t.classList.add('active');t.scrollIntoView({behavior:'smooth',block:'nearest'});
+  if(t){t.classList.add('active');t.scrollIntoView({behavior:'smooth',block:'start'});
   setTimeout(function(){if(typeof HLPOINTS!=='undefined')HLPOINTS.triggerQuizEgg('MBTI人格');},2000);}
   updateProgress(idx);
 }
@@ -726,7 +729,7 @@ function showResult(){
   
   try{localStorage.setItem('hl_quiz_mbti',JSON.stringify({type:fullType,ts:Date.now()}));}catch(e){}
 document.getElementById('quizResult').classList.add('active');
-  document.getElementById('quizResult').scrollIntoView({behavior:'smooth',block:'nearest'});
+  document.getElementById('quizResult').scrollIntoView({behavior:'smooth',block:'start'});
   if(window.HL_track) window.HL_track("quiz_complete", {quizName:"MBTI人格測驗", result: fullType+" "+result.name});
   window._resultText=`【馥靈之鑰 MBTI 64型測驗】\n我是 ${fullType} ${result.icon} ${result.name}｜${ext.label}\n「${result.sub}」\n\n測測你是哪種出廠設定 👉 hourlightkey.com/quiz-mbti.html`;
 }

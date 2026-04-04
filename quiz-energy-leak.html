@@ -31,6 +31,9 @@ button:active,.likert-opt:active,.quiz-option:active,.option-btn:active{transfor
   .likert-opt,.quiz-option,.option-btn{min-height:48px}
   button[type=submit],button[onclick]{min-height:48px}
 }
+
+/* ── 修正自動滾動被 topnav 遮住 ── */
+.quiz-card,.quiz-result,[id^="qcard-"]{scroll-margin-top:70px}
 </style>
 <script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1333106288588347');fbq('track','PageView');</script>
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"></noscript>
@@ -317,7 +320,7 @@ function renderQuestion(idx){
   });updateProgress(idx);
 }
 function selectOpt(qi,a,btn){answers[qi]=a;document.getElementById('qcard-'+qi).querySelectorAll('.likert-opt').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');const nb=document.getElementById('btnNext-'+qi);if(nb)nb.disabled=false;}
-function goTo(idx){currentQ=idx;document.querySelectorAll('.quiz-card').forEach(c=>c.classList.remove('active'));const t=document.getElementById('qcard-'+idx);if(t){t.classList.add('active');t.scrollIntoView({behavior:'smooth',block:'nearest'});}updateProgress(idx);}
+function goTo(idx){currentQ=idx;document.querySelectorAll('.quiz-card').forEach(c=>c.classList.remove('active'));const t=document.getElementById('qcard-'+idx);if(t){t.classList.add('active');t.scrollIntoView({behavior:'smooth',block:'start'});}updateProgress(idx);}
 function updateProgress(idx){const a=Object.keys(answers).length;const p=Math.round(a/questions.length*100);document.getElementById('progressText').textContent='第 '+(idx+1)+' 題，共 '+questions.length+' 題';document.getElementById('progressPct').textContent=p+'%';document.getElementById('progressFill').style.width=p+'%';}
 function showResult(){
   const scores={};Object.keys(TYPES).forEach(k=>{scores[k]=0;});

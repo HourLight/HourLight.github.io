@@ -255,6 +255,9 @@ button:active,.likert-opt:active,.quiz-option:active,.option-btn:active{transfor
   .likert-opt,.quiz-option,.option-btn{min-height:48px}
   button[type=submit],button[onclick]{min-height:48px}
 }
+
+/* ── 修正自動滾動被 topnav 遮住 ── */
+.quiz-card,.quiz-result,[id^="qcard-"]{scroll-margin-top:70px}
 </style>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#0a0612">
@@ -445,7 +448,7 @@ function goTo(idx){
   currentQ=idx;
   document.querySelectorAll('.quiz-card').forEach(c=>c.classList.remove('active'));
   const t=document.getElementById('qcard-'+idx);
-  if(t){t.classList.add('active');t.scrollIntoView({behavior:'smooth',block:'nearest'});
+  if(t){t.classList.add('active');t.scrollIntoView({behavior:'smooth',block:'start'});
   setTimeout(function(){if(typeof HLPOINTS!=='undefined')HLPOINTS.triggerQuizEgg('大五人格');},2000);}
   updateProgress(idx);
 }
@@ -673,7 +676,7 @@ function showResult(){
   
   try{localStorage.setItem('hl_quiz_bigfive',JSON.stringify({top:topTrait[0],pcts:pct,ts:Date.now()}));}catch(e){}
 document.getElementById('quizResult').classList.add('active');
-  document.getElementById('quizResult').scrollIntoView({behavior:'smooth',block:'nearest'});
+  document.getElementById('quizResult').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function restartQuiz(){answers={};currentQ=0;document.getElementById('quizResult').classList.remove('active');document.getElementById('questionsArea').style.display='block';document.getElementById('progressWrap').style.display='block';renderQuestion(0);window.scrollTo({top:0,behavior:'smooth'});}

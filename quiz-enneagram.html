@@ -150,6 +150,9 @@ button:active,.likert-opt:active,.quiz-option:active,.option-btn:active{transfor
   .likert-opt,.quiz-option,.option-btn{min-height:48px}
   button[type=submit],button[onclick]{min-height:48px}
 }
+
+/* ── 修正自動滾動被 topnav 遮住 ── */
+.quiz-card,.quiz-result,[id^="qcard-"]{scroll-margin-top:70px}
 </style>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#0a0612">
@@ -523,7 +526,7 @@ function goTo(idx){
   currentQ=idx;
   document.querySelectorAll('.quiz-card').forEach(c=>c.classList.remove('active'));
   const t=document.getElementById('qcard-'+idx);
-  if(t){t.classList.add('active');t.scrollIntoView({behavior:'smooth',block:'nearest'});
+  if(t){t.classList.add('active');t.scrollIntoView({behavior:'smooth',block:'start'});
   setTimeout(function(){if(typeof HLPOINTS!=='undefined')HLPOINTS.triggerQuizEgg('九型人格');},2000);}
   updateProgress(idx);
 }
@@ -613,7 +616,7 @@ function showResult(){
   
   try{localStorage.setItem('hl_quiz_enneagram',JSON.stringify({type:topType,label:result.name,ts:Date.now()}));}catch(e){}
 document.getElementById('quizResult').classList.add('active');
-  document.getElementById('quizResult').scrollIntoView({behavior:'smooth',block:'nearest'});
+  document.getElementById('quizResult').scrollIntoView({behavior:'smooth',block:'start'});
   if(window.HL_track) window.HL_track("quiz_complete", {quizName:"九型人格測驗", result: topType+"型 "+result.name});
   const ennShareTexts={1:'⚗️ 我是第1型完美主義者！不是我挑剔，是你們標準太低。連自己寫的字不夠好看都會重寫一遍的那種人。你是第幾型？ 👉 hourlightkey.com/quiz-enneagram.html',2:'🌹 我是第2型給予者！照顧了所有人結果沒人照顧我。愛別人是天賦，愛自己才是課題。你呢？ 👉 hourlightkey.com/quiz-enneagram.html',3:'🏆 我是第3型成就者！一直往前衝但不確定在追什麼。拿掉成就的標籤，我還是我嗎？測測你 👉 hourlightkey.com/quiz-enneagram.html',4:'🎨 我是第4型個人主義者！感受比別人深不是矯情，是天生設定。這世界太淺了裝不下我。你是？ 👉 hourlightkey.com/quiz-enneagram.html',5:'🔭 我是第5型觀察者！把世界看得很清楚但很少讓世界看見我。能量有限，社交耗電。你是哪型？ 👉 hourlightkey.com/quiz-enneagram.html',6:'⚓ 我是第6型忠誠者！不是我多疑，是這個世界真的很多坑。做最壞的打算是我的生存策略。測測你 👉 hourlightkey.com/quiz-enneagram.html',7:'🎡 我是第7型享樂主義者！人生這麼短，不精彩對得起誰？但安靜下來的我在哪裡...測測你 👉 hourlightkey.com/quiz-enneagram.html',8:'🔥 我是第8型挑戰者！我的力量嚇到很多人包括有時候的我自己。溫柔不是軟弱，但先讓我打完這場再說。 👉 hourlightkey.com/quiz-enneagram.html',9:'☁️ 我是第9型和平主義者！讓所有人都平靜下來，但我自己呢？不是沒有意見，是覺得吵架好累。 👉 hourlightkey.com/quiz-enneagram.html'};
   window._resultText=ennShareTexts[topType]||'';
