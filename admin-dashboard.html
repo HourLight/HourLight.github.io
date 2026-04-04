@@ -396,6 +396,68 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
   body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   button,input[type=submit],input[type=button]{min-height:48px}
 }
+
+/* ─── Quick Links Panel ─── */
+.adm-quicklinks {
+  max-width: 1200px; margin: 0 auto; padding: 0 20px;
+}
+.adm-ql-toggle {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 10px 16px; background: var(--adm-gold-bg); border: 1px solid var(--adm-border);
+  border-radius: var(--adm-radius); cursor: pointer; font-family: inherit;
+  font-size: .82rem; color: var(--adm-gold); font-weight: 500;
+  margin-top: 12px; transition: all .2s;
+}
+.adm-ql-toggle:hover { background: rgba(184,146,42,.12); }
+.adm-ql-toggle-arrow { margin-left: auto; transition: transform .2s; font-size: .7rem; }
+.adm-ql-toggle.open .adm-ql-toggle-arrow { transform: rotate(180deg); }
+.adm-ql-body {
+  display: none; padding: 12px 0 4px;
+}
+.adm-ql-body.open { display: block; animation: admFade .3s ease; }
+.adm-ql-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px;
+}
+.adm-ql-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; background: var(--adm-card); border: 1px solid var(--adm-border);
+  border-radius: var(--adm-radius-sm); text-decoration: none;
+  color: var(--adm-text); font-size: .82rem; transition: all .15s;
+  min-height: 44px;
+}
+.adm-ql-item:hover { border-color: var(--adm-gold); background: var(--adm-gold-bg2); color: var(--adm-gold); }
+.adm-ql-icon { font-size: 1rem; flex-shrink: 0; width: 22px; text-align: center; }
+.adm-ql-highlight {
+  background: linear-gradient(135deg, rgba(184,146,42,.1), rgba(184,146,42,.05));
+  border-color: var(--adm-border-strong);
+}
+.adm-ql-highlight .adm-ql-icon { font-size: 1.1rem; }
+@media (max-width: 640px) {
+  .adm-quicklinks { padding: 0 12px; }
+  .adm-ql-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .adm-ql-item { padding: 8px 10px; font-size: .78rem; }
+}
+
+/* ─── AI Usage Chart ─── */
+.adm-mini-bars {
+  display: flex; align-items: flex-end; gap: 4px; height: 80px; padding: 4px 0;
+}
+.adm-mini-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; height: 100%; justify-content: flex-end; }
+.adm-mini-bar {
+  width: 100%; min-height: 2px; border-radius: 3px 3px 0 0;
+  background: linear-gradient(to top, var(--adm-blue), rgba(48,96,176,.6));
+  transition: height .4s ease;
+}
+.adm-mini-bar-label { font-size: .6rem; color: var(--adm-text3); }
+.adm-mini-bar-val { font-size: .62rem; color: var(--adm-blue); font-weight: 600; }
+
+/* ─── Conversion Funnel ─── */
+.adm-funnel { display: flex; flex-direction: column; gap: 8px; }
+.adm-funnel-row { display: flex; align-items: center; gap: 12px; }
+.adm-funnel-label { font-size: .78rem; color: var(--adm-text2); min-width: 80px; text-align: right; }
+.adm-funnel-bar-wrap { flex: 1; height: 28px; background: var(--adm-gold-bg2); border-radius: 6px; overflow: hidden; position: relative; }
+.adm-funnel-bar { height: 100%; border-radius: 6px; transition: width .6s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; }
+.adm-funnel-val { font-size: .72rem; font-weight: 600; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -435,6 +497,32 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
     <button class="adm-tab" data-tab="destiny">🌌 命盤紀錄</button>
     <button class="adm-tab" data-tab="readings">📜 解讀紀錄</button>
     <button class="adm-tab" data-tab="analysis">📈 深度分析</button>
+  </div>
+
+  <!-- Quick Links Panel -->
+  <div class="adm-quicklinks">
+    <button class="adm-ql-toggle" id="qlToggle" onclick="toggleQuickLinks()">
+      🔗 快速連結
+      <span class="adm-ql-toggle-arrow">▼</span>
+    </button>
+    <div class="adm-ql-body" id="qlBody">
+      <div class="adm-ql-grid">
+        <a href="draw-admin.html" class="adm-ql-item adm-ql-highlight"><span class="adm-ql-icon">🔮</span> 自用抽牌</a>
+        <a href="admin-unlock.html" class="adm-ql-item"><span class="adm-ql-icon">🎟️</span> 解鎖碼管理</a>
+        <a href="admin-payments.html" class="adm-ql-item"><span class="adm-ql-icon">💳</span> 付款管理</a>
+        <a href="https://hourlightkey.com" class="adm-ql-item" target="_blank"><span class="adm-ql-icon">🏠</span> 官網首頁</a>
+        <a href="https://console.firebase.google.com/project/hourlight-key" class="adm-ql-item" target="_blank"><span class="adm-ql-icon">🔥</span> Firebase Console</a>
+        <a href="https://vercel.com" class="adm-ql-item" target="_blank"><span class="adm-ql-icon">▲</span> Vercel Dashboard</a>
+        <a href="https://analytics.google.com" class="adm-ql-item" target="_blank"><span class="adm-ql-icon">📊</span> Google Analytics</a>
+        <a href="https://search.google.com/search-console" class="adm-ql-item" target="_blank"><span class="adm-ql-icon">🔍</span> Search Console</a>
+        <a href="https://business.facebook.com" class="adm-ql-item" target="_blank"><span class="adm-ql-icon">📘</span> Meta Business</a>
+        <a href="https://dashboard.mailerlite.com" class="adm-ql-item" target="_blank"><span class="adm-ql-icon">📧</span> MailerLite</a>
+        <a href="https://github.com/HourLight/HourLight.github.io" class="adm-ql-item" target="_blank"><span class="adm-ql-icon">🐙</span> GitHub Repo</a>
+        <a href="https://manager.line.biz" class="adm-ql-item" target="_blank"><span class="adm-ql-icon">💬</span> LINE Official</a>
+        <a href="https://www.payuni.com" class="adm-ql-item" target="_blank"><span class="adm-ql-icon">💰</span> PAYUNi 商店</a>
+        <a href="https://www.notion.so/32a57a421621810a963af0a37dda21ce" class="adm-ql-item" target="_blank"><span class="adm-ql-icon">📝</span> Notion 官網工程</a>
+      </div>
+    </div>
   </div>
 
   <!-- Content -->
@@ -674,6 +762,47 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
         <div class="adm-card-body">
           <div id="featureBarChart">
             <div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Usage (7-day) -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">AI 解讀使用量（近 7 天）</div>
+          <span class="adm-card-badge badge badge-blue">AI</span>
+        </div>
+        <div class="adm-card-body">
+          <div id="aiUsageChart">
+            <div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Member Conversion Funnel + Referral Quick Stats -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <!-- Conversion Funnel -->
+        <div class="adm-card" style="margin-bottom:0">
+          <div class="adm-card-head">
+            <div class="adm-card-title">會員轉化漏斗</div>
+            <span class="adm-card-badge badge badge-green">Conversion</span>
+          </div>
+          <div class="adm-card-body">
+            <div id="conversionFunnel">
+              <div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>
+            </div>
+          </div>
+        </div>
+        <!-- Referral Quick Stats -->
+        <div class="adm-card" style="margin-bottom:0">
+          <div class="adm-card-head">
+            <div class="adm-card-title">推薦碼速覽</div>
+            <span class="adm-card-badge badge badge-orange">Referral</span>
+          </div>
+          <div class="adm-card-body">
+            <div id="referralQuickStats">
+              <div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1048,6 +1177,9 @@ function initDashboard() {
   loadRetentionFunnel();
   loadReturningUsers();
   loadFeatureBarChart();
+  loadAiUsageChart();
+  loadConversionFunnel();
+  loadReferralQuickStats();
 }
 
 function loadDashStats() {
@@ -2762,6 +2894,186 @@ function toast(msg) {
   el.textContent = msg;
   el.classList.add('show');
   setTimeout(function() { el.classList.remove('show'); }, 2500);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  QUICK LINKS TOGGLE
+// ═══════════════════════════════════════════════════════════════
+
+function toggleQuickLinks() {
+  var toggle = document.getElementById('qlToggle');
+  var body = document.getElementById('qlBody');
+  toggle.classList.toggle('open');
+  body.classList.toggle('open');
+}
+window.toggleQuickLinks = toggleQuickLinks;
+
+// ═══════════════════════════════════════════════════════════════
+//  AI USAGE CHART (7-day)
+// ═══════════════════════════════════════════════════════════════
+
+function loadAiUsageChart() {
+  var container = document.getElementById('aiUsageChart');
+  var now = new Date();
+  var days = [];
+  for (var i = 6; i >= 0; i--) {
+    var d = new Date(now.getTime() - i * 86400000);
+    days.push(toDateStr(d));
+  }
+
+  // Count AI-related events per day
+  var sevenDaysAgo = new Date(now.getTime() - 7 * 86400000);
+  db.collection('events')
+    .where('createdAt', '>=', sevenDaysAgo)
+    .orderBy('createdAt', 'desc')
+    .get()
+    .then(function(snap) {
+      var dayCounts = {};
+      days.forEach(function(d) { dayCounts[d] = 0; });
+
+      snap.forEach(function(doc) {
+        var data = doc.data();
+        var type = (data.type || '').toLowerCase();
+        // Count AI-related events
+        if (type.indexOf('ai') !== -1 || type.indexOf('reading') !== -1 || type.indexOf('framework') !== -1 || type.indexOf('copy_ai') !== -1) {
+          var ts = toJsDate(data.createdAt);
+          if (ts) {
+            var ds = toDateStr(ts);
+            if (dayCounts[ds] !== undefined) dayCounts[ds]++;
+          }
+        }
+      });
+
+      var maxVal = 1;
+      days.forEach(function(d) { if (dayCounts[d] > maxVal) maxVal = dayCounts[d]; });
+
+      var html = '<div class="adm-mini-bars">';
+      days.forEach(function(d) {
+        var count = dayCounts[d];
+        var pct = Math.max(4, (count / maxVal) * 100);
+        var label = d.substring(5);
+        html += '<div class="adm-mini-bar-col">' +
+          '<div class="adm-mini-bar-val">' + count + '</div>' +
+          '<div class="adm-mini-bar" style="height:' + pct + '%"></div>' +
+          '<div class="adm-mini-bar-label">' + label + '</div>' +
+        '</div>';
+      });
+      html += '</div>';
+
+      var totalAi = 0;
+      days.forEach(function(d) { totalAi += dayCounts[d]; });
+      html += '<div style="text-align:center;font-size:.75rem;color:var(--adm-text3);margin-top:8px">7 日 AI 解讀總量：<strong style="color:var(--adm-blue)">' + totalAi + '</strong> 次</div>';
+
+      container.innerHTML = html;
+    })
+    .catch(function() {
+      container.innerHTML = '<div class="adm-empty"><div class="adm-empty-icon">📊</div>無法載入 AI 使用數據</div>';
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CONVERSION FUNNEL
+// ═══════════════════════════════════════════════════════════════
+
+function loadConversionFunnel() {
+  var container = document.getElementById('conversionFunnel');
+
+  db.collection('users').get().then(function(snap) {
+    var counts = { free: 0, plus: 0, pro: 0, total: 0 };
+
+    snap.forEach(function(doc) {
+      var d = doc.data();
+      counts.total++;
+      var plan = (d.plan || 'free').toLowerCase();
+      if (plan === 'pro' || plan === 'premium') {
+        counts.pro++;
+      } else if (plan === 'plus' || plan === 'basic') {
+        counts.plus++;
+      } else {
+        counts.free++;
+      }
+    });
+
+    var total = counts.total || 1;
+    var freePct = Math.round(counts.free / total * 100);
+    var plusPct = Math.round(counts.plus / total * 100);
+    var proPct = Math.round(counts.pro / total * 100);
+
+    var html = '<div class="adm-funnel">' +
+      '<div class="adm-funnel-row">' +
+        '<div class="adm-funnel-label">🌱 免費</div>' +
+        '<div class="adm-funnel-bar-wrap"><div class="adm-funnel-bar" style="width:' + freePct + '%;background:var(--adm-green-bg);"><span class="adm-funnel-val" style="color:var(--adm-green)">' + counts.free + ' (' + freePct + '%)</span></div></div>' +
+      '</div>' +
+      '<div class="adm-funnel-row">' +
+        '<div class="adm-funnel-label">🔑 鑰友</div>' +
+        '<div class="adm-funnel-bar-wrap"><div class="adm-funnel-bar" style="width:' + Math.max(plusPct, 4) + '%;background:var(--adm-gold-bg);"><span class="adm-funnel-val" style="color:var(--adm-gold)">' + counts.plus + ' (' + plusPct + '%)</span></div></div>' +
+      '</div>' +
+      '<div class="adm-funnel-row">' +
+        '<div class="adm-funnel-label">💎 大師</div>' +
+        '<div class="adm-funnel-bar-wrap"><div class="adm-funnel-bar" style="width:' + Math.max(proPct, 4) + '%;background:var(--adm-purple-bg);"><span class="adm-funnel-val" style="color:var(--adm-purple)">' + counts.pro + ' (' + proPct + '%)</span></div></div>' +
+      '</div>' +
+    '</div>' +
+    '<div style="text-align:center;font-size:.72rem;color:var(--adm-text3);margin-top:10px">總會員 ' + counts.total + ' 人｜付費轉化率 <strong style="color:var(--adm-gold)">' + Math.round((counts.plus + counts.pro) / total * 100) + '%</strong></div>';
+
+    container.innerHTML = html;
+  }).catch(function() {
+    container.innerHTML = '<div class="adm-empty"><div class="adm-empty-icon">📊</div>無法載入會員數據</div>';
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  REFERRAL QUICK STATS
+// ═══════════════════════════════════════════════════════════════
+
+function loadReferralQuickStats() {
+  var container = document.getElementById('referralQuickStats');
+
+  db.collection('referrals').get().then(function(snap) {
+    var totalCodes = snap.size;
+    var activeCodes = 0;
+    var totalUses = 0;
+    var topCode = { code: '-', uses: 0 };
+
+    snap.forEach(function(doc) {
+      var d = doc.data();
+      if (d.status !== 'inactive') activeCodes++;
+      var uses = d.useCount || d.uses || 0;
+      totalUses += uses;
+      if (uses > topCode.uses) {
+        topCode = { code: doc.id, uses: uses };
+      }
+    });
+
+    var html = '<div style="display:flex;flex-direction:column;gap:10px">' +
+      '<div style="display:flex;align-items:center;gap:8px">' +
+        '<span style="font-size:1.1rem">📱</span>' +
+        '<span style="font-size:.82rem">推薦碼總數</span>' +
+        '<span style="margin-left:auto;font-size:.88rem;font-weight:600;color:var(--adm-gold)">' + totalCodes + '</span>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px">' +
+        '<span style="font-size:1.1rem">🟢</span>' +
+        '<span style="font-size:.82rem">啟用中</span>' +
+        '<span style="margin-left:auto;font-size:.88rem;font-weight:600;color:var(--adm-green)">' + activeCodes + '</span>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px">' +
+        '<span style="font-size:1.1rem">📊</span>' +
+        '<span style="font-size:.82rem">總使用次數</span>' +
+        '<span style="margin-left:auto;font-size:.88rem;font-weight:600;color:var(--adm-blue)">' + totalUses + '</span>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px">' +
+        '<span style="font-size:1.1rem">🏆</span>' +
+        '<span style="font-size:.82rem">最熱門</span>' +
+        '<span style="margin-left:auto;font-size:.82rem;color:var(--adm-text2)">' + esc(topCode.code) + ' (' + topCode.uses + '次)</span>' +
+      '</div>' +
+    '</div>';
+
+    container.innerHTML = html;
+  }).catch(function() {
+    container.innerHTML = '<div style="display:flex;flex-direction:column;gap:10px">' +
+      '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:1.1rem">📱</span><span style="font-size:.82rem">推薦碼總數</span><span style="margin-left:auto;font-size:.88rem;color:var(--adm-text3)">0</span></div>' +
+      '<div style="font-size:.75rem;color:var(--adm-text3);text-align:center;padding:8px 0">尚無推薦碼數據</div>' +
+    '</div>';
+  });
 }
 
 })();

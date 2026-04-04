@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>自用抽牌｜馥靈之鑰</title>
+<link rel="icon" href="assets/images/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   馥靈之鑰 自用抽牌 v1.0
+   Light theme, mobile-first, premium card drawing experience
+   ═══════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #faf6ef;
+  --bg2: #f3ede3;
+  --card-bg: #ffffff;
+  --border: rgba(184,146,42,.15);
+  --border-strong: rgba(184,146,42,.3);
+  --gold: #b8922a;
+  --gold-light: #d4ad3a;
+  --gold-glow: rgba(184,146,42,.35);
+  --gold-bg: rgba(184,146,42,.08);
+  --text: #2a1f0e;
+  --text2: rgba(42,31,14,.65);
+  --text3: rgba(42,31,14,.4);
+  --green: #1a8a4a;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.06), 0 1px 4px rgba(0,0,0,.04);
+  --shadow-gold: 0 0 0 2px var(--gold), 0 4px 20px var(--gold-glow);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Noto Sans TC", -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh; min-height: 100dvh;
+  color-scheme: light;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: contain;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ─── Top Bar ─── */
+.da-topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(250,246,239,.97);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px; height: 56px;
+  display: flex; align-items: center; gap: 12px;
+}
+.da-topbar-brand {
+  font-family: "Noto Serif TC", serif; color: var(--gold);
+  font-size: .95rem; letter-spacing: .04em; font-weight: 500;
+}
+.da-topbar-spacer { flex: 1; }
+.da-topbar-link {
+  padding: 6px 14px; background: var(--gold-bg); border: 1px solid var(--border);
+  border-radius: 20px; color: var(--gold); font-size: .78rem; text-decoration: none;
+  white-space: nowrap; -webkit-transition: .2s; transition: .2s;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+.da-topbar-link:hover { background: rgba(184,146,42,.14); }
+
+/* ─── Main Container ─── */
+.da-main {
+  max-width: 800px; margin: 0 auto; padding: 24px 20px 40px;
+}
+
+/* ─── Section Cards ─── */
+.da-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  margin-bottom: 16px; overflow: hidden;
+}
+.da-card-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 20px; border-bottom: 1px solid var(--border);
+}
+.da-card-title {
+  font-size: .88rem; color: var(--gold); font-weight: 500; letter-spacing: .02em;
+}
+.da-card-body { padding: 20px; }
+
+/* ─── Form Elements ─── */
+.da-label {
+  display: block; font-size: .78rem; color: var(--text2);
+  margin-bottom: 6px; font-weight: 500;
+}
+.da-textarea {
+  width: 100%; padding: 12px 14px; background: #fff;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text); font-size: 16px !important; font-family: inherit;
+  -webkit-transition: border-color .2s; transition: border-color .2s;
+  min-height: 80px; resize: vertical; line-height: 1.7;
+}
+.da-textarea:focus {
+  outline: none; border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(184,146,42,.1);
+}
+.da-select {
+  width: 100%; padding: 12px 14px; background: #fff;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text); font-size: 16px !important; font-family: inherit;
+  -webkit-transition: border-color .2s; transition: border-color .2s;
+  -webkit-appearance: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23b8922a' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+.da-select:focus {
+  outline: none; border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(184,146,42,.1);
+}
+
+/* ─── Buttons ─── */
+.da-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 12px 24px; border-radius: var(--radius-sm); font-size: .9rem;
+  font-weight: 500; cursor: pointer; font-family: inherit;
+  -webkit-transition: all .2s; transition: all .2s;
+  border: none; min-height: 48px; white-space: nowrap;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+.da-btn:active { -webkit-transform: scale(.97); transform: scale(.97); }
+.da-btn-gold {
+  background: linear-gradient(135deg, #c9a044, #e8c860); color: #1a1008;
+  box-shadow: var(--shadow-md); width: 100%;
+}
+.da-btn-gold:hover { opacity: .9; }
+.da-btn-gold:disabled { opacity: .4; cursor: not-allowed; }
+.da-btn-outline {
+  background: transparent; border: 1px solid var(--border); color: var(--text2);
+}
+.da-btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+.da-btn-copy {
+  background: linear-gradient(135deg, #c9a044, #e8c860); color: #1a1008;
+  box-shadow: var(--shadow-md); width: 100%; font-size: 1rem; padding: 14px 24px;
+}
+
+/* ─── Card Grid ─── */
+.da-card-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  padding: 8px 0;
+}
+
+/* ─── Individual Card ─── */
+.da-draw-card {
+  position: relative;
+  aspect-ratio: 2/3;
+  cursor: pointer;
+  -webkit-perspective: 800px; perspective: 800px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.da-draw-card.disabled { pointer-events: none; opacity: .5; }
+
+.da-card-inner {
+  position: relative; width: 100%; height: 100%;
+  -webkit-transition: -webkit-transform .6s ease;
+  transition: transform .6s ease;
+  -webkit-transform-style: preserve-3d; transform-style: preserve-3d;
+}
+.da-draw-card.flipped .da-card-inner {
+  -webkit-transform: rotateY(180deg); transform: rotateY(180deg);
+}
+
+.da-card-front, .da-card-back {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  -webkit-backface-visibility: hidden; backface-visibility: hidden;
+  border-radius: var(--radius-sm); overflow: hidden;
+  border: 2px solid var(--border);
+  -webkit-transition: border-color .2s, box-shadow .2s;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.da-card-front {
+  background: linear-gradient(135deg, #1a1030, #2a1848, #1a1030);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 4px;
+}
+.da-card-front-icon { font-size: 1.6rem; opacity: .6; }
+.da-card-front-label {
+  font-size: .6rem; color: rgba(248,223,165,.5); letter-spacing: .15em;
+  font-family: "Noto Serif TC", serif;
+}
+
+.da-card-back {
+  -webkit-transform: rotateY(180deg); transform: rotateY(180deg);
+  background: var(--card-bg);
+}
+.da-card-back img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+
+/* Selected state */
+.da-draw-card.selected .da-card-front {
+  border-color: var(--gold);
+  box-shadow: var(--shadow-gold);
+}
+.da-draw-card.selected .da-card-front::after {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(184,146,42,.15);
+  border-radius: inherit;
+}
+
+/* Flipped card gold border */
+.da-draw-card.flipped .da-card-back {
+  border-color: var(--gold);
+  box-shadow: 0 4px 16px rgba(184,146,42,.2);
+}
+
+/* Reversed indicator */
+.da-reversed-badge {
+  position: absolute; bottom: 4px; left: 50%;
+  -webkit-transform: translateX(-50%) rotateY(180deg);
+  transform: translateX(-50%) rotateY(180deg);
+  background: rgba(192,64,64,.85); color: #fff;
+  font-size: .6rem; padding: 2px 6px; border-radius: 4px;
+  z-index: 2; white-space: nowrap;
+  -webkit-backface-visibility: hidden; backface-visibility: hidden;
+}
+
+/* ─── Progress Counter ─── */
+.da-progress {
+  text-align: center; padding: 12px 0 8px;
+  font-size: .88rem; color: var(--text2);
+}
+.da-progress strong { color: var(--gold); font-weight: 600; }
+
+/* ─── Result Area ─── */
+.da-result {
+  display: none; margin-top: 0;
+}
+.da-result.show { display: block; }
+
+.da-result-list {
+  display: flex; flex-direction: column; gap: 8px;
+  margin-bottom: 16px;
+}
+.da-result-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; background: var(--gold-bg);
+  border-radius: var(--radius-sm); border: 1px solid var(--border);
+}
+.da-result-pos {
+  font-size: .75rem; color: var(--gold); font-weight: 600;
+  min-width: 40px; text-align: center;
+}
+.da-result-img {
+  width: 40px; height: 60px; border-radius: 4px;
+  object-fit: cover; border: 1px solid var(--border);
+}
+.da-result-info { flex: 1; }
+.da-result-code { font-size: .88rem; color: var(--text); font-weight: 500; }
+.da-result-orient { font-size: .78rem; margin-left: 8px; }
+.da-result-orient.upright { color: var(--green); }
+.da-result-orient.reversed { color: #c04040; }
+
+/* ─── Selected Cards Preview ─── */
+.da-selected-preview {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  justify-content: center; padding: 8px 0;
+  min-height: 48px;
+}
+.da-selected-thumb {
+  width: 36px; height: 54px; border-radius: 4px;
+  border: 1.5px solid var(--gold); overflow: hidden;
+  -webkit-transition: all .3s; transition: all .3s;
+  -webkit-animation: thumbIn .3s ease; animation: thumbIn .3s ease;
+}
+.da-selected-thumb img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+@-webkit-keyframes thumbIn { from { opacity: 0; -webkit-transform: scale(.7); } to { opacity: 1; -webkit-transform: scale(1); } }
+@keyframes thumbIn { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: scale(1); } }
+
+/* ─── Copy Output (hidden textarea) ─── */
+.da-copy-output {
+  width: 100%; min-height: 120px; padding: 12px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); font-size: .82rem;
+  font-family: "Noto Sans TC", monospace; color: var(--text);
+  resize: none; line-height: 1.7;
+}
+
+/* ─── Status Messages ─── */
+.da-status {
+  text-align: center; padding: 8px; font-size: .82rem; color: var(--green);
+  min-height: 30px;
+}
+
+/* ─── Toast ─── */
+#da-toast {
+  position: fixed; bottom: 24px; left: 50%;
+  -webkit-transform: translateX(-50%); transform: translateX(-50%);
+  background: #2a1f0e; border: 1px solid rgba(184,146,42,.5);
+  color: #f0d48a; padding: 12px 28px; border-radius: 24px; font-size: .85rem;
+  z-index: 9999; display: none; white-space: nowrap; pointer-events: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,.2);
+}
+#da-toast.show {
+  display: block;
+  -webkit-animation: toastUp .3s ease; animation: toastUp .3s ease;
+}
+@-webkit-keyframes toastUp { from { opacity: 0; -webkit-transform: translate(-50%,10px); } to { opacity: 1; -webkit-transform: translate(-50%,0); } }
+@keyframes toastUp { from { opacity: 0; transform: translate(-50%,10px); } to { opacity: 1; transform: translate(-50%,0); } }
+
+/* ─── Responsive ─── */
+@media (max-width: 640px) {
+  .da-main { padding: 16px 12px 32px; }
+  .da-card-body { padding: 14px; }
+  .da-card-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .da-topbar { padding: 0 12px; }
+  .da-topbar-brand { font-size: .85rem; }
+}
+@media (max-width: 400px) {
+  .da-card-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+}
+@media (max-width: 600px) {
+  body { padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* ─── Shuffle Animation ─── */
+.da-shuffling .da-draw-card {
+  -webkit-animation: shuffleBounce .5s ease forwards;
+  animation: shuffleBounce .5s ease forwards;
+}
+@-webkit-keyframes shuffleBounce {
+  0% { -webkit-transform: translateY(0); }
+  30% { -webkit-transform: translateY(-8px) rotate(-2deg); }
+  60% { -webkit-transform: translateY(4px) rotate(1deg); }
+  100% { -webkit-transform: translateY(0) rotate(0); }
+}
+@keyframes shuffleBounce {
+  0% { transform: translateY(0); }
+  30% { transform: translateY(-8px) rotate(-2deg); }
+  60% { transform: translateY(4px) rotate(1deg); }
+  100% { transform: translateY(0) rotate(0); }
+}
+
+/* ─── Step Indicator ─── */
+.da-steps {
+  display: flex; gap: 0; margin-bottom: 16px;
+}
+.da-step {
+  flex: 1; text-align: center; padding: 10px 8px;
+  font-size: .78rem; color: var(--text3);
+  border-bottom: 2px solid var(--border);
+  -webkit-transition: all .2s; transition: all .2s;
+}
+.da-step.active {
+  color: var(--gold); border-bottom-color: var(--gold); font-weight: 500;
+}
+.da-step.done {
+  color: var(--green); border-bottom-color: var(--green);
+}
+
+/* Phases */
+.da-phase { display: none; }
+.da-phase.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="da-topbar">
+  <div class="da-topbar-brand">馥靈之鑰｜自用抽牌</div>
+  <div class="da-topbar-spacer"></div>
+  <a href="admin-dashboard.html" class="da-topbar-link">管理後台</a>
+  <a href="index.html" class="da-topbar-link">首頁</a>
+</div>
+
+<div class="da-main">
+
+  <!-- Step Indicator -->
+  <div class="da-steps">
+    <div class="da-step active" id="step1">1. 提問</div>
+    <div class="da-step" id="step2">2. 選牌</div>
+    <div class="da-step" id="step3">3. 結果</div>
+  </div>
+
+  <!-- Phase 1: Question + Spread Selection -->
+  <div class="da-phase active" id="phase1">
+    <div class="da-card">
+      <div class="da-card-head">
+        <div class="da-card-title">提出你的問題</div>
+      </div>
+      <div class="da-card-body">
+        <label class="da-label">問題描述</label>
+        <textarea class="da-textarea" id="questionInput" placeholder="寫下你想問的問題，越具體越好..."></textarea>
+      </div>
+    </div>
+
+    <div class="da-card">
+      <div class="da-card-head">
+        <div class="da-card-title">選擇牌陣</div>
+      </div>
+      <div class="da-card-body">
+        <label class="da-label">牌陣類型</label>
+        <select class="da-select" id="spreadSelect">
+          <optgroup label="7 張牌｜H.O.U.R. 完整解讀">
+            <option value="7|hour-standard|標準七張解讀">標準七張解讀</option>
+            <option value="7|hour-love|感情七張解讀">感情七張解讀</option>
+            <option value="7|hour-career|事業七張解讀">事業七張解讀</option>
+            <option value="7|hour-deep|深度掃描解讀">深度掃描解讀</option>
+            <option value="7|hour-crisis|危機處理解讀">危機處理解讀</option>
+          </optgroup>
+          <optgroup label="15 張｜L.I.G.H.T. 五門三鑰">
+            <option value="15|light-standard|五門三鑰標準版">五門三鑰標準版</option>
+            <option value="15|light-sense|五感覺察版">五感覺察版</option>
+            <option value="15|light-map|藏寶圖版">藏寶圖版</option>
+            <option value="15|light-multi|多重路線版">多重路線版</option>
+            <option value="15|light-talent|天賦解碼版">天賦解碼版</option>
+          </optgroup>
+          <optgroup label="21 張｜H.O.U.R. × L.I.G.H.T. 完整矩陣">
+            <option value="21|matrix-standard|標準矩陣">標準矩陣</option>
+            <option value="21|matrix-axis|四軸交叉">四軸交叉</option>
+            <option value="21|matrix-bloom|創傷到綻放">創傷到綻放</option>
+            <option value="21|matrix-root|四大根源">四大根源</option>
+            <option value="21|matrix-destiny|命理交叉">命理交叉</option>
+          </optgroup>
+          <optgroup label="28 張｜完整校準牌陣">
+            <option value="28|full-standard|前7(H.O.U.R.)+後21(矩陣) 標準版">標準版</option>
+            <option value="28|full-axis|四軸深度交叉版">四軸深度交叉版</option>
+            <option value="28|full-blueprint|全方位生命藍圖">全方位生命藍圖</option>
+            <option value="28|full-root|深層根源探索">深層根源探索</option>
+            <option value="28|full-destiny|整合命理交叉版">整合命理交叉版</option>
+          </optgroup>
+        </select>
+        <div style="margin-top:16px">
+          <button class="da-btn da-btn-gold" id="startBtn" onclick="startDraw()">開始抽牌</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 2: Card Selection -->
+  <div class="da-phase" id="phase2">
+    <div class="da-card">
+      <div class="da-card-head">
+        <div class="da-card-title" id="drawTitle">選擇牌卡</div>
+      </div>
+      <div class="da-card-body">
+        <div class="da-progress" id="drawProgress">已選 <strong>0</strong> / <strong>7</strong> 張</div>
+        <div class="da-selected-preview" id="selectedPreview"></div>
+        <div class="da-card-grid" id="cardGrid"></div>
+        <div class="da-status" id="drawStatus"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="da-btn da-btn-outline" onclick="resetDraw()" style="flex:1">重新抽牌</button>
+      <button class="da-btn da-btn-gold" id="revealBtn" onclick="revealCards()" style="flex:2;display:none">翻牌揭曉</button>
+    </div>
+  </div>
+
+  <!-- Phase 3: Results -->
+  <div class="da-phase" id="phase3">
+    <div class="da-card">
+      <div class="da-card-head">
+        <div class="da-card-title">抽牌結果</div>
+      </div>
+      <div class="da-card-body">
+        <div class="da-result-list" id="resultList"></div>
+      </div>
+    </div>
+    <div class="da-card">
+      <div class="da-card-head">
+        <div class="da-card-title">複製文字</div>
+      </div>
+      <div class="da-card-body">
+        <textarea class="da-copy-output" id="copyOutput" readonly></textarea>
+        <div style="margin-top:12px">
+          <button class="da-btn da-btn-copy" onclick="copyResult()">複製結果</button>
+        </div>
+        <div class="da-status" id="copyStatus"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="da-btn da-btn-outline" onclick="resetAll()" style="flex:1">重新開始</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div id="da-toast"></div>
+
+<script>
+(function() {
+'use strict';
+
+// ═══ Card Data ═══
+// A00-A21 (22 cards) + 001-108 (108 cards) = 130 total
+var ALL_CARDS = [];
+for (var i = 0; i <= 21; i++) {
+  ALL_CARDS.push('A' + (i < 10 ? '0' + i : '' + i));
+}
+for (var j = 1; j <= 108; j++) {
+  ALL_CARDS.push(j < 10 ? '00' + j : (j < 100 ? '0' + j : '' + j));
+}
+
+// ═══ State ═══
+var shuffledCards = [];
+var selectedIndices = [];
+var cardOrientations = {};  // index -> 'upright' or 'reversed'
+var requiredCount = 7;
+var spreadName = '';
+var frameworkName = '';
+var currentPhase = 1;
+
+// ═══ DOM Refs ═══
+var $phase1 = document.getElementById('phase1');
+var $phase2 = document.getElementById('phase2');
+var $phase3 = document.getElementById('phase3');
+var $step1 = document.getElementById('step1');
+var $step2 = document.getElementById('step2');
+var $step3 = document.getElementById('step3');
+
+// ═══ Phase Navigation ═══
+function goPhase(n) {
+  currentPhase = n;
+  $phase1.classList.toggle('active', n === 1);
+  $phase2.classList.toggle('active', n === 2);
+  $phase3.classList.toggle('active', n === 3);
+  $step1.className = 'da-step' + (n === 1 ? ' active' : (n > 1 ? ' done' : ''));
+  $step2.className = 'da-step' + (n === 2 ? ' active' : (n > 2 ? ' done' : ''));
+  $step3.className = 'da-step' + (n === 3 ? ' active' : '');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══ Start Draw ═══
+window.startDraw = function() {
+  var question = document.getElementById('questionInput').value.trim();
+  if (!question) {
+    toast('請先輸入問題');
+    return;
+  }
+
+  var val = document.getElementById('spreadSelect').value;
+  var parts = val.split('|');
+  requiredCount = parseInt(parts[0]);
+  spreadName = parts[2];
+  frameworkName = parts[1];
+
+  // Shuffle cards
+  shuffledCards = ALL_CARDS.slice();
+  for (var i = shuffledCards.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = shuffledCards[i];
+    shuffledCards[i] = shuffledCards[j];
+    shuffledCards[j] = temp;
+  }
+
+  // Assign orientations (50% reversed)
+  cardOrientations = {};
+  for (var k = 0; k < shuffledCards.length; k++) {
+    cardOrientations[k] = Math.random() < 0.5 ? 'reversed' : 'upright';
+  }
+
+  selectedIndices = [];
+
+  // Update UI
+  document.getElementById('drawTitle').textContent = spreadName + '（' + requiredCount + '張）';
+  updateProgress();
+  renderCardGrid();
+  document.getElementById('revealBtn').style.display = 'none';
+  document.getElementById('drawStatus').textContent = '';
+  document.getElementById('selectedPreview').innerHTML = '';
+
+  goPhase(2);
+};
+
+// ═══ Render Card Grid ═══
+function renderCardGrid() {
+  var grid = document.getElementById('cardGrid');
+  var html = '';
+  for (var i = 0; i < shuffledCards.length; i++) {
+    var code = shuffledCards[i];
+    var isReversed = cardOrientations[i] === 'reversed';
+    html += '<div class="da-draw-card" data-idx="' + i + '" onclick="selectCard(' + i + ')">' +
+      '<div class="da-card-inner">' +
+        '<div class="da-card-front">' +
+          '<div class="da-card-front-icon">🔮</div>' +
+          '<div class="da-card-front-label">HOUR LIGHT</div>' +
+        '</div>' +
+        '<div class="da-card-back">' +
+          '<img src="' + code + '.png" alt="' + code + '" loading="lazy"' +
+          (isReversed ? ' style="-webkit-transform:rotate(180deg);transform:rotate(180deg)"' : '') + '>' +
+          (isReversed ? '<div class="da-reversed-badge">逆位</div>' : '') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+  grid.innerHTML = html;
+
+  // Shuffle animation
+  grid.classList.add('da-shuffling');
+  setTimeout(function() { grid.classList.remove('da-shuffling'); }, 600);
+}
+
+// ═══ Select Card ═══
+window.selectCard = function(idx) {
+  var card = document.querySelector('.da-draw-card[data-idx="' + idx + '"]');
+  if (!card) return;
+
+  // Already selected? Deselect
+  var pos = selectedIndices.indexOf(idx);
+  if (pos !== -1) {
+    selectedIndices.splice(pos, 1);
+    card.classList.remove('selected');
+    updateProgress();
+    updatePreview();
+    document.getElementById('revealBtn').style.display = 'none';
+    document.getElementById('drawStatus').textContent = '';
+    // Re-enable all cards
+    document.querySelectorAll('.da-draw-card.disabled').forEach(function(c) {
+      c.classList.remove('disabled');
+    });
+    return;
+  }
+
+  // Max reached?
+  if (selectedIndices.length >= requiredCount) return;
+
+  // Select
+  selectedIndices.push(idx);
+  card.classList.add('selected');
+
+  // Haptic feedback
+  if (navigator.vibrate) navigator.vibrate(10);
+
+  updateProgress();
+  updatePreview();
+
+  // All selected?
+  if (selectedIndices.length === requiredCount) {
+    // Disable unselected cards
+    document.querySelectorAll('.da-draw-card').forEach(function(c) {
+      if (!c.classList.contains('selected')) {
+        c.classList.add('disabled');
+      }
+    });
+    document.getElementById('revealBtn').style.display = '';
+    document.getElementById('drawStatus').textContent = '已選滿，按「翻牌揭曉」查看結果';
+  }
+};
+
+// ═══ Update Progress ═══
+function updateProgress() {
+  var html = '已選 <strong>' + selectedIndices.length + '</strong> / <strong>' + requiredCount + '</strong> 張';
+  document.getElementById('drawProgress').innerHTML = html;
+}
+
+// ═══ Update Preview Thumbnails ═══
+function updatePreview() {
+  var preview = document.getElementById('selectedPreview');
+  var html = '';
+  for (var i = 0; i < selectedIndices.length; i++) {
+    var idx = selectedIndices[i];
+    var code = shuffledCards[idx];
+    var isReversed = cardOrientations[idx] === 'reversed';
+    html += '<div class="da-selected-thumb">' +
+      '<img src="' + code + '.png" alt="' + code + '"' +
+      (isReversed ? ' style="-webkit-transform:rotate(180deg);transform:rotate(180deg)"' : '') + '>' +
+    '</div>';
+  }
+  preview.innerHTML = html;
+}
+
+// ═══ Reveal Cards ═══
+window.revealCards = function() {
+  // Flip selected cards one by one with stagger
+  selectedIndices.forEach(function(idx, i) {
+    var card = document.querySelector('.da-draw-card[data-idx="' + idx + '"]');
+    if (card) {
+      setTimeout(function() {
+        card.classList.add('flipped');
+        if (navigator.vibrate) navigator.vibrate(10);
+      }, i * 150);
+    }
+  });
+
+  // After all flipped, show results
+  setTimeout(function() {
+    showResults();
+  }, selectedIndices.length * 150 + 500);
+};
+
+// ═══ Show Results ═══
+function showResults() {
+  var question = document.getElementById('questionInput').value.trim();
+  var val = document.getElementById('spreadSelect').value;
+  var parts = val.split('|');
+
+  // Build result list
+  var listHtml = '';
+  var copyLines = [];
+  copyLines.push('【馥靈之鑰抽牌結果】');
+  copyLines.push('問題：' + question);
+  copyLines.push('牌陣：' + spreadName + '（' + requiredCount + '張）');
+  copyLines.push('框架：' + parts[1]);
+  copyLines.push('');
+  copyLines.push('抽到的牌：');
+
+  for (var i = 0; i < selectedIndices.length; i++) {
+    var idx = selectedIndices[i];
+    var code = shuffledCards[idx];
+    var orient = cardOrientations[idx];
+    var orientLabel = orient === 'reversed' ? '逆位' : '正位';
+    var orientClass = orient === 'reversed' ? 'reversed' : 'upright';
+
+    listHtml += '<div class="da-result-item">' +
+      '<div class="da-result-pos">位置' + (i + 1) + '</div>' +
+      '<img class="da-result-img" src="' + code + '.png"' +
+      (orient === 'reversed' ? ' style="-webkit-transform:rotate(180deg);transform:rotate(180deg)"' : '') + '>' +
+      '<div class="da-result-info">' +
+        '<span class="da-result-code">' + code + '</span>' +
+        '<span class="da-result-orient ' + orientClass + '">' + orientLabel + '</span>' +
+      '</div>' +
+    '</div>';
+
+    copyLines.push('位置' + (i + 1) + '：' + code + ' ' + orientLabel);
+  }
+
+  copyLines.push('');
+  copyLines.push('請根據以上牌卡組合進行深度解讀。');
+
+  document.getElementById('resultList').innerHTML = listHtml;
+  document.getElementById('copyOutput').value = copyLines.join('\n');
+
+  goPhase(3);
+}
+
+// ═══ Copy Result ═══
+window.copyResult = function() {
+  var output = document.getElementById('copyOutput');
+  var text = output.value;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      toast('已複製到剪貼簿');
+    }).catch(function() {
+      fallbackCopy(output);
+    });
+  } else {
+    fallbackCopy(output);
+  }
+};
+
+function fallbackCopy(el) {
+  el.select();
+  el.setSelectionRange(0, 99999);
+  try {
+    document.execCommand('copy');
+    toast('已複製到剪貼簿');
+  } catch(e) {
+    toast('複製失敗，請手動選取');
+  }
+}
+
+// ═══ Reset ═══
+window.resetDraw = function() {
+  if (!confirm('確定要重新抽牌嗎？')) return;
+  window.startDraw();
+};
+
+window.resetAll = function() {
+  document.getElementById('questionInput').value = '';
+  selectedIndices = [];
+  shuffledCards = [];
+  cardOrientations = {};
+  goPhase(1);
+};
+
+// ═══ Toast ═══
+function toast(msg) {
+  var el = document.getElementById('da-toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(function() { el.classList.remove('show'); }, 2500);
+}
+
+})();
+</script>
+
+</body>
+</html>

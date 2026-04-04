@@ -1275,12 +1275,6 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
       <div style="margin-bottom:20px">
         <div style="color:rgba(240,212,138,.75);font-weight:700;font-size:.9rem;margin-bottom:14px;text-align:center">請選擇付款方式</div>
         <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
-          <!-- 信用卡付款（綠界）-->
-          <button onclick="payWithECPay()" id="ecpayBtn"
-            style="flex:1;min-width:200px;max-width:280px;padding:16px 20px;border-radius:14px;border:2px solid rgba(240,212,138,.4);background:linear-gradient(135deg,rgba(240,212,138,.12),rgba(240,212,138,.04));color:#f0d48a;font-size:1rem;font-weight:700;cursor:pointer;transition:all .3s;letter-spacing:.04em">
-            💳 信用卡付款
-            <div style="font-size:.75rem;font-weight:400;color:rgba(255,255,255,.45);margin-top:4px">Visa / Mastercard / JCB</div>
-          </button>
           <!-- 銀行轉帳 -->
           <button onclick="toggleBankTransfer()" id="bankBtn"
             style="flex:1;min-width:200px;max-width:280px;padding:16px 20px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:rgba(255,255,255,.7);font-size:1rem;font-weight:700;cursor:pointer;transition:all .3s;letter-spacing:.04em">
@@ -1948,52 +1942,6 @@ function restoreFromURL() {
       shareBtn.disabled = false;
     showAISection(idxs.length);
   }
-}
-
-// ===== 綠界 ECPay 付款 =====
-
-var ECPAY_API = 'https://app.hourlightkey.com/api/ecpay-create';
-
-function payWithECPay() {
-  var n = selected.length;
-  if (!n) return;
-
-  var priceMap = { 3: 199, 5: 399, 7: 599 };
-  if (!priceMap[n]) {
-    alert('此張數暫不支援線上付款');
-    return;
-  }
-
-  // 收集卡牌資料摘要
-  var cardSummary = selected.map(function(idx) {
-    var file = allFiles[idx];
-    return file.replace('.png', '');
-  }).join(', ');
-
-  // 開新視窗導向綠界
-  var form = document.createElement('form');
-  form.method = 'POST';
-  form.action = ECPAY_API;
-  form.target = '_blank';
-
-  var fields = {
-    n: n,
-    cards: cardSummary,
-    question: userQuestion || ''
-  };
-
-  var keys = Object.keys(fields);
-  for (var i = 0; i < keys.length; i++) {
-    var input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = keys[i];
-    input.value = fields[keys[i]];
-    form.appendChild(input);
-  }
-
-  document.body.appendChild(form);
-  form.submit();
-  document.body.removeChild(form);
 }
 
 function toggleBankTransfer() {
