@@ -26,7 +26,7 @@ if sys.stdout.encoding != 'utf-8':
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from config import *
-from poster import post_to_fb, post_to_threads, post_all
+from poster import post_to_fb, post_to_threads, reply_to_threads, post_all
 from viral_crawler import crawl_all
 from content_generator import generate_content
 from image_finder import find_best_image
@@ -206,6 +206,16 @@ def step_post(slot='all', dry_run=False):
         threads_result = post_to_threads(THREADS_USER_ID, THREADS_TOKEN, content['threads_post'])
         if threads_result['success']:
             print(f"     ✅ Post ID: {threads_result['post_id']}")
+            # 自動回覆第一則（啟動對話，提升演算法推薦）
+            self_reply = content.get('threads_self_reply', '')
+            if self_reply and threads_result.get('post_id'):
+                import time as _t; _t.sleep(5)
+                print(f"  💬 自動回覆啟動對話...")
+                reply_result = reply_to_threads(THREADS_USER_ID, THREADS_TOKEN, threads_result['post_id'], self_reply)
+                if reply_result.get('success'):
+                    print(f"     ✅ Reply ID: {reply_result['reply_id']}")
+                else:
+                    print(f"     ⚠️ 回覆失敗：{reply_result.get('error','')[:80]}")
         else:
             print(f"     ❌ {threads_result['error'][:100]}")
 

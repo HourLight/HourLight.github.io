@@ -122,6 +122,39 @@ def post_to_threads(user_id, token, message, image_url=None):
         return {'success': False, 'error': e.read().decode()}
 
 
+def reply_to_threads(user_id, token, post_id, reply_text):
+    """回覆自己的 Threads 貼文（啟動對話，提升演算法推薦）"""
+    params = {
+        'media_type': 'TEXT',
+        'text': reply_text,
+        'reply_to_id': post_id,
+        'access_token': token
+    }
+    post_data = urllib.parse.urlencode(params).encode('utf-8')
+    try:
+        req = urllib.request.Request(
+            f'https://graph.threads.net/v1.0/{user_id}/threads',
+            data=post_data, method='POST'
+        )
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            result = json.loads(resp.read().decode())
+            container_id = result['id']
+        time.sleep(3)
+        pub_data = urllib.parse.urlencode({
+            'creation_id': container_id,
+            'access_token': token
+        }).encode('utf-8')
+        req = urllib.request.Request(
+            f'https://graph.threads.net/v1.0/{user_id}/threads_publish',
+            data=pub_data, method='POST'
+        )
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            result = json.loads(resp.read().decode())
+            return {'success': True, 'reply_id': result['id']}
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
+
+
 def post_all(fb_msg, threads_msg, fb_token, fb_page_id, threads_token, threads_user_id, image_url=None):
     """同時發文到 FB + Threads"""
     results = {}

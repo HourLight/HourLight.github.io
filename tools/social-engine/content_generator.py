@@ -37,9 +37,16 @@ def generate_content(api_key, topic, time_slot="evening", extra_context=""):
 請輸出 JSON 格式：
 {{
   "fb_post": "Facebook 版文案（繁體中文）",
-  "threads_post": "Threads 版文案（繁體中文，100字以內）",
+  "threads_post": "Threads 版文案（繁體中文，150字以內，要像真人在寫，不能有AI感）",
+  "threads_self_reply": "發文後自己回的第一則留言（延伸一個有趣的補充或自問自答，50字以內，啟動對話用）",
   "hashtags": ["標籤1", "標籤2", "標籤3"]
 }}
+
+Threads 版重要規則：
+- 像真人在寫，不是AI生成的感覺。要有口語、有停頓、有個性。
+- 結尾用具體問句（不要「妳覺得呢？」要「妳上次被精油救到是什麼時候？」這種）
+- 最後自然帶一句「Bio 裡有...」導流，不放連結
+- self_reply 是發文後自己回覆第一則，啟動對話讓演算法推文
 
 只輸出 JSON，不要其他文字。"""
 
