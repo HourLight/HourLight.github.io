@@ -99,11 +99,13 @@
   border: none;
   background: none;
   font-family: inherit;
-  padding: 6px 0 4px;
+  padding: 8px 0 6px;
+  min-height: 48px;
   position: relative;
   transition: color 0.18s;
-  gap: 2px;
+  gap: 3px;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 .hl-bn-item:hover, .hl-bn-item.active {
   color: #f8dfa5;
@@ -117,8 +119,8 @@
   border-radius: 0 0 2px 2px;
 }
 .hl-bn-icon {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
