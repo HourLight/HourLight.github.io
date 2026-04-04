@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-BXP7K53QG6');</script>
+<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1333106288588347');fbq('track','PageView');</script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>城堡小遊戲｜玩著玩著就懂自己了｜馥靈之鑰 Hour Light</title>
+<meta name="description" content="四款覺察小遊戲：快問快答、直覺色彩、二選一覺察、今日一句。每天花3分鐘，用遊戲的方式認識自己。"/>
+<meta property="og:title" content="城堡小遊戲｜玩著玩著就懂自己了"/>
+<meta property="og:description" content="四款覺察小遊戲，每天花3分鐘，用遊戲的方式認識自己。"/>
+<meta property="og:url" content="https://hourlightkey.com/castle-minigames.html"/>
+<meta property="og:type" content="website"/>
+<meta property="og:locale" content="zh_TW"/>
+<link rel="canonical" href="https://hourlightkey.com/castle-minigames.html"/>
+<link rel="icon" href="favicon.ico"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#fdf6ef;--bg2:#f7ede0;--bg3:#fff8f0;
+  --brown:#6b4226;--brown-l:#8b6a4a;--brown-d:#4a2c14;
+  --gold:#c9a033;--gold-l:#e2c36a;--gold-bg:rgba(201,160,51,.08);
+  --rose:#d4616a;--rose-l:#e8868d;--rose-bg:rgba(212,97,106,.06);
+  --teal:#4a9e8f;--teal-l:#6ab8a8;--teal-bg:rgba(74,158,143,.06);
+  --txt:#2a1f14;--txt-l:#6b5e52;--txt-d:#9a8e82;
+  --card:rgba(255,255,255,.88);--card-border:rgba(107,66,38,.06);
+  --shadow:0 4px 20px rgba(42,31,20,.06);
+  --radius:16px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Serif TC',serif;color:var(--txt);background:var(--bg);min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;overscroll-behavior-y:contain;padding-bottom:env(safe-area-inset-bottom,0)}
+button,a{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button{cursor:pointer;border:none;font-family:inherit}
+
+/* ═══ Sticky Header ═══ */
+.mg-header{position:sticky;top:0;z-index:200;display:flex;align-items:center;gap:12px;padding:14px 20px;background:rgba(253,246,239,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--card-border)}
+.mg-back{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--brown-l);font-size:.82rem;font-weight:600;min-height:48px;padding:0 8px;border-radius:10px;transition:all .2s}
+.mg-back:active{background:var(--gold-bg);transform:scale(.96)}
+.mg-title{font-family:'Playfair Display','Noto Serif TC',serif;font-size:1.1rem;font-weight:700;color:var(--brown)}
+
+/* ═══ Game Selector ═══ */
+.mg-selector{display:flex;gap:12px;padding:20px 20px 8px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.mg-selector::-webkit-scrollbar{display:none}
+.mg-card{flex:0 0 140px;scroll-snap-align:start;padding:18px 14px;background:var(--card);border:2px solid var(--card-border);border-radius:var(--radius);text-align:center;transition:all .3s;min-height:48px}
+.mg-card:active{transform:scale(.96)}
+.mg-card.active{border-color:var(--gold);background:var(--gold-bg);box-shadow:0 4px 16px rgba(201,160,51,.12)}
+.mg-card.done{opacity:.65;position:relative}
+.mg-card.done::after{content:'✓';position:absolute;top:8px;right:10px;font-size:.7rem;color:var(--teal);font-weight:700}
+.mg-card-icon{font-size:1.8rem;margin-bottom:6px}
+.mg-card-name{font-size:.78rem;font-weight:700;color:var(--brown);line-height:1.4}
+.mg-card-time{font-size:.62rem;color:var(--txt-d);margin-top:4px}
+
+/* ═══ Game Area ═══ */
+.mg-area{max-width:520px;margin:0 auto;padding:20px 20px 100px}
+.mg-game{display:none;animation:mgFadeUp .4s ease}
+.mg-game.active{display:block}
+@keyframes mgFadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══ Shared Game Components ═══ */
+.mg-panel{background:var(--card);border:1.5px solid var(--card-border);border-radius:var(--radius);padding:28px 22px;margin-bottom:16px;box-shadow:var(--shadow)}
+.mg-panel h2{font-family:'Playfair Display','Noto Serif TC',serif;font-size:1.3rem;color:var(--brown);margin-bottom:6px}
+.mg-panel .mg-desc{font-size:.85rem;color:var(--txt-l);line-height:1.8;margin-bottom:20px}
+.mg-btn{display:block;width:100%;padding:15px;background:var(--gold);color:#fff;font-size:.95rem;font-weight:700;border-radius:12px;transition:all .25s;min-height:48px;letter-spacing:.03em}
+.mg-btn:active{transform:scale(.97);background:var(--brown)}
+.mg-btn:disabled{opacity:.35;cursor:default;transform:none}
+.mg-btn-outline{display:block;width:100%;padding:14px;background:transparent;color:var(--brown);font-size:.88rem;font-weight:600;border:2px solid var(--card-border);border-radius:12px;transition:all .25s;min-height:48px;margin-top:10px}
+.mg-btn-outline:active{background:var(--gold-bg);border-color:var(--gold)}
+.mg-result{text-align:center;padding:28px 20px;background:linear-gradient(135deg,var(--gold-bg),var(--teal-bg));border:1.5px solid rgba(201,160,51,.15);border-radius:var(--radius)}
+.mg-result h3{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--brown);margin-bottom:10px}
+.mg-result p{font-size:.88rem;color:var(--txt-l);line-height:1.9}
+.mg-closer{font-size:.82rem;color:var(--gold);font-weight:600;margin-top:16px;font-style:italic}
+
+/* ═══ Game 1: Quick Quiz ═══ */
+.qq-timer-bar{height:6px;background:var(--bg2);border-radius:3px;margin-bottom:16px;overflow:hidden}
+.qq-timer-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold),var(--rose));border-radius:3px;transition:width .1s linear;width:100%}
+.qq-progress{font-size:.72rem;color:var(--txt-d);text-align:center;margin-bottom:14px;font-weight:600}
+.qq-question{font-size:1.05rem;font-weight:600;color:var(--brown);text-align:center;line-height:1.7;margin-bottom:20px;min-height:60px}
+.qq-opts{display:flex;flex-direction:column;gap:10px}
+.qq-opt{padding:14px 18px;background:var(--bg3);border:2px solid var(--card-border);border-radius:12px;font-size:.88rem;color:var(--txt);transition:all .2s;line-height:1.5;min-height:48px;text-align:left}
+.qq-opt:active{transform:scale(.97)}
+.qq-opt.chosen{border-color:var(--gold);background:var(--gold-bg);color:var(--brown);font-weight:600}
+.qq-opt.timeout{border-color:var(--rose);background:var(--rose-bg);opacity:.6}
+.qq-insight{font-size:.82rem;color:var(--txt-l);text-align:center;line-height:1.8;margin-top:14px;padding:14px;background:var(--gold-bg);border-radius:10px;animation:mgFadeUp .3s ease}
+
+/* ═══ Game 2: Intuition Colors ═══ */
+.ic-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px}
+.ic-swatch{aspect-ratio:1;border-radius:16px;cursor:pointer;transition:all .35s;position:relative;overflow:hidden;min-height:48px;border:3px solid transparent}
+.ic-swatch:active{transform:scale(.93)}
+.ic-swatch.chosen{border-color:#fff;box-shadow:0 0 0 3px var(--gold),0 8px 24px rgba(0,0,0,.15);transform:scale(1.05)}
+.ic-reveal{text-align:center;animation:mgFadeUp .5s ease}
+.ic-reveal-color{width:120px;height:120px;border-radius:50%;margin:0 auto 16px;box-shadow:0 8px 32px rgba(0,0,0,.1);animation:icPulse 2s ease-in-out infinite}
+@keyframes icPulse{0%,100%{transform:scale(1);box-shadow:0 8px 32px rgba(0,0,0,.1)}50%{transform:scale(1.05);box-shadow:0 12px 40px rgba(0,0,0,.15)}}
+.ic-reveal h3{font-size:1.1rem;color:var(--brown);margin-bottom:8px}
+.ic-reveal p{font-size:.88rem;color:var(--txt-l);line-height:1.9}
+
+/* ═══ Game 3: This or That ═══ */
+.tot-counter{font-size:.72rem;color:var(--txt-d);text-align:center;margin-bottom:14px;font-weight:600}
+.tot-vs{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.tot-choice{flex:1;padding:24px 14px;background:var(--bg3);border:2px solid var(--card-border);border-radius:var(--radius);text-align:center;transition:all .25s;min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.tot-choice:active{transform:scale(.95)}
+.tot-choice.chosen-l{border-color:var(--teal);background:var(--teal-bg);transform:translateX(-4px)}
+.tot-choice.chosen-r{border-color:var(--rose);background:var(--rose-bg);transform:translateX(4px)}
+.tot-icon{font-size:1.6rem;margin-bottom:6px}
+.tot-label{font-size:.95rem;font-weight:700;color:var(--brown)}
+.tot-vs-divider{font-family:'Playfair Display',serif;font-size:.8rem;color:var(--txt-d);font-weight:700}
+.tot-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px}
+.tot-tag{padding:6px 14px;background:var(--bg3);border:1.5px solid var(--card-border);border-radius:20px;font-size:.75rem;color:var(--txt-l);font-weight:600}
+.tot-tag.highlight{border-color:var(--gold);background:var(--gold-bg);color:var(--brown)}
+
+/* ═══ Game 4: Today's Sentence ═══ */
+.ts-prompt{font-size:1.1rem;font-weight:600;color:var(--brown);text-align:center;line-height:1.8;margin-bottom:20px}
+.ts-prompt span{display:inline-block;min-width:80px;border-bottom:2px solid var(--gold);color:var(--gold);font-weight:700}
+.ts-textarea{width:100%;min-height:100px;padding:16px;border:2px solid var(--card-border);border-radius:12px;font-family:'Noto Serif TC',serif;font-size:16px;color:var(--txt);background:var(--bg3);resize:vertical;line-height:1.8;transition:border-color .2s;-webkit-appearance:none}
+.ts-textarea:focus{outline:none;border-color:var(--gold);background:#fff}
+.ts-textarea::placeholder{color:var(--txt-d)}
+.ts-history{margin-top:16px}
+.ts-history-title{font-size:.78rem;color:var(--txt-d);font-weight:600;margin-bottom:10px}
+.ts-entry{padding:12px 14px;background:var(--bg3);border-radius:10px;margin-bottom:8px;font-size:.82rem;color:var(--txt-l);line-height:1.7}
+.ts-entry-date{font-size:.68rem;color:var(--txt-d);margin-bottom:4px}
+
+/* ═══ Material Drop Notification ═══ */
+.mg-drop{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);padding:14px 24px;background:var(--card);border:2px solid var(--gold-l);border-radius:20px;box-shadow:0 8px 32px rgba(201,160,51,.2);z-index:300;display:none;align-items:center;gap:10px;animation:dropBounce .5s ease}
+.mg-drop.show{display:flex}
+@keyframes dropBounce{0%{opacity:0;transform:translateX(-50%) translateY(20px)}60%{transform:translateX(-50%) translateY(-6px)}100%{opacity:1;transform:translateX(-50%) translateY(0)}}
+.mg-drop-icon{font-size:1.4rem}
+.mg-drop-text{font-size:.82rem;color:var(--brown);font-weight:600}
+.mg-drop-rarity{font-size:.65rem;padding:2px 8px;border-radius:10px;font-weight:700}
+.mg-drop-rarity.common{background:#e8f5e9;color:#2e7d32}
+.mg-drop-rarity.rare{background:#e3f2fd;color:#1565c0}
+.mg-drop-rarity.legendary{background:#fff3e0;color:#e65100}
+
+/* ═══ Responsive ═══ */
+@media(max-width:520px){
+  .mg-area{padding:16px 16px 100px}
+  .mg-panel{padding:22px 18px}
+  .mg-selector{padding:16px 16px 6px}
+  .mg-card{flex:0 0 120px;padding:14px 10px}
+}
+@media(min-width:521px){
+  .mg-selector{justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ Sticky Header ═══ -->
+<header class="mg-header">
+  <a href="castle-game.html" class="mg-back">← 回城堡</a>
+  <div class="mg-title">城堡小遊戲</div>
+</header>
+
+<!-- ═══ Game Selector Cards ═══ -->
+<div class="mg-selector" id="mgSelector">
+  <div class="mg-card active" data-game="quiz" onclick="switchGame('quiz')">
+    <div class="mg-card-icon">🎯</div>
+    <div class="mg-card-name">覺察快問快答</div>
+    <div class="mg-card-time">約 2 分鐘</div>
+  </div>
+  <div class="mg-card" data-game="colors" onclick="switchGame('colors')">
+    <div class="mg-card-icon">🎨</div>
+    <div class="mg-card-name">直覺色彩</div>
+    <div class="mg-card-time">約 30 秒</div>
+  </div>
+  <div class="mg-card" data-game="thisorthat" onclick="switchGame('thisorthat')">
+    <div class="mg-card-icon">🔄</div>
+    <div class="mg-card-name">二選一覺察</div>
+    <div class="mg-card-time">約 2 分鐘</div>
+  </div>
+  <div class="mg-card" data-game="sentence" onclick="switchGame('sentence')">
+    <div class="mg-card-icon">📝</div>
+    <div class="mg-card-name">今日一句</div>
+    <div class="mg-card-time">約 1 分鐘</div>
+  </div>
+</div>
+
+<!-- ═══ Game Area ═══ -->
+<div class="mg-area">
+
+  <!-- ══ Game 1: 覺察快問快答 ══ -->
+  <div class="mg-game active" id="gameQuiz">
+    <div class="mg-panel">
+      <h2>🎯 覺察快問快答</h2>
+      <p class="mg-desc">10 題情緒覺察題，每題 8 秒。不用想太多，第一個反應通常最誠實。</p>
+      <button class="mg-btn" onclick="qqStart()">開始挑戰</button>
+    </div>
+    <div id="qqPlay" style="display:none">
+      <div class="mg-panel">
+        <div class="qq-progress" id="qqProgress">1 / 10</div>
+        <div class="qq-timer-bar"><div class="qq-timer-fill" id="qqTimerFill"></div></div>
+        <div class="qq-question" id="qqQuestion"></div>
+        <div class="qq-opts" id="qqOpts"></div>
+        <div class="qq-insight" id="qqInsight" style="display:none"></div>
+      </div>
+    </div>
+    <div id="qqResult" style="display:none">
+      <div class="mg-result">
+        <h3 id="qqResultTitle"></h3>
+        <p id="qqResultText"></p>
+        <div class="mg-closer">鑰匙我遞給您。城堡自己開。</div>
+      </div>
+      <button class="mg-btn-outline" onclick="qqReset()">再玩一次</button>
+    </div>
+  </div>
+
+  <!-- ══ Game 2: 直覺色彩 ══ -->
+  <div class="mg-game" id="gameColors">
+    <div class="mg-panel" id="icIntro">
+      <h2>🎨 直覺色彩</h2>
+      <p class="mg-desc">閉上眼睛三秒，深呼吸一次。張開眼，看到六個色塊，選那個「第一眼就想碰」的。不要分析，直覺就好。</p>
+      <button class="mg-btn" onclick="icStart()">準備好了</button>
+    </div>
+    <div id="icPlay" style="display:none">
+      <div class="mg-panel" style="text-align:center">
+        <p style="font-size:.85rem;color:var(--txt-l);margin-bottom:16px">選一個，不要想。</p>
+        <div class="ic-grid" id="icGrid"></div>
+      </div>
+    </div>
+    <div id="icResult" style="display:none">
+      <div class="mg-panel">
+        <div class="ic-reveal" id="icReveal"></div>
+        <div class="mg-closer" style="text-align:center;margin-top:16px">鑰匙我遞給您。城堡自己開。</div>
+      </div>
+      <button class="mg-btn-outline" onclick="icReset()">再選一次</button>
+    </div>
+  </div>
+
+  <!-- ══ Game 3: 二選一覺察 ══ -->
+  <div class="mg-game" id="gameThisorthat">
+    <div class="mg-panel" id="totIntro">
+      <h2>🔄 二選一覺察</h2>
+      <p class="mg-desc">12 組二選一，沒有對錯。你選的每一個，都在畫你自己的輪廓。選完之後，看看那個輪廓像不像你認識的自己。</p>
+      <button class="mg-btn" onclick="totStart()">開始選擇</button>
+    </div>
+    <div id="totPlay" style="display:none">
+      <div class="mg-panel">
+        <div class="tot-counter" id="totCounter">1 / 12</div>
+        <div class="tot-vs" id="totVs"></div>
+      </div>
+    </div>
+    <div id="totResult" style="display:none">
+      <div class="mg-result">
+        <h3 id="totResultTitle"></h3>
+        <div class="tot-tags" id="totTags"></div>
+        <p id="totResultText"></p>
+        <div class="mg-closer">鑰匙我遞給您。城堡自己開。</div>
+      </div>
+      <button class="mg-btn-outline" onclick="totReset()">再玩一次</button>
+    </div>
+  </div>
+
+  <!-- ══ Game 4: 今日一句 ══ -->
+  <div class="mg-game" id="gameSentence">
+    <div class="mg-panel">
+      <h2>📝 今日一句</h2>
+      <p class="mg-desc">每天一句話，寫給自己。不需要完美，不需要有道理。寫了，就是看見了。</p>
+      <div class="ts-prompt" id="tsPrompt"></div>
+      <textarea class="ts-textarea" id="tsInput" placeholder="想到什麼就寫什麼..." maxlength="200"></textarea>
+      <div style="text-align:right;margin:6px 0 14px"><span id="tsCount" style="font-size:.7rem;color:var(--txt-d)">0 / 200</span></div>
+      <button class="mg-btn" id="tsSubmit" onclick="tsSubmit()" disabled>送出</button>
+    </div>
+    <div id="tsResult" style="display:none">
+      <div class="mg-result">
+        <h3>今天的回音</h3>
+        <p id="tsResultText"></p>
+        <div class="mg-closer">鑰匙我遞給您。城堡自己開。</div>
+      </div>
+    </div>
+    <div id="tsHistory" style="display:none">
+      <div class="mg-panel">
+        <div class="ts-history-title">最近的紀錄</div>
+        <div id="tsHistoryList"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ Material Drop Notification ═══ -->
+<div class="mg-drop" id="mgDrop">
+  <div class="mg-drop-icon" id="mgDropIcon"></div>
+  <div class="mg-drop-text" id="mgDropText"></div>
+</div>
+
+<!-- ═══ Scripts ═══ -->
+<script src="assets/js/hl-topnav.js"></script>
+<script src="assets/js/hl-bottomnav.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-gate.js"></script>
+<script src="assets/js/hl-email.js"></script>
+<script src="assets/js/hl-music.js"></script>
+<script src="assets/js/hl-tracker.js"></script>
+<script src="assets/js/hl-castle-material.js"></script>
+<script>
+/* ═══════════════════════════════════════
+   馥靈之鑰 城堡小遊戲 v1.0
+   Castle Mini-Games Hub
+   ═══════════════════════════════════════ */
+
+// ── Helpers ──
+function vib(ms){ if(navigator.vibrate) navigator.vibrate(ms||10); }
+function todayKey(){ return new Date().toISOString().slice(0,10); }
+function shuffle(a){ for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;} return a; }
+function getDone(game){ try{ var d=JSON.parse(localStorage.getItem('hl_mg_done')||'{}'); return d[game]===todayKey(); }catch(e){return false;} }
+function setDone(game){ try{ var d=JSON.parse(localStorage.getItem('hl_mg_done')||'{}'); d[game]=todayKey(); localStorage.setItem('hl_mg_done',JSON.stringify(d)); }catch(e){} }
+function dropMaterial(game){
+  if(window.HL_dropMaterial) window.HL_dropMaterial('castle_riddle');
+  setDone(game);
+  updateCards();
+}
+function updateCards(){
+  var cards=document.querySelectorAll('.mg-card');
+  cards.forEach(function(c){ var g=c.getAttribute('data-game'); if(getDone(g)) c.classList.add('done'); else c.classList.remove('done'); });
+}
+
+// ── Game Switching ──
+function switchGame(id){
+  var games=document.querySelectorAll('.mg-game');
+  var cards=document.querySelectorAll('.mg-card');
+  games.forEach(function(g){g.classList.remove('active')});
+  cards.forEach(function(c){c.classList.remove('active')});
+  var map={quiz:'gameQuiz',colors:'gameColors',thisorthat:'gameThisorthat',sentence:'gameSentence'};
+  document.getElementById(map[id]).classList.add('active');
+  document.querySelector('[data-game="'+id+'"]').classList.add('active');
+  vib(8);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ══════════════════════════════════════
+// GAME 1: 覺察快問快答
+// ══════════════════════════════════════
+var qqData=[
+  {q:'你今天最想逃避的情緒是？',opts:['焦慮','悲傷','憤怒','空虛'],insights:['焦慮通常在提醒你：有件事你在乎，但還沒準備好。','悲傷是最誠實的情緒，它代表你真的在意過。','憤怒底下往往藏著受傷。那股憤怒底下，藏的其實是心疼自己。','空虛有時候是因為太久沒問自己「我想要什麼」了。']},
+  {q:'如果你的身體現在會說話，它最想說什麼？',opts:['讓我休息','別忽略我','我撐不住了','其實我還好'],insights:['身體說「讓我休息」的時候，通常已經撐很久了。','被忽略的不只是身體，可能還有一些你不想面對的感受。','撐不住不丟臉。承認極限，反而是最大的勇氣。','「其實我還好」——是真的還好，還是習慣了假裝還好？']},
+  {q:'此刻你最需要哪種聲音？',opts:['安靜','鼓勵','真話','陪伴'],insights:['渴望安靜的人，內心通常已經很吵了。先讓自己靜下來，答案會浮出來。','需要鼓勵不代表脆弱。你只是太久沒有被肯定了。','想聽真話的時候，通常心裡已經有答案，只是需要有人幫你確認。','想要陪伴不等於軟弱。有些路自己走太累了，這很正常。']},
+  {q:'面對壓力時，你的第一反應是？',opts:['逃避','過度控制','麻痺自己','找人聊聊'],insights:['逃避是一種自我保護，但長期逃避會讓你離真正想要的越來越遠。','過度控制的背後是恐懼。怕失控，其實是怕受傷。','用忙碌、追劇、滑手機來麻痺——你知道自己在躲什麼嗎？','願意開口說的人，復原速度通常最快。說出來，就已經開始在整理了。']},
+  {q:'你最近最常對自己說的一句話是？',opts:['還不夠好','算了吧','再撐一下','無所謂'],insights:['「還不夠好」說了太多次，會變成一種自我催眠。你已經走到這裡了，這本身就很好。','「算了」有時候是放下，有時候是放棄。你分得清嗎？','「再撐一下」——但你有沒有想過，不撐的話會怎樣？也許沒你想的那麼糟。','「無所謂」的背後，通常藏著「太在乎所以不敢在乎」。']},
+  {q:'如果明天醒來少了一個煩惱，你最希望是哪個？',opts:['錢的壓力','關係的糾結','對未來的迷茫','對自己的不滿'],insights:['金錢焦慮影響的不只是帳戶，是整個人的安全感。值得花時間好好梳理。','關係的糾結通常不是對方的問題，是你在關係裡變成了不喜歡的自己。','迷茫不可怕，可怕的是用忙碌假裝自己不迷茫。','對自己的不滿如果能轉換成「我想變更好」，它就是動力，不是負擔。']},
+  {q:'你覺得現在的自己，最像哪種天氣？',opts:['陰天','暴風雨','悶熱','微風晴天'],insights:['陰天不是壞天氣，只是光線被擋住了。雲會散的。','暴風雨代表你正在經歷很大的情緒波動。讓暴風雨通過，不要壓住它。','悶熱——什麼都沒發生，但就是不舒服。這種感覺最容易被忽略，但最需要被看見。','微風晴天很好。享受它，不用覺得「太順利一定會出事」。']},
+  {q:'你上一次真正為自己做一件事，是什麼時候？',opts:['今天','這週','記不得了','我一直在為別人'],insights:['今天就為自己做了事，代表你已經開始把自己放回優先順序了。很好。','這週有過，不算太遠。記得這個感覺，常常回來找它。','記不得了——那今天就是重新開始的好時機。','一直為別人不是美德，是習慣。你有沒有問過自己：我願意嗎？']},
+  {q:'你害怕別人看見你的哪一面？',opts:['脆弱','自私','平凡','失控'],insights:['怕被看見脆弱的人，通常在外面撐得最辛苦。偶爾卸下盔甲，天不會塌。','怕被說自私，所以一直在付出。但你知道嗎，照顧自己不叫自私，叫基本。','怕平凡的人，內心深處覺得「不夠特別就不值得被愛」。這個信念值得重新檢查。','怕失控代表你一直在壓抑。但情緒不是炸彈，不會因為你感受它就爆炸。']},
+  {q:'如果可以送現在的自己一句話，你會說什麼？',opts:['辛苦了','你值得','慢慢來','別怕'],insights:['「辛苦了」——你多久沒聽到這句話了？先從自己說給自己聽開始。','「你值得」——如果你選了這個，代表你心裡一直在懷疑。不用懷疑了。','「慢慢來」——你不需要趕上任何人的時間表。你的節奏就是最好的節奏。','「別怕」——恐懼是正常的，但不要讓它替你做決定。']}
+];
+var qqIdx=0,qqScore=0,qqTimer=null,qqChoices=[];
+
+function qqStart(){
+  qqIdx=0;qqScore=0;qqChoices=[];
+  document.querySelector('#gameQuiz>.mg-panel').style.display='none';
+  document.getElementById('qqPlay').style.display='block';
+  document.getElementById('qqResult').style.display='none';
+  qqShowQ();
+}
+function qqShowQ(){
+  if(qqIdx>=qqData.length){qqEnd();return;}
+  var d=qqData[qqIdx];
+  document.getElementById('qqProgress').textContent=(qqIdx+1)+' / '+qqData.length;
+  document.getElementById('qqQuestion').textContent=d.q;
+  document.getElementById('qqInsight').style.display='none';
+  var optHtml='';
+  d.opts.forEach(function(o,i){optHtml+='<button class="qq-opt" onclick="qqPick('+i+')">'+o+'</button>';});
+  document.getElementById('qqOpts').innerHTML=optHtml;
+  qqStartTimer();
+}
+function qqStartTimer(){
+  var t=8000,el=document.getElementById('qqTimerFill');
+  el.style.width='100%';
+  el.style.transition='none';
+  void el.offsetWidth;
+  el.style.transition='width 8s linear';
+  el.style.width='0%';
+  if(qqTimer) clearTimeout(qqTimer);
+  qqTimer=setTimeout(function(){
+    var opts=document.querySelectorAll('.qq-opt');
+    opts.forEach(function(o){o.classList.add('timeout');o.disabled=true;});
+    qqChoices.push(-1);
+    document.getElementById('qqInsight').textContent='時間到了。有時候不選也是一種選擇，代表你還在猶豫。';
+    document.getElementById('qqInsight').style.display='block';
+    setTimeout(function(){qqIdx++;qqShowQ();},2000);
+  },8000);
+}
+function qqPick(i){
+  if(qqTimer) clearTimeout(qqTimer);
+  var el=document.getElementById('qqTimerFill');
+  el.style.transition='none';
+  el.style.width=el.offsetWidth/el.parentElement.offsetWidth*100+'%';
+  vib(10);
+  qqChoices.push(i);
+  qqScore++;
+  var opts=document.querySelectorAll('.qq-opt');
+  opts.forEach(function(o,idx){
+    o.disabled=true;
+    if(idx===i) o.classList.add('chosen');
+  });
+  var d=qqData[qqIdx];
+  document.getElementById('qqInsight').textContent=d.insights[i];
+  document.getElementById('qqInsight').style.display='block';
+  setTimeout(function(){qqIdx++;qqShowQ();},2200);
+}
+function qqEnd(){
+  document.getElementById('qqPlay').style.display='none';
+  document.getElementById('qqResult').style.display='block';
+  var pct=Math.round(qqScore/qqData.length*100);
+  var title,text;
+  if(pct>=90){title='覺察力全開 ✨';text='你對自己的情緒非常敏銳，每一題都果斷回應。這代表你已經在持續關注自己的內在狀態了。接下來要練習的，是把覺察變成行動。';}
+  else if(pct>=70){title='直覺很在線 🌟';text='大部分的題目你都能快速回應，代表你跟自己的感受還算熟悉。偶爾的猶豫也沒關係，那可能是你正在重新認識自己的地方。';}
+  else if(pct>=50){title='開始注意到了 🌿';text='有些題讓你停頓了一下，這不是壞事。停頓代表你在思考，思考代表你在乎。繼續保持這個好奇心。';}
+  else{title='慢慢來，不急 🌱';text='很多題你需要更多時間，這很正常。覺察不是考試，沒有時間限制。重要的是你願意開始，今天就是一個好的開始。';}
+  document.getElementById('qqResultTitle').textContent=title;
+  document.getElementById('qqResultText').textContent=text;
+  dropMaterial('quiz');
+}
+function qqReset(){
+  document.querySelector('#gameQuiz>.mg-panel').style.display='block';
+  document.getElementById('qqPlay').style.display='none';
+  document.getElementById('qqResult').style.display='none';
+}
+
+// ══════════════════════════════════════
+// GAME 2: 直覺色彩
+// ══════════════════════════════════════
+var icColors=[
+  {hex:'#C62828',name:'深紅',msg:'你現在內在有一股很強的動力，可能是憤怒，也可能是熱情。不管是哪一種，它都在告訴你：你想要改變什麼。別壓下去，順著它走。',energy:'行動力正在燃燒'},
+  {hex:'#F57F17',name:'琥珀金',msg:'你的內在正在尋找溫暖和安全感。也許最近外在環境讓你不太安心。你需要的不是更努力，而是先讓自己覺得「夠了」。',energy:'渴望被接住'},
+  {hex:'#2E7D32',name:'森林綠',msg:'你現在的狀態比你以為的穩定。也許你覺得自己很亂，但直覺選了綠色，代表你的身體知道：沒事的，你正在恢復。',energy:'正在慢慢回穩'},
+  {hex:'#1565C0',name:'深藍',msg:'你今天需要安靜。不是那種被迫的安靜，是你主動選擇的「不想說話、不想回應、只想跟自己待一會兒」。給自己這個空間。',energy:'內在渴望安靜'},
+  {hex:'#6A1B9A',name:'紫羅蘭',msg:'你的直覺正在替你整理一些很深層的東西。可能是某個舊信念、某段過去的關係、某個一直沒處理的情緒。讓它浮出水面就好，不用急著解決。',energy:'深層整理中'},
+  {hex:'#F8BBD0',name:'淺粉',msg:'你的內心其實很柔軟，只是平常不太敢讓人看到。今天允許自己柔軟一點。不是脆弱，是你原本的樣子。',energy:'允許自己柔軟'}
+];
+
+function icStart(){
+  document.getElementById('icIntro').style.display='none';
+  document.getElementById('icPlay').style.display='block';
+  document.getElementById('icResult').style.display='none';
+  var html='';
+  shuffle([0,1,2,3,4,5]).forEach(function(i){
+    html+='<div class="ic-swatch" style="background:'+icColors[i].hex+'" onclick="icPick('+i+')" data-idx="'+i+'"></div>';
+  });
+  document.getElementById('icGrid').innerHTML=html;
+}
+function icPick(i){
+  vib(15);
+  var swatches=document.querySelectorAll('.ic-swatch');
+  swatches.forEach(function(s){s.style.pointerEvents='none';});
+  document.querySelector('[data-idx="'+i+'"]').classList.add('chosen');
+  setTimeout(function(){
+    document.getElementById('icPlay').style.display='none';
+    document.getElementById('icResult').style.display='block';
+    var c=icColors[i];
+    document.getElementById('icReveal').innerHTML=
+      '<div class="ic-reveal-color" style="background:'+c.hex+'"></div>'+
+      '<h3>'+c.name+'｜'+c.energy+'</h3>'+
+      '<p>'+c.msg+'</p>';
+    dropMaterial('colors');
+  },600);
+}
+function icReset(){
+  document.getElementById('icIntro').style.display='block';
+  document.getElementById('icPlay').style.display='none';
+  document.getElementById('icResult').style.display='none';
+}
+
+// ══════════════════════════════════════
+// GAME 3: 二選一覺察
+// ══════════════════════════════════════
+var totData=[
+  {a:'安靜 🤫',b:'熱鬧 🎉',ka:'內向充電',kb:'外向充電'},
+  {a:'計劃 📋',b:'隨興 🎲',ka:'控制感',kb:'自由感'},
+  {a:'過去 ⏪',b:'未來 ⏩',ka:'回顧型',kb:'展望型'},
+  {a:'理性 🧠',b:'感性 💗',ka:'思考決策',kb:'感受決策'},
+  {a:'堅持 🏔️',b:'放手 🕊️',ka:'毅力型',kb:'順流型'},
+  {a:'獨處 🏠',b:'陪伴 👥',ka:'自我對話',kb:'關係滋養'},
+  {a:'說出來 🗣️',b:'藏心裡 🤐',ka:'表達型',kb:'內化型'},
+  {a:'完美 💎',b:'完成 ✅',ka:'高標準',kb:'行動派'},
+  {a:'付出 🤲',b:'接受 🎁',ka:'給予者',kb:'接收者'},
+  {a:'安全 🛡️',b:'冒險 🚀',ka:'穩定型',kb:'突破型'},
+  {a:'早起 🌅',b:'夜貓 🌙',ka:'晨光族',kb:'月光族'},
+  {a:'原諒 🕊️',b:'記住 📌',ka:'釋懷型',kb:'防禦型'}
+];
+var totIdx=0,totPicks=[];
+
+function totStart(){
+  totIdx=0;totPicks=[];
+  document.getElementById('totIntro').style.display='none';
+  document.getElementById('totPlay').style.display='block';
+  document.getElementById('totResult').style.display='none';
+  totShowQ();
+}
+function totShowQ(){
+  if(totIdx>=totData.length){totEnd();return;}
+  var d=totData[totIdx];
+  document.getElementById('totCounter').textContent=(totIdx+1)+' / '+totData.length;
+  document.getElementById('totVs').innerHTML=
+    '<button class="tot-choice" onclick="totPick(\'a\')"><div class="tot-label">'+d.a+'</div></button>'+
+    '<div class="tot-vs-divider">vs</div>'+
+    '<button class="tot-choice" onclick="totPick(\'b\')"><div class="tot-label">'+d.b+'</div></button>';
+}
+function totPick(side){
+  vib(10);
+  var btns=document.querySelectorAll('.tot-choice');
+  btns.forEach(function(b){b.disabled=true;});
+  if(side==='a') btns[0].classList.add('chosen-l');
+  else btns[1].classList.add('chosen-r');
+  var d=totData[totIdx];
+  totPicks.push(side==='a'?d.ka:d.kb);
+  setTimeout(function(){totIdx++;totShowQ();},500);
+}
+function totEnd(){
+  document.getElementById('totPlay').style.display='none';
+  document.getElementById('totResult').style.display='block';
+
+  // Build profile
+  var tagsHtml='';
+  totPicks.forEach(function(p){tagsHtml+='<span class="tot-tag">'+p+'</span>';});
+
+  // Analyze dominant patterns
+  var inner=0,outer=0;
+  totPicks.forEach(function(p){
+    if(['內向充電','回顧型','自我對話','內化型','穩定型','釋懷型'].indexOf(p)>=0) inner++;
+    else outer++;
+  });
+
+  var title,text;
+  if(inner>=9){
+    title='靜水深流型 🌊';
+    text='你的能量來自內在，像深海一樣安靜但強大。你不需要向外證明什麼，但要小心一件事：別把「不說」當成「不用面對」。你的感受值得被聽見，至少被自己聽見。';
+  }else if(inner>=7){
+    title='內斂覺察型 🌿';
+    text='你比大多數人更常跟自己對話。這是很珍貴的能力，但偶爾也需要讓別人走進來。不是每一道門都需要你自己推開的。';
+  }else if(outer>=9){
+    title='行動先鋒型 🔥';
+    text='你的能量向外流動，喜歡衝、喜歡做、喜歡跟人互動。但記得偶爾往內看一眼——你一直在跑，有沒有問過自己：我在跑向什麼？';
+  }else if(outer>=7){
+    title='外向連結型 🌟';
+    text='你從人群和行動中獲得能量，擅長把想法變成行動。但在所有的「做」之間，也留一點空白給自己。有些事不需要做，只需要感受。';
+  }else{
+    title='雙軌平衡型 ⚖️';
+    text='你在內外之間很靈活，這是難得的平衡感。你不被單一模式綁住，但也可能因此不確定「我到底是誰」。答案是：你是那個能自由切換的人，這就是你的樣子。';
+  }
+
+  document.getElementById('totResultTitle').textContent=title;
+  document.getElementById('totTags').innerHTML=tagsHtml;
+  document.getElementById('totResultText').textContent=text;
+  dropMaterial('thisorthat');
+}
+function totReset(){
+  document.getElementById('totIntro').style.display='block';
+  document.getElementById('totPlay').style.display='none';
+  document.getElementById('totResult').style.display='none';
+}
+
+// ══════════════════════════════════════
+// GAME 4: 今日一句
+// ══════════════════════════════════════
+var tsPrompts=[
+  '今天我最需要的是＿＿',
+  '我一直假裝不在意的事是＿＿',
+  '如果可以對昨天的自己說一句話：＿＿',
+  '我最不敢承認的是＿＿',
+  '今天讓我覺得溫暖的是＿＿',
+  '我很久沒有做的一件事是＿＿',
+  '如果身體會說話，它想告訴我＿＿',
+  '我對自己最大的期待是＿＿',
+  '我最近最常迴避的一個念頭是＿＿',
+  '如果這一年只能完成一件事，我選＿＿',
+  '我最想聽到有人對我說＿＿',
+  '現在的我其實很想＿＿'
+];
+var tsResponses=[
+  '你寫下的這幾個字，比你以為的重要。因為願意寫出來，就代表你準備好面對了。',
+  '有些東西一旦被文字固定下來，就不再只是腦海裡模糊的感覺了。它變得真實，而真實是改變的第一步。',
+  '你剛才寫的那句話，如果是別人跟你說的，你會怎麼回應？試著用同樣的溫柔對自己。',
+  '寫下來不是為了解決什麼，是為了讓自己知道：這件事，我看見了。光是看見，就已經不一樣了。',
+  '你注意到了嗎？你下意識選擇寫的，往往就是你最需要面對的。相信你的直覺。',
+  '這句話裡藏著你今天最真實的狀態。不需要分析它，讓它停在這裡就好。明天再來看，會有不同的感受。',
+  '文字是一面鏡子。你寫的不是答案，是問題——而願意看見問題的人，離答案最近。',
+  '今天的你願意花時間寫這些，比什麼都重要。不是因為寫了就會變好，而是你開始把自己當回事了。',
+  '如果這句話讓你寫的時候停頓了一下，那個停頓就是覺察正在發生的瞬間。',
+  '你寫的每一個字都在告訴你一件事：你比自己以為的更勇敢。因為不勇敢的人，連面對這些都不願意。'
+];
+
+function tsInit(){
+  // Pick today's prompt
+  var dayIdx=new Date().getDate()%tsPrompts.length;
+  document.getElementById('tsPrompt').innerHTML=tsPrompts[dayIdx].replace('＿＿','<span>＿＿</span>');
+  // Check if already done today
+  var hist=tsGetHistory();
+  if(hist.length>0 && hist[0].date===todayKey()){
+    document.getElementById('tsSubmit').textContent='今天已經寫過了 ✓';
+    document.getElementById('tsSubmit').disabled=true;
+    document.getElementById('tsInput').value=hist[0].text;
+    document.getElementById('tsInput').disabled=true;
+    document.getElementById('tsResult').style.display='block';
+    document.getElementById('tsResultText').textContent=hist[0].response;
+  }
+  tsShowHistory();
+  // Count
+  document.getElementById('tsInput').addEventListener('input',function(){
+    var len=this.value.length;
+    document.getElementById('tsCount').textContent=len+' / 200';
+    document.getElementById('tsSubmit').disabled=len<2;
+  });
+}
+function tsSubmit(){
+  var text=document.getElementById('tsInput').value.trim();
+  if(!text) return;
+  vib(15);
+  var resp=tsResponses[Math.floor(Math.random()*tsResponses.length)];
+  document.getElementById('tsResult').style.display='block';
+  document.getElementById('tsResultText').textContent=resp;
+  document.getElementById('tsSubmit').textContent='今天已經寫過了 ✓';
+  document.getElementById('tsSubmit').disabled=true;
+  document.getElementById('tsInput').disabled=true;
+  // Save
+  var hist=tsGetHistory();
+  hist.unshift({date:todayKey(),text:text,response:resp,prompt:document.getElementById('tsPrompt').textContent});
+  if(hist.length>30) hist=hist.slice(0,30);
+  localStorage.setItem('hl_mg_sentence',JSON.stringify(hist));
+  tsShowHistory();
+  dropMaterial('sentence');
+}
+function tsGetHistory(){ try{return JSON.parse(localStorage.getItem('hl_mg_sentence')||'[]');}catch(e){return [];} }
+function tsShowHistory(){
+  var hist=tsGetHistory();
+  if(hist.length<=0){document.getElementById('tsHistory').style.display='none';return;}
+  document.getElementById('tsHistory').style.display='block';
+  var html='';
+  hist.slice(0,7).forEach(function(h){
+    html+='<div class="ts-entry"><div class="ts-entry-date">'+h.date+'</div>'+
+      '<div>'+h.prompt+'</div>'+
+      '<div style="color:var(--brown);font-weight:600;margin-top:4px">'+h.text+'</div></div>';
+  });
+  document.getElementById('tsHistoryList').innerHTML=html;
+}
+
+// ══════════════════════════════════════
+// Init
+// ══════════════════════════════════════
+(function(){
+  updateCards();
+  tsInit();
+})();
+</script>
+</body>
+</html>
