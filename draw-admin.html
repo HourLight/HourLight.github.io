@@ -434,7 +434,7 @@ body {
             <option value="21|matrix-destiny|命理交叉">命理交叉</option>
           </optgroup>
           <optgroup label="28 張｜完整校準牌陣">
-            <option value="28|full-standard|前7(H.O.U.R.)+後21(矩陣) 標準版">標準版</option>
+            <option value="28|light-protocol|馥靈輕盈（前7高我指引+後21七大類型）">馥靈輕盈（瘦身）</option>
             <option value="28|full-axis|四軸深度交叉版">四軸深度交叉版</option>
             <option value="28|full-blueprint|全方位生命藍圖">全方位生命藍圖</option>
             <option value="28|full-root|深層根源探索">深層根源探索</option>
@@ -714,7 +714,24 @@ function showResults() {
   copyLines.push('牌陣：' + spreadName + '（' + requiredCount + '張）');
   copyLines.push('框架：' + parts[1]);
   copyLines.push('');
-  copyLines.push('抽到的牌：');
+  // 馥靈輕盈特殊牌位名稱
+  var lightLabels = parts[1] === 'light-protocol' ? [
+    '🔮 核心主題牌','✨ 情緒型高我','✨ 壓力型高我','✨ 創傷型高我','✨ 家族型高我','✨ 神經型高我','✨ 價值型高我',
+    '💔 情緒填充型｜根源','💔 情緒填充型｜恐懼','💔 情緒填充型｜精油',
+    '⚡ 壓力倉儲型｜根源','⚡ 壓力倉儲型｜恐懼','⚡ 壓力倉儲型｜精油',
+    '🛡️ 創傷保護型｜根源','🛡️ 創傷保護型｜恐懼','🛡️ 創傷保護型｜精油',
+    '👥 家族傳承型｜根源','👥 家族傳承型｜恐懼','👥 家族傳承型｜精油',
+    '🔌 神經失調型｜根源','🔌 神經失調型｜恐懼','🔌 神經失調型｜精油',
+    '🔥 代謝受損型｜根源','🔥 代謝受損型｜恐懼','🔥 代謝受損型｜精油',
+    '💎 自我價值型｜根源','💎 自我價值型｜恐懼','💎 自我價值型｜精油'
+  ] : null;
+
+  if (lightLabels) {
+    copyLines.push('');
+    copyLines.push('【高我指引層】');
+  } else {
+    copyLines.push('抽到的牌：');
+  }
 
   for (var i = 0; i < selectedIndices.length; i++) {
     var idx = selectedIndices[i];
@@ -723,8 +740,16 @@ function showResults() {
     var orientLabel = orient === 'reversed' ? '逆位' : '正位';
     var orientClass = orient === 'reversed' ? 'reversed' : 'upright';
 
+    // 馥靈輕盈：第8張前插入分隔
+    if (lightLabels && i === 7) {
+      copyLines.push('');
+      copyLines.push('【深層內在訊息層】');
+    }
+
+    var posLabel = lightLabels ? lightLabels[i] : '位置' + (i + 1);
+
     listHtml += '<div class="da-result-item">' +
-      '<div class="da-result-pos">位置' + (i + 1) + '</div>' +
+      '<div class="da-result-pos">' + posLabel + '</div>' +
       '<img class="da-result-img" src="' + code + '.png"' +
       (orient === 'reversed' ? ' style="-webkit-transform:rotate(180deg);transform:rotate(180deg)"' : '') + '>' +
       '<div class="da-result-info">' +
@@ -733,7 +758,7 @@ function showResults() {
       '</div>' +
     '</div>';
 
-    copyLines.push('位置' + (i + 1) + '：' + code + ' ' + orientLabel);
+    copyLines.push(posLabel + '：' + code + ' ' + orientLabel);
   }
 
   copyLines.push('');
