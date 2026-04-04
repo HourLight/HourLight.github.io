@@ -363,6 +363,15 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
       <h2 id="drawTitle">🔮 為牠抽牌中</h2>
       <p id="drawHint" style="font-size:.9rem;color:var(--ink-s)">牌卡正在回應牠的訊號...</p>
       <div id="cardGrid"></div>
+      <!-- 貓咪精油安全提醒（偵測到貓咪才顯示） -->
+      <div id="catSafetyAlert" style="display:none;margin:16px 0 4px;padding:16px 20px;background:rgba(240,160,60,.06);border:1px solid rgba(240,160,60,.22);border-radius:14px">
+        <div style="color:#f0c060;font-size:.88rem;font-weight:500;margin-bottom:8px;letter-spacing:.5px">🐱 貓咪精油安全提醒</div>
+        <div style="font-size:.8rem;color:rgba(255,255,255,.65);line-height:1.85">
+          貓咪肝臟的代謝機制和人類不同，以下精油即使環境擴香也對貓咪有毒性風險：<br>
+          <span style="color:rgba(240,160,60,.85)">茶樹、薄荷、桉樹（尤加利）、丁香、肉桂、樟腦、冬青、依蘭、所有柑橘類精油</span><br><br>
+          AI 解讀時會依據您的貓咪狀況，提供安全的替代建議。如有任何健康疑慮，請先諮詢獸醫師。
+        </div>
+      </div>
       <div class="btn-row" id="drawBtnRow" style="display:none">
         <button class="btn-p" id="aiReadBtn" onclick="requestAIReading()">🐾 聽聽牠想說什麼</button>
       </div>
@@ -499,11 +508,19 @@ function selectSpread(n){
   goScene(6);
 }
 
+function detectCat(){
+  var breed=(document.getElementById('petBreed').value||'').toLowerCase();
+  var catKw=['貓','cat','kitten','英短','美短','波斯','緬因','暹羅','折耳','布偶','橘貓','三花','虎斑','賓士','獅子貓','喜馬拉雅','伯曼','阿比西尼亞'];
+  return catKw.some(function(kw){return breed.indexOf(kw)>=0;});
+}
+
 function initDraw(){
   var sp=PET_SPREADS[currentSpread];
   var pn=document.getElementById('petName').value||'牠';
   document.getElementById('drawTitle').textContent='🔮 為 '+pn+' 抽牌中';
   document.getElementById('drawHint').textContent='牌卡正在回應'+pn+'的訊號...';
+  // 貓咪安全提醒
+  document.getElementById('catSafetyAlert').style.display=detectCat()?'block':'none';
   // 自動隨機抽牌
   selectedCards=[];
   var usedSet=new Set();
@@ -661,6 +678,7 @@ function buildPrompt(){
   var statusText=ps==='alive'?'在身邊（健康）':ps==='sick'?'生病/行為異常中':'已到彩虹橋 🌈';
 
   var p='飼主完成了 20 題覺察問卷 + '+currentSpread+' 張牌卡抽牌，請整合做深度解讀。\n\n';
+  if(detectCat()){p+='⚠️ 重要：這是貓咪的解讀。所有精油建議必須遵守貓咪安全規範，禁用精油請直接說明並給替代方案。\n\n';}
   p+='══════ '+pn+' 的資料 ══════\n';
   p+='名字：'+pn+'\n';
   p+='物種/品種：'+(pb||'未提供')+'\n';
