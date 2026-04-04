@@ -268,12 +268,79 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:var(--bg-dark
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
+/* ── 手遊級 Mobile-First 體驗 v3.0 ── */
+body{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;overscroll-behavior-y:contain}
+*{-webkit-tap-highlight-color:transparent}
+button,a,.mat-card,.recipe-card,.tab-btn,.guide-link,.alchemy-btn{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.mat-card:active{transform:scale(.95)!important;transition:transform .1s!important}
+.tab-btn:active{transform:scale(.96);transition:transform .08s}
+
 @media(max-width:600px){
   .mat-section,.recipe-list,.guide-list,.daily-strip,.progress-strip{margin-left:8px;margin-right:8px}
-  .mat-grid{grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
-  body{padding-bottom:72px}
+  body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   .zone-rings{gap:10px}
   .zone-ring-item{min-width:60px}
+
+  /* ── 材料庫改為水平滑動 ── */
+  .mat-grid{
+    display:flex!important;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    gap:10px;
+    padding:4px 2px 12px;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  .mat-grid::-webkit-scrollbar{display:none}
+  .mat-grid .mat-card{
+    flex:0 0 88px;
+    scroll-snap-align:start;
+    min-height:94px;
+  }
+
+  /* 滑動提示 */
+  .zone-header::before{content:'← 滑動瀏覽 →';font-size:.58rem;color:rgba(212,160,64,.4);margin-right:auto;font-weight:400;letter-spacing:0;animation:swipeHint 3s ease-in-out infinite}
+  @keyframes swipeHint{0%,100%{opacity:.3}50%{opacity:.7}}
+
+  /* Tab 手機優化 */
+  .tabs{margin:0 8px 12px;padding:2px;border-radius:12px}
+  .tab-btn{padding:10px 4px;font-size:.72rem;min-height:48px;border-radius:10px}
+  .tab-btn .tab-icon{font-size:18px}
+
+  /* 合成配方卡手機優化 */
+  .recipe-card{padding:14px;border-radius:14px}
+  .recipe-top{gap:10px;margin-bottom:10px}
+  .recipe-icon{font-size:32px}
+  .recipe-name{font-size:.88rem}
+  .recipe-mats{gap:6px}
+  .mat-pill{font-size:.68rem;padding:5px 10px}
+  .craft-btn{padding:13px;border-radius:12px;min-height:50px;font-size:.88rem}
+
+  /* 採集指南手機優化 */
+  .guide-card{padding:12px 14px;border-radius:12px;min-height:56px}
+  .guide-name{font-size:.82rem}
+  .guide-link{padding:8px 14px;min-height:38px;font-size:.72rem}
+
+  /* 煉金按鈕 */
+  .alchemy-bar{margin:0 8px 12px}
+  .alchemy-btn{min-height:50px;font-size:.85rem}
+
+  /* topbar 手機 */
+  .topbar{height:48px;padding:0 12px}
+  .topbar-back{font-size:.75rem}
+  .topbar-title{font-size:.85rem}
+
+  /* 詳情浮層手機全寬 */
+  .mat-detail{max-width:none;width:92%;border-radius:20px;padding:22px 18px}
+  .alchemy-panel{max-width:none;width:92%;border-radius:20px}
+  .furniture-story{max-width:none;width:92%;border-radius:20px}
+
+  /* 進度條手機 */
+  .progress-strip{gap:6px}
+  .prog-label{font-size:.68rem;min-width:80px}
+  .prog-num{font-size:.68rem;min-width:44px}
 }
 @media(min-width:1024px){
   .mat-section,.recipe-list,.guide-list,.daily-strip,.progress-strip{max-width:680px;margin-left:auto;margin-right:auto}

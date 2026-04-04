@@ -449,24 +449,149 @@
   function getAllMaterialDefs(){ return MATERIAL_DEFS; }
   function getAllRecipes(){ return RECIPES; }
 
-  // ═══ 掉落動畫 Toast（輕量，不依賴任何框架）═══
+  // ═══ 掉落動畫 v2.0（手遊級開箱體驗）═══
   function showDropToast(item){
+    var isLegendary = item.rarity === 'legendary';
+    var isRare = item.rarity === 'rare';
+
+    // 觸覺回饋
+    if(navigator.vibrate) navigator.vibrate(isLegendary ? [30,50,30] : isRare ? [20,30] : 10);
+
+    // ── 傳說級：全屏光效 + 中央揭示 ──
+    if(isLegendary){
+      showLegendaryDrop(item);
+      return;
+    }
+
+    // ── 稀有級：稍大的滑入卡片 + 光暈 ──
+    if(isRare){
+      showRareDrop(item);
+      return;
+    }
+
+    // ── 普通：右下角滑入 ──
     var t = document.createElement('div');
     t.style.cssText = [
-      'position:fixed;bottom:80px;right:16px;z-index:9999',
+      'position:fixed;bottom:90px;right:16px;z-index:9999',
       'background:linear-gradient(135deg,#FFF8F0,#FFE8D6)',
-      'color:#5a3c22;padding:10px 18px;border-radius:14px',
+      'color:#5a3c22;padding:12px 18px;border-radius:16px',
       'font-size:13px;font-family:Noto Serif TC,serif',
       'box-shadow:0 6px 24px rgba(0,0,0,.15)',
-      'opacity:0;transform:translateX(20px)',
-      'transition:all .35s;pointer-events:none'
+      'opacity:0;transform:translateX(30px) scale(.9)',
+      'transition:all .4s cubic-bezier(.16,1,.3,1);pointer-events:none',
+      'max-width:220px'
     ].join(';');
-    var rarityLabel = item.rarity === 'legendary' ? ' ✦ 傳說！' : item.rarity === 'rare' ? ' ✧ 稀有' : '';
-    t.innerHTML = item.icon + ' <strong>' + item.name + '</strong>' + rarityLabel +
-      '<br><span style="font-size:11px;opacity:.7">' + item.zone + ' 材料</span>';
+    t.innerHTML = '<span style="font-size:20px;vertical-align:middle">' + item.icon + '</span> <strong>' + item.name + '</strong>' +
+      '<br><span style="font-size:11px;opacity:.6">' + item.zone + '</span>';
     document.body.appendChild(t);
-    setTimeout(function(){ t.style.opacity='1'; t.style.transform='translateX(0)'; }, 30);
-    setTimeout(function(){ t.style.opacity='0'; setTimeout(function(){ t.remove(); }, 400); }, 2800);
+    setTimeout(function(){ t.style.opacity='1'; t.style.transform='translateX(0) scale(1)'; }, 30);
+    setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateX(20px) scale(.9)'; setTimeout(function(){ t.remove(); }, 400); }, 2400);
+  }
+
+  // ── 稀有掉落：底部滑入大卡 + 藍色光暈 ──
+  function showRareDrop(item){
+    var t = document.createElement('div');
+    t.style.cssText = [
+      'position:fixed;bottom:90px;left:50%;z-index:9999',
+      'transform:translateX(-50%) translateY(40px) scale(.85)',
+      'background:linear-gradient(135deg,#1a2a4a,#223366)',
+      'color:#88bbee;padding:16px 24px;border-radius:18px',
+      'font-size:14px;font-family:Noto Serif TC,serif',
+      'box-shadow:0 0 30px rgba(85,136,204,.3),0 8px 32px rgba(0,0,0,.25)',
+      'border:1.5px solid rgba(85,136,204,.4)',
+      'opacity:0;transition:all .5s cubic-bezier(.16,1,.3,1);pointer-events:none',
+      'text-align:center;min-width:200px;max-width:280px'
+    ].join(';');
+    t.innerHTML = '<div style="font-size:32px;margin-bottom:4px;filter:drop-shadow(0 2px 8px rgba(85,136,204,.5))">' + item.icon + '</div>' +
+      '<div style="font-weight:700;font-size:15px">' + item.name + '</div>' +
+      '<div style="font-size:11px;opacity:.6;margin-top:2px">✧ 稀有材料 · ' + item.zone + '</div>';
+    document.body.appendChild(t);
+
+    // 光粒子
+    for(var i=0;i<8;i++){
+      var p = document.createElement('div');
+      var angle = (i/8)*360, rad = angle*Math.PI/180;
+      p.style.cssText = 'position:fixed;bottom:140px;left:50%;width:4px;height:4px;border-radius:50%;' +
+        'background:#88bbee;z-index:9999;pointer-events:none;opacity:0;' +
+        'animation:_rareSpark .8s '+(0.2+i*0.05)+'s ease forwards';
+      p.style.setProperty('--sx', Math.cos(rad)*50+'px');
+      p.style.setProperty('--sy', Math.sin(rad)*50+'px');
+      document.body.appendChild(p);
+      setTimeout(function(pp){ return function(){ pp.remove(); }; }(p), 1200);
+    }
+
+    setTimeout(function(){ t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0) scale(1)'; }, 30);
+    setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(-10px) scale(.95)'; setTimeout(function(){ t.remove(); }, 500); }, 3200);
+  }
+
+  // ── 傳說掉落：全屏光爆 + 金色揭示 ──
+  function showLegendaryDrop(item){
+    // 全屏遮罩
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(10,6,20,.85);' +
+      'display:flex;align-items:center;justify-content:center;flex-direction:column;' +
+      'opacity:0;transition:opacity .3s;pointer-events:none';
+
+    // 光球
+    var orb = document.createElement('div');
+    orb.style.cssText = 'width:80px;height:80px;border-radius:50%;' +
+      'background:radial-gradient(circle,#f8dfa5,#d4a040,transparent);' +
+      'animation:_legOrb 1.5s ease-in-out;opacity:0';
+
+    // 圖標
+    var icon = document.createElement('div');
+    icon.style.cssText = 'font-size:64px;opacity:0;position:absolute;' +
+      'filter:drop-shadow(0 6px 24px rgba(212,160,64,.6));' +
+      'animation:_legIcon .5s 1.5s ease forwards';
+    icon.textContent = item.icon;
+
+    // 名字
+    var name = document.createElement('div');
+    name.style.cssText = 'font-size:18px;font-weight:700;color:#f8dfa5;opacity:0;' +
+      'font-family:Noto Serif TC,serif;margin-top:14px;text-align:center;' +
+      'animation:_legText .4s 1.9s ease forwards';
+    name.innerHTML = item.name + '<br><span style="font-size:12px;color:rgba(248,223,165,.6)">✦ 傳說材料 · ' + item.zone + '</span>';
+
+    // 金色碎屑
+    var confetti = document.createElement('div');
+    confetti.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:hidden';
+    var colors = ['#f8dfa5','#d4a040','#FFD166','#e9c27d','#c8862a'];
+    for(var i=0;i<30;i++){
+      var c = document.createElement('div');
+      var cx=(Math.random()-0.5)*300, cy=-(50+Math.random()*200), cr=Math.random()*720;
+      c.style.cssText = 'position:absolute;left:50%;top:50%;width:'+(4+Math.random()*6)+'px;height:'+(4+Math.random()*6)+'px;' +
+        'border-radius:'+(Math.random()>.5?'50%':'2px')+';background:'+colors[i%colors.length]+';' +
+        'opacity:0;animation:_legConf 1.2s '+(1.4+Math.random()*0.4)+'s ease forwards;' +
+        '--cx:'+cx+'px;--cy:'+cy+'px;--cr:'+cr+'deg';
+      confetti.appendChild(c);
+    }
+
+    overlay.appendChild(orb);
+    overlay.appendChild(icon);
+    overlay.appendChild(name);
+    overlay.appendChild(confetti);
+    document.body.appendChild(overlay);
+
+    // 注入 keyframes（只注入一次）
+    if(!document.getElementById('_legDropCSS')){
+      var style = document.createElement('style');
+      style.id = '_legDropCSS';
+      style.textContent = [
+        '@keyframes _legOrb{0%{transform:scale(.2) rotate(0);opacity:0}25%{opacity:1;transform:scale(.7) rotate(90deg)}80%{opacity:1;transform:scale(1.3) rotate(300deg)}100%{transform:scale(3) rotate(360deg);opacity:0}}',
+        '@keyframes _legIcon{0%{opacity:0;transform:scale(2.5)}60%{transform:scale(.85)}100%{opacity:1;transform:scale(1)}}',
+        '@keyframes _legText{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}',
+        '@keyframes _legConf{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--cx),var(--cy)) rotate(var(--cr))}}',
+        '@keyframes _rareSpark{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(0)}}'
+      ].join('\n');
+      document.head.appendChild(style);
+    }
+
+    setTimeout(function(){ overlay.style.opacity='1'; }, 30);
+    // 3.5秒後淡出
+    setTimeout(function(){
+      overlay.style.opacity='0';
+      setTimeout(function(){ overlay.remove(); }, 400);
+    }, 3500);
   }
 
   // ═══ 公開 API ═══
