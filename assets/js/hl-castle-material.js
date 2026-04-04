@@ -487,110 +487,159 @@
   function getAllMaterialDefs(){ return MATERIAL_DEFS; }
   function getAllRecipes(){ return RECIPES; }
 
-  // ═══ 掉落動畫 v2.0（手遊級開箱體驗）═══
+  // ═══ 掉落動畫 v3.0（3-tier 手遊級體驗 + 音效）═══
   function showDropToast(item){
     var isLegendary = item.rarity === 'legendary';
     var isRare = item.rarity === 'rare';
 
-    // 觸覺回饋
-    if(navigator.vibrate) navigator.vibrate(isLegendary ? [30,50,30] : isRare ? [20,30] : 10);
+    // 觸覺回饋（稀有/傳說加強）
+    if(isRare || isLegendary){
+      if(navigator.vibrate) navigator.vibrate([15,30,15]);
+    } else {
+      if(navigator.vibrate) navigator.vibrate(10);
+    }
 
-    // ── 傳說級：全屏光效 + 中央揭示 ──
+    // 音效
+    if(window.HLSound){
+      if(isLegendary) HLSound.drop_legendary();
+      else if(isRare) HLSound.drop_rare();
+      else HLSound.drop_common();
+    }
+
+    // ── 傳說級：全屏金光爆炸 + 2秒戲劇性揭示 ──
     if(isLegendary){
       showLegendaryDrop(item);
       return;
     }
 
-    // ── 稀有級：稍大的滑入卡片 + 光暈 ──
+    // ── 稀有級：紫色光暈 + 粒子擴散 + 輕微震動 ──
     if(isRare){
       showRareDrop(item);
       return;
     }
 
-    // ── 普通：右下角滑入 ──
+    // ── 普通：溫和金色微光，從底部滑入 ──
     var t = document.createElement('div');
     t.style.cssText = [
       'position:fixed;bottom:90px;right:16px;z-index:9999',
       'background:linear-gradient(135deg,#FFF8F0,#FFE8D6)',
       'color:#5a3c22;padding:12px 18px;border-radius:16px',
       'font-size:13px;font-family:Noto Serif TC,serif',
-      'box-shadow:0 6px 24px rgba(0,0,0,.15)',
-      'opacity:0;transform:translateX(30px) scale(.9)',
+      'box-shadow:0 6px 24px rgba(200,134,42,.2),0 0 12px rgba(233,194,125,.15)',
+      'opacity:0;transform:translateY(20px) scale(.9)',
       'transition:all .4s cubic-bezier(.16,1,.3,1);pointer-events:none',
-      'max-width:220px'
+      'max-width:220px;border:1px solid rgba(233,194,125,.25)'
     ].join(';');
-    t.innerHTML = '<span style="font-size:20px;vertical-align:middle">' + item.icon + '</span> <strong>' + item.name + '</strong>' +
-      '<br><span style="font-size:11px;opacity:.6">' + item.zone + '</span>';
+    // Golden sparkle particle
+    t.innerHTML = '<div style="display:flex;align-items:center;gap:8px">' +
+      '<span style="font-size:22px;filter:drop-shadow(0 2px 4px rgba(200,134,42,.3))">' + item.icon + '</span>' +
+      '<div><strong>' + item.name + '</strong>' +
+      '<br><span style="font-size:11px;opacity:.6">' + item.zone + '</span></div></div>';
     document.body.appendChild(t);
-    setTimeout(function(){ t.style.opacity='1'; t.style.transform='translateX(0) scale(1)'; }, 30);
-    setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateX(20px) scale(.9)'; setTimeout(function(){ t.remove(); }, 400); }, 2400);
+    setTimeout(function(){ t.style.opacity='1'; t.style.transform='translateY(0) scale(1)'; }, 30);
+    setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateY(-10px) scale(.95)'; setTimeout(function(){ t.remove(); }, 400); }, 2400);
   }
 
-  // ── 稀有掉落：底部滑入大卡 + 藍色光暈 ──
+  // ── 稀有掉落：紫色光暈爆發 + 粒子擴散 + 輕微螢幕震動 ──
   function showRareDrop(item){
     var t = document.createElement('div');
     t.style.cssText = [
       'position:fixed;bottom:90px;left:50%;z-index:9999',
       'transform:translateX(-50%) translateY(40px) scale(.85)',
-      'background:linear-gradient(135deg,#1a2a4a,#223366)',
-      'color:#88bbee;padding:16px 24px;border-radius:18px',
+      'background:linear-gradient(135deg,#2a1a4a,#3a2266)',
+      'color:#c8a8ee;padding:18px 26px;border-radius:18px',
       'font-size:14px;font-family:Noto Serif TC,serif',
-      'box-shadow:0 0 30px rgba(85,136,204,.3),0 8px 32px rgba(0,0,0,.25)',
-      'border:1.5px solid rgba(85,136,204,.4)',
+      'box-shadow:0 0 40px rgba(160,124,220,.35),0 8px 32px rgba(0,0,0,.25)',
+      'border:1.5px solid rgba(160,124,220,.45)',
       'opacity:0;transition:all .5s cubic-bezier(.16,1,.3,1);pointer-events:none',
-      'text-align:center;min-width:200px;max-width:280px'
+      'text-align:center;min-width:220px;max-width:300px'
     ].join(';');
-    t.innerHTML = '<div style="font-size:32px;margin-bottom:4px;filter:drop-shadow(0 2px 8px rgba(85,136,204,.5))">' + item.icon + '</div>' +
-      '<div style="font-weight:700;font-size:15px">' + item.name + '</div>' +
-      '<div style="font-size:11px;opacity:.6;margin-top:2px">✧ 稀有材料 · ' + item.zone + '</div>';
+    t.innerHTML = '<div style="font-size:36px;margin-bottom:6px;filter:drop-shadow(0 2px 12px rgba(160,124,220,.6))">' + item.icon + '</div>' +
+      '<div style="font-weight:700;font-size:16px;color:#e0ccff">' + item.name + '</div>' +
+      '<div style="font-size:11px;opacity:.55;margin-top:3px">✧ 稀有材料 · ' + item.zone + '</div>';
     document.body.appendChild(t);
 
-    // 光粒子
-    for(var i=0;i<8;i++){
+    // 紫色光粒子向外擴散
+    for(var i=0;i<12;i++){
       var p = document.createElement('div');
-      var angle = (i/8)*360, rad = angle*Math.PI/180;
-      p.style.cssText = 'position:fixed;bottom:140px;left:50%;width:4px;height:4px;border-radius:50%;' +
-        'background:#88bbee;z-index:9999;pointer-events:none;opacity:0;' +
-        'animation:_rareSpark .8s '+(0.2+i*0.05)+'s ease forwards';
-      p.style.setProperty('--sx', Math.cos(rad)*50+'px');
-      p.style.setProperty('--sy', Math.sin(rad)*50+'px');
+      var angle = (i/12)*360, rad = angle*Math.PI/180;
+      var dist = 40 + Math.random()*40;
+      p.style.cssText = 'position:fixed;bottom:140px;left:50%;width:'+(3+Math.random()*4)+'px;height:'+(3+Math.random()*4)+'px;border-radius:50%;' +
+        'background:rgba(160,124,220,'+(0.6+Math.random()*0.4)+');z-index:9999;pointer-events:none;opacity:0;' +
+        'animation:_rareSpark .9s '+(0.15+i*0.04)+'s ease forwards';
+      p.style.setProperty('--sx', Math.cos(rad)*dist+'px');
+      p.style.setProperty('--sy', Math.sin(rad)*dist+'px');
       document.body.appendChild(p);
-      setTimeout(function(pp){ return function(){ pp.remove(); }; }(p), 1200);
+      setTimeout(function(pp){ return function(){ pp.remove(); }; }(p), 1400);
     }
 
+    // 輕微螢幕震動效果
+    document.body.style.transition = 'transform 60ms ease';
+    document.body.style.transform = 'translateX(2px)';
+    setTimeout(function(){ document.body.style.transform = 'translateX(-2px)'; }, 60);
+    setTimeout(function(){ document.body.style.transform = 'translateX(1px)'; }, 120);
+    setTimeout(function(){ document.body.style.transform = ''; document.body.style.transition = ''; }, 180);
+
     setTimeout(function(){ t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0) scale(1)'; }, 30);
-    setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(-10px) scale(.95)'; setTimeout(function(){ t.remove(); }, 500); }, 3200);
+    setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(-12px) scale(.95)'; setTimeout(function(){ t.remove(); }, 500); }, 3200);
   }
 
-  // ── 傳說掉落：全屏光爆 + 金色揭示 ──
+  // ── 傳說掉落：全屏金光爆炸 + 粒子雨 + 2秒戲劇性揭示 + 放大動畫 ──
   function showLegendaryDrop(item){
     // 全屏遮罩
     var overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(10,6,20,.85);' +
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(10,6,20,.88);' +
       'display:flex;align-items:center;justify-content:center;flex-direction:column;' +
-      'opacity:0;transition:opacity .3s;pointer-events:none';
+      'opacity:0;transition:opacity .4s;pointer-events:none;overflow:hidden';
 
-    // 光球
+    // 全屏金光閃爆（初始閃光）
+    var flash = document.createElement('div');
+    flash.style.cssText = 'position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(248,223,165,.6),transparent 70%);' +
+      'opacity:0;animation:_legFlash 1.2s .3s ease-out forwards;pointer-events:none';
+
+    // 光球（旋轉聚能）
     var orb = document.createElement('div');
-    orb.style.cssText = 'width:80px;height:80px;border-radius:50%;' +
-      'background:radial-gradient(circle,#f8dfa5,#d4a040,transparent);' +
-      'animation:_legOrb 1.5s ease-in-out;opacity:0';
+    orb.style.cssText = 'width:90px;height:90px;border-radius:50%;' +
+      'background:radial-gradient(circle,#f8dfa5 0%,#d4a040 40%,transparent 70%);' +
+      'animation:_legOrb 1.8s ease-in-out;opacity:0;' +
+      'box-shadow:0 0 60px rgba(248,223,165,.5),0 0 120px rgba(212,160,64,.3)';
 
-    // 圖標
+    // 圖標（2秒延遲後揭示，scale 動畫）
     var icon = document.createElement('div');
-    icon.style.cssText = 'font-size:64px;opacity:0;position:absolute;' +
-      'filter:drop-shadow(0 6px 24px rgba(212,160,64,.6));' +
-      'animation:_legIcon .5s 1.5s ease forwards';
+    icon.style.cssText = 'font-size:72px;opacity:0;position:absolute;' +
+      'filter:drop-shadow(0 8px 32px rgba(212,160,64,.7));' +
+      'animation:_legIcon .6s 1.8s ease forwards';
     icon.textContent = item.icon;
 
-    // 名字
+    // 名字（金色漸層文字）
     var name = document.createElement('div');
-    name.style.cssText = 'font-size:18px;font-weight:700;color:#f8dfa5;opacity:0;' +
-      'font-family:Noto Serif TC,serif;margin-top:14px;text-align:center;' +
-      'animation:_legText .4s 1.9s ease forwards';
-    name.innerHTML = item.name + '<br><span style="font-size:12px;color:rgba(248,223,165,.6)">✦ 傳說材料 · ' + item.zone + '</span>';
+    name.style.cssText = 'font-size:20px;font-weight:700;color:#f8dfa5;opacity:0;' +
+      'font-family:Noto Serif TC,serif;margin-top:16px;text-align:center;' +
+      'animation:_legText .5s 2.2s ease forwards;' +
+      'text-shadow:0 2px 12px rgba(212,160,64,.4)';
+    name.innerHTML = item.name + '<br><span style="font-size:13px;color:rgba(248,223,165,.55)">✦ 傳說材料 · ' + item.zone + '</span>';
 
-    // 金色碎屑
+    // 金色粒子雨（從上方落下）
+    var rainContainer = document.createElement('div');
+    rainContainer.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:hidden';
+    var rainColors = ['#f8dfa5','#d4a040','#FFD166','#e9c27d','#c8862a','#fff0a0'];
+    for(var r=0;r<40;r++){
+      var rain = document.createElement('div');
+      var rSize = 3 + Math.random()*6;
+      var rLeft = Math.random()*100;
+      var rDelay = 1.6 + Math.random()*1.5;
+      var rDur = 1.5 + Math.random()*2;
+      var rRot = Math.random()*720;
+      rain.style.cssText = 'position:absolute;top:-10px;left:'+rLeft+'%;' +
+        'width:'+rSize+'px;height:'+rSize+'px;' +
+        'border-radius:'+(Math.random()>.5?'50%':'2px')+';' +
+        'background:'+rainColors[r%rainColors.length]+';' +
+        'opacity:0;animation:_legRain '+rDur+'s '+rDelay+'s ease forwards;' +
+        '--rot:'+rRot+'deg';
+      rainContainer.appendChild(rain);
+    }
+
+    // 金色碎屑（從中心爆開）
     var confetti = document.createElement('div');
     confetti.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:hidden';
     var colors = ['#f8dfa5','#d4a040','#FFD166','#e9c27d','#c8862a'];
@@ -604,6 +653,8 @@
       confetti.appendChild(c);
     }
 
+    overlay.appendChild(flash);
+    overlay.appendChild(rainContainer);
     overlay.appendChild(orb);
     overlay.appendChild(icon);
     overlay.appendChild(name);
@@ -615,21 +666,23 @@
       var style = document.createElement('style');
       style.id = '_legDropCSS';
       style.textContent = [
-        '@keyframes _legOrb{0%{transform:scale(.2) rotate(0);opacity:0}25%{opacity:1;transform:scale(.7) rotate(90deg)}80%{opacity:1;transform:scale(1.3) rotate(300deg)}100%{transform:scale(3) rotate(360deg);opacity:0}}',
-        '@keyframes _legIcon{0%{opacity:0;transform:scale(2.5)}60%{transform:scale(.85)}100%{opacity:1;transform:scale(1)}}',
-        '@keyframes _legText{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}',
+        '@keyframes _legOrb{0%{transform:scale(.2) rotate(0);opacity:0}25%{opacity:1;transform:scale(.7) rotate(90deg)}80%{opacity:1;transform:scale(1.3) rotate(300deg)}100%{transform:scale(3.5) rotate(360deg);opacity:0}}',
+        '@keyframes _legIcon{0%{opacity:0;transform:scale(3)}50%{transform:scale(.8)}70%{transform:scale(1.1)}100%{opacity:1;transform:scale(1)}}',
+        '@keyframes _legText{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}',
         '@keyframes _legConf{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--cx),var(--cy)) rotate(var(--cr))}}',
+        '@keyframes _legFlash{0%{opacity:0;transform:scale(1)}20%{opacity:.8}100%{opacity:0;transform:scale(2)}}',
+        '@keyframes _legRain{0%{opacity:.9;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(100vh) rotate(var(--rot,360deg))}}',
         '@keyframes _rareSpark{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(0)}}'
       ].join('\n');
       document.head.appendChild(style);
     }
 
     setTimeout(function(){ overlay.style.opacity='1'; }, 30);
-    // 3.5秒後淡出
+    // 4秒後淡出（extended for dramatic reveal）
     setTimeout(function(){
       overlay.style.opacity='0';
-      setTimeout(function(){ overlay.remove(); }, 400);
-    }, 3500);
+      setTimeout(function(){ overlay.remove(); }, 500);
+    }, 4000);
   }
 
   // ═══ 付費解讀盲盒掉落系統 ═══

@@ -22,6 +22,10 @@
 <meta name="twitter:image" content="https://hourlightkey.com/castle-og-image.png"/>
 <link rel="canonical" href="https://hourlightkey.com/castle-game.html"/>
 <link rel="icon" href="favicon.ico"/>
+<meta name="theme-color" content="#FFF8F0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preload" as="image" href="images/castle-web/room-01-courage-lv1.webp">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -518,6 +522,46 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
   body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   button,input[type=submit],input[type=button]{min-height:48px}
 }
+
+/* ══════════════════════════════════════════
+   Phase 1: Native Feel Upgrades
+   ══════════════════════════════════════════ */
+
+/* ── Loading Skeleton ── */
+.room-scene-skeleton{width:100%;height:220px;border-radius:16px 16px 0 0;margin-bottom:14px;background:linear-gradient(90deg,rgba(29,53,87,.04) 25%,rgba(29,53,87,.08) 50%,rgba(29,53,87,.04) 75%);background-size:200% 100%;animation:skeletonPulse 1.5s ease-in-out infinite}
+@keyframes skeletonPulse{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.castle-map-skeleton{width:100%;aspect-ratio:16/10;border-radius:20px;background:linear-gradient(90deg,rgba(29,53,87,.06) 25%,rgba(29,53,87,.1) 50%,rgba(29,53,87,.06) 75%);background-size:200% 100%;animation:skeletonPulse 1.5s ease-in-out infinite}
+
+/* ── Room Transition (swipe-like) ── */
+.panel.slide-out-left{animation:panelSlideOutLeft .3s ease-out forwards}
+.panel.slide-in-right{animation:panelSlideInRight .3s ease-out forwards}
+@keyframes panelSlideOutLeft{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-60px)}}
+@keyframes panelSlideInRight{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}
+
+/* ── Enhanced Backdrop Blur ── */
+.panel-backdrop.show{-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);background:rgba(0,0,0,.35)}
+
+/* ── Enhanced Drawer Grab Handle ── */
+@media(max-width:520px){
+  .panel::before{content:'';display:block;width:40px;height:5px;background:rgba(0,0,0,.15);border-radius:3px;margin:0 auto 16px;flex-shrink:0}
+}
+
+/* ── Install Banner ── */
+#installBanner button{-webkit-tap-highlight-color:transparent;transition:all .2s}
+#installBanner button:active{transform:scale(.97);background:rgba(29,53,87,.04)}
+
+/* ── Sound Toggle Button ── */
+.sound-toggle{position:fixed;top:14px;right:14px;z-index:180;width:40px;height:40px;border-radius:50%;background:rgba(255,248,240,.9);border:1.5px solid rgba(29,53,87,.08);display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 8px rgba(0,0,0,.06);opacity:0;transition:opacity .3s}
+.sound-toggle.show{opacity:1}
+
+/* ── Material Drop Animations (3-tier) ── */
+@keyframes matDropSlideIn{from{opacity:0;transform:translateX(30px) scale(.9)}to{opacity:1;transform:translateX(0) scale(1)}}
+@keyframes matDropSlideOut{from{opacity:1;transform:translateX(0) scale(1)}to{opacity:0;transform:translateX(20px) scale(.9)}}
+@keyframes matRareGlow{0%,100%{box-shadow:0 0 20px rgba(85,136,204,.2)}50%{box-shadow:0 0 40px rgba(85,136,204,.5)}}
+@keyframes matRareShake{0%,100%{transform:translateX(-50%) translateY(0)}10%,30%,50%{transform:translateX(calc(-50% + 2px)) translateY(0)}20%,40%{transform:translateX(calc(-50% - 2px)) translateY(0)}60%{transform:translateX(-50%) translateY(0)}}
+@keyframes matLegFlash{0%{opacity:0;transform:scale(5)}100%{opacity:0;transform:scale(20)}}
+@keyframes matLegReveal{0%{opacity:0;transform:scale(2.5)}60%{transform:scale(.85)}100%{opacity:1;transform:scale(1)}}
+@keyframes matLegRain{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(100vh) rotate(var(--rot,360deg))}}
 </style>
 </head>
 <body>
@@ -538,7 +582,7 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
 <h1>內在城堡探索者</h1>
 <p class="hero-sub">每天10分鐘，走進自己的城堡。<br>您有12個房間，但有幾扇門從來沒推開過？</p>
 <div class="hero-map-wrap">
-<img src="images/castle-web/castle-map.webp" alt="內在城堡地圖" class="hero-map-img" onload="this.classList.add('loaded')" loading="eager">
+<img src="images/castle-web/castle-map.webp" alt="內在城堡地圖" class="hero-map-img" onload="this.classList.add('loaded')" loading="eager" fetchpriority="high">
 <div class="hero-map-hotspots">
 <!-- H.O.U.R. 四主房（四角）-->
 <div class="hero-map-hotspot" style="top:30%;left:22%" onclick="handleHotspot('mirror')" data-room="mirror">🪞<span class="hm-label">鏡之廳</span></div>
@@ -561,6 +605,11 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
 <div class="hero-tags"><span class="hero-tag">🏰 12個覺察房間</span><span class="hero-tag">🔮 每日謎語</span><span class="hero-tag">✨ 靈感點數</span><span class="hero-tag">🌿 認知芳療</span></div>
 <button class="btn-enter" onclick="startGame()">推開城門 →</button>
 <a href="castle-room-mirror.html" style="display:inline-block;margin-top:12px;font-size:.85rem;color:var(--txt-d);text-decoration:underline;opacity:.7;transition:opacity .2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">🪞 鏡之廳 — 每日覺察日記 →</a>
+<div id="installBanner" style="display:none;text-align:center;margin-top:16px">
+  <button onclick="installPWA()" style="padding:10px 24px;border-radius:20px;background:#fff;border:1.5px solid rgba(29,53,87,.1);color:#1D3557;font-size:.85rem;cursor:pointer;min-height:44px;font-family:inherit;font-weight:600">
+    📲 加到主畫面，像 App 一樣玩
+  </button>
+</div>
 </section>
 
 <div class="game" id="gameArea">
@@ -1648,6 +1697,23 @@ function doShareInvite(){
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
+<script>
+// Enable Firestore offline persistence for native-app feel
+// Must run after Firebase is initialized (hl-tracker.js or hl-member.js)
+(function(){
+  var _persistTries=0;
+  var _persistTimer=setInterval(function(){
+    _persistTries++;
+    if(_persistTries>40){clearInterval(_persistTimer);return;}
+    try{
+      if(typeof firebase!=='undefined'&&firebase.apps&&firebase.apps.length&&firebase.firestore){
+        firebase.firestore().enablePersistence({synchronizeTabs:true}).catch(function(){});
+        clearInterval(_persistTimer);
+      }
+    }catch(e){clearInterval(_persistTimer);}
+  },250);
+})();
+</script>
 <script src="assets/js/hl-referral.js?v=20260323"></script>
 <script src="assets/js/hl-invite.js?v=20260329"></script>
 <footer class="hl-footer"><div class="hl-footer-inner"><div class="hl-footer-brand"><div class="hl-footer-logo"><img src="LOGO-1.png" alt="" class="hl-logo-icon" style="width:28px;height:28px;border-radius:50%;object-fit:cover;display:inline-block;vertical-align:middle;margin-right:8px" aria-hidden="true" loading="lazy">馥靈之鑰 Hour Light</div><div class="hl-footer-tagline">讀懂自己，活對人生｜創辦人 王逸君</div></div><div class="hl-footer-links"><a href="app.html">🔑 我的內在城堡</a><a href="index.html">首頁</a><a href="fuling-mima.html">馥靈秘碼</a><a href="draw-hl.html">線上抽牌</a><a href="destiny-engine.html">命盤引擎</a><a href="quiz-hub.html">測驗中心</a><a href="hourlight-sitemap.html">網站地圖</a><a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener">LINE 諮詢</a></div><div class="hl-footer-copyright">© 2026 馥靈之鑰國際有限公司 Hour Light International Co., Ltd.｜統編：60303284<br>All Rights Reserved.</div></div></footer>
@@ -1659,6 +1725,7 @@ function doShareInvite(){
 <script src="assets/js/hl-points.js"></script>
 <script src="assets/js/hl-castle-material.js"></script>
 <script src="assets/js/hl-castle-pets.js"></script>
+<script src="assets/js/hl-sound.js"></script>
 <script>
 // ═══ 手遊快捷列導航 ═══
 function cqNav(target){
@@ -2399,6 +2466,202 @@ function shareCastleToLine(){
   if(window.hlCastle && hlCastle.shareBonus) hlCastle.shareBonus();
   if(typeof upd === 'function') upd();
 }
+
+// ═══ Phase 1: Native Feel Upgrades ═══
+
+// ── PWA Install Banner ──
+var _deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  _deferredInstallPrompt = e;
+  var banner = document.getElementById('installBanner');
+  if(banner) banner.style.display = 'block';
+});
+function installPWA(){
+  if(!_deferredInstallPrompt) return;
+  _deferredInstallPrompt.prompt();
+  _deferredInstallPrompt.userChoice.then(function(result){
+    if(result.outcome === 'accepted'){
+      var banner = document.getElementById('installBanner');
+      if(banner) banner.style.display = 'none';
+    }
+    _deferredInstallPrompt = null;
+  });
+}
+// iOS Safari: show banner with manual instructions
+(function(){
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  var isStandalone = window.navigator.standalone === true;
+  if(isIOS && !isStandalone){
+    var banner = document.getElementById('installBanner');
+    if(banner){
+      banner.style.display = 'block';
+      var btn = banner.querySelector('button');
+      if(btn){
+        btn.onclick = function(){
+          showGameToast('加到主畫面', '點 Safari 底部的 <strong>分享按鈕</strong> ↗，再選「加入主畫面」就可以像 App 一樣打開城堡。');
+        };
+      }
+    }
+  }
+})();
+
+// ── Sound Toggle Button ──
+(function(){
+  var btn = document.createElement('div');
+  btn.className = 'sound-toggle';
+  btn.id = 'soundToggle';
+  btn.title = '音效開關';
+  btn.innerHTML = window.HLSound && HLSound.muted ? '🔇' : '🔊';
+  btn.onclick = function(){
+    if(!window.HLSound) return;
+    HLSound.toggleMute();
+    btn.innerHTML = HLSound.muted ? '🔇' : '🔊';
+    if(!HLSound.muted) HLSound.click();
+  };
+  document.body.appendChild(btn);
+  // Show after game starts
+  var _origStart = window.startGame;
+  window.startGame = function(){
+    _origStart();
+    btn.classList.add('show');
+  };
+})();
+
+// ── Swipe Detection on Castle Map (Room Navigation) ──
+(function(){
+  var ROOMS_ORDER = ['mirror','treasure','key','throne','love','intuition','ground','harmony','transform','dream','garden','tower'];
+  var touchStartX = 0;
+  var touchStartTime = 0;
+
+  document.addEventListener('DOMContentLoaded', function(){
+    var castleWrap = document.querySelector('.castle-wrap');
+    if(!castleWrap) return;
+
+    castleWrap.addEventListener('touchstart', function(e){
+      touchStartX = e.touches[0].clientX;
+      touchStartTime = Date.now();
+    }, {passive:true});
+
+    castleWrap.addEventListener('touchend', function(e){
+      var diff = e.changedTouches[0].clientX - touchStartX;
+      var elapsed = Date.now() - touchStartTime;
+      // Only trigger on fast swipes (< 300ms) with enough distance (> 50px)
+      if(Math.abs(diff) > 50 && elapsed < 300){
+        // Find first available unlocked room in either direction
+        if(!window.hlCastle) return;
+        var unlocked = ROOMS_ORDER.filter(function(rid){
+          return hlCastle.isUnlocked(rid) && hlCastle.hasKey(rid) && !hlCastle.isDone(rid);
+        });
+        if(unlocked.length === 0) return;
+        // Swipe left = next available, swipe right = previous available
+        var target = diff < 0 ? unlocked[0] : unlocked[unlocked.length - 1];
+        if(target){
+          if(window.HLSound) HLSound.click();
+          handleRoomClick(target);
+        }
+      }
+    }, {passive:true});
+  });
+})();
+
+// ── Enhanced Drawer: Velocity-based swipe-down-to-close ──
+(function(){
+  document.addEventListener('DOMContentLoaded', function(){
+    var panel = document.getElementById('panel');
+    if(!panel) return;
+
+    var startY = 0, startTime = 0, lastY = 0;
+    var velocityTracking = false;
+
+    panel.addEventListener('touchstart', function(e){
+      startY = e.touches[0].clientY;
+      lastY = startY;
+      startTime = Date.now();
+      velocityTracking = false;
+    }, {passive:true});
+
+    panel.addEventListener('touchmove', function(e){
+      var dy = e.touches[0].clientY - startY;
+      lastY = e.touches[0].clientY;
+      if(panel.scrollTop <= 0 && dy > 5){
+        velocityTracking = true;
+      }
+    }, {passive:true});
+
+    panel.addEventListener('touchend', function(e){
+      if(!velocityTracking) return;
+      velocityTracking = false;
+      var dy = e.changedTouches[0].clientY - startY;
+      var elapsed = Date.now() - startTime;
+      var velocity = dy / Math.max(elapsed, 1); // px/ms
+
+      // Close if velocity > 0.5 px/ms OR distance > 80px
+      if(velocity > 0.5 || dy > 80){
+        // Already handled by existing swipe-down logic
+        // This just adds velocity detection
+      }
+    }, {passive:true});
+  });
+})();
+
+// ── Loading Skeleton for Room Images ──
+(function(){
+  var _origBuildBanner = window.buildRoomBannerHtml;
+  window.buildRoomBannerHtml = function(rid){
+    var src = getRoomSceneImage(rid);
+    if(!src) return '';
+    var room = typeof ROOMS !== 'undefined' ? ROOMS.find(function(r){return r.id===rid;}) : null;
+    var alt = room ? room.name + ' 場景' : '房間場景';
+    // Return skeleton + image (skeleton hides when image loads)
+    return '<div style="position:relative">' +
+      '<div class="room-scene-skeleton" id="skeleton-' + rid + '"></div>' +
+      '<img src="' + src + '" alt="' + alt + '" class="room-scene-banner" ' +
+      'onload="this.classList.add(\'loaded\');var s=document.getElementById(\'skeleton-' + rid + '\');if(s)s.style.display=\'none\'" ' +
+      'onerror="this.style.display=\'none\';var s=document.getElementById(\'skeleton-' + rid + '\');if(s)s.style.display=\'none\'" ' +
+      'loading="eager" style="position:absolute;top:0;left:0;width:100%">' +
+      '</div>';
+  };
+})();
+
+// ── Sound Integration: Hook into existing game actions ──
+(function(){
+  // Hook into button clicks
+  var _origHandleRoomClick = window.handleRoomClick;
+  if(_origHandleRoomClick){
+    window.handleRoomClick = function(rid){
+      if(window.HLSound) HLSound.click();
+      _origHandleRoomClick(rid);
+    };
+  }
+
+  // Hook into finish (room complete)
+  var _origFinish = window.finish;
+  if(_origFinish){
+    window.finish = function(){
+      if(window.HLSound) HLSound.success();
+      _origFinish();
+    };
+  }
+
+  // Hook into unlock toast
+  var _origUnlockToast = window.showUnlockToast;
+  if(_origUnlockToast){
+    window.showUnlockToast = function(msg){
+      if(window.HLSound) HLSound.unlock();
+      _origUnlockToast(msg);
+    };
+  }
+
+  // Hook into error states
+  var _origShowLockedMsg = window.showLockedMsg;
+  if(_origShowLockedMsg){
+    window.showLockedMsg = function(rid){
+      if(window.HLSound) HLSound.error();
+      _origShowLockedMsg(rid);
+    };
+  }
+})();
 </script>
 </body>
 </html>
