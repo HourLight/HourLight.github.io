@@ -1263,20 +1263,20 @@ function openDoneRoom(rid){
     h += '<div style="padding:12px 14px;background:rgba(29,53,87,.04);border-radius:12px;border-left:3px solid var(--teal);font-size:.88rem;color:var(--txt-l);line-height:1.7">' + rd.q + '</div>';
   }
 
-  // 已放置的傢具
+  // 已放置的傢具（拖放系統 v2）
   h += '<div style="margin:16px 0 8px;font-size:.72rem;letter-spacing:.08em;color:var(--txt-d)">這個房間的陳設</div>';
-  if(roomFurniture.length){
-    h += '<div style="display:flex;flex-wrap:wrap;gap:8px">';
-    roomFurniture.forEach(function(f){
-      h += '<div style="display:flex;align-items:center;gap:7px;padding:8px 12px;'
-         + 'background:rgba(240,165,0,.07);border:1px solid rgba(240,165,0,.2);'
-         + 'border-radius:10px;font-size:.82rem;color:var(--warm)">'
-         + f.icon + ' ' + f.name + '</div>';
-    });
-    h += '</div>';
-  } else {
-    h += '<div style="font-size:.8rem;color:var(--txt-d);padding:8px 0">'
-       + '還沒有傢具。去材料庫收集材料，合成後城堡會有變化。</div>';
+  h += '<div id="decorRoomContainer" style="position:relative;width:100%;min-height:180px;border-radius:14px;overflow:hidden;background:rgba(29,53,87,.03);border:1px dashed rgba(200,134,42,.15)">';
+  // Room scene image inside the decor container
+  var decorSrc = getRoomSceneImage(rid);
+  if(decorSrc){
+    h += '<img src="' + decorSrc + '" alt="房間場景" style="width:100%;display:block;border-radius:14px;opacity:.6" loading="eager" onerror="this.style.display=\'none\'">';
+  }
+  h += '</div>';
+  h += '<button class="decor-open-btn" onclick="openDecorPanel(\'' + rid + '\')" style="margin-top:10px">'
+     + '🛋️ 裝飾房間</button>';
+  if(!roomFurniture.length){
+    h += '<div style="font-size:.75rem;color:var(--txt-d);padding:4px 0;margin-top:4px">'
+       + '還沒有傢具。去精品店合成材料吧。</div>';
   }
 
   // 探索歷史
@@ -1300,6 +1300,27 @@ function openDoneRoom(rid){
   p.innerHTML = h;
   p.classList.add('active');
   p.scrollIntoView({behavior:'smooth', block:'start'});
+
+  // Initialize decor v2 on the room container
+  setTimeout(function(){
+    var decorContainer = document.getElementById('decorRoomContainer');
+    if(decorContainer && window.HLDecor){
+      HLDecor.init(decorContainer);
+      HLDecor.loadRoom(rid);
+    }
+  }, 100);
+}
+
+function openDecorPanel(rid){
+  if(!window.HLDecor) return;
+  // Ensure decor is initialized on current container
+  var decorContainer = document.getElementById('decorRoomContainer');
+  if(decorContainer){
+    HLDecor.init(decorContainer);
+    HLDecor.loadRoom(rid);
+  }
+  HLDecor.openPanel();
+  if(window.HLSound) HLSound.click();
 }
 
 function showLockedMsg(rid){
@@ -1724,6 +1745,7 @@ function doShareInvite(){
 <script src="assets/js/hl-share.js"></script>
 <script src="assets/js/hl-points.js"></script>
 <script src="assets/js/hl-castle-material.js"></script>
+<script src="assets/js/hl-castle-decor-v2.js"></script>
 <script src="assets/js/hl-castle-pets.js"></script>
 <script src="assets/js/hl-sound.js"></script>
 <script>
