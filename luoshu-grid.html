@@ -7,14 +7,14 @@
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"></noscript>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=5">
-<title>洛書之謎｜九宮數字命盤×生命靈數×交叉驗證｜馥靈之鑰</title>
-<meta name="description" content="洛書之謎：將生日數字排入九宮格，看見生命的強項與缺口。結合生命靈數、馥靈秘碼與八字五行交叉驗證，用古老的洛書智慧解讀現代人生。">
+<title>洛書之謎｜九宮數字命盤×六系統交叉驗證｜馥靈之鑰</title>
+<meta name="description" content="洛書之謎：將生日數字排入九宮格，看見生命的強項與缺口。結合生命靈數、馥靈秘碼、九星氣學、生日色彩、瑪雅曆與八字六套系統交叉驗證。">
 <meta name="robots" content="index, follow">
 <link rel="icon" href="favicon.ico">
 <link rel="canonical" href="https://hourlightkey.com/luoshu-grid.html">
 <meta property="og:type" content="website">
-<meta property="og:title" content="洛書之謎｜九宮數字命盤｜馥靈之鑰">
-<meta property="og:description" content="生日數字排入九宮格，看見生命強項與缺口。結合生命靈數、馥靈秘碼與八字五行交叉驗證。">
+<meta property="og:title" content="洛書之謎｜九宮數字命盤×六系統交叉驗證｜馥靈之鑰">
+<meta property="og:description" content="生日數字排入九宮格，看見生命強項與缺口。結合生命靈數、馥靈秘碼、九星氣學、生日色彩、瑪雅曆與八字六套系統交叉驗證。">
 <meta property="og:url" content="https://hourlightkey.com/luoshu-grid.html">
 <meta property="og:image" content="https://hourlightkey.com/og-image.jpg">
 <meta property="og:site_name" content="馥靈之鑰 Hour Light">
@@ -125,8 +125,8 @@ select,input[type=text],input[type=date]{font-size:16px!important}
 
 <div class="ls-hero">
   <h1>🔢 洛書之謎</h1>
-  <div class="ls-sub">九宮數字命盤 × 生命靈數 × 八字五行</div>
-  <p class="ls-intro">古老的洛書把 1 到 9 排成九宮格，每個位置對應一個生命領域。<br>把你的生日數字放進去，哪裡滿哪裡空，一目瞭然。</p>
+  <div class="ls-sub">九宮數字命盤 × 六系統交叉驗證</div>
+  <p class="ls-intro">古老的洛書把 1 到 9 排成九宮格，每個位置對應一個生命領域。<br>把你的生日數字放進去，再用六套命理系統交叉比對，看見更完整的自己。</p>
 </div>
 
 <div class="ls-card">
@@ -162,6 +162,14 @@ select,input[type=text],input[type=date]{font-size:16px!important}
     <div class="ls-section">
       <div class="ls-section-title">📐 八條連線分析</div>
       <div id="planeAnalysis"></div>
+    </div>
+  </div>
+
+  <div class="ls-card" id="multiSystemCard" style="display:none">
+    <div class="ls-section">
+      <div class="ls-section-title">🌐 多系統整合解讀</div>
+      <div id="multiSystemCount" style="text-align:center;font-size:.92rem;color:var(--lt-gold);font-weight:600;margin-bottom:14px"></div>
+      <div id="multiSystemResult"></div>
     </div>
   </div>
 
@@ -221,7 +229,7 @@ select,input[type=text],input[type=date]{font-size:16px!important}
 <script src="js/lunar.min.js"></script>
 <script src="js/hl-cross-validator.js"></script>
 <script>
-/* ═══════════ 洛書之謎 核心引擎 v1.0 ═══════════ */
+/* ═══════════ 洛書之謎 核心引擎 v2.0（七系統交叉驗證） ═══════════ */
 
 /* 洛書九宮排列（標準洛書位）:
    4 9 2
@@ -349,7 +357,67 @@ function calculateGrid(){
   }
   document.getElementById('planeAnalysis').innerHTML=planeHTML;
 
-  /* 7. Cross validation with Ba-zi */
+  /* 7. Additional systems */
+
+  /* 7a. 九星氣學 */
+  var jiuxing=((11-(bY%9))%9)||9;
+  var JIUXING_NAMES={1:'一白水星',2:'二黑土星',3:'三碧木星',4:'四綠木星',5:'五黃土星',6:'六白金星',7:'七赤金星',8:'八白土星',9:'九紫火星'};
+  var JIUXING_ELEMENT={1:'water',2:'earth',3:'wood',4:'wood',5:'earth',6:'metal',7:'metal',8:'earth',9:'fire'};
+  var JIUXING_MEANING={1:'智慧流動，善於適應變化',2:'穩重包容，默默耕耘型',3:'開創衝勁，行動力強',4:'柔和成長，人緣好',5:'核心穩定，領導力強',6:'清晰果斷，有原則',7:'表達力強，懂得享受',8:'踏實累積，厚積薄發',9:'光彩耀眼，感染力強'};
+  var jiuxingEl=JIUXING_ELEMENT[jiuxing];
+
+  /* 7b. 生日色彩 */
+  var COLOR_MAP={1:'紅色',2:'橙色',3:'黃色',4:'綠色',5:'藍色',6:'靛色',7:'紫色',8:'玫瑰色',9:'金色'};
+  var COLOR_ELEMENT={1:'fire',2:'fire',3:'earth',4:'wood',5:'water',6:'water',7:'metal',8:'fire',9:'metal'};
+  var COLOR_MEANING={1:'熱情開創，天生領袖',2:'溫暖合作，善於連結',3:'樂觀表達，創意豐沛',4:'和諧成長，穩定踏實',5:'自由探索，勇於改變',6:'直覺敏銳，內在豐富',7:'靈性深度，追求真理',8:'豐盛力量，物質與精神兼顧',9:'大愛智慧，看見全局'};
+  var birthColor=COLOR_MAP[lpNum]||'金色';
+  var colorEl=COLOR_ELEMENT[lpNum]||'earth';
+
+  /* 7c. 瑪雅曆 Kin */
+  var startOfYear=new Date(bY,0,1);
+  var birthDate=new Date(bY,bM-1,bD);
+  var dayOfYear=Math.floor((birthDate-startOfYear)/(1000*60*60*24))+1;
+  var kin=((bY-1900)*365+dayOfYear+1)%260;if(kin<=0)kin+=260;
+  var tzolkinSeal=(kin-1)%20;
+  var tzolkinTone=(kin-1)%13+1;
+  var SEAL_NAMES=['紅龍','白風','藍夜','黃種子','紅蛇','白世界橋','藍手','黃星星','紅月','白狗','藍猴','黃人','紅天行者','白巫師','藍鷹','黃戰士','紅地球','白鏡','藍風暴','黃太陽'];
+  var SEAL_ELEMENT_MAP={};
+  /* Red seals = fire */
+  [0,4,8,12,16].forEach(function(i){SEAL_ELEMENT_MAP[i]='fire';});
+  /* White seals = metal */
+  [1,5,9,13,17].forEach(function(i){SEAL_ELEMENT_MAP[i]='metal';});
+  /* Blue seals = water */
+  [2,6,10,14,18].forEach(function(i){SEAL_ELEMENT_MAP[i]='water';});
+  /* Yellow seals = earth */
+  [3,7,11,15,19].forEach(function(i){SEAL_ELEMENT_MAP[i]='earth';});
+  var mayaEl=SEAL_ELEMENT_MAP[tzolkinSeal]||'earth';
+  var sealName=SEAL_NAMES[tzolkinSeal]||'未知';
+
+  /* 7d. Build multi-system display */
+  var multiHTML='';
+  var systems=[
+    {name:'生命靈數',value:lpNum+'號人',element:HLCross.NUMBER_ELEMENT[lpNum],meaning:'生命路徑數是你這一生的主旋律，影響你看世界的角度和行動模式。'},
+    {name:'馥靈秘碼（H數）',value:hNum+'號',element:HLCross.NUMBER_ELEMENT[hNum],meaning:'農曆生日計算的內在設定，反映你最核心的身心狀態。'},
+    {name:'九星氣學',value:JIUXING_NAMES[jiuxing],element:jiuxingEl,meaning:JIUXING_MEANING[jiuxing]},
+    {name:'生日色彩',value:birthColor,element:colorEl,meaning:COLOR_MEANING[lpNum]||''},
+    {name:'瑪雅曆',value:'Kin '+kin+'（'+sealName+'．調性'+tzolkinTone+'）',element:mayaEl,meaning:'瑪雅星系印記，代表你的宇宙角色和能量特質。'}
+  ];
+  for(var si=0;si<systems.length;si++){
+    var sys=systems[si];
+    var elCN=HLCross.ELEMENT_CN[sys.element]||'土';
+    multiHTML+='<div style="padding:10px 0;border-bottom:1px solid rgba(26,23,20,.05)">'
+      +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
+      +'<span style="font-family:var(--ff-oracle);color:var(--lt-gold);font-weight:600;min-width:100px">'+sys.name+'</span>'
+      +'<span style="font-weight:500">'+sys.value+'</span>'
+      +'<span style="margin-left:auto;font-size:.82rem;color:var(--lt-text-soft);background:var(--lt-gold-bg);padding:2px 8px;border-radius:4px">'+elCN+'行</span>'
+      +'</div>'
+      +'<div style="font-size:.85rem;color:var(--lt-text-soft);margin-top:4px;line-height:1.7">'+sys.meaning+'</div>'
+      +'</div>';
+  }
+  document.getElementById('multiSystemResult').innerHTML=multiHTML;
+  document.getElementById('multiSystemCard').style.display='block';
+
+  /* 8. Cross validation with ALL systems */
   var gridElements=[];
   for(var en=1;en<=9;en++){
     if(counts[en]>=2) gridElements.push(HLCross.NUMBER_ELEMENT[en]);
@@ -357,13 +425,17 @@ function calculateGrid(){
   var dominantGridEl=gridElements.length>0?gridElements[0]:'earth';
 
   var readings=[
-    {system:'洛書主數',element:HLCross.NUMBER_ELEMENT[lpNum]||'earth',themes:['self','career'],confidence:0.85},
-    {system:'馥靈H數（'+hNum+'）',element:HLCross.NUMBER_ELEMENT[hNum]||'earth',themes:['self','healing'],confidence:0.8},
-    {system:'八字日主（'+dayStem+'）',element:dayElement,themes:['self'],confidence:0.9}
+    {system:'洛書九宮',element:dominantGridEl,themes:['self','career'],confidence:0.85},
+    {system:'生命靈數（'+lpNum+'號）',element:HLCross.NUMBER_ELEMENT[lpNum]||'earth',themes:['self','career'],confidence:0.8},
+    {system:'馥靈秘碼（H'+hNum+'）',element:HLCross.NUMBER_ELEMENT[hNum]||'earth',themes:['self','healing'],confidence:0.8},
+    {system:'九星氣學（'+JIUXING_NAMES[jiuxing]+'）',element:jiuxingEl,themes:['career','action'],confidence:0.75},
+    {system:'生日色彩（'+birthColor+'）',element:colorEl,themes:['self','creativity'],confidence:0.6},
+    {system:'瑪雅曆（'+sealName+'）',element:mayaEl,themes:['self','transformation'],confidence:0.7},
+    {system:'八字日主（'+dayStem+'）',element:dayElement,themes:['self','career'],confidence:0.9}
   ];
-  if(gridElements.length>0){
-    readings.push({system:'九宮強勢數',element:dominantGridEl,themes:['career','action'],confidence:0.7});
-  }
+
+  var totalSysCount=readings.length;
+  document.getElementById('multiSystemCount').textContent='本次解讀整合 '+totalSysCount+' 套命理系統';
 
   var cvResult=HLCross.validate(readings);
   var cvHTML=HLCross.renderHTML(cvResult,readings);
@@ -373,16 +445,20 @@ function calculateGrid(){
   var strengthStr=strengths.length>0?strengths.join('、'):'（沒有突出強項，均衡發展型）';
   var gapStr=gaps.length>0?gaps.join('、'):'（沒有空缺，全面型）';
   document.getElementById('fourSteps').innerHTML=
-    '看見模式 → 你的九宮格強項是：'+strengthStr+'。空缺是：'+gapStr+'。<br><br>'
-    +'理解來源 → 強項是天生帶來的資源，空缺是這一生需要有意識發展的課題。兩者都是禮物。<br><br>'
+    '看見模式 → 你的九宮格強項是：'+strengthStr+'。空缺是：'+gapStr+'。'+totalSysCount+' 套系統中有 '+cvResult.agreements+' 套指向同一個方向（'+cvResult.dominantElementCN+'），訊號強度：'+cvResult.signalStrength+'。<br><br>'
+    +'理解來源 → 強項是天生帶來的資源，空缺是這一生需要有意識發展的課題。多套系統同時確認的方向，最值得優先關注。<br><br>'
     +'選擇改變 → 強項不需要刻意練，它自然就在。把注意力放在空缺的領域，那裡藏著成長的機會。<br><br>'
     +'最小行動 → '+(gaps.length>0?'選一個空缺領域，今天花 10 分鐘有意識地關注它。':'你的數字分佈均衡。今天選一個最想深入的領域，多花一點時間。')+'<br><br>'
     +'<span style="font-family:var(--ff-oracle);color:var(--lt-gold)">鑰匙我遞給您。城堡自己開。</span>';
 
   /* Save */
   currentResult={
-    birthVal:birthVal,lpNum:lpNum,hNum:hNum,counts:counts,
+    birthVal:birthVal,lpNum:lpNum,hNum:hNum,oNum:oNum,counts:counts,
     strengths:strengths,gaps:gaps,dayStem:dayStem,dayElement:dayElement,
+    jiuxing:jiuxing,jiuxingName:JIUXING_NAMES[jiuxing],jiuxingEl:jiuxingEl,
+    birthColor:birthColor,colorEl:colorEl,
+    kin:kin,sealName:sealName,tzolkinTone:tzolkinTone,mayaEl:mayaEl,
+    totalSysCount:totalSysCount,
     cv:{signal:cvResult.signalStrength,agreement:cvResult.agreementText,dominantEl:cvResult.dominantElementCN}
   };
 
@@ -394,20 +470,24 @@ function calculateGrid(){
 function copyReading(){
   if(!currentResult)return;
   var r=currentResult;
-  var text='【洛書之謎 完整命盤】\n\n'
-    +'生日：'+r.birthVal+'\n'
-    +'生命靈數：'+r.lpNum+'｜馥靈H數：'+r.hNum+'\n'
-    +'八字日主：'+r.dayStem+'（'+HLCross.ELEMENT_CN[r.dayElement]+'）\n\n'
+  var text='【洛書之謎 完整命盤（'+r.totalSysCount+'系統交叉驗證）】\n\n'
+    +'生日：'+r.birthVal+'\n\n'
+    +'► 生命靈數：'+r.lpNum+'號人（'+HLCross.ELEMENT_CN[HLCross.NUMBER_ELEMENT[r.lpNum]]+'行）\n'
+    +'► 馥靈秘碼 H數：'+r.hNum+'（'+HLCross.ELEMENT_CN[HLCross.NUMBER_ELEMENT[r.hNum]]+'行）\n'
+    +'► 八字日主：'+r.dayStem+'（'+HLCross.ELEMENT_CN[r.dayElement]+'行）\n'
+    +'► 九星氣學：'+r.jiuxingName+'（'+HLCross.ELEMENT_CN[r.jiuxingEl]+'行）\n'
+    +'► 生日色彩：'+r.birthColor+'（'+HLCross.ELEMENT_CN[r.colorEl]+'行）\n'
+    +'► 瑪雅曆：Kin '+r.kin+'（'+r.sealName+'．調性'+r.tzolkinTone+'）（'+HLCross.ELEMENT_CN[r.mayaEl]+'行）\n\n'
     +'九宮格數字分佈：\n';
   for(var n=1;n<=9;n++){
     text+=n+'（'+PALACE_NAMES[n]+'）：'+(r.counts[n]>0?'x'+r.counts[n]:'空缺')+'\n';
   }
   text+='\n強項：'+(r.strengths.length>0?r.strengths.join('、'):'均衡型')+'\n'
     +'空缺：'+(r.gaps.length>0?r.gaps.join('、'):'無空缺')+'\n\n'
-    +'【交叉驗證】\n'
+    +'【'+r.totalSysCount+'系統交叉驗證】\n'
     +'訊號強度：'+r.cv.signal+'（'+r.cv.agreement+'）\n'
     +'主導五行：'+r.cv.dominantEl+'\n\n'
-    +'請根據以上洛書九宮命盤，結合生命靈數和八字五行的交叉驗證資料，提供深度的生命藍圖分析。'
+    +'請根據以上洛書九宮命盤，結合'+r.totalSysCount+'套命理系統的交叉驗證資料，提供深度的生命藍圖分析。'
     +'\n\n🔗 馥靈之鑰 hourlightkey.com';
 
   navigator.clipboard.writeText(text).then(function(){
