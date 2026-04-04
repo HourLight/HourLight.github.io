@@ -135,6 +135,12 @@ select,input[type=text],textarea{font-size:16px!important}
   <p class="no-intro">不用想，不用算，憑直覺選三個數字。<br>第一個數字是「現在的你」，第二個是「內心渴望」，第三個是「行動方向」。數字不會說謊，因為選的人是你的潛意識。</p>
 </div>
 
+<div class="no-card" style="border:1px dashed rgba(184,146,42,.25);background:rgba(184,146,42,.03)">
+  <label for="birthInput" style="display:block;font-family:var(--ff-oracle);font-size:.95rem;color:var(--lt-gold);font-weight:600;margin-bottom:8px">想要更精準？輸入生日（選填）</label>
+  <input type="date" id="birthInput" style="font-size:16px;width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--lt-border);background:var(--lt-bg);color:var(--lt-text);font-family:var(--ff-font)">
+  <div style="font-size:.82rem;color:#8b7a60;margin-top:6px;line-height:1.6">有生日資料，系統會用八字＋馥靈秘碼＋生命靈數交叉比對你的直覺</div>
+</div>
+
 <div class="no-card" id="selectionArea">
   <div class="no-round-label" id="roundLabel">🌟 第一輪：現在的你</div>
   <div class="no-round-hint" id="roundHint">閉上眼睛三秒，睜開後選第一個吸引你的數字</div>
@@ -205,8 +211,10 @@ select,input[type=text],textarea{font-size:16px!important}
 
 <div class="no-toast" id="toast"></div>
 
+<script src="js/lunar.min.js"></script>
+<script src="js/hl-cross-validator.js"></script>
 <script>
-/* ═══════════ 直覺數字占卜 核心引擎 ═══════════ */
+/* ═══════════ 直覺數字占卜 核心引擎 v2.0（交叉驗證版）═══════════ */
 
 var NUM_DATA={
   1:{name:'開創',keyword:'勇氣/獨立/先鋒',oil:'薄荷',oilDesc:'薄荷的沁涼感打開思緒，清理猶豫。適合在感覺卡住的時候，深吸一口氣重新啟動。',hour:'H（身心校準）',light:'L（愛之殿）',card:'勇氣殿系列',
@@ -357,6 +365,82 @@ function showResult(){
   document.getElementById('resultArea').scrollIntoView({behavior:'smooth',block:'start'});
 
   if(window.HL_dropMaterial)window.HL_dropMaterial('oracle');
+
+  /* ═══ 交叉驗證（有生日才觸發）═══ */
+  var birthVal=document.getElementById('birthInput').value;
+  if(birthVal && window.HLCross && window.Solar){
+    try{
+      var bd=new Date(birthVal);
+      var solar=Solar.fromDate(bd);
+      var lunar=solar.getLunar();
+
+      /* 生命靈數 */
+      var yS=HLCross.rdp(bd.getFullYear());
+      var mS=HLCross.rdp(bd.getMonth()+1);
+      var dS=HLCross.rdp(bd.getDate());
+      var lifePathNum=HLCross.rdp(yS+mS+dS);
+
+      /* 馥靈 H 數（農曆月+日） */
+      var hNum=HLCross.rdp(Math.abs(lunar.getMonth())+lunar.getDay());
+
+      /* 直覺選數的主導五行 */
+      function getMostFrequent(arr){
+        var freq={};
+        for(var x=0;x<arr.length;x++){freq[arr[x]]=(freq[arr[x]]||0)+1;}
+        var mk=null,mv=0;
+        for(var k in freq){if(freq[k]>mv){mv=freq[k];mk=k;}}
+        return mk;
+      }
+      var chosenElements=selections.map(function(n){return HLCross.NUMBER_ELEMENT[n];});
+      var mostFreqEl=getMostFrequent(chosenElements);
+
+      /* 組裝 readings */
+      var cvReadings=[
+        {system:'直覺選數',element:mostFreqEl,themes:['self','action'],confidence:0.8},
+        {system:'生命靈數',element:HLCross.NUMBER_ELEMENT[lifePathNum],themes:['self','career'],confidence:0.85},
+        {system:'馥靈H數',element:HLCross.NUMBER_ELEMENT[HLCross.rdp(hNum)],themes:['healing','self'],confidence:0.8}
+      ];
+
+      /* 節氣能量 */
+      var now=new Date();
+      var termNames=['小寒','大寒','立春','雨水','驚蟄','春分','清明','穀雨','立夏','小滿','芒種','夏至','小暑','大暑','立秋','處暑','白露','秋分','寒露','霜降','立冬','小雪','大雪','冬至'];
+      var termIdx=Math.floor((now.getMonth()*2)+(now.getDate()>15?1:0))%24;
+      var currentTerm=termNames[termIdx];
+      var termEl=HLCross.TERM_ELEMENT[currentTerm];
+      if(termEl){
+        cvReadings.push({system:'節氣能量（'+currentTerm+'）',element:termEl,themes:['action','transformation'],confidence:0.7});
+      }
+
+      /* 直覺×命盤同步率 */
+      var matches=0;
+      selections.forEach(function(p){
+        if(HLCross.rdp(p)===HLCross.rdp(lifePathNum)) matches++;
+        if(HLCross.rdp(p)===HLCross.rdp(hNum)) matches++;
+      });
+      var syncPct=Math.round(matches/(selections.length*2)*100);
+
+      /* 驗證 & 渲染 */
+      var cvResult=HLCross.validate(cvReadings);
+      var cvHTML=HLCross.renderHTML(cvResult,cvReadings);
+
+      var syncHTML='<div style="background:rgba(184,146,42,.06);border:1px solid rgba(184,146,42,.2);border-radius:16px;padding:20px;margin:16px 0;text-align:center">';
+      syncHTML+='<div style="font-size:.85rem;color:#8b6914;margin-bottom:8px">直覺 × 命盤同步率</div>';
+      syncHTML+='<div style="font-size:2rem;font-weight:300;color:#b8922a">'+syncPct+'%</div>';
+      if(syncPct>=60) syncHTML+='<div style="font-size:.88rem;color:#5a4a30;margin-top:4px">你的直覺跟命盤高度同步。你很了解自己。</div>';
+      else if(syncPct>=30) syncHTML+='<div style="font-size:.88rem;color:#5a4a30;margin-top:4px">部分同步。你的直覺在尋找命盤之外的可能性。</div>';
+      else syncHTML+='<div style="font-size:.88rem;color:#5a4a30;margin-top:4px">你的直覺跟命盤說的不一樣。這不代表錯，代表你正在探索新方向。</div>';
+      syncHTML+='</div>';
+
+      /* 插入到結果區 */
+      var combinedCard=document.getElementById('combinedReading');
+      if(combinedCard){
+        combinedCard.insertAdjacentHTML('afterend',syncHTML+cvHTML);
+      }
+
+      /* 儲存交叉驗證資料供複製用 */
+      currentResult.crossValidation={syncPct:syncPct,signal:cvResult.signalStrength,agreement:cvResult.agreementText,dominantEl:cvResult.dominantElementCN,lifePathNum:lifePathNum,hNum:HLCross.rdp(hNum)};
+    }catch(e){/* 交叉驗證失敗不影響主功能 */}
+  }
 }
 
 function copyReading(){
@@ -367,8 +451,19 @@ function copyReading(){
     +'第一輪「現在的你」：'+r.n1+'號（'+r.d1.name+'）\n'+r.d1.present+'\n對應精油：'+r.d1.oil+'\n\n'
     +'第二輪「內心渴望」：'+r.n2+'號（'+r.d2.name+'）\n'+r.d2.desire+'\n對應精油：'+r.d2.oil+'\n\n'
     +'第三輪「行動方向」：'+r.n3+'號（'+r.d3.name+'）\n'+r.d3.action+'\n對應精油：'+r.d3.oil+'\n\n'
-    +'請根據以上直覺數字占卜結果，結合馥靈秘碼的數字意義和認知芳療的原理，提供更深入的分析與個人化行動建議。'
-    +'\n\n🔗 馥靈之鑰 hourlightkey.com';
+    +'請根據以上直覺數字占卜結果，結合馥靈秘碼的數字意義和認知芳療的原理，提供更深入的分析與個人化行動建議。';
+
+  if(r.crossValidation){
+    var cv=r.crossValidation;
+    text+='\n\n【交叉驗證結果】\n'
+      +'生命靈數：'+cv.lifePathNum+'｜馥靈H數：'+cv.hNum+'\n'
+      +'直覺×命盤同步率：'+cv.syncPct+'%\n'
+      +'訊號強度：'+cv.signal+'（'+cv.agreement+'）\n'
+      +'主導五行：'+cv.dominantEl+'\n'
+      +'請將交叉驗證數據納入分析，特別說明直覺選數與命盤數據的呼應或張力。';
+  }
+
+  text+='\n\n🔗 馥靈之鑰 hourlightkey.com';
 
   navigator.clipboard.writeText(text).then(function(){
     showToast('占卜結果已複製 📋');
