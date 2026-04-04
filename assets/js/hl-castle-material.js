@@ -336,6 +336,12 @@
 
     saveMaterials(state);
 
+    // 回報材料掉落事件
+    reportCastleEvent('material_drop', {
+      material: item.name, materialId: item.id,
+      rarity: item.rarity, zone: item.zone
+    });
+
     // 觸發 hl-castle-key 點數（掉到稀有材料加點）
     if(window.hlCastle){
       if(item.rarity === 'rare')      window.hlCastle.addPoints(3);
@@ -860,6 +866,24 @@
     setTimeout(function(){ overlay.style.opacity = '1'; }, 30);
   }
 
+  // ═══ Firestore 事件回報（非阻塞） ═══
+  function reportCastleEvent(type, data) {
+    try {
+      if (typeof firebase !== 'undefined' && firebase.auth && firebase.firestore) {
+        var user = firebase.auth().currentUser;
+        if (user) {
+          firebase.firestore().collection('events').add({
+            uid: user.uid,
+            type: 'castle_' + type,
+            data: data || {},
+            ts: firebase.firestore.FieldValue.serverTimestamp(),
+            createdAt: new Date().toISOString()
+          }).catch(function(){});
+        }
+      }
+    } catch(e) {}
+  }
+
   // ═══ 公開 API ═══
   window.hlMaterial = {
     drop:         dropMaterial,
@@ -873,6 +897,7 @@
     recordDestinyComplete: recordDestinyComplete,
     getDestinyProgress: getDestinyProgress,
     DESTINY_TOOLS: DESTINY_TOOLS,
+    reportCastleEvent: reportCastleEvent,
     showToast:    showDropToast,
     dropPaidReading: dropPaidReadingMaterials,
     showBlindBox: showBlindBoxReveal,

@@ -737,6 +737,10 @@
     renderPlaced();
     updateInventoryPanel();
     playSound('click');
+    // 回報傢具擺放事件
+    if(window.hlMaterial && window.hlMaterial.reportCastleEvent){
+      window.hlMaterial.reportCastleEvent('furniture_place', {room:_currentRoom, furnitureId:fId, zone:zoneIdx});
+    }
   }
 
   // Zone click handler (for tap-to-place mode)

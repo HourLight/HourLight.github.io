@@ -525,6 +525,13 @@
       stage.forEach(function(r){if(state.unlockedRooms.indexOf(r)===-1){state.unlockedRooms.push(r);newUnlocked.push(r);}});
       var newAch=checkAch(state);
       saveState(state);
+      // 回報城堡事件到 Firestore
+      if(window.hlMaterial && window.hlMaterial.reportCastleEvent){
+        window.hlMaterial.reportCastleEvent('room_enter', {room:roomId, points:pts, firstEver:first});
+        newAch.forEach(function(a){
+          window.hlMaterial.reportCastleEvent('achievement', {name:a.name, id:a.id});
+        });
+      }
       return{ok:true,ptsEarned:pts,isFirstEver:first,newlyUnlocked:newUnlocked,
              newAchievements:newAch,
              unlockMsg:newUnlocked.length?UNLOCK_MSGS[newUnlocked[newUnlocked.length-1]]:null};

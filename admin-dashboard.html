@@ -1792,13 +1792,9 @@ function loadMemberCastleData(uid) {
 
 function loadMemberEvents(uid) {
   var container = document.getElementById('memberEvents');
-  db.collection('events').where('uid', '==', uid).orderBy('ts', 'desc').limit(20).get().then(function(snap) {
+  // 先嘗試 createdAt 排序（不需要複合索引），失敗再用無排序 fallback
+  db.collection('events').where('uid', '==', uid).orderBy('createdAt', 'desc').limit(20).get().then(function(snap) {
     if (snap.empty) {
-      return db.collection('events').where('uid', '==', uid).orderBy('createdAt', 'desc').limit(20).get();
-    }
-    return snap;
-  }).then(function(snap) {
-    if (!snap || snap.empty) {
       container.innerHTML = '<div class="adm-empty" style="padding:16px">尚無活動紀錄</div>';
       return;
     }
@@ -1807,7 +1803,34 @@ function loadMemberEvents(uid) {
       container.appendChild(renderEventItem(doc.data()));
     });
   }).catch(function(e) {
-    container.innerHTML = '<div class="adm-empty">載入失敗：' + esc(e.message) + '</div>';
+    // 索引不存在時 fallback：不排序直接查
+    db.collection('events').where('uid', '==', uid).limit(20).get().then(function(snap) {
+      if (snap.empty) {
+        container.innerHTML = '<div class="adm-empty" style="padding:16px">尚無活動紀錄</div>';
+        return;
+      }
+      container.innerHTML = '';
+      var docs = [];
+      snap.forEach(function(doc) { docs.push(doc); });
+      // 前端排序
+      docs.sort(function(a, b) {
+        var ta = a.data().createdAt || a.data().ts || '';
+        var tb = b.data().createdAt || b.data().ts || '';
+        return ta > tb ? -1 : ta < tb ? 1 : 0;
+      });
+      docs.forEach(function(doc) {
+        container.appendChild(renderEventItem(doc.data()));
+      });
+    }).catch(function(e2) {
+      var msg = (e2.message || '').toLowerCase();
+      if (msg.indexOf('index') >= 0 || msg.indexOf('requires an index') >= 0) {
+        var indexUrl = msg.match(/https:\/\/[^\s"')]+/);
+        container.innerHTML = '<div class="adm-empty" style="padding:16px">需要建立 Firebase 索引' +
+          (indexUrl ? '（<a href="' + indexUrl[0] + '" target="_blank" style="color:#e9c27d">點此建立</a>）' : '') + '</div>';
+      } else {
+        container.innerHTML = '<div class="adm-empty" style="padding:16px">尚無活動紀錄</div>';
+      }
+    });
   });
 }
 
@@ -1832,7 +1855,7 @@ function loadMemberQuiz(uid) {
     html += '</tbody></table></div>';
     container.innerHTML = html;
   }).catch(function(e) {
-    container.innerHTML = '<div class="adm-empty">載入失敗（可能無此子集合）</div>';
+    container.innerHTML = '<div class="adm-empty" style="padding:16px">尚無測驗紀錄</div>';
   });
 }
 
@@ -1859,7 +1882,7 @@ function loadMemberDraws(uid) {
     html += '</tbody></table></div>';
     container.innerHTML = html;
   }).catch(function(e) {
-    container.innerHTML = '<div class="adm-empty">載入失敗（可能無此子集合）</div>';
+    container.innerHTML = '<div class="adm-empty" style="padding:16px">尚無抽牌紀錄</div>';
   });
 }
 
