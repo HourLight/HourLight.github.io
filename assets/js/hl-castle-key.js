@@ -565,7 +565,7 @@
               memo:'城堡靈感點數兌換（'+item.cost+'pt）',source:'castle_redeem',
               createdBy:'system',createdFor:u?u.email:'',
               createdAt:firebase.firestore.FieldValue.serverTimestamp()
-            });
+            }).catch(function(err){ console.error('[castle] 折價券寫入失敗:', err); });
           }
         }catch(e){}
       }
