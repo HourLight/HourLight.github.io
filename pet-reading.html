@@ -393,7 +393,7 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
           想一想牠最常待在家裡的哪個角落。
         </div>
       </div>
-      <div class="btn-row" style="margin-top:24px" id="resultBtns" style="display:none">
+      <div class="btn-row" id="resultBtns" style="margin-top:24px;display:none">
         <button class="btn-ghost" onclick="copyReading()">📋 複製解讀結果</button>
         <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" class="btn-ghost">💬 預約覺察師深度陪伴</a>
         <button class="btn-ghost" onclick="location.reload()">🔄 重新來一次</button>
@@ -548,6 +548,7 @@ function initDraw(){
     slot.id='slot-'+i;
     var petDNA=window.petCardDNA?window.petCardDNA[card.code]:null;
     var petMsg=petDNA?petDNA.core:'';
+    var petSpiritual=petDNA&&petDNA.spiritual?petDNA.spiritual:'';
     slot.innerHTML=
       '<div class="card-inner">'+
         '<div class="card-back"><div class="card-pos">'+pos.label+'</div></div>'+
@@ -559,7 +560,7 @@ function initDraw(){
           '<div class="card-type">'+typeLabel+'</div>'+
         '</div>'+
       '</div>'+
-      (petMsg?'<div class="pet-msg" style="display:none;margin-top:8px;font-size:.78rem;color:var(--paw);font-style:italic;line-height:1.5;text-align:center;font-family:var(--kai);">「'+petMsg+'」</div>':'');
+      (petMsg?'<div class="pet-msg" style="display:none;margin-top:8px;font-size:.78rem;color:var(--paw);font-style:italic;line-height:1.5;text-align:center;font-family:var(--kai);">「'+petMsg+'」'+(petSpiritual?'<div style="font-size:.72rem;color:rgba(240,181,179,.5);font-style:normal;margin-top:5px;letter-spacing:.3px">'+petSpiritual+'</div>':'')+'</div>':'');
     grid.appendChild(slot);
   });
   document.getElementById('drawBtnRow').style.display='none';
@@ -717,6 +718,7 @@ function buildPrompt(){
         p+='\n  日常解讀：'+petDNA.daily;
         if(ps==='sick'&&petDNA.healing)p+='\n  舒緩情境：'+petDNA.healing;
         if(petDNA.behavior)p+='\n  行為引導：'+petDNA.behavior;
+        if(petDNA.spiritual)p+='\n  靈性連結：'+petDNA.spiritual;
         p+='\n  精油安全：貓咪→'+petDNA.catSafe+'／狗狗→'+petDNA.dogSafe;
         p+='\n  行動建議：'+petDNA.action;
       }
