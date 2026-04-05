@@ -658,11 +658,11 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
             </div>
             <div class="adm-castle-stat">
               <div class="adm-castle-stat-num" id="cs-achievements">-</div>
-              <div class="adm-castle-stat-label">成就解鎖次數</div>
+              <div class="adm-castle-stat-label">材料/成就次數</div>
             </div>
             <div class="adm-castle-stat">
               <div class="adm-castle-stat-num" id="cs-streak">-</div>
-              <div class="adm-castle-stat-label">平均連續天數</div>
+              <div class="adm-castle-stat-label">活躍玩家數</div>
             </div>
             <div class="adm-castle-stat">
               <div class="adm-castle-stat-num" id="cs-popular">-</div>
@@ -1342,43 +1342,52 @@ function loadRegChart() {
 function loadCastleStats() {
   // Castle game data is stored in localStorage (hl-castle-key.js), not in Firestore events.
   // Try to find any castle-related events; if none, show informational message.
-  db.collection('events').where('toolType', '==', 'castle').get().then(function(snap) {
-    if (snap.empty) {
-      // No castle events in Firestore - expected, since data lives in localStorage
+  // 查詢城堡事件（type 以 castle_ 開頭）
+  db.collection('events').orderBy('createdAt','desc').limit(500).get().then(function(snap) {
+    var castleEvents = [];
+    snap.forEach(function(doc) {
+      var d = doc.data();
+      if (d.type && d.type.indexOf('castle_') === 0) castleEvents.push(d);
+    });
+    if (castleEvents.length === 0) {
       var statsEl = document.getElementById('castleStats');
       statsEl.innerHTML =
         '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--adm-text2);font-size:.88rem;line-height:1.7">' +
           '<div style="font-size:1.6rem;margin-bottom:8px">🏰</div>' +
-          '城堡遊戲數據儲存在用戶本地裝置（localStorage）<br>' +
-          '<span style="font-size:.78rem;color:var(--adm-text3)">如需集中統計，需在 hl-castle-key.js 加入 Firestore 事件上報</span>' +
+          '尚無城堡遊戲活動紀錄<br>' +
+          '<span style="font-size:.78rem;color:var(--adm-text3)">用戶開始玩城堡後，數據會自動出現在這裡</span>' +
         '</div>';
       return;
     }
-    // If we do have castle events, show counts
+    // 統計
+    var roomEnters = 0, materialDrops = 0, furniturePlaces = 0, achievements = 0;
     var roomCounts = {};
-    var totalEvents = snap.size;
-    snap.forEach(function(doc) {
-      var d = doc.data();
-      var room = d.toolName || d.toolId || 'unknown';
-      roomCounts[room] = (roomCounts[room] || 0) + 1;
+    var uniqueUsers = {};
+    castleEvents.forEach(function(d) {
+      if (d.uid) uniqueUsers[d.uid] = true;
+      if (d.type === 'castle_room_enter') {
+        roomEnters++;
+        var rm = d.data && d.data.room || 'unknown';
+        roomCounts[rm] = (roomCounts[rm] || 0) + 1;
+      }
+      if (d.type === 'castle_material_drop') materialDrops++;
+      if (d.type === 'castle_furniture_place') furniturePlaces++;
+      if (d.type === 'castle_achievement') achievements++;
     });
-    var popular = '-';
-    var maxCount = 0;
+    var popular = '-', maxCount = 0;
     Object.keys(roomCounts).forEach(function(r) {
       if (roomCounts[r] > maxCount) { maxCount = roomCounts[r]; popular = r; }
     });
-    document.getElementById('cs-rooms').textContent = totalEvents;
-    document.getElementById('cs-achievements').textContent = '-';
-    document.getElementById('cs-streak').textContent = '-';
+    document.getElementById('cs-rooms').textContent = roomEnters;
+    document.getElementById('cs-achievements').textContent = achievements || materialDrops;
+    document.getElementById('cs-streak').textContent = Object.keys(uniqueUsers).length;
     document.getElementById('cs-popular').textContent = popular === 'unknown' ? '-' : truncate(popular, 10);
   }).catch(function() {
-    // Firestore may not have toolType field indexed; show info message
     var statsEl = document.getElementById('castleStats');
     statsEl.innerHTML =
       '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--adm-text2);font-size:.88rem;line-height:1.7">' +
         '<div style="font-size:1.6rem;margin-bottom:8px">🏰</div>' +
-        '城堡遊戲數據儲存在用戶本地裝置（localStorage）<br>' +
-        '<span style="font-size:.78rem;color:var(--adm-text3)">如需集中統計，需在 hl-castle-key.js 加入 Firestore 事件上報</span>' +
+        '尚無城堡遊戲活動紀錄' +
       '</div>';
   });
 }
