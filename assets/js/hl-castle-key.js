@@ -47,7 +47,7 @@
     {type:'quiz',   label:'DISC 行為風格', hint:'您在團隊裡扮演什麼角色？',           url:'quiz-disc.html?castle=1'},
     {type:'quiz',   label:'界限感測驗',     hint:'您的界限是太硬還是太軟？',           url:'quiz-boundary.html?castle=1'},
     {type:'quiz',   label:'冒牌者症候群',   hint:'您有沒有覺得自己是假的？',           url:'quiz-impostor.html?castle=1'},
-    {type:'quiz',   label:'內在小孩測驗',   hint:'您的內在小孩幾歲了？',               url:'quiz-innerchild.html?castle=1'},
+    {type:'quiz',   label:'內在小孩測驗',   hint:'您的內在小孩幾歲了？',               url:'quiz-inner-child.html?castle=1'},
     {type:'quiz',   label:'壓力指數',       hint:'最近的壓力有多大？',                 url:'quiz-stress.html?castle=1'},
     {type:'quiz',   label:'恆毅力測驗',     hint:'您能撐多久？',                       url:'quiz-grit.html?castle=1'},
     {type:'quiz',   label:'自我疼惜測驗',   hint:'您對自己夠溫柔嗎？',                 url:'quiz-selfcompassion.html?castle=1'},

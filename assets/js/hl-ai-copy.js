@@ -66,7 +66,7 @@ window.hlAICopy = function(preId, system, btn) {
   txt += '╔══════ 馥靈座標哲學 ══════╗\n';
   txt += '命盤不是命定劇本，是人生藏寶圖。\n';
   txt += '算的是方向，幫您做出更好的判斷。\n';
-  txt += '鑰匙我遞給您，城堡自己開。\n\n';
+  txt += '讀懂自己，活對人生。\n\n';
   txt += '🔗 馥靈之鑰 hourlightkey.com';
 
   // 同步複製（iOS Safari 在 user gesture context 內，必須同步完成）

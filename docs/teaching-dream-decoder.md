@@ -262,7 +262,5 @@
 
 ~~
 
-鑰匙我遞給您。城堡自己開。
-
 馥靈之鑰 Hour Light
 hourlightkey.com
