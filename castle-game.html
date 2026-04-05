@@ -1179,6 +1179,7 @@ function getRoomImageLevel(rid){
   if(window.hlMaterial){
     var allFurniture = hlMaterial.getFurniture();
     for(var i=0;i<allFurniture.length;i++){
+      if(!allFurniture[i] || !allFurniture[i].rarity) continue;
       if(allFurniture[i].rarity === 'legendary'){
         var mapped = FURNITURE_ROOM_MAP[allFurniture[i].id];
         if(mapped === rid || mapped === null){ return 4; }
@@ -2318,6 +2319,25 @@ function renderShopRecipes(){
     _origStartGame();
     setTimeout(checkDailyLogin, 1200);
   };
+})();
+
+// ═══ 從房間返回時自動進入遊戲 ═══
+(function(){
+  var ref = document.referrer || '';
+  var fromRoom = ref.indexOf('castle-room') > -1;
+  // Also auto-start if user has any daily progress (returning player)
+  function tryAutoStart(){
+    if(!window.hlCastle){ setTimeout(tryAutoStart, 300); return; }
+    var st = hlCastle.getState();
+    if(fromRoom || st.todayOpened > 0 || st.totalRooms > 0){
+      startGame();
+    }
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(tryAutoStart, 100); });
+  } else {
+    setTimeout(tryAutoStart, 100);
+  }
 })();
 
 // ═══ 分享我的城堡（截圖功能）═══
