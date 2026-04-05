@@ -484,10 +484,15 @@ body {
       </div>
       <div class="da-card-body">
         <textarea class="da-copy-output" id="copyOutput" readonly></textarea>
-        <div style="margin-top:12px">
-          <button class="da-btn da-btn-copy" onclick="copyResult()">複製結果</button>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="da-btn da-btn-copy" onclick="copyResult()">📋 複製結果</button>
+          <button class="da-btn da-btn-gold" onclick="askXiaoFu()" id="xiaoFuBtn">🤖 小馥即時解讀</button>
         </div>
         <div class="da-status" id="copyStatus"></div>
+        <div id="xiaoFuResult" style="display:none;margin-top:16px;padding:20px;background:rgba(184,146,42,.06);border:1px solid rgba(184,146,42,.15);border-radius:14px">
+          <div style="font-size:.85rem;color:#8b6914;margin-bottom:10px;font-weight:600">🤖 小馥解讀</div>
+          <div id="xiaoFuText" style="font-size:.92rem;color:#2a1f0e;line-height:1.9;white-space:pre-wrap"></div>
+        </div>
       </div>
     </div>
     <div style="display:flex;gap:10px;margin-top:8px">
@@ -814,6 +819,47 @@ function fallbackCopy(el) {
     toast('複製失敗，請手動選取');
   }
 }
+
+// ═══ 小馥即時解讀 ═══
+window.askXiaoFu = function() {
+  var btn = document.getElementById('xiaoFuBtn');
+  var resultDiv = document.getElementById('xiaoFuResult');
+  var textDiv = document.getElementById('xiaoFuText');
+  var prompt = document.getElementById('copyOutput').value;
+
+  if (!prompt) { toast('請先抽牌'); return; }
+
+  btn.textContent = '🤖 解讀中...';
+  btn.disabled = true;
+  resultDiv.style.display = 'block';
+  textDiv.textContent = '小馥正在解讀你的牌卡...';
+
+  fetch('https://app.hourlightkey.com/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      messages: [{ role: 'user', content: prompt }],
+      isAdmin: true
+    })
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    if (data.reply) {
+      textDiv.textContent = data.reply;
+    } else if (data.error) {
+      textDiv.textContent = '解讀失敗：' + data.error;
+    } else {
+      textDiv.textContent = '解讀失敗，請稍後再試';
+    }
+    btn.textContent = '🤖 重新解讀';
+    btn.disabled = false;
+  })
+  .catch(function(err) {
+    textDiv.textContent = '連線失敗：' + err.message;
+    btn.textContent = '🤖 重新解讀';
+    btn.disabled = false;
+  });
+};
 
 // ═══ Reset ═══
 window.resetDraw = function() {
