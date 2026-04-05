@@ -4,7 +4,7 @@
  * v3.0 新增：
  * ► 所有註冊用戶自動產生推薦碼（email前4字 + 隨機4碼）
  * ► 用戶推薦儀表板（我的推薦碼、推薦人數、獎勵）
- * ► 雙向獎勵：推薦人得1次AI解讀、新用戶得1次歡迎獎勵
+ * ► 雙向獎勵：推薦人得1天大師體驗（上限30天）、新用戶得48小時大師體驗
  * ► URL推薦追蹤強化：記錄著陸頁面+時間戳
  * ► 社群分享整合：LINE分享+複製連結+Toast提示
  * ► renderReferralWidget() — 在會員頁面渲染推薦區塊
@@ -201,25 +201,40 @@
 
             var batch = db.batch();
 
-            // 1. 寫入新用戶的推薦來源
+            // 1. 寫入新用戶的推薦來源 + 送1天大師體驗
             var userRef = db.collection('users').doc(uid);
+            var newUserExpiry = new Date();
+            newUserExpiry.setDate(newUserExpiry.getDate() + 2); // 新用戶送48小時（2天）
             batch.set(userRef, {
               referral_code: code,
               referral_date: firebase.firestore.FieldValue.serverTimestamp(),
-              aiBonus: firebase.firestore.FieldValue.increment(1)  // 新用戶歡迎獎勵
+              referral_premium_until: newUserExpiry.toISOString()  // 新用戶1天大師體驗
             }, { merge: true });
 
-            // 2. 推薦人獎勵（如果是一般用戶推薦）
+            // 2. 推薦人獎勵：每推薦1人送1天大師，上限30天
             if (referrer.type === 'user' && referrer.uid) {
               var referrerRef = db.collection('users').doc(referrer.uid);
-              batch.update(referrerRef, {
-                aiBonus: firebase.firestore.FieldValue.increment(1),
-                'referral_stats.referred_count': firebase.firestore.FieldValue.increment(1),
-                'referral_stats.rewards_earned': firebase.firestore.FieldValue.increment(1)
-              });
+              // 先讀取推薦人目前的天數
+              db.collection('users').doc(referrer.uid).get().then(function(rDoc) {
+                var rData = rDoc.exists ? rDoc.data() : {};
+                var currentDays = (rData.referral_stats && rData.referral_stats.referred_count) || 0;
+                if (currentDays >= 30) return; // 已達上限
+
+                // 計算新的到期日
+                var now = new Date();
+                var currentExpiry = rData.referral_premium_until ? new Date(rData.referral_premium_until) : now;
+                if (currentExpiry < now) currentExpiry = now; // 已過期就從今天算
+                currentExpiry.setDate(currentExpiry.getDate() + 1); // 加1天
+
+                referrerRef.update({
+                  referral_premium_until: currentExpiry.toISOString(),
+                  'referral_stats.referred_count': firebase.firestore.FieldValue.increment(1),
+                  'referral_stats.rewards_earned': firebase.firestore.FieldValue.increment(1)
+                }).catch(function(){});
+              }).catch(function(){});
             }
 
-            // 3. 如果是 partner 推薦，更新 partner 計數
+            // 3. 如果是 partner 推薦，更新 partner 計數 + 送天數
             if (referrer.type === 'partner' && referrer.partnerId) {
               var partnerRef = db.collection('partners').doc(referrer.partnerId);
               batch.update(partnerRef, {
@@ -875,8 +890,8 @@
             + '<div style="font-size:.78rem;color:' + mutedColor + '">推薦人數</div>'
             + '</div>'
             + '<div>'
-            + '<div style="font-size:1.3rem;font-weight:600;color:' + textColor + '">' + (stats.rewards_earned || 0) + '</div>'
-            + '<div style="font-size:.78rem;color:' + mutedColor + '">獲得獎勵</div>'
+            + '<div style="font-size:1.3rem;font-weight:600;color:' + textColor + '">' + Math.min(stats.referred_count || 0, 30) + ' 天</div>'
+            + '<div style="font-size:.78rem;color:' + mutedColor + '">大師體驗天數</div>'
             + '</div>'
             + '</div>'
 
