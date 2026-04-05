@@ -188,4 +188,11 @@
     document.head.appendChild(s);
   })();
 
+  // ==================== 全域圖片載入失敗處理 ====================
+  document.addEventListener('error', function(e) {
+    if (e.target && e.target.tagName === 'IMG') {
+      e.target.style.visibility = 'hidden';
+    }
+  }, true);
+
 })();
