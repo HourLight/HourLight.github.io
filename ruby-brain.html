@@ -704,21 +704,21 @@ async function sendMessage() {
   appendTyping();
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const idToken = auth.currentUser ? await auth.currentUser.getIdToken() : '';
+    const res = await fetch('https://app.hourlightkey.com/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 2000,
-        system: getSystemPrompt(),
-        messages: messages.slice(-20) // 最近 20 輪保持上下文
+        rubyToken: idToken,
+        modePrompt: MODE_PROMPTS[currentMode] || '',
+        messages: messages.slice(-20)
       })
     });
 
     const data = await res.json();
     removeTyping();
 
-    const reply = data.content?.[0]?.text || '（無回應）';
+    const reply = data.reply || '（無回應）';
     const aiTarget = appendMsg('ai', '');
     if (aiTarget) aiTarget.textContent = reply;
 

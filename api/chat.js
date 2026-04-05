@@ -202,6 +202,21 @@ module.exports = async function handler(req, res) {
     if (validToken && rubyToken === validToken) {
       isRubyBrain = true;
     }
+    // Firebase ID Token 驗證（admin email → 逸君大腦模式）
+    if (!isRubyBrain && rubyToken && rubyToken.split('.').length === 3) {
+      try {
+        var admin = require('firebase-admin');
+        if (!admin.apps.length) {
+          var svcAcct = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
+          admin.initializeApp({ credential: admin.credential.cert(svcAcct) });
+        }
+        var decoded = await admin.auth().verifyIdToken(rubyToken);
+        var adminEmails = ['info@hourlightkey.com', 'judyanee@gmail.com', 'judyanee@hotmail.com'];
+        if (decoded.email && adminEmails.indexOf(decoded.email) > -1) {
+          isRubyBrain = true;
+        }
+      } catch(e) { /* token 無效，維持 isRubyBrain = false */ }
+    }
 
     var systemPrompt = isRubyBrain ? RUBY_BRAIN_SYSTEM : XIAFU_SYSTEM;
 
