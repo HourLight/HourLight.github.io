@@ -486,7 +486,10 @@ body {
         <textarea class="da-copy-output" id="copyOutput" readonly></textarea>
         <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
           <button class="da-btn da-btn-copy" onclick="copyResult()">📋 複製結果</button>
-          <button class="da-btn da-btn-gold" onclick="askXiaoFu()" id="xiaoFuBtn">🤖 小馥即時解讀</button>
+          <button class="da-btn da-btn-gold" onclick="askXiaoFu()" id="xiaoFuBtn">🤖 小馥解讀</button>
+          <button class="da-btn da-btn-outline" onclick="copyAndOpen('https://gemini.google.com/app')" style="border-color:rgba(66,133,244,.3);color:#4285f4">🔷 Gemini</button>
+          <button class="da-btn da-btn-outline" onclick="copyAndOpen('https://www.perplexity.ai')" style="border-color:rgba(120,80,200,.3);color:#7850c8">🟣 Perplexity</button>
+          <button class="da-btn da-btn-outline" onclick="copyAndOpen('https://chatgpt.com')" style="border-color:rgba(16,163,127,.3);color:#10a37f">💎 ChatGPT</button>
         </div>
         <div class="da-status" id="copyStatus"></div>
         <div id="xiaoFuResult" style="display:none;margin-top:16px;padding:20px;background:rgba(184,146,42,.06);border:1px solid rgba(184,146,42,.15);border-radius:14px">
@@ -840,6 +843,27 @@ function fallbackCopy(el) {
     toast('複製失敗，請手動選取');
   }
 }
+
+// ═══ 複製並開啟外部 AI ═══
+window.copyAndOpen = function(url) {
+  var text = document.getElementById('copyOutput').value;
+  if (!text) { toast('請先抽牌'); return; }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      toast('已複製！正在開啟...');
+      setTimeout(function() { window.open(url, '_blank'); }, 300);
+    }).catch(function() {
+      window.open(url, '_blank');
+    });
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;top:-9999px';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); toast('已複製！'); } catch(e) {}
+    document.body.removeChild(ta);
+    window.open(url, '_blank');
+  }
+};
 
 // ═══ 小馥即時解讀 ═══
 window.askXiaoFu = function() {
