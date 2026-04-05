@@ -736,6 +736,27 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
         </div>
       </div>
 
+      <!-- My Referral Link -->
+      <div class="pd-panel" id="partnerRefLinkPanel" style="margin-bottom:20px">
+        <div class="pd-panel-head">
+          <h2>🔗 我的推薦連結</h2>
+        </div>
+        <div class="pd-panel-body" style="padding:20px">
+          <div id="partnerRefLinkArea" style="text-align:center">
+            <div style="font-size:.82rem;color:var(--pd-text-muted);margin-bottom:10px">您的專屬推薦連結（分享給客戶，自動追蹤推薦來源）</div>
+            <div id="partnerRefCode" style="display:inline-block;background:var(--pd-gold-light);border:1px dashed var(--pd-gold);border-radius:10px;padding:10px 24px;margin-bottom:14px">
+              <div style="font-size:.7rem;color:var(--pd-text-muted);margin-bottom:3px">推薦碼</div>
+              <div style="font-family:monospace;font-size:1.3rem;font-weight:700;color:var(--pd-gold);letter-spacing:.15em" id="partnerRefCodeText">載入中...</div>
+            </div>
+            <div id="partnerRefUrl" style="font-size:.82rem;color:var(--pd-text-secondary);margin-bottom:14px;word-break:break-all"></div>
+            <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+              <button class="pd-btn pd-btn-primary" id="copyRefLinkBtn" onclick="copyPartnerRefLink()" style="min-width:140px">📋 複製推薦連結</button>
+              <button class="pd-btn pd-btn-outline" id="shareLineBtn" onclick="sharePartnerToLINE()" style="min-width:140px">💬 分享到 LINE</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Recent referrals mini-table -->
       <div class="pd-panel">
         <div class="pd-panel-head">
@@ -899,6 +920,7 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-referral.js?v=20260404"></script>
 
 <script>
 /* ══════════════════════════════════════
@@ -955,6 +977,7 @@ auth.onAuthStateChanged(function(user) {
   loadOverviewData();
   loadReferrals();
   loadPayouts();
+  loadPartnerRefLink();
 });
 
 /* ── Tab Navigation ── */
@@ -1417,6 +1440,97 @@ function formatTime(ts) {
   else d = new Date(ts);
   return d.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
 }
+
+/* ══════════════════════════════════════
+   Partner Referral Link (v3.0)
+   ══════════════════════════════════════ */
+
+var partnerRefCode = '';
+
+function loadPartnerRefLink() {
+  if (!currentUser) return;
+  var email = currentUser.email.toLowerCase();
+
+  db.collection('partners').where('referral_code', '!=', '').get().then(function(snap) {
+    var found = null;
+    snap.forEach(function(doc) {
+      var d = doc.data();
+      // Match by email or by admin whitelist
+      if (d.email === email || d.contact_email === email) {
+        found = d;
+      }
+    });
+
+    // If no match by email, try matching by UID
+    if (!found) {
+      return db.collection('partners').doc(currentUser.uid).get().then(function(doc) {
+        if (doc.exists) return doc.data();
+        // Fallback: use first partner code found (admin sees first)
+        if (!snap.empty) return snap.docs[0].data();
+        return null;
+      });
+    }
+    return found;
+  }).then(function(partner) {
+    if (!partner || !partner.referral_code) {
+      document.getElementById('partnerRefCodeText').textContent = '未設定';
+      document.getElementById('partnerRefUrl').textContent = '請聯繫管理員設定您的推薦碼';
+      return;
+    }
+
+    partnerRefCode = partner.referral_code;
+    var url = 'https://hourlightkey.com/?ref=' + encodeURIComponent(partnerRefCode);
+    document.getElementById('partnerRefCodeText').textContent = partnerRefCode;
+    document.getElementById('partnerRefUrl').textContent = url;
+  }).catch(function() {
+    document.getElementById('partnerRefCodeText').textContent = '-';
+  });
+}
+
+function copyPartnerRefLink() {
+  if (!partnerRefCode) return;
+  var url = 'https://hourlightkey.com/?ref=' + encodeURIComponent(partnerRefCode);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(function() {
+      partnerToast('已複製推薦連結');
+    }).catch(function() {
+      partnerFallbackCopy(url);
+    });
+  } else {
+    partnerFallbackCopy(url);
+  }
+}
+
+function partnerFallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); partnerToast('已複製推薦連結'); }
+  catch(e) { partnerToast('複製失敗'); }
+  document.body.removeChild(ta);
+}
+
+function sharePartnerToLINE() {
+  if (!partnerRefCode) return;
+  var url = 'https://hourlightkey.com/?ref=' + encodeURIComponent(partnerRefCode);
+  var text = '我在用馥靈之鑰，33套命理系統+130張智慧牌卡，您也來試試 👉 ' + url;
+  var lineUrl = 'https://line.me/R/share?text=' + encodeURIComponent(text);
+  window.open(lineUrl, '_blank', 'noopener');
+}
+
+function partnerToast(msg) {
+  var existing = document.getElementById('pd-toast');
+  if (existing) existing.remove();
+  var t = document.createElement('div');
+  t.id = 'pd-toast';
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--pd-text);color:#fff;padding:12px 28px;border-radius:24px;font-size:.88rem;z-index:99999;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.2);font-family:var(--pd-sans)';
+  document.body.appendChild(t);
+  setTimeout(function() { t.style.transition='opacity .3s'; t.style.opacity='0'; setTimeout(function(){t.remove();},300); }, 2000);
+}
+
 </script>
 
 <script src="assets/js/hl-topnav.js"></script>

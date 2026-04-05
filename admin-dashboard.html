@@ -991,11 +991,36 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
       </div>
     </div>
 
-    <!-- ═══ Tab 7: Referral Codes ═══ -->
+    <!-- ═══ Tab 7: Referral Codes (v3.0) ═══ -->
     <div id="panel-referral" class="adm-panel">
+
+      <!-- Referral Overview Stats -->
       <div class="adm-card">
         <div class="adm-card-head">
-          <div class="adm-card-title">新增推薦碼</div>
+          <div class="adm-card-title">推薦系統總覽</div>
+          <span class="adm-card-badge badge badge-orange">v3.0</span>
+        </div>
+        <div class="adm-card-body" id="refOverviewStats">
+          <div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>
+        </div>
+      </div>
+
+      <!-- Top Referrers -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">🏆 推薦排行榜（Top 10）</div>
+        </div>
+        <div class="adm-card-body">
+          <div class="adm-table-wrap" id="topReferrersTable">
+            <div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create Partner Code -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">新增夥伴推薦碼</div>
         </div>
         <div class="adm-card-body">
           <div class="adm-form-row">
@@ -1022,22 +1047,59 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
                 <option value="inactive">停用</option>
               </select>
             </div>
+          </div>
+          <div class="adm-form-row" style="margin-top:8px">
+            <div class="adm-form-group">
+              <label class="adm-label">分潤比例（%）</label>
+              <input type="number" class="adm-input" id="refSplit" placeholder="10" value="10" min="0" max="50" style="width:80px">
+            </div>
             <div class="adm-form-group">
               <label class="adm-label">LINE 連結</label>
-              <input type="text" class="adm-input" id="refLine" placeholder="lin.ee/..." style="width:180px">
+              <input type="text" class="adm-input" id="refLine" placeholder="lin.ee/..." style="width:200px">
+            </div>
+            <div class="adm-form-group">
+              <label class="adm-label">上線夥伴 ID（選填）</label>
+              <input type="text" class="adm-input" id="refParent" placeholder="上線的 partner doc ID" style="width:200px">
             </div>
             <button class="adm-btn adm-btn-gold" onclick="addReferral()">新增</button>
           </div>
         </div>
       </div>
 
+      <!-- Partner Code List -->
       <div class="adm-card">
         <div class="adm-card-head">
-          <div class="adm-card-title">推薦碼列表</div>
+          <div class="adm-card-title">夥伴推薦碼列表</div>
           <button class="adm-btn adm-btn-sm adm-btn-outline" onclick="loadReferrals()">重新載入</button>
         </div>
         <div class="adm-card-body">
           <div class="adm-table-wrap" id="referralTable">
+            <div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Referral Activity Log -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">推薦活動紀錄</div>
+          <span class="adm-card-badge badge badge-blue">最近 20 筆</span>
+        </div>
+        <div class="adm-card-body">
+          <div class="adm-table-wrap" id="refActivityLog">
+            <div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Commission Records -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">分潤紀錄</div>
+          <span class="adm-card-badge badge badge-gold">Commissions</span>
+        </div>
+        <div class="adm-card-body">
+          <div class="adm-table-wrap" id="commissionTable">
             <div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>
           </div>
         </div>
@@ -1127,6 +1189,7 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-referral.js?v=20260404"></script>
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
@@ -1224,7 +1287,7 @@ tabBtns.forEach(function(btn) {
     if (tab === 'codes') loadCodes();
     if (tab === 'feedback') loadFeedback();
     if (tab === 'monitor') startMonitor();
-    if (tab === 'referral') loadReferrals();
+    if (tab === 'referral') { loadReferrals(); loadRefOverviewStats(); }
     if (tab === 'destiny') loadDestinyRecords();
     if (tab === 'readings') loadReadingRecords();
     if (tab === 'analysis') loadAnalysisTab();
@@ -2448,23 +2511,35 @@ function addReferral() {
   var role = document.getElementById('refRole').value;
   var status = document.getElementById('refStatus').value;
   var lineUrl = document.getElementById('refLine').value.trim();
+  var splitPct = parseInt(document.getElementById('refSplit').value) || 10;
+  var parentId = document.getElementById('refParent').value.trim();
 
   if (!name || !code) { toast('請填寫名稱和推薦碼'); return; }
 
-  db.collection('partners').doc(code).set({
+  var data = {
     name: name,
     referral_code: code,
     role: role,
     status: status,
     line_url: lineUrl || null,
+    split_tier1: splitPct / 100,
+    split_tier2: 0.05,
+    parent_strategist: parentId || null,
+    total_commission: 0,
+    total_referrals: 0,
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     createdBy: currentUser.email
-  }).then(function() {
+  };
+
+  db.collection('partners').doc(code).set(data).then(function() {
     toast('推薦碼已新增：' + code);
     document.getElementById('refName').value = '';
     document.getElementById('refCode').value = '';
     document.getElementById('refLine').value = '';
+    document.getElementById('refParent').value = '';
+    document.getElementById('refSplit').value = '10';
     loadReferrals();
+    loadRefOverviewStats();
   }).catch(function(e) {
     toast('新增失敗：' + e.message);
   });
@@ -2581,6 +2656,142 @@ function deleteReferral(id) {
   });
 }
 window.deleteReferral = deleteReferral;
+
+// ═══════════════════════════════════════════════════════════════
+//  REFERRAL v3.0: Overview Stats, Top Referrers, Activity, Commissions
+// ═══════════════════════════════════════════════════════════════
+
+function loadRefOverviewStats() {
+  var container = document.getElementById('refOverviewStats');
+  if (!container) return;
+  container.innerHTML = '<div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>';
+
+  if (window.hlReferral && window.hlReferral.getGlobalStats) {
+    window.hlReferral.getGlobalStats().then(function(stats) {
+      var html = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:8px">';
+      html += refStatBox('📱', '夥伴推薦碼', stats.totalPartnerCodes, 'var(--adm-gold)');
+      html += refStatBox('👤', '用戶推薦碼', stats.totalUserCodes, 'var(--adm-blue)');
+      html += refStatBox('🔗', '推薦碼總數', stats.totalCodes, 'var(--adm-green)');
+      html += refStatBox('📊', '推薦事件', stats.totalReferralEvents, 'var(--adm-orange,#c47a2a)');
+      html += '</div>';
+      container.innerHTML = html;
+      renderTopReferrers(stats.topReferrers);
+      renderRefActivityLog(stats.recentEvents);
+    }).catch(function() {
+      container.innerHTML = '<div class="adm-empty">無法載入推薦統計</div>';
+    });
+  } else {
+    db.collection('partners').get().then(function(snap) {
+      var html = '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">';
+      html += refStatBox('📱', '夥伴推薦碼', snap.size, 'var(--adm-gold)');
+      var active = 0;
+      snap.forEach(function(d) { if (d.data().status === 'active') active++; });
+      html += refStatBox('🟢', '啟用中', active, 'var(--adm-green)');
+      html += '</div>';
+      container.innerHTML = html;
+    }).catch(function() {
+      container.innerHTML = '<div class="adm-empty">無法載入推薦統計</div>';
+    });
+  }
+  loadCommissionTable();
+}
+
+function refStatBox(icon, label, value, color) {
+  return '<div style="text-align:center;padding:14px 8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px">'
+    + '<div style="font-size:1.3rem;margin-bottom:6px">' + icon + '</div>'
+    + '<div style="font-size:1.4rem;font-weight:700;color:' + color + '">' + value + '</div>'
+    + '<div style="font-size:.75rem;color:var(--adm-text3);margin-top:4px">' + label + '</div>'
+    + '</div>';
+}
+
+function renderTopReferrers(topList) {
+  var container = document.getElementById('topReferrersTable');
+  if (!container) return;
+  if (!topList || topList.length === 0) {
+    container.innerHTML = '<div class="adm-empty"><div class="adm-empty-icon">🏆</div>尚無推薦數據</div>';
+    return;
+  }
+  var html = '<table class="adm-table"><thead><tr>'
+    + '<th>排名</th><th>推薦碼</th><th>名稱</th><th>類型</th><th>推薦人數</th>'
+    + '</tr></thead><tbody>';
+  topList.forEach(function(item, i) {
+    var medal = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : (i + 1)));
+    var typeBadge = item.type === 'partner'
+      ? '<span class="badge badge-gold">夥伴</span>'
+      : '<span class="badge badge-blue">用戶</span>';
+    html += '<tr>'
+      + '<td style="text-align:center;font-size:1.1rem">' + medal + '</td>'
+      + '<td style="font-family:monospace;font-weight:600;color:var(--adm-gold)">' + esc(item.code || '-') + '</td>'
+      + '<td>' + esc(item.name || '-') + '</td>'
+      + '<td>' + typeBadge + '</td>'
+      + '<td style="text-align:center;font-weight:600">' + (item.count || 0) + '</td>'
+      + '</tr>';
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+function renderRefActivityLog(events) {
+  var container = document.getElementById('refActivityLog');
+  if (!container) return;
+  if (!events || events.length === 0) {
+    container.innerHTML = '<div class="adm-empty"><div class="adm-empty-icon">📋</div>尚無推薦活動</div>';
+    return;
+  }
+  var html = '<table class="adm-table"><thead><tr>'
+    + '<th>時間</th><th>推薦碼</th><th>來源</th><th>新用戶</th><th>著陸頁</th>'
+    + '</tr></thead><tbody>';
+  events.forEach(function(ev) {
+    var typeBadge = ev.referrer_type === 'partner'
+      ? '<span class="badge badge-gold">夥伴</span>'
+      : '<span class="badge badge-blue">用戶</span>';
+    html += '<tr>'
+      + '<td style="font-size:.78rem">' + formatTs(ev.created_at) + '</td>'
+      + '<td style="font-family:monospace;color:var(--adm-gold)">' + esc(ev.referrer_code || '-') + '</td>'
+      + '<td>' + typeBadge + '</td>'
+      + '<td style="font-size:.78rem">' + esc(ev.new_email || ev.new_uid || '-') + '</td>'
+      + '<td style="font-size:.75rem;color:var(--adm-text3)">' + esc(ev.landing_page || '-') + '</td>'
+      + '</tr>';
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+function loadCommissionTable() {
+  var container = document.getElementById('commissionTable');
+  if (!container) return;
+  container.innerHTML = '<div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>';
+  db.collection('commissions').orderBy('created_at', 'desc').limit(30).get().then(function(snap) {
+    if (snap.empty) {
+      container.innerHTML = '<div class="adm-empty"><div class="adm-empty-icon">💰</div>尚無分潤紀錄</div>';
+      return;
+    }
+    var html = '<table class="adm-table"><thead><tr>'
+      + '<th>時間</th><th>訂單金額</th><th>夥伴</th><th>層級</th><th>分潤</th><th>狀態</th>'
+      + '</tr></thead><tbody>';
+    snap.forEach(function(doc) {
+      var d = doc.data();
+      var tierBadge = d.tier === 1
+        ? '<span class="badge badge-gold">T1</span>'
+        : '<span class="badge badge-blue">T2</span>';
+      var statusBadge = d.status === 'paid'
+        ? '<span class="badge badge-green">已付</span>'
+        : '<span class="badge badge-orange">待付</span>';
+      html += '<tr>'
+        + '<td style="font-size:.78rem">' + formatTs(d.created_at) + '</td>'
+        + '<td>NT$' + (d.order_amount || 0).toLocaleString() + '</td>'
+        + '<td>' + esc(d.partner_name || d.partner_code || '-') + '</td>'
+        + '<td>' + tierBadge + '</td>'
+        + '<td style="font-weight:600;color:var(--adm-gold)">NT$' + (d.amount || 0).toLocaleString() + '</td>'
+        + '<td>' + statusBadge + '</td>'
+        + '</tr>';
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  }).catch(function(e) {
+    container.innerHTML = '<div class="adm-empty">載入失敗：' + esc(e.message) + '</div>';
+  });
+}
 
 // ═══════════════════════════════════════════════════════════════
 //  DESTINY RECORDS (Tab 8)
@@ -3134,26 +3345,27 @@ function loadConversionFunnel() {
 function loadReferralQuickStats() {
   var container = document.getElementById('referralQuickStats');
 
-  db.collection('referrals').get().then(function(snap) {
+  // v3.0: Use partners collection (the actual data source) instead of referrals
+  db.collection('partners').get().then(function(snap) {
     var totalCodes = snap.size;
     var activeCodes = 0;
-    var totalUses = 0;
-    var topCode = { code: '-', uses: 0 };
+    var totalReferrals = 0;
+    var topCode = { code: '-', count: 0 };
 
     snap.forEach(function(doc) {
       var d = doc.data();
-      if (d.status !== 'inactive') activeCodes++;
-      var uses = d.useCount || d.uses || 0;
-      totalUses += uses;
-      if (uses > topCode.uses) {
-        topCode = { code: doc.id, uses: uses };
+      if (d.status === 'active') activeCodes++;
+      var refs = d.total_referrals || 0;
+      totalReferrals += refs;
+      if (refs > topCode.count) {
+        topCode = { code: d.referral_code || doc.id, count: refs };
       }
     });
 
     var html = '<div style="display:flex;flex-direction:column;gap:10px">' +
       '<div style="display:flex;align-items:center;gap:8px">' +
         '<span style="font-size:1.1rem">📱</span>' +
-        '<span style="font-size:.82rem">推薦碼總數</span>' +
+        '<span style="font-size:.82rem">夥伴推薦碼</span>' +
         '<span style="margin-left:auto;font-size:.88rem;font-weight:600;color:var(--adm-gold)">' + totalCodes + '</span>' +
       '</div>' +
       '<div style="display:flex;align-items:center;gap:8px">' +
@@ -3163,13 +3375,13 @@ function loadReferralQuickStats() {
       '</div>' +
       '<div style="display:flex;align-items:center;gap:8px">' +
         '<span style="font-size:1.1rem">📊</span>' +
-        '<span style="font-size:.82rem">總使用次數</span>' +
-        '<span style="margin-left:auto;font-size:.88rem;font-weight:600;color:var(--adm-blue)">' + totalUses + '</span>' +
+        '<span style="font-size:.82rem">推薦總人數</span>' +
+        '<span style="margin-left:auto;font-size:.88rem;font-weight:600;color:var(--adm-blue)">' + totalReferrals + '</span>' +
       '</div>' +
       '<div style="display:flex;align-items:center;gap:8px">' +
         '<span style="font-size:1.1rem">🏆</span>' +
         '<span style="font-size:.82rem">最熱門</span>' +
-        '<span style="margin-left:auto;font-size:.82rem;color:var(--adm-text2)">' + esc(topCode.code) + ' (' + topCode.uses + '次)</span>' +
+        '<span style="margin-left:auto;font-size:.82rem;color:var(--adm-text2)">' + esc(topCode.code) + ' (' + topCode.count + '人)</span>' +
       '</div>' +
     '</div>';
 

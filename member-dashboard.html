@@ -233,6 +233,9 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
       <div class="hlist" id="recentList"><div class="empty"><div class="eicon">✦</div>您的足跡會出現在這裡</div></div>
     </div>
 
+    <!-- 我的推薦 -->
+    <div id="myReferralWidget"></div>
+
     <div class="bcard">
       <div class="bcard-title">快速前往</div>
       <div class="qlinks">
@@ -330,7 +333,7 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
-<script src="assets/js/hl-referral.js?v=20260323"></script>
+<script src="assets/js/hl-referral.js?v=20260404"></script>
 <script src="assets/js/hl-gate.js"></script>
 <script src="assets/js/hl-record.js"></script>
 <script>
@@ -385,6 +388,10 @@ async function loadUserData(u){
       document.getElementById('sDays').textContent=days;
       document.getElementById('pJoined').textContent='加入於 '+d.createdAt.toDate().toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'});
     }else{document.getElementById('sDays').textContent=1;}
+    // 推薦碼 widget
+    if(window.hlReferral&&window.hlReferral.renderWidget){
+      window.hlReferral.renderWidget('myReferralWidget',{theme:'light'});
+    }
     // 最近足跡
     const hs=await db.collection(`users/${u.uid}/history`).orderBy('timestamp','desc').limit(5).get();
     const list=document.getElementById('recentList');
