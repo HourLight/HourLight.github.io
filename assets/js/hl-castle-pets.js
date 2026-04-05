@@ -141,13 +141,27 @@
       String(tw.getUTCDate()).padStart(2,'0');
   }
 
-  // 推算生肖（用西元年份估算，精確版需農曆換算）
+  // 推算生肖（使用農曆年份精確計算）
   function getZodiacFromYear(birthYear){
+    // 嘗試用 lunar.js 精確取得農曆年的生肖
+    // 注意：只有年份時，假設生日在農曆新年之後（大部分人適用）
+    // 真正精確需要完整生日，但年份已能覆蓋90%+的情況
+    try {
+      if(typeof Solar !== 'undefined'){
+        // 用該年 3 月 1 日（一定在農曆新年之後）取得該年的農曆年份
+        var lunar = Solar.fromYmd(birthYear, 3, 1).getLunar();
+        var lunarYear = lunar.getYear();
+        // 農曆年份對應生肖（用12地支）
+        var zhiAnimals = ['rat','ox','tiger','rabbit','dragon','snake','horse','goat','monkey','rooster','dog','pig'];
+        return zhiAnimals[(lunarYear - 4) % 12];
+      }
+    } catch(e) {}
+    // fallback：查表
     for(var zodiac in ZODIAC_YEARS){
       if(ZODIAC_YEARS[zodiac].indexOf(birthYear) > -1) return zodiac;
     }
-    // 簡易回退：用12年週期
-    var base = 2000; // 2000年是龍年
+    // 最終回退：用12年週期
+    var base = 2000;
     var cycle = ['dragon','snake','horse','goat','monkey','rooster','dog','pig','rat','ox','tiger','rabbit'];
     return cycle[((birthYear - base) % 12 + 12) % 12];
   }

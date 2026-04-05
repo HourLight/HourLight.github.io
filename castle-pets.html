@@ -285,11 +285,9 @@ function _showBirthYearPrompt(callback){
   if(!el){ callback(1990); return; }
   el.innerHTML =
     '<div style="margin:0 16px 16px;background:rgba(255,255,255,.92);border-radius:16px;padding:20px 18px;border:1px solid rgba(233,160,96,.2)">'
-    + '<div style="font-size:.88rem;font-weight:700;color:var(--warm);margin-bottom:8px">🐾 告訴我你的出生年份</div>'
-    + '<div style="font-size:.78rem;color:var(--muted);margin-bottom:14px;line-height:1.6">元辰動物根據你的農曆生肖決定，需要你的出生年份。</div>'
-    + '<input id="byInput" type="number" min="1940" max="2020" placeholder="例如：1990"'
-    + ' style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid rgba(233,160,96,.3);'
-    + 'font-size:.95rem;font-family:inherit;background:rgba(255,255,255,.9);margin-bottom:10px;box-sizing:border-box">'
+    + '<div style="font-size:.88rem;font-weight:700;color:var(--warm);margin-bottom:8px">🐾 告訴我你的出生日期</div>'
+    + '<div style="font-size:.78rem;color:var(--muted);margin-bottom:14px;line-height:1.6">元辰動物根據你的農曆生肖決定。1-2月出生的人生肖可能跟你以為的不一樣喔。</div>'
+    + '<input id="byInput" type="date" style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid rgba(233,160,96,.3);font-size:16px;font-family:inherit;background:#ffffff;color:#1a1714;color-scheme:light;-webkit-appearance:none;appearance:none;margin-bottom:10px;box-sizing:border-box;min-height:48px">'
     + '<button onclick="_confirmBirthYear()" '
     + 'style="width:100%;padding:11px;border-radius:10px;background:var(--gold);color:#fff;'
     + 'border:none;font-size:.88rem;font-family:inherit;font-weight:700;cursor:pointer">確認</button>'
@@ -298,10 +296,24 @@ function _showBirthYearPrompt(callback){
 }
 
 function _confirmBirthYear(){
-  var val = parseInt(document.getElementById('byInput').value);
-  if(!val || val < 1900 || val > 2025){
-    document.getElementById('byInput').style.borderColor = 'rgba(230,57,70,.5)';
-    return;
+  var inputVal = document.getElementById('byInput').value;
+  var val;
+  if(inputVal && inputVal.indexOf('-') > -1){
+    // date input: YYYY-MM-DD
+    var parts = inputVal.split('-');
+    var y = parseInt(parts[0]), m = parseInt(parts[1]), d = parseInt(parts[2]);
+    if(!y || y < 1900 || y > 2025){ document.getElementById('byInput').style.borderColor='rgba(230,57,70,.5)'; return; }
+    // 用 lunar.js 精確轉換農曆年份取得正確生肖
+    try{
+      if(typeof Solar !== 'undefined'){
+        var lunar = Solar.fromYmd(y, m, d).getLunar();
+        val = lunar.getYear(); // 農曆年份（可能跟國曆不同）
+      } else { val = y; }
+    }catch(e){ val = y; }
+  } else {
+    // fallback: 純數字年份輸入
+    val = parseInt(inputVal);
+    if(!val || val < 1900 || val > 2025){ document.getElementById('byInput').style.borderColor='rgba(230,57,70,.5)'; return; }
   }
   localStorage.setItem('hl_birth_year', val);
   // 嘗試寫回 Firebase
