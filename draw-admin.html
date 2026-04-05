@@ -579,6 +579,23 @@ window.startDraw = function() {
 
   selectedIndices = [];
 
+  // 盲抽模式：往生者溝通等特殊牌陣自動抽牌
+  var blindDrawFrameworks = ['hour-departed'];
+  if (blindDrawFrameworks.indexOf(frameworkName) >= 0) {
+    // 自動選前 N 張（已洗牌過）
+    for (var b = 0; b < requiredCount; b++) {
+      selectedIndices.push(b);
+    }
+    // 直接跳到結果，帶翻牌動畫
+    document.getElementById('drawTitle').textContent = spreadName + '（' + requiredCount + '張）';
+    goPhase(3);
+    // 延遲顯示翻牌動畫
+    setTimeout(function() {
+      showResults();
+    }, 300);
+    return;
+  }
+
   // Update UI
   document.getElementById('drawTitle').textContent = spreadName + '（' + requiredCount + '張）';
   updateProgress();
