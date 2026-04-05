@@ -418,6 +418,7 @@ body {
             <option value="7|hour-career|事業七張解讀">事業七張解讀</option>
             <option value="7|hour-deep|深度掃描解讀">深度掃描解讀</option>
             <option value="7|hour-crisis|危機處理解讀">危機處理解讀</option>
+            <option value="7|hour-departed|往生者溝通（前7彩虹橋）">🌈 往生者溝通</option>
           </optgroup>
           <optgroup label="15 張｜L.I.G.H.T. 五門三鑰">
             <option value="15|light-standard|五門三鑰標準版">五門三鑰標準版</option>
@@ -714,6 +715,17 @@ function showResults() {
   copyLines.push('牌陣：' + spreadName + '（' + requiredCount + '張）');
   copyLines.push('框架：' + parts[1]);
   copyLines.push('');
+  // 往生者溝通特殊牌位名稱
+  var departedLabels = parts[1] === 'hour-departed' ? [
+    '🌈 他/她想讓你知道的事',
+    '💛 你們之間未說完的話',
+    '🕊️ 他/她離開時的狀態',
+    '🌸 他/她現在想對你說的',
+    '🪷 你需要放下的',
+    '✨ 他/她留給你的禮物',
+    '🔑 前進的方向'
+  ] : null;
+
   // 馥靈輕盈特殊牌位名稱
   var lightLabels = parts[1] === 'light-protocol' ? [
     '🔮 核心主題牌','✨ 情緒型高我','✨ 壓力型高我','✨ 創傷型高我','✨ 家族型高我','✨ 神經型高我','✨ 價值型高我',
@@ -726,9 +738,15 @@ function showResults() {
     '💎 自我價值型｜根源','💎 自我價值型｜恐懼','💎 自我價值型｜精油'
   ] : null;
 
+  // 合併特殊標籤
+  var specialLabels = lightLabels || departedLabels || null;
+
   if (lightLabels) {
     copyLines.push('');
     copyLines.push('【高我指引層】');
+  } else if (departedLabels) {
+    copyLines.push('');
+    copyLines.push('【🌈 彩虹橋溝通】');
   } else {
     copyLines.push('抽到的牌：');
   }
@@ -741,12 +759,12 @@ function showResults() {
     var orientClass = orient === 'reversed' ? 'reversed' : 'upright';
 
     // 馥靈輕盈：第8張前插入分隔
-    if (lightLabels && i === 7) {
+    if (specialLabels && lightLabels && i === 7) {
       copyLines.push('');
       copyLines.push('【深層內在訊息層】');
     }
 
-    var posLabel = lightLabels ? lightLabels[i] : '位置' + (i + 1);
+    var posLabel = specialLabels ? specialLabels[i] : '位置' + (i + 1);
 
     listHtml += '<div class="da-result-item">' +
       '<div class="da-result-pos">' + posLabel + '</div>' +
