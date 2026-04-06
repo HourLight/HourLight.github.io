@@ -101,8 +101,30 @@
     document.getElementById('hlGG').onclick = function(){
       var b=this; b.textContent='登入中...'; b.style.opacity='.5'; b.style.pointerEvents='none';
       try {
-        firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(function(){
+        firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(function(cred){
           isLoggedIn=true; hideOL();
+          // 確保 Firestore users/{uid} 文件存在
+          try {
+            var u=cred.user, db=firebase.firestore(), ref=db.collection('users').doc(u.uid);
+            ref.get().then(function(snap){
+              if(!snap.exists){
+                ref.set({
+                  displayName:u.displayName||u.email.split('@')[0],
+                  email:u.email,
+                  plan:'free',
+                  createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+                  lastSeen:firebase.firestore.FieldValue.serverTimestamp(),
+                  totalDraws:0,totalQuizzes:0,totalCalcs:0,totalPageViews:0
+                });
+              } else {
+                ref.update({lastSeen:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){});
+              }
+              // 綁定推薦碼
+              if(window.hlReferral&&window.hlReferral.bindToUser) try{window.hlReferral.bindToUser(u.uid,u.email);}catch(e){}
+              // 確保推薦碼
+              if(window.hlReferral&&window.hlReferral.ensureUserCode) try{window.hlReferral.ensureUserCode(u.uid,u.email);}catch(e){}
+            }).catch(function(){});
+          } catch(e){}
           if(pendingAction){try{pendingAction();}catch(e){} pendingAction=null;}
         }).catch(function(){
           b.textContent='登入失敗，請再試一次'; b.style.opacity='1'; b.style.pointerEvents='auto';
