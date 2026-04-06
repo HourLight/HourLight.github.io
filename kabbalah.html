@@ -1121,8 +1121,10 @@ function copyText(txt, label) {
 
 function fallbackCopy(txt, label) {
   var ta = document.createElement('textarea');
-  ta.value = txt; ta.style.cssText = 'position:fixed;left:-9999px';
-  document.body.appendChild(ta); ta.select();
+  ta.value = txt; ta.setAttribute('readonly','');
+  ta.style.cssText = 'position:fixed;top:50%;left:50%;width:2em;height:2em;padding:0;border:none;outline:none;background:transparent;font-size:16px;opacity:.01;transform:translate(-50%,-50%);z-index:99999';
+  document.body.appendChild(ta);
+  if(/ipad|iphone/i.test(navigator.userAgent)){ta.focus();var rng=document.createRange();rng.selectNodeContents(ta);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(rng);ta.setSelectionRange(0,999999)}else{ta.focus();ta.select()}
   try { document.execCommand('copy'); showToast(label + ' 已複製！'); }
   catch(e) { alert('複製失敗，請手動複製'); }
   document.body.removeChild(ta);
