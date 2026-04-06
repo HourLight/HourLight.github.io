@@ -366,6 +366,8 @@
                   'referral_stats.rewards_earned': firebase.firestore.FieldValue.increment(1)
                 }).then(function() {
                   doc.ref.update({ activated: true, activated_at: new Date().toISOString() });
+                  // 彈出感謝通知
+                  showRewardToast('🎁 您推薦的朋友已持續使用7天，您獲得1天大師體驗獎勵！');
                 }).catch(function(){});
               }).catch(function(){});
             }
@@ -873,6 +875,28 @@
     document.body.removeChild(ta);
   }
 
+  function showRewardToast(msg) {
+    var overlay = document.createElement('div');
+    overlay.id = 'hl-reward-toast';
+    overlay.innerHTML = '<div style="background:linear-gradient(160deg,rgba(15,10,25,.98),rgba(25,18,38,.95));'
+      + 'border:1px solid rgba(233,194,125,.3);border-radius:18px;padding:24px 28px;max-width:360px;width:90%;'
+      + 'text-align:center;box-shadow:0 16px 60px rgba(0,0,0,.5);animation:hlToastIn .4s ease">'
+      + '<div style="font-size:1.1rem;margin-bottom:10px">' + msg + '</div>'
+      + '<div style="font-size:.78rem;color:rgba(249,240,229,.5);line-height:1.6;margin-bottom:16px">'
+      + '感謝您的分享，讓更多人認識自己的力量。'
+      + '</div>'
+      + '<button onclick="this.closest(\'#hl-reward-toast\').remove()" style="'
+      + 'padding:10px 28px;border:none;border-radius:999px;background:linear-gradient(135deg,#f8dfa5,#ecd098);'
+      + 'color:#1a1008;font-size:.85rem;cursor:pointer;font-family:inherit">收到，謝謝 ✨</button>'
+      + '</div>';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;'
+      + 'justify-content:center;background:rgba(5,3,10,.6);animation:hlToastIn .3s ease';
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) overlay.remove();
+    });
+  }
+
   function showToast(msg) {
     var existing = document.getElementById('hl-ref-toast');
     if (existing) existing.remove();
@@ -979,7 +1003,9 @@
 
             // 提示文字
             + '<div style="text-align:center;margin-top:14px;font-size:.78rem;color:' + mutedColor + ';line-height:1.7">'
-            + '朋友透過您的連結註冊，立即獲得48小時大師體驗。朋友持續使用7天後，您也會獲得1天大師體驗獎勵（上限30天）。'
+            + '朋友透過您的連結註冊，立即獲得48小時大師體驗。<br>'
+            + '朋友持續使用7天後，您也會獲得1天大師體驗獎勵（上限30天）。<br>'
+            + '<span style="opacity:.7">為維護公平，同一網路環境（IP）的推薦不計算獎勵。</span>'
             + '</div>'
 
             + '</div>';
