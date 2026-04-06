@@ -54,11 +54,25 @@
             timestamp: new Date().toISOString(),
             referrer: document.referrer || ''
           }));
+          // 記錄推薦來源 IP（防自推自）
+          fetchClientIP().then(function(ip) {
+            if (ip) localStorage.setItem('hl_referral_ip', ip);
+          });
         }
 
         cleanUrlParams();
       }
     } catch(e) { void 0; }
+  }
+
+  /**
+   * 取得用戶 IP（用於防自推自比對）
+   */
+  function fetchClientIP() {
+    return fetch('https://api.ipify.org?format=json')
+      .then(function(r) { return r.json(); })
+      .then(function(d) { return d.ip || null; })
+      .catch(function() { return null; });
   }
 
   function cleanUrlParams() {
@@ -211,25 +225,35 @@
               referral_premium_until: newUserExpiry.toISOString()  // 新用戶1天大師體驗
             }, { merge: true });
 
-            // 2. 推薦人獎勵：每推薦1人送1天大師，上限30天
+            // 2. 推薦人獎勵：IP 比對 + 延遲7天發放
             if (referrer.type === 'user' && referrer.uid) {
-              var referrerRef = db.collection('users').doc(referrer.uid);
-              // 先讀取推薦人目前的天數
-              db.collection('users').doc(referrer.uid).get().then(function(rDoc) {
-                var rData = rDoc.exists ? rDoc.data() : {};
-                var currentDays = (rData.referral_stats && rData.referral_stats.referred_count) || 0;
-                if (currentDays >= 30) return; // 已達上限
-
-                // 計算新的到期日
-                var now = new Date();
-                var currentExpiry = rData.referral_premium_until ? new Date(rData.referral_premium_until) : now;
-                if (currentExpiry < now) currentExpiry = now; // 已過期就從今天算
-                currentExpiry.setDate(currentExpiry.getDate() + 1); // 加1天
-
-                referrerRef.update({
-                  referral_premium_until: currentExpiry.toISOString(),
-                  'referral_stats.referred_count': firebase.firestore.FieldValue.increment(1),
-                  'referral_stats.rewards_earned': firebase.firestore.FieldValue.increment(1)
+              // 取得新用戶 IP，與推薦來源 IP 比對
+              var refIP = localStorage.getItem('hl_referral_ip') || '';
+              fetchClientIP().then(function(newUserIP) {
+                // 同 IP → 疑似自推自，不給推薦人獎勵（新用戶48hr照給）
+                if (refIP && newUserIP && refIP === newUserIP) {
+                  console.warn('[hl-referral] Same IP detected, referrer reward skipped');
+                  // 只更新推薦人計數，不給獎勵
+                  db.collection('users').doc(referrer.uid).update({
+                    'referral_stats.referred_count': firebase.firestore.FieldValue.increment(1)
+                  }).catch(function(){});
+                  return;
+                }
+                // IP 不同 → 建立待啟用獎勵（7天後自動發放）
+                var activateDate = new Date();
+                activateDate.setDate(activateDate.getDate() + 7);
+                db.collection('users').doc(referrer.uid).collection('pending_rewards').add({
+                  type: 'referral',
+                  new_uid: uid,
+                  new_email: email || '',
+                  days: 1,
+                  activate_after: activateDate.toISOString(),
+                  activated: false,
+                  created_at: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(function() {
+                  db.collection('users').doc(referrer.uid).update({
+                    'referral_stats.referred_count': firebase.firestore.FieldValue.increment(1)
+                  }).catch(function(){});
                 }).catch(function(){});
               }).catch(function(){});
             }
@@ -305,6 +329,50 @@
     } catch(e) {
       return Promise.resolve(null);
     }
+  }
+
+  // ═══════════════════════════════════════
+  // 4.5 待啟用獎勵自動發放（7天後）
+  // ═══════════════════════════════════════
+
+  function checkPendingRewards(uid) {
+    if (!uid) return;
+    try {
+      var db = firebase.firestore();
+      var now = new Date().toISOString();
+      db.collection('users').doc(uid).collection('pending_rewards')
+        .where('activated', '==', false)
+        .get()
+        .then(function(snap) {
+          if (snap.empty) return;
+          snap.forEach(function(doc) {
+            var d = doc.data();
+            if (d.activate_after && d.activate_after <= now) {
+              // 已過7天，啟用獎勵
+              db.collection('users').doc(uid).get().then(function(userDoc) {
+                var userData = userDoc.exists ? userDoc.data() : {};
+                var totalRewards = (userData.referral_stats && userData.referral_stats.rewards_earned) || 0;
+                if (totalRewards >= 30) {
+                  // 已達上限，標記為跳過
+                  doc.ref.update({ activated: true, skipped: true });
+                  return;
+                }
+                var currentNow = new Date();
+                var currentExpiry = userData.referral_premium_until ? new Date(userData.referral_premium_until) : currentNow;
+                if (currentExpiry < currentNow) currentExpiry = currentNow;
+                currentExpiry.setDate(currentExpiry.getDate() + (d.days || 1));
+                db.collection('users').doc(uid).update({
+                  referral_premium_until: currentExpiry.toISOString(),
+                  'referral_stats.rewards_earned': firebase.firestore.FieldValue.increment(1)
+                }).then(function() {
+                  doc.ref.update({ activated: true, activated_at: new Date().toISOString() });
+                }).catch(function(){});
+              }).catch(function(){});
+            }
+          });
+        })
+        .catch(function(){});
+    } catch(e) { void 0; }
   }
 
   // ═══════════════════════════════════════
@@ -911,7 +979,7 @@
 
             // 提示文字
             + '<div style="text-align:center;margin-top:14px;font-size:.78rem;color:' + mutedColor + ';line-height:1.7">'
-            + '每成功推薦1位朋友註冊，您多1天大師體驗，朋友得48小時大師體驗'
+            + '朋友透過您的連結註冊，立即獲得48小時大師體驗。朋友持續使用7天後，您也會獲得1天大師體驗獎勵（上限30天）。'
             + '</div>'
 
             + '</div>';
@@ -951,6 +1019,15 @@
 
   captureReferralCode();
 
+  // 登入用戶自動檢查待啟用獎勵
+  try {
+    if (window.firebase && firebase.auth) {
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) checkPendingRewards(user.uid);
+      });
+    }
+  } catch(e) { void 0; }
+
   window.hlReferral = {
     getCode: getReferralCode,
     getLanding: getReferralLanding,
@@ -965,6 +1042,7 @@
     generateCode: generateUserCode,
     getGlobalStats: getGlobalReferralStats,
     renderWidget: renderReferralWidget,
+    checkPending: checkPendingRewards,
     shareToLINE: shareToLINE,
     copyLink: copyLink,
     copyCode: copyCode,
@@ -973,7 +1051,7 @@
     FIXED_COST_RATE: FIXED_COST_RATE,
     TIER1_RATE: TIER1_RATE,
     TIER2_RATE: TIER2_RATE,
-    VERSION: '3.0.0'
+    VERSION: '3.1.0'
   };
 
 })();
