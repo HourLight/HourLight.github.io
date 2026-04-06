@@ -183,6 +183,7 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
     <div class="fw-share">
       <button class="fw-share-btn" onclick="saveResultImage()">📥 儲存圖片</button>
       <button class="fw-share-btn" onclick="copyResult()">📋 複製結果</button>
+      <button class="fw-share-btn" onclick="copyAIDeep()" style="background:rgba(160,124,220,.12);border:1px solid rgba(160,124,220,.3);color:#c8b4ff">🤖 AI 深度解讀指令</button>
       <button class="fw-share-btn" onclick="shareToLine()">💬 分享到 LINE</button>
     </div>
 
@@ -495,6 +496,137 @@ function resetCalc(){
   document.querySelectorAll('.fw-gender-btn').forEach(function(b){b.classList.remove('selected');});
   window.scrollTo({top:0,behavior:'smooth'});
 }
+
+function copyAIDeep(){
+  var saved;
+  try{saved=JSON.parse(localStorage.getItem('hl_fortune_wealth'));}catch(e){}
+  if(!saved){showToast('請先完成測算');return;}
+
+  var y=parseInt(document.getElementById('fwYear').value)||0;
+  var m=parseInt(document.getElementById('fwMonth').value)||0;
+  var d=parseInt(document.getElementById('fwDay').value)||0;
+  var tgIdx=(y-4)%10;var tg=TG[tgIdx];var wx=WX[tgIdx];
+  var dzIdx=(y-4)%12;var dz=DZ[dzIdx];
+  var curYear=new Date().getFullYear();var curTgIdx=(curYear-4)%10;var curWx=WX[curTgIdx];
+  var dir=DIRECTIONS[wx];var oil=FORTUNE_OILS[wx];var color=WX_COLOR[wx];
+  var baseNums=({木:[3,8],火:[2,7],土:[5,0],金:[4,9],水:[1,6]})[wx];
+  var personalNum=((d*3+m*7)%9)+1;
+
+  var txt='【AI深度解讀指令｜開運招財密碼 × 馥靈座標哲學】\n\n';
+  txt+='═══ 提問者資料 ═══\n';
+  txt+='農曆生日：'+y+'年'+m+'月'+d+'日\n';
+  txt+='性別：'+(gender==='M'?'男':'女')+'\n';
+  txt+='本命五行：'+wx+'（天干：'+tg+'，地支：'+dz+'）\n';
+  txt+='今年流年五行：'+curWx+'\n';
+  txt+='招財方位：主財位'+dir.main+'，副財位'+dir.sub+'，避開'+dir.avoid+'\n';
+  txt+='開運色：'+color.name+'（'+color.hex+'）——'+color.desc+'\n';
+  txt+='幸運數字：'+baseNums[0]+'、'+baseNums[1]+'、'+personalNum+'\n';
+  txt+='招財精油：'+oil.name+'——'+oil.desc+'\n';
+  txt+='招財水晶：'+(({木:'綠幽靈',火:'紅瑪瑙',土:'黃水晶',金:'白水晶',水:'黑曜石'})[wx])+'\n\n';
+
+  txt+='═══ 深度解讀框架（請完整執行）═══\n\n';
+
+  txt+='你收到的是一份基於農曆生日的完整招財密碼分析。不要給通用財運建議。\n';
+  txt+='這個人想知道的不是「會不會有錢」，而是「我跟錢的關係到底怎麼了」。\n';
+  txt+='你要幫他看見錢背後的心理模式，然後給出能落地的行動方案。\n\n';
+
+  txt+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt+='【第一步：五行財富體質——你跟錢的出廠設定】\n';
+  txt+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt+='▍密碼一：本命五行的「財富人格」\n';
+  txt+='→ 這個五行的人天生怎麼看待金錢？是安全感、是自由、是工具、還是負擔？\n';
+  txt+='→ 他賺錢最自然的方式是什麼？（穩定累積/人脈變現/創意爆發/精準投資/順流而行）\n';
+  txt+='→ 他花錢最容易失控的場景是什麼？那個衝動背後藏著什麼情緒？\n\n';
+
+  txt+='▍密碼二：五行生剋與今年流年的互動\n';
+  txt+='→ 本命'+wx+'和今年'+curWx+'的關係是什麼？（生、被生、剋、被剋、比肩）\n';
+  txt+='→ 這個關係在「錢的流動」上具體會怎麼表現？\n';
+  txt+='→ 今年上半年和下半年的財務節奏有什麼不同？哪幾個月要特別注意？\n\n';
+
+  txt+='▍密碼三：財富盲點\n';
+  txt+='→ 這個五行的人最容易在什麼地方「漏財」？不是數字上的漏，是能量上的漏\n';
+  txt+='→ 他對錢最大的誤解是什麼？那個誤解是從哪裡學來的（家庭/社會/經歷）？\n';
+  txt+='→ 如果他的財富信念是一句話，那句話是什麼？那句話是事實還是限制？\n\n';
+
+  txt+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt+='【第二步：方位風水的心理學解讀】\n';
+  txt+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt+='► 主財位'+dir.main+'在風水上代表什麼能量？在心理學上代表什麼狀態？\n';
+  txt+='► 「整理財位」這個動作，在潛意識層面其實在做什麼？\n';
+  txt+='► 避開'+dir.avoid+'方位做重大決定——不只是風水，是你在那個方向容易被什麼干擾？\n';
+  txt+='► 居家空間的「氣流」和個人的「金流」之間的關聯：具體要怎麼調整？\n\n';
+
+  txt+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt+='【第三步：開運色與幸運數字的深度應用】\n';
+  txt+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt+='► 開運色'+color.name+'為什麼適合這個五行？色彩心理學怎麼解釋？\n';
+  txt+='► 幸運數字'+baseNums[0]+'、'+baseNums[1]+'、'+personalNum+'在生活中怎麼用？（不是買樂透，是決策時機）\n';
+  txt+='► 穿戴開運色的心理暗示效果：不是迷信，是認知行為學的「具身認知」\n';
+  txt+='► 給出三個把色彩和數字融入日常的具體方法\n\n';
+
+  txt+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt+='【第四步：認知芳療 · 招財精油覺察】\n';
+  txt+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt+='► 招財精油'+oil.name+'：為什麼是這支精油？它跟'+wx+'行的能量有什麼對應？\n';
+  txt+='► 不需要真的有精油在手邊——想到'+oil.name+'的氣味，大腦就已經啟動相應迴路\n';
+  txt+='► 嗅覺記憶×財富信念：設計一個「聞到這個味道就啟動富足心態」的錨定練習\n';
+  txt+='► 鼻子在聞，但大腦在記憶。氣味是情緒的快捷鍵，也是信念的開關。\n\n';
+
+  txt+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt+='【第五步：跨系統交叉驗證】\n';
+  txt+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt+='► 八字財星：這個天干'+tg+'的正財和偏財分別是什麼五行？代表什麼樣的賺錢模式？\n';
+  txt+='► 紫微財帛宮：'+wx+'行的人通常財帛宮容易出現什麼星曜組合？\n';
+  txt+='► 奇門遁甲：今年的奇門盤中，這個五行的「生門」在哪個方位？跟風水方位是否一致？\n';
+  txt+='► 生命靈數×財富：個人幸運數'+personalNum+'在財富面向代表什麼特質？\n\n';
+
+  txt+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt+='【第六步：財富心理學——你值得擁有嗎？】\n';
+  txt+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt+='► 「配得感」測試：這個五行的人在面對大額收入時，第一反應是什麼？\n';
+  txt+='► 原生家庭的金錢劇本：他從小學到的「錢的規則」是什麼？那個規則現在還適用嗎？\n';
+  txt+='► 金錢焦慮的根源：他最害怕的財務場景是什麼？那個恐懼在保護他什麼？\n';
+  txt+='► Kahneman 損失趨避理論 × 五行：這個人的損失敏感度跟他的五行有什麼關聯？\n\n';
+
+  txt+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt+='【第七步：H.O.U.R. 財富行動建議】\n';
+  txt+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt+='H（身心校準）→ 你跟錢的關係裡，最需要先放鬆的是什麼？給出一個今天就能做的具體動作\n';
+  txt+='O（智慧辨識）→ 你的消費模式裡，哪一個反覆出現的行為其實在填補什麼空缺？\n';
+  txt+='U（潛能解鎖）→ 今天就能開始的一個「改善財務體質」的小動作是什麼？\n';
+  txt+='R（行動進化）→ 接下來30天的財富行動計畫，用三個關鍵字描述\n\n';
+
+  txt+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt+='【此刻三問——關於你和錢的真心話】\n';
+  txt+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt+='設計三個關於金錢關係的深度自我覺察問題。\n';
+  txt+='格式：「你有沒有想過，___？」\n';
+  txt+='這三個問題要能戳到「錢不只是錢」的那個層次。\n\n';
+
+  txt+='╔══════ 語氣與風格要求 ══════╗\n';
+  txt+='► 像一個很懂理財又很懂人心的閨蜜：務實但不冰冷，直接但不說教\n';
+  txt+='► 帶有香氣意象：每個段落至少一個精油或自然氣味的比喻\n';
+  txt+='► 禁用詞（絕對不出現）：梳理、療癒、調頻、靈魂、頻率、顯化、宇宙安排、命定、雙破折號——\n';
+  txt+='► 代用詞：用「校準」代替「梳理」，用「座標」代替「命運」，用「整合」代替「療癒」\n';
+  txt+='► 結尾用馥靈馥語風格收束：一段帶有香氣的文字，讓人讀完對錢有新的感覺\n\n';
+
+  txt+='╔══════ 馥靈座標哲學 ══════╗\n';
+  txt+='財富不只是數字，是你跟這個世界交換價值的方式。\n';
+  txt+='招財不是許願，是調整你跟錢之間的那個角度。\n';
+  txt+='角度對了，錢自己會找到路。\n';
+  txt+='讀懂自己，活對人生。馥靈之鑰 hourlightkey.com';
+
+  // iOS Safari 相容複製
+  var ta=document.createElement('textarea');ta.value=txt;ta.setAttribute('readonly','');
+  ta.style.cssText='position:fixed;top:50%;left:50%;width:2em;height:2em;padding:0;border:none;outline:none;background:transparent;font-size:16px;opacity:.01;transform:translate(-50%,-50%);z-index:99999';
+  document.body.appendChild(ta);
+  if(/ipad|iphone/i.test(navigator.userAgent)){ta.focus();var rng=document.createRange();rng.selectNodeContents(ta);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(rng);ta.setSelectionRange(0,999999)}else{ta.focus();ta.select()}
+  try{document.execCommand('copy');showToast('🤖 AI 深度解讀指令已複製！')}catch(e){alert('複製失敗')}
+  document.body.removeChild(ta);
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(txt).catch(function(){});}
+
+  if(typeof hlAIGateCheck==='function'){setTimeout(function(){hlAIGateCheck(function(){});},80);}
+}
 </script>
 <script src="assets/js/hourlight-global.js"></script>
 <script src="assets/js/hl-announce.js"></script>
@@ -503,6 +635,7 @@ function resetCalc(){
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
 <script src="assets/js/hl-referral.js?v=20260323"></script>
+<script src="assets/js/hl-ai-gate.js"></script>
 <script src="assets/js/hl-gate.js"></script>
 <script src="assets/js/hl-topnav.js"></script>
 <script src="assets/js/hl-bottomnav.js"></script>
