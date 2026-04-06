@@ -463,13 +463,14 @@ function castOracle(){
   var si=getShichenIndex(h);
   var jq=getJieqi(m,d);
 
-  var lunarM=m,lunarD=d;
+  var lunarM=m,lunarD=d,lunarLabel='國曆';
   try{
     var solar=Lunar.Solar.fromYmd(y,m,d);
     var lunar=solar.getLunar();
     lunarM=lunar.getMonth();
     lunarD=lunar.getDay();
-  }catch(e){}
+    lunarLabel='農曆';
+  }catch(e){lunarLabel='國曆';}
 
   var strokes=charStrokeEstimate(q);
   var upperNum=(strokes+lunarM+si)%8;
@@ -533,7 +534,7 @@ function castOracle(){
     document.getElementById('bianGuaCard').style.display='none';
   }
 
-  currentResult={q:q,gua:gua,bianGua:bianGua,dongYao:dongYao,si:si,jq:jq,lunarM:lunarM,lunarD:lunarD,hasBian:bianIndex!==guaIndex,crossText:''};
+  currentResult={q:q,gua:gua,bianGua:bianGua,dongYao:dongYao,si:si,jq:jq,lunarM:lunarM,lunarD:lunarD,lunarLabel:lunarLabel,hasBian:bianIndex!==guaIndex,crossText:''};
 
   /* ═══ 交叉驗證 v2 ═══ */
   if(window.HLCross){
@@ -593,7 +594,7 @@ function copyReading(){
   var r=currentResult;
   var text='【時空問卜完整紀錄】\n'
     +'問題：'+r.q+'\n'
-    +'時辰：'+SHICHEN[r.si]+'時｜節氣：'+r.jq+'｜農曆：'+r.lunarM+'月'+r.lunarD+'日\n\n'
+    +'時辰：'+SHICHEN[r.si]+'時｜節氣：'+r.jq+'｜'+r.lunarLabel+r.lunarM+'月'+r.lunarD+'日\n\n'
     +'本卦：'+r.gua.n+'（'+r.gua.py+'）\n'
     +'卦辭：'+r.gua.ci+'\n'
     +'動爻：第'+(r.dongYao+1)+'爻\n'
