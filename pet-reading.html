@@ -548,7 +548,25 @@ function initDraw(){
     slot.id='slot-'+i;
     var petDNA=window.petCardDNA?window.petCardDNA[card.code]:null;
     var petMsg=petDNA?petDNA.core:'';
-    var petSpiritual=petDNA&&petDNA.spiritual?petDNA.spiritual:'';
+    var isCat=detectCat();
+    // 取 daily 前兩句（到第二個句號/！/？為止）
+    var dailyFull=petDNA&&petDNA.daily?petDNA.daily:'';
+    var dailyShort='';
+    if(dailyFull){
+      var sentEnd=/[。！？…]/g;var match;var ends=[];
+      while((match=sentEnd.exec(dailyFull))!==null){ends.push(match.index);}
+      var cut=ends.length>=2?ends[1]+1:(ends.length>=1?ends[0]+1:Math.min(dailyFull.length,60));
+      dailyShort=dailyFull.slice(0,cut);
+    }
+    // 精油安全摘要（貓咪優先）
+    var oilSafety='';
+    if(petDNA){
+      if(isCat&&petDNA.catSafe){
+        var hasBan=petDNA.catSafe.indexOf('禁用')>=0||petDNA.catSafe.indexOf('不適合')>=0;
+        oilSafety=(hasBan?'⚠️ 貓咪精油安全：':'✅ 貓咪適用：')+petDNA.catSafe;
+        if(hasBan&&petDNA.catAlt)oilSafety+='<br>替代建議：'+petDNA.catAlt;
+      }
+    }
     slot.innerHTML=
       '<div class="card-inner">'+
         '<div class="card-back"><div class="card-pos">'+pos.label+'</div></div>'+
@@ -560,7 +578,13 @@ function initDraw(){
           '<div class="card-type">'+typeLabel+'</div>'+
         '</div>'+
       '</div>'+
-      (petMsg?'<div class="pet-msg" style="display:none;margin-top:8px;font-size:.78rem;color:var(--paw);font-style:italic;line-height:1.5;text-align:center;font-family:var(--kai);">「'+petMsg+'」'+(petSpiritual?'<div style="font-size:.72rem;color:rgba(240,181,179,.5);font-style:normal;margin-top:5px;letter-spacing:.3px">'+petSpiritual+'</div>':'')+'</div>':'');
+      (petMsg?
+        '<div class="pet-msg" style="display:none;margin-top:10px;padding:12px 14px;background:rgba(240,181,179,.04);border:1px solid rgba(240,181,179,.1);border-radius:12px;font-family:var(--kai)">'+
+          '<div style="font-size:.8rem;color:var(--paw);font-style:italic;line-height:1.7;text-align:center">「'+petMsg+'」</div>'+
+          (dailyShort?'<div style="font-size:.76rem;color:rgba(255,255,255,.55);line-height:1.7;margin-top:7px">'+dailyShort+'</div>':'')+
+          (oilSafety?'<div style="font-size:.7rem;color:rgba(240,160,60,.75);line-height:1.65;margin-top:7px;padding-top:7px;border-top:1px solid rgba(240,181,179,.08)">'+oilSafety+'</div>':'')+
+        '</div>'
+      :'');
     grid.appendChild(slot);
   });
   document.getElementById('drawBtnRow').style.display='none';
