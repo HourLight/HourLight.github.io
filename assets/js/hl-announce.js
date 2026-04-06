@@ -5,7 +5,7 @@
 (function(){
 'use strict';
 
-var ANNOUNCE_VER = '2026-04-01-april-gift';
+var ANNOUNCE_VER = '2026-04-06-welcome-v2';
 var DISMISS_KEY = 'hl_announce_' + ANNOUNCE_VER;
 
 try { if(sessionStorage.getItem(DISMISS_KEY)) return; } catch(e){}
@@ -18,34 +18,44 @@ overlay.innerHTML = `
 <div class="hla-backdrop"></div>
 <div class="hla-modal">
   <div class="hla-close" onclick="document.getElementById('hlAnnounce').remove();try{sessionStorage.setItem('${DISMISS_KEY}','1')}catch(e){}" title="關閉">✕</div>
-  
+
   <div class="hla-header">
     <div class="hla-brand">HOUR LIGHT ✦ 馥靈之鑰</div>
-    <div class="hla-title">🔑 這裡怎麼玩</div>
+    <div class="hla-title">🔑 歡迎來到馥靈之鑰</div>
   </div>
-  
+
   <div class="hla-body">
     <div class="hla-section">
-      <div class="hla-icon">🎁</div>
+      <div class="hla-icon">🌿</div>
       <div class="hla-text">
-        <strong>這不是愚人節玩笑</strong><br>
-        我們準備了一份禮物給你。翻開牌卡，看看你的運氣。<br>
-        最大獎：覺察師一對一 15 張深度解讀（價值 $3,600）
+        33 套命理系統一次算完，100+ 心理測驗免費做，130 張牌卡隨時抽。<br>
+        不用下載 App，打開就能用。
+      </div>
+    </div>
+
+    <div class="hla-section">
+      <div class="hla-icon">✨</div>
+      <div class="hla-text">
+        最多人在玩的三個：<br>
+        <a href="destiny-engine.html" style="color:#f8dfa5">► 33合1命盤引擎</a><br>
+        <a href="draw-hl.html" style="color:#f8dfa5">► 130張牌卡免費抽</a><br>
+        <a href="quiz-hub.html" style="color:#f8dfa5">► 100+心理測驗</a>
       </div>
     </div>
 
     <div class="hla-section hla-highlight">
-      <div class="hla-icon">🎴</div>
+      <div class="hla-icon">🎁</div>
       <div class="hla-text">
-        <strong>每人限抽一次，4/6 截止</strong><br>
-        <a href="april-gift.html" style="color:#f8dfa5;font-weight:700;font-size:1rem">👉 去拆禮物</a>
+        註冊送 48 小時大師體驗，所有 AI 深度解讀免費用。<br>
+        推薦朋友註冊，每推 1 人再送 1 天。<br>
+        <a href="member-login.html" style="color:#f8dfa5;font-weight:700;font-size:1rem">👉 免費註冊</a>
       </div>
     </div>
   </div>
-  
+
   <div class="hla-footer">
     <button class="hla-btn" onclick="document.getElementById('hlAnnounce').remove();try{sessionStorage.setItem('${DISMISS_KEY}','1')}catch(e){}">
-      我知道了
+      開始探索
     </button>
   </div>
 </div>
