@@ -236,6 +236,15 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
 
   document.body.appendChild(nav);
 
+  // ── 在 footer-links 注入「AI 認識我們」連結 ──
+  var footerLinks = document.querySelector('.hl-footer-links');
+  if (footerLinks && !footerLinks.querySelector('a[href="ai-about.html"]')) {
+    var aiLink = document.createElement('a');
+    aiLink.href = 'ai-about.html';
+    aiLink.textContent = 'AI 認識我們';
+    footerLinks.appendChild(aiLink);
+  }
+
   // ── 音樂整合 ──
   var musicBtn = document.getElementById('hl-bn-music');
   if (musicBtn) {
