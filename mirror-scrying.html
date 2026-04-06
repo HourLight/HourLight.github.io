@@ -175,6 +175,28 @@ a{color:var(--lt-gold);text-decoration:none}
 
 .ms-hide{display:none}
 
+/* Word insight cards */
+.ms-insight-item{padding:14px 0;border-bottom:1px solid var(--lt-border)}
+.ms-insight-item:last-child{border-bottom:none}
+.ms-insight-word{font-family:var(--ff-oracle);font-size:1rem;color:var(--lt-gold);font-weight:600;margin-bottom:4px;letter-spacing:.04em}
+.ms-insight-text{font-size:.9rem;line-height:1.85;color:var(--lt-text)}
+
+/* Connection narrative */
+.ms-connection-text{font-size:.93rem;line-height:1.9;color:var(--lt-text)}
+
+/* H.O.U.R. distribution bars */
+.ms-hour-bars{margin:14px 0 4px}
+.ms-hour-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ms-hour-bar-label{min-width:28px;font-size:.82rem;font-weight:700;color:var(--lt-gold);font-family:var(--ff-oracle);text-align:center}
+.ms-hour-bar-track{flex:1;height:22px;background:rgba(184,146,42,.06);border-radius:11px;overflow:hidden;position:relative}
+.ms-hour-bar-fill{height:100%;border-radius:11px;transition:width .8s var(--ff-ease);min-width:0}
+.ms-hour-bar-fill-H{background:linear-gradient(90deg,#6aab6a,#8fcc8f)}
+.ms-hour-bar-fill-O{background:linear-gradient(90deg,#a07cdc,#b99ae8)}
+.ms-hour-bar-fill-U{background:linear-gradient(90deg,#d4a93a,#e8c560)}
+.ms-hour-bar-fill-R{background:linear-gradient(90deg,#e07a5f,#f0a090)}
+.ms-hour-bar-count{min-width:20px;font-size:.82rem;color:var(--lt-text-soft);text-align:right}
+.ms-hour-bar-info{font-size:.82rem;color:var(--lt-text-soft);margin-top:2px;line-height:1.7}
+
 select,input[type=text],textarea{font-size:16px!important}
 @media(max-width:600px){
   body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
@@ -383,6 +405,164 @@ var HOUR_INFO = {
   U: {icon:'🔑',name:'Unlock 潛能解鎖',palace:'10宮（志氣殿）',question:'我配擁有嗎？',desc:'你此刻的覺察重心在潛能和可能性。有些能力你一直有，只是還沒打開那個抽屜。'},
   R: {icon:'🚀',name:'Rise 行動進化',palace:'12宮（平衡室）',question:'我為何而來？',desc:'你此刻的覺察重心在行動和關係。你已經看見了什麼，現在的問題是：你願不願意動起來。'}
 };
+
+/* ── Word Insights (逐詞解析) ── */
+var WORD_INSIGHTS = {
+  /* body */
+  '重':'身體在說：你扛的太多了。那份重量可能不全是你的，但你的肩膀不知道怎麼放下。試著問自己：這裡面有多少是別人的行李？',
+  '輕':'輕，是一種少見的狀態。你可能剛放下了什麼，或者你正在渴望那種放下之後的感覺。不管哪一種，你的身體已經記住「輕」是什麼了。',
+  '冷':'冷不只是溫度，是一種「沒有被接住」的感覺。你的身體在說：我需要溫暖，不是暖氣那種，是有人在旁邊那種。',
+  '熱':'熱代表能量正在燃燒。可能是行動力、可能是怒氣、也可能是一股你自己都說不清的衝勁。重點是：它想出去，不想再悶著了。',
+  '緊':'緊是「不安全感」的身體翻譯。你在抓著什麼？還是你在抵擋什麼？身體繃緊的地方，通常就是你最不放心的地方。',
+  '痛':'痛是身體最誠實的語言。它不會說「還好啦」，它只會直接告訴你：這裡需要被注意了。你有多久沒有認真理會它？',
+  '沉':'沉的感覺像被什麼壓住。不是壓不過來，是覺得動不了。你可能需要的不是更多力氣，是允許自己暫時不動。',
+  '累':'累不是懶，是消耗超過了補充。你的身體在提醒你：帳單到了，該還債了。休息不是浪費時間，是在存活下去的必要開支。',
+  '鬆':'鬆是身體在說謝謝。你做了什麼讓它可以鬆下來？記住這個感覺，下次緊的時候你就知道該往哪裡走。',
+  '頭':'頭是思考中心。它浮現代表你最近「想太多」了。不是說不該想，是想的方式可能在消耗你，而不是幫你釐清。',
+  '肩':'肩膀扛的從來不只是身體的重量。責任、期待、別人的情緒，全部堆在那裡。你的肩膀想跟你說：有些東西可以放在地上。',
+  '胸':'胸口是情緒的倉庫。悶、脹、緊，每一種都是沒說出口的話在裡面發酵。你有沒有什麼話，說了會比較舒服？',
+  '胃':'胃在「消化」的不只是食物。別人的情緒、不舒服的場合、你硬吞下去的委屈，胃全部照單全收。它比你以為的更辛苦。',
+  '背':'背是支撐你的地方。它酸、它痛、它僵，都在說同一件事：你一直在撐，但撐的方式不對。也許你需要的不是更強的背，是找到可以靠的地方。',
+  /* emotion */
+  '怕':'恐懼是保護機制。它在告訴你：有個東西很重要，重要到你害怕失去。恐懼的反面不是勇氣，是「允許自己在乎」。',
+  '平靜':'平靜浮現的時候，通常有兩種可能：你真的找到了安定，或者你太累了所以什麼都感覺不到了。哪一種比較像你現在的狀態？',
+  '難過':'難過是一種很乾淨的情緒。它不像憤怒會傷人，不像焦慮會亂跑。它只是安安靜靜地待在那裡，等你願意看它一眼。',
+  '怒':'怒氣的底下通常藏著另一個情緒。可能是受傷、可能是失望、可能是「我明明那麼在乎，你怎麼可以這樣」。你真正在氣的是什麼？',
+  '焦慮':'焦慮是大腦在對你說：有件事你一直沒處理，再不處理我就要當機了。你知道那件事是什麼嗎？說出來的那一刻，焦慮通常就會小一點。',
+  '孤獨':'孤獨和一個人不一樣。你可以一個人而不孤獨，也可以在人群裡卻覺得沒人真正認識你。你此刻的孤獨在說：你渴望被「懂」。',
+  '開心':'開心浮現在凝視裡是很珍貴的。它代表你的潛意識目前有一塊是亮的。那塊亮的地方在哪裡？你有沒有把它好好記住？',
+  '委屈':'委屈是「我明明做了很多，但沒有人看見」的感覺。你一直在等一句「你辛苦了」，等到快要放棄了。但你可以先對自己說。',
+  '無力':'無力不是不夠努力，是努力太久了沒有看到改變。你的系統正在重新評估：值不值得繼續？答案可能不在腦子裡，在你的身體感受裡。',
+  '想哭':'想哭就哭。眼淚是身體清理壓力荷爾蒙的方式，跟出汗一樣正常。你壓住它不是堅強，是在告訴身體「你的感受不重要」。',
+  '崩潰':'崩潰聽起來很可怕，但它其實是一個訊號：舊的結構撐不住了。東西倒了不代表完了，代表你終於可以重新蓋一個比較適合你的。',
+  '壓力':'壓力是「現在的我」和「應該的我」之間的落差。落差越大，壓力越大。問題是：那個「應該的我」是誰定義的？真的是你嗎？',
+  '愛':'愛這個字在凝視裡浮現，通常是因為你正在渴望它，或者你正在給出太多卻沒有收到足夠的回流。愛需要雙向，包括你對自己的方向。',
+  '恨':'恨是一種很消耗能量的情緒。它把你綁在你不喜歡的人身上，比愛還緊。你願不願意考慮：不是原諒對方，而是把自己鬆綁？',
+  '寂寞':'寂寞的核心是「沒有人在我旁邊用我需要的方式存在」。你需要的那種存在方式是什麼？可能你自己也還沒想清楚。想清楚了，就知道要找什麼了。',
+  '希望':'希望浮現的時候代表你內在有一部分在說：還有可能。那部分在黑暗裡撐了很久。你要不要讓它稍微被看見？',
+  /* image */
+  '水':'水是潛意識最愛的象徵。平靜的水代表你內在有一片安全的地方；波動的水代表情緒正在流動，需要出口。你的水是什麼狀態？',
+  '火':'火是慾望和行動力。它在你裡面燒著什麼？如果那把火太小了，你在壓抑；太大了，你在透支。你現在是哪一種？',
+  '山':'山是你面前的一個障礙，或者一個你渴望抵達的穩定狀態。你站在山腳還是半山腰？你在看著它發愁，還是已經在走了？',
+  '門':'門代表一個選擇正在等你。你看到門打開還是關著？你在門的哪一邊？有時候最難的不是開門，是承認你想要走過去。',
+  '路':'路出現代表你知道方向在哪裡，只是還沒踏出去。這條路寬還是窄？直的還是彎的？你的腳停在原地，是在猶豫還是在準備？',
+  '海':'海是你的情緒全貌。平靜的海面下面可能有暗流，洶湧的浪底下可能有安靜的深處。你看到的是海面還是海底？',
+  '光':'光在暗處才被看見。你的潛意識看到了光，代表你正在黑暗裡，但你已經找到方向了。跟著那道光走，它知道路。',
+  '影':'影子是你的一部分，你看不太到但它一直跟著你。榮格說影子裡藏著你否認的自己。你否認了什麼？那個東西真的那麼不堪嗎？',
+  '黑暗':'黑暗在凝視裡浮現不代表負面。它代表你在一個看不清楚的階段，而你的眼睛正在慢慢適應。給自己多一點時間，畫面會慢慢清楚。',
+  '天空':'天空是你對可能性的想像。你看到的天空有多大？有沒有雲？晴天還是暴風雨前夕？天空的狀態就是你此刻看待未來的方式。',
+  '月亮':'月亮是潛意識的守護者。它不像太陽那麼明顯，但它一直在那裡。你的月亮在說：有些答案不需要在白天找，夜晚的直覺更誠實。',
+  '鑰匙':'鑰匙浮現代表你知道有一扇鎖住的門，而且你隱約知道打開的方法。你在等什麼？是不確定對不對，還是怕打開之後看到什麼？',
+  '牆':'牆是邊界。它擋住你，但也可能在保護你。你想翻過去、推倒它、還是繞過去？每一種選擇都在說不同的故事。',
+  '橋':'橋連結兩個世界。你正站在橋上，一端是你熟悉的地方，另一端是你嚮往但陌生的地方。你面朝哪個方向？',
+  '樹':'樹是你的根。它有多深？你長得越高，風越大，根就要越穩。你最近是在往上長，還是需要先往下扎根？',
+  '森林':'森林是一種「迷路但安全」的感覺。你被很多選擇包圍，看不清楚出口在哪裡。但森林裡不缺生命力，缺的是方向感。',
+  /* relationship */
+  '媽媽':'媽媽這個詞浮現，通常不是在想「她」，而是在想「跟她在一起時的你」。你在尋找什麼？保護？認可？還是一個遲到的擁抱？',
+  '爸爸':'爸爸的浮現常常連結到「被認可」的需求。你是不是一直在用某種方式證明自己夠好？如果他永遠不會說那句話，你能不能自己對自己說？',
+  '離開':'離開這個詞帶著雙重性。你想離開什麼？離開是解脫還是逃避？有時候真正的離開不是走掉，是在心裡把那個位置清空。',
+  '擁抱':'你渴望一個擁抱。不是禮貌性的那種，是把你整個人包住、讓你可以卸下防備的那種。你上一次被那樣抱住是什麼時候？',
+  '家':'家在你心裡是安全的還是複雜的？有些人想回家，有些人想離開家。不管哪一種，你真正在找的是「那個像家一樣的感覺」。',
+  '伴侶':'伴侶浮現代表你正在思考親密關係裡的什麼。是他的問題？還是你在這段關係裡變成了一個你不太認識的自己？',
+  '分手':'分手不一定是兩個人分開，有時候是你跟一個舊版本的自己告別。你在告別什麼？你有沒有好好跟那個版本的自己道謝？',
+  '想念':'想念一個人的時候，你真正想念的是跟那個人在一起時的那個你。那個你現在還在嗎？還是你覺得只有跟那個人在一起才會出現？',
+  '放手':'放手最難的不是鬆開手指，是接受「鬆開之後那個東西可能不會回來」。你準備好了嗎？還是你還想再抓一下？',
+  '原諒':'原諒不是說「沒關係」。原諒是說「你傷害了我，但我不想再讓這件事消耗我了」。原諒是為了自己，不是為了對方。',
+  '一個人':'一個人可以是自由，也可以是孤獨。你現在的「一個人」是哪一種？你是選擇了一個人，還是被留下來變成一個人？',
+  '對不起':'對不起想對誰說？有時候最需要聽到這三個字的人，是你自己。你有沒有什麼事情一直在跟自己過不去？',
+  /* color */
+  '紅':'紅是最原始的生命力。你的身體在渴望行動、渴望表達、渴望活著的那種感覺。你最近有沒有做一件讓你覺得「我真的在活」的事？',
+  '藍':'藍是安靜和表達的交界。你有話想說但不確定該不該說？藍色在告訴你：說出來。用你自己的方式，不用完美，但要真實。',
+  '綠':'綠是平衡和成長。你的心在找一個平衡點，可能是給予和接受之間的、可能是工作和生活之間的。你往哪一邊傾斜了？',
+  '紫':'紫是直覺的顏色。你的第六感最近特別強，那些「莫名覺得」的東西別忽略。你的直覺比你的邏輯更早知道答案。',
+  '白':'白是歸零。你的潛意識在清理空間，準備讓新的東西進來。你願不願意先把舊的東西清掉？清掉不是丟掉，是放到該放的位置。',
+  '黑':'黑不是負面，是深度。你正在往內走，往一個平常不太去的深處。那裡很安靜，也許一開始會不習慣，但答案通常都在那個深度。',
+  '金':'金色是智慧和覺察的交匯。你的潛意識正在連線一個更高的視角。站遠一點看，很多糾結的事情其實沒那麼複雜。',
+  /* abstract */
+  '自由':'自由浮現的時候，通常代表你現在不自由。什麼在綁著你？規則、責任、別人的期待、還是你自己設的框架？最難掙脫的牢籠往往是自己建的。',
+  '改變':'改變在你心裡喊了多久了？改變不需要很大。有時候一個很小的決定，回頭看才發現那就是轉折點。你現在可以做的最小的改變是什麼？',
+  '方向':'方向感消失的時候最慌。但你知道嗎，大部分人在找到方向之前都有一段「什麼都不確定」的空白期。你可能就在那個空白裡，而那個空白是必要的。',
+  '意義':'在問意義的時候，你其實已經走到一個比較深的層次了。大部分人還在忙著應付日常，你已經開始問「為什麼」了。這個問題的答案不在外面，在你每天選擇做的事情裡面。',
+  '時間':'時間浮現通常代表你覺得不夠、太慢、或者太快。你跟時間的關係是什麼？你是在追它還是被它追？暫停一秒鐘：此刻，就是你唯一真正擁有的時間。',
+  '選擇':'選擇的壓力不是來自「怕選錯」，是來自「怕錯過另一個」。但你知道嗎，不選也是一種選擇，而且通常是代價最高的那種。',
+  '勇氣':'勇氣不是不怕。勇氣是怕得要死，但還是往前走了一步。你現在需要往前走的那一步是什麼？你的腳已經知道了，只是大腦還在找藉口。'
+};
+
+/* Generic category insights for words not in WORD_INSIGHTS */
+var CATEGORY_FALLBACK = {
+  body: '這個身體訊號在凝視中浮現，代表你的身體有話想說。它不會用言語，只會用感覺。你願不願意停下來，聽它講完？',
+  emotion: '這份情緒在你腦海中冒出來，說明它一直在那裡，只是你平常沒有給它空間。現在它有空間了，讓它待一下。',
+  image: '這個意象是你的潛意識用畫面跟你說話。它選了這個畫面而不是別的，一定有原因。那個原因跟你此刻最在意的事有關。',
+  relationship: '跟人有關的詞浮現，代表關係正在佔用你的心理頻寬。不管是想念、糾結、還是渴望，你的潛意識在說：這件事你還沒處理完。',
+  color: '色彩是潛意識最直覺的語言。這個顏色在你腦海中亮起來，它在反映你此刻的內在狀態。',
+  abstract: '抽象的概念浮現，代表你正在處理一個比日常事件更大的人生命題。你的思考已經超越了「今天怎麼辦」的層次。'
+};
+
+/* ── Word Connections (詞彙連結分析) ── */
+function getWordConnections(words, results) {
+  var cats = {};
+  var catList = [];
+  results.forEach(function(r) {
+    if (!cats[r.category]) { cats[r.category] = []; catList.push(r.category); }
+    cats[r.category].push(r.word);
+  });
+  var catNames = {body:'身體感受',emotion:'情緒',image:'意象',relationship:'關係',color:'色彩',abstract:'深層概念'};
+  var parts = [];
+
+  /* Single category case */
+  if (catList.length === 1) {
+    parts.push('所有詞彙都指向同一個方向：' + catNames[catList[0]] + '。這不是巧合。你的潛意識在用不同的詞彙重複同一件事，像是在強調一個你一直沒有正視的訊號。當同一個主題從不同角度反覆出現，代表它的強度已經高到藏不住了。');
+    return parts.join('');
+  }
+
+  /* Multi-category intro */
+  var catLabels = catList.map(function(c) { return catNames[c] || c; });
+  parts.push('你的詞彙橫跨了「' + catLabels.join('」和「') + '」，代表你此刻的狀態不是單一議題，而是好幾條線同時在跑。');
+
+  /* Specific combos */
+  if (cats.body && cats.emotion) {
+    parts.push(' 身體在替情緒說話。你感受到的那些身體訊號，底下藏著還沒被命名的情緒。當情緒找不到出口，身體就會變成它的翻譯機。');
+  }
+  if (cats.emotion && cats.relationship) {
+    parts.push(' 情緒和關係同時出現，代表你此刻最大的能量消耗點在「人」身上。你的感受跟某個人或某段關係緊密綁在一起，拆開來看才知道哪些情緒是你的、哪些是對方的。');
+  }
+  if (cats.body && cats.relationship) {
+    parts.push(' 身體和關係連在一起出現，代表那段關係已經寫進你的身體記憶裡了。想到某個人的時候，身體會不自覺地繃緊或放鬆，那就是線索。');
+  }
+  if (cats.image && cats.emotion) {
+    parts.push(' 畫面和情緒交疊，代表你的潛意識正在用「場景」來封裝一種感受。那個場景裡藏著一個你還沒解開的結。');
+  }
+  if (cats.image && cats.abstract) {
+    parts.push(' 意象和抽象概念並存，代表你正在用兩種語言跟自己對話：一種是感性的畫面，一種是理性的思考。兩邊的交集就是你真正想說的那件事。');
+  }
+  if (cats.color) {
+    var colorWords = cats.color.join('、');
+    parts.push(' 色彩「' + colorWords + '」是潛意識的即時快照，它比文字更快也更直覺，反映的是你此刻最表層但也最真實的狀態。');
+  }
+
+  /* If no specific combo matched beyond intro */
+  if (parts.length === 1) {
+    parts.push(' 這些不同面向的詞彙看似各自獨立，但它們出現在同一次凝視裡就不是偶然。它們共同指向一個你正在經歷的生命主題，只是這個主題太大了，需要從好幾個角度才能看到全貌。');
+  }
+
+  return parts.join('');
+}
+
+/* ── H.O.U.R. Distribution Calculator ── */
+function getHourDistribution(results) {
+  var dist = {H:0, O:0, U:0, R:0};
+  results.forEach(function(r) {
+    if (r.category === 'color' && r.data && r.data[0]) {
+      dist[r.data[0]]++;
+    } else if (r.category === 'body') { dist.H++; }
+    else if (r.category === 'emotion') { dist.O++; }
+    else if (r.category === 'image') { dist.U++; }
+    else if (r.category === 'relationship') { dist.R++; }
+    /* abstract: distribute to O/U */
+    else if (r.category === 'abstract') { dist.O += 0.5; dist.U += 0.5; }
+  });
+  return dist;
+}
 
 /* ── Gaze Timer ── */
 var GAZE_DURATION = 75;
@@ -607,7 +787,8 @@ function renderCategoryResult(words, results, cat) {
     oilWhen: oil.when,
     question: db.question,
     action: db.action,
-    catLabel: getCategoryLabel(cat)
+    catLabel: getCategoryLabel(cat),
+    results: results
   });
 
   showResult(html);
@@ -677,6 +858,9 @@ function getCategoryLabel(cat) {
 }
 
 function buildResultHTML(words, data) {
+  /* Categorize each word for insights */
+  var wordResults = words.map(categorizeWord).filter(Boolean);
+
   var wordsChips = '';
   words.forEach(function(w) {
     wordsChips += '<span class="ms-word-chip">' + escHtml(w) + '</span>';
@@ -688,6 +872,60 @@ function buildResultHTML(words, data) {
   h += '<div class="ms-words-display">' + wordsChips + '</div>';
   h += '<p class="ms-tag ms-tag-hour" style="margin:8px 0">' + data.catLabel + '</p>';
   h += '<p style="font-size:.93rem;line-height:1.9;color:var(--lt-text)">' + data.mirror + '</p>';
+  h += '</div>';
+
+  /* ── NEW: 詞彙逐一解析 ── */
+  h += '<div class="ms-card ms-result-block">';
+  h += '<div class="ms-section-title">🔍 詞彙逐一解析</div>';
+  h += '<p style="font-size:.85rem;color:var(--lt-text-soft);margin-bottom:8px">每個詞都是潛意識丟給你的線索。一個一個拆開看，會比整包看更清楚。</p>';
+  wordResults.forEach(function(r) {
+    var insight = WORD_INSIGHTS[r.word];
+    if (!insight) {
+      /* Try partial match */
+      for (var key in WORD_INSIGHTS) {
+        if (r.word.indexOf(key) !== -1 || key.indexOf(r.word) !== -1) { insight = WORD_INSIGHTS[key]; break; }
+      }
+    }
+    if (!insight) insight = CATEGORY_FALLBACK[r.category] || CATEGORY_FALLBACK.abstract;
+    h += '<div class="ms-insight-item">';
+    h += '<div class="ms-insight-word">「' + escHtml(r.word) + '」</div>';
+    h += '<p class="ms-insight-text">' + insight + '</p>';
+    h += '</div>';
+  });
+  h += '</div>';
+
+  /* ── NEW: 詞彙之間的連結 ── */
+  var connectionText = getWordConnections(words, wordResults);
+  h += '<div class="ms-card ms-result-block">';
+  h += '<div class="ms-section-title">🔗 詞彙之間的連結</div>';
+  h += '<p class="ms-connection-text">' + connectionText + '</p>';
+  h += '</div>';
+
+  /* ── NEW: H.O.U.R. 能量分布 ── */
+  var dist = getHourDistribution(wordResults);
+  var maxDist = Math.max(dist.H, dist.O, dist.U, dist.R, 1);
+  h += '<div class="ms-card ms-result-block">';
+  h += '<div class="ms-section-title">📊 H.O.U.R. 能量分布</div>';
+  h += '<p style="font-size:.85rem;color:var(--lt-text-soft);margin-bottom:10px">你的詞彙在四個覺察階段的分布，反映此刻的能量重心在哪裡。</p>';
+  h += '<div class="ms-hour-bars">';
+  var stages = ['H','O','U','R'];
+  var stageLabels = {H:'Heal 身心校準',O:'Own 智慧辨識',U:'Unlock 潛能解鎖',R:'Rise 行動進化'};
+  stages.forEach(function(s) {
+    var val = dist[s];
+    var pct = maxDist > 0 ? Math.round((val / maxDist) * 100) : 0;
+    h += '<div class="ms-hour-bar-row">';
+    h += '<div class="ms-hour-bar-label">' + s + '</div>';
+    h += '<div class="ms-hour-bar-track"><div class="ms-hour-bar-fill ms-hour-bar-fill-' + s + '" style="width:' + pct + '%"></div></div>';
+    h += '<div class="ms-hour-bar-count">' + (val % 1 === 0 ? val : val.toFixed(1)) + '</div>';
+    h += '</div>';
+  });
+  h += '</div>';
+  /* Find dominant stage from distribution */
+  var domStage = 'H'; var domVal = 0;
+  stages.forEach(function(s) { if (dist[s] > domVal) { domVal = dist[s]; domStage = s; } });
+  if (domVal > 0) {
+    h += '<p class="ms-hour-bar-info">能量重心：' + HOUR_INFO[domStage].icon + ' ' + stageLabels[domStage] + '｜「' + HOUR_INFO[domStage].question + '」</p>';
+  }
   h += '</div>';
 
   h += '<div class="ms-card ms-result-block">';
