@@ -4025,6 +4025,23 @@ async function saveNote() {
     document.getElementById('note-char').textContent='0';
     showToast('筆記已儲存 ✓');
     loadNotes();
+    // 標記今日筆記任務為完成
+    try {
+      var today = todayTW();
+      var tasks = window._todayTasks || getDailyTasks(today);
+      var saved = JSON.parse(localStorage.getItem('hl_tasks_' + today) || '{}');
+      tasks.forEach(function(t) {
+        if (t.type === 'note' && !saved[t.id]) {
+          saved[t.id] = true;
+          gData.totalTasks = (gData.totalTasks || 0) + 1;
+          addXP('task');
+        }
+      });
+      localStorage.setItem('hl_tasks_' + today, JSON.stringify(saved));
+      renderTasks();
+      checkBadges();
+      saveGamifyData();
+    } catch(e2) {}
   } catch(e) { showToast('儲存失敗，請再試一次'); }
 }
 
