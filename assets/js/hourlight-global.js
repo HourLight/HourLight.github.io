@@ -16,6 +16,7 @@
     initNavToggle();
     initMusicPlayer();
     initSmoothScroll();
+    initImgErrorHandlers();
   });
 
   // ==================== 滾動動畫觀察器 ====================
@@ -136,6 +137,13 @@
           });
         }
       });
+    });
+  }
+
+  // ==================== 圖片錯誤處理 ====================
+  function initImgErrorHandlers() {
+    document.querySelectorAll('img:not([onerror])').forEach(function(img) {
+      img.onerror = function() { this.style.display = 'none'; };
     });
   }
 
