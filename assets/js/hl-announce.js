@@ -39,7 +39,8 @@ overlay.innerHTML = `
 
     <div class="hla-gift">
       🎁 註冊就送 48 小時大師體驗，AI 深度解讀隨你用。<br>
-      分享給朋友？每多一位註冊，你再多一天。
+      分享給朋友？每多一位註冊，你再多一天。<br>
+      <a href="member-dashboard.html" style="color:#f8dfa5;font-size:.78rem">查看我的推薦碼 →</a>
     </div>
   </div>
 
