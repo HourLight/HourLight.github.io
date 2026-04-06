@@ -911,7 +911,7 @@
 
             // 提示文字
             + '<div style="text-align:center;margin-top:14px;font-size:.78rem;color:' + mutedColor + ';line-height:1.7">'
-            + '每成功推薦1位朋友註冊，您和朋友各得1次免費AI解讀'
+            + '每成功推薦1位朋友註冊，您多1天大師體驗，朋友得48小時大師體驗'
             + '</div>'
 
             + '</div>';
