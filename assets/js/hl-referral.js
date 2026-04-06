@@ -225,23 +225,17 @@
               referral_premium_until: newUserExpiry.toISOString()  // 新用戶1天大師體驗
             }, { merge: true });
 
-            // 2. 推薦人獎勵：IP 比對 + 延遲7天發放
+            // 2. 推薦人獎勵：延遲3天發放 + 同IP警示（不阻擋）
             if (referrer.type === 'user' && referrer.uid) {
-              // 取得新用戶 IP，與推薦來源 IP 比對
               var refIP = localStorage.getItem('hl_referral_ip') || '';
               fetchClientIP().then(function(newUserIP) {
-                // 同 IP → 疑似自推自，不給推薦人獎勵（新用戶48hr照給）
-                if (refIP && newUserIP && refIP === newUserIP) {
-                  console.warn('[hl-referral] Same IP detected, referrer reward skipped');
-                  // 只更新推薦人計數，不給獎勵
-                  db.collection('users').doc(referrer.uid).update({
-                    'referral_stats.referred_count': firebase.firestore.FieldValue.increment(1)
-                  }).catch(function(){});
-                  return;
+                var sameIP = (refIP && newUserIP && refIP === newUserIP);
+                if (sameIP) {
+                  console.warn('[hl-referral] Same IP detected — flagged for review');
                 }
-                // IP 不同 → 建立待啟用獎勵（7天後自動發放）
+                // 建立待啟用獎勵（3天後自動發放）
                 var activateDate = new Date();
-                activateDate.setDate(activateDate.getDate() + 7);
+                activateDate.setDate(activateDate.getDate() + 3);
                 db.collection('users').doc(referrer.uid).collection('pending_rewards').add({
                   type: 'referral',
                   new_uid: uid,
@@ -249,6 +243,9 @@
                   days: 1,
                   activate_after: activateDate.toISOString(),
                   activated: false,
+                  same_ip: sameIP,
+                  ref_ip: refIP || '',
+                  new_ip: newUserIP || '',
                   created_at: firebase.firestore.FieldValue.serverTimestamp()
                 }).then(function() {
                   db.collection('users').doc(referrer.uid).update({
@@ -367,7 +364,7 @@
                 }).then(function() {
                   doc.ref.update({ activated: true, activated_at: new Date().toISOString() });
                   // 彈出感謝通知
-                  showRewardToast('🎁 您推薦的朋友已持續使用7天，您獲得1天大師體驗獎勵！');
+                  showRewardToast('🎁 您推薦的朋友已註冊滿3天，您獲得1天大師體驗獎勵！');
                 }).catch(function(){});
               }).catch(function(){});
             }
@@ -1004,8 +1001,7 @@
             // 提示文字
             + '<div style="text-align:center;margin-top:14px;font-size:.78rem;color:' + mutedColor + ';line-height:1.7">'
             + '朋友透過您的連結註冊，立即獲得48小時大師體驗。<br>'
-            + '朋友持續使用7天後，您也會獲得1天大師體驗獎勵（上限30天）。<br>'
-            + '<span style="opacity:.7">為維護公平，同一網路環境（IP）的推薦不計算獎勵。</span>'
+            + '朋友註冊3天後，您也會獲得1天大師體驗獎勵（上限30天）。'
             + '</div>'
 
             + '</div>';
