@@ -329,7 +329,7 @@
   }
 
   // ═══════════════════════════════════════
-  // 4.5 待啟用獎勵自動發放（7天後）
+  // 4.5 待啟用獎勵自動發放（3天後）
   // ═══════════════════════════════════════
 
   function checkPendingRewards(uid) {
@@ -345,7 +345,7 @@
           snap.forEach(function(doc) {
             var d = doc.data();
             if (d.activate_after && d.activate_after <= now) {
-              // 已過7天，啟用獎勵
+              // 已過3天，啟用獎勵
               db.collection('users').doc(uid).get().then(function(userDoc) {
                 var userData = userDoc.exists ? userDoc.data() : {};
                 var totalRewards = (userData.referral_stats && userData.referral_stats.rewards_earned) || 0;
