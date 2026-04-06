@@ -719,6 +719,14 @@ function buildResultHTML(words, data) {
   h += '<p style="font-size:.85rem;color:var(--lt-text-soft);margin-top:8px;font-family:var(--ff-oracle)">讀懂自己，活對人生。</p>';
   h += '</div>';
 
+  /* AI Deep Reading */
+  h += '<div class="ms-card" style="text-align:center;background:rgba(160,124,220,.06);border:1px solid rgba(160,124,220,.2)">';
+  h += '<div class="ms-section-title" style="text-align:center;border:none;padding:0;margin-bottom:8px">🤖 AI 深度解讀</div>';
+  h += '<p style="font-size:.85rem;color:var(--lt-text-soft);margin-bottom:14px;line-height:1.7">讓 AI 針對你的每一個詞彙做深度潛意識分析，串聯所有詞彙背後的完整故事</p>';
+  h += '<button class="ms-btn ms-btn-gold" onclick="copyMirrorAI()" style="background:linear-gradient(135deg,#9c6edb,#7a56b8);width:100%">🤖 複製 AI 深度解讀指令</button>';
+  h += '<p style="font-size:.72rem;color:var(--lt-text-soft);margin-top:8px">此功能計入每日 AI 解讀次數</p>';
+  h += '</div>';
+
   /* Share buttons */
   h += '<div class="ms-card" style="text-align:center">';
   h += '<div class="ms-section-title" style="text-align:center;border:none;padding:0;margin-bottom:14px">分享你的覺察</div>';
@@ -760,6 +768,71 @@ function retryGaze() {
   wordInputs.forEach(function(id) { document.getElementById(id).value = ''; });
   updateWordCount();
   window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ── AI Deep Reading ── */
+function copyMirrorAI() {
+  var words = [];
+  wordInputs.forEach(function(id) {
+    var v = document.getElementById(id).value.trim();
+    if (v) words.push(v);
+  });
+  if (words.length < 3) { showToast('至少需要3個詞彙'); return; }
+
+  var txt = '【AI深度解讀指令｜馥靈之鏡 × 潛意識詞彙分析 × 馥靈座標哲學】\n\n';
+  txt += '你是一位精通榮格分析心理學、認知芳療、以及馥靈 H.O.U.R. 覺察系統的深度解讀師。\n\n';
+  txt += '一個人在凝視緩慢流動的抽象影像 75 秒之後，浮現了以下詞彙：\n\n';
+  txt += '► ' + words.join('\n► ') + '\n\n';
+  txt += '這些詞彙是在接近半催眠狀態下浮現的，代表潛意識繞過了理性審查機制直接表達的內容。\n\n';
+  txt += '請你做以下深度分析：\n\n';
+  txt += '【第一層：逐詞拆解】\n';
+  txt += '針對每一個詞彙，分析它在潛意識層面的象徵意義。這個詞為什麼會在這個時刻浮現？它可能連結到什麼樣的生命經驗、未完成的課題、或壓抑的情緒？用生活化的語言解釋，像在跟一個信任你的朋友聊天。\n\n';
+  txt += '【第二層：詞彙之間的關聯】\n';
+  txt += '這幾個詞放在一起，講的是同一件事嗎？它們之間有沒有因果關係、時間順序、或對立關係？把它們串成一個連貫的潛意識敘事。像在讀一段密碼，破解這個人此刻內心真正在處理的議題。\n\n';
+  txt += '【第三層：H.O.U.R. 定位】\n';
+  txt += '根據詞彙組合，判斷這個人目前在馥靈 H.O.U.R. 四階段的哪個位置：\n';
+  txt += 'H（Heal 身心校準）核心提問：我夠好嗎？\n';
+  txt += 'O（Own 智慧辨識）核心提問：我值得被愛嗎？\n';
+  txt += 'U（Unlock 潛能解鎖）核心提問：我配擁有嗎？\n';
+  txt += 'R（Rise 行動進化）核心提問：我為何而來？\n';
+  txt += '解釋為什麼判斷在這個階段，給出具體的覺察路徑建議。\n\n';
+  txt += '【第四層：認知芳療處方】\n';
+  txt += '根據以上分析，推薦一種精油（或複方）。不是叫對方去買精油，而是用文字引導對方「想像」那個氣味。因為嗅覺記憶一旦建立，光是想到那個味道，神經迴路就已經啟動了。這叫認知芳療。寫一段 3-5 行的氣味引導文字，讓讀者閉上眼睛就能「聞到」。\n\n';
+  txt += '【第五層：三個此刻提問】\n';
+  txt += '根據分析結果，設計三個讓這個人「停下來想很久」的問題。問題要精準到讓對方覺得「你怎麼知道我在想這個」。不要問表面的問題，要問到核心。\n\n';
+  txt += '【第六層：最小行動】\n';
+  txt += '給出一個「今天就能做」的具體小行動。要小到沒有藉口不做，但做完會有微妙的改變。\n\n';
+  txt += '【收尾：馥靈馥語】\n';
+  txt += '用一段帶著氣味或畫面的文字收尾。不說加油、不說正能量、不說一切都會好的。收在一個場景或一個味道上，讓人讀完以後安靜三秒鐘。\n\n';
+  txt += '讀懂自己，活對人生。\n';
+  txt += '馥靈之鑰 hourlightkey.com\n';
+
+  /* iOS-compatible copy */
+  var ta = document.createElement('textarea');
+  ta.value = txt;
+  ta.setAttribute('readonly','');
+  ta.style.cssText = 'position:fixed;top:50%;left:50%;width:2em;height:2em;padding:0;border:none;outline:none;background:transparent;font-size:16px;opacity:.01;transform:translate(-50%,-50%);z-index:99999';
+  document.body.appendChild(ta);
+  if (/ipad|iphone/i.test(navigator.userAgent)) {
+    ta.focus();
+    var rng = document.createRange();
+    rng.selectNodeContents(ta);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(rng);
+    ta.setSelectionRange(0, 999999);
+  } else {
+    ta.focus();
+    ta.select();
+  }
+  try { document.execCommand('copy'); showToast('🤖 AI 深度解讀指令已複製！'); } catch(e) { alert('複製失敗'); }
+  document.body.removeChild(ta);
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(txt).catch(function(){});
+  }
+
+  /* Count usage */
+  if (window.hlAIGateCheck) hlAIGateCheck(function(){});
 }
 
 /* ── Share Functions ── */
