@@ -222,6 +222,11 @@
       box-shadow: 0 14px 34px rgba(0,0,0,0.95), 0 0 26px rgba(233,194,125,0.85);
     }
     .hl-v2-mode-btn:active { transform: translateY(-1px); }
+    .hl-daily-type{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border:1px solid rgba(233,194,125,.12);border-radius:12px;background:rgba(233,194,125,.03);color:rgba(255,255,255,.55);font-size:1.1rem;cursor:pointer;transition:.25s;font-family:inherit}
+    .hl-daily-type span{font-size:.68rem;letter-spacing:.05em}
+    .hl-daily-type:hover,.hl-daily-type.active{background:rgba(233,194,125,.1);border-color:rgba(233,194,125,.35);color:#f8dfa5}
+    .hl-daily-type.active{box-shadow:0 0 12px rgba(233,194,125,.15)}
+    @media(max-width:480px){.hl-daily-type{padding:8px 2px;font-size:1rem}.hl-daily-type span{font-size:.6rem}}
     @keyframes fadeSlideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
     .hl-v2-mode-btn small { display: block; font-size: 14px; opacity: 0.85; margin-top: 4px; font-weight: 500; letter-spacing: .02em; }
     .hl-price-tip {
@@ -1162,7 +1167,7 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
   <section class="hl-v2-glass">
     <h3 class="hl-v2-section-title">✨ 選擇抽牌張數</h3>
     <div class="hl-v2-mode-grid" style="grid-template-columns: repeat(4, 1fr); max-width: 640px; margin: 0 auto 12px;">
-      <button class="hl-v2-mode-btn free" data-n="1">抽 1 張<small>此刻一個提醒</small><span class="hl-price-tip">✨ 免費</span></button>
+      <button class="hl-v2-mode-btn free" data-n="1" data-daily="flash">抽 1 張<small>此刻一個提醒</small><span class="hl-price-tip">✨ 免費</span></button>
       <button class="hl-v2-mode-btn" data-n="3">抽 3 張<small>過去．現在．未來</small><span class="hl-price-tip">$199 智慧解讀</span></button>
       <button class="hl-v2-mode-btn" data-n="5">抽 5 張<small>五面向深度掃描</small><span class="hl-price-tip">$399 智慧解讀</span></button>
       <button class="hl-v2-mode-btn" data-n="7">抽 7 張<small>深層課題導航</small><span class="hl-price-tip">$599 智慧解讀</span></button>
@@ -1172,6 +1177,17 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
       <button class="hl-v2-mode-btn" data-n="12">抽 12 張<small>十二宮全盤掃描</small><span class="hl-price-tip">$2,800 文字+語音</span></button>
       <button class="hl-v2-mode-btn" data-n="15">抽 15 張<small>流年座標定位</small><span class="hl-price-tip">$3,600 線上對談</span></button>
       <button class="hl-v2-mode-btn" data-n="21">抽 21 張<small>人生藍圖矩陣</small><span class="hl-price-tip">$6,800 對談＋完整報告</span></button>
+    </div>
+    <!-- 城門銘牌五種覺察 -->
+    <div id="dailyModePanel" style="display:none;margin-bottom:16px;animation:fadeSlideIn .35s ease">
+      <div style="font-size:.82rem;color:rgba(233,194,125,.6);letter-spacing:.1em;margin-bottom:10px;text-align:center">城門銘牌｜今日五種覺察（每日固定）</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:640px;margin:0 auto">
+        <button class="hl-daily-type active" data-type="flash">⚡<span>快閃覺察</span></button>
+        <button class="hl-daily-type" data-type="yesno">⚖️<span>是非決策</span></button>
+        <button class="hl-daily-type" data-type="morning">🌅<span>晨間啟動</span></button>
+        <button class="hl-daily-type" data-type="sos">💧<span>情緒急救</span></button>
+        <button class="hl-daily-type" data-type="trend">🔭<span>趨勢微觀</span></button>
+      </div>
     </div>
     <p class="hl-v2-hint">💡 <strong>1張</strong> 此刻快問快答｜<strong>3-7張</strong> 不同面向拆解您的問題｜<strong>9張以上</strong> 覺察師為您深度解盤<br>
     <a href="draw-hl-guide.html" style="color:rgba(233,194,125,.7);text-decoration:underline;font-size:.85rem">📋 各牌陣適合問什麼問題？</a></p>
@@ -1484,6 +1500,9 @@ document.querySelectorAll('.hl-v2-mode-btn').forEach(btn => {
       if (pendingN >= 3) { pBlock.style.display = 'block'; pBlock.style.animation = 'fadeSlideIn .35s ease'; }
       else { pBlock.style.display = 'none'; }
     }
+    // 顯示/隱藏城門銘牌五種覺察
+    var dPanel = document.getElementById('dailyModePanel');
+    if(dPanel) dPanel.style.display = (pendingN === 1) ? 'block' : 'none';
     if (pendingN === 1) {
       userQuestion = '';
       drawCards(1);
@@ -1540,13 +1559,50 @@ modalConfirm.addEventListener('click', async () => {
   } catch(e) {}
 })();
 
+// ── 城門銘牌：日期種子，同一天同一人同一類型 → 同一張 ──
+var _hlDailyType = 'flash'; // 預設快閃覺察
+var DAILY_LABELS = {
+  flash:'⚡ 快閃覺察', yesno:'⚖️ 是非決策',
+  morning:'🌅 晨間啟動', sos:'💧 情緒急救', trend:'🔭 趨勢微觀'
+};
+
+function _hlDailySeed(type){
+  var d = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Taipei'}));
+  var dateStr = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+  var uid = (window.firebase && firebase.auth().currentUser) ? firebase.auth().currentUser.uid : 'anon';
+  var s = dateStr + uid + (type||'flash');
+  var h = 0;
+  for(var i=0;i<s.length;i++){ h = ((h<<5)-h)+s.charCodeAt(i); h |= 0; }
+  return Math.abs(h);
+}
+
+// 城門銘牌五種覺察切換
+(function(){
+  var panel = document.getElementById('dailyModePanel');
+  if(!panel) return;
+  panel.querySelectorAll('.hl-daily-type').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      panel.querySelectorAll('.hl-daily-type').forEach(function(b){b.classList.remove('active')});
+      btn.classList.add('active');
+      _hlDailyType = btn.dataset.type;
+      drawCards(1);
+    });
+  });
+})();
+
 function drawCards(n) {
   const pool = [...Array(allFiles.length).keys()];
-  for (let i = pool.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [pool[i], pool[j]] = [pool[j], pool[i]];
+  if (n === 1) {
+    // 城門銘牌：固定種子，同一天同一人同一類型 → 同一張
+    var seed = _hlDailySeed(_hlDailyType);
+    selected = [seed % allFiles.length];
+  } else {
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    selected = pool.slice(0, n);
   }
-  selected = pool.slice(0, n);
   renderCards(n === 1);
   copyBtn.disabled = false;
   shareBtn.disabled = false;
@@ -1589,7 +1645,7 @@ function renderCards(showExplain) {
   const n = selected.length;
 
   const layouts = {
-    1: [{ label: "✨ 今日一語", indices: [0] }],
+    1: [{ label: (DAILY_LABELS[_hlDailyType]||"✨ 今日一語"), indices: [0] }],
     3: [
       { label: "①浮出水面｜你以為的自己", indices: [0] },
       { label: "②水面之下｜沒說出口的真相", indices: [1] },
@@ -1847,7 +1903,7 @@ copyBtn.addEventListener('click', () => {
   const n = selected.length;
 
   const layouts = {
-    1: ["✨ 今日一語"],
+    1: [DAILY_LABELS[_hlDailyType]||"✨ 今日一語"],
     3: ["①浮出水面", "②水面之下", "③那把鑰匙"],
     5: ["①鏡中倒影", "②根源密碼", "③視線死角", "④隱藏王牌", "⑤下一步棋"],
     7: ["①全景掃描", "②表層故事", "③暗流湧動", "④視線之外", "⑤手中王牌", "⑥啟動指令", "⑦深處密語"],
@@ -2232,7 +2288,7 @@ function copyFullReading() {
   // 收集牌義資料
   var n = selected.length;
   var layouts = {
-    1:["✨ 今日一語"],3:["①浮出水面","②水面之下","③那把鑰匙"],
+    1:[DAILY_LABELS[_hlDailyType]||"✨ 今日一語"],3:["①浮出水面","②水面之下","③那把鑰匙"],
     7:["①全景掃描","②表層故事","③暗流湧動","④視線之外","⑤手中王牌","⑥啟動指令","⑦深處密語"],
     12:["第1門","第2門","第3門","第4門","第5門","第6門","第7門","第8門","第9門","第10門","第11門","第12門"],
     15:["A1","A2","A3","B1","B2","B3","C1","C2","C3","D1","D2","D3","E1","E2","E3"],
@@ -2692,7 +2748,7 @@ function toggleLegalContent(){
 <script src="assets/js/hl-bottomnav.js"></script>
 <script src="assets/js/hl-gate.js"></script>
 <script src="assets/js/hl-record.js"></script>
-<script src="assets/js/hl-announce.js"></script>
+<script src="assets/js/hl-announce.js?v=4"></script>
 <script src="assets/js/hl-email.js"></script>
 <script src="assets/js/hl-chat.js"></script>
 <script src="assets/js/hl-aroma-fx.js" defer></script>
