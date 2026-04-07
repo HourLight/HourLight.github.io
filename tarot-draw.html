@@ -645,10 +645,88 @@ rdBtn.addEventListener('click',function(){
   go();
 });
 
+// ── 塔羅抽牌計次門控（free:3/day, plus:10/day, pro:無限）──
+var TAROT_LIMITS = { free:3, plus:10, pro:Infinity };
+function _tarotDayKey(){
+  var n=new Date();var tw=new Date(n.getTime()+8*3600000);
+  return tw.getUTCFullYear()+'-'+String(tw.getUTCMonth()+1).padStart(2,'0')+'-'+String(tw.getUTCDate()).padStart(2,'0');
+}
+function _tarotGetPlan(uid,cb){
+  try{
+    firebase.firestore().collection('users').doc(uid).get().then(function(doc){
+      var d=doc.exists?doc.data():{};
+      var plan=d.plan||'free';
+      if(d.referral_premium_until&&new Date(d.referral_premium_until)>new Date())plan='pro';
+      try{var tu=localStorage.getItem('hl_promo_trial_until');if(tu&&new Date(tu)>new Date())plan='pro';}catch(e){}
+      cb(plan);
+    }).catch(function(){cb('free');});
+  }catch(e){cb('free');}
+}
+function _tarotGetUsage(uid,cb){
+  try{
+    firebase.firestore().collection('users').doc(uid).collection('tarot_daily').doc(_tarotDayKey()).get()
+      .then(function(doc){cb(doc.exists?(doc.data().count||0):0);}).catch(function(){cb(0);});
+  }catch(e){cb(0);}
+}
+function _tarotRecordUsage(uid){
+  try{
+    firebase.firestore().collection('users').doc(uid).collection('tarot_daily').doc(_tarotDayKey())
+      .set({count:firebase.firestore.FieldValue.increment(1),lastUsed:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+  }catch(e){}
+}
+function _showTarotGateModal(plan,used,limit){
+  var planName=plan==='free'?'免費會員':plan==='plus'?'馥靈鑰友':'馥靈大師';
+  var nextPlan=plan==='free'?'馥靈鑰友（NT$399/月，每天10次）':'馥靈大師（NT$999/月，無限抽牌）';
+  var ov=document.createElement('div');
+  ov.id='tarotGateModal';
+  ov.style.cssText='position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;animation:hla-in .4s ease';
+  ov.innerHTML='<div style="position:absolute;inset:0;background:rgba(5,3,10,.85);backdrop-filter:blur(8px)" onclick="this.parentElement.remove()"></div>'
+    +'<div style="position:relative;max-width:420px;width:100%;background:linear-gradient(160deg,rgba(15,10,25,.98),rgba(25,18,38,.95));border:1px solid rgba(233,194,125,.2);border-radius:24px;padding:32px 24px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.6)">'
+    +'<div style="font-size:2.5rem;margin-bottom:12px">🔮</div>'
+    +'<div style="font-family:\'Noto Serif TC\',serif;font-size:1.1rem;color:#f8dfa5;margin-bottom:8px">今日額度用完了</div>'
+    +'<div style="font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:20px;line-height:1.8">'
+    +planName+'每天可抽 '+limit+' 次，您今天已用 '+used+' 次<br>明天午夜（台灣時間）自動歸零</div>'
+    +'<div style="font-size:.82rem;color:rgba(233,194,125,.6);margin-bottom:16px;line-height:1.7">想要更多？升級 '+nextPlan+'</div>'
+    +'<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">'
+    +'<a href="pricing.html" style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#f8dfa5,#ecd098);color:#1a1008;border-radius:999px;font-size:.9rem;font-weight:500;text-decoration:none;transition:.3s">查看方案</a>'
+    +'<button onclick="this.closest(\'#tarotGateModal\').remove()" style="padding:12px 28px;background:rgba(248,223,165,.08);border:1px solid rgba(248,223,165,.2);color:rgba(248,223,165,.7);border-radius:999px;font-size:.9rem;cursor:pointer;font-family:inherit">明天再來</button>'
+    +'</div></div>';
+  document.body.appendChild(ov);
+}
+
 function go(){
-  q=qi.value.trim();
-  so.classList.add('on');
-  setTimeout(function(){doDraw();so.classList.remove('on');},900+Math.random()*500);
+  // 計次門控
+  var auth=window.firebase&&firebase.auth&&firebase.auth();
+  var user=auth&&auth.currentUser;
+  if(!user){
+    // 未登入：用 localStorage 限 3 次
+    var dk='tarot_anon_'+_tarotDayKey();
+    var used=parseInt(localStorage.getItem(dk)||'0');
+    if(used>=3){_showTarotGateModal('free',used,3);return;}
+    localStorage.setItem(dk,String(used+1));
+    q=qi.value.trim();
+    so.classList.add('on');
+    setTimeout(function(){doDraw();so.classList.remove('on');},900+Math.random()*500);
+    return;
+  }
+  // 已登入：查 Firestore
+  _tarotGetPlan(user.uid,function(plan){
+    var limit=TAROT_LIMITS[plan]||3;
+    if(limit===Infinity){
+      _tarotRecordUsage(user.uid);
+      q=qi.value.trim();
+      so.classList.add('on');
+      setTimeout(function(){doDraw();so.classList.remove('on');},900+Math.random()*500);
+      return;
+    }
+    _tarotGetUsage(user.uid,function(count){
+      if(count>=limit){_showTarotGateModal(plan,count,limit);return;}
+      _tarotRecordUsage(user.uid);
+      q=qi.value.trim();
+      so.classList.add('on');
+      setTimeout(function(){doDraw();so.classList.remove('on');},900+Math.random()*500);
+    });
+  });
 }
 
 function doDraw(){
