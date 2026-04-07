@@ -42,9 +42,8 @@
 .quiz-result{display:none;animation:slideIn 0.5s ease}
 .quiz-result.active{display:block}
 .likert-wrap{margin-bottom:8px}
-.likert-labels{display:flex;justify-content:space-between;font-size:0.95rem;color:#5a4a30;margin-bottom:8px;padding:0 4px}
-.likert-row{display:flex;justify-content:space-between;gap:8px}
-.likert-btn{flex:1;padding:12px 4px;border:1px solid rgba(184,146,42,0.2);border-radius:10px;background:transparent;color:#2a1f0e;font-size:0.9rem;cursor:pointer;transition:all 0.2s}
+.likert-row{display:flex;flex-direction:column;gap:8px}
+.likert-btn{display:flex;align-items:center;gap:10px;width:100%;padding:14px 16px;border:1px solid rgba(184,146,42,0.2);border-radius:12px;background:transparent;color:#2a1f0e;font-size:0.9rem;cursor:pointer;transition:all 0.2s;font-family:inherit;text-align:left;line-height:1.5}
 .likert-btn.selected{border-color:#b8922a;background:rgba(233,194,125,0.15);color:#2a1f0e}
 .likert-btn:hover{border-color:rgba(233,194,125,0.75)}
 .ocean-bars{background: #ffffff;border:1px solid rgba(233,194,125,0.15);border-radius:18px;padding:24px 22px;margin-bottom:16px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
@@ -209,8 +208,8 @@ function renderQuestion(idx){
   const area=document.getElementById('questionsArea');area.innerHTML='';
   questions.forEach((qd,i)=>{
     const card=document.createElement('div');card.className='quiz-card'+(i===idx?' active':'');card.id='qcard-'+i;
-    const btns=[1,2,3,4,5].map(v=>`<button class="likert-btn${answers[i]===v?' selected':''}" onclick="selectAnswer(${i},${v},this)">${v}</button>`).join('');
-    card.innerHTML=`<div class="quiz-q-num">第 ${i+1} 題 / ${questions.length}</div><div class="quiz-question">${qd.q}</div><div class="likert-wrap"><div class="likert-labels">${likertLabels.map(l=>`<span>${l}</span>`).join('')}</div><div class="likert-row">${btns}</div></div><div class="quiz-nav">${i>0?`<button class="btn-prev" onclick="goTo(${i-1})">← 上一題</button>`:'<span></span>'}${i<questions.length-1?`<button class="btn-next" id="btnNext-${i}" ${answers[i]===undefined?'disabled':''} onclick="goTo(${i+1})">下一題 →</button>`:`<button class="btn-next" id="btnNext-${i}" ${answers[i]===undefined?'disabled':''} onclick="showResult()">看我的倦怠指數 🔥</button>`}</div>`;
+    const btns=[1,2,3,4,5].map(v=>{var _ll=['從來沒有','偶爾','有時候','常常','幾乎每天'];return`<button class="likert-btn${answers[i]===v?' selected':''}" onclick="selectAnswer(${i},${v},this)"><span style="flex-shrink:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(233,194,125,0.1);color:#8b6914;font-size:0.82rem;font-weight:600">${v}</span><span style="flex:1">${_ll[v-1]}</span></button>`;}).join('');
+    card.innerHTML=`<div class="quiz-q-num">第 ${i+1} 題 / ${questions.length}</div><div class="quiz-question">${qd.q}</div><div class="likert-wrap"><div class="likert-row">${btns}</div></div><div class="quiz-nav">${i>0?`<button class="btn-prev" onclick="goTo(${i-1})">← 上一題</button>`:'<span></span>'}${i<questions.length-1?`<button class="btn-next" id="btnNext-${i}" ${answers[i]===undefined?'disabled':''} onclick="goTo(${i+1})">下一題 →</button>`:`<button class="btn-next" id="btnNext-${i}" ${answers[i]===undefined?'disabled':''} onclick="showResult()">看我的倦怠指數 🔥</button>`}</div>`;
     area.appendChild(card);
   });updateProgress(idx);
 }
