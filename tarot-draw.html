@@ -699,14 +699,9 @@ function go(){
   var auth=window.firebase&&firebase.auth&&firebase.auth();
   var user=auth&&auth.currentUser;
   if(!user){
-    // 未登入：用 localStorage 限 3 次
-    var dk='tarot_anon_'+_tarotDayKey();
-    var used=parseInt(localStorage.getItem(dk)||'0');
-    if(used>=3){_showTarotGateModal('free',used,3);return;}
-    localStorage.setItem(dk,String(used+1));
-    q=qi.value.trim();
-    so.classList.add('on');
-    setTimeout(function(){doDraw();so.classList.remove('on');},900+Math.random()*500);
+    // 未登入：彈出登入提示
+    showTarotToast('🔐 請先登入會員才能抽牌');
+    var lb=document.querySelector('[data-action="login"]');if(lb)lb.click();
     return;
   }
   // 已登入：查 Firestore
