@@ -346,7 +346,7 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="datetime-local
         <label class="form-label" for="ycBirthHour">出生時辰（選填，知道更準）</label>
         <select id="ycBirthHour" class="form-select">
           <option value="">不確定</option>
-          <option value="子時 23:00-01:00">子時（23:00-01:00）</option>
+          <option value="早子時 00:00-01:00">早子時（00:00-01:00）半夜12點後</option>
           <option value="丑時 01:00-03:00">丑時（01:00-03:00）</option>
           <option value="寅時 03:00-05:00">寅時（03:00-05:00）</option>
           <option value="卯時 05:00-07:00">卯時（05:00-07:00）</option>
@@ -358,6 +358,7 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="datetime-local
           <option value="酉時 17:00-19:00">酉時（17:00-19:00）</option>
           <option value="戌時 19:00-21:00">戌時（19:00-21:00）</option>
           <option value="亥時 21:00-23:00">亥時（21:00-23:00）</option>
+          <option value="晚子時 23:00-00:00">晚子時（23:00-00:00）晚上11點後</option>
         </select>
       </div>
     </div>
@@ -388,12 +389,9 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="datetime-local
     </div>
   </div>
 
-  <!-- 抽牌區域 -->
+  <!-- 抽牌區域（自動抽牌動畫） -->
   <div class="draw-section" id="drawSection">
-    <p class="draw-instruction">點選你有感覺的牌，選滿 5 張後會自動進入下一步。</p>
-    <div style="text-align:center;margin-bottom:12px">
-      <span style="font-size:.82rem;color:var(--gold)" id="drawCounterLive">已選 0 / 5 張</span>
-    </div>
+    <p class="draw-instruction" id="drawInstruction">正在為你抽牌...</p>
     <div class="draw-pool" id="drawPool"></div>
   </div>
 
@@ -590,17 +588,17 @@ document.getElementById('startDrawBtn').addEventListener('click', function() {
   drawSection.classList.add('visible');
   drawSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  renderDrawPool();
+  autoDrawCards();
 });
 
-function renderDrawPool() {
+// 自動抽牌：隨機抽 5 張，逐張翻牌動畫
+function autoDrawCards() {
   var pool = document.getElementById('drawPool');
   pool.innerHTML = '';
   selectedIndices = [];
   selectedCards = [];
-  updateDrawCounter();
 
-  // 打亂順序
+  // Fisher-Yates 洗牌
   var indices = [];
   for (var i = 0; i < allFiles.length; i++) indices.push(i);
   for (var i = indices.length - 1; i > 0; i--) {
@@ -608,10 +606,17 @@ function renderDrawPool() {
     var tmp = indices[i]; indices[i] = indices[j]; indices[j] = tmp;
   }
 
-  indices.forEach(function(fileIdx) {
+  // 取前 5 張
+  var picked = indices.slice(0, 5);
+  selectedIndices = picked;
+
+  // 建立 5 張牌卡 DOM（先顯示背面）
+  picked.forEach(function(fileIdx, i) {
     var card = document.createElement('div');
     card.className = 'draw-card';
     card.dataset.idx = fileIdx;
+    card.style.display = 'inline-block';
+    card.style.margin = '6px';
 
     var inner = document.createElement('div');
     inner.className = 'draw-card-inner';
@@ -625,7 +630,7 @@ function renderDrawPool() {
     var img = document.createElement('img');
     img.src = allFiles[fileIdx];
     img.alt = allFiles[fileIdx].replace('.png', '');
-    img.loading = 'lazy';
+    img.loading = 'eager';
     img.onerror = function() {
       this.style.display = 'none';
       this.parentElement.style.background = 'radial-gradient(circle,#2a1535,#0d0520)';
@@ -642,36 +647,23 @@ function renderDrawPool() {
     inner.appendChild(back);
     inner.appendChild(front);
     card.appendChild(inner);
-
-    card.addEventListener('click', function() {
-      selectCard(this);
-    });
-
     pool.appendChild(card);
+
+    // 逐張翻牌動畫（每張間隔 0.5 秒）
+    setTimeout(function() {
+      card.classList.add('flipped');
+      card.classList.add('selected');
+      var hint = document.getElementById('drawInstruction');
+      if (hint) hint.textContent = '第 ' + (i + 1) + ' 張翻開了...';
+    }, 800 + i * 500);
   });
-}
 
-function selectCard(cardEl) {
-  var idx = parseInt(cardEl.dataset.idx);
-  if (selectedIndices.indexOf(idx) > -1) return;
-  if (selectedIndices.length >= 5) return;
-
-  selectedIndices.push(idx);
-  cardEl.classList.add('flipped');
-  cardEl.classList.add('selected');
-
-  // 延遲後禁用其他操作
+  // 全部翻完後進入下一步
   setTimeout(function() {
-    if (selectedIndices.length >= 5) {
-      // 禁用所有未選中的牌
-      var allCards = document.querySelectorAll('.draw-card:not(.selected)');
-      allCards.forEach(function(c) { c.classList.add('disabled'); });
-      // 完成抽牌
-      setTimeout(function() { completeDrawing(); }, 600);
-    }
-  }, 400);
-
-  updateDrawCounter();
+    var hint = document.getElementById('drawInstruction');
+    if (hint) hint.textContent = '五張牌已就位 ✦';
+    setTimeout(function() { completeDrawing(); }, 600);
+  }, 800 + 5 * 500 + 300);
 }
 
 function updateDrawCounter() {
