@@ -610,9 +610,12 @@ function autoDrawCards() {
     var tmp = indices[i]; indices[i] = indices[j]; indices[j] = tmp;
   }
 
-  // 取前 7 張
+  // 取前 7 張 + 決定正逆位
   var picked = indices.slice(0, 7);
   selectedIndices = picked;
+  var _reversedFlags = [];
+  for (var r = 0; r < 7; r++) _reversedFlags.push(Math.random() > 0.5);
+  window._ycReversedFlags = _reversedFlags;
 
   // 建立 7 張牌卡 DOM（先顯示背面）
   picked.forEach(function(fileIdx, i) {
@@ -635,6 +638,7 @@ function autoDrawCards() {
     img.src = allFiles[fileIdx];
     img.alt = allFiles[fileIdx].replace('.png', '');
     img.loading = 'eager';
+    if (_reversedFlags[i]) img.style.transform = 'rotate(180deg)';
     img.onerror = function() {
       this.style.display = 'none';
       this.parentElement.style.background = 'radial-gradient(circle,#2a1535,#0d0520)';
@@ -683,10 +687,14 @@ function completeDrawing() {
   selectedCards = selectedIndices.map(function(idx, i) {
     var code = allFiles[idx].replace('.png', '');
     var info = window.cardData ? window.cardData[code] : {};
+    var isReversed = window._ycReversedFlags ? window._ycReversedFlags[i] : (Math.random() > 0.5);
     return {
       code: code,
       title: info.title || info.name || '',
       description: info.sense || info.description || '',
+      reversed: isReversed,
+      orientation: isReversed ? '挑戰' : '禮物',
+      orientationIcon: isReversed ? '🔥' : '🎁',
       position: POSITIONS[i].icon + ' ' + POSITIONS[i].name + '（' + POSITIONS[i].space + '）',
       positionName: POSITIONS[i].name,
       positionSpace: POSITIONS[i].space,
@@ -714,8 +722,10 @@ function showPreview() {
     var el = document.createElement('div');
     el.className = 'sel-card';
     el.style.animationDelay = (i * 0.1) + 's';
-    el.innerHTML = '<img src="' + card.code + '.png" alt="' + card.code + '" loading="lazy" onerror="this.style.display=\'none\'">' +
+    el.innerHTML = '<img src="' + card.code + '.png" alt="' + card.code + '" loading="lazy" onerror="this.style.display=\'none\'"' +
+      (card.reversed ? ' style="transform:rotate(180deg)"' : '') + '>' +
       '<div class="sel-card-cap">' + card.code + (card.title ? ' ' + card.title : '') +
+      '<span style="display:block;font-size:.7rem;margin-top:2px;opacity:.8">' + card.orientationIcon + ' ' + card.orientation + '</span>' +
       '<span class="sel-card-pos">' + card.positionIcon + ' ' + card.positionName + '</span></div>';
     grid.appendChild(el);
 
@@ -723,7 +733,7 @@ function showPreview() {
     var item = document.createElement('div');
     item.className = 'card-pos-item';
     item.innerHTML = '<div class="card-pos-space">' + card.positionIcon + ' ' + card.positionName + '｜' + card.positionSpace + '</div>' +
-      '<div class="card-pos-name">' + card.code + (card.title ? ' ' + card.title : '') + '</div>' +
+      '<div class="card-pos-name">' + card.code + (card.title ? ' ' + card.title : '') + ' ' + card.orientationIcon + card.orientation + '</div>' +
       '<div class="card-pos-hint">' + card.positionDesc + '</div>';
     list.appendChild(item);
   });
@@ -828,7 +838,9 @@ function generateStory(code) {
         code: c.code,
         position: c.position,
         title: c.title,
-        description: c.description
+        description: c.description,
+        reversed: c.reversed || false,
+        orientation: c.reversed ? '挑戰（逆位）' : '禮物（正位）'
       };
     }),
     unlockCode: code,

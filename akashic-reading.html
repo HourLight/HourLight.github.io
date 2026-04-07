@@ -515,6 +515,7 @@ var LAYER_NAMES = [
 var drawnCards = [];
 var drawnCodes = [];
 var drawnTitles = [];
+var drawnReversed = [];
 
 // ========== Expand toggle ==========
 function toggleExpand(el){
@@ -568,6 +569,8 @@ function drawSevenCards(){
   drawnCards = pool.slice(0, 7);
   drawnCodes = [];
   drawnTitles = [];
+  drawnReversed = [];
+  for(var r = 0; r < 7; r++) drawnReversed.push(Math.random() > 0.5);
 
   // Show grid
   var grid = document.getElementById('cardsGrid');
@@ -590,6 +593,7 @@ function drawSevenCards(){
         var img = slot.querySelector('img');
         img.src = 'cards/' + fileName;
         img.alt = title;
+        if(drawnReversed[idx]) img.style.transform = 'rotate(180deg)';
         slot.classList.add('revealed');
         slot.style.animation = 'fadeSlideIn .4s ease';
       }, idx * 300);
@@ -617,9 +621,10 @@ function showLayerMapping(){
   for(var i = 0; i < 7; i++){
     var item = document.createElement('div');
     item.className = 'layer-item';
+    var ori = drawnReversed[i] ? '🔥挑戰' : '🎁禮物';
     item.innerHTML = '<span class="layer-num">' + (i+1) + '</span>' +
       '<span class="layer-name">' + LAYER_NAMES[i] + '</span>' +
-      '<span class="layer-card">' + (drawnTitles[i] || drawnCodes[i] || '...') + '</span>';
+      '<span class="layer-card">' + (drawnTitles[i] || drawnCodes[i] || '...') + ' ' + ori + '</span>';
     grid.appendChild(item);
   }
 }
@@ -741,6 +746,8 @@ async function startReading(code){
       layer: LAYER_NAMES[i],
       code: code_i,
       title: title_i,
+      reversed: drawnReversed[i] || false,
+      orientation: drawnReversed[i] ? '挑戰（逆位）' : '禮物（正位）',
       meaning: info ? (info['覺察'] || info.meaning || '') : ''
     });
   }
