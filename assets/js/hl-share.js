@@ -498,7 +498,10 @@ window.shareToLine=function(){
   var t='【'+title+'】';
   if(hero) t+='\n✦ '+hero.textContent.trim();
   if(sub)  t+='\n'+sub.textContent.trim();
-  window.open('https://social-plugins.line.me/lineit/share?url='+encodeURIComponent(url)+'&text='+encodeURIComponent(t),'_blank');
+  // 手機用 line:// 協議喚起 APP，電腦 fallback 網頁版
+  var lineMsg = t + '\n🔗 ' + url;
+  var lineAppUrl = 'https://line.me/R/share?text=' + encodeURIComponent(lineMsg);
+  window.open(lineAppUrl, '_blank');
 };
 
 /* ═══ 分享到 Threads（複製文字，不放連結）═══ */
