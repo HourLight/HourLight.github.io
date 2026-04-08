@@ -976,36 +976,125 @@ async function handleWallpaper(req, res, apiKey) {
 
   var aspectText = device === 'desktop' ? 'desktop wallpaper (landscape 3:2 ratio, 1536x1024)' : 'phone wallpaper (portrait 2:3 ratio, 1024x1536)';
 
-  // ─── 最終 prompt：戲劇感 + 豐富 + 高美學 ───
-  var prompt =
-    // ① 開場：定義作品類型（強調 RICH 不是 minimal）
-    'Create a museum-quality ' + aspectText + ' that feels like a cinematic Vogue editorial cover crossed with album cover art and fine art concept painting. ' +
-    'Rich, atmospheric, dramatic — NOT minimalist or sparse. The image must have visual weight, depth, and presence. ' +
-    'Aesthetic references: cinematic concept art (Roger Deakins lighting), high-fashion editorial photography (Steven Meisel for Vogue), luxury fragrance campaign (Dior J\'adore golden cinematography), prestige album cover art (The xx Coexist depth, Beach House dreamy cosmos), Pinterest aesthetic boards labeled "celestial luxury" / "cosmic elegance" / "dark academia meets stardust". ' +
-    // ② 主題 HERO MOTIF — 這是核心畫面
-    'PRIMARY HERO IMAGE: ' + heroMotif + '. ' +
-    'Theme intent: a powerful visual blessing for ' + themeIntent + '. ' + themeS.mood + '. ' +
-    // ③ 個人核心元素
-    personalElementsStr +
-    // ④ 五行配色（飽和但有品味）
-    'Color palette (rich, saturated, sophisticated — based on dominant ' + wx + ' element): ' + wxV.colors + '. ' +
-    (compensateColors ? 'Compensating accent colors (because they are missing ' + missingWx.join('/') + '): ' + compensateColors + '. ' : '') +
-    'Color mood: ' + wxV.mood + '. ' +
-    'Atmosphere reference: ' + wxV.nature + '. ' +
-    'Element-based texture & elements: ' + wxV.elements + '. ' +
-    wxStatStr +
-    genderHint +
-    // ⑤ 風格包裝（要明顯影響整體視覺）
-    'Aesthetic style wrapper (this MUST clearly shape the entire image): ' + styleChoice + '. ' +
-    'Background atmosphere: ' + themeS.bg + '. ' +
-    // ⑥ 構圖規則（戲劇感為主）
-    'COMPOSITION DIRECTION: dramatic cinematic composition with clear visual hierarchy. Strong focal subject + atmospheric depth + layered background. Use chiaroscuro lighting (dramatic light against deep shadow). Sense of scale and otherworldly grandeur. ' + symbolDepthHint + ' ' +
-    'The image should feel like it could be a cover of a luxury magazine or a high-end concept art portfolio piece. Visual weight is essential — never empty, never sparse, never thin. ' +
-    // ⑦ 強烈負面排除
-    'STRONGLY AVOID: empty bland minimalism (NO sparse single object on flat gradient), fantasy game art, video game cover, anime style, cartoon, chibi, chinese opera mask, folk religion temple imagery, literal coins or treasure chests or lucky cats, dim muddy beige, washed out colors, low contrast, lack of focal interest, generic AI wellness app aesthetic, dnd illustration, deviantart style, kitsch, tacky luxury bling. ' +
-    // ⑧ 技術約束
-    'CRITICAL TECHNICAL: no text, no words, no letters, no numbers, no watermarks, no signatures, no logos. Pure visual symbolism only. ' +
-    'Quality: cinematic photography meets fine art painting. Dramatic directional lighting with chiaroscuro. Rich saturated yet sophisticated palette. The owner paid premium for this and will use it as their phone wallpaper for months — it must feel valuable and deeply personal every time they unlock their phone.';
+  // ═══════════════════════════════════════════════════════════════
+  // STAGE 1：用 Claude 把客人 33 套命理數據合成成「他這個人的能量簽名 + 原創視覺處方」
+  // 不再硬塞既有符號，讓 Claude 看完整人後合成原創圖騰
+  // ═══════════════════════════════════════════════════════════════
+  var dossier = '【客人命理 dossier — 33 套系統的計算結果】\n\n';
+  dossier += '— 西洋占星 —\n';
+  if (profile.sunSign) dossier += '太陽：' + profile.sunSign + '\n';
+  if (profile.moonSign) dossier += '月亮：' + profile.moonSign + '\n';
+  if (profile.risingSign) dossier += '上升：' + profile.risingSign + '\n';
+  dossier += '\n— 八字四柱 —\n';
+  if (profile.bazi && profile.bazi.pillars) {
+    var P = profile.bazi.pillars;
+    dossier += '年柱：' + (P.year ? P.year.full : '') + '\n';
+    dossier += '月柱：' + (P.month ? P.month.full : '') + '\n';
+    dossier += '日柱：' + (P.day ? P.day.full : '') + '（日主 ' + (profile.dayMaster || '') + '，' + (profile.dayMasterWx || '') + '）\n';
+    if (P.hour) dossier += '時柱：' + P.hour.full + '\n';
+    if (profile.baziStat) {
+      dossier += '五行統計：木' + (profile.baziStat['木']||0) + ' 火' + (profile.baziStat['火']||0) + ' 土' + (profile.baziStat['土']||0) + ' 金' + (profile.baziStat['金']||0) + ' 水' + (profile.baziStat['水']||0) + '\n';
+    }
+    dossier += '主要五行：' + (profile.dominantWx || '') + '｜需補：' + (profile.missingWx || []).join('、') + '\n';
+  }
+  dossier += '生肖：' + (profile.zodiac || '') + '\n';
+  if (profile.lunarMonth) dossier += '農曆生日：' + (profile.isLeapMonth ? '閏' : '') + profile.lunarMonth + '/' + profile.lunarDay + '\n';
+  dossier += '\n— 馥靈秘碼（H.O.U.R 四主數）—\n';
+  if (profile.fuling) {
+    dossier += 'H 癒數：' + profile.fuling.H + '｜O 識數：' + profile.fuling.O + (profile.fuling.U ? '｜U 鑰數：' + profile.fuling.U : '') + '｜R 行數：' + profile.fuling.R + '\n';
+  }
+  dossier += '生命靈數：' + (profile.lifePathNum || '') + '\n';
+  dossier += '\n— 馬雅曆 —\n';
+  if (profile.maya) dossier += profile.maya.tone + '・' + profile.maya.seal + '（Kin ' + profile.maya.kin + '）\n';
+  dossier += '\n— 九星氣學 —\n';
+  if (profile.nsk && profile.nsk.star) dossier += profile.nsk.star.n + '（' + profile.nsk.star.t + '）\n';
+  dossier += '\n— 生日色彩（脈輪）—\n';
+  if (profile.birthColor && profile.birthColor.mc) dossier += profile.birthColor.mc.n + '（' + profile.birthColor.mc.ck + '：' + profile.birthColor.mc.t + '）\n';
+  dossier += '\n— 宿曜占星 —\n';
+  if (profile.xiuyao) dossier += profile.xiuyao.name + '宿（' + profile.xiuyao.palace + '・' + profile.xiuyao.guard + '）\n';
+  dossier += '\n— 撲克牌生命牌 —\n';
+  if (profile.cardology) dossier += profile.cardology.display + '（' + profile.cardology.suitElement + '）\n';
+  dossier += '\n— 居爾特樹曆 —\n';
+  if (profile.celtic) dossier += profile.celtic.name + '\n';
+  if (profile.cityLabel) dossier += '\n— 出生地 —\n' + profile.cityLabel + '\n';
+  if (profile.gender) dossier += '\n— 性別 —\n' + (profile.gender === 'F' ? '女' : '男') + '\n';
+
+  var themeNamesZh = { wealth:'招財豐盛', love:'愛情桃花', career:'事業貴人', protection:'護佑平安', luck:'幸運轉運' };
+  var themeZhForClaude = themeNamesZh[theme] || theme;
+
+  // 風格類別中英對照
+  var styleCategoryNames = {
+    auto: '自動混搭（你決定最適合的風格）',
+    buddhist: '佛系（東方禪意美學，藏傳華麗或日式禪簡）',
+    angelic: '天使系（西方光感美學，dove + cathedral light）',
+    immortal: '仙系（東方仙氣，仙鶴雲山蓬萊意境）',
+    arabian: '阿拉伯系（幾何寶石，Persian miniature）',
+    fashion: '時尚編輯（高時尚宇宙，Vogue 風）',
+    dreamscape: '自然夢境（水彩、極光、水晶洞、星海）',
+    oriental: '東方絲綢（傳統東方美學現代化）'
+  };
+  var userPickedStyle = styleCategoryNames[styleCategory] || styleCategoryNames.auto;
+
+  var claudeSystemPrompt = '你是馥靈之鑰的首席視覺藝術總監，專精於把命理數據合成為「這個人獨一無二的視覺處方」。\n\n' +
+    '你的任務是根據客人的 33 套命理 dossier，合成出他這個人的能量簽名，然後為 gpt-image-1 寫一段精準的英文 prompt，用於生成一張高級時尚編輯感的桌布。\n\n' +
+    '【鐵律】\n' +
+    '1. 不准用既有符號（不准畫巨蟹、老虎、十字、佛陀、金幣、龍、蓮花這種已知圖騰）\n' +
+    '2. 必須「合成」一個原創的視覺圖騰，這個圖騰只屬於這個人\n' +
+    '3. 例如：水多火少 + 變動星座 + 轉化季節 → 不是「畫雙魚」，是「一個用月光與火焰交織而成的螺旋形體，懸浮於深藍宇宙中，火苗化為金色羽毛」這種原創\n' +
+    '4. 美學方向：Vogue 編輯封面 × 唱片美術 × 概念藝術，Rich 不是 minimal，戲劇感不是空洞\n' +
+    '5. 飽和但有品味的色彩，不要艷俗也不要淡寡\n' +
+    '6. 圖中絕對不能有任何文字、字母、數字、符號\n\n' +
+    '【輸出格式】\n' +
+    '只輸出英文 prompt 本身，不要加任何說明。長度約 250-400 字，包含：\n' +
+    '- 原創 hero motif（你為這個人合成的獨特視覺圖騰，不要用已知符號）\n' +
+    '- 整體氛圍與構圖（cinematic / chiaroscuro / atmospheric）\n' +
+    '- 顏色描述（要具體，飽和度高）\n' +
+    '- 美學參考錨點（cinematic concept art / Vogue editorial / album art / Pinterest 風）\n' +
+    '- 必需的負面詞（NO text, NO literal symbols, NO sparse minimalism, NO fantasy game art）\n\n' +
+    '不要在 prompt 裡寫「Cancer」「Tiger」「Dragon」「Buddha」「Lotus」「Cross」這種既有符號，要用你合成的原創圖騰。';
+
+  var claudeUserPrompt = dossier + '\n\n' +
+    '【今日要做的桌布】\n' +
+    '主題：' + themeZhForClaude + '（這個人今天需要的能量是：' + themeIntent + '）\n' +
+    '客人選的風格類別：' + userPickedStyle + '\n' +
+    '裝置比例：' + aspectText + '\n' +
+    '深度等級：' + tier + '（basic=精煉 / advanced=豐富 / premium=極致複雜）\n' +
+    '變體編號：' + (variant + 1) + '/' + total + '（如果同一人生成多張，請每張換不同的合成圖騰角度，但保持同一個能量簽名）\n\n' +
+    '請根據以上 dossier 合成出這個人專屬的能量簽名，並為 gpt-image-1 寫出英文 prompt。直接輸出 prompt，不要加說明。';
+
+  var prompt = '';
+  try {
+    var claudeResp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1200,
+        system: claudeSystemPrompt,
+        messages: [{ role: 'user', content: claudeUserPrompt }]
+      })
+    });
+
+    if (!claudeResp.ok) {
+      var errText = await claudeResp.text();
+      console.error('Claude synthesis error:', claudeResp.status, errText);
+      return res.status(502).json({ error: '視覺合成服務暫時不可用，請稍後再試' });
+    }
+    var claudeResult = await claudeResp.json();
+    if (claudeResult.content && claudeResult.content.length > 0) {
+      prompt = claudeResult.content[0].text || '';
+    }
+    if (!prompt) {
+      return res.status(502).json({ error: '視覺合成失敗，請稍後再試' });
+    }
+  } catch (claudeErr) {
+    console.error('Claude synthesis exception:', claudeErr);
+    return res.status(502).json({ error: '視覺合成服務暫時不可用：' + claudeErr.message });
+  }
 
   try {
     var resp = await fetch('https://api.openai.com/v1/images/generations', {
