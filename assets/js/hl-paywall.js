@@ -139,6 +139,7 @@ window.hlPaywall = (function(){
       // 注入代碼兌換邏輯
       var _onProceed = config.onProceed || null;
       var _n = config.n;
+      var _pageType = config.pageType || '';
       window._hlPaywallRedeemCode = async function() {
         var input = document.getElementById('hlPaywallCodeInput');
         var errEl = document.getElementById('hlPaywallCodeErr');
@@ -200,10 +201,19 @@ window.hlPaywall = (function(){
             if (btn) { btn.disabled = false; btn.textContent = '✨ 兌換'; }
             return;
           }
+          // 服務類型守門（向後相容：舊代碼沒有 service 欄位 → 視為通用）
+          var codeService = codeData.service || '';
+          if (codeService && _pageType && codeService !== _pageType) {
+            var svcNames = { 'reading':'牌卡解讀', 'beauty':'美甲/SPA', 'wealth-wallpaper':'蘊福桌布' };
+            errEl.style.display = 'block';
+            errEl.textContent = '此代碼僅適用於「' + (svcNames[codeService] || codeService) + '」服務';
+            if (btn) { btn.disabled = false; btn.textContent = '✨ 兌換'; }
+            return;
+          }
           var codeN = codeData.n || codeData.spreads || 3;
           if (_n !== codeN) {
             errEl.style.display = 'block';
-            errEl.textContent = '此代碼僅適用於 ' + codeN + ' 張解讀，您目前選擇了 ' + _n + ' 張';
+            errEl.textContent = '此代碼僅適用於 ' + codeN + ' 張，您目前選擇了 ' + _n + ' 張';
             if (btn) { btn.disabled = false; btn.textContent = '✨ 兌換'; }
             return;
           }

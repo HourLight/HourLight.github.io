@@ -464,6 +464,10 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
 .adm-funnel-bar-wrap { flex: 1; height: 28px; background: var(--adm-gold-bg2); border-radius: 6px; overflow: hidden; position: relative; }
 .adm-funnel-bar { height: 100%; border-radius: 6px; transition: width .6s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; }
 .adm-funnel-val { font-size: .72rem; font-weight: 600; white-space: nowrap; }
+/* ─── Stat Mini ─── */
+.adm-stat-mini { flex:1; min-width:130px; padding:14px 18px; background:var(--adm-gold-bg2); border:1px solid rgba(248,223,165,.18); border-radius:10px; display:flex; flex-direction:column; gap:4px; }
+.adm-stat-mini .lbl { font-size:.72rem; color:var(--adm-text2); letter-spacing:.04em; }
+.adm-stat-mini .val { font-size:1.5rem; color:var(--adm-gold); font-weight:600; font-family:"Noto Serif TC",serif; }
 </style>
 </head>
 <body>
@@ -495,6 +499,7 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
   <div class="adm-tabs" id="tabBar">
     <button class="adm-tab active" data-tab="dashboard">📊 總覽</button>
     <button class="adm-tab" data-tab="members">👥 會員管理</button>
+    <button class="adm-tab" data-tab="activate">🎫 會員開通</button>
     <button class="adm-tab" data-tab="codes">🎟️ 解鎖碼</button>
     <button class="adm-tab" data-tab="pet">🐾 個案查詢</button>
     <button class="adm-tab" data-tab="feedback">💬 問題回報</button>
@@ -914,6 +919,139 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
       </div>
     </div>
 
+    <!-- ═══ Tab: 會員開通 (activate) ═══ -->
+    <div id="panel-activate" class="adm-panel">
+      <!-- 🎫 快速開通會員 -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">🎫 快速開通會員方案</div>
+        </div>
+        <div class="adm-card-body">
+          <p style="font-size:.85rem;color:var(--adm-text2);margin-bottom:14px;line-height:1.7">
+            輸入會員 Email，再點一個快速預設按鈕即可開通。或自選方案＋天數。
+          </p>
+          <div class="adm-form-group" style="margin-bottom:14px">
+            <label class="adm-label">會員 Email</label>
+            <input type="email" class="adm-input" id="actEmail" placeholder="輸入會員的 Email" style="font-size:1rem;padding:14px 16px">
+          </div>
+
+          <!-- 一鍵預設按鈕 -->
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+            <button class="adm-btn adm-btn-outline" style="flex:1;min-width:140px;min-height:48px;font-size:.92rem" onclick="quickActivate('trial_pro',7)">🎁 7天體驗</button>
+            <button class="adm-btn adm-btn-outline" style="flex:1;min-width:140px;min-height:48px;font-size:.92rem" onclick="quickActivate('plus',30)">🔑 30天鑰友</button>
+            <button class="adm-btn adm-btn-outline" style="flex:1;min-width:140px;min-height:48px;font-size:.92rem" onclick="quickActivate('pro',30)">👑 30天大師</button>
+            <button class="adm-btn adm-btn-outline" style="flex:1;min-width:140px;min-height:48px;font-size:.92rem" onclick="quickActivate('pro',365)">👑 365天大師</button>
+            <button class="adm-btn adm-btn-outline" style="flex:1;min-width:140px;min-height:48px;font-size:.92rem" onclick="quickActivate('pro',0)">💎 永久大師</button>
+          </div>
+
+          <details style="margin-bottom:8px">
+            <summary style="cursor:pointer;font-size:.84rem;color:var(--adm-text2);padding:8px 0">⚙️ 自訂方案＋天數</summary>
+            <div class="adm-form-row" style="margin-top:10px">
+              <div class="adm-form-group">
+                <label class="adm-label">方案</label>
+                <select class="adm-select" id="actPlan" style="width:200px">
+                  <option value="trial_pro">🎁 7天體驗（等同大師）</option>
+                  <option value="plus">🔑 馥靈鑰友（$399/月）</option>
+                  <option value="pro">👑 馥靈大師（$999/月）</option>
+                </select>
+              </div>
+              <div class="adm-form-group">
+                <label class="adm-label">天數</label>
+                <select class="adm-select" id="actDays" style="width:120px">
+                  <option value="7" selected>7 天</option>
+                  <option value="30">30 天</option>
+                  <option value="60">60 天</option>
+                  <option value="90">90 天</option>
+                  <option value="180">180 天</option>
+                  <option value="365">365 天</option>
+                  <option value="0">永久</option>
+                </select>
+              </div>
+              <button class="adm-btn adm-btn-gold" style="min-height:48px" onclick="activateMember()" id="actBtn">開通會員</button>
+            </div>
+          </details>
+
+          <div id="actResult" style="display:none;margin-top:14px;padding:12px 16px;border-radius:10px;font-size:.88rem;line-height:1.8"></div>
+        </div>
+      </div>
+
+      <!-- 📋 最近開通紀錄 -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">📋 最近開通紀錄</div>
+          <button class="adm-btn adm-btn-sm adm-btn-outline" onclick="loadActivateHistory()">重新載入</button>
+        </div>
+        <div class="adm-card-body">
+          <div id="actHistory" style="font-size:.86rem;color:var(--adm-text2);line-height:1.9">載入中⋯</div>
+        </div>
+      </div>
+
+      <!-- 🔓 HLU 7天無限序號兌換 -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">🔓 HLU 7 天無限序號兌換</div>
+        </div>
+        <div class="adm-card-body">
+          <p style="font-size:.85rem;color:var(--adm-text2);margin-bottom:18px;line-height:1.7">
+            輸入會員 Email + HLU 序號，立即開通 7 天大師方案。7 天後自動降回免費。
+          </p>
+          <div class="adm-form-row">
+            <div class="adm-form-group flex1">
+              <label class="adm-label">會員 Email</label>
+              <input type="email" class="adm-input" id="hluEmail" placeholder="輸入會員的 Email">
+            </div>
+            <div class="adm-form-group flex1">
+              <label class="adm-label">HLU 序號</label>
+              <input type="text" class="adm-input" id="hluCode" placeholder="HLU-XXXXXX" style="font-family:monospace;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
+            </div>
+            <button class="adm-btn adm-btn-gold" onclick="redeemUnlimitedCode()" id="hluBtn">開通 7 天</button>
+          </div>
+          <div id="hluResult" style="display:none;margin-top:14px;padding:12px 16px;border-radius:10px;font-size:.88rem;line-height:1.8"></div>
+        </div>
+      </div>
+
+      <!-- ⭐ HLT 7天體驗序號兌換（會員自助） -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">⭐ HLT 7 天體驗序號兌換</div>
+        </div>
+        <div class="adm-card-body">
+          <p style="font-size:.85rem;color:var(--adm-text2);margin-bottom:18px;line-height:1.7">
+            收到 HLT- 開頭序號？輸入後立即開通 7 天大師等級體驗，到期自動降為免費會員。<br>
+            <span style="font-size:.78rem;color:var(--adm-text3)">注意：此功能開通的是「目前登入帳號」的方案，不是其他人的</span>
+          </p>
+          <div class="adm-form-row">
+            <div class="adm-form-group flex1">
+              <label class="adm-label">體驗序號</label>
+              <input type="text" class="adm-input" id="trialCodeInput" placeholder="HLT-XXXXXX" style="font-family:monospace;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
+            </div>
+            <button class="adm-btn adm-btn-gold" onclick="redeemTrialCode()" id="trialRedeemBtn">立即兌換</button>
+          </div>
+          <div id="trialResult" style="display:none;margin-top:14px;padding:12px 16px;border-radius:10px;font-size:.88rem;line-height:1.8"></div>
+        </div>
+      </div>
+
+      <!-- 📚 NAHA 課程開通 -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">📚 NAHA 課程存取開通</div>
+        </div>
+        <div class="adm-card-body">
+          <p style="font-size:.85rem;color:var(--adm-text2);margin-bottom:18px;line-height:1.7">
+            輸入學生 Email，開通 NAHA 課程頁面的完整內容存取權。開通後學生登入即可看到被鎖住的教學內容。
+          </p>
+          <div class="adm-form-row">
+            <div class="adm-form-group flex1">
+              <label class="adm-label">學生 Email</label>
+              <input type="email" class="adm-input" id="nahaEmail" placeholder="輸入學生的 Email">
+            </div>
+            <button class="adm-btn adm-btn-gold" onclick="grantNahaAccess()" id="nahaBtn">開通課程</button>
+          </div>
+          <div id="nahaResult" style="display:none;margin-top:14px;padding:12px 16px;border-radius:10px;font-size:.88rem;line-height:1.8"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ═══ Tab 3: Codes ═══ -->
     <div id="panel-codes" class="adm-panel">
       <div class="adm-card">
@@ -923,12 +1061,16 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
         <div class="adm-card-body">
           <div class="adm-form-row">
             <div class="adm-form-group">
-              <label class="adm-label">牌數</label>
-              <select class="adm-select" id="codeN" style="width:120px">
-                <option value="3">3 張</option>
-                <option value="5">5 張</option>
-                <option value="7">7 張</option>
+              <label class="adm-label">服務類型</label>
+              <select class="adm-select" id="codeService" style="width:200px" onchange="onCodeServiceChange()">
+                <option value="reading" selected>🃏 牌卡 AI 解讀</option>
+                <option value="beauty">💅 美甲 / SPA</option>
+                <option value="wealth-wallpaper">🌟 蘊福桌布</option>
               </select>
+            </div>
+            <div class="adm-form-group">
+              <label class="adm-label">方案</label>
+              <select class="adm-select" id="codePlan" style="width:240px"></select>
             </div>
             <div class="adm-form-group flex1">
               <label class="adm-label">備註（選填）</label>
@@ -946,6 +1088,26 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
         </div>
         <div class="adm-card-body">
           <div class="adm-table-wrap" id="codesTable">
+            <div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ 馥靈蘊福桌布生成監控 ═══ -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">🌟 蘊福桌布生成監控</div>
+          <span class="adm-card-badge badge badge-purple" id="wallpaperStatBadge">最近 50 筆</span>
+          <button class="adm-btn adm-btn-sm adm-btn-outline" onclick="loadWallpaperGenerations()" style="margin-left:8px">重新載入</button>
+        </div>
+        <div class="adm-card-body">
+          <div id="wallpaperStatSummary" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
+            <div class="adm-stat-mini"><span class="lbl">總生成數</span><span class="val" id="wpStatTotal">—</span></div>
+            <div class="adm-stat-mini"><span class="lbl">今日生成</span><span class="val" id="wpStatToday">—</span></div>
+            <div class="adm-stat-mini"><span class="lbl">已寄信</span><span class="val" id="wpStatEmailed">—</span></div>
+            <div class="adm-stat-mini"><span class="lbl">付費生成</span><span class="val" id="wpStatPaid">—</span></div>
+          </div>
+          <div class="adm-table-wrap" id="wallpaperTable">
             <div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>
           </div>
         </div>
@@ -1284,7 +1446,8 @@ tabBtns.forEach(function(btn) {
     var panel = document.getElementById('panel-' + tab);
     if (panel) panel.classList.add('active');
 
-    if (tab === 'codes') loadCodes();
+    if (tab === 'activate') loadActivateHistory();
+    if (tab === 'codes') { onCodeServiceChange(); loadCodes(); loadWallpaperGenerations(); }
     if (tab === 'feedback') loadFeedback();
     if (tab === 'monitor') startMonitor();
     if (tab === 'referral') { loadReferrals(); loadRefOverviewStats(); }
@@ -1996,27 +2159,86 @@ function backToMemberSearch() {
 window.backToMemberSearch = backToMemberSearch;
 
 // ═══════════════════════════════════════════════════════════════
-//  CODES (Tab 3)
+//  CODES (Tab 3) — 服務感知版（reading / beauty / wealth-wallpaper）
 // ═══════════════════════════════════════════════════════════════
 
+var ADM_SERVICE_PLANS = {
+  'reading': {
+    label: '🃏 牌卡 AI 解讀',
+    plans: [
+      { n: 3, price: 199, label: '3 張（NT$199）', prefix: 'HL3' },
+      { n: 5, price: 399, label: '5 張（NT$399）', prefix: 'HL5' },
+      { n: 7, price: 599, label: '7 張（NT$599）', prefix: 'HL7' }
+    ]
+  },
+  'beauty': {
+    label: '💅 美甲 / SPA',
+    plans: [
+      { n: 3, price: 600,  label: '3 張（NT$600）',  prefix: 'BT3' },
+      { n: 5, price: 900,  label: '5 張（NT$900）',  prefix: 'BT5' },
+      { n: 9, price: 1200, label: '9 張（NT$1,200）', prefix: 'BT9' }
+    ]
+  },
+  'wealth-wallpaper': {
+    label: '🌟 蘊福桌布',
+    plans: [
+      { n: 1,  price: 0,   label: '1 張（NT$0 兌換 / 贈送）',     prefix: 'WP1' },
+      { n: 3,  price: 199, label: '3 張（NT$199 基礎能量）',      prefix: 'WP3' },
+      { n: 5,  price: 399, label: '5 張（NT$399 進階圖騰）',      prefix: 'WP5' },
+      { n: 15, price: 999, label: '15 張（NT$999 五主題全套）',   prefix: 'W15' }
+    ]
+  }
+};
+
+function onCodeServiceChange() {
+  var svc = document.getElementById('codeService').value;
+  var plans = (ADM_SERVICE_PLANS[svc] || {}).plans || [];
+  var sel = document.getElementById('codePlan');
+  sel.innerHTML = '';
+  plans.forEach(function(p, idx) {
+    var opt = document.createElement('option');
+    opt.value = idx;
+    opt.textContent = p.label;
+    sel.appendChild(opt);
+  });
+}
+window.onCodeServiceChange = onCodeServiceChange;
+
 function generateCode() {
-  var n = parseInt(document.getElementById('codeN').value);
+  var svc = document.getElementById('codeService').value;
+  var planIdx = parseInt(document.getElementById('codePlan').value);
+  var plans = (ADM_SERVICE_PLANS[svc] || {}).plans || [];
+  var plan = plans[planIdx] || plans[0];
+  if (!plan) { toast('請選擇方案'); return; }
   var memo = document.getElementById('codeMemo').value.trim();
-  var code = 'HL-' + randomStr(8).toUpperCase();
-  var prices = { 3: 199, 5: 399, 7: 599 };
+  var rand = randomStr(6).toUpperCase().replace(/[01OI]/g, function(c){ return 'ABCDEFG'.charAt(Math.floor(Math.random()*7)); });
+  var code = plan.prefix + '-' + rand;
 
   db.collection('reading_codes').doc(code).set({
     code: code,
-    n: n,
-    price: prices[n] || 0,
+    service: svc,
+    n: plan.n,
+    spreads: plan.n,
+    price: plan.price,
     used: false,
     usedAt: null,
     usedBy: null,
     createdFor: memo || null,
+    memo: memo || null,
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     createdBy: currentUser.email
   }).then(function() {
-    toast('解鎖碼已產生：' + code);
+    // 自動複製到剪貼簿（單手作業優化）
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code);
+        toast('✅ 已產生並複製：' + code);
+      } else {
+        toast('解鎖碼已產生：' + code);
+      }
+    } catch(_) {
+      toast('解鎖碼已產生：' + code);
+    }
     document.getElementById('codeMemo').value = '';
     loadCodes();
   }).catch(function(e) {
@@ -2029,26 +2251,32 @@ function loadCodes() {
   var container = document.getElementById('codesTable');
   container.innerHTML = '<div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>';
 
+  var svcIcons = { 'reading':'🃏', 'beauty':'💅', 'wealth-wallpaper':'🌟' };
+  var svcLabels = { 'reading':'牌卡解讀', 'beauty':'美甲/SPA', 'wealth-wallpaper':'蘊福桌布' };
+
   db.collection('reading_codes').orderBy('createdAt', 'desc').limit(50).get().then(function(snap) {
     if (snap.empty) {
       container.innerHTML = '<div class="adm-empty"><div class="adm-empty-icon">🎟️</div>尚無解鎖碼</div>';
       return;
     }
     var html = '<table class="adm-table"><thead><tr>' +
-      '<th>解鎖碼</th><th>牌數</th><th>價格</th><th>狀態</th><th>備註</th><th>建立時間</th><th>使用者</th></tr></thead><tbody>';
+      '<th>解鎖碼</th><th>服務</th><th>張數</th><th>價格</th><th>狀態</th><th>備註</th><th>建立</th><th>使用者</th></tr></thead><tbody>';
     snap.forEach(function(doc) {
       var d = doc.data();
+      var svc = d.service || 'reading';
+      var n = d.n || d.spreads || '-';
       var status = d.used
         ? '<span class="badge badge-red">已使用</span>'
         : '<span class="badge badge-green">可使用</span>';
       html += '<tr>' +
         '<td style="font-family:monospace;font-weight:600;color:var(--adm-gold)">' + esc(d.code || doc.id) + '</td>' +
-        '<td>' + esc(d.n || '-') + ' 張</td>' +
+        '<td>' + (svcIcons[svc] || '🃏') + ' ' + esc(svcLabels[svc] || svc) + '</td>' +
+        '<td>' + esc(n) + ' 張</td>' +
         '<td>NT$' + esc(d.price || 0) + '</td>' +
         '<td>' + status + '</td>' +
-        '<td>' + esc(d.createdFor || '-') + '</td>' +
+        '<td>' + esc(d.memo || d.createdFor || '-') + '</td>' +
         '<td>' + formatTs(d.createdAt) + '</td>' +
-        '<td>' + esc(d.usedBy || '-') + '</td>' +
+        '<td>' + esc(d.usedByEmail || d.usedBy || '-') + '</td>' +
         '</tr>';
     });
     html += '</tbody></table>';
@@ -2057,6 +2285,361 @@ function loadCodes() {
     container.innerHTML = '<div class="adm-empty">載入失敗：' + esc(e.message) + '</div>';
   });
 }
+
+// ═══════════════════════════════════════════════════════════════
+//  WALLPAPER GENERATIONS MONITOR
+// ═══════════════════════════════════════════════════════════════
+function loadWallpaperGenerations() {
+  var container = document.getElementById('wallpaperTable');
+  container.innerHTML = '<div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>';
+
+  var themeNames = { wealth:'💰 招財豐盛', love:'💕 愛情桃花', career:'🚀 事業貴人', protection:'🛡️ 護佑平安', luck:'🍀 幸運轉運' };
+  var tierNames = { basic:'基礎', advanced:'進階', premium:'完整' };
+
+  db.collection('wallpaper_generations').orderBy('createdAt', 'desc').limit(50).get().then(function(snap) {
+    if (snap.empty) {
+      container.innerHTML = '<div class="adm-empty"><div class="adm-empty-icon">🌟</div>尚無桌布生成記錄</div>';
+      document.getElementById('wpStatTotal').textContent = '0';
+      document.getElementById('wpStatToday').textContent = '0';
+      document.getElementById('wpStatEmailed').textContent = '0';
+      document.getElementById('wpStatPaid').textContent = '0';
+      return;
+    }
+
+    var todayStr = new Date().toLocaleDateString('zh-TW', { timeZone:'Asia/Taipei' });
+    var totalCount = 0, todayCount = 0, emailedCount = 0, paidCount = 0;
+
+    var html = '<table class="adm-table"><thead><tr>' +
+      '<th>時間</th><th>會員 / Email</th><th>主題</th><th>等級</th><th>裝置</th><th>命理</th><th>序號</th><th>寄信</th></tr></thead><tbody>';
+    snap.forEach(function(doc) {
+      var d = doc.data();
+      totalCount++;
+      var ct = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate() : null;
+      if (ct && ct.toLocaleDateString('zh-TW', { timeZone:'Asia/Taipei' }) === todayStr) todayCount++;
+      if (d.emailSent) emailedCount++;
+      if (d.unlockCode) paidCount++;
+
+      var theme = themeNames[d.theme] || d.theme || '-';
+      var tier = tierNames[d.tier] || d.tier || '-';
+      var device = d.device === 'desktop' ? '💻 電腦' : '📱 手機';
+      var profile = d.profile || {};
+      var profileStr = (profile.zodiac || '?') + '・靈數' + (profile.lifePathNum || '?') + '・' + (profile.dominantWx || '?');
+      var emailIcon = d.emailSent ? '<span class="badge badge-green">✓ 已寄</span>' : '<span class="badge badge-red">✗ 未寄</span>';
+      var who = d.email ? esc(d.email) : (d.uid && d.uid !== 'guest' ? esc(d.uid).slice(0,10)+'…' : '訪客');
+
+      html += '<tr>' +
+        '<td style="font-size:.78rem">' + formatTs(d.createdAt) + '</td>' +
+        '<td style="font-size:.78rem">' + who + '</td>' +
+        '<td>' + esc(theme) + '</td>' +
+        '<td><span class="badge badge-purple">' + esc(tier) + '</span></td>' +
+        '<td>' + device + '</td>' +
+        '<td style="font-size:.78rem;color:var(--adm-text2)">' + esc(profileStr) + '</td>' +
+        '<td style="font-family:monospace;font-size:.76rem;color:var(--adm-gold)">' + esc(d.unlockCode || '-') + '</td>' +
+        '<td>' + emailIcon + '</td>' +
+        '</tr>';
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+
+    document.getElementById('wpStatTotal').textContent = totalCount;
+    document.getElementById('wpStatToday').textContent = todayCount;
+    document.getElementById('wpStatEmailed').textContent = emailedCount;
+    document.getElementById('wpStatPaid').textContent = paidCount;
+  }).catch(function(e) {
+    container.innerHTML = '<div class="adm-empty">載入失敗：' + esc(e.message) + '</div>';
+  });
+}
+window.loadWallpaperGenerations = loadWallpaperGenerations;
+
+// ═══════════════════════════════════════════════════════════════
+//  ACTIVATE — 會員開通（從 app.html 移植）
+// ═══════════════════════════════════════════════════════════════
+var HL_PLANS = {
+  free:  { name:'免費會員',   icon:'🌱', price:0   },
+  plus:  { name:'馥靈鑰友',   icon:'🔑', price:399 },
+  pro:   { name:'馥靈大師',   icon:'👑', price:999 }
+};
+
+// 一鍵預設：設定 plan/days 並立即開通
+function quickActivate(plan, days) {
+  document.getElementById('actPlan').value = plan;
+  document.getElementById('actDays').value = String(days);
+  activateMember();
+}
+window.quickActivate = quickActivate;
+
+async function activateMember() {
+  var email = document.getElementById('actEmail').value.trim().toLowerCase();
+  var plan = document.getElementById('actPlan').value;
+  var days = parseInt(document.getElementById('actDays').value);
+  var resultEl = document.getElementById('actResult');
+  var btn = document.getElementById('actBtn');
+
+  function showErr(msg) {
+    resultEl.style.display = 'block';
+    resultEl.style.background = 'rgba(217,48,37,.08)';
+    resultEl.style.color = '#d93025';
+    resultEl.textContent = msg;
+  }
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showErr('請輸入正確的 Email');
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = '處理中⋯';
+  try {
+    var snap = await db.collection('users').where('email', '==', email).limit(1).get();
+    if (snap.empty) {
+      showErr('找不到此 Email 的會員，請確認對方已註冊帳號');
+      btn.disabled = false; btn.textContent = '開通會員';
+      return;
+    }
+    var userDoc = snap.docs[0];
+    var uid = userDoc.id;
+    var userData = userDoc.data();
+
+    var isTrial = plan === 'trial_pro';
+    var actualPlan = isTrial ? 'pro' : plan;
+    var pInfo = HL_PLANS[actualPlan] || HL_PLANS.plus;
+
+    var data = { plan: actualPlan };
+    if (isTrial) data.isTrial = true;
+    var expiryLabel = '';
+    if (days === 0) {
+      data.planExpiry = 'permanent';
+      expiryLabel = '永久';
+    } else {
+      var exp = new Date();
+      exp.setDate(exp.getDate() + days);
+      data.planExpiry = exp.toISOString();
+      expiryLabel = exp.toLocaleDateString('zh-TW') + '（' + days + ' 天）';
+    }
+
+    await db.collection('users').doc(uid).update(data);
+
+    await db.collection('admin').doc('activate_log').set({
+      logs: firebase.firestore.FieldValue.arrayUnion({
+        email: email,
+        name: userData.displayName || '',
+        plan: plan,
+        days: days,
+        expiry: data.planExpiry,
+        activatedAt: new Date().toISOString(),
+        activatedBy: currentUser.email
+      })
+    }, { merge: true });
+
+    // 寄送開通通知信
+    try {
+      await fetch('https://app.hourlightkey.com/api/send-report', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          email: email,
+          name: userData.displayName || '',
+          subject: '馥靈之鑰｜您的「' + pInfo.name + '」方案已開通 🎉',
+          type: 'notification',
+          content: '親愛的 ' + (userData.displayName || '馥靈夥伴') + '：\n\n恭喜！您的「' + pInfo.name + '」方案已成功開通 🎉\n\n► 方案：' + pInfo.icon + ' ' + pInfo.name + '\n► 有效期：' + expiryLabel + '\n► AI深度解讀指令：' + (actualPlan === 'pro' ? '無限次' : '每天 10 次') + '\n\n現在就前往體驗：\nhttps://hourlightkey.com/destiny-engine.html\n\n馥靈之鑰 Hour Light 敬上'
+        })
+      });
+    } catch (mailErr) { console.warn('Activate email failed', mailErr); }
+
+    resultEl.style.display = 'block';
+    resultEl.style.background = 'rgba(52,168,83,.08)';
+    resultEl.style.color = '#34a853';
+    resultEl.innerHTML = '✅ 開通成功！<br>' + (isTrial ? '🎁' : pInfo.icon) + ' <strong>' + (userData.displayName || email) + '</strong> → ' + (isTrial ? '7天無限體驗（大師等級）' : pInfo.name) + '<br>到期：' + expiryLabel + (isTrial ? '<br><small>體驗期後自動降為免費會員</small>' : '') + '<br>📧 已發送開通通知信至 ' + email;
+    document.getElementById('actEmail').value = '';
+    loadActivateHistory();
+  } catch (e) {
+    showErr('開通失敗：' + e.message);
+  }
+  btn.disabled = false; btn.textContent = '開通會員';
+}
+window.activateMember = activateMember;
+
+async function loadActivateHistory() {
+  var el = document.getElementById('actHistory');
+  if (!el) return;
+  try {
+    var snap = await db.collection('admin').doc('activate_log').get();
+    if (!snap.exists || !snap.data().logs || !snap.data().logs.length) {
+      el.textContent = '尚無開通紀錄';
+      return;
+    }
+    var logs = snap.data().logs.slice().reverse().slice(0, 20);
+    el.innerHTML = logs.map(function(l) {
+      var p = HL_PLANS[l.plan] || { icon: '?', name: l.plan };
+      var exp = l.expiry === 'permanent' ? '永久' : (l.expiry ? new Date(l.expiry).toLocaleDateString('zh-TW') : '?');
+      var dt = l.activatedAt ? new Date(l.activatedAt).toLocaleString('zh-TW') : '';
+      var isExpired = l.expiry !== 'permanent' && l.expiry && new Date(l.expiry) < new Date();
+      var badge = isExpired
+        ? '<span style="color:#d93025;font-size:.75rem">（已過期）</span>'
+        : '<span style="color:#34a853;font-size:.75rem">（有效）</span>';
+      return '<div style="padding:10px 0;border-bottom:1px solid var(--adm-border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px"><div>' + p.icon + ' <strong>' + (l.name || l.email) + '</strong> → ' + p.name + ' ' + badge + '</div><div style="font-size:.78rem;color:var(--adm-text3)">到期 ' + exp + ' ｜ 開通 ' + dt + '</div></div>';
+    }).join('');
+  } catch (e) {
+    el.textContent = '載入失敗：' + e.message;
+  }
+}
+window.loadActivateHistory = loadActivateHistory;
+
+async function redeemUnlimitedCode() {
+  var email = document.getElementById('hluEmail').value.trim().toLowerCase();
+  var code = document.getElementById('hluCode').value.trim().toUpperCase();
+  var resultEl = document.getElementById('hluResult');
+  var btn = document.getElementById('hluBtn');
+
+  function showErr(msg) {
+    resultEl.style.display = 'block';
+    resultEl.style.background = 'rgba(217,48,37,.08)';
+    resultEl.style.color = '#d93025';
+    resultEl.textContent = msg;
+  }
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('請輸入正確的 Email'); return; }
+  if (!code || !code.startsWith('HLU-')) { showErr('請輸入有效的 HLU- 開頭序號'); return; }
+
+  btn.disabled = true; btn.textContent = '處理中⋯';
+  try {
+    var codeDoc = await db.collection('reading_codes').doc(code).get();
+    if (!codeDoc.exists) { showErr('序號無效'); btn.disabled = false; btn.textContent = '開通 7 天'; return; }
+    if (codeDoc.data().used) { showErr('此序號已使用過'); btn.disabled = false; btn.textContent = '開通 7 天'; return; }
+
+    var snap = await db.collection('users').where('email', '==', email).limit(1).get();
+    if (snap.empty) { showErr('找不到此 Email 的會員'); btn.disabled = false; btn.textContent = '開通 7 天'; return; }
+
+    var userDoc = snap.docs[0];
+    var uid = userDoc.id;
+    var userData = userDoc.data();
+    var exp = new Date(); exp.setDate(exp.getDate() + 7);
+    var expISO = exp.toISOString();
+
+    await db.collection('users').doc(uid).update({ plan: 'pro', planExpiry: expISO });
+    await db.collection('reading_codes').doc(code).update({
+      used: true,
+      usedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      usedBy: uid,
+      usedByEmail: email
+    });
+    await db.collection('admin').doc('activate_log').set({
+      logs: firebase.firestore.FieldValue.arrayUnion({
+        email: email, name: userData.displayName || '',
+        plan: 'pro', days: 7, expiry: expISO, code: code,
+        activatedAt: new Date().toISOString(), activatedBy: currentUser.email
+      })
+    }, { merge: true });
+
+    resultEl.style.display = 'block';
+    resultEl.style.background = 'rgba(52,168,83,.08)';
+    resultEl.style.color = '#34a853';
+    resultEl.innerHTML = '✅ 開通成功！<strong>' + (userData.displayName || email) + '</strong> 已開通 7 天大師方案<br>到期：' + exp.toLocaleDateString('zh-TW');
+    document.getElementById('hluEmail').value = '';
+    document.getElementById('hluCode').value = '';
+    loadActivateHistory();
+  } catch (e) {
+    showErr('開通失敗：' + e.message);
+  }
+  btn.disabled = false; btn.textContent = '開通 7 天';
+}
+window.redeemUnlimitedCode = redeemUnlimitedCode;
+
+async function redeemTrialCode() {
+  var code = (document.getElementById('trialCodeInput').value || '').trim().toUpperCase();
+  var resultEl = document.getElementById('trialResult');
+  var btn = document.getElementById('trialRedeemBtn');
+
+  function showErr(msg) {
+    resultEl.style.display = 'block';
+    resultEl.style.background = 'rgba(217,48,37,.08)';
+    resultEl.style.color = '#d93025';
+    resultEl.textContent = msg;
+  }
+
+  if (!code || code.length < 6) { showErr('請輸入序號（格式：HLT-XXXXXX）'); return; }
+  if (!currentUser) { showErr('請先登入'); return; }
+
+  btn.disabled = true; btn.textContent = '驗證中⋯';
+  try {
+    var codeDoc = await db.collection('trial_codes').doc(code).get();
+    if (!codeDoc.exists) { showErr('序號無效'); btn.disabled = false; btn.textContent = '立即兌換'; return; }
+    var codeData = codeDoc.data();
+    if (codeData.used) { showErr('此序號已兌換過'); btn.disabled = false; btn.textContent = '立即兌換'; return; }
+
+    var days = codeData.days || 7;
+    var exp = new Date(); exp.setDate(exp.getDate() + days);
+
+    await db.collection('users').doc(currentUser.uid).update({
+      plan: 'pro',
+      isTrial: true,
+      planExpiry: exp.toISOString()
+    });
+    await db.collection('trial_codes').doc(code).update({
+      used: true,
+      usedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      usedBy: currentUser.uid,
+      usedByEmail: currentUser.email || ''
+    });
+
+    resultEl.style.display = 'block';
+    resultEl.style.background = 'rgba(52,168,83,.08)';
+    resultEl.style.color = '#34a853';
+    resultEl.innerHTML = '🎉 兌換成功！<br>已開通 <strong>' + days + ' 天無限體驗（大師等級）</strong><br>到期日：' + exp.toLocaleDateString('zh-TW');
+    document.getElementById('trialCodeInput').value = '';
+  } catch (e) {
+    showErr('兌換失敗：' + e.message);
+  }
+  btn.disabled = false; btn.textContent = '立即兌換';
+}
+window.redeemTrialCode = redeemTrialCode;
+
+async function grantNahaAccess() {
+  var email = document.getElementById('nahaEmail').value.trim().toLowerCase();
+  var resultEl = document.getElementById('nahaResult');
+  var btn = document.getElementById('nahaBtn');
+
+  function showErr(msg) {
+    resultEl.style.display = 'block';
+    resultEl.style.background = 'rgba(217,48,37,.08)';
+    resultEl.style.color = '#d93025';
+    resultEl.textContent = msg;
+  }
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('請輸入正確的 Email'); return; }
+
+  btn.disabled = true; btn.textContent = '處理中⋯';
+  try {
+    var snap = await db.collection('users').where('email', '==', email).limit(1).get();
+    if (snap.empty) { showErr('找不到此 Email 的會員'); btn.disabled = false; btn.textContent = '開通課程'; return; }
+    var userDoc = snap.docs[0];
+    var uid = userDoc.id;
+    var userData = userDoc.data();
+
+    await db.collection('users').doc(uid).update({ naha_access: true });
+
+    try {
+      await fetch('https://app.hourlightkey.com/api/send-report', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          email: email,
+          name: userData.displayName || '',
+          subject: '馥靈之鑰｜您的 NAHA 芳療課程已開通 🎓',
+          type: 'notification',
+          content: '親愛的 ' + (userData.displayName || '同學') + '：\n\n您的 NAHA 國際芳療師認證課程存取權已開通 🎓\n\n現在登入即可查看完整教學內容：\nhttps://hourlightkey.com/naha-course.html\n\n馥靈之鑰 Hour Light 敬上'
+        })
+      });
+    } catch (e) { console.warn('NAHA email failed', e); }
+
+    resultEl.style.display = 'block';
+    resultEl.style.background = 'rgba(52,168,83,.08)';
+    resultEl.style.color = '#34a853';
+    resultEl.innerHTML = '✅ 已開通！<strong>' + (userData.displayName || email) + '</strong> 現在可以查看 NAHA 完整課程內容。通知信已寄出。';
+    document.getElementById('nahaEmail').value = '';
+  } catch (e) {
+    showErr('開通失敗：' + e.message);
+  }
+  btn.disabled = false; btn.textContent = '開通課程';
+}
+window.grantNahaAccess = grantNahaAccess;
 
 // ═══════════════════════════════════════════════════════════════
 //  PET SESSIONS (Tab 4)

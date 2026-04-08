@@ -464,6 +464,7 @@ body{min-height:100vh;min-height:100dvh;font-family:var(--ff-font);color:var(--f
       <h2 id="resultTitle">您的專屬能量桌布</h2>
       <div class="ff-hint">長按圖片即可儲存到手機相簿</div>
     </div>
+    <div id="deliveryNotice" style="display:none;margin:0 auto 18px;max-width:520px;padding:14px 20px;border-radius:14px;background:linear-gradient(135deg,rgba(248,223,165,.1),rgba(248,223,165,.04));border:1px solid rgba(248,223,165,.3);color:var(--ff-gold);font-size:.9rem;line-height:1.7;text-align:center"></div>
     <div class="ww-images" id="imagesContainer"></div>
   </div>
 
@@ -724,6 +725,16 @@ async function generateWallpaper(){
   doGenerate();
 }
 
+// 取得當前登入會員資料（uid + email + name）
+function getCurrentMember(){
+  try {
+    if(typeof firebase === 'undefined' || !firebase.auth) return {};
+    var u = firebase.auth().currentUser;
+    if(!u) return {};
+    return { uid: u.uid || '', email: u.email || '', name: u.displayName || '' };
+  } catch(e) { return {}; }
+}
+
 async function doGenerate(){
   var loading = document.getElementById('loadingSection');
   var result = document.getElementById('resultSection');
@@ -736,7 +747,10 @@ async function doGenerate(){
   container.innerHTML = '';
 
   var successCount = 0;
+  var emailSentCount = 0;
+  var lastEmailedTo = '';
   var totalToGenerate = selectedN;
+  var member = getCurrentMember();
 
   for(var i = 0; i < totalToGenerate; i++){
     document.getElementById('loadingProgress').textContent = '正在生成第 ' + (i+1) + ' / ' + totalToGenerate + ' 張...';
@@ -762,13 +776,17 @@ async function doGenerate(){
           total: totalToGenerate,
           tier: tier,
           device: selectedDevice,
-          unlockCode: window._lastUsedUnlockCode || ''
+          unlockCode: window._lastUsedUnlockCode || '',
+          uid: member.uid || '',
+          email: member.email || '',
+          name: member.name || ''
         })
       });
 
       var data = await resp.json();
       if(data.success && data.imageUrl){
         successCount++;
+        if(data.emailSent){ emailSentCount++; lastEmailedTo = data.emailTo || lastEmailedTo; }
         var wrap = document.createElement('div');
         wrap.className = 'ww-img-wrap' + (selectedDevice === 'desktop' ? ' desktop' : '');
         var labelText = themeNames[currentTheme] + ' #' + (totalToGenerate === 15 ? ((i%3)+1) : (i+1));
@@ -785,9 +803,23 @@ async function doGenerate(){
 
   if(successCount > 0){
     document.getElementById('resultTitle').textContent = profileData.zodiac + '年生・靈數 ' + profileData.lifePathNum + '・馥靈蘊福桌布';
+    // 寄送狀態提示
+    var deliv = document.getElementById('deliveryNotice');
+    if(deliv){
+      if(emailSentCount > 0 && lastEmailedTo){
+        deliv.innerHTML = '📬 已自動寄送 <b>' + emailSentCount + '</b> 張到 <b style="color:#f8dfa5">' + lastEmailedTo + '</b><br><span style="font-size:.78rem;color:rgba(255,255,255,.55)">這封信就是您的存檔證明，請保留以便日後重新下載</span>';
+        deliv.style.display = 'block';
+      } else if(member.uid && member.email){
+        deliv.innerHTML = '⚠️ 桌布已生成，但寄信暫時失敗。<br><span style="font-size:.78rem;color:rgba(255,255,255,.55)">請先長按儲存，並聯繫客服補寄</span>';
+        deliv.style.display = 'block';
+      } else {
+        deliv.innerHTML = '💡 建議登入會員後再生成，系統會自動把桌布寄到您的信箱存檔，避免遺失';
+        deliv.style.display = 'block';
+      }
+    }
     result.classList.add('show');
     result.scrollIntoView({behavior:'smooth'});
-    if(window.HL_track) HL_track('wallpaper_generated',{toolId:'wealth-wallpaper',theme:selectedTheme,n:selectedN});
+    if(window.HL_track) HL_track('wallpaper_generated',{toolId:'wealth-wallpaper',theme:selectedTheme,n:selectedN,emailSent:emailSentCount});
   } else {
     showToast('生成失敗，請稍後再試');
   }

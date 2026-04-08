@@ -740,6 +740,11 @@ async function handleWallpaper(req, res, apiKey) {
   var tier = body.tier || 'basic';
   var total = body.total || 3;
   var device = body.device || 'phone';
+  var index = typeof body.index === 'number' ? body.index : variant;
+  var uid = (body.uid || '').trim();
+  var userEmail = (body.email || '').trim().toLowerCase();
+  var userName = (body.name || '').trim();
+  var unlockCode = (body.unlockCode || '').trim().toUpperCase();
 
   if (!profile.lifePathNum) {
     return res.status(400).json({ error: '請先計算命理座標' });
@@ -844,10 +849,12 @@ async function handleWallpaper(req, res, apiKey) {
     }
 
     var imageUrl = '';
+    var imageB64 = '';
     if (data.data && data.data.length > 0) {
       // gpt-image-1 returns base64
       if (data.data[0].b64_json) {
-        imageUrl = 'data:image/png;base64,' + data.data[0].b64_json;
+        imageB64 = data.data[0].b64_json;
+        imageUrl = 'data:image/png;base64,' + imageB64;
       } else if (data.data[0].url) {
         imageUrl = data.data[0].url;
       }
@@ -857,26 +864,132 @@ async function handleWallpaper(req, res, apiKey) {
       return res.status(500).json({ error: '圖片生成失敗' });
     }
 
-    // 記錄到 Firestore
+    // ── 存檔：Firestore 記錄（uid + 全站政策）──
+    var archiveId = '';
     try {
       var db = getFirestore();
       if (db) {
         var admin = require('firebase-admin');
-        await db.collection('wallpaper_generations').add({
+        var nowTs = admin.firestore.FieldValue.serverTimestamp();
+        var historyRecord = {
+          uid: uid || 'guest',
+          email: userEmail || '',
+          name: userName || '',
+          unlockCode: unlockCode || '',
           profile: { lifePathNum: profile.lifePathNum, zodiac: profile.zodiac, dominantWx: wx, missingWx: missingWx },
           theme: theme,
           tier: tier,
+          device: device,
           variant: variant,
-          createdAt: admin.firestore.FieldValue.serverTimestamp()
-        });
+          index: index,
+          total: total,
+          emailSent: false,
+          createdAt: nowTs
+        };
+        // 全站集合（管理員監控用）
+        var globalRef = await db.collection('wallpaper_generations').add(historyRecord);
+        archiveId = globalRef.id;
+        // 個人歷史（會員自助查詢用）
+        if (uid) {
+          await db.collection('users').doc(uid).collection('wallpaper_history').doc(archiveId).set(historyRecord);
+        }
       }
-    } catch(e) { /* non-blocking */ }
+    } catch(e) { console.error('Firestore archive error:', e.message); }
+
+    // HTML escape helper
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // ── 寄信：把圖當附件寄到客人信箱（消費糾紛保護）──
+    var emailSent = false;
+    var emailErrorMsg = '';
+    if (userEmail && imageB64 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userEmail)) {
+      var GMAIL_USER = process.env.GMAIL_USER;
+      var GMAIL_APP_PW = process.env.GMAIL_APP_PASSWORD;
+      if (GMAIL_USER && GMAIL_APP_PW) {
+        try {
+          var nodemailer = require('nodemailer');
+          var transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: { user: GMAIL_USER, pass: GMAIL_APP_PW }
+          });
+          var themeNamesZh = { wealth:'招財豐盛', love:'愛情桃花', career:'事業貴人', protection:'護佑平安', luck:'幸運轉運' };
+          var themeZh = themeNamesZh[theme] || theme;
+          var indexLabel = total > 1 ? ('（第 ' + (index + 1) + ' / ' + total + ' 張）') : '';
+          var subjectLine = '🌟 您的馥靈蘊福桌布｜' + themeZh + indexLabel;
+          var fileName = 'fuling-wallpaper-' + theme + '-' + (index + 1) + '.png';
+          var greeting = userName ? (userName + '，您好！') : '您好！';
+          var htmlBody = '<!DOCTYPE html><html><head><meta charset="utf-8"></head>'
+            + '<body style="margin:0;padding:0;background:#f5f0e8;font-family:serif">'
+            + '<div style="max-width:640px;margin:0 auto;background:#fffdf8;border:1px solid #e8d5a8">'
+            + '<div style="background:#0a0714;padding:32px 24px;text-align:center">'
+            + '<div style="font-size:24px;color:#f0d48a;letter-spacing:4px;font-weight:500">馥靈蘊福桌布</div>'
+            + '<div style="font-size:12px;color:#c9985e;margin-top:6px;letter-spacing:2px">FORTUNE BLESSING WALLPAPER</div>'
+            + '</div>'
+            + '<div style="padding:28px 24px;font-size:14px;color:#444;line-height:2">'
+            + '<p>' + esc(greeting) + '</p>'
+            + '<p>您的「<b style="color:#c9985e">' + themeZh + '</b>」能量桌布已生成完畢，附件就是您的專屬圖像。</p>'
+            + '<p style="background:#faf6ee;border-left:3px solid #c9985e;padding:12px 16px;font-size:13px;color:#666">'
+            + '✦ 命理座標：生肖 ' + esc(profile.zodiac || '') + '・生命靈數 ' + esc(String(profile.lifePathNum || '')) + '・主要五行 ' + esc(wx) + '<br>'
+            + '✦ 桌布等級：' + esc(tier === 'premium' ? '完整能量套組' : (tier === 'advanced' ? '進階圖騰桌布' : '基礎能量桌布')) + '<br>'
+            + '✦ 適用裝置：' + esc(device === 'desktop' ? '電腦（橫式）' : '手機（直式）') + (total > 1 ? '<br>✦ 編號：第 ' + (index + 1) + ' / ' + total + ' 張' : '')
+            + '</p>'
+            + '<p style="font-size:13px;color:#888">這封信本身就是您的存檔證明 — 即使手機重置或快取清空，您都能從信箱重新下載桌布。請保留此信。</p>'
+            + '<p style="font-size:12px;color:#aaa;margin-top:24px">使用方式：下載附件 → 手機長按設為桌布，或電腦另存為桌面背景。</p>'
+            + '</div>'
+            + '<div style="background:#0a0714;padding:20px 24px;text-align:center">'
+            + '<div style="font-size:11px;color:#c9985e;letter-spacing:1px">馥靈之鑰國際有限公司 Hour Light International</div>'
+            + '<div style="font-size:11px;color:#888;margin-top:4px">'
+            + '<a href="https://hourlightkey.com" style="color:#f0d48a;text-decoration:none">hourlightkey.com</a>'
+            + ' ｜ <a href="https://lin.ee/RdQBFAN" style="color:#f0d48a;text-decoration:none">LINE 諮詢</a></div>'
+            + '</div>'
+            + '</div></body></html>';
+          await transporter.sendMail({
+            from: '"馥靈之鑰 Hour Light" <' + GMAIL_USER + '>',
+            to: userEmail,
+            subject: subjectLine,
+            html: htmlBody,
+            attachments: [{
+              filename: fileName,
+              content: imageB64,
+              encoding: 'base64',
+              contentType: 'image/png'
+            }]
+          });
+          emailSent = true;
+          // 回寫 Firestore：標記已寄送
+          if (archiveId) {
+            try {
+              var db2 = getFirestore();
+              if (db2) {
+                var admin2 = require('firebase-admin');
+                var sentAt = admin2.firestore.FieldValue.serverTimestamp();
+                await db2.collection('wallpaper_generations').doc(archiveId).update({ emailSent: true, sentAt: sentAt });
+                if (uid) {
+                  await db2.collection('users').doc(uid).collection('wallpaper_history').doc(archiveId).update({ emailSent: true, sentAt: sentAt });
+                }
+              }
+            } catch(_) {}
+          }
+        } catch(mailErr) {
+          emailErrorMsg = mailErr.message || 'mail error';
+          console.error('Wallpaper email error:', mailErr);
+        }
+      } else {
+        emailErrorMsg = 'Gmail 寄信尚未設定';
+      }
+    }
 
     return res.status(200).json({
       success: true,
       imageUrl: imageUrl,
       theme: theme,
-      tier: tier
+      tier: tier,
+      archived: !!archiveId,
+      emailSent: emailSent,
+      emailTo: emailSent ? userEmail : '',
+      emailError: emailErrorMsg || undefined
     });
 
   } catch(e) {
