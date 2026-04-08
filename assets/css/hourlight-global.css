@@ -86,12 +86,14 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 60px; /* 補償 52px sticky topnav，防止 scrollIntoView 被遮住 */
+  -webkit-overflow-scrolling: touch;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  min-height: 100vh;
+  min-height: 100vh;min-height:100dvh;
   min-height: 100svh;
   font-family: var(--font-sans);
   font-size: var(--text-base);
@@ -100,10 +102,13 @@ body {
   font-weight: 500;
   letter-spacing: 0.4px;
   background-color: var(--hl-bg);
-  background-image: 
+  background-image:
     radial-gradient(ellipse at top, rgba(233,194,125,0.08) 0%, transparent 50%),
     radial-gradient(ellipse at bottom, rgba(156,110,219,0.05) 0%, transparent 50%);
   background-attachment: fixed;
+  /* ── Mobile App Feel ── */
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: contain; /* 防止下拉刷新彈跳 */
 }
 
 /* 有底圖時的 body */
@@ -660,6 +665,7 @@ img {
 /* ==================== 表格 ==================== */
 .hl-table-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   margin: 24px 0;
   border-radius: 12px;
   border: 1px solid var(--hl-border-soft);
@@ -1413,20 +1419,74 @@ body a:hover { text-shadow: 0 0 8px rgba(248,223,165,0.2); }
   box-shadow: 0 0 12px rgba(248,223,165,0.2) !important;
 }
 
-/* --- 手機觸控優化（全站） --- */
+/* ═══════════════════════════════════════════════════════════
+   iOS 手機全面優化（2026/4/3）
+   ═══════════════════════════════════════════════════════════ */
+
+/* --- iOS 防縮放：input/select/textarea 字級必須 ≥16px（全螢幕寬度皆適用） --- */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+/* --- App-like 觸控體驗 --- */
+body {
+  -webkit-tap-highlight-color: transparent;
+}
+* {
+  -webkit-touch-callout: none;
+}
+input, textarea, [contenteditable] {
+  -webkit-touch-callout: default;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* --- 按鈕按下回饋感 --- */
+button:active, .btn:active, [onclick]:active,
+a.rb-btn-primary:active, a.rb-btn-ghost:active,
+.btn-next:active, .btn-prev:active,
+.share-btn:active, .quiz-opt:active, .likert-opt:active,
+.hub-card:active, .hl-bn-item:active {
+  transform: scale(0.97);
+  transition: transform 0.08s ease;
+}
+
+/* --- 手機觸控目標最低 48px --- */
 @media (max-width: 767px) {
   button, a.rb-btn-primary, a.rb-btn-ghost,
   .btn-next, .btn-prev, .share-btn,
   .likert-opt, .hub-card {
     min-height: 48px;
-    -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
-  
+
   input, select, textarea {
-    font-size: 16px; /* iOS 不縮放 */
     min-height: 48px;
   }
+}
+
+/* --- 手機防水平溢出 --- */
+@media (max-width: 480px) {
+  img { max-width: 100%; height: auto; }
+  table { width: 100%; overflow-x: auto; display: block; }
+  pre, code { overflow-x: auto; max-width: 100%; }
+}
+
+/* --- 深色主題 select option 背景（iOS/Android 預設白底修正） --- */
+select option {
+  background: #1a1428;
+  color: #fff;
+}
+
+/* --- 深色主題 placeholder 可見性 --- */
+::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+  color: rgba(255, 255, 255, 0.85);
 }
 
 /* --- 玻璃透明感（深底色區塊） --- */
@@ -1454,4 +1514,15 @@ body a:hover { text-shadow: 0 0 8px rgba(248,223,165,0.2); }
   .quiz-question { font-size: 1rem; margin-bottom: 18px; }
   .quiz-wrap { padding: 24px 12px 80px; }
   .likert-labels { font-size: 0.78rem; }
+}
+
+/* iOS 慣性滾動 */
+[style*="overflow:auto"], [style*="overflow-x:auto"], [style*="overflow-y:auto"],
+[style*="overflow: auto"], [style*="overflow-x: auto"], [style*="overflow-y: auto"] {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* iOS 輸入框防縮放（font-size < 16px 會觸發 Safari 自動縮放） */
+input, select, textarea {
+  font-size: 16px !important;
 }

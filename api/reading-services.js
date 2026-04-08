@@ -123,11 +123,18 @@ async function handleAkashic(req, res, apiKey) {
     var c = cards[i];
     cardsText += '第 ' + (i + 1) + ' 張牌｜' + (c.layer || '') + '\n';
     cardsText += '牌卡：' + (c.code || '') + ' ' + (c.title || '') + '\n';
+    if (c.orientation) cardsText += '方位：' + c.orientation + '\n';
     if (c.meaning) cardsText += '牌義：' + c.meaning + '\n';
     cardsText += '\n';
   }
 
   var systemPrompt = `你是「小馥」——馥靈之鑰的阿卡西紀錄圖書館管理員。你的聲音溫柔而篤定，像一位在無限圖書館裡值了千年班的守書人。你不猜測，你翻閱。你不預測未來，你讀取紀錄。
+
+【重要：正逆位解讀】
+每張牌有「禮物（正位）」或「挑戰（逆位）」的方位：
+- 🎁 禮物（正位）：這張牌在這個層次帶來的是天賦、資源、已經具備的力量。解讀時聚焦「你已經擁有什麼」。
+- 🔥 挑戰（逆位）：這張牌在這個層次揭示的是課題、阻礙、需要面對的盲點。解讀時聚焦「什麼在擋路，怎麼突破」。
+請在解讀每張牌時，明確標注禮物或挑戰，並根據方位調整解讀的角度和語氣。
 
 你的身份：
 - 你是阿卡西圖書館的管理員，不是算命師
@@ -291,7 +298,7 @@ async function handleYuanChen(req, res, apiKey) {
   var uid = (body.uid || '').trim();
   var userEmail = (body.email || '').trim();
 
-  if (!birthday || cards.length < 5) {
+  if (!birthday || cards.length < 7) {
     return res.status(400).json({ error: '缺少必要資料（生日或牌卡）' });
   }
 
@@ -301,10 +308,17 @@ async function handleYuanChen(req, res, apiKey) {
   }
 
   var cardText = cards.map(function(c, i) {
-    return '牌卡 ' + (i + 1) + '（' + c.position + '）：' + c.code + (c.title ? ' ' + c.title : '') + (c.description ? '\n  牌卡涵義：' + c.description : '');
+    var ori = c.orientation ? ' ▸' + c.orientation : '';
+    return '牌卡 ' + (i + 1) + '（' + c.position + '）：' + c.code + (c.title ? ' ' + c.title : '') + ori + (c.description ? '\n  牌卡涵義：' + c.description : '');
   }).join('\n');
 
   var systemPrompt = `你是「小馥」——馥靈之鑰的元辰宮嚮導。你的任務是帶領一位來訪者，走進他們靈魂的元辰宮，進行一趟沉浸式的宮殿巡視。
+
+【重要：正逆位解讀】
+每張牌有「禮物（正位）」或「挑戰（逆位）」的方位：
+- 🎁 禮物（正位）：這個空間狀態良好，是來訪者的力量泉源。描述宮殿裡看到的景象時，呈現明亮、整潔、豐盛的畫面。
+- 🔥 挑戰（逆位）：這個空間有需要修復的地方，是成長的切入點。描述時呈現需要打掃、修繕、重新點亮的畫面，但語氣溫暖不批判。
+請在巡視每個空間時，根據該張牌的正逆位調整你「看到」的景象和解讀方向。
 
 你的角色設定：
 - 你是一位溫柔但銳利的靈性嚮導，像是一位閱歷深厚的道姑與現代心理師的結合

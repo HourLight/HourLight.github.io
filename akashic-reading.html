@@ -22,10 +22,10 @@
   fbq('init', '1333106288588347');
   fbq('track', 'PageView');
 </script>
-<noscript><img height="1" width="1" style="display:none"
+<noscript><img height="1" width="1" style="display:none" alt=""
   src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"></noscript>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,viewport-fit=cover">
 <title>阿卡西紀錄翻閱｜小馥幫你翻開靈魂之書｜馥靈之鑰 Hour Light</title>
 <meta name="description" content="輸入生日、提出問題、抽 7 張牌，小馥翻閱你的阿卡西紀錄，生成 5000 字深度靈魂解讀報告。靈魂本質、此生契約、關係課題、天賦才能、阻礙模式、突破路徑、靈魂指引。">
 <meta property="og:title" content="阿卡西紀錄翻閱｜小馥幫你翻開靈魂之書">
@@ -53,7 +53,7 @@
   --cosmic:rgba(88,60,160,.4);
 }
 html{scroll-behavior:smooth}
-body{min-height:100vh;font-family:'Noto Sans TC',sans-serif;color:var(--ink);line-height:1.8;
+body{min-height:100vh;min-height:100dvh;font-family:'Noto Sans TC',sans-serif;color:var(--ink);line-height:1.8;
   background:var(--bg);padding:0 0 72px}
 body::before{content:'';position:fixed;inset:0;z-index:-2;
   background:
@@ -85,7 +85,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-2;
 
 /* ── Glass panels ── */
 .glass{background:var(--bg-card);border:1px solid rgba(61,90,153,.2);border-radius:20px;
-  padding:28px 24px;margin-bottom:20px;backdrop-filter:blur(8px)}
+  padding:28px 24px;margin-bottom:20px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .glass h2{font-family:'Noto Serif TC',serif;font-size:1.05rem;color:var(--gold);
   margin-bottom:14px;font-weight:600;letter-spacing:1px}
 .glass p,.glass li{font-size:.9rem;color:var(--ink-soft);line-height:2}
@@ -232,6 +232,21 @@ textarea.form-input{min-height:80px;resize:vertical}
   .glass{padding:20px 16px}
   .reading-content{padding:24px 18px}
 }
+
+/* ── Mobile App Touch Feel ── */
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+button,a,select,input[type=submit],input[type=button]{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+button:active,input[type=submit]:active{transform:scale(.97);transition:transform .08s}
+select,input[type=text],input[type=number],input[type=date],input[type=email],textarea{font-size:16px!important}
+input[type="date"],input[type="datetime-local"]{color-scheme:dark;color:rgba(248,223,165,.85);background:rgba(233,194,125,.06);border:1px solid rgba(233,194,125,.15);border-radius:10px;padding:10px 14px}
+input[type="date"]::-webkit-datetime-edit,input[type="datetime-local"]::-webkit-datetime-edit{color:rgba(248,223,165,.85)}
+input[type="date"]::-webkit-calendar-picker-indicator,input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(.7)}
+@media(max-width:600px){
+  body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  button,input[type=submit],input[type=button]{min-height:48px}
+}
 </style>
 <link rel="stylesheet" href="assets/css/hl-footer.css">
 </head>
@@ -243,7 +258,9 @@ textarea.form-input{min-height:80px;resize:vertical}
 <div class="page-wrap">
 
   <!-- ═══ Hero ═══ -->
-  <section class="hero">
+  
+<img src="images/page-banners-web/akashic-reading.webp" alt="" style="width:100%;max-width:600px;max-height:180px;object-fit:cover;margin:0 auto 20px;display:block;border-radius:12px" loading="lazy" onerror="this.style.display='none'">
+<section class="hero">
     <div class="hero-eyebrow">The Akashic Reading</div>
     <h1 class="hero-title">阿卡西紀錄翻閱</h1>
     <p class="hero-sub">你的靈魂寫過一本書。<br>小馥幫你翻開它。</p>
@@ -393,7 +410,7 @@ textarea.form-input{min-height:80px;resize:vertical}
     <div class="payment-info">
       <p>匯款 NT$599 至國泰世華 248-50-624013-3（王逸君）</p>
       <p>傳截圖到 LINE 索取解讀代碼</p>
-      <a href="https://lin.ee/RdQBFAN" target="_blank" class="line-btn">LINE 傳送付款資料</a>
+      <a href="https://lin.ee/RdQBFAN" target="_blank" class="line-btn" rel="noopener noreferrer">LINE 傳送付款資料</a>
     </div>
   </div>
 
@@ -498,6 +515,7 @@ var LAYER_NAMES = [
 var drawnCards = [];
 var drawnCodes = [];
 var drawnTitles = [];
+var drawnReversed = [];
 
 // ========== Expand toggle ==========
 function toggleExpand(el){
@@ -551,6 +569,8 @@ function drawSevenCards(){
   drawnCards = pool.slice(0, 7);
   drawnCodes = [];
   drawnTitles = [];
+  drawnReversed = [];
+  for(var r = 0; r < 7; r++) drawnReversed.push(Math.random() > 0.5);
 
   // Show grid
   var grid = document.getElementById('cardsGrid');
@@ -573,6 +593,7 @@ function drawSevenCards(){
         var img = slot.querySelector('img');
         img.src = 'cards/' + fileName;
         img.alt = title;
+        if(drawnReversed[idx]) img.style.transform = 'rotate(180deg)';
         slot.classList.add('revealed');
         slot.style.animation = 'fadeSlideIn .4s ease';
       }, idx * 300);
@@ -600,9 +621,10 @@ function showLayerMapping(){
   for(var i = 0; i < 7; i++){
     var item = document.createElement('div');
     item.className = 'layer-item';
+    var ori = drawnReversed[i] ? '🔥挑戰' : '🎁禮物';
     item.innerHTML = '<span class="layer-num">' + (i+1) + '</span>' +
       '<span class="layer-name">' + LAYER_NAMES[i] + '</span>' +
-      '<span class="layer-card">' + (drawnTitles[i] || drawnCodes[i] || '...') + '</span>';
+      '<span class="layer-card">' + (drawnTitles[i] || drawnCodes[i] || '...') + ' ' + ori + '</span>';
     grid.appendChild(item);
   }
 }
@@ -724,6 +746,8 @@ async function startReading(code){
       layer: LAYER_NAMES[i],
       code: code_i,
       title: title_i,
+      reversed: drawnReversed[i] || false,
+      orientation: drawnReversed[i] ? '挑戰（逆位）' : '禮物（正位）',
       meaning: info ? (info['覺察'] || info.meaning || '') : ''
     });
   }
@@ -732,7 +756,7 @@ async function startReading(code){
   try { currentUser = firebase.auth().currentUser; } catch(e) {}
 
   try{
-    var resp = await fetch('/api/reading-services?type=akashic', {
+    var resp = await fetch('https://app.hourlightkey.com/api/reading-services?type=akashic', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -828,13 +852,14 @@ document.head.appendChild(style);
 </script>
 
 <!-- Standard site scripts -->
-<script src="assets/js/hl-announce.js"></script>
+<script src="assets/js/hl-announce.js?v=4"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
 <script src="assets/js/hl-referral.js?v=20260323"></script>
 <script src="assets/js/hl-ai-gate.js"></script>
+<script src="assets/js/hl-ai-copy.js"></script>
 <script src="assets/js/hl-gate.js"></script>
 <script src="assets/js/hl-record.js"></script>
 <script src="assets/js/hl-email.js"></script>

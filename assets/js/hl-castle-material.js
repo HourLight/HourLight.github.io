@@ -202,7 +202,45 @@
       ingredients: { master_star: 3, fuling_essence: 2, destiny_core: 1 },
       zone: '大師寶庫傢具',
       memberOnly: 'pro'
+    },
+    // ── 付費解讀專屬傢具 ──
+    {
+      id: 'nine_palace_seal',
+      name: '九宮全觀印',
+      icon: '🏛️',
+      desc: '九個方位，九種視角。你看到的世界，從此不再只有正面。',
+      ingredients: { nine_palace_mark: 1, oracle_essence: 1, star_shard: 3 },
+      zone: '九宮傢具',
+      paidOnly: 9
+    },
+    {
+      id: 'matrix_core_altar',
+      name: '馥靈矩陣祭壇',
+      icon: '⚛️',
+      desc: '矩陣的核心不在交叉點上。在你願意承認「我不知道」的那個瞬間。',
+      ingredients: { matrix_core: 1, destiny_core: 1, oracle_essence: 1 },
+      zone: '矩陣傢具',
+      paidOnly: 21
+    },
+    {
+      id: 'castle_throne',
+      name: '城堡王座',
+      icon: '👑',
+      desc: '坐上去的那一刻你會發現——椅子一直都在，只是你以前覺得自己不配坐。這是全城堡最稀有的傢具。',
+      ingredients: { calibration_key: 1, matrix_core: 1, nine_palace_mark: 1 },
+      zone: '傳說王座',
+      paidOnly: 28
     }
+  ];
+
+  // ═══ 付費解讀專屬材料 ═══
+  MATERIAL_DEFS.paid_reading = [
+    { id:'nine_palace_mark',  name:'九宮全觀印記',   icon:'🏛️', rarity:'legendary', weight:100, zone:'付費殿堂', paidOnly:9,  dropHint:'購買9張牌陣AI解讀掉落' },
+    { id:'season_fragment',   name:'季節限定碎片',   icon:'🌺', rarity:'legendary', weight:100, zone:'付費殿堂', paidOnly:12, dropHint:'購買12張牌陣AI解讀掉落' },
+    { id:'matrix_core',       name:'馥靈矩陣核心',   icon:'⚛️', rarity:'legendary', weight:100, zone:'付費殿堂', paidOnly:21, dropHint:'購買21張牌陣AI解讀掉落' },
+    { id:'calibration_key',   name:'完整校準之鑰',   icon:'🔐', rarity:'legendary', weight:100, zone:'付費殿堂', paidOnly:28, dropHint:'購買28張牌陣AI解讀掉落' },
+    { id:'paid_rare_shard',   name:'深度解讀碎片',   icon:'💠', rarity:'rare',      weight:100, zone:'付費殿堂', dropHint:'購買AI解讀掉落' },
+    { id:'paid_common_glow',  name:'解讀餘暉',       icon:'🌅', rarity:'common',    weight:100, zone:'付費殿堂', dropHint:'購買AI解讀掉落' }
   ];
 
   // ═══ 每日掉落限制（防刷）═══
@@ -297,6 +335,12 @@
     state.totalDrops = (state.totalDrops || 0) + 1;
 
     saveMaterials(state);
+
+    // 回報材料掉落事件
+    reportCastleEvent('material_drop', {
+      material: item.name, materialId: item.id,
+      rarity: item.rarity, zone: item.zone
+    });
 
     // 觸發 hl-castle-key 點數（掉到稀有材料加點）
     if(window.hlCastle){
@@ -449,24 +493,395 @@
   function getAllMaterialDefs(){ return MATERIAL_DEFS; }
   function getAllRecipes(){ return RECIPES; }
 
-  // ═══ 掉落動畫 Toast（輕量，不依賴任何框架）═══
+  // ═══ 掉落動畫 v3.0（3-tier 手遊級體驗 + 音效）═══
   function showDropToast(item){
+    var isLegendary = item.rarity === 'legendary';
+    var isRare = item.rarity === 'rare';
+
+    // 觸覺回饋（稀有/傳說加強）
+    if(isRare || isLegendary){
+      if(navigator.vibrate) navigator.vibrate([15,30,15]);
+    } else {
+      if(navigator.vibrate) navigator.vibrate(10);
+    }
+
+    // 音效
+    if(window.HLSound){
+      if(isLegendary) HLSound.drop_legendary();
+      else if(isRare) HLSound.drop_rare();
+      else HLSound.drop_common();
+    }
+
+    // ── 傳說級：全屏金光爆炸 + 2秒戲劇性揭示 ──
+    if(isLegendary){
+      showLegendaryDrop(item);
+      return;
+    }
+
+    // ── 稀有級：紫色光暈 + 粒子擴散 + 輕微震動 ──
+    if(isRare){
+      showRareDrop(item);
+      return;
+    }
+
+    // ── 普通：溫和金色微光，從底部滑入 ──
     var t = document.createElement('div');
     t.style.cssText = [
-      'position:fixed;bottom:80px;right:16px;z-index:9999',
+      'position:fixed;bottom:90px;right:16px;z-index:9999',
       'background:linear-gradient(135deg,#FFF8F0,#FFE8D6)',
-      'color:#5a3c22;padding:10px 18px;border-radius:14px',
+      'color:#5a3c22;padding:12px 18px;border-radius:16px',
       'font-size:13px;font-family:Noto Serif TC,serif',
-      'box-shadow:0 6px 24px rgba(0,0,0,.15)',
-      'opacity:0;transform:translateX(20px)',
-      'transition:all .35s;pointer-events:none'
+      'box-shadow:0 6px 24px rgba(200,134,42,.2),0 0 12px rgba(233,194,125,.15)',
+      'opacity:0;transform:translateY(20px) scale(.9)',
+      'transition:all .4s cubic-bezier(.16,1,.3,1);pointer-events:none',
+      'max-width:220px;border:1px solid rgba(233,194,125,.25)'
     ].join(';');
-    var rarityLabel = item.rarity === 'legendary' ? ' ✦ 傳說！' : item.rarity === 'rare' ? ' ✧ 稀有' : '';
-    t.innerHTML = item.icon + ' <strong>' + item.name + '</strong>' + rarityLabel +
-      '<br><span style="font-size:11px;opacity:.7">' + item.zone + ' 材料</span>';
+    // Golden sparkle particle
+    t.innerHTML = '<div style="display:flex;align-items:center;gap:8px">' +
+      '<span style="font-size:22px;filter:drop-shadow(0 2px 4px rgba(200,134,42,.3))">' + item.icon + '</span>' +
+      '<div><strong>' + item.name + '</strong>' +
+      '<br><span style="font-size:11px;opacity:.6">' + item.zone + '</span></div></div>';
     document.body.appendChild(t);
-    setTimeout(function(){ t.style.opacity='1'; t.style.transform='translateX(0)'; }, 30);
-    setTimeout(function(){ t.style.opacity='0'; setTimeout(function(){ t.remove(); }, 400); }, 2800);
+    setTimeout(function(){ t.style.opacity='1'; t.style.transform='translateY(0) scale(1)'; }, 30);
+    setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateY(-10px) scale(.95)'; setTimeout(function(){ t.remove(); }, 400); }, 2400);
+  }
+
+  // ── 稀有掉落：紫色光暈爆發 + 粒子擴散 + 輕微螢幕震動 ──
+  function showRareDrop(item){
+    var t = document.createElement('div');
+    t.style.cssText = [
+      'position:fixed;bottom:90px;left:50%;z-index:9999',
+      'transform:translateX(-50%) translateY(40px) scale(.85)',
+      'background:linear-gradient(135deg,#2a1a4a,#3a2266)',
+      'color:#c8a8ee;padding:18px 26px;border-radius:18px',
+      'font-size:14px;font-family:Noto Serif TC,serif',
+      'box-shadow:0 0 40px rgba(160,124,220,.35),0 8px 32px rgba(0,0,0,.25)',
+      'border:1.5px solid rgba(160,124,220,.45)',
+      'opacity:0;transition:all .5s cubic-bezier(.16,1,.3,1);pointer-events:none',
+      'text-align:center;min-width:220px;max-width:300px'
+    ].join(';');
+    t.innerHTML = '<div style="font-size:36px;margin-bottom:6px;filter:drop-shadow(0 2px 12px rgba(160,124,220,.6))">' + item.icon + '</div>' +
+      '<div style="font-weight:700;font-size:16px;color:#e0ccff">' + item.name + '</div>' +
+      '<div style="font-size:11px;opacity:.55;margin-top:3px">✧ 稀有材料 · ' + item.zone + '</div>';
+    document.body.appendChild(t);
+
+    // 紫色光粒子向外擴散
+    for(var i=0;i<12;i++){
+      var p = document.createElement('div');
+      var angle = (i/12)*360, rad = angle*Math.PI/180;
+      var dist = 40 + Math.random()*40;
+      p.style.cssText = 'position:fixed;bottom:140px;left:50%;width:'+(3+Math.random()*4)+'px;height:'+(3+Math.random()*4)+'px;border-radius:50%;' +
+        'background:rgba(160,124,220,'+(0.6+Math.random()*0.4)+');z-index:9999;pointer-events:none;opacity:0;' +
+        'animation:_rareSpark .9s '+(0.15+i*0.04)+'s ease forwards';
+      p.style.setProperty('--sx', Math.cos(rad)*dist+'px');
+      p.style.setProperty('--sy', Math.sin(rad)*dist+'px');
+      document.body.appendChild(p);
+      setTimeout(function(pp){ return function(){ pp.remove(); }; }(p), 1400);
+    }
+
+    // 輕微螢幕震動效果
+    document.body.style.transition = 'transform 60ms ease';
+    document.body.style.transform = 'translateX(2px)';
+    setTimeout(function(){ document.body.style.transform = 'translateX(-2px)'; }, 60);
+    setTimeout(function(){ document.body.style.transform = 'translateX(1px)'; }, 120);
+    setTimeout(function(){ document.body.style.transform = ''; document.body.style.transition = ''; }, 180);
+
+    setTimeout(function(){ t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0) scale(1)'; }, 30);
+    setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(-12px) scale(.95)'; setTimeout(function(){ t.remove(); }, 500); }, 3200);
+  }
+
+  // ── 傳說掉落：全屏金光爆炸 + 粒子雨 + 2秒戲劇性揭示 + 放大動畫 ──
+  function showLegendaryDrop(item){
+    // 全屏遮罩
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(10,6,20,.88);' +
+      'display:flex;align-items:center;justify-content:center;flex-direction:column;' +
+      'opacity:0;transition:opacity .4s;pointer-events:none;overflow:hidden';
+
+    // 全屏金光閃爆（初始閃光）
+    var flash = document.createElement('div');
+    flash.style.cssText = 'position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(248,223,165,.6),transparent 70%);' +
+      'opacity:0;animation:_legFlash 1.2s .3s ease-out forwards;pointer-events:none';
+
+    // 光球（旋轉聚能）
+    var orb = document.createElement('div');
+    orb.style.cssText = 'width:90px;height:90px;border-radius:50%;' +
+      'background:radial-gradient(circle,#f8dfa5 0%,#d4a040 40%,transparent 70%);' +
+      'animation:_legOrb 1.8s ease-in-out;opacity:0;' +
+      'box-shadow:0 0 60px rgba(248,223,165,.5),0 0 120px rgba(212,160,64,.3)';
+
+    // 圖標（2秒延遲後揭示，scale 動畫）
+    var icon = document.createElement('div');
+    icon.style.cssText = 'font-size:72px;opacity:0;position:absolute;' +
+      'filter:drop-shadow(0 8px 32px rgba(212,160,64,.7));' +
+      'animation:_legIcon .6s 1.8s ease forwards';
+    icon.textContent = item.icon;
+
+    // 名字（金色漸層文字）
+    var name = document.createElement('div');
+    name.style.cssText = 'font-size:20px;font-weight:700;color:#f8dfa5;opacity:0;' +
+      'font-family:Noto Serif TC,serif;margin-top:16px;text-align:center;' +
+      'animation:_legText .5s 2.2s ease forwards;' +
+      'text-shadow:0 2px 12px rgba(212,160,64,.4)';
+    name.innerHTML = item.name + '<br><span style="font-size:13px;color:rgba(248,223,165,.55)">✦ 傳說材料 · ' + item.zone + '</span>';
+
+    // 金色粒子雨（從上方落下）
+    var rainContainer = document.createElement('div');
+    rainContainer.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:hidden';
+    var rainColors = ['#f8dfa5','#d4a040','#FFD166','#e9c27d','#c8862a','#fff0a0'];
+    for(var r=0;r<40;r++){
+      var rain = document.createElement('div');
+      var rSize = 3 + Math.random()*6;
+      var rLeft = Math.random()*100;
+      var rDelay = 1.6 + Math.random()*1.5;
+      var rDur = 1.5 + Math.random()*2;
+      var rRot = Math.random()*720;
+      rain.style.cssText = 'position:absolute;top:-10px;left:'+rLeft+'%;' +
+        'width:'+rSize+'px;height:'+rSize+'px;' +
+        'border-radius:'+(Math.random()>.5?'50%':'2px')+';' +
+        'background:'+rainColors[r%rainColors.length]+';' +
+        'opacity:0;animation:_legRain '+rDur+'s '+rDelay+'s ease forwards;' +
+        '--rot:'+rRot+'deg';
+      rainContainer.appendChild(rain);
+    }
+
+    // 金色碎屑（從中心爆開）
+    var confetti = document.createElement('div');
+    confetti.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:hidden';
+    var colors = ['#f8dfa5','#d4a040','#FFD166','#e9c27d','#c8862a'];
+    for(var i=0;i<30;i++){
+      var c = document.createElement('div');
+      var cx=(Math.random()-0.5)*300, cy=-(50+Math.random()*200), cr=Math.random()*720;
+      c.style.cssText = 'position:absolute;left:50%;top:50%;width:'+(4+Math.random()*6)+'px;height:'+(4+Math.random()*6)+'px;' +
+        'border-radius:'+(Math.random()>.5?'50%':'2px')+';background:'+colors[i%colors.length]+';' +
+        'opacity:0;animation:_legConf 1.2s '+(1.4+Math.random()*0.4)+'s ease forwards;' +
+        '--cx:'+cx+'px;--cy:'+cy+'px;--cr:'+cr+'deg';
+      confetti.appendChild(c);
+    }
+
+    overlay.appendChild(flash);
+    overlay.appendChild(rainContainer);
+    overlay.appendChild(orb);
+    overlay.appendChild(icon);
+    overlay.appendChild(name);
+    overlay.appendChild(confetti);
+    document.body.appendChild(overlay);
+
+    // 注入 keyframes（只注入一次）
+    if(!document.getElementById('_legDropCSS')){
+      var style = document.createElement('style');
+      style.id = '_legDropCSS';
+      style.textContent = [
+        '@keyframes _legOrb{0%{transform:scale(.2) rotate(0);opacity:0}25%{opacity:1;transform:scale(.7) rotate(90deg)}80%{opacity:1;transform:scale(1.3) rotate(300deg)}100%{transform:scale(3.5) rotate(360deg);opacity:0}}',
+        '@keyframes _legIcon{0%{opacity:0;transform:scale(3)}50%{transform:scale(.8)}70%{transform:scale(1.1)}100%{opacity:1;transform:scale(1)}}',
+        '@keyframes _legText{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}',
+        '@keyframes _legConf{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--cx),var(--cy)) rotate(var(--cr))}}',
+        '@keyframes _legFlash{0%{opacity:0;transform:scale(1)}20%{opacity:.8}100%{opacity:0;transform:scale(2)}}',
+        '@keyframes _legRain{0%{opacity:.9;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(100vh) rotate(var(--rot,360deg))}}',
+        '@keyframes _rareSpark{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(0)}}'
+      ].join('\n');
+      document.head.appendChild(style);
+    }
+
+    setTimeout(function(){ overlay.style.opacity='1'; }, 30);
+    // 4秒後淡出（extended for dramatic reveal）
+    setTimeout(function(){
+      overlay.style.opacity='0';
+      setTimeout(function(){ overlay.remove(); }, 500);
+    }, 4000);
+  }
+
+  // ═══ 付費解讀盲盒掉落系統 ═══
+  // n = 抽幾張牌 (3/5/7/9/12/21/28)
+  // 回傳掉落的材料陣列（前端做盲盒開箱動畫用）
+  function dropPaidReadingMaterials(n){
+    var drops = [];
+    var inv = getInventory();
+    var paidDefs = MATERIAL_DEFS.paid_reading || [];
+
+    // 通用材料掉落
+    var commonDef = paidDefs.find(function(d){ return d.id === 'paid_common_glow'; });
+    var rareDef = paidDefs.find(function(d){ return d.id === 'paid_rare_shard'; });
+
+    // 根據張數決定掉落（機率刻意壓低，增加收集慾望）
+    // 每個盲盒固定 4 格，部分格子可能是「空」（增加懸念）
+    var boxCount = 4; // 固定4個盲盒
+
+    if(n >= 3){
+      // 普通 ×1-2（65%機率各格）
+      for(var i=0;i<2;i++) if(commonDef && Math.random() < 0.65) drops.push(commonDef);
+    }
+    if(n >= 5){
+      // 稀有 ×1（30%機率）+ 普通 ×1
+      if(commonDef) drops.push(commonDef);
+      if(rareDef && Math.random() < 0.30) drops.push(rareDef);
+    }
+    if(n >= 7){
+      // 稀有 ×1（55%）+ 稀有 ×1（25%）
+      if(rareDef && Math.random() < 0.55) drops.push(rareDef);
+      if(rareDef && Math.random() < 0.25) drops.push(rareDef);
+    }
+    if(n >= 9){
+      // 九宮全觀印記（20%機率，不是每次都有！）
+      var nineP = paidDefs.find(function(d){ return d.id === 'nine_palace_mark'; });
+      if(nineP && Math.random() < 0.20) drops.push(nineP);
+      if(rareDef && Math.random() < 0.45) drops.push(rareDef);
+    }
+    if(n >= 12){
+      // 季節限定碎片（15%機率）
+      var season = paidDefs.find(function(d){ return d.id === 'season_fragment'; });
+      if(season && Math.random() < 0.15) drops.push(season);
+      if(rareDef) drops.push(rareDef);
+    }
+    if(n >= 21){
+      // 馥靈矩陣核心（10%機率！非常稀有）
+      var matrix = paidDefs.find(function(d){ return d.id === 'matrix_core'; });
+      if(matrix && Math.random() < 0.10) drops.push(matrix);
+      if(rareDef) drops.push(rareDef);
+    }
+    if(n >= 28){
+      // 完整校準之鑰（5%機率！極稀有，要買非常多次才能集齊）
+      var calKey = paidDefs.find(function(d){ return d.id === 'calibration_key'; });
+      if(calKey && Math.random() < 0.05) drops.push(calKey);
+      if(rareDef) drops.push(rareDef);
+    }
+
+    // 補到至少 2 個（保底普通材料，不會空手而歸）
+    while(drops.length < 2 && commonDef) drops.push(commonDef);
+    // 最多 boxCount 個
+    if(drops.length > boxCount) drops = drops.slice(0, boxCount);
+
+    // 實際加入庫存
+    drops.forEach(function(d){
+      inv[d.id] = (inv[d.id] || 0) + 1;
+    });
+    saveInventory(inv);
+
+    return drops;
+  }
+
+  // ═══ 盲盒開箱動畫（全屏，一個一個揭示）═══
+  function showBlindBoxReveal(drops, callback){
+    if(!drops || !drops.length){ if(callback) callback(); return; }
+
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(10,6,20,.92);' +
+      'display:flex;align-items:center;justify-content:center;flex-direction:column;' +
+      'opacity:0;transition:opacity .4s;font-family:Noto Serif TC,serif';
+
+    // 標題
+    var title = document.createElement('div');
+    title.style.cssText = 'font-size:1.2rem;font-weight:700;color:#f8dfa5;margin-bottom:24px;text-align:center;' +
+      'opacity:0;animation:_legText .4s .3s ease forwards';
+    title.textContent = '✦ 盲盒開啟 ✦';
+
+    // 盲盒容器
+    var boxArea = document.createElement('div');
+    boxArea.style.cssText = 'display:flex;flex-wrap:wrap;gap:12px;justify-content:center;max-width:340px;padding:0 20px';
+
+    // 每個材料先顯示為「？」盲盒
+    drops.forEach(function(drop, idx){
+      var box = document.createElement('div');
+      box.style.cssText = 'width:72px;height:88px;border-radius:14px;display:flex;flex-direction:column;' +
+        'align-items:center;justify-content:center;gap:4px;cursor:pointer;transition:all .4s;' +
+        'opacity:0;animation:_legText .3s '+(0.5+idx*0.15)+'s ease forwards;' +
+        'background:linear-gradient(135deg,rgba(60,40,20,.9),rgba(80,50,25,.8));' +
+        'border:2px solid rgba(212,160,64,.3);box-shadow:0 4px 16px rgba(0,0,0,.3);' +
+        'position:relative;overflow:hidden';
+
+      // 問號
+      var qmark = document.createElement('div');
+      qmark.style.cssText = 'font-size:2rem;color:rgba(248,223,165,.5);animation:_legOrb 2s ease-in-out infinite;filter:none';
+      qmark.textContent = '❓';
+      qmark.style.animation = 'none';
+
+      // 光效遮罩
+      var shine = document.createElement('div');
+      shine.style.cssText = 'position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(248,223,165,.1),transparent);' +
+        'animation:_shimBox 2s ease-in-out infinite;pointer-events:none';
+
+      box.appendChild(qmark);
+      box.appendChild(shine);
+      box.dataset.idx = idx;
+
+      // 點擊揭示
+      box.onclick = function(){
+        if(box.dataset.revealed) return;
+        box.dataset.revealed = '1';
+        if(navigator.vibrate) navigator.vibrate(drop.rarity === 'legendary' ? [30,50,30] : 15);
+
+        // 揭示動畫
+        var rarityBg = drop.rarity === 'legendary' ? 'linear-gradient(135deg,rgba(60,40,10,.95),rgba(90,60,15,.9))' :
+                       drop.rarity === 'rare' ? 'linear-gradient(135deg,rgba(20,40,70,.95),rgba(30,50,90,.9))' :
+                       'linear-gradient(135deg,rgba(40,30,50,.9),rgba(50,35,60,.85))';
+        var rarityBorder = drop.rarity === 'legendary' ? 'rgba(248,223,165,.6)' :
+                           drop.rarity === 'rare' ? 'rgba(85,136,204,.5)' : 'rgba(200,180,220,.3)';
+        var rarityLabel = drop.rarity === 'legendary' ? '✦ 傳說' : drop.rarity === 'rare' ? '✧ 稀有' : '';
+
+        box.style.background = rarityBg;
+        box.style.borderColor = rarityBorder;
+        box.style.transform = 'scale(1.1)';
+        if(drop.rarity === 'legendary') box.style.boxShadow = '0 0 30px rgba(248,223,165,.4),0 8px 24px rgba(0,0,0,.3)';
+        setTimeout(function(){ box.style.transform = 'scale(1)'; }, 200);
+
+        box.innerHTML = '<div style="font-size:1.8rem;filter:drop-shadow(0 2px 8px rgba(0,0,0,.4))">' + drop.icon + '</div>' +
+          '<div style="font-size:.62rem;color:' + (drop.rarity === 'legendary' ? '#f8dfa5' : drop.rarity === 'rare' ? '#88bbee' : '#c8b8d8') +
+          ';font-weight:700;text-align:center;line-height:1.2;padding:0 4px">' + drop.name + '</div>' +
+          (rarityLabel ? '<div style="font-size:.5rem;color:rgba(248,223,165,.6)">' + rarityLabel + '</div>' : '');
+
+        // 檢查是否全部揭示完
+        var allRevealed = true;
+        boxArea.querySelectorAll('[data-idx]').forEach(function(b){ if(!b.dataset.revealed) allRevealed = false; });
+        if(allRevealed){
+          setTimeout(function(){
+            var closeBtn = document.createElement('button');
+            closeBtn.style.cssText = 'margin-top:24px;padding:12px 36px;background:linear-gradient(135deg,#d4a040,#b87a20);' +
+              'color:#fff;border:none;border-radius:20px;font-family:inherit;font-size:.92rem;font-weight:700;' +
+              'cursor:pointer;min-height:48px;opacity:0;animation:_legText .3s ease forwards';
+            closeBtn.textContent = '收下這份覺察';
+            closeBtn.onclick = function(){
+              overlay.style.opacity = '0';
+              setTimeout(function(){ overlay.remove(); if(callback) callback(); }, 400);
+            };
+            overlay.appendChild(closeBtn);
+          }, 600);
+        }
+      };
+
+      boxArea.appendChild(box);
+    });
+
+    overlay.appendChild(title);
+    overlay.appendChild(boxArea);
+    document.body.appendChild(overlay);
+
+    // 注入盲盒專用 keyframe
+    if(!document.getElementById('_blindBoxCSS')){
+      var s = document.createElement('style');
+      s.id = '_blindBoxCSS';
+      s.textContent = '@keyframes _shimBox{0%,100%{opacity:.3;transform:translateX(-100%)}50%{opacity:.6;transform:translateX(100%)}}';
+      document.head.appendChild(s);
+    }
+
+    setTimeout(function(){ overlay.style.opacity = '1'; }, 30);
+  }
+
+  // ═══ Firestore 事件回報（非阻塞） ═══
+  function reportCastleEvent(type, data) {
+    try {
+      if (typeof firebase !== 'undefined' && firebase.auth && firebase.firestore) {
+        var user = firebase.auth().currentUser;
+        if (user) {
+          firebase.firestore().collection('events').add({
+            uid: user.uid,
+            type: 'castle_' + type,
+            data: data || {},
+            ts: firebase.firestore.FieldValue.serverTimestamp(),
+            createdAt: new Date().toISOString()
+          }).catch(function(){});
+        }
+      }
+    } catch(e) {}
   }
 
   // ═══ 公開 API ═══
@@ -482,7 +897,10 @@
     recordDestinyComplete: recordDestinyComplete,
     getDestinyProgress: getDestinyProgress,
     DESTINY_TOOLS: DESTINY_TOOLS,
+    reportCastleEvent: reportCastleEvent,
     showToast:    showDropToast,
+    dropPaidReading: dropPaidReadingMaterials,
+    showBlindBox: showBlindBoxReveal,
     MATERIAL_DEFS: MATERIAL_DEFS,
     RECIPES:      RECIPES
   };

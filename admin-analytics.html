@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>馥靈之鑰｜數據分析儀表板</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/favicon.ico">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="馥靈數據">
+<meta name="theme-color" content="#faf6ef">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ═══ Design Tokens (matches admin-dashboard) ═══ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --adm-bg: #faf6ef;
+  --adm-bg2: #f3ede3;
+  --adm-card: #ffffff;
+  --adm-border: rgba(184,146,42,.15);
+  --adm-border-strong: rgba(184,146,42,.3);
+  --adm-gold: #b8922a;
+  --adm-gold-light: #d4ad3a;
+  --adm-gold-bg: rgba(184,146,42,.08);
+  --adm-gold-bg2: rgba(184,146,42,.04);
+  --adm-text: #2a1f0e;
+  --adm-text2: rgba(42,31,14,.65);
+  --adm-text3: rgba(42,31,14,.4);
+  --adm-green: #1a8a4a;
+  --adm-green-bg: rgba(26,138,74,.08);
+  --adm-red: #c04040;
+  --adm-red-bg: rgba(192,64,64,.08);
+  --adm-orange: #b07020;
+  --adm-orange-bg: rgba(176,112,32,.08);
+  --adm-blue: #3060b0;
+  --adm-blue-bg: rgba(48,96,176,.08);
+  --adm-purple: #7040a0;
+  --adm-purple-bg: rgba(112,64,160,.08);
+  --adm-radius: 12px;
+  --adm-radius-sm: 8px;
+  --adm-shadow: 0 1px 3px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.06);
+  --adm-shadow-md: 0 4px 12px rgba(0,0,0,.06), 0 1px 4px rgba(0,0,0,.04);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--adm-bg) !important;
+  color: var(--adm-text) !important;
+  font-family: "Noto Sans TC", -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh; min-height: 100dvh;
+  color-scheme: light;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ═══ Auth Guard ═══ */
+.aa-guard {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100vh; min-height: 100dvh; gap: 20px; text-align: center; padding: 40px;
+}
+.aa-guard-icon { font-size: 3.5rem; }
+.aa-guard-title { font-family: "Noto Serif TC", serif; font-size: 1.3rem; color: var(--adm-gold); }
+.aa-guard-msg { color: var(--adm-text2); font-size: .9rem; max-width: 360px; line-height: 1.7; }
+.aa-guard-btn {
+  padding: 14px 40px; background: linear-gradient(135deg, #c9a044, #e8c860);
+  color: #1a1008; border: none; border-radius: var(--adm-radius); font-size: .95rem;
+  font-weight: 600; cursor: pointer; font-family: inherit; transition: all .2s;
+  box-shadow: var(--adm-shadow-md);
+}
+.aa-guard-btn:active { transform: translateY(1px); }
+.aa-guard-error { color: var(--adm-red); font-size: .85rem; min-height: 20px; }
+.aa-guard-loading { color: var(--adm-text3); font-size: .85rem; }
+
+/* ═══ Shell ═══ */
+.aa-shell { display: none; min-height: 100vh; min-height: 100dvh; }
+
+/* Top Bar */
+.aa-topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(250,246,239,.97); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--adm-border);
+  padding: 0 16px; height: 52px;
+  display: flex; align-items: center; gap: 10px;
+}
+.aa-topbar-brand {
+  font-family: "Noto Serif TC", serif; font-size: 1rem; font-weight: 500;
+  color: var(--adm-gold); letter-spacing: .05em; white-space: nowrap;
+}
+.aa-topbar-spacer { flex: 1; }
+.aa-topbar-back {
+  font-size: .82rem; color: var(--adm-text2); background: none; border: 1px solid var(--adm-border);
+  border-radius: var(--adm-radius-sm); padding: 6px 14px; cursor: pointer; font-family: inherit;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
+}
+.aa-topbar-user { font-size: .78rem; color: var(--adm-text3); }
+
+/* Time Range Selector */
+.aa-range-bar {
+  display: flex; align-items: center; justify-content: space-between; padding: 12px 16px;
+  flex-wrap: wrap; gap: 8px;
+}
+.aa-range-btns { display: flex; gap: 6px; }
+.aa-range-btn {
+  padding: 6px 16px; border: 1px solid var(--adm-border); border-radius: 20px;
+  background: transparent; font-size: .82rem; color: var(--adm-text2); cursor: pointer;
+  font-family: inherit; transition: all .2s;
+}
+.aa-range-btn.on {
+  background: var(--adm-gold); color: #fff; border-color: var(--adm-gold);
+}
+.aa-range-label { font-size: .78rem; color: var(--adm-text3); }
+
+/* Tab Navigation */
+.aa-tabs {
+  display: flex; border-bottom: 1px solid var(--adm-border);
+  padding: 0 16px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.aa-tabs::-webkit-scrollbar { display: none; }
+.aa-tab {
+  padding: 12px 18px; font-size: .88rem; color: var(--adm-text3); border: none;
+  background: none; cursor: pointer; font-family: inherit; white-space: nowrap;
+  border-bottom: 2px solid transparent; transition: all .2s; flex-shrink: 0;
+}
+.aa-tab.on { color: var(--adm-gold); border-bottom-color: var(--adm-gold); font-weight: 500; }
+
+/* Tab Panels */
+.aa-panel { display: none; padding: 16px; animation: aaFadeIn .3s ease; }
+.aa-panel.on { display: block; }
+@keyframes aaFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Cards */
+.aa-card {
+  background: var(--adm-card); border-radius: var(--adm-radius);
+  padding: 16px; margin-bottom: 14px; box-shadow: var(--adm-shadow);
+  border: 1px solid var(--adm-border);
+}
+.aa-card-title {
+  font-size: .85rem; font-weight: 600; color: var(--adm-text); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* Grid */
+.aa-grid2 { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 14px; }
+@media(min-width:640px) { .aa-grid2 { grid-template-columns: 1fr 1fr; } }
+
+/* Stat Cards */
+.aa-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+@media(min-width:640px) { .aa-stats { grid-template-columns: repeat(4, 1fr); } }
+.aa-stat {
+  background: var(--adm-card); border-radius: var(--adm-radius);
+  padding: 14px; border: 1px solid var(--adm-border); box-shadow: var(--adm-shadow);
+  text-align: center;
+}
+.aa-stat-val { font-size: 1.6rem; font-weight: 700; color: var(--adm-gold); }
+.aa-stat-label { font-size: .75rem; color: var(--adm-text2); margin-top: 4px; }
+.aa-stat-sub { font-size: .68rem; color: var(--adm-text3); margin-top: 2px; }
+
+/* Empty state */
+.aa-empty {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 80px; font-size: .85rem; color: var(--adm-text3);
+}
+
+/* Loading */
+.aa-loading {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 120px; font-size: .85rem; color: var(--adm-text3);
+}
+
+/* Warm chart colors */
+.aa-color-1 { background: rgba(184,146,42,.75); }
+.aa-color-2 { background: rgba(120,180,200,.6); }
+.aa-color-3 { background: rgba(144,112,192,.6); }
+.aa-color-4 { background: rgba(224,120,80,.6); }
+.aa-color-5 { background: rgba(107,196,127,.6); }
+.aa-color-6 { background: rgba(229,168,75,.6); }
+.aa-color-7 { background: rgba(176,164,144,.5); }
+
+/* Toast */
+#aa-toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: rgba(42,31,14,.9); color: #fff; padding: 12px 24px; border-radius: 20px;
+  font-size: .85rem; z-index: 9999; opacity: 0; transition: all .3s;
+  pointer-events: none; white-space: nowrap;
+}
+#aa-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--adm-border-strong); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<!-- ═══ Auth Guard ═══ -->
+<div class="aa-guard" id="guardArea">
+  <div class="aa-guard-icon">📊</div>
+  <div class="aa-guard-title">馥靈數據分析</div>
+  <div class="aa-guard-msg">此頁面僅限管理員存取<br>請使用管理員帳號登入</div>
+  <button class="aa-guard-btn" id="loginBtn" onclick="doLogin()">Google 登入</button>
+  <div class="aa-guard-error" id="guardError"></div>
+  <div class="aa-guard-loading" id="guardLoading"></div>
+</div>
+
+<!-- ═══ Main Shell ═══ -->
+<div class="aa-shell" id="aaShell">
+
+  <!-- Top Bar -->
+  <div class="aa-topbar">
+    <div class="aa-topbar-brand">📊 數據分析</div>
+    <div class="aa-topbar-spacer"></div>
+    <div class="aa-topbar-user" id="topbarUser"></div>
+    <a href="admin-dashboard.html" class="aa-topbar-back">← 管理中心</a>
+  </div>
+
+  <!-- Time Range -->
+  <div class="aa-range-bar">
+    <div class="aa-range-btns" id="rangeBtns">
+      <button class="aa-range-btn on" onclick="setRange(7,this)">7天</button>
+      <button class="aa-range-btn" onclick="setRange(14,this)">14天</button>
+      <button class="aa-range-btn" onclick="setRange(30,this)">30天</button>
+    </div>
+    <div class="aa-range-label" id="rangeLabel">載入中...</div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="aa-tabs" id="aaTabs">
+    <button class="aa-tab on" onclick="switchTab(0,this)">總覽</button>
+    <button class="aa-tab" onclick="switchTab(1,this)">趨勢</button>
+    <button class="aa-tab" onclick="switchTab(2,this)">用戶</button>
+    <button class="aa-tab" onclick="switchTab(3,this)">功能</button>
+  </div>
+
+  <!-- ═══ Tab 0: 總覽 ═══ -->
+  <div class="aa-panel on" id="panel-0">
+    <!-- Stats -->
+    <div class="aa-stats" id="overviewStats">
+      <div class="aa-stat"><div class="aa-stat-val" id="ov-events">-</div><div class="aa-stat-label">總操作次數</div><div class="aa-stat-sub" id="ov-events-sub"></div></div>
+      <div class="aa-stat"><div class="aa-stat-val" id="ov-users">-</div><div class="aa-stat-label">獨立用戶</div><div class="aa-stat-sub" id="ov-users-sub"></div></div>
+      <div class="aa-stat"><div class="aa-stat-val" id="ov-realtime">-</div><div class="aa-stat-label">即時在線</div><div class="aa-stat-sub" id="ov-realtime-sub">最近30分鐘</div></div>
+      <div class="aa-stat"><div class="aa-stat-val" id="ov-top">-</div><div class="aa-stat-label">最熱門工具</div><div class="aa-stat-sub" id="ov-top-sub"></div></div>
+    </div>
+
+    <!-- Today vs Yesterday -->
+    <div class="aa-card">
+      <div class="aa-card-title">📅 今日 vs 昨日</div>
+      <div id="ov-compare" class="aa-loading">載入中...</div>
+    </div>
+
+    <!-- 7-Day Heatmap -->
+    <div class="aa-card">
+      <div class="aa-card-title">📅 活躍熱力圖</div>
+      <div id="ov-heatmap" style="display:flex;gap:6px;align-items:flex-end;height:110px;padding:10px 0"></div>
+      <div id="ov-heatmap-labels" style="display:flex;gap:6px;margin-top:4px"></div>
+    </div>
+  </div>
+
+  <!-- ═══ Tab 1: 趨勢 ═══ -->
+  <div class="aa-panel" id="panel-1">
+    <div class="aa-card">
+      <div class="aa-card-title">📈 每日操作量 vs 用戶數</div>
+      <div id="tr-ops-chart" style="min-height:200px" class="aa-loading">載入中...</div>
+    </div>
+    <div class="aa-card">
+      <div class="aa-card-title">📊 會員成長曲線</div>
+      <div id="tr-growth" style="height:120px;position:relative;padding:6px 0"></div>
+      <div id="tr-growth-labels" style="display:flex;justify-content:space-between;font-size:.65rem;color:var(--adm-text3);margin-top:4px"></div>
+    </div>
+    <div class="aa-card">
+      <div class="aa-card-title">🌱 每日新用戶 vs 回訪用戶</div>
+      <div id="tr-newret" style="min-height:180px" class="aa-loading">載入中...</div>
+    </div>
+  </div>
+
+  <!-- ═══ Tab 2: 用戶 ═══ -->
+  <div class="aa-panel" id="panel-2">
+    <div class="aa-card">
+      <div class="aa-card-title" style="margin-bottom:0">🔄 回訪用戶追蹤</div>
+      <div style="display:flex;gap:12px;font-size:.72rem;color:var(--adm-text2);margin:8px 0 10px;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:#5b9bd5"></span>全勤</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:#6bc47f"></span>3天+</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:#e5a84b"></span>2天</span>
+      </div>
+      <div id="us-retention" class="aa-loading">載入中...</div>
+      <div id="us-retention-summary" style="margin-top:10px;text-align:center;font-size:.78rem;color:var(--adm-text2)"></div>
+    </div>
+    <div class="aa-grid2">
+      <div class="aa-card">
+        <div class="aa-card-title">📊 隔日留存漏斗</div>
+        <div id="us-funnel" style="min-height:120px" class="aa-loading">載入中...</div>
+      </div>
+      <div class="aa-card">
+        <div class="aa-card-title">🎫 會員方案分布</div>
+        <div id="us-plans" style="min-height:120px" class="aa-loading">載入中...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Tab 3: 功能 ═══ -->
+  <div class="aa-panel" id="panel-3">
+    <div class="aa-grid2">
+      <div class="aa-card">
+        <div class="aa-card-title">🔥 功能排行 Top 10</div>
+        <div id="ft-bars" style="max-height:320px;overflow-y:auto;-webkit-overflow-scrolling:touch" class="aa-loading">載入中...</div>
+      </div>
+      <div class="aa-card">
+        <div class="aa-card-title">🎯 功能使用佔比</div>
+        <div id="ft-pie" style="min-height:180px" class="aa-loading">載入中...</div>
+      </div>
+    </div>
+    <div class="aa-grid2">
+      <div class="aa-card">
+        <div class="aa-card-title">⏰ 時段使用分布</div>
+        <div id="ft-hours" style="display:flex;gap:2px;align-items:flex-end;height:90px;padding:6px 0"></div>
+        <div style="display:flex;justify-content:space-between;font-size:.6rem;color:var(--adm-text3);margin-top:4px"><span>0時</span><span>6時</span><span>12時</span><span>18時</span><span>23時</span></div>
+      </div>
+      <div class="aa-card">
+        <div class="aa-card-title">🌡️ 24h x 7天 熱力矩陣</div>
+        <div id="ft-matrix" style="overflow-x:auto;-webkit-overflow-scrolling:touch" class="aa-loading">載入中...</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div id="aa-toast"></div>
+
+<!-- ═══ Firebase SDK ═══ -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+
+<script>
+(function() {
+'use strict';
+
+// ─── Firebase Init ───
+var app = firebase.initializeApp(FIREBASE_CONFIG);
+var auth = firebase.auth();
+var db = firebase.firestore();
+
+// ─── Admin Whitelist ───
+var ADMIN_EMAILS = [
+  'judyanee@gmail.com',
+  'info@hourlightkey.com',
+  'judyanee@hotmail.com'
+];
+
+// ─── DOM Refs ───
+var $guard = document.getElementById('guardArea');
+var $shell = document.getElementById('aaShell');
+var $guardError = document.getElementById('guardError');
+var $guardLoading = document.getElementById('guardLoading');
+
+// ─── State ───
+var currentRange = 7;
+var allEvents = [];     // raw enhanced events
+var allUsersSnap = null; // users snapshot
+var currentUser = null;
+
+// ═══ AUTH ═══
+window.doLogin = function() {
+  $guardError.textContent = '';
+  $guardLoading.textContent = '登入中...';
+  var provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).catch(function(e) {
+    $guardLoading.textContent = '';
+    $guardError.textContent = e.message || '登入失敗';
+  });
+};
+
+auth.onAuthStateChanged(function(user) {
+  if (!user) {
+    $guard.style.display = 'flex';
+    $shell.style.display = 'none';
+    $guardLoading.textContent = '';
+    return;
+  }
+  if (!ADMIN_EMAILS.includes(user.email)) {
+    $guardError.textContent = '此帳號無管理權限';
+    $guardLoading.textContent = '';
+    auth.signOut();
+    return;
+  }
+  currentUser = user;
+  $guard.style.display = 'none';
+  $shell.style.display = 'block';
+  document.getElementById('topbarUser').textContent = user.email;
+  loadAllData();
+});
+
+// ═══ TAB SWITCHING ═══
+window.switchTab = function(idx, btn) {
+  document.querySelectorAll('.aa-tab').forEach(function(t) { t.classList.remove('on'); });
+  document.querySelectorAll('.aa-panel').forEach(function(p) { p.classList.remove('on'); });
+  btn.classList.add('on');
+  document.getElementById('panel-' + idx).classList.add('on');
+};
+
+// ═══ RANGE SELECTOR ═══
+window.setRange = function(days, btn) {
+  currentRange = days;
+  document.querySelectorAll('#rangeBtns .aa-range-btn').forEach(function(b) { b.classList.remove('on'); });
+  btn.classList.add('on');
+  if (allEvents.length || allUsersSnap) renderAll();
+};
+
+// ═══ DATA LOADING ═══
+function loadAllData() {
+  document.getElementById('rangeLabel').textContent = '載入中...';
+  Promise.all([
+    db.collection('events').get(),
+    db.collection('users').get()
+  ]).then(function(results) {
+    var eventsSnap = results[0];
+    allUsersSnap = results[1];
+
+    // Build enhanced events array
+    allEvents = [];
+    eventsSnap.forEach(function(doc) {
+      var d = doc.data();
+      var ts = d.ts && d.ts.toDate ? d.ts.toDate() : null;
+      if (!ts) return;
+      allEvents.push({
+        tool: d.toolName || d.page || '其他',
+        email: (d.email || d.userEmail || '').toLowerCase(),
+        date: ts,
+        day: ts.getFullYear() + '-' + String(ts.getMonth()+1).padStart(2,'0') + '-' + String(ts.getDate()).padStart(2,'0'),
+        hour: ts.getHours(),
+        uid: d.uid || ''
+      });
+    });
+    renderAll();
+  }).catch(function(err) {
+    document.getElementById('rangeLabel').textContent = '載入失敗: ' + err.message;
+    console.error(err);
+  });
+}
+
+// ═══ RENDER ALL ═══
+function renderAll() {
+  var now = new Date(); now.setHours(23,59,59,999);
+  var cutoff = new Date(now); cutoff.setDate(cutoff.getDate() - currentRange); cutoff.setHours(0,0,0,0);
+  var events = allEvents.filter(function(e) { return e.date >= cutoff; });
+
+  var cutoffStr = cutoff.toLocaleDateString('zh-TW');
+  var nowStr = new Date().toLocaleDateString('zh-TW');
+  document.getElementById('rangeLabel').textContent = cutoffStr + ' ~ ' + nowStr + '  (' + events.length + ' 筆事件)';
+
+  renderOverview(events);
+  renderTrends(events);
+  renderUsers(events);
+  renderFeatures(events);
+}
+
+// ═══ HELPERS ═══
+function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function showToast(msg) {
+  var t = document.getElementById('aa-toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2500);
+}
+
+function makeDays(n) {
+  var days = [];
+  for (var i = n - 1; i >= 0; i--) {
+    var d = new Date(); d.setDate(d.getDate() - i); d.setHours(0,0,0,0);
+    days.push({
+      date: d,
+      key: d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'),
+      label: (d.getMonth()+1) + '/' + d.getDate(),
+      dayName: ['日','一','二','三','四','五','六'][d.getDay()]
+    });
+  }
+  return days;
+}
+
+// ═══ TAB 0: OVERVIEW ═══
+function renderOverview(events) {
+  // Stats
+  var uniqueEmails = {};
+  var toolCount = {};
+  events.forEach(function(e) {
+    uniqueEmails[e.email] = 1;
+    toolCount[e.tool] = (toolCount[e.tool] || 0) + 1;
+  });
+  var uniqueCount = Object.keys(uniqueEmails).length;
+  document.getElementById('ov-events').textContent = events.length;
+  document.getElementById('ov-users').textContent = uniqueCount;
+
+  // Top tool
+  var topTool = '-', topCount = 0;
+  Object.keys(toolCount).forEach(function(k) {
+    if (toolCount[k] > topCount) { topTool = k; topCount = toolCount[k]; }
+  });
+  document.getElementById('ov-top').textContent = topTool;
+  document.getElementById('ov-top-sub').textContent = topCount + ' 次';
+
+  // Realtime (last 30 min)
+  if (allUsersSnap) {
+    var thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000);
+    var realtimeCount = 0;
+    allUsersSnap.forEach(function(doc) {
+      var u = doc.data();
+      if (u.lastSeen && u.lastSeen.toDate && u.lastSeen.toDate() >= thirtyMinAgo) realtimeCount++;
+    });
+    document.getElementById('ov-realtime').textContent = realtimeCount;
+    document.getElementById('ov-realtime-sub').textContent = '最近30分鐘 · ' + new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // Today vs Yesterday comparison
+  var today = new Date(); today.setHours(0,0,0,0);
+  var yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
+  var todayEnd = new Date(today); todayEnd.setDate(todayEnd.getDate() + 1);
+  var todayEvts = allEvents.filter(function(e) { return e.date >= today && e.date < todayEnd; });
+  var yesterEvts = allEvents.filter(function(e) { return e.date >= yesterday && e.date < today; });
+  var todayUsers = {}, yestUsers = {};
+  todayEvts.forEach(function(e) { todayUsers[e.email] = 1; });
+  yesterEvts.forEach(function(e) { yestUsers[e.email] = 1; });
+
+  var compareEl = document.getElementById('ov-compare');
+  function diffBadge(a, b) {
+    if (b === 0) return a > 0 ? '<span style="color:var(--adm-green);font-size:.72rem">+' + a + '</span>' : '';
+    var pct = Math.round((a - b) / b * 100);
+    var arrow = pct >= 0 ? '↑' : '↓';
+    var color = pct >= 0 ? 'var(--adm-green)' : 'var(--adm-red)';
+    return '<span style="color:' + color + ';font-size:.72rem">' + arrow + Math.abs(pct) + '%</span>';
+  }
+  compareEl.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center">'
+    + '<div><div style="font-size:.72rem;color:var(--adm-text3);margin-bottom:4px">操作次數</div>'
+    + '<div style="font-size:1.1rem;font-weight:700;color:var(--adm-gold)">' + todayEvts.length + '</div>'
+    + '<div style="font-size:.72rem;color:var(--adm-text3)">昨日 ' + yesterEvts.length + ' ' + diffBadge(todayEvts.length, yesterEvts.length) + '</div></div>'
+    + '<div><div style="font-size:.72rem;color:var(--adm-text3);margin-bottom:4px">獨立用戶</div>'
+    + '<div style="font-size:1.1rem;font-weight:700;color:var(--adm-gold)">' + Object.keys(todayUsers).length + '</div>'
+    + '<div style="font-size:.72rem;color:var(--adm-text3)">昨日 ' + Object.keys(yestUsers).length + ' ' + diffBadge(Object.keys(todayUsers).length, Object.keys(yestUsers).length) + '</div></div>'
+    + '<div><div style="font-size:.72rem;color:var(--adm-text3);margin-bottom:4px">最熱門工具</div>'
+    + '<div style="font-size:.85rem;font-weight:600;color:var(--adm-text)">' + escHtml(topTool) + '</div>'
+    + '<div style="font-size:.72rem;color:var(--adm-text3)">' + topCount + ' 次</div></div></div>';
+
+  // Heatmap bar chart
+  var days = makeDays(currentRange);
+  var dayCountMap = {};
+  events.forEach(function(e) { dayCountMap[e.day] = (dayCountMap[e.day] || 0) + 1; });
+  var vals = days.map(function(d) { return dayCountMap[d.key] || 0; });
+  var maxV = Math.max.apply(null, vals) || 1;
+
+  document.getElementById('ov-heatmap').innerHTML = vals.map(function(v) {
+    var h = Math.max(8, Math.round(v / maxV * 95));
+    var intensity = Math.min(1, v / maxV);
+    var bg = 'rgba(184,146,42,' + (0.15 + intensity * 0.85).toFixed(2) + ')';
+    return '<div style="flex:1;height:' + h + 'px;background:' + bg + ';border-radius:4px 4px 0 0;position:relative;transition:height .5s">'
+      + '<div style="position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:.6rem;color:var(--adm-text);font-weight:600">' + v + '</div></div>';
+  }).join('');
+
+  document.getElementById('ov-heatmap-labels').innerHTML = days.map(function(d) {
+    return '<div style="flex:1;text-align:center;font-size:.58rem;color:var(--adm-text3)">' + d.label + '<br>' + d.dayName + '</div>';
+  }).join('');
+}
+
+// ═══ TAB 1: TRENDS ═══
+function renderTrends(events) {
+  // Ops vs Users dual bar
+  var dayMap = {};
+  events.forEach(function(e) {
+    if (!dayMap[e.day]) dayMap[e.day] = { ops: 0, users: {} };
+    dayMap[e.day].ops++;
+    dayMap[e.day].users[e.email] = 1;
+  });
+
+  var days = makeDays(currentRange);
+  var maxOps = 1, maxU = 1;
+  days.forEach(function(d) {
+    var dm = dayMap[d.key];
+    if (dm) {
+      if (dm.ops > maxOps) maxOps = dm.ops;
+      var uc = Object.keys(dm.users).length;
+      if (uc > maxU) maxU = uc;
+    }
+  });
+
+  var opsEl = document.getElementById('tr-ops-chart');
+  var legend = '<div style="display:flex;gap:16px;justify-content:center;margin-bottom:10px;font-size:.72rem">'
+    + '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;background:var(--adm-gold);border-radius:2px"></span> 操作次數</span>'
+    + '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;background:rgba(120,180,200,.7);border-radius:2px"></span> 用戶數</span></div>';
+  var bars = days.map(function(d) {
+    var dm = dayMap[d.key] || { ops: 0, users: {} };
+    var ops = dm.ops, u = Object.keys(dm.users).length;
+    var hOps = ops > 0 ? Math.max(6, Math.round(ops / maxOps * 140)) : 0;
+    var hU = u > 0 ? Math.max(6, Math.round(u / maxU * 140)) : 0;
+    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">'
+      + '<div style="display:flex;gap:3px;align-items:flex-end;height:150px">'
+      + '<div style="width:12px;height:' + hOps + 'px;background:rgba(184,146,42,.6);border-radius:3px 3px 0 0" title="操作 ' + ops + '"></div>'
+      + '<div style="width:12px;height:' + hU + 'px;background:rgba(120,180,200,.6);border-radius:3px 3px 0 0" title="用戶 ' + u + '"></div></div>'
+      + '<div style="font-size:.55rem;color:var(--adm-text3)">' + d.label + '</div>'
+      + '<div style="font-size:.5rem;color:var(--adm-gold)">' + ops + '<span style="color:var(--adm-text3)">/</span>' + u + '</div></div>';
+  }).join('');
+  opsEl.innerHTML = legend + '<div style="display:flex;gap:4px;align-items:flex-end;padding:0 4px">' + bars + '</div>';
+
+  // Growth curve
+  renderGrowthChart();
+
+  // New vs Returning
+  renderNewRet(events);
+}
+
+function renderGrowthChart() {
+  var el = document.getElementById('tr-growth');
+  var labels = document.getElementById('tr-growth-labels');
+  if (!el || !allUsersSnap) return;
+
+  var now = new Date();
+  var weeks = [];
+  for (var i = 7; i >= 0; i--) {
+    var start = new Date(now); start.setDate(start.getDate() - i * 7); start.setHours(0,0,0,0);
+    weeks.push({ start: start, cumulative: 0, label: (start.getMonth()+1) + '/' + start.getDate() });
+  }
+  var allDates = [];
+  allUsersSnap.forEach(function(doc) {
+    var ct = doc.data().createdAt;
+    if (ct && ct.toDate) allDates.push(ct.toDate());
+  });
+  allDates.sort(function(a, b) { return a - b; });
+  weeks.forEach(function(w) {
+    var end = new Date(w.start); end.setDate(end.getDate() + 7);
+    w.cumulative = allDates.filter(function(d) { return d < end; }).length;
+  });
+
+  var maxVal = Math.max.apply(null, weeks.map(function(w) { return w.cumulative; })) || 1;
+  var minVal = Math.min.apply(null, weeks.map(function(w) { return w.cumulative; }));
+  var range = maxVal - minVal || 1;
+  var svgW = el.clientWidth || 300;
+  var svgH = 120;
+
+  var points = weeks.map(function(w, i) {
+    var x = (i / (weeks.length - 1)) * (svgW - 20) + 10;
+    var y = svgH - 10 - ((w.cumulative - minVal) / range) * (svgH - 20);
+    return x + ',' + y;
+  });
+  var polyline = points.join(' ');
+  var area = '10,' + svgH + ' ' + polyline + ' ' + (svgW - 10) + ',' + svgH;
+
+  el.innerHTML = '<svg width="100%" height="' + svgH + '" viewBox="0 0 ' + svgW + ' ' + svgH + '" style="overflow:visible">'
+    + '<polygon points="' + area + '" fill="rgba(184,146,42,0.08)" />'
+    + '<polyline points="' + polyline + '" fill="none" stroke="var(--adm-gold)" stroke-width="2" stroke-linejoin="round" />'
+    + points.map(function(p, i) {
+        var xy = p.split(',');
+        return '<circle cx="' + xy[0] + '" cy="' + xy[1] + '" r="3" fill="var(--adm-gold)" />'
+          + '<text x="' + xy[0] + '" y="' + (parseFloat(xy[1]) - 8) + '" text-anchor="middle" font-size="9" fill="var(--adm-text2)">' + weeks[i].cumulative + '</text>';
+      }).join('')
+    + '</svg>';
+
+  labels.innerHTML = '<span>' + weeks[0].label + '</span><span>最近 8 週</span><span>' + weeks[weeks.length - 1].label + '</span>';
+}
+
+function renderNewRet(events) {
+  var el = document.getElementById('tr-newret');
+  if (!el) return;
+  var dayMap = {};
+  events.forEach(function(e) {
+    if (!dayMap[e.day]) dayMap[e.day] = {};
+    dayMap[e.day][e.email] = 1;
+  });
+  var days = Object.keys(dayMap).sort();
+  var seenBefore = {};
+  var newData = [], retData = [], labelArr = [];
+
+  days.forEach(function(d) {
+    var newU = {}, retU = {};
+    Object.keys(dayMap[d]).forEach(function(em) {
+      if (seenBefore[em]) retU[em] = 1; else newU[em] = 1;
+    });
+    Object.keys(newU).forEach(function(em) { seenBefore[em] = 1; });
+    Object.keys(retU).forEach(function(em) { seenBefore[em] = 1; });
+    var p = d.split('-');
+    labelArr.push(parseInt(p[1]) + '/' + parseInt(p[2]));
+    newData.push(Object.keys(newU).length);
+    retData.push(Object.keys(retU).length);
+  });
+
+  if (!days.length) { el.innerHTML = '<div class="aa-empty">尚無數據</div>'; return; }
+
+  var maxTotal = Math.max.apply(null, days.map(function(_, i) { return newData[i] + retData[i]; })) || 1;
+  var legend = '<div style="display:flex;gap:16px;justify-content:center;margin-bottom:8px;font-size:.72rem">'
+    + '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(120,180,200,.6)"></span> 新用戶</span>'
+    + '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(184,146,42,.6)"></span> 回訪</span></div>';
+  var bars = labelArr.map(function(lb, i) {
+    var hNew = newData[i] > 0 ? Math.max(3, Math.round(newData[i] / maxTotal * 120)) : 0;
+    var hRet = retData[i] > 0 ? Math.max(3, Math.round(retData[i] / maxTotal * 120)) : 0;
+    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center">'
+      + '<div style="display:flex;flex-direction:column;justify-content:flex-end;height:120px">'
+      + '<div style="width:20px;background:rgba(184,146,42,.6);border-radius:3px 3px 0 0;height:' + hRet + 'px"></div>'
+      + '<div style="width:20px;background:rgba(120,180,200,.6);border-radius:0 0 3px 3px;height:' + hNew + 'px"></div></div>'
+      + '<div style="font-size:.55rem;color:var(--adm-text3);margin-top:4px">' + lb + '</div>'
+      + '<div style="font-size:.5rem;color:var(--adm-text2)">' + newData[i] + '+' + retData[i] + '</div></div>';
+  }).join('');
+  el.innerHTML = legend + '<div style="display:flex;gap:4px;padding:0 4px">' + bars + '</div>';
+}
+
+// ═══ TAB 2: USERS ═══
+function renderUsers(events) {
+  renderRetention(events);
+  renderFunnel(events);
+  renderPlans();
+}
+
+function renderRetention(events) {
+  var el = document.getElementById('us-retention');
+  var sumEl = document.getElementById('us-retention-summary');
+  if (!el) return;
+
+  var userDays = {}, userCounts = {};
+  events.forEach(function(e) {
+    if (!userDays[e.email]) userDays[e.email] = {};
+    userDays[e.email][e.day] = 1;
+    userCounts[e.email] = (userCounts[e.email] || 0) + 1;
+  });
+
+  var allDays = Object.keys(events.reduce(function(a, e) { a[e.day] = 1; return a; }, {})).sort();
+  var returning = [];
+  Object.keys(userDays).forEach(function(email) {
+    var daySet = Object.keys(userDays[email]);
+    if (daySet.length >= 2) {
+      returning.push({ email: email, days: userDays[email], dayCount: daySet.length, total: userCounts[email] });
+    }
+  });
+  returning.sort(function(a, b) { return b.dayCount - a.dayCount || b.total - a.total; });
+
+  var showDays = allDays.slice(-7);
+  var maxDays = showDays.length;
+  var totalUsers = Object.keys(userDays).length;
+
+  if (!returning.length) {
+    el.innerHTML = '<div class="aa-empty">尚無回訪數據（需至少2天的資料）</div>';
+    if (sumEl) sumEl.textContent = '';
+    return;
+  }
+
+  if (sumEl) sumEl.textContent = '回訪用戶 ' + returning.length + ' / ' + totalUsers + ' 人（' + Math.round(returning.length / totalUsers * 100) + '%）';
+
+  var html = '<div style="font-size:.78rem">';
+  html += '<div style="display:grid;grid-template-columns:1fr repeat(' + showDays.length + ',36px) 50px;gap:0;padding:4px 0;border-bottom:1px solid var(--adm-border);color:var(--adm-text3);font-size:.7rem">';
+  html += '<div>用戶</div>';
+  showDays.forEach(function(d) { var p = d.split('-'); html += '<div style="text-align:center">' + parseInt(p[1]) + '/' + parseInt(p[2]) + '</div>'; });
+  html += '<div style="text-align:right">次數</div></div>';
+
+  var shown = Math.min(returning.length, 20);
+  for (var i = 0; i < shown; i++) {
+    var u = returning[i];
+    var dotColor = u.dayCount >= maxDays ? '#5b9bd5' : u.dayCount >= 3 ? '#6bc47f' : '#e5a84b';
+    var displayEmail = u.email.split('@')[0];
+    if (displayEmail.length > 14) displayEmail = displayEmail.substring(0, 12) + '..';
+    html += '<div style="display:grid;grid-template-columns:1fr repeat(' + showDays.length + ',36px) 50px;gap:0;padding:5px 0;border-bottom:1px solid rgba(184,146,42,0.06);align-items:center">';
+    html += '<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:' + dotColor + ';font-weight:500">' + escHtml(displayEmail) + '</div>';
+    showDays.forEach(function(d) {
+      html += '<div style="text-align:center">' + (u.days[d] ? '<div style="width:12px;height:12px;border-radius:50%;background:' + dotColor + ';margin:0 auto"></div>' : '') + '</div>';
+    });
+    html += '<div style="text-align:right;font-weight:600;color:var(--adm-text)">' + u.total + '</div></div>';
+  }
+  html += '</div>';
+  if (returning.length > shown) html += '<div style="text-align:center;margin-top:8px;font-size:.72rem;color:var(--adm-text3)">顯示 ' + shown + ' / ' + returning.length + ' 位回訪用戶</div>';
+  el.innerHTML = html;
+}
+
+function renderFunnel(events) {
+  var el = document.getElementById('us-funnel');
+  if (!el) return;
+
+  var dayMap = {};
+  events.forEach(function(e) {
+    if (!dayMap[e.day]) dayMap[e.day] = {};
+    dayMap[e.day][e.email] = 1;
+  });
+  var days = Object.keys(dayMap).sort();
+  if (days.length < 2) {
+    el.innerHTML = '<div class="aa-empty">需至少 2 天數據才能計算留存</div>';
+    return;
+  }
+
+  var rows = [];
+  for (var i = 0; i < Math.min(days.length - 1, 7); i++) {
+    var d1 = days[i], d2 = days[i + 1];
+    var u1 = dayMap[d1], u2 = dayMap[d2];
+    var retained = 0;
+    Object.keys(u1).forEach(function(em) { if (u2[em]) retained++; });
+    var u1size = Object.keys(u1).length;
+    var rate = u1size ? Math.round(retained / u1size * 100) : 0;
+    var p1 = d1.split('-'), p2 = d2.split('-');
+    var lb = parseInt(p1[1]) + '/' + parseInt(p1[2]) + ' → ' + parseInt(p2[1]) + '/' + parseInt(p2[2]);
+    rows.push({ label: lb, retained: retained, total: u1size, rate: rate });
+  }
+
+  el.innerHTML = rows.map(function(r) {
+    var w = Math.max(10, Math.round(r.rate));
+    var color = r.rate >= 50 ? 'rgba(107,196,127,.7)' : r.rate >= 25 ? 'rgba(184,146,42,.7)' : 'rgba(224,120,80,.7)';
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'
+      + '<span style="width:80px;font-size:.68rem;color:var(--adm-text2);flex-shrink:0;text-align:right">' + r.label + '</span>'
+      + '<div style="flex:1;height:16px;background:rgba(184,146,42,.04);border-radius:4px;overflow:hidden">'
+      + '<div style="height:100%;width:' + w + '%;background:' + color + ';border-radius:4px;min-width:4px;transition:width .5s"></div></div>'
+      + '<span style="min-width:85px;font-size:.68rem;color:var(--adm-text2);flex-shrink:0">' + r.rate + '% (' + r.retained + '/' + r.total + ')</span></div>';
+  }).join('');
+}
+
+function renderPlans() {
+  var el = document.getElementById('us-plans');
+  if (!el || !allUsersSnap) return;
+
+  var plans = { free: 0, plus: 0, pro: 0 };
+  allUsersSnap.forEach(function(doc) {
+    var p = doc.data().plan || 'free';
+    if (p === 'plus') plans.plus++;
+    else if (p === 'pro') plans.pro++;
+    else plans.free++;
+  });
+
+  var total = plans.free + plans.plus + plans.pro;
+  if (!total) { el.innerHTML = '<div class="aa-empty">尚無會員數據</div>'; return; }
+
+  var items = [
+    { name: '免費會員', count: plans.free, color: 'rgba(176,164,144,.6)' },
+    { name: '馥靈鑰友', count: plans.plus, color: 'rgba(184,146,42,.7)' },
+    { name: '馥靈大師', count: plans.pro, color: 'rgba(144,112,192,.7)' }
+  ];
+
+  el.innerHTML = items.map(function(item) {
+    var pct = Math.round(item.count / total * 100);
+    return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'
+      + '<div style="width:10px;height:10px;border-radius:50%;background:' + item.color + ';flex-shrink:0"></div>'
+      + '<span style="width:80px;font-size:.82rem;color:var(--adm-text);flex-shrink:0">' + item.name + '</span>'
+      + '<div style="flex:1;height:18px;background:rgba(184,146,42,.04);border-radius:4px;overflow:hidden">'
+      + '<div style="height:100%;width:' + pct + '%;background:' + item.color + ';border-radius:4px;min-width:4px;transition:width .5s"></div></div>'
+      + '<span style="min-width:70px;text-align:right;font-size:.78rem;color:var(--adm-text2);flex-shrink:0">' + item.count + ' (' + pct + '%)</span></div>';
+  }).join('');
+}
+
+// ═══ TAB 3: FEATURES ═══
+function renderFeatures(events) {
+  renderFeatureBars(events);
+  renderFeaturePie(events);
+  renderHourChart(events);
+  renderHeatmapMatrix(events);
+}
+
+function renderFeatureBars(events) {
+  var el = document.getElementById('ft-bars');
+  if (!el) return;
+  var tc = {};
+  events.forEach(function(e) {
+    var n = e.tool;
+    if (n === '會員登入' || n === '測驗中心') return;
+    tc[n] = (tc[n] || 0) + 1;
+  });
+  var sorted = Object.entries(tc).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 10);
+  if (!sorted.length) { el.innerHTML = '<div class="aa-empty">尚無數據</div>'; return; }
+
+  var maxC = sorted[0][1];
+  var colors = ['#b8922a', '#78b4c8', '#9070c0', '#e07850', '#6bc47f', '#e5a84b', '#b0a490', '#a07040', '#607090', '#c08080'];
+
+  el.innerHTML = sorted.map(function(item, i) {
+    var pct = Math.round(item[1] / maxC * 100);
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:.82rem">'
+      + '<span style="width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--adm-text);flex-shrink:0;font-weight:' + (i < 3 ? '600' : '400') + '">'
+      + '<span style="color:' + (i === 0 ? 'var(--adm-gold)' : 'var(--adm-text3)') + ';margin-right:4px">' + (i + 1) + '.</span>' + escHtml(item[0]) + '</span>'
+      + '<div style="flex:1;height:16px;background:rgba(184,146,42,.04);border-radius:4px;overflow:hidden">'
+      + '<div style="height:100%;width:' + pct + '%;background:' + colors[i] + ';border-radius:4px;min-width:4px;transition:width .6s"></div></div>'
+      + '<span style="min-width:50px;text-align:right;color:var(--adm-text2);font-size:.75rem">' + item[1] + '</span></div>';
+  }).join('');
+}
+
+function renderFeaturePie(events) {
+  var el = document.getElementById('ft-pie');
+  if (!el) return;
+  var tc = {};
+  events.forEach(function(e) {
+    var n = e.tool;
+    if (n === '會員登入' || n === '測驗中心') return;
+    tc[n] = (tc[n] || 0) + 1;
+  });
+  var sorted = Object.entries(tc).sort(function(a, b) { return b[1] - a[1]; });
+  var top6 = sorted.slice(0, 6);
+  var other = sorted.slice(6).reduce(function(s, x) { return s + x[1]; }, 0);
+  if (other > 0) top6.push(['其他', other]);
+  if (!top6.length) { el.innerHTML = '<div class="aa-empty">尚無數據</div>'; return; }
+
+  var colors = ['#b8922a', '#78b4c8', '#9070c0', '#e07850', '#6bc47f', '#e5a84b', '#b0a490'];
+  var total = top6.reduce(function(s, x) { return s + x[1]; }, 0);
+
+  el.innerHTML = top6.map(function(item, i) {
+    var pct = Math.round(item[1] / total * 100);
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
+      + '<div style="width:8px;height:8px;border-radius:2px;background:' + colors[i] + ';flex-shrink:0"></div>'
+      + '<span style="width:80px;font-size:.78rem;color:var(--adm-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0">' + escHtml(item[0]) + '</span>'
+      + '<div style="flex:1;height:18px;background:rgba(184,146,42,.04);border-radius:4px;overflow:hidden">'
+      + '<div style="height:100%;width:' + pct + '%;background:' + colors[i] + ';border-radius:4px;min-width:4px;transition:width .6s"></div></div>'
+      + '<span style="min-width:60px;text-align:right;font-size:.72rem;color:var(--adm-text2);flex-shrink:0">' + item[1] + ' (' + pct + '%)</span></div>';
+  }).join('');
+}
+
+function renderHourChart(events) {
+  var el = document.getElementById('ft-hours');
+  if (!el) return;
+  var hours = new Array(24).fill(0);
+  events.forEach(function(e) { hours[e.hour]++; });
+  var maxH = Math.max.apply(null, hours) || 1;
+
+  el.innerHTML = hours.map(function(cnt, h) {
+    var ht = Math.max(3, Math.round(cnt / maxH * 80));
+    var peak = cnt === maxH && cnt > 0;
+    var bg = peak ? 'var(--adm-gold)' : 'rgba(184,146,42,' + (0.15 + (cnt / maxH) * 0.6).toFixed(2) + ')';
+    return '<div style="flex:1;height:' + ht + 'px;background:' + bg + ';border-radius:2px 2px 0 0;position:relative" title="' + h + '時 ' + cnt + '次">'
+      + (peak ? '<div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:.55rem;color:var(--adm-gold);font-weight:700">' + cnt + '</div>' : '')
+      + '</div>';
+  }).join('');
+}
+
+function renderHeatmapMatrix(events) {
+  var el = document.getElementById('ft-matrix');
+  if (!el) return;
+  var dayHour = {};
+  events.forEach(function(e) {
+    if (!dayHour[e.day]) dayHour[e.day] = {};
+    dayHour[e.day][e.hour] = (dayHour[e.day][e.hour] || 0) + 1;
+  });
+  var days = Object.keys(dayHour).sort().slice(-7);
+  if (!days.length) { el.innerHTML = '<div class="aa-empty">尚無數據</div>'; return; }
+
+  var maxVal = 0;
+  days.forEach(function(d) { for (var h = 0; h < 24; h++) { var v = dayHour[d] && dayHour[d][h] || 0; if (v > maxVal) maxVal = v; } });
+
+  var html = '<div style="display:grid;grid-template-columns:42px repeat(24,minmax(0,1fr));gap:2px;font-size:.6rem">';
+  html += '<div></div>';
+  for (var h = 0; h < 24; h++) html += '<div style="text-align:center;color:var(--adm-text3)">' + (h % 4 === 0 ? h : '') + '</div>';
+  days.forEach(function(d) {
+    var p = d.split('-');
+    html += '<div style="color:var(--adm-text3);display:flex;align-items:center;justify-content:flex-end;padding-right:4px;font-size:.6rem">' + parseInt(p[1]) + '/' + parseInt(p[2]) + '</div>';
+    for (var h = 0; h < 24; h++) {
+      var v = dayHour[d] && dayHour[d][h] || 0;
+      var intensity = maxVal > 0 ? v / maxVal : 0;
+      var bg = v === 0 ? 'rgba(184,146,42,0.03)' : 'rgba(184,146,42,' + (0.12 + intensity * 0.75).toFixed(2) + ')';
+      var tc = intensity > 0.4 ? 'rgba(42,31,14,0.85)' : 'rgba(184,146,42,0.3)';
+      html += '<div style="height:20px;border-radius:2px;background:' + bg + ';display:flex;align-items:center;justify-content:center;color:' + tc + ';font-size:.55rem" title="' + parseInt(p[1]) + '/' + parseInt(p[2]) + ' ' + h + '時: ' + v + '次">' + (v > 0 ? v : '') + '</div>';
+    }
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+})();
+</script>
+
+</body>
+</html>

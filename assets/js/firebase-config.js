@@ -277,3 +277,39 @@ var MEMBER_PLANS = {
     analysisLimit: 9999
   }
 };
+
+/**
+ * 會員到期自動降級
+ * 每次頁面載入時檢查 planExpiry，過期就自動降回 free
+ */
+(function(){
+  if(typeof firebase==='undefined') return;
+  function checkExpiry(){
+    try{
+      if(!firebase.apps||!firebase.apps.length) return;
+      firebase.auth().onAuthStateChanged(function(user){
+        if(!user) return;
+        var db=firebase.firestore();
+        db.doc('users/'+user.uid).get().then(function(doc){
+          if(!doc.exists) return;
+          var d=doc.data();
+          if(!d.plan||d.plan==='free') return;
+          if(!d.planExpiry) return;
+          var expiry=d.planExpiry;
+          if(expiry.toDate) expiry=expiry.toDate();
+          else if(typeof expiry==='string') expiry=new Date(expiry);
+          if(!(expiry instanceof Date)||isNaN(expiry)) return;
+          if(new Date()>expiry){
+            db.doc('users/'+user.uid).update({
+              plan:'free',
+              planExpiredAt:firebase.firestore.FieldValue.serverTimestamp(),
+              planExpiredFrom:d.plan
+            }).catch(function(){});
+          }
+        }).catch(function(){});
+      });
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(checkExpiry,2000);});
+  else setTimeout(checkExpiry,2000);
+})();

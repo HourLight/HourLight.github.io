@@ -207,10 +207,10 @@ body{background:var(--bg);color:rgba(255,255,255,.88);font-family:var(--sans);ov
 .r-div{width:32px;height:1px;margin:24px auto;opacity:.3;animation:au .5s .5s both}
 
 /* 展開層 */
-.layers{width:100%;max-width:520px;padding:0 20px;animation:au .5s .58s both}
+.layers{width:100%;max-width:520px;padding:0 20px;margin:0 auto;animation:au .5s .58s both}
 .layer{border-radius:14px;overflow:hidden;border:1px solid rgba(200,160,220,.18);margin-bottom:8px;transition:border-color .3s}
 .layer:hover{border-color:rgba(200,160,255,.25)}
-.layer-hd{width:100%;display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:rgba(14,8,28,.88);border:none;cursor:pointer;font-family:var(--sans);font-size:.82rem;color:rgba(200,180,240,.5);letter-spacing:.06em;transition:all .3s;text-align:left;backdrop-filter:blur(8px)}
+.layer-hd{width:100%;display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:rgba(14,8,28,.88);border:none;cursor:pointer;font-family:var(--sans);font-size:.82rem;color:rgba(200,180,240,.5);letter-spacing:.06em;transition:all .3s;text-align:left;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .layer-hd:hover{background:rgba(22,12,40,.95);color:var(--rc,#c070b0)}
 .layer-hd-l{display:flex;align-items:center;gap:9px}
 .layer-arr{font-size:.85rem;color:var(--rc,#f4a5c0);opacity:.4;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
@@ -235,7 +235,7 @@ body{background:var(--bg);color:rgba(255,255,255,.88);font-family:var(--sans);ov
 /* Toast & watermark */
 .toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(12px);padding:9px 22px;border-radius:999px;background:rgba(220,140,180,.95);color:#fff;font-size:.82rem;font-weight:600;z-index:9999;opacity:0;transition:all .32s;pointer-events:none;white-space:nowrap}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-.hl-wm{position:fixed;bottom:70px;right:12px;z-index:50;pointer-events:none;display:flex;align-items:center;gap:5px;background:rgba(240,230,250,.8);border:1px solid rgba(180,140,200,.2);border-radius:20px;padding:4px 11px 4px 8px;backdrop-filter:blur(8px)}
+.hl-wm{position:fixed;bottom:70px;right:12px;z-index:50;pointer-events:none;display:flex;align-items:center;gap:5px;background:rgba(240,230,250,.8);border:1px solid rgba(180,140,200,.2);border-radius:20px;padding:4px 11px 4px 8px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .hl-wm-dot{width:5px;height:5px;border-radius:50%;background:rgba(180,120,200,1);opacity:.55;flex-shrink:0}
 .hl-wm-t{font-size:.58rem;color:rgba(200,170,240,.42);letter-spacing:.05em;white-space:nowrap}
 
@@ -279,9 +279,29 @@ body{background:var(--bg);color:rgba(255,255,255,.88);font-family:var(--sans);ov
   .angel-deck:hover .ad:nth-child(2),
   .angel-deck:hover .ad:nth-child(1){transform:none}
 }
+
+/* ── Mobile App Touch Feel ── */
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+button,a,select,input[type=submit],input[type=button],.calc-btn,.draw-card{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+button:active,input[type=submit]:active,.calc-btn:active{transform:scale(.97);transition:transform .08s}
+select,input[type=text],input[type=number],input[type=date],input[type=email],textarea{font-size:16px!important}
+@media(max-width:600px){
+  body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  button,input[type=submit],input[type=button],.calc-btn{min-height:48px}
+}
 </style>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://hourlightkey.com/angel-oracle.html"/>
+<meta property="og:title" content="天使占卜｜夜深人靜，抽一張天使訊息｜馥靈之鑰"/>
+<meta property="og:description" content="需要被接住的時候，抽一張天使訊息。44張牌，放手、值得、等待、行動四個向度。每張都有溫柔的話、科學支持、香氣落地。馥靈之鑰原創占卜。"/>
+<meta property="og:image" content="https://hourlightkey.com/og-image.jpg"/>
+<meta name="twitter:card" content="summary_large_image"/>
 </head>
 <body>
+<img src="images/page-banners-web/angel-oracle.webp" alt="" style="width:100%;max-width:600px;max-height:180px;object-fit:cover;margin:0 auto 20px;display:block;border-radius:12px" loading="lazy" onerror="this.style.display='none'">
+
 
 <canvas id="starCanvas"></canvas>
 
@@ -633,8 +653,8 @@ function renderAngel(card){
   document.getElementById('sci-body').textContent=card.science;
   document.getElementById('aroma-body').textContent=card.aroma;
 
-  // 重置
-  document.querySelectorAll('.layer').forEach(l=>l.classList.remove('open'));
+  // 自動展開科學+香氣區塊（讓用戶直接看到完整內容）
+  document.querySelectorAll('.layer').forEach(l=>l.classList.add('open'));
 
   show('resultScreen');
   flash(c);
@@ -663,7 +683,7 @@ function showToast(m){const t=document.getElementById('toast');t.textContent=m;t
 <script src="assets/js/hl-music.js?v=20260309"></script>
 <script src="assets/js/hl-topnav.js"></script>
 <script src="assets/js/hl-bottomnav.js"></script>
-<script src="assets/js/hl-announce.js"></script>
+<script src="assets/js/hl-announce.js?v=4"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>

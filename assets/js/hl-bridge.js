@@ -31,7 +31,7 @@ var BRIDGES = {
   session_deep: [
     '有些座標，自己看得見，但走不出去。不是你不夠強，是你需要一個人幫你換個角度看。',
     '工具能照出你的輪廓，但輪廓裡的紋理，需要有人陪你慢慢看。',
-    '如果你看完之後覺得「對，但然後呢？」，那個「然後」，就是一對一調頻在做的事。'
+    '如果你看完之後覺得「對，但然後呢？」，那個「然後」，就是一對一深度解讀在做的事。'
   ],
 
   // 引向課程（專業）
@@ -67,7 +67,7 @@ window.HLBridge = function(type, intensity){
   var mainCTA, secondCTA;
   if (type === 'draw') {
     // 抽牌工具：已經用了牌卡，引向一對一
-    mainCTA = { text:'想要更深的解讀？', btn:'預約一對一調頻', url:'services.html' };
+    mainCTA = { text:'想要更深的解讀？', btn:'預約一對一解讀', url:'services.html' };
     secondCTA = { text:'或者，先從書開始', btn:'看看這本書', url:'book.html' };
   } else if (type === 'quiz') {
     // 心理測驗：引向牌卡體驗
@@ -75,12 +75,12 @@ window.HLBridge = function(type, intensity){
     secondCTA = { text:'想要有人陪你解讀', btn:'LINE 聊聊', url:'https://lin.ee/RdQBFAN' };
   } else if (type === 'guide') {
     // 觀想引導：引向一對一（最深層需求）
-    mainCTA = { text:'觀想是鑰匙，但有些門需要有人陪你推開', btn:'了解一對一調頻', url:'services.html' };
+    mainCTA = { text:'觀想是鑰匙，但有些門需要有人陪你推開', btn:'了解一對一解讀', url:'services.html' };
     secondCTA = { text:'或者，用牌卡繼續跟自己對話', btn:'馥靈牌卡', url:'draw-hl.html' };
   } else {
     // 命理計算（預設）：引向牌卡
     mainCTA = { text:cardLine, btn:'抽一張牌，聽聽自己的聲音', url:'draw-hl.html' };
-    secondCTA = { text:sessionLine, btn:'了解一對一調頻', url:'services.html' };
+    secondCTA = { text:sessionLine, btn:'了解一對一解讀', url:'services.html' };
   }
 
   // 輕觸模式：只顯示一個按鈕

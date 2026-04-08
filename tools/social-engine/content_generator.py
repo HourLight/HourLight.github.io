@@ -37,9 +37,16 @@ def generate_content(api_key, topic, time_slot="evening", extra_context=""):
 請輸出 JSON 格式：
 {{
   "fb_post": "Facebook 版文案（繁體中文）",
-  "threads_post": "Threads 版文案（繁體中文，100字以內）",
+  "threads_post": "Threads 版文案（繁體中文，150字以內，要像真人在寫，不能有AI感）",
+  "threads_self_reply": "發文後自己回的第一則留言（延伸一個有趣的補充或自問自答，50字以內，啟動對話用）",
   "hashtags": ["標籤1", "標籤2", "標籤3"]
 }}
+
+Threads 版重要規則：
+- 像真人在寫，不是AI生成的感覺。要有口語、有停頓、有個性。
+- 結尾用具體問句（不要「妳覺得呢？」要「妳上次被精油救到是什麼時候？」這種）
+- 最後自然帶一句「Bio 裡有...」導流，不放連結
+- self_reply 是發文後自己回覆第一則，啟動對話讓演算法推文
 
 只輸出 JSON，不要其他文字。"""
 
@@ -83,6 +90,50 @@ def generate_content(api_key, topic, time_slot="evening", extra_context=""):
             }
     except Exception as e:
         return {'success': False, 'error': str(e)}
+
+
+def generate_image_prompt(fb_post, topic):
+    """從文案內容自動產生 DALL-E 配圖 prompt"""
+    # 取文案前 100 字作為主題參考
+    snippet = fb_post[:100] if fb_post else topic
+    return f"Professional social media banner, warm aesthetic photography style. Theme: {topic}. Abstract representation related to wellness, self-awareness, and personal growth. Warm golden light, soft bokeh background, minimal and elegant composition. NO text, NO letters, NO words, NO watermark. Cinematic quality, Instagram-worthy, 16:9 landscape ratio."
+
+
+def generate_dalle_image(openai_key, prompt, save_path):
+    """用 DALL-E 3 生成配圖"""
+    try:
+        request_body = json.dumps({
+            "model": "dall-e-3",
+            "prompt": prompt,
+            "n": 1,
+            "size": "1792x1024",
+            "quality": "standard"
+        }).encode('utf-8')
+
+        req = urllib.request.Request(
+            'https://api.openai.com/v1/images/generations',
+            data=request_body,
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {openai_key}'
+            },
+            method='POST'
+        )
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            result = json.loads(resp.read().decode())
+            img_url = result['data'][0]['url']
+
+            # Download image
+            img_req = urllib.request.Request(img_url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(img_req, timeout=60) as img_resp:
+                import os
+                os.makedirs(os.path.dirname(save_path), exist_ok=True)
+                with open(save_path, 'wb') as f:
+                    f.write(img_resp.read())
+            return save_path
+    except Exception as e:
+        print(f"  DALL-E error: {e}")
+        return None
 
 
 def generate_daily_content(api_key, topics):

@@ -16,6 +16,7 @@
     initNavToggle();
     initMusicPlayer();
     initSmoothScroll();
+    initImgErrorHandlers();
   });
 
   // ==================== 滾動動畫觀察器 ====================
@@ -139,6 +140,13 @@
     });
   }
 
+  // ==================== 圖片錯誤處理 ====================
+  function initImgErrorHandlers() {
+    document.querySelectorAll('img:not([onerror])').forEach(function(img) {
+      img.onerror = function() { this.style.display = 'none'; };
+    });
+  }
+
   // ==================== 工具函數 ====================
   
   // 延遲執行
@@ -187,5 +195,12 @@
     s.defer = true;
     document.head.appendChild(s);
   })();
+
+  // ==================== 全域圖片載入失敗處理 ====================
+  document.addEventListener('error', function(e) {
+    if (e.target && e.target.tagName === 'IMG') {
+      e.target.style.display = 'none';
+    }
+  }, true);
 
 })();

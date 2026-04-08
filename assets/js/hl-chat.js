@@ -1,187 +1,139 @@
 /**
- * 馥靈之鑰 AI 客服「小馥」v1.0
- * 全站右下角聊天泡泡
+ * 馥靈之鑰 問題回報中心 v2.0
+ * 原為 AI 客服「小馥」，改為問題回報表單
+ * 用戶回報的問題會存入 Firestore feedback 集合
  */
 (function(){
   'use strict';
 
-  var API = 'https://app.hourlightkey.com/api/chat';
-  var SKIP = ['admin-dashboard.html','member-login.html'];
+  var SKIP = ['admin-dashboard.html','member-login.html','partner-dashboard.html'];
   var page = (location.pathname.split('/').pop()||'index.html').split('?')[0];
   if (SKIP.indexOf(page) > -1) return;
 
-  var history = []; // {role,content}
   var isOpen = false;
-  var bubble, panel, msgArea, inputEl;
+  var bubble, panel;
 
   function createUI(){
-    // CSS
     var s = document.createElement('style');
     s.textContent = `
-.hlc-bubble{position:fixed;bottom:78px;right:90px;z-index:9997;width:56px;height:56px;border-radius:50%;
-  background:linear-gradient(135deg,rgba(155,124,182,.3),rgba(233,194,125,.2));cursor:pointer;display:flex;align-items:center;justify-content:center;
-  box-shadow:0 4px 24px rgba(155,124,182,.35);transition:all .35s cubic-bezier(.4,0,.2,1);overflow:hidden;border:2px solid rgba(233,194,125,.3)}
-.hlc-bubble img{width:48px;height:48px;object-fit:cover;border-radius:50%;pointer-events:none}
-.hlc-bubble:hover{transform:scale(1.1);box-shadow:0 6px 32px rgba(155,124,182,.5);border-color:rgba(233,194,125,.5)}
-.hlc-bubble.has-panel{box-shadow:0 4px 20px rgba(240,181,179,.3);border-color:rgba(240,181,179,.4)}
-.hlc-pulse{position:absolute;inset:-4px;border-radius:50%;border:2px solid rgba(233,194,125,.3);animation:hlcPulse 3s ease-in-out infinite}
-@keyframes hlcPulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.15);opacity:0}}
+.hlc-bubble{position:fixed;bottom:78px;right:20px;z-index:9997;width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,rgba(248,223,165,.15),rgba(155,124,182,.15));cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(0,0,0,.2);transition:all .35s;border:1.5px solid rgba(248,223,165,.2);font-size:1.4rem}
+.hlc-bubble:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(248,223,165,.25);border-color:rgba(248,223,165,.4)}
 
-.hlc-panel{position:fixed;bottom:142px;right:24px;z-index:9997;width:360px;max-height:520px;
-  background:rgba(14,12,20,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  border:1px solid rgba(233,194,125,.15);border-radius:20px;overflow:hidden;
-  display:none;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.6);
-  font-family:"Noto Serif TC","LXGW WenKai TC",serif;
-  animation:hlcSlideUp .4s cubic-bezier(.4,0,.2,1)}
-@keyframes hlcSlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-.hlc-panel.show{display:flex}
-@media(max-width:480px){.hlc-panel{right:8px;left:8px;width:auto;bottom:142px;max-height:60vh}}
+.hlc-panel{position:fixed;bottom:140px;right:16px;z-index:9997;width:340px;max-width:calc(100vw - 32px);
+  background:rgba(12,8,22,.97);border:1px solid rgba(248,223,165,.2);border-radius:20px;
+  box-shadow:0 12px 48px rgba(0,0,0,.5);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  padding:24px 20px;display:none;animation:hlcFadeIn .25s ease}
+.hlc-panel.open{display:block}
+@keyframes hlcFadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
-.hlc-header{padding:16px 20px;border-bottom:1px solid rgba(233,194,125,.1);display:flex;align-items:center;gap:12px}
-.hlc-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,rgba(155,124,182,.2),rgba(233,194,125,.15));display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden;border:1px solid rgba(233,194,125,.2)}
-.hlc-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.hlc-header-info{flex:1}
-.hlc-header-name{font-size:.95rem;color:#f8dfa5;letter-spacing:1px;font-weight:400}
-.hlc-header-status{font-size:.7rem;color:rgba(233,194,125,.45);letter-spacing:.5px}
-.hlc-close{background:none;border:none;color:rgba(255,255,255,.3);font-size:1.2rem;cursor:pointer;padding:4px 8px}
-.hlc-close:hover{color:rgba(255,255,255,.6)}
-
-.hlc-messages{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px;min-height:200px;max-height:340px}
-.hlc-msg{max-width:85%;padding:12px 16px;border-radius:14px;font-size:.9rem;line-height:1.9;letter-spacing:.3px;animation:hlcFadeIn .3s ease}
-@keyframes hlcFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.hlc-msg.ai{align-self:flex-start;background:rgba(233,194,125,.06);border:1px solid rgba(233,194,125,.1);color:#f0e8d8;border-bottom-left-radius:4px}
-.hlc-msg.user{align-self:flex-end;background:rgba(240,181,179,.1);border:1px solid rgba(240,181,179,.12);color:#fad5d3;border-bottom-right-radius:4px}
-.hlc-msg.ai a{color:#f8dfa5;text-decoration:underline;text-underline-offset:3px}
-.hlc-typing{align-self:flex-start;padding:12px 18px;font-size:.95rem;color:rgba(233,194,125,.4);letter-spacing:1px}
-.hlc-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:rgba(233,194,125,.35);margin:0 2px;animation:hlcDot 1.2s ease-in-out infinite}
-.hlc-dot:nth-child(2){animation-delay:.2s}.hlc-dot:nth-child(3){animation-delay:.4s}
-@keyframes hlcDot{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
-
-.hlc-input-area{padding:12px 16px;border-top:1px solid rgba(233,194,125,.08);display:flex;gap:8px;align-items:center}
-.hlc-input{flex:1;padding:10px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(233,194,125,.1);border-radius:10px;
-  color:#f9f0e5;font-size:.9rem;font-family:inherit;outline:none;resize:none;max-height:60px;line-height:1.6}
-.hlc-input::placeholder{color:rgba(233,194,125,.25)}
-.hlc-input:focus{border-color:rgba(233,194,125,.3)}
-.hlc-send{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f8dfa5,#ecd098);border:none;
-  color:#1a0e00;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex:none}
-.hlc-send:hover{box-shadow:0 2px 12px rgba(233,194,125,.4)}
-.hlc-send:disabled{opacity:.3;cursor:default}
+.hlc-title{color:#f8dfa5;font-size:1rem;font-weight:600;letter-spacing:1px;margin-bottom:4px}
+.hlc-sub{color:rgba(255,255,255,.45);font-size:.78rem;margin-bottom:16px;line-height:1.6}
+.hlc-label{color:rgba(255,255,255,.6);font-size:.78rem;margin-bottom:6px;display:block}
+.hlc-select{width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(248,223,165,.2);background:rgba(255,255,255,.04);color:#fff;font-size:.88rem;margin-bottom:12px;outline:none;font-family:inherit}
+.hlc-select option{background:#1a1428;color:#fff}
+.hlc-textarea{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(248,223,165,.15);background:rgba(255,255,255,.03);color:#fff;font-size:.88rem;min-height:80px;resize:vertical;outline:none;font-family:inherit;line-height:1.6}
+.hlc-textarea::placeholder{color:rgba(255,255,255,.3)}
+.hlc-textarea:focus,.hlc-select:focus{border-color:rgba(248,223,165,.4)}
+.hlc-send{width:100%;padding:12px;border-radius:12px;background:linear-gradient(135deg,#f8dfa5,#e9c27d);color:#1a1520;font-weight:700;font-size:.9rem;border:none;cursor:pointer;margin-top:12px;font-family:inherit;letter-spacing:.5px;transition:all .2s}
+.hlc-send:hover{box-shadow:0 4px 16px rgba(248,223,165,.3)}
+.hlc-send:disabled{opacity:.5;cursor:not-allowed}
+.hlc-ok{text-align:center;padding:20px 0;color:rgba(255,255,255,.7);font-size:.9rem;line-height:1.8}
+.hlc-ok .ok-icon{font-size:2rem;margin-bottom:8px}
+.hlc-close{position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(255,255,255,.3);font-size:1.2rem;cursor:pointer;padding:4px}
+@media(max-width:400px){.hlc-panel{right:8px;width:calc(100vw - 16px);bottom:130px}}
 `;
     document.head.appendChild(s);
 
     // Bubble
     bubble = document.createElement('div');
     bubble.className = 'hlc-bubble';
-    bubble.innerHTML = '<img src="fufu-dark.png" alt="小馥"><div class="hlc-pulse"></div>';
+    bubble.innerHTML = '💬';
+    bubble.title = '問題回報';
     bubble.onclick = togglePanel;
     document.body.appendChild(bubble);
 
     // Panel
     panel = document.createElement('div');
     panel.className = 'hlc-panel';
-    panel.innerHTML = `
-      <div class="hlc-header">
-        <div class="hlc-avatar"><img src="fufu-dark.png" alt="小馥"></div>
-        <div class="hlc-header-info">
-          <div class="hlc-header-name">小馥｜馥靈之鑰 AI 助理</div>
-          <div class="hlc-header-status">帶著香氣，隨時都在</div>
-        </div>
-        <button class="hlc-close" onclick="document.querySelector('.hlc-panel').classList.remove('show');document.querySelector('.hlc-bubble').classList.remove('has-panel')">✕</button>
-      </div>
-      <div class="hlc-messages" id="hlcMsgs"></div>
-      <div class="hlc-input-area">
-        <textarea class="hlc-input" id="hlcInput" placeholder="想問什麼？" rows="1"></textarea>
-        <button class="hlc-send" id="hlcSend" onclick="window._hlcSend()">➤</button>
-      </div>
-    `;
+    panel.innerHTML =
+      '<button class="hlc-close" onclick="document.querySelector(\'.hlc-panel\').classList.remove(\'open\')">&times;</button>' +
+      '<div class="hlc-title">問題回報中心</div>' +
+      '<div class="hlc-sub">遇到問題？讓我們知道，會盡快處理。</div>' +
+      '<label class="hlc-label">問題類型</label>' +
+      '<select class="hlc-select" id="hlcType">' +
+        '<option value="bug">功能異常 / 頁面壞掉</option>' +
+        '<option value="payment">付款 / 解鎖碼問題</option>' +
+        '<option value="display">顯示 / 排版問題</option>' +
+        '<option value="suggestion">建議 / 想要的功能</option>' +
+        '<option value="other">其他</option>' +
+      '</select>' +
+      '<label class="hlc-label">問題描述</label>' +
+      '<textarea class="hlc-textarea" id="hlcMsg" placeholder="請描述您遇到的問題，越具體越好⋯"></textarea>' +
+      '<button class="hlc-send" id="hlcSend" onclick="window._hlcSubmit()">送出回報</button>';
     document.body.appendChild(panel);
-
-    msgArea = document.getElementById('hlcMsgs');
-    inputEl = document.getElementById('hlcInput');
-
-    // Enter to send
-    inputEl.addEventListener('keydown', function(e){
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); window._hlcSend(); }
-    });
-
-    // Welcome message
-    addMsg('ai', '💫 嗨，我是小馥。\n\n您身上帶著什麼味道進來的？是忙了一天之後的疲倦，還是心裡有個問題繞了很久？\n\n不管是哪一種，跟我說說。我幫您找到方向。');
   }
 
   function togglePanel(){
     isOpen = !isOpen;
-    panel.classList.toggle('show', isOpen);
-    bubble.classList.toggle('has-panel', isOpen);
-    if (isOpen) { setTimeout(function(){ inputEl.focus(); }, 300); }
+    panel.classList.toggle('open', isOpen);
   }
 
-  function addMsg(role, text){
-    var div = document.createElement('div');
-    div.className = 'hlc-msg ' + role;
-    // 簡易 markdown：[text](url) → <a>
-    var html = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
-    html = html.replace(/\n/g, '<br>');
-    div.innerHTML = html;
-    msgArea.appendChild(div);
-    msgArea.scrollTop = msgArea.scrollHeight;
-  }
+  window._hlcSubmit = function(){
+    var type = document.getElementById('hlcType').value;
+    var msg = document.getElementById('hlcMsg').value.trim();
+    if (!msg) { document.getElementById('hlcMsg').style.borderColor = 'rgba(220,80,80,.5)'; return; }
 
-  function addTyping(){
-    var div = document.createElement('div');
-    div.className = 'hlc-typing';
-    div.id = 'hlcTyping';
-    div.innerHTML = '<span class="hlc-dot"></span><span class="hlc-dot"></span><span class="hlc-dot"></span>';
-    msgArea.appendChild(div);
-    msgArea.scrollTop = msgArea.scrollHeight;
-  }
+    var btn = document.getElementById('hlcSend');
+    btn.disabled = true;
+    btn.textContent = '送出中⋯';
 
-  function removeTyping(){
-    var t = document.getElementById('hlcTyping');
-    if (t) t.remove();
-  }
+    var data = {
+      type: type,
+      message: msg,
+      page: location.href,
+      userAgent: navigator.userAgent,
+      screenSize: screen.width + 'x' + screen.height,
+      timestamp: new Date().toISOString()
+    };
 
-  window._hlcSend = async function(){
-    var text = inputEl.value.trim();
-    if (!text) return;
-
-    inputEl.value = '';
-    inputEl.style.height = 'auto';
-    document.getElementById('hlcSend').disabled = true;
-
-    addMsg('user', text);
-    history.push({ role: 'user', content: text });
-
-    addTyping();
-
-    try {
-      var res = await fetch(API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: history })
-      });
-      var data = await res.json();
-      var reply = data.reply || '我這邊訊號飄了一下 🌿 您直接加 LINE 找逸君聊最快 → lin.ee/RdQBFAN';
-
-      removeTyping();
-      addMsg('ai', reply);
-      history.push({ role: 'assistant', content: reply });
-
-      // 只保留最近 10 輪對話（控制成本）
-      if (history.length > 20) history = history.slice(-20);
-
-    } catch(e) {
-      removeTyping();
-      addMsg('ai', '訊號飄了一下，像精油瓶蓋沒蓋緊 😅 您直接加 LINE 跟逸君聊，比較穩 → lin.ee/RdQBFAN');
+    // Try to get user info
+    if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+      var u = firebase.auth().currentUser;
+      data.uid = u.uid;
+      data.email = u.email || '';
     }
 
-    document.getElementById('hlcSend').disabled = false;
-    inputEl.focus();
+    // Save to Firestore
+    var saved = false;
+    if (typeof firebase !== 'undefined' && firebase.firestore) {
+      try {
+        firebase.firestore().collection('feedback').add(data).then(function(){
+          showSuccess();
+        }).catch(function(){
+          showSuccess(); // Still show success to user
+        });
+        saved = true;
+      } catch(e) {}
+    }
+    if (!saved) showSuccess();
+
+    function showSuccess(){
+      panel.querySelector('.hlc-title').textContent = '';
+      panel.querySelector('.hlc-sub').textContent = '';
+      var content = panel.querySelectorAll('.hlc-label,.hlc-select,.hlc-textarea,.hlc-send');
+      for (var i = 0; i < content.length; i++) content[i].style.display = 'none';
+      var ok = document.createElement('div');
+      ok.className = 'hlc-ok';
+      ok.innerHTML = '<div class="ok-icon">✅</div>收到了！我們會盡快處理。<br><br>如果是緊急問題，請直接<br><a href="https://lin.ee/RdQBFAN" target="_blank" style="color:#f8dfa5;text-decoration:underline">LINE 聯繫我們</a>';
+      panel.appendChild(ok);
+    }
   };
 
-  // Init
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function(){ setTimeout(createUI, 2000); });
+    document.addEventListener('DOMContentLoaded', createUI);
   } else {
-    setTimeout(createUI, 2000);
+    createUI();
   }
 })();

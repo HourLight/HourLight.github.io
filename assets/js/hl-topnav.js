@@ -42,7 +42,7 @@
   max-height:70vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.5)}
 .htn-dropdown.show{display:block;animation:htnDown .25s ease}
 @keyframes htnDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
-.htn-dropdown a{display:block;color:rgba(244,240,235,.75);font-size:.85rem;padding:11px 14px;border-radius:10px;text-decoration:none;letter-spacing:.05em;transition:all .2s}
+.htn-dropdown a{display:block;color:rgba(244,240,235,.75);font-size:.85rem;padding:13px 14px;border-radius:10px;text-decoration:none;letter-spacing:.05em;transition:all .2s;min-height:44px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .htn-dropdown a:hover,.htn-dropdown a.active{color:#f0d48a;background:rgba(240,212,138,.05)}
 .htn-dropdown .htn-group{font-size:.7rem;color:rgba(200,188,170,.4);letter-spacing:.12em;padding:14px 14px 6px;text-transform:uppercase}
 @media(max-width:768px){

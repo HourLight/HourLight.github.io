@@ -67,8 +67,8 @@
       // href 是 javascript: 的連結
       if (/^javascript:/i.test(el.getAttribute('href')||'')) return true;
     }
-    if (tag==='select'||tag==='textarea') return true;
-    if (tag==='input' && el.closest && el.closest('form') && !/^(hidden|search)$/i.test(el.type||'')) return true;
+    // select / textarea / 一般 input 是資料輸入元素，不攔截
+    // 原本攔截 select/textarea 會導致用戶無法填寫生日、性別、問題等欄位
 
     return false;
   }
@@ -101,8 +101,30 @@
     document.getElementById('hlGG').onclick = function(){
       var b=this; b.textContent='登入中...'; b.style.opacity='.5'; b.style.pointerEvents='none';
       try {
-        firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(function(){
+        firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(function(cred){
           isLoggedIn=true; hideOL();
+          // 確保 Firestore users/{uid} 文件存在
+          try {
+            var u=cred.user, db=firebase.firestore(), ref=db.collection('users').doc(u.uid);
+            ref.get().then(function(snap){
+              if(!snap.exists){
+                ref.set({
+                  displayName:u.displayName||u.email.split('@')[0],
+                  email:u.email,
+                  plan:'free',
+                  createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+                  lastSeen:firebase.firestore.FieldValue.serverTimestamp(),
+                  totalDraws:0,totalQuizzes:0,totalCalcs:0,totalPageViews:0
+                });
+              } else {
+                ref.update({lastSeen:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){});
+              }
+              // 綁定推薦碼
+              if(window.hlReferral&&window.hlReferral.bindToUser) try{window.hlReferral.bindToUser(u.uid,u.email);}catch(e){}
+              // 確保推薦碼
+              if(window.hlReferral&&window.hlReferral.ensureUserCode) try{window.hlReferral.ensureUserCode(u.uid,u.email);}catch(e){}
+            }).catch(function(){});
+          } catch(e){}
           if(pendingAction){try{pendingAction();}catch(e){} pendingAction=null;}
         }).catch(function(){
           b.textContent='登入失敗，請再試一次'; b.style.opacity='1'; b.style.pointerEvents='auto';

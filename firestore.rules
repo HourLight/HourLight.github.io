@@ -93,10 +93,10 @@ service cloud.firestore {
 
     // ═══ 解讀代碼（reading_codes，新版）═══
     // reading_codes/{CODE} → { n, price, used, memo, createdBy, createdAt, usedAt }
+    // 所有登入用戶可讀（驗證碼）+ 可 create（抽獎/城堡兌換生碼）+ 可 update（標記已用）
     match /reading_codes/{codeId} {
       allow read: if true;
-      allow create: if request.auth != null
-        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+      allow create: if request.auth != null;
       allow update: if request.auth != null;
     }
 
@@ -118,6 +118,12 @@ service cloud.firestore {
     match /april_gifts/{docId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+    match /april_gifts_r2/{docId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow write: if request.auth != null;
     }
 
     // ═══ 推薦獎勵 ═══
@@ -142,6 +148,30 @@ service cloud.firestore {
     match /users/{userId}/history/{docId} {
       allow read: if request.auth != null && request.auth.uid == userId;
       allow create: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // ═══ 抽牌 session（寵物/家族/SPA/美甲）═══
+    match /pet_sessions/{sessionId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+    }
+    match /family_sessions/{sessionId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+    }
+    match /spa_sessions/{sessionId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+    }
+    match /nail_sessions/{sessionId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+    }
+
+    // ═══ 問題回報 ═══
+    match /feedback/{docId} {
+      allow read: if request.auth != null;
+      allow create: if true;  // 未登入也可回報
     }
 
     // ═══ 事件追蹤 ═══

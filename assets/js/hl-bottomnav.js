@@ -5,6 +5,13 @@
  */
 (function () {
   'use strict';
+  // -- iOS img onerror global fallback --
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('img').forEach(function(img){
+      if(!img.onerror) img.onerror = function(){ this.style.display='none'; };
+    });
+  });
+
 
   // ── 告訴 hl-music.js 不要自己建浮動按鈕 ──
   window.HLBottomNavActive = true;
@@ -76,7 +83,8 @@
   position: fixed;
   bottom: 0; left: 0; right: 0;
   z-index: 9999;
-  height: 58px;
+  height: calc(58px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   background: rgba(14, 9, 28, 0.97);
   border-top: 1px solid rgba(233,194,125,0.18);
   backdrop-filter: blur(12px);
@@ -98,11 +106,13 @@
   border: none;
   background: none;
   font-family: inherit;
-  padding: 6px 0 4px;
+  padding: 8px 0 6px;
+  min-height: 48px;
   position: relative;
   transition: color 0.18s;
-  gap: 2px;
+  gap: 3px;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 .hl-bn-item:hover, .hl-bn-item.active {
   color: #f8dfa5;
@@ -116,8 +126,8 @@
   border-radius: 0 0 2px 2px;
 }
 .hl-bn-icon {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -179,14 +189,14 @@
 }
 /* 手機：隱藏 label，縮小 */
 @media (max-width: 480px) {
-  #hl-bottom-nav { height: 54px; }
+  #hl-bottom-nav { height: calc(54px + env(safe-area-inset-bottom, 0px)); }
   .hl-bn-icon { width: 22px; height: 22px; }
   .hl-bn-label { display: none; }
   .hl-bn-tip { display: none; }
 }
-/* body padding 避免內容被蓋住 */
-body { padding-bottom: 68px !important; }
-@media (max-width: 480px) { body { padding-bottom: 60px !important; } }
+/* body padding 避免內容被蓋住（含 iPhone 底部安全區域） */
+body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important; }
+@media (max-width: 480px) { body { padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important; } }
 `;
 
   // ── 建立 style tag ──
@@ -225,6 +235,15 @@ body { padding-bottom: 68px !important; }
   });
 
   document.body.appendChild(nav);
+
+  // ── 在 footer-links 注入「AI 認識我們」連結 ──
+  var footerLinks = document.querySelector('.hl-footer-links');
+  if (footerLinks && !footerLinks.querySelector('a[href="ai-about.html"]')) {
+    var aiLink = document.createElement('a');
+    aiLink.href = 'ai-about.html';
+    aiLink.textContent = 'AI 認識我們';
+    footerLinks.appendChild(aiLink);
+  }
 
   // ── 音樂整合 ──
   var musicBtn = document.getElementById('hl-bn-music');

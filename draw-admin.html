@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>自用抽牌｜馥靈之鑰</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   馥靈之鑰 自用抽牌 v1.0
+   Light theme, mobile-first, premium card drawing experience
+   ═══════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #faf6ef;
+  --bg2: #f3ede3;
+  --card-bg: #ffffff;
+  --border: rgba(184,146,42,.15);
+  --border-strong: rgba(184,146,42,.3);
+  --gold: #b8922a;
+  --gold-light: #d4ad3a;
+  --gold-glow: rgba(184,146,42,.35);
+  --gold-bg: rgba(184,146,42,.08);
+  --text: #2a1f0e;
+  --text2: rgba(42,31,14,.65);
+  --text3: rgba(42,31,14,.4);
+  --green: #1a8a4a;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.06), 0 1px 4px rgba(0,0,0,.04);
+  --shadow-gold: 0 0 0 2px var(--gold), 0 4px 20px var(--gold-glow);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Noto Sans TC", -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh; min-height: 100dvh;
+  color-scheme: light;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: contain;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ─── Top Bar ─── */
+.da-topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(250,246,239,.97);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px; height: 56px;
+  display: flex; align-items: center; gap: 12px;
+}
+.da-topbar-brand {
+  font-family: "Noto Serif TC", serif; color: var(--gold);
+  font-size: .95rem; letter-spacing: .04em; font-weight: 500;
+}
+.da-topbar-spacer { flex: 1; }
+.da-topbar-link {
+  padding: 6px 14px; background: var(--gold-bg); border: 1px solid var(--border);
+  border-radius: 20px; color: var(--gold); font-size: .78rem; text-decoration: none;
+  white-space: nowrap; -webkit-transition: .2s; transition: .2s;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+.da-topbar-link:hover { background: rgba(184,146,42,.14); }
+
+/* ─── Main Container ─── */
+.da-main {
+  max-width: 800px; margin: 0 auto; padding: 24px 20px 40px;
+}
+
+/* ─── Section Cards ─── */
+.da-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  margin-bottom: 16px; overflow: hidden;
+}
+.da-card-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 20px; border-bottom: 1px solid var(--border);
+}
+.da-card-title {
+  font-size: .88rem; color: var(--gold); font-weight: 500; letter-spacing: .02em;
+}
+.da-card-body { padding: 20px; }
+
+/* ─── Form Elements ─── */
+.da-label {
+  display: block; font-size: .78rem; color: var(--text2);
+  margin-bottom: 6px; font-weight: 500;
+}
+.da-textarea {
+  width: 100%; padding: 12px 14px; background: #fff;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text); font-size: 16px !important; font-family: inherit;
+  -webkit-transition: border-color .2s; transition: border-color .2s;
+  min-height: 80px; resize: vertical; line-height: 1.7;
+}
+.da-textarea:focus {
+  outline: none; border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(184,146,42,.1);
+}
+.da-select {
+  width: 100%; padding: 12px 14px; background: #fff;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text); font-size: 16px !important; font-family: inherit;
+  -webkit-transition: border-color .2s; transition: border-color .2s;
+  -webkit-appearance: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23b8922a' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+.da-select:focus {
+  outline: none; border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(184,146,42,.1);
+}
+
+/* ─── Buttons ─── */
+.da-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 12px 24px; border-radius: var(--radius-sm); font-size: .9rem;
+  font-weight: 500; cursor: pointer; font-family: inherit;
+  -webkit-transition: all .2s; transition: all .2s;
+  border: none; min-height: 48px; white-space: nowrap;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+.da-btn:active { -webkit-transform: scale(.97); transform: scale(.97); }
+.da-btn-gold {
+  background: linear-gradient(135deg, #c9a044, #e8c860); color: #1a1008;
+  box-shadow: var(--shadow-md); width: 100%;
+}
+.da-btn-gold:hover { opacity: .9; }
+.da-btn-gold:disabled { opacity: .4; cursor: not-allowed; }
+.da-btn-outline {
+  background: transparent; border: 1px solid var(--border); color: var(--text2);
+}
+.da-btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+.da-btn-copy {
+  background: linear-gradient(135deg, #c9a044, #e8c860); color: #1a1008;
+  box-shadow: var(--shadow-md); width: 100%; font-size: 1rem; padding: 14px 24px;
+}
+
+/* ─── Card Grid ─── */
+.da-card-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  padding: 8px 0;
+}
+
+/* ─── Individual Card ─── */
+.da-draw-card {
+  position: relative;
+  aspect-ratio: 2/3;
+  cursor: pointer;
+  -webkit-perspective: 800px; perspective: 800px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.da-draw-card.disabled { pointer-events: none; opacity: .5; }
+
+.da-card-inner {
+  position: relative; width: 100%; height: 100%;
+  -webkit-transition: -webkit-transform .6s ease;
+  transition: transform .6s ease;
+  -webkit-transform-style: preserve-3d; transform-style: preserve-3d;
+}
+.da-draw-card.flipped .da-card-inner {
+  -webkit-transform: rotateY(180deg); transform: rotateY(180deg);
+}
+
+.da-card-front, .da-card-back {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  -webkit-backface-visibility: hidden; backface-visibility: hidden;
+  border-radius: var(--radius-sm); overflow: hidden;
+  border: 2px solid var(--border);
+  -webkit-transition: border-color .2s, box-shadow .2s;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.da-card-front {
+  background: linear-gradient(135deg, #1a1030, #2a1848, #1a1030);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 4px;
+}
+.da-card-front-icon { font-size: 1.6rem; opacity: .6; }
+.da-card-front-label {
+  font-size: .6rem; color: rgba(248,223,165,.5); letter-spacing: .15em;
+  font-family: "Noto Serif TC", serif;
+}
+
+.da-card-back {
+  -webkit-transform: rotateY(180deg); transform: rotateY(180deg);
+  background: var(--card-bg);
+}
+.da-card-back img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+
+/* Selected state */
+.da-draw-card.selected .da-card-front {
+  border-color: var(--gold);
+  box-shadow: var(--shadow-gold);
+}
+.da-draw-card.selected .da-card-front::after {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(184,146,42,.15);
+  border-radius: inherit;
+}
+
+/* Flipped card gold border */
+.da-draw-card.flipped .da-card-back {
+  border-color: var(--gold);
+  box-shadow: 0 4px 16px rgba(184,146,42,.2);
+}
+
+/* Reversed indicator */
+.da-reversed-badge {
+  position: absolute; bottom: 4px; left: 50%;
+  -webkit-transform: translateX(-50%) rotateY(180deg);
+  transform: translateX(-50%) rotateY(180deg);
+  background: rgba(192,64,64,.85); color: #fff;
+  font-size: .6rem; padding: 2px 6px; border-radius: 4px;
+  z-index: 2; white-space: nowrap;
+  -webkit-backface-visibility: hidden; backface-visibility: hidden;
+}
+
+/* ─── Progress Counter ─── */
+.da-progress {
+  text-align: center; padding: 12px 0 8px;
+  font-size: .88rem; color: var(--text2);
+}
+.da-progress strong { color: var(--gold); font-weight: 600; }
+
+/* ─── Result Area ─── */
+.da-result {
+  display: none; margin-top: 0;
+}
+.da-result.show { display: block; }
+
+.da-result-list {
+  display: flex; flex-direction: column; gap: 8px;
+  margin-bottom: 16px;
+}
+.da-result-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; background: var(--gold-bg);
+  border-radius: var(--radius-sm); border: 1px solid var(--border);
+}
+.da-result-pos {
+  font-size: .75rem; color: var(--gold); font-weight: 600;
+  min-width: 40px; text-align: center;
+}
+.da-result-img {
+  width: 40px; height: 60px; border-radius: 4px;
+  object-fit: cover; border: 1px solid var(--border);
+}
+.da-result-info { flex: 1; }
+.da-result-code { font-size: .88rem; color: var(--text); font-weight: 500; }
+.da-result-orient { font-size: .78rem; margin-left: 8px; }
+.da-result-orient.upright { color: var(--green); }
+.da-result-orient.reversed { color: #b07020; }
+
+/* ─── Selected Cards Preview ─── */
+.da-selected-preview {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  justify-content: center; padding: 8px 0;
+  min-height: 48px;
+}
+.da-selected-thumb {
+  width: 36px; height: 54px; border-radius: 4px;
+  border: 1.5px solid var(--gold); overflow: hidden;
+  -webkit-transition: all .3s; transition: all .3s;
+  -webkit-animation: thumbIn .3s ease; animation: thumbIn .3s ease;
+}
+.da-selected-thumb img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+@-webkit-keyframes thumbIn { from { opacity: 0; -webkit-transform: scale(.7); } to { opacity: 1; -webkit-transform: scale(1); } }
+@keyframes thumbIn { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: scale(1); } }
+
+/* ─── Copy Output (hidden textarea) ─── */
+.da-copy-output {
+  width: 100%; min-height: 120px; padding: 12px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); font-size: .82rem;
+  font-family: "Noto Sans TC", monospace; color: var(--text);
+  resize: none; line-height: 1.7;
+}
+
+/* ─── Status Messages ─── */
+.da-status {
+  text-align: center; padding: 8px; font-size: .82rem; color: var(--green);
+  min-height: 30px;
+}
+
+/* ─── Toast ─── */
+#da-toast {
+  position: fixed; bottom: 24px; left: 50%;
+  -webkit-transform: translateX(-50%); transform: translateX(-50%);
+  background: #2a1f0e; border: 1px solid rgba(184,146,42,.5);
+  color: #f0d48a; padding: 12px 28px; border-radius: 24px; font-size: .85rem;
+  z-index: 9999; display: none; white-space: nowrap; pointer-events: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,.2);
+}
+#da-toast.show {
+  display: block;
+  -webkit-animation: toastUp .3s ease; animation: toastUp .3s ease;
+}
+@-webkit-keyframes toastUp { from { opacity: 0; -webkit-transform: translate(-50%,10px); } to { opacity: 1; -webkit-transform: translate(-50%,0); } }
+@keyframes toastUp { from { opacity: 0; transform: translate(-50%,10px); } to { opacity: 1; transform: translate(-50%,0); } }
+
+/* ─── Responsive ─── */
+@media (max-width: 640px) {
+  .da-main { padding: 16px 12px 32px; }
+  .da-card-body { padding: 14px; }
+  .da-card-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .da-topbar { padding: 0 12px; }
+  .da-topbar-brand { font-size: .85rem; }
+}
+@media (max-width: 400px) {
+  .da-card-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+}
+@media (max-width: 600px) {
+  body { padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* ─── Shuffle Animation ─── */
+.da-shuffling .da-draw-card {
+  -webkit-animation: shuffleBounce .5s ease forwards;
+  animation: shuffleBounce .5s ease forwards;
+}
+@-webkit-keyframes shuffleBounce {
+  0% { -webkit-transform: translateY(0); }
+  30% { -webkit-transform: translateY(-8px) rotate(-2deg); }
+  60% { -webkit-transform: translateY(4px) rotate(1deg); }
+  100% { -webkit-transform: translateY(0) rotate(0); }
+}
+@keyframes shuffleBounce {
+  0% { transform: translateY(0); }
+  30% { transform: translateY(-8px) rotate(-2deg); }
+  60% { transform: translateY(4px) rotate(1deg); }
+  100% { transform: translateY(0) rotate(0); }
+}
+
+/* ─── Step Indicator ─── */
+.da-steps {
+  display: flex; gap: 0; margin-bottom: 16px;
+}
+.da-step {
+  flex: 1; text-align: center; padding: 10px 8px;
+  font-size: .78rem; color: var(--text3);
+  border-bottom: 2px solid var(--border);
+  -webkit-transition: all .2s; transition: all .2s;
+}
+.da-step.active {
+  color: var(--gold); border-bottom-color: var(--gold); font-weight: 500;
+}
+.da-step.done {
+  color: var(--green); border-bottom-color: var(--green);
+}
+
+/* Phases */
+.da-phase { display: none; }
+.da-phase.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="da-topbar">
+  <div class="da-topbar-brand">馥靈之鑰｜自用抽牌</div>
+  <div class="da-topbar-spacer"></div>
+  <a href="admin-dashboard.html" class="da-topbar-link">管理後台</a>
+  <a href="index.html" class="da-topbar-link">首頁</a>
+</div>
+
+<div class="da-main">
+
+  <!-- Step Indicator -->
+  <div class="da-steps">
+    <div class="da-step active" id="step1">1. 提問</div>
+    <div class="da-step" id="step2">2. 選牌</div>
+    <div class="da-step" id="step3">3. 結果</div>
+  </div>
+
+  <!-- Phase 1: Question + Spread Selection -->
+  <div class="da-phase active" id="phase1">
+    <div class="da-card">
+      <div class="da-card-head">
+        <div class="da-card-title">提出你的問題</div>
+      </div>
+      <div class="da-card-body">
+        <label class="da-label">問題描述</label>
+        <textarea class="da-textarea" id="questionInput" placeholder="寫下你想問的問題，越具體越好..."></textarea>
+      </div>
+    </div>
+
+    <div class="da-card">
+      <div class="da-card-head">
+        <div class="da-card-title">選擇牌陣</div>
+      </div>
+      <div class="da-card-body">
+        <label class="da-label">牌陣類型</label>
+        <select class="da-select" id="spreadSelect">
+          <optgroup label="1 張｜城門銘牌">
+            <option value="1|gate-flash|快閃覺察">快閃覺察</option>
+            <option value="1|gate-yesno|是非決策">是非決策</option>
+            <option value="1|gate-morning|晨間啟動">晨間啟動</option>
+            <option value="1|gate-emergency|情緒急救">情緒急救</option>
+          </optgroup>
+          <optgroup label="3 張｜城堡三塔">
+            <option value="3|tower-time|時間軸解讀">時間軸解讀</option>
+            <option value="3|tower-analysis|問題解析">問題解析</option>
+            <option value="3|tower-decision|決策輔助">決策輔助</option>
+            <option value="3|tower-love|感情三塔">感情三塔</option>
+            <option value="3|tower-truth|真偽辨識">真偽辨識</option>
+          </optgroup>
+          <optgroup label="5 張｜L.I.G.H.T. 五力巡房">
+            <option value="5|five-snapshot|生命力快照">生命力快照</option>
+            <option value="5|five-element|五行對應">五行對應</option>
+            <option value="5|five-wealth|財富五力">財富五力</option>
+            <option value="5|five-relation|關係五力">關係五力</option>
+            <option value="5|five-health|健康五力">健康五力</option>
+          </optgroup>
+          <optgroup label="7 張牌｜H.O.U.R. 完整解讀">
+            <option value="7|hour-standard|標準七張解讀">標準七張解讀</option>
+            <option value="7|hour-love|感情七張解讀">感情七張解讀</option>
+            <option value="7|hour-career|事業七張解讀">事業七張解讀</option>
+            <option value="7|hour-deep|深度掃描解讀">深度掃描解讀</option>
+            <option value="7|hour-crisis|危機處理解讀">危機處理解讀</option>
+            <option value="7|hour-departed|往生者溝通（前7彩虹橋）">🌈 往生者溝通</option>
+          </optgroup>
+          <optgroup label="9 張｜洛書九宮全觀">
+            <option value="9|luoshu-full|九宮全觀">九宮全觀</option>
+            <option value="9|luoshu-time|時空九宮">時空九宮</option>
+            <option value="9|luoshu-crisis|危機九宮">危機九宮</option>
+            <option value="9|luoshu-destiny|命盤交叉">命盤交叉</option>
+            <option value="9|luoshu-cycle|生命週期">生命週期</option>
+          </optgroup>
+          <optgroup label="12 張｜馥靈十二宮">
+            <option value="12|twelve-full|十二宮全觀">十二宮全觀</option>
+            <option value="12|twelve-month|月份運勢">月份運勢</option>
+            <option value="12|twelve-tower|四塔三層">四塔三層</option>
+            <option value="12|twelve-body|身心經絡">身心經絡</option>
+            <option value="12|twelve-quad|四象限">四象限</option>
+          </optgroup>
+          <optgroup label="15 張｜L.I.G.H.T. 五門三鑰">
+            <option value="15|light-standard|五門三鑰標準版">五門三鑰標準版</option>
+            <option value="15|light-sense|五感覺察版">五感覺察版</option>
+            <option value="15|light-map|藏寶圖版">藏寶圖版</option>
+            <option value="15|light-multi|多重路線版">多重路線版</option>
+            <option value="15|light-talent|天賦解碼版">天賦解碼版</option>
+          </optgroup>
+          <optgroup label="21 張｜H.O.U.R. × L.I.G.H.T. 完整矩陣">
+            <option value="21|matrix-standard|標準矩陣">標準矩陣</option>
+            <option value="21|matrix-axis|四軸交叉">四軸交叉</option>
+            <option value="21|matrix-bloom|創傷到綻放">創傷到綻放</option>
+            <option value="21|matrix-root|四大根源">四大根源</option>
+            <option value="21|matrix-destiny|命理交叉">命理交叉</option>
+          </optgroup>
+          <optgroup label="28 張｜完整校準牌陣">
+            <option value="28|light-protocol|馥靈輕盈（前7高我指引+後21七大類型）">馥靈輕盈（瘦身）</option>
+            <option value="28|full-axis|四軸深度交叉版">四軸深度交叉版</option>
+            <option value="28|full-blueprint|全方位生命藍圖">全方位生命藍圖</option>
+            <option value="28|full-root|深層根源探索">深層根源探索</option>
+            <option value="28|full-destiny|整合命理交叉版">整合命理交叉版</option>
+          </optgroup>
+        </select>
+        <div style="margin-top:16px">
+          <button class="da-btn da-btn-gold" id="startBtn" onclick="startDraw()">開始抽牌</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 2: Card Selection -->
+  <div class="da-phase" id="phase2">
+    <div class="da-card">
+      <div class="da-card-head">
+        <div class="da-card-title" id="drawTitle">選擇牌卡</div>
+      </div>
+      <div class="da-card-body">
+        <div class="da-progress" id="drawProgress">已選 <strong>0</strong> / <strong>7</strong> 張</div>
+        <div class="da-selected-preview" id="selectedPreview"></div>
+        <div class="da-card-grid" id="cardGrid"></div>
+        <div class="da-status" id="drawStatus"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="da-btn da-btn-outline" onclick="resetDraw()" style="flex:1">重新抽牌</button>
+      <button class="da-btn da-btn-gold" id="revealBtn" onclick="revealCards()" style="flex:2;display:none">翻牌揭曉</button>
+    </div>
+  </div>
+
+  <!-- Phase 3: Results -->
+  <div class="da-phase" id="phase3">
+    <div class="da-card">
+      <div class="da-card-head">
+        <div class="da-card-title">抽牌結果</div>
+      </div>
+      <div class="da-card-body">
+        <div class="da-result-list" id="resultList"></div>
+      </div>
+    </div>
+    <div class="da-card">
+      <div class="da-card-head">
+        <div class="da-card-title">複製文字</div>
+      </div>
+      <div class="da-card-body">
+        <textarea class="da-copy-output" id="copyOutput" readonly></textarea>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="da-btn da-btn-copy" onclick="copyResult()">📋 複製結果</button>
+          <button class="da-btn da-btn-gold" onclick="askXiaoFu()" id="xiaoFuBtn">🤖 小馥解讀</button>
+          <button class="da-btn da-btn-outline" onclick="copyAndOpen('https://gemini.google.com/app')" style="border-color:rgba(66,133,244,.3);color:#4285f4">🔷 Gemini</button>
+          <button class="da-btn da-btn-outline" onclick="copyAndOpen('https://www.perplexity.ai')" style="border-color:rgba(120,80,200,.3);color:#7850c8">🟣 Perplexity</button>
+          <button class="da-btn da-btn-outline" onclick="copyAndOpen('https://chatgpt.com')" style="border-color:rgba(16,163,127,.3);color:#10a37f">💎 ChatGPT</button>
+        </div>
+        <div class="da-status" id="copyStatus"></div>
+        <div id="xiaoFuResult" style="display:none;margin-top:16px;padding:20px;background:rgba(184,146,42,.06);border:1px solid rgba(184,146,42,.15);border-radius:14px">
+          <div style="font-size:.85rem;color:#8b6914;margin-bottom:10px;font-weight:600">🤖 小馥解讀</div>
+          <div id="xiaoFuText" style="font-size:.92rem;color:#2a1f0e;line-height:1.9;white-space:pre-wrap"></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="da-btn da-btn-outline" onclick="resetAll()" style="flex:1">重新開始</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div id="da-toast"></div>
+
+<script>
+(function() {
+'use strict';
+
+// ═══ Card Data ═══
+// A00-A21 (22 cards) + 001-108 (108 cards) = 130 total
+var ALL_CARDS = [];
+for (var i = 0; i <= 21; i++) {
+  ALL_CARDS.push('A' + (i < 10 ? '0' + i : '' + i));
+}
+for (var j = 1; j <= 108; j++) {
+  ALL_CARDS.push(j < 10 ? '00' + j : (j < 100 ? '0' + j : '' + j));
+}
+
+// ═══ 牌位名稱對照表 ═══
+var SPREAD_LABELS = {
+  // 1張 城門銘牌
+  'gate-flash': ['🏰 此刻主旋律'],
+  'gate-yesno': ['🏰 此刻主旋律'],
+  'gate-morning': ['🏰 此刻主旋律'],
+  'gate-emergency': ['🏰 此刻主旋律'],
+  // 3張 城堡三塔
+  'tower-time': ['🔭 瞭望塔·局勢','🏠 起居塔·內在','🚩 旗幟塔·走向'],
+  'tower-analysis': ['🔭 瞭望塔·表象','🏠 起居塔·核心','🚩 旗幟塔·方向'],
+  'tower-decision': ['🔭 瞭望塔·慣性','🏠 起居塔·破局','🚩 旗幟塔·重啟'],
+  'tower-love': ['💫 引力','🌀 軌道','💥 碰撞'],
+  'tower-truth': ['🎭 表象','🌊 暗流','💎 真相'],
+  // 5張 L.I.G.H.T. 五力巡房
+  'five-snapshot': ['💕 L·愛之殿','🔮 I·直覺閣','🏔️ G·磐石廳','🌿 H·和諧苑','🦋 T·蛻變室'],
+  'five-element': ['💕 L·愛之殿','🔮 I·直覺閣','🏔️ G·磐石廳','🌿 H·和諧苑','🦋 T·蛻變室'],
+  'five-wealth': ['💕 L·愛之殿','🔮 I·直覺閣','🏔️ G·磐石廳','🌿 H·和諧苑','🦋 T·蛻變室'],
+  'five-relation': ['💕 L·愛之殿','🔮 I·直覺閣','🏔️ G·磐石廳','🌿 H·和諧苑','🦋 T·蛻變室'],
+  'five-health': ['💕 L·愛之殿','🔮 I·直覺閣','🏔️ G·磐石廳','🌿 H·和諧苑','🦋 T·蛻變室'],
+  // 7張 H.O.U.R. 完整啟鑰
+  'hour-standard': ['🩹 H·身心校準','👁️ O·智慧辨識','🔓 U·潛能解鎖','🚀 R·行動進化','⚡ 阻力位','💎 助力位','🧭 趨勢匯流'],
+  'hour-love': ['💕 自己在關係中','💛 對方的狀態','🔗 關係現況','🌱 感情根源','🤐 未說出口的話','💎 核心課題','🧭 前進方向'],
+  'hour-career': ['📊 職業現況','💪 核心能力','🙈 盲點','🚪 機會','🧱 障礙','🔑 行動建議','🧭 發展方向'],
+  'hour-deep': ['🪞 表層意識','🌊 情緒層','💭 信念層','🌿 根源層','✨ 潛能層','🦶 行動層','🔄 整合與轉化'],
+  'hour-crisis': ['🔥 危機核心','😰 恐懼來源','💎 隱藏資源','⚡ 即時行動','📋 中期策略','🤝 支持系統','🧭 轉機方向'],
+  'hour-departed': ['🌈 他/她想讓你知道的事','💛 你們之間未說完的話','🕊️ 他/她離開時的狀態','🌸 他/她現在想對你說的','🪷 你需要放下的','✨ 他/她留給你的禮物','🔑 前進的方向'],
+  // 9張 洛書九宮全觀 (按洛書排列：4-9-2 / 3-5-7 / 8-1-6)
+  'luoshu-full': ['🌬️ 巽位·名聲傳播','🔥 離位·高光展現','🌍 坤位·承載包容','⚡ 震位·突發變動','☯️ 中宮·核心命脈','🗣️ 兌位·口舌合約','⛰️ 艮位·財富蓄積','💧 坎位·隱憂危機','☀️ 乾位·事業貴人'],
+  'luoshu-time': ['🌬️ 巽位·名聲傳播','🔥 離位·高光展現','🌍 坤位·承載包容','⚡ 震位·突發變動','☯️ 中宮·核心命脈','🗣️ 兌位·口舌合約','⛰️ 艮位·財富蓄積','💧 坎位·隱憂危機','☀️ 乾位·事業貴人'],
+  'luoshu-crisis': ['🌬️ 巽位·名聲傳播','🔥 離位·高光展現','🌍 坤位·承載包容','⚡ 震位·突發變動','☯️ 中宮·核心命脈','🗣️ 兌位·口舌合約','⛰️ 艮位·財富蓄積','💧 坎位·隱憂危機','☀️ 乾位·事業貴人'],
+  'luoshu-destiny': ['🌬️ 巽位·名聲傳播','🔥 離位·高光展現','🌍 坤位·承載包容','⚡ 震位·突發變動','☯️ 中宮·核心命脈','🗣️ 兌位·口舌合約','⛰️ 艮位·財富蓄積','💧 坎位·隱憂危機','☀️ 乾位·事業貴人'],
+  'luoshu-cycle': ['🌬️ 巽位·名聲傳播','🔥 離位·高光展現','🌍 坤位·承載包容','⚡ 震位·突發變動','☯️ 中宮·核心命脈','🗣️ 兌位·口舌合約','⛰️ 艮位·財富蓄積','💧 坎位·隱憂危機','☀️ 乾位·事業貴人'],
+  // 12張 馥靈十二宮
+  'twelve-full': ['1宮 勇氣殿·膽經','2宮 力量廳·肝經','3宮 告別苑·肺經','4宮 淨化室·大腸經','5宮 消化閣·胃經','6宮 信任殿·脾經','7宮 心門宮·心經','8宮 明辨廳·小腸經','9宮 卸載苑·膀胱經','10宮 志氣殿·腎經','11宮 敞開閣·心包經','12宮 平衡室·三焦經'],
+  'twelve-month': ['1宮 勇氣殿·膽經','2宮 力量廳·肝經','3宮 告別苑·肺經','4宮 淨化室·大腸經','5宮 消化閣·胃經','6宮 信任殿·脾經','7宮 心門宮·心經','8宮 明辨廳·小腸經','9宮 卸載苑·膀胱經','10宮 志氣殿·腎經','11宮 敞開閣·心包經','12宮 平衡室·三焦經'],
+  'twelve-tower': ['1宮 勇氣殿·膽經','2宮 力量廳·肝經','3宮 告別苑·肺經','4宮 淨化室·大腸經','5宮 消化閣·胃經','6宮 信任殿·脾經','7宮 心門宮·心經','8宮 明辨廳·小腸經','9宮 卸載苑·膀胱經','10宮 志氣殿·腎經','11宮 敞開閣·心包經','12宮 平衡室·三焦經'],
+  'twelve-body': ['1宮 勇氣殿·膽經','2宮 力量廳·肝經','3宮 告別苑·肺經','4宮 淨化室·大腸經','5宮 消化閣·胃經','6宮 信任殿·脾經','7宮 心門宮·心經','8宮 明辨廳·小腸經','9宮 卸載苑·膀胱經','10宮 志氣殿·腎經','11宮 敞開閣·心包經','12宮 平衡室·三焦經'],
+  'twelve-quad': ['1宮 勇氣殿·膽經','2宮 力量廳·肝經','3宮 告別苑·肺經','4宮 淨化室·大腸經','5宮 消化閣·胃經','6宮 信任殿·脾經','7宮 心門宮·心經','8宮 明辨廳·小腸經','9宮 卸載苑·膀胱經','10宮 志氣殿·腎經','11宮 敞開閣·心包經','12宮 平衡室·三焦經'],
+  // 15張 L.I.G.H.T. 五門三鑰
+  'light-standard': ['💕 L愛之殿·鎖','💕 L愛之殿·鑰','💕 L愛之殿·門後','🔮 I直覺閣·鎖','🔮 I直覺閣·鑰','🔮 I直覺閣·門後','🏔️ G磐石廳·鎖','🏔️ G磐石廳·鑰','🏔️ G磐石廳·門後','🌿 H和諧苑·鎖','🌿 H和諧苑·鑰','🌿 H和諧苑·門後','🦋 T蛻變室·鎖','🦋 T蛻變室·鑰','🦋 T蛻變室·門後'],
+  'light-sense': ['👁️ 視覺·看見','👁️ 視覺·盲點','👁️ 視覺·開啟','👂 聽覺·聽見','👂 聽覺·忽略','👂 聽覺·校準','👃 嗅覺·記憶','👃 嗅覺·封鎖','👃 嗅覺·喚醒','✋ 觸覺·感受','✋ 觸覺·麻木','✋ 觸覺·復甦','👅 味覺·品嚐','👅 味覺·失味','👅 味覺·回甘'],
+  'light-map': ['🗺️ 起點','🧭 方向','⚓ 錨點','🌊 暗流','🏔️ 高地','🌋 險境','💎 寶藏','🔑 鑰匙','🚪 入口','🌉 橋樑','🏰 目的地','🛡️ 守護','🌟 燈塔','🧩 拼圖','🎯 終點'],
+  'light-multi': ['🛤️ A路線·起點','🛤️ A路線·過程','🛤️ A路線·結果','🛤️ B路線·起點','🛤️ B路線·過程','🛤️ B路線·結果','🛤️ C路線·起點','🛤️ C路線·過程','🛤️ C路線·結果','⚖️ 核心考量','💡 直覺偏向','🧠 理性偏向','❤️ 情感偏向','🔮 命運偏向','🎯 最終建議'],
+  'light-talent': ['🌟 天賦核心','💪 顯性才能','🔮 隱性才能','🎭 表達方式','🧲 吸引力','🛡️ 保護機制','🔥 驅動力','🌊 阻力','💎 獨特價值','🤝 合作模式','📈 成長方向','🏆 成就路徑','🌱 待開發','🔑 解鎖鑰匙','🎯 天命方向'],
+  // 21張 H.O.U.R. × L.I.G.H.T. 完整矩陣
+  'matrix-standard': ['☯️ 核心校準牌','🩹 H×L·身心與愛','🩹 H×I·身心與直覺','🩹 H×G·身心與根基','🩹 H×H2·身心與和諧','🩹 H×T·身心與蛻變','👁️ O×L·辨識與愛','👁️ O×I·辨識與直覺','👁️ O×G·辨識與根基','👁️ O×H2·辨識與和諧','👁️ O×T·辨識與蛻變','🔓 U×L·解鎖與愛','🔓 U×I·解鎖與直覺','🔓 U×G·解鎖與根基','🔓 U×H2·解鎖與和諧','🔓 U×T·解鎖與蛻變','🚀 R×L·行動與愛','🚀 R×I·行動與直覺','🚀 R×G·行動與根基','🚀 R×H2·行動與和諧','🚀 R×T·行動與蛻變'],
+  'matrix-axis': ['🎯 交叉中心','🩹 H軸·起點','🩹 H軸·過程','🩹 H軸·終點','🩹 H軸·轉化','👁️ O軸·起點','👁️ O軸·過程','👁️ O軸·終點','👁️ O軸·轉化','🔓 U軸·起點','🔓 U軸·過程','🔓 U軸·終點','🔓 U軸·轉化','🚀 R軸·起點','🚀 R軸·過程','🚀 R軸·終點','🚀 R軸·轉化','💕 L交叉','🔮 I交叉','🏔️ G交叉','🌿 H2交叉'],
+  'matrix-bloom': ['🌱 種子','💔 創傷入口','😢 痛的記憶','🛡️ 保護殼','🔒 信念枷鎖','🌊 情緒暗流','👤 面具','🪞 鏡映','💡 覺醒瞬間','🔑 鑰匙','🚪 門','🌅 出口','🌸 第一朵花','🌻 綻放','🦋 蛻變','💎 禮物','🌈 新世界','❤️ 自我擁抱','🤝 和解','🙏 感恩','✨ 完整'],
+  'matrix-root': ['🔮 核心議題','🌱 家族·根源','🌱 家族·影響','🌱 家族·轉化','💔 創傷·根源','💔 創傷·影響','💔 創傷·轉化','💭 信念·根源','💭 信念·影響','💭 信念·轉化','🧬 體質·根源','🧬 體質·影響','🧬 體質·轉化','🔗 根源交織','⚡ 最深觸發點','💎 隱藏資源','🔑 解鎖順序','🦶 第一步','🌿 持續行動','🌈 願景','✨ 整合'],
+  'matrix-destiny': ['🔮 命理核心','☯️ 八字主軸','🌟 紫微主星','♈ 占星指引','📐 人類圖策略','🔢 靈數方向','📅 瑪雅印記','🌿 馥靈秘碼','🔮 卡巴拉路徑','📖 易經指引','🧭 奇門方位','💫 命理交匯點','⚡ 衝突點','💎 整合點','🔑 突破口','🦶 第一步','📋 中期方向','🌅 長期願景','❤️ 感情命理','💰 財富命理','✨ 天命方向'],
+  // 28張（馥靈輕盈 light-protocol 保留原有標籤）
+  'light-protocol': [
+    '🔮 核心主題牌','✨ 情緒型高我','✨ 壓力型高我','✨ 創傷型高我','✨ 家族型高我','✨ 神經型高我','✨ 價值型高我',
+    '💔 情緒填充型·根源','💔 情緒填充型·恐懼','💔 情緒填充型·精油',
+    '⚡ 壓力倉儲型·根源','⚡ 壓力倉儲型·恐懼','⚡ 壓力倉儲型·精油',
+    '🛡️ 創傷保護型·根源','🛡️ 創傷保護型·恐懼','🛡️ 創傷保護型·精油',
+    '👥 家族傳承型·根源','👥 家族傳承型·恐懼','👥 家族傳承型·精油',
+    '🔌 神經失調型·根源','🔌 神經失調型·恐懼','🔌 神經失調型·精油',
+    '🔥 代謝受損型·根源','🔥 代謝受損型·恐懼','🔥 代謝受損型·精油',
+    '💎 自我價值型·根源','💎 自我價值型·恐懼','💎 自我價值型·精油'
+  ],
+  'full-axis': null,
+  'full-blueprint': null,
+  'full-root': null,
+  'full-destiny': null
+};
+
+// 28張完整校準：前7張用 hour-standard，後21張用對應矩陣
+var FULL_28_MATRIX = {
+  'full-axis': 'matrix-axis',
+  'full-blueprint': 'matrix-standard',
+  'full-root': 'matrix-root',
+  'full-destiny': 'matrix-destiny'
+};
+
+function getSpreadLabels(framework, count) {
+  // 直接匹配
+  if (SPREAD_LABELS[framework]) return SPREAD_LABELS[framework];
+  // 28張組合
+  if (FULL_28_MATRIX[framework]) {
+    var hourLabels = SPREAD_LABELS['hour-standard'].slice();
+    var matrixKey = FULL_28_MATRIX[framework];
+    var matrixLabels = SPREAD_LABELS[matrixKey] || [];
+    return hourLabels.concat(matrixLabels);
+  }
+  // fallback
+  var labels = [];
+  for (var i = 0; i < count; i++) labels.push('位置' + (i + 1));
+  return labels;
+}
+
+// ═══ State ═══
+var shuffledCards = [];
+var selectedIndices = [];
+var cardOrientations = {};  // index -> 'upright' or 'reversed'
+var requiredCount = 7;
+var spreadName = '';
+var frameworkName = '';
+var currentPhase = 1;
+
+// ═══ DOM Refs ═══
+var $phase1 = document.getElementById('phase1');
+var $phase2 = document.getElementById('phase2');
+var $phase3 = document.getElementById('phase3');
+var $step1 = document.getElementById('step1');
+var $step2 = document.getElementById('step2');
+var $step3 = document.getElementById('step3');
+
+// ═══ Phase Navigation ═══
+function goPhase(n) {
+  currentPhase = n;
+  $phase1.classList.toggle('active', n === 1);
+  $phase2.classList.toggle('active', n === 2);
+  $phase3.classList.toggle('active', n === 3);
+  $step1.className = 'da-step' + (n === 1 ? ' active' : (n > 1 ? ' done' : ''));
+  $step2.className = 'da-step' + (n === 2 ? ' active' : (n > 2 ? ' done' : ''));
+  $step3.className = 'da-step' + (n === 3 ? ' active' : '');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══ Start Draw ═══
+window.startDraw = function() {
+  var question = document.getElementById('questionInput').value.trim();
+  if (!question) {
+    toast('請先輸入問題');
+    return;
+  }
+
+  var val = document.getElementById('spreadSelect').value;
+  var parts = val.split('|');
+  requiredCount = parseInt(parts[0]);
+  spreadName = parts[2];
+  frameworkName = parts[1];
+
+  // Shuffle cards
+  shuffledCards = ALL_CARDS.slice();
+  for (var i = shuffledCards.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = shuffledCards[i];
+    shuffledCards[i] = shuffledCards[j];
+    shuffledCards[j] = temp;
+  }
+
+  // Assign orientations (50% reversed)
+  cardOrientations = {};
+  for (var k = 0; k < shuffledCards.length; k++) {
+    cardOrientations[k] = Math.random() < 0.5 ? 'reversed' : 'upright';
+  }
+
+  selectedIndices = [];
+
+  // 自用版全部盲抽模式（自動隨機抽牌）
+  if (true) {
+    // 自動選前 N 張（已洗牌過）
+    for (var b = 0; b < requiredCount; b++) {
+      selectedIndices.push(b);
+    }
+    // 直接跳到結果，帶翻牌動畫
+    document.getElementById('drawTitle').textContent = spreadName + '（' + requiredCount + '張）';
+    goPhase(3);
+    // 延遲顯示翻牌動畫
+    setTimeout(function() {
+      showResults();
+    }, 300);
+    return;
+  }
+
+  // Update UI
+  document.getElementById('drawTitle').textContent = spreadName + '（' + requiredCount + '張）';
+  updateProgress();
+  renderCardGrid();
+  document.getElementById('revealBtn').style.display = 'none';
+  document.getElementById('drawStatus').textContent = '';
+  document.getElementById('selectedPreview').innerHTML = '';
+
+  goPhase(2);
+};
+
+// ═══ Render Card Grid ═══
+function renderCardGrid() {
+  var grid = document.getElementById('cardGrid');
+  var html = '';
+  for (var i = 0; i < shuffledCards.length; i++) {
+    var code = shuffledCards[i];
+    var isReversed = cardOrientations[i] === 'reversed';
+    html += '<div class="da-draw-card" data-idx="' + i + '" onclick="selectCard(' + i + ')">' +
+      '<div class="da-card-inner">' +
+        '<div class="da-card-front">' +
+          '<div class="da-card-front-icon">🔮</div>' +
+          '<div class="da-card-front-label">HOUR LIGHT</div>' +
+        '</div>' +
+        '<div class="da-card-back">' +
+          '<img src="' + code + '.png" alt="' + code + '" loading="lazy"' +
+          (isReversed ? ' style="-webkit-transform:rotate(180deg);transform:rotate(180deg)"' : '') + '>' +
+          (isReversed ? '<div class="da-reversed-badge">挑戰</div>' : '') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+  grid.innerHTML = html;
+
+  // Shuffle animation
+  grid.classList.add('da-shuffling');
+  setTimeout(function() { grid.classList.remove('da-shuffling'); }, 600);
+}
+
+// ═══ Select Card ═══
+window.selectCard = function(idx) {
+  var card = document.querySelector('.da-draw-card[data-idx="' + idx + '"]');
+  if (!card) return;
+
+  // Already selected? Deselect
+  var pos = selectedIndices.indexOf(idx);
+  if (pos !== -1) {
+    selectedIndices.splice(pos, 1);
+    card.classList.remove('selected');
+    updateProgress();
+    updatePreview();
+    document.getElementById('revealBtn').style.display = 'none';
+    document.getElementById('drawStatus').textContent = '';
+    // Re-enable all cards
+    document.querySelectorAll('.da-draw-card.disabled').forEach(function(c) {
+      c.classList.remove('disabled');
+    });
+    return;
+  }
+
+  // Max reached?
+  if (selectedIndices.length >= requiredCount) return;
+
+  // Select
+  selectedIndices.push(idx);
+  card.classList.add('selected');
+
+  // Haptic feedback
+  if (navigator.vibrate) navigator.vibrate(10);
+
+  updateProgress();
+  updatePreview();
+
+  // All selected?
+  if (selectedIndices.length === requiredCount) {
+    // Disable unselected cards
+    document.querySelectorAll('.da-draw-card').forEach(function(c) {
+      if (!c.classList.contains('selected')) {
+        c.classList.add('disabled');
+      }
+    });
+    document.getElementById('revealBtn').style.display = '';
+    document.getElementById('drawStatus').textContent = '已選滿，按「翻牌揭曉」查看結果';
+  }
+};
+
+// ═══ Update Progress ═══
+function updateProgress() {
+  var html = '已選 <strong>' + selectedIndices.length + '</strong> / <strong>' + requiredCount + '</strong> 張';
+  document.getElementById('drawProgress').innerHTML = html;
+}
+
+// ═══ Update Preview Thumbnails ═══
+function updatePreview() {
+  var preview = document.getElementById('selectedPreview');
+  var html = '';
+  for (var i = 0; i < selectedIndices.length; i++) {
+    var idx = selectedIndices[i];
+    var code = shuffledCards[idx];
+    var isReversed = cardOrientations[idx] === 'reversed';
+    html += '<div class="da-selected-thumb">' +
+      '<img src="' + code + '.png" alt="' + code + '"' +
+      (isReversed ? ' style="-webkit-transform:rotate(180deg);transform:rotate(180deg)"' : '') + '>' +
+    '</div>';
+  }
+  preview.innerHTML = html;
+}
+
+// ═══ Reveal Cards ═══
+window.revealCards = function() {
+  // Flip selected cards one by one with stagger
+  selectedIndices.forEach(function(idx, i) {
+    var card = document.querySelector('.da-draw-card[data-idx="' + idx + '"]');
+    if (card) {
+      setTimeout(function() {
+        card.classList.add('flipped');
+        if (navigator.vibrate) navigator.vibrate(10);
+      }, i * 150);
+    }
+  });
+
+  // After all flipped, show results
+  setTimeout(function() {
+    showResults();
+  }, selectedIndices.length * 150 + 500);
+};
+
+// ═══ Show Results ═══
+function showResults() {
+  var question = document.getElementById('questionInput').value.trim();
+  var val = document.getElementById('spreadSelect').value;
+  var parts = val.split('|');
+
+  // Build result list
+  var listHtml = '';
+  var copyLines = [];
+  copyLines.push('【馥靈之鑰抽牌結果】');
+  copyLines.push('問題：' + question);
+  // 取 optgroup label 作為牌陣類別名
+  var selectEl = document.getElementById('spreadSelect');
+  var selectedOpt = selectEl.options[selectEl.selectedIndex];
+  var optgroupLabel = selectedOpt.parentElement.label || '';
+  copyLines.push('牌陣：' + optgroupLabel);
+  copyLines.push('框架：' + spreadName);
+  copyLines.push('');
+  // 取得牌位名稱
+  var posLabels = getSpreadLabels(parts[1], requiredCount);
+
+  if (parts[1] === 'light-protocol') {
+    copyLines.push('');
+    copyLines.push('【高我指引層】');
+  } else if (parts[1] === 'hour-departed') {
+    copyLines.push('');
+    copyLines.push('【🌈 彩虹橋溝通】');
+  } else {
+    copyLines.push('抽到的牌：');
+  }
+
+  for (var i = 0; i < selectedIndices.length; i++) {
+    var idx = selectedIndices[i];
+    var code = shuffledCards[idx];
+    var orient = cardOrientations[idx];
+    var orientLabel = orient === 'reversed' ? '挑戰' : '禮物';
+    var orientClass = orient === 'reversed' ? 'reversed' : 'upright';
+
+    // 馥靈輕盈：第8張前插入分隔
+    if (parts[1] === 'light-protocol' && i === 7) {
+      copyLines.push('');
+      copyLines.push('【深層內在訊息層】');
+    }
+    // 28張完整校準：前7張和後21張之間插入分隔
+    if (FULL_28_MATRIX[parts[1]] && i === 7) {
+      copyLines.push('');
+      copyLines.push('【H.O.U.R. × L.I.G.H.T. 矩陣】');
+    }
+
+    var posLabel = posLabels[i] || ('位置' + (i + 1));
+
+    listHtml += '<div class="da-result-item">' +
+      '<div class="da-result-pos">' + posLabel + '</div>' +
+      '<img class="da-result-img" src="' + code + '.png"' +
+      (orient === 'reversed' ? ' style="-webkit-transform:rotate(180deg);transform:rotate(180deg)"' : '') + '>' +
+      '<div class="da-result-info">' +
+        '<span class="da-result-code">' + code + '</span>' +
+        '<span class="da-result-orient ' + orientClass + '">' + orientLabel + '</span>' +
+      '</div>' +
+    '</div>';
+
+    copyLines.push(posLabel + '：' + code + ' ' + orientLabel);
+  }
+
+  copyLines.push('');
+  copyLines.push('請根據以上牌卡組合進行深度解讀。');
+
+  document.getElementById('resultList').innerHTML = listHtml;
+  document.getElementById('copyOutput').value = copyLines.join('\n');
+
+  goPhase(3);
+}
+
+// ═══ Copy Result ═══
+window.copyResult = function() {
+  var output = document.getElementById('copyOutput');
+  var text = output.value;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      toast('已複製到剪貼簿');
+    }).catch(function() {
+      fallbackCopy(output);
+    });
+  } else {
+    fallbackCopy(output);
+  }
+};
+
+function fallbackCopy(el) {
+  el.select();
+  el.setSelectionRange(0, 99999);
+  try {
+    document.execCommand('copy');
+    toast('已複製到剪貼簿');
+  } catch(e) {
+    toast('複製失敗，請手動選取');
+  }
+}
+
+// ═══ 複製並開啟外部 AI ═══
+window.copyAndOpen = function(url) {
+  var text = document.getElementById('copyOutput').value;
+  if (!text) { toast('請先抽牌'); return; }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      toast('已複製！正在開啟...');
+      setTimeout(function() { window.open(url, '_blank'); }, 300);
+    }).catch(function() {
+      window.open(url, '_blank');
+    });
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;top:-9999px';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); toast('已複製！'); } catch(e) {}
+    document.body.removeChild(ta);
+    window.open(url, '_blank');
+  }
+};
+
+// ═══ 小馥即時解讀 ═══
+window.askXiaoFu = function() {
+  var btn = document.getElementById('xiaoFuBtn');
+  var resultDiv = document.getElementById('xiaoFuResult');
+  var textDiv = document.getElementById('xiaoFuText');
+  var prompt = document.getElementById('copyOutput').value;
+
+  if (!prompt) { toast('請先抽牌'); return; }
+
+  btn.textContent = '🤖 解讀中...';
+  btn.disabled = true;
+  resultDiv.style.display = 'block';
+  textDiv.textContent = '小馥正在解讀你的牌卡...';
+
+  fetch('https://app.hourlightkey.com/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      messages: [{ role: 'user', content: prompt }],
+      isAdmin: true
+    })
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    if (data.reply) {
+      textDiv.textContent = data.reply;
+    } else if (data.error) {
+      textDiv.textContent = '解讀失敗：' + data.error;
+    } else {
+      textDiv.textContent = '解讀失敗，請稍後再試';
+    }
+    btn.textContent = '🤖 重新解讀';
+    btn.disabled = false;
+  })
+  .catch(function(err) {
+    textDiv.textContent = '連線失敗：' + err.message;
+    btn.textContent = '🤖 重新解讀';
+    btn.disabled = false;
+  });
+};
+
+// ═══ Reset ═══
+window.resetDraw = function() {
+  if (!confirm('確定要重新抽牌嗎？')) return;
+  window.startDraw();
+};
+
+window.resetAll = function() {
+  document.getElementById('questionInput').value = '';
+  selectedIndices = [];
+  shuffledCards = [];
+  cardOrientations = {};
+  goPhase(1);
+};
+
+// ═══ Toast ═══
+function toast(msg) {
+  var el = document.getElementById('da-toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(function() { el.classList.remove('show'); }, 2500);
+}
+
+})();
+</script>
+
+</body>
+</html>

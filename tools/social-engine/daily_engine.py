@@ -26,7 +26,7 @@ if sys.stdout.encoding != 'utf-8':
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from config import *
-from poster import post_to_fb, post_to_threads, post_all
+from poster import post_to_fb, post_to_threads, reply_to_threads, post_all
 from viral_crawler import crawl_all
 from content_generator import generate_content
 from image_finder import find_best_image
@@ -108,16 +108,37 @@ def step_generate(materials=None):
         else:
             print(f"  ❌ 文案生成失敗：{content.get('error','')[:80]}")
 
-        # Find image
-        print(f"  🖼️ 搜尋配圖...")
-        image = find_best_image(topic, save_dir=os.path.join(DATA_DIR, 'images'))
-        image_url = image['url_medium'] if image else None
+        # Generate image with DALL-E (preferred) or fallback to Unsplash
+        image_url = None
+        image_photographer = None
+        image_local = None
+        openai_key = os.environ.get('OPENAI_API_KEY', '')
+        if openai_key and content['success']:
+            print(f"  🎨 DALL-E 生成配圖...")
+            from content_generator import generate_image_prompt, generate_dalle_image
+            img_prompt = generate_image_prompt(content['fb_post'], topic)
+            img_path = os.path.join(DATA_DIR, 'images', f'dalle_{today_str()}_{slot}.png')
+            result_path = generate_dalle_image(openai_key, img_prompt, img_path)
+            if result_path:
+                image_local = result_path
+                print(f"  ✅ DALL-E 配圖已生成：{result_path}")
+            else:
+                print(f"  ⚠️ DALL-E 失敗，改用 Unsplash...")
+                image = find_best_image(topic, save_dir=os.path.join(DATA_DIR, 'images'))
+                image_url = image['url_medium'] if image else None
+                image_photographer = image['photographer'] if image else None
+        else:
+            print(f"  🖼️ 搜尋配圖...")
+            image = find_best_image(topic, save_dir=os.path.join(DATA_DIR, 'images'))
+            image_url = image['url_medium'] if image else None
+            image_photographer = image['photographer'] if image else None
 
         results.append({
             'slot': slot,
             'topic': topic,
             'image_url': image_url,
-            'image_photographer': image['photographer'] if image else None,
+            'image_local': image_local,
+            'image_photographer': image_photographer,
             **content
         })
 
@@ -157,12 +178,14 @@ def step_post(slot='all', dry_run=False):
 
         print(f"\n⏰ [{content['slot']}] {content['topic'][:30]}...")
 
-        # Prepare FB message with hashtags
+        # Prepare FB message with hashtags (避免重複：AI 文案已含 # 就不再加)
         fb_msg = content['fb_post']
-        if content.get('hashtags'):
+        if content.get('hashtags') and '#' not in fb_msg:
             fb_msg += '\n\n' + ' '.join(f'#{h}' for h in content['hashtags'])
 
+        # DALL-E 本地圖優先，否則用 URL
         image_url = content.get('image_url')
+        image_local = content.get('image_local')
 
         if dry_run:
             print(f"  📘 FB（測試）: {fb_msg[:80]}...")
@@ -172,7 +195,7 @@ def step_post(slot='all', dry_run=False):
 
         # Post to FB (with image if available)
         print(f"  📘 發文到 FB...")
-        fb_result = post_to_fb(FB_PAGE_ID, FB_PAGE_TOKEN, fb_msg, image_url)
+        fb_result = post_to_fb(FB_PAGE_ID, FB_PAGE_TOKEN, fb_msg, image_url, image_local)
         if fb_result['success']:
             print(f"     ✅ Post ID: {fb_result['post_id']}")
         else:
@@ -183,6 +206,16 @@ def step_post(slot='all', dry_run=False):
         threads_result = post_to_threads(THREADS_USER_ID, THREADS_TOKEN, content['threads_post'])
         if threads_result['success']:
             print(f"     ✅ Post ID: {threads_result['post_id']}")
+            # 自動回覆第一則（啟動對話，提升演算法推薦）
+            self_reply = content.get('threads_self_reply', '')
+            if self_reply and threads_result.get('post_id'):
+                import time as _t; _t.sleep(5)
+                print(f"  💬 自動回覆啟動對話...")
+                reply_result = reply_to_threads(THREADS_USER_ID, THREADS_TOKEN, threads_result['post_id'], self_reply)
+                if reply_result.get('success'):
+                    print(f"     ✅ Reply ID: {reply_result['reply_id']}")
+                else:
+                    print(f"     ⚠️ 回覆失敗：{reply_result.get('error','')[:80]}")
         else:
             print(f"     ❌ {threads_result['error'][:100]}")
 

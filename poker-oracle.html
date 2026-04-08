@@ -133,7 +133,7 @@ body{background:var(--bg);color:rgba(255,255,255,.9);font-family:var(--sans);ove
 .layers{width:100%;max-width:540px;padding:0 20px;animation:fadeUp .5s .6s both}
 .layer{border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.07);margin-bottom:9px;transition:border-color .3s}
 .layer:hover{border-color:rgba(255,255,255,.12)}
-.layer-hd{width:100%;display:flex;align-items:center;justify-content:space-between;padding:15px 18px;background:rgba(10,6,24,.85);border:none;cursor:pointer;font-family:var(--sans);font-size:.82rem;color:rgba(249,240,229,.48);letter-spacing:.06em;transition:all .3s;text-align:left;backdrop-filter:blur(8px)}
+.layer-hd{width:100%;display:flex;align-items:center;justify-content:space-between;padding:15px 18px;background:rgba(10,6,24,.85);border:none;cursor:pointer;font-family:var(--sans);font-size:.82rem;color:rgba(249,240,229,.48);letter-spacing:.06em;transition:all .3s;text-align:left;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .layer-hd:hover{background:rgba(18,10,36,.95);color:var(--rc,#c8b4ff)}
 .layer-hd-l{display:flex;align-items:center;gap:9px}
 .layer-arr{font-size:.85rem;color:var(--rc,#c8b4ff);opacity:.4;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
@@ -158,7 +158,7 @@ body{background:var(--bg);color:rgba(255,255,255,.9);font-family:var(--sans);ove
 /* Toast & watermark */
 .pk-toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(12px);padding:9px 22px;border-radius:999px;background:rgba(248,223,165,.95);color:#1a0e00;font-size:.82rem;font-weight:600;z-index:9999;opacity:0;transition:all .32s;pointer-events:none;white-space:nowrap}
 .pk-toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-.hl-wm{position:fixed;bottom:70px;right:12px;z-index:50;pointer-events:none;display:flex;align-items:center;gap:5px;background:rgba(4,2,12,.75);border:1px solid rgba(248,223,165,.13);border-radius:20px;padding:4px 11px 4px 8px;backdrop-filter:blur(8px)}
+.hl-wm{position:fixed;bottom:70px;right:12px;z-index:50;pointer-events:none;display:flex;align-items:center;gap:5px;background:rgba(4,2,12,.75);border:1px solid rgba(248,223,165,.13);border-radius:20px;padding:4px 11px 4px 8px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .hl-wm-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);opacity:.45;flex-shrink:0}
 .hl-wm-t{font-size:.58rem;color:rgba(248,223,165,.38);letter-spacing:.05em;white-space:nowrap}
 
@@ -203,9 +203,29 @@ body{background:var(--bg);color:rgba(255,255,255,.9);font-family:var(--sans);ove
   .deck-wrap:hover .dk:nth-child(2),
   .deck-wrap:hover .dk:nth-child(1){transform:none}
 }
+
+/* ── Mobile App Touch Feel ── */
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+button,a,select,input[type=submit],input[type=button]{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+button:active,input[type=submit]:active{transform:scale(.97);transition:transform .08s}
+select,input[type=text],input[type=number],input[type=date],input[type=email],textarea{font-size:16px!important}
+@media(max-width:600px){
+  body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  button,input[type=submit],input[type=button]{min-height:48px}
+}
 </style>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://hourlightkey.com/poker-oracle.html"/>
+<meta property="og:title" content="撲克牌覺察占卜｜夜深人靜，抽一張牌｜馥靈之鑰"/>
+<meta property="og:description" content="夜深人靜，心裡有點賭賭的？抽一張撲克牌，看看現在的座標。54張牌，牌義＋科學解析＋香氣落地。馥靈之鑰原創占卜。"/>
+<meta property="og:image" content="https://hourlightkey.com/og-image.jpg"/>
+<meta name="twitter:card" content="summary_large_image"/>
 </head>
 <body>
+<img src="images/page-banners-web/poker-oracle.webp" alt="" style="width:100%;max-width:600px;max-height:180px;object-fit:cover;margin:0 auto 20px;display:block;border-radius:12px" loading="lazy" onerror="this.style.display='none'">
+
 
 <canvas id="starCanvas"></canvas>
 
@@ -296,6 +316,7 @@ body{background:var(--bg);color:rgba(255,255,255,.9);font-family:var(--sans);ove
   <div class="r-acts">
     <button class="abtn abtn-g" data-no-gate onclick="startDraw()">↺ 再抽一張</button>
     <button class="abtn abtn-o" data-no-gate onclick="copyCard()">📋 複製</button>
+    <button class="abtn abtn-o" data-no-gate onclick="copyAI()" style="background:rgba(160,124,220,.12);border-color:rgba(160,124,220,.3);color:#c8b4ff">🤖 AI 深度解讀</button>
     <button class="abtn abtn-o" data-no-gate onclick="goBack()">← 回首頁</button>
   </div>
 
@@ -621,17 +642,124 @@ function copyCard(){
 }
 
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2000);}
+
+function copyAI(){
+  if(!lastCard) return;
+  var sc=SC[lastCard.suit]||SC.joker;
+  var txt = '【AI深度解讀指令｜撲克牌覺察占卜 × 馥靈座標哲學】\n\n';
+  txt += '═══ 提問者抽牌結果 ═══\n';
+  txt += '花色：' + sc.l + '\n';
+  txt += '牌面：' + lastCard.rank + '\n';
+  txt += '牌名：' + lastCard.name + '\n';
+  txt += '牌義：' + lastCard.body + '\n';
+  txt += '科學解析：' + lastCard.science + '\n';
+  txt += '香氣落地：' + lastCard.aroma + '\n\n';
+
+  txt += '═══ 深度解讀框架（請完整執行）═══\n\n';
+
+  txt += '你收到的是一張撲克牌占卜結果。這不是娛樂，是覺察。\n';
+  txt += '提問者在深夜翻開這張牌，心裡一定有個問題還沒問出口。\n';
+  txt += '你的任務是幫他把那個問題說出來，然後給他一面鏡子。\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【第一步：花色能量場，這個人此刻站在哪裡】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += '♠ 黑桃（蛻變之風）：正在經歷某種結束或轉化，內心有個東西在鬆動\n';
+  txt += '♥ 紅心（流動之水）：情感議題浮上來了，不一定是愛情，是所有「在乎」的事\n';
+  txt += '♦ 方塊（落地之土）：跟現實面有關，錢、工作、身體、生活結構\n';
+  txt += '♣ 梅花（燃燒之火）：有股能量想往外衝，是創造力、行動力或憤怒\n';
+  txt += '★ 鬼牌（虛空之鏡）：這張牌在說「你問錯問題了」，真正的答案不在你以為的方向\n\n';
+  txt += '→ 根據抽到的花色，分析提問者「此刻最核心的內在狀態」\n';
+  txt += '→ 不要說花色的通用含義，說「你現在正在經歷的是___」\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【第二步：數字密碼，牌面數字的心理深度】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += 'A = 起點/種子/獨立，你正站在某件事的開頭，問題是你敢不敢踏出去\n';
+  txt += '2-3 = 選擇/萌芽，你在兩個方向之間拉扯，或者某件事剛開始冒頭\n';
+  txt += '4-6 = 建構/穩定，你正在蓋某個東西（關係/事業/習慣），問題是地基穩不穩\n';
+  txt += '7-9 = 挑戰/深化，你遇到了瓶頸或考驗，這是在測試你到底要不要繼續\n';
+  txt += '10 = 完成/滿溢，某個週期到了盡頭，該放的放、該收的收\n';
+  txt += 'J = 信使/學徒，有個訊息正在來的路上，或者你需要用初學者的心態面對\n';
+  txt += 'Q = 內在力量/直覺，你知道答案，只是不確定自己有沒有資格相信它\n';
+  txt += 'K = 掌控/責任，這件事需要你站出來做決定，不能再等別人\n';
+  txt += '大鬼/小鬼 = 打破規則/超越二元，舊的框架已經裝不下你了\n\n';
+  txt += '→ 結合花色＋數字，給出「此刻核心訊息」的精準一句話\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【第三步：牌義的三層拆解】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += '第一層（表面）：這張牌字面上在說什麼？提問者最容易理解的訊息\n';
+  txt += '第二層（情緒）：這張牌觸碰到提問者內心的哪個柔軟處？他可能正在壓抑什麼？\n';
+  txt += '第三層（行動）：這張牌真正要他做的一件事是什麼？具體、可執行、明天就能開始\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【第四步：撲克牌 × 塔羅交叉對照】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += '► 這張撲克牌對應塔羅的哪張牌？（黑桃=寶劍、紅心=聖杯、方塊=錢幣、梅花=權杖）\n';
+  txt += '► 塔羅的解讀角度和撲克牌有什麼不同？哪個面向更深入？\n';
+  txt += '► 如果這張牌出現在「過去-現在-未來」的三張牌陣中間位置，它在時間軸上暗示什麼？\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【第五步：認知芳療 · 香氣覺察】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += '► 根據牌面的香氣建議，解釋為什麼是這支精油\n';
+  txt += '► 不需要真的有精油，光是想到這個氣味，大腦就已經啟動相應的神經迴路\n';
+  txt += '► 給出一個「閉上眼睛想像這個香氣」的20秒覺察練習\n';
+  txt += '► 鼻子在聞，但大腦在記憶。氣味是情緒的快捷鍵。\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【第六步：H.O.U.R. 行動建議】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += 'H（身心校準）→ 翻開這張牌的瞬間，身體哪個部位有感覺？那個感覺在說什麼？\n';
+  txt += 'O（智慧辨識）→ 這張牌映照出你最近一直在迴避的什麼模式？\n';
+  txt += 'U（潛能解鎖）→ 如果這張牌是一把鑰匙，它要你打開哪扇門？今晚就能做的一件事是什麼？\n';
+  txt += 'R（行動進化）→ 帶著這張牌的訊息，明天的你會做什麼不同的選擇？\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【此刻三問，深夜的自我對話】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += '根據這張牌的核心訊息，設計三個讓人在深夜安靜下來跟自己對話的問題。\n';
+  txt += '格式：「你有沒有想過，___？」\n';
+  txt += '這三個問題要能讓翻牌的那個瞬間，延伸成一場真正的覺察。\n\n';
+
+  txt += '╔══════ 語氣與風格要求 ══════╗\n';
+  txt += '► 深夜語氣：像凌晨兩點跟最信任的人講悄悄話，聲音輕但句句到位\n';
+  txt += '► 帶有香氣意象：每個段落至少一個精油或自然氣味的比喻\n';
+  txt += '► 禁用詞（絕對不出現）：梳理、療癒、調頻、靈魂、頻率、顯化、宇宙安排、命定、雙破折號，\n';
+  txt += '► 代用詞：用「校準」代替「梳理」，用「座標」代替「命運」，用「整合」代替「療癒」\n';
+  txt += '► 術語必須轉譯：不說占卜術語，說日常場景\n';
+  txt += '► 結尾用馥靈馥語風格收束：一段帶有香氣的文字，讓人讀完有「被接住了」的感覺\n\n';
+
+  txt += '╔══════ 馥靈座標哲學 ══════╗\n';
+  txt += '一張牌翻開的瞬間，你心裡是不是已經隱隱有了答案？\n';
+  txt += '那個答案不是牌給的，是你自己的。牌只是替你說出來而已。\n';
+  txt += '讀懂自己，活對人生。馥靈之鑰 hourlightkey.com';
+
+  // iOS Safari 相容複製
+  var ta=document.createElement('textarea');ta.value=txt;ta.setAttribute('readonly','');
+  ta.style.cssText='position:fixed;top:50%;left:50%;width:2em;height:2em;padding:0;border:none;outline:none;background:transparent;font-size:16px;opacity:.01;transform:translate(-50%,-50%);z-index:99999';
+  document.body.appendChild(ta);
+  if(/ipad|iphone/i.test(navigator.userAgent)){ta.focus();var rng=document.createRange();rng.selectNodeContents(ta);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(rng);ta.setSelectionRange(0,999999)}else{ta.focus();ta.select()}
+  try{document.execCommand('copy');toast('🤖 AI 深度解讀指令已複製！')}catch(e){alert('複製失敗')}
+  document.body.removeChild(ta);
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(txt).catch(function(){});}
+
+  if(typeof hlAIGateCheck==='function'){setTimeout(function(){hlAIGateCheck(function(){});},80);}
+}
 </script>
 
 <script src="assets/js/hl-music.js?v=20260309"></script>
 <script src="assets/js/hl-topnav.js"></script>
 <script src="assets/js/hl-bottomnav.js"></script>
-<script src="assets/js/hl-announce.js"></script>
+<script src="assets/js/hl-announce.js?v=4"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js"></script>
 <script src="assets/js/hl-referral.js?v=20260323"></script>
+<script src="assets/js/hl-ai-gate.js"></script>
+<script src="assets/js/hl-ai-copy.js"></script>
 <script src="assets/js/hl-gate.js"></script>
 <script src="assets/js/hl-email.js"></script>
 <script src="assets/js/hl-share.js"></script>

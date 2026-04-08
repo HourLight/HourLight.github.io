@@ -57,6 +57,11 @@
       var data=doc.exists?doc.data():{};
       var plan=data.plan||'free';
       var bonus=data.aiBonus||0;
+      // 檢查推薦碼獎勵天數（有效期內視為 pro）
+      if(data.referral_premium_until){
+        var expiry=new Date(data.referral_premium_until);
+        if(expiry>new Date()) plan='pro'; // 推薦獎勵期內＝大師方案
+      }
       // 檢查推薦邀請獎勵（有效期內升為 pro）
       if(window.hlInvite){
         hlInvite.applyBonus(uid, plan, function(finalPlan){
