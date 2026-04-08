@@ -756,66 +756,87 @@ async function handleWallpaper(req, res, apiKey) {
     return res.status(500).json({ error: 'OpenAI 服務尚未設定' });
   }
 
-  // ─── 五行→精緻視覺映射（高級美妝專櫃 × 編輯時尚色系，禁艷俗）───
+  // ─── 五行 → 飽和但有品味的視覺色彩（戲劇感為主，禁淡寡）───
   var wxVisuals = {
     '金': {
-      colors: 'soft pearl white, warm cream, champagne, brushed platinum, mother-of-pearl, with the subtlest hint of pale gold',
-      elements: 'a single luminous orb, abstract concentric ripples of light, soft mist of metallic particles',
-      nature: 'pre-dawn frost mist, the calm before snow, a single moon over still water',
-      mood: 'cool refined minimalism, like an Aesop store at dawn'
+      colors: 'rich platinum and pearl, deep silver mirror tones, lustrous mother-of-pearl with cool moonstone blue, accents of warm gold',
+      elements: 'cascading liquid metal, crystalline geometry catching light, lunar silver sphere casting reflections, silk drapery in metallic tones',
+      nature: 'frozen lake mirroring aurora, polar starlight on ice mountains, moonlit cathedral of crystal',
+      mood: 'cool crystalline drama'
     },
     '木': {
-      colors: 'sage green, soft jade, eucalyptus, warm olive, cream, with the subtlest hint of forest emerald',
-      elements: 'a single botanical silhouette, abstract leaf shadow play, soft natural light filtering through',
-      nature: 'morning mist in a quiet bamboo grove, single-stem ikebana composition, soft greenhouse light',
-      mood: 'fresh organic minimalism, like a Jo Malone garden campaign'
+      colors: 'deep emerald and jade, forest velvet greens, soft sage with gold-leaf accents, dewdrop highlights, cinnabar hints',
+      elements: 'ancient sacred trees with luminous canopies, glowing botanical bloom, lush enchanted vines, cascading leaves of light',
+      nature: 'enchanted moonlit forest with bioluminescent mist, sacred grove with golden fireflies, deep jungle at twilight',
+      mood: 'mystical organic richness'
     },
     '水': {
-      colors: 'soft midnight blue, dusty indigo, pale slate, moonlight cream, with the subtlest hint of deep sapphire',
-      elements: 'a single ripple expanding, abstract flowing curves, soft reflective gradient',
-      nature: 'still lake at twilight, fog over deep ocean, single water droplet',
-      mood: 'serene flowing calm, like a Calvin Klein fragrance ad shot underwater'
+      colors: 'deep sapphire and midnight indigo, oceanic teal, electric aquamarine, silver moonlight reflections, accent pearl',
+      elements: 'flowing cosmic waterfalls, koi swirling in starlight, glowing waves of stardust, oceanic mist, abstract liquid sculpture',
+      nature: 'bioluminescent deep ocean cathedral, moonlit lake under nebula, underwater starfield with rays of light',
+      mood: 'mysterious flowing depth'
     },
     '火': {
-      colors: 'soft blush rose, dusty peach, warm cream, champagne, with the subtlest hint of warm amber (NOT crimson, NOT bright red, NOT magenta)',
-      elements: 'a single warm glow, abstract sunset gradient, soft halo of light',
-      nature: 'sunset over still water, the soft golden hour, single candle in darkness',
-      mood: 'warm romantic minimalism, like a Dior beauty campaign at golden hour'
+      colors: 'rich rose gold and warm copper, deep blush meeting sunset peach, dramatic amber with cream highlights, cinnamon shadows (sophisticated warm — NOT crimson, NOT scarlet)',
+      elements: 'rising golden phoenix of light, dancing sacred flames, drifting lanterns, abstract sunfire ribbons, halos of warm radiance',
+      nature: 'dramatic golden hour over cosmic mountains, volcanic aurora, sunset between dimensions',
+      mood: 'warm passionate radiance'
     },
     '土': {
-      colors: 'warm cream, soft caramel, sand beige, dusty honey, champagne, with the subtlest hint of weathered bronze',
-      elements: 'a single smooth stone form, abstract earth-tone gradient, soft textural surface',
-      nature: 'desert dune at dawn, ancient stone in soft light, sand patterns under moonlight',
-      mood: 'grounded warm minimalism, like an Acne Studios moodboard in a desert'
+      colors: 'rich honey gold and warm bronze, deep terracotta meeting champagne, caramel with copper highlights, sand under moonlight',
+      elements: 'ancient temple silhouettes glowing from within, golden mountains at dawn, crystalline geodes catching light, weathered gold artifacts in soft light',
+      nature: 'grand canyon at golden hour with cosmic sky, desert oasis under starry galaxies, sacred ruins illuminated from within',
+      mood: 'grounded ancient luxury'
     }
   };
 
-  // ─── 主題→抽象意圖映射（不要具象符號，要象徵性的視覺概念）───
+  // ─── 主題 → 戲劇 hero motif（每個主題都有獨特畫面，不再用同一個 vessel）───
   var themeStyles = {
     wealth: {
-      mood: 'a quiet sense of abundance and being-seen-by-fortune (NOT literal coins, NOT dragons, NOT treasure chests)',
-      symbols: 'a single luminous vessel concept, abstract cascading light patterns, suggestion of overflowing radiance, refined geometric abundance forms (avoid all literal money imagery)',
-      bg: 'soft cosmic gradient with subtle golden particles, minimalist celestial backdrop'
+      mood: 'a powerful sense of arriving abundance, like watching a sunrise of pure gold',
+      // 三個 hero motif 變化（依 variant 輪換）
+      heroMotifs: [
+        'a dramatic vertical column of liquid gold light cascading down through cosmic clouds, with floating particles of warm radiance',
+        'an abstract sculpture of overflowing golden energy bursting upward into starfields, like a fountain of warm light',
+        'layered curtains of golden silk parting in cosmic space to reveal a glowing radiant heart of warm light'
+      ],
+      bg: 'rich golden nebula backdrop with deep indigo space framing, dramatic celestial vault'
     },
     love: {
-      mood: 'a quiet sense of being deeply loved and connected (NOT literal hearts, NOT cupids, NOT love birds)',
-      symbols: 'a single soft botanical bloom in subtle silhouette, abstract intertwining curves of light, suggestion of two energies meeting (avoid all literal love imagery)',
-      bg: 'soft cosmic gradient in dusty rose and cream, dreamy minimalist backdrop'
+      mood: 'a deeply romantic sense of soul connection, like dawn light through rose petals',
+      heroMotifs: [
+        'a single luminous lotus bloom in cosmic full bloom, surrounded by drifting rose-tinted stardust against deep velvet space',
+        'two abstract spheres of soft pink-gold light orbiting and merging in a starfield, with delicate cascading petals',
+        'a dramatic curtain of rose silk parting in cosmic space to reveal a glowing heart of warm pink light'
+      ],
+      bg: 'rose-violet aurora nebula backdrop, dreamy cosmic garden'
     },
     career: {
-      mood: 'a quiet sense of rising power and noble path (NOT literal eagles, NOT thrones, NOT crowns)',
-      symbols: 'a single ascending light pillar, abstract upward geometric form, suggestion of clear horizon (avoid all literal status imagery)',
-      bg: 'soft cosmic gradient with vertical light gestures, refined minimalist backdrop'
+      mood: 'a powerful sense of rising achievement, like a lighthouse beam piercing storm clouds',
+      heroMotifs: [
+        'a dramatic vertical light pillar piercing through cosmic clouds upward into infinite stars, like a path of ascension',
+        'an abstract eagle silhouette of pure light soaring above a cosmic mountain range at golden hour',
+        'a dramatic ascending staircase of light dissolving into starfields, with rays of warm gold breaking through'
+      ],
+      bg: 'majestic deep blue cosmic skyscape with ascending golden light gestures'
     },
     protection: {
-      mood: 'a quiet sense of being held and safe (NOT literal lions, NOT shields, NOT angels)',
-      symbols: 'a single abstract circular halo of soft light, suggestion of gentle enclosure, refined protective geometry (avoid all literal guardian imagery)',
-      bg: 'soft cosmic gradient with embracing curved light, serene minimalist backdrop'
+      mood: 'a powerful sense of being held by the universe, like a cathedral of light',
+      heroMotifs: [
+        'a dramatic glowing dome of soft white light enclosing a sacred space, with abstract guardian wings stretched in cosmic backdrop',
+        'an abstract circular mandala of warm white-gold light radiating outward into starfields, holding everything within',
+        'a soaring abstract sanctuary of light with glowing arches against deep cosmic backdrop, sacred and serene'
+      ],
+      bg: 'ethereal pearl-white nebula with deep cosmic backdrop, divine sanctuary atmosphere'
     },
     luck: {
-      mood: 'a quiet sense of perfect timing and serendipity (NOT literal clovers, NOT cats, NOT dice)',
-      symbols: 'a single shooting line of light across the composition, abstract orbital pattern, suggestion of cosmic alignment (avoid all literal luck imagery)',
-      bg: 'soft cosmic gradient with subtle motion blur, minimalist celestial backdrop'
+      mood: 'a magical sense of cosmic alignment, like watching a meteor split the sky',
+      heroMotifs: [
+        'a dramatic shooting comet of rainbow light arcing across deep starfield, leaving a trail of stardust',
+        'an abstract spiral galaxy of multicolored light with a glowing center of cosmic alignment',
+        'a dramatic portal of swirling rainbow energy opening in deep space with rays of light bursting outward'
+      ],
+      bg: 'multicolored aurora nebula backdrop, magical cosmic alignment moment'
     }
   };
 
@@ -933,55 +954,58 @@ async function handleWallpaper(req, res, apiKey) {
   };
   var themeIntent = themeIntentMap[theme] || themeIntentMap.wealth;
 
-  // ─── 根據 tier 決定要塞多少 personal elements 進 prompt（但「個人元素＋祈福意圖」永遠是核心）───
+  // ─── 從主題的 hero motifs 依 variant 挑一個（每張不重複）───
+  var heroMotif = themeS.heroMotifs ? themeS.heroMotifs[variant % themeS.heroMotifs.length] : (themeS.symbols || '');
+
+  // ─── 根據 tier 決定豐富度（豐富但有品味，不再用 minimalist）───
   var personalElementsToUse;
   var symbolDepthHint;
   if (tier === 'premium') {
     personalElementsToUse = personalElements;
-    symbolDepthHint = 'Ultra-detailed masterwork composition with 6-8 symbolic elements, fractal patterns, sacred geometry overlays, multi-layered cosmic depth. Lucky numbers (' + (profile.luckyNums || []).join(',') + ') hidden in the design as numerical sacred geometry.';
+    symbolDepthHint = 'Ultra-rich composition with 6-8 layered visual elements, atmospheric depth, intricate cosmic textures, dramatic cinematic lighting, sacred geometry woven into background. Museum-quality fine art photography meets editorial album cover.';
   } else if (tier === 'advanced') {
     personalElementsToUse = personalElements.slice(0, 5);
-    symbolDepthHint = 'Rich detailed composition with 4-6 symbolic elements, intricate patterns, layered cosmic depth. Editorial magazine quality.';
+    symbolDepthHint = 'Rich layered composition with 4-6 visual elements, atmospheric cosmic depth, dramatic lighting, refined detail. Editorial magazine cover quality.';
   } else {
     personalElementsToUse = personalElements.slice(0, 3);
-    symbolDepthHint = 'Clean and elegant composition with 2-3 key symbolic elements. Minimalist but powerful, refined high-fashion sensibility.';
+    symbolDepthHint = 'Bold composition with 3-4 powerful visual elements, atmospheric depth, dramatic lighting. Confident editorial sensibility.';
   }
   var personalElementsStr = personalElementsToUse.length
-    ? 'CORE PERSONAL ELEMENTS to integrate (this is what makes the wallpaper TRULY belong to one specific person, must be visually present): ' + personalElementsToUse.join('; ') + '. '
+    ? 'CORE PERSONAL ELEMENTS (these MUST be visually present, woven into the imagery): ' + personalElementsToUse.join('; ') + '. '
     : '';
 
   var aspectText = device === 'desktop' ? 'desktop wallpaper (landscape 3:2 ratio, 1536x1024)' : 'phone wallpaper (portrait 2:3 ratio, 1024x1536)';
 
-  // ─── 最終 prompt：強化美學錨點 + 負面排除 + 抽象符號 ───
+  // ─── 最終 prompt：戲劇感 + 豐富 + 高美學 ───
   var prompt =
-    // 開場：定義作品類型 + 美學參考錨點
-    'A high-end editorial fine art ' + aspectText + ', styled like a luxury fragrance campaign meets museum gallery installation. ' +
-    'Aesthetic references to draw from: Aesop store interior softness, Calvin Klein fragrance editorial, Dior beauty campaign at golden hour, The Row minimalist palette, Acne Studios moodboard, Loewe artistic still life, Hermès silk scarf abstract pattern, contemporary art gallery installation. ' +
-    'Mood reference: a single perfect object photographed in soft directional light against a quiet cosmic gradient backdrop. ' +
-    // ① 個人核心元素
+    // ① 開場：定義作品類型（強調 RICH 不是 minimal）
+    'Create a museum-quality ' + aspectText + ' that feels like a cinematic Vogue editorial cover crossed with album cover art and fine art concept painting. ' +
+    'Rich, atmospheric, dramatic — NOT minimalist or sparse. The image must have visual weight, depth, and presence. ' +
+    'Aesthetic references: cinematic concept art (Roger Deakins lighting), high-fashion editorial photography (Steven Meisel for Vogue), luxury fragrance campaign (Dior J\'adore golden cinematography), prestige album cover art (The xx Coexist depth, Beach House dreamy cosmos), Pinterest aesthetic boards labeled "celestial luxury" / "cosmic elegance" / "dark academia meets stardust". ' +
+    // ② 主題 HERO MOTIF — 這是核心畫面
+    'PRIMARY HERO IMAGE: ' + heroMotif + '. ' +
+    'Theme intent: a powerful visual blessing for ' + themeIntent + '. ' + themeS.mood + '. ' +
+    // ③ 個人核心元素
     personalElementsStr +
-    // ② 祈福意圖（抽象化）
-    'Intent: a daily visual cognitive anchor for ' + themeIntent + '. ' + themeS.mood + '. ' +
-    'Conceptual symbolism (ABSTRACT, never literal): ' + themeS.symbols + '. ' +
-    // ③ 五行配色（限定 2-3 主色，禁艷俗）
-    'Strict color palette (use ONLY these tones, restrained, 2-3 main colors maximum): ' + wxV.colors + '. ' +
-    (compensateColors ? 'Subtle accent: ' + compensateColors + '. ' : '') +
+    // ④ 五行配色（飽和但有品味）
+    'Color palette (rich, saturated, sophisticated — based on dominant ' + wx + ' element): ' + wxV.colors + '. ' +
+    (compensateColors ? 'Compensating accent colors (because they are missing ' + missingWx.join('/') + '): ' + compensateColors + '. ' : '') +
     'Color mood: ' + wxV.mood + '. ' +
-    'Atmosphere: ' + wxV.nature + '. ' +
-    'Suggested visual element: ' + wxV.elements + '. ' +
+    'Atmosphere reference: ' + wxV.nature + '. ' +
+    'Element-based texture & elements: ' + wxV.elements + '. ' +
     wxStatStr +
     genderHint +
-    // ④ 風格包裝
-    'Style direction: ' + styleChoice + '. ' +
-    'Background: ' + themeS.bg + '. ' +
-    // ⑤ 構圖規則（核心設計指令）
-    'COMPOSITION RULES: minimalist composition, single clear focal point, generous negative space, restrained palette, refined elegance. ' + symbolDepthHint + ' ' +
-    'The image must feel like it could hang in a contemporary art gallery, not a video game cover. ' +
-    // ⑥ 強烈負面排除（避免廟會奇幻遊戲美學）
-    'STRONGLY AVOID: fantasy game art, video game cover, anime style, cartoon, chibi, chinese opera mask, folk religion temple imagery, literal dragons or coins or treasure chests or phoenixes or lucky cats, gaudy saturated reds, busy cluttered compositions, multiple competing focal points, generic AI fantasy art, painting of a pile of stuff, dnd illustration, deviantart style, kitsch, tacky luxury, bling. ' +
-    // ⑦ 技術約束
+    // ⑤ 風格包裝（要明顯影響整體視覺）
+    'Aesthetic style wrapper (this MUST clearly shape the entire image): ' + styleChoice + '. ' +
+    'Background atmosphere: ' + themeS.bg + '. ' +
+    // ⑥ 構圖規則（戲劇感為主）
+    'COMPOSITION DIRECTION: dramatic cinematic composition with clear visual hierarchy. Strong focal subject + atmospheric depth + layered background. Use chiaroscuro lighting (dramatic light against deep shadow). Sense of scale and otherworldly grandeur. ' + symbolDepthHint + ' ' +
+    'The image should feel like it could be a cover of a luxury magazine or a high-end concept art portfolio piece. Visual weight is essential — never empty, never sparse, never thin. ' +
+    // ⑦ 強烈負面排除
+    'STRONGLY AVOID: empty bland minimalism (NO sparse single object on flat gradient), fantasy game art, video game cover, anime style, cartoon, chibi, chinese opera mask, folk religion temple imagery, literal coins or treasure chests or lucky cats, dim muddy beige, washed out colors, low contrast, lack of focal interest, generic AI wellness app aesthetic, dnd illustration, deviantart style, kitsch, tacky luxury bling. ' +
+    // ⑧ 技術約束
     'CRITICAL TECHNICAL: no text, no words, no letters, no numbers, no watermarks, no signatures, no logos. Pure visual symbolism only. ' +
-    'Quality: editorial photography meets fine art painting. Soft directional lighting. Restrained sophisticated palette. Museum-quality composition. The owner will look at this 80 times a day on their lock screen and feel quietly aligned with their best self.';
+    'Quality: cinematic photography meets fine art painting. Dramatic directional lighting with chiaroscuro. Rich saturated yet sophisticated palette. The owner paid premium for this and will use it as their phone wallpaper for months — it must feel valuable and deeply personal every time they unlock their phone.';
 
   try {
     var resp = await fetch('https://api.openai.com/v1/images/generations', {
