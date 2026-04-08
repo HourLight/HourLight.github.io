@@ -5,11 +5,12 @@
 // © 2026 Hour Light International
 // ═══════════════════════════════════════
 //
-// 合併了 4 個解讀服務，透過 ?type=xxx 區分：
+// 合併了 5 個解讀服務，透過 ?type=xxx 區分：
 //   ?type=akashic    → 阿卡西紀錄翻閱
 //   ?type=yuan-chen  → 元辰宮導覽
 //   ?type=past-life  → 前世故事
 //   ?type=name       → 姓名分析
+//   ?type=wallpaper  → 馥靈蘊福桌布（OpenAI Image API）
 //
 // 端點：POST /api/reading-services?type=xxx
 // 環境變數：ANTHROPIC_API_KEY, FIREBASE_SERVICE_ACCOUNT
@@ -729,6 +730,161 @@ async function handleName(req, res, apiKey) {
 
 
 // ════════════════════════════════════════
+// Handler 5: 馥靈蘊福桌布 (?type=wallpaper)
+// ════════════════════════════════════════
+async function handleWallpaper(req, res, apiKey) {
+  var body = req.body || {};
+  var profile = body.profile || {};
+  var theme = body.theme || 'wealth';
+  var variant = body.variant || 0;
+  var tier = body.tier || 'basic';
+  var total = body.total || 3;
+
+  if (!profile.lifePathNum) {
+    return res.status(400).json({ error: '請先計算命理座標' });
+  }
+
+  // OpenAI API Key
+  var openaiKey = process.env.OPENAI_API_KEY;
+  if (!openaiKey) {
+    return res.status(500).json({ error: 'OpenAI 服務尚未設定' });
+  }
+
+  // 五行→視覺元素映射
+  var wxVisuals = {
+    '金': { colors: 'white, silver, platinum, pearl, soft gold', elements: 'metallic crystalline structures, luminous moon, floating coins, jade ornaments', season: 'autumn', nature: 'snow-capped mountains, clear starry sky' },
+    '木': { colors: 'emerald green, jade, forest green, sage, bamboo', elements: 'ancient sacred trees, blooming lotus, bamboo forest, growing vines', season: 'spring', nature: 'lush enchanted forest, morning dew on leaves' },
+    '水': { colors: 'deep sapphire blue, ocean teal, midnight indigo, aquamarine', elements: 'flowing cosmic water, koi fish, ocean waves, waterfall, rain drops', season: 'winter', nature: 'deep ocean with bioluminescence, moonlit lake' },
+    '火': { colors: 'crimson red, royal purple, magenta, amber orange', elements: 'phoenix rising, sacred flames, lanterns, fireworks, candle light', season: 'summer', nature: 'dramatic sunset, volcanic aurora' },
+    '土': { colors: 'warm amber, honey gold, terracotta, rich brown, champagne', elements: 'ancient temple, golden earth, crystals emerging from ground, mountains', season: 'late summer', nature: 'grand canyon at golden hour, desert oasis' }
+  };
+
+  // 主題→風格映射
+  var themeStyles = {
+    wealth: { mood: 'opulent abundance and golden prosperity', symbols: 'golden coins, treasure chest, golden dragon, flowing golden river, precious gems, golden lotus, wealth deities silhouette', bg: 'cosmic golden nebula with floating treasure' },
+    love: { mood: 'romantic divine love and soul connection', symbols: 'intertwined roses, heart constellation, twin flames, love birds, pink lotus, celestial cupid bow', bg: 'rose-tinted aurora borealis with floating petals' },
+    career: { mood: 'powerful ambition and noble achievement', symbols: 'rising eagle, golden throne, ancient compass, lighthouse beam, ascending staircase to stars, crown', bg: 'majestic cosmic city skyline with ascending light pillars' },
+    protection: { mood: 'sacred guardian shield and divine blessing', symbols: 'guardian lion, protective mandala, sacred geometry shield, ancient talisman, angelic wings, vajra', bg: 'ethereal temple surrounded by protective aurora light' },
+    luck: { mood: 'serendipitous fortune and cosmic alignment', symbols: 'four-leaf clover, lucky cat, shooting stars, rainbow bridge, fortune wheel, golden horseshoe, dice showing six', bg: 'magical portal with swirling lucky stars and rainbow energy' }
+  };
+
+  var wx = profile.dominantWx || '土';
+  var missingWx = profile.missingWx || [];
+  var wxV = wxVisuals[wx] || wxVisuals['土'];
+  var themeS = themeStyles[theme] || themeStyles.wealth;
+
+  // 補足缺失五行的顏色
+  var compensateColors = missingWx.map(function(w) {
+    return wxVisuals[w] ? wxVisuals[w].colors.split(',')[0].trim() : '';
+  }).filter(Boolean).join(', ');
+
+  // 根據 tier 調整複雜度
+  var complexity = {
+    basic: 'Clean and elegant composition with 2-3 key symbolic elements. Minimalist but powerful.',
+    advanced: 'Rich detailed composition with 4-6 symbolic elements, intricate patterns, and layered depth. Include zodiac animal (' + profile.zodiac + ') subtly integrated.',
+    premium: 'Ultra-detailed masterwork composition with 6-8 symbolic elements, fractal patterns, sacred geometry overlays, zodiac animal (' + profile.zodiac + ') prominently featured, lucky numbers (' + (profile.luckyNums || []).join(',') + ') hidden in the design, and the Chinese character for the dominant element subtly embedded.'
+  };
+
+  // 風格變化（每張不同）
+  var styleVariants = [
+    'ethereal cosmic style with deep space background',
+    'traditional Eastern aesthetic with modern twist, silk texture',
+    'art nouveau organic flowing lines with celestial elements',
+    'sacred geometry mandala centered composition',
+    'watercolor dreamscape with luminous highlights',
+    'cyberpunk-meets-ancient mystical fusion',
+    'zen minimalist with single powerful focal point',
+    'baroque ornamental with cosmic elements',
+    'stained glass cathedral light effect',
+    'ancient scroll painting reimagined in cosmic scale',
+    'liquid gold flowing abstract energy',
+    'crystal cave interior with magical light',
+    'floating islands in cosmic space',
+    'bioluminescent deep ocean mystical scene',
+    'northern lights over sacred temple'
+  ];
+  var styleChoice = styleVariants[variant % styleVariants.length];
+
+  var prompt = 'Create a stunning phone wallpaper (portrait 9:16 ratio) in ' + styleChoice + '. ' +
+    'Theme: ' + themeS.mood + '. ' +
+    'Background: ' + themeS.bg + '. ' +
+    'Primary color palette: ' + wxV.colors + '. ' +
+    (compensateColors ? 'Add accent touches of: ' + compensateColors + ' to balance energy. ' : '') +
+    'Include these symbolic elements: ' + themeS.symbols + ', ' + wxV.elements + '. ' +
+    'Nature atmosphere: ' + wxV.nature + '. ' +
+    complexity[tier] + ' ' +
+    'Life path number ' + profile.lifePathNum + ' energy vibration. ' +
+    'The overall feeling should be mystical, luxurious, and deeply personal. ' +
+    'No text, no words, no letters, no watermarks. ' +
+    'Photorealistic quality with magical realism touch. 8K ultra detailed.';
+
+  try {
+    var resp = await fetch('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + openaiKey
+      },
+      body: JSON.stringify({
+        model: 'gpt-image-1',
+        prompt: prompt,
+        n: 1,
+        size: '1024x1792',
+        quality: tier === 'premium' ? 'high' : 'medium'
+      })
+    });
+
+    var data = await resp.json();
+
+    if (data.error) {
+      console.error('OpenAI error:', data.error);
+      return res.status(500).json({ error: '圖片生成失敗，請稍後再試' });
+    }
+
+    var imageUrl = '';
+    if (data.data && data.data.length > 0) {
+      // gpt-image-1 returns base64
+      if (data.data[0].b64_json) {
+        imageUrl = 'data:image/png;base64,' + data.data[0].b64_json;
+      } else if (data.data[0].url) {
+        imageUrl = data.data[0].url;
+      }
+    }
+
+    if (!imageUrl) {
+      return res.status(500).json({ error: '圖片生成失敗' });
+    }
+
+    // 記錄到 Firestore
+    try {
+      var db = getFirestore();
+      if (db) {
+        var admin = require('firebase-admin');
+        await db.collection('wallpaper_generations').add({
+          profile: { lifePathNum: profile.lifePathNum, zodiac: profile.zodiac, dominantWx: wx, missingWx: missingWx },
+          theme: theme,
+          tier: tier,
+          variant: variant,
+          createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+      }
+    } catch(e) { /* non-blocking */ }
+
+    return res.status(200).json({
+      success: true,
+      imageUrl: imageUrl,
+      theme: theme,
+      tier: tier
+    });
+
+  } catch(e) {
+    console.error('Wallpaper generation error:', e);
+    return res.status(500).json({ error: '生成服務暫時不可用，請稍後再試' });
+  }
+}
+
+
+// ════════════════════════════════════════
 // 主入口：路由分流
 // ════════════════════════════════════════
 module.exports = async function handler(req, res) {
@@ -751,10 +907,12 @@ module.exports = async function handler(req, res) {
         return await handlePastLife(req, res, apiKey);
       case 'name':
         return await handleName(req, res, apiKey);
+      case 'wallpaper':
+        return await handleWallpaper(req, res, apiKey);
       default:
         return res.status(400).json({
-          error: '未指定服務類型，請使用 ?type=akashic|yuan-chen|past-life|name',
-          availableTypes: ['akashic', 'yuan-chen', 'past-life', 'name']
+          error: '未指定服務類型，請使用 ?type=akashic|yuan-chen|past-life|name|wallpaper',
+          availableTypes: ['akashic', 'yuan-chen', 'past-life', 'name', 'wallpaper']
         });
     }
   } catch (err) {
