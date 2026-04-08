@@ -61,6 +61,7 @@ body{min-height:100vh;min-height:100dvh;font-family:var(--ff-font);color:var(--f
 .ww-images{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:20px}
 .ww-img-wrap{position:relative;border-radius:16px;overflow:hidden;border:2px solid rgba(233,194,125,.3);box-shadow:0 8px 32px rgba(0,0,0,.5)}
 .ww-img-wrap img{display:block;max-width:280px;width:100%;height:auto}
+.ww-img-wrap.desktop img{max-width:420px}
 .ww-img-label{position:absolute;bottom:0;left:0;right:0;padding:8px;background:rgba(0,0,0,.7);color:var(--ff-gold);font-size:.8rem;text-align:center}
 /* Loading */
 .ww-loading{display:none;text-align:center;padding:40px 20px}
@@ -108,6 +109,12 @@ body{min-height:100vh;min-height:100dvh;font-family:var(--ff-font);color:var(--f
         <span>日</span>
         <input type="number" class="ww-input" id="dayInput" placeholder="26" min="1" max="31" style="width:70px">
       </div>
+    </div>
+
+    <label style="margin-top:20px">✦ 選擇裝置類型 ✦</label>
+    <div class="ww-themes" id="deviceSelector">
+      <div class="ww-theme active" data-device="phone" onclick="selectDevice(this)">📱 手機桌布</div>
+      <div class="ww-theme" data-device="desktop" onclick="selectDevice(this)">💻 電腦桌布</div>
     </div>
 
     <label style="margin-top:20px">✦ 選擇桌布主題 ✦</label>
@@ -207,11 +214,18 @@ body{min-height:100vh;min-height:100dvh;font-family:var(--ff-font);color:var(--f
 var profileData = null;
 var selectedTheme = 'wealth';
 var selectedN = 1;
+var selectedDevice = 'phone';
 
 function selectTheme(el){
-  document.querySelectorAll('.ww-theme').forEach(function(t){t.classList.remove('active')});
+  document.querySelectorAll('#themeSelector .ww-theme').forEach(function(t){t.classList.remove('active')});
   el.classList.add('active');
   selectedTheme = el.dataset.theme;
+}
+
+function selectDevice(el){
+  document.querySelectorAll('#deviceSelector .ww-theme').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  selectedDevice = el.dataset.device;
 }
 
 function selectPlan(el){
@@ -416,6 +430,7 @@ async function doGenerate(){
           index: i,
           total: totalToGenerate,
           tier: tier,
+          device: selectedDevice,
           unlockCode: window._lastUsedUnlockCode || ''
         })
       });
@@ -424,7 +439,7 @@ async function doGenerate(){
       if(data.success && data.imageUrl){
         successCount++;
         var wrap = document.createElement('div');
-        wrap.className = 'ww-img-wrap';
+        wrap.className = 'ww-img-wrap' + (selectedDevice === 'desktop' ? ' desktop' : '');
         var labelText = themeNames[currentTheme] + ' #' + (totalToGenerate === 15 ? ((i%3)+1) : (i+1));
         wrap.innerHTML = '<img src="' + data.imageUrl + '" alt="馥靈蘊福桌布 - ' + themeNames[currentTheme] + '" loading="lazy">' +
           '<div class="ww-img-label">' + labelText + '</div>';

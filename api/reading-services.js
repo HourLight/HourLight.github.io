@@ -739,6 +739,7 @@ async function handleWallpaper(req, res, apiKey) {
   var variant = body.variant || 0;
   var tier = body.tier || 'basic';
   var total = body.total || 3;
+  var device = body.device || 'phone';
 
   if (!profile.lifePathNum) {
     return res.status(400).json({ error: '請先計算命理座標' });
@@ -805,7 +806,8 @@ async function handleWallpaper(req, res, apiKey) {
   ];
   var styleChoice = styleVariants[variant % styleVariants.length];
 
-  var prompt = 'Create a stunning phone wallpaper (portrait 9:16 ratio) in ' + styleChoice + '. ' +
+  var aspectText = device === 'desktop' ? 'desktop wallpaper (landscape 3:2 ratio)' : 'phone wallpaper (portrait 2:3 ratio)';
+  var prompt = 'Create a stunning ' + aspectText + ' in ' + styleChoice + '. ' +
     'Theme: ' + themeS.mood + '. ' +
     'Background: ' + themeS.bg + '. ' +
     'Primary color palette: ' + wxV.colors + '. ' +
@@ -829,7 +831,7 @@ async function handleWallpaper(req, res, apiKey) {
         model: 'gpt-image-1',
         prompt: prompt,
         n: 1,
-        size: '1024x1792',
+        size: device === 'desktop' ? '1536x1024' : '1024x1536',
         quality: tier === 'premium' ? 'high' : 'medium'
       })
     });
