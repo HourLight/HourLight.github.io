@@ -557,57 +557,10 @@ body{min-height:100vh;min-height:100dvh;font-family:var(--ff-font);color:var(--f
         <div class="price">兌換 / 贈送</div>
         <div class="unit">單張能量桌布</div>
       </div>
-      <div class="ww-price-card disabled" data-n="3" style="opacity:.4;cursor:not-allowed;position:relative">
-        <div class="badge" style="background:linear-gradient(135deg,#ff8a8a,#cc5050);color:#fff">維護中</div>
+      <div class="ww-price-card" data-n="3" onclick="selectPlan(this)">
         <div class="qty">3 張</div>
         <div class="price">NT$ 199</div>
-        <div class="unit">基礎能量配色</div>
-      </div>
-      <div class="ww-price-card disabled" data-n="5" style="opacity:.4;cursor:not-allowed;position:relative">
-        <div class="badge" style="background:linear-gradient(135deg,#ff8a8a,#cc5050);color:#fff">維護中</div>
-        <div class="qty">5 張</div>
-        <div class="price">NT$ 399</div>
-        <div class="unit">進階圖騰桌布</div>
-      </div>
-      <div class="ww-price-card disabled" data-n="15" style="opacity:.4;cursor:not-allowed;position:relative">
-        <div class="badge" style="background:linear-gradient(135deg,#ff8a8a,#cc5050);color:#fff">維護中</div>
-        <div class="qty">15 張</div>
-        <div class="price">NT$ 999</div>
-        <div class="unit">完整能量套組</div>
-      </div>
-    </div>
-    <div style="margin-top:14px;padding:14px 18px;border-radius:12px;background:rgba(255,138,138,.08);border:1px solid rgba(255,138,138,.3);text-align:center;font-size:.85rem;color:#ffb0b0;line-height:1.7">
-      ⚠️ 付費方案暫時下架維護中｜AI 出圖品質正在重新調校，等品質穩定後重新開放
-    </div>
-    <div style="display:none">
-      <!-- 維護期間隱藏 selectPlan 觸發器 -->
-    </div>
-
-    <!-- 對比表 -->
-    <div class="ww-compare">
-      <div class="ww-compare-row head">
-        <div>方案內容</div><div>1 張</div><div>3 張</div><div>5 張</div><div>15 張</div>
-      </div>
-      <div class="ww-compare-row">
-        <div>命理配色</div><div class="y">✓</div><div class="y">✓</div><div class="y">✓</div><div class="y">✓</div>
-      </div>
-      <div class="ww-compare-row">
-        <div>五行補益</div><div class="y">✓</div><div class="y">✓</div><div class="y">✓</div><div class="y">✓</div>
-      </div>
-      <div class="ww-compare-row">
-        <div>核心圖騰</div><div>2-3 個</div><div>2-3 個</div><div>4-6 個</div><div>6-8 個</div>
-      </div>
-      <div class="ww-compare-row">
-        <div>生肖意象</div><div class="n">—</div><div class="n">—</div><div class="y">✓</div><div class="y">✓</div>
-      </div>
-      <div class="ww-compare-row">
-        <div>幸運數字嵌入</div><div class="n">—</div><div class="n">—</div><div class="n">—</div><div class="star">✦</div>
-      </div>
-      <div class="ww-compare-row">
-        <div>主題涵蓋</div><div>1 主題</div><div>1 主題</div><div>1 主題</div><div class="star">5 主題全套</div>
-      </div>
-      <div class="ww-compare-row">
-        <div>藝術風格變化</div><div>1 種</div><div>3 種</div><div>5 種</div><div class="star">15 種</div>
+        <div class="unit">三張能量套組</div>
       </div>
     </div>
 
@@ -1398,7 +1351,7 @@ async function generateWallpaper(){
   if(typeof hlPaywall !== 'undefined'){
     hlPaywall.show({
       n: selectedN,
-      priceMap: {1:0, 3:199, 5:399, 15:999},
+      priceMap: {1:0, 3:199},
       serviceName: '馥靈蘊福桌布（' + selectedN + '張）',
       pageType: 'wealth-wallpaper',
       onProceed: function(){ doGenerate(); }
@@ -1525,10 +1478,6 @@ async function doGenerate(){
   var slots = [];
   for (var s = 0; s < totalToGenerate; s++) {
     var slotTheme = selectedTheme;
-    if (totalToGenerate === 15) {
-      var themeList = ['wealth','love','career','protection','luck'];
-      slotTheme = themeList[Math.floor(s / 3)];
-    }
     var slot = document.createElement('div');
     slot.className = 'ww-img-wrap' + (selectedDevice === 'desktop' ? ' desktop' : '');
     slot.style.minHeight = selectedDevice === 'desktop' ? '160px' : '320px';
@@ -1547,7 +1496,8 @@ async function doGenerate(){
     (function(idx){
       tasks.push(async function(){
         var currentTheme = slots[idx].theme;
-        var tier = totalToGenerate <= 3 ? 'basic' : (totalToGenerate <= 5 ? 'advanced' : 'premium');
+        // n=1 (兌換) → basic；n=3 (付費) → advanced，給更豐富的合成
+        var tier = totalToGenerate === 1 ? 'basic' : 'advanced';
         // 標記為生成中
         slots[idx].el.innerHTML = '<div style="text-align:center;color:rgba(248,223,165,.7);font-size:.85rem"><div style="font-size:1.4rem;margin-bottom:6px">🎨</div>第 ' + (idx+1) + ' 張<br>生成中</div>';
         try {
@@ -1572,7 +1522,7 @@ async function doGenerate(){
           var data = await resp.json();
           if (data.success && data.imageUrl) {
             // 替換為實際圖片
-            var labelText = themeNames[currentTheme] + ' #' + (totalToGenerate === 15 ? ((idx%3)+1) : (idx+1));
+            var labelText = themeNames[currentTheme] + ' #' + (idx + 1);
             slots[idx].el.style.minHeight = '';
             slots[idx].el.style.background = '';
             slots[idx].el.style.display = '';
