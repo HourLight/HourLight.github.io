@@ -756,22 +756,42 @@ async function handleWallpaper(req, res, apiKey) {
     return res.status(500).json({ error: 'OpenAI 服務尚未設定' });
   }
 
-  // 五行→視覺元素映射
+  // ─── 五行→精緻視覺映射（時尚感＋宇宙感）───
   var wxVisuals = {
-    '金': { colors: 'white, silver, platinum, pearl, soft gold', elements: 'metallic crystalline structures, luminous moon, floating coins, jade ornaments', season: 'autumn', nature: 'snow-capped mountains, clear starry sky' },
-    '木': { colors: 'emerald green, jade, forest green, sage, bamboo', elements: 'ancient sacred trees, blooming lotus, bamboo forest, growing vines', season: 'spring', nature: 'lush enchanted forest, morning dew on leaves' },
-    '水': { colors: 'deep sapphire blue, ocean teal, midnight indigo, aquamarine', elements: 'flowing cosmic water, koi fish, ocean waves, waterfall, rain drops', season: 'winter', nature: 'deep ocean with bioluminescence, moonlit lake' },
-    '火': { colors: 'crimson red, royal purple, magenta, amber orange', elements: 'phoenix rising, sacred flames, lanterns, fireworks, candle light', season: 'summer', nature: 'dramatic sunset, volcanic aurora' },
-    '土': { colors: 'warm amber, honey gold, terracotta, rich brown, champagne', elements: 'ancient temple, golden earth, crystals emerging from ground, mountains', season: 'late summer', nature: 'grand canyon at golden hour, desert oasis' }
+    '金': { colors: 'soft pearl white, brushed platinum, champagne silver, moonstone, mother-of-pearl iridescence', elements: 'liquid mercury swirls, floating crystalline geometry, lunar discs, polished metal ribbons, frosted ice formations', nature: 'snow-capped peaks under aurora, polar starlight, frozen lake mirroring galaxies', mood: 'cool refined elegance' },
+    '木': { colors: 'emerald jade, forest moss, deep sage, jadeite green, fresh bamboo with gold accents', elements: 'ancient sacred trees with luminous leaves, blooming celestial lotus, bamboo silhouettes, climbing mystical vines, dewdrops as crystals', nature: 'enchanted moonlit forest, bioluminescent foliage, sacred grove with floating fireflies', mood: 'fresh organic vitality' },
+    '水': { colors: 'deep sapphire midnight blue, ocean teal, indigo violet, aquamarine, ethereal blue mist', elements: 'flowing liquid stardust, koi fish made of light, cosmic ocean waves, waterfalls of galaxies, raindrops holding constellations', nature: 'deep bioluminescent ocean, moonlit lake under cosmos, underwater nebula', mood: 'mysterious flowing depth' },
+    '火': { colors: 'crimson rose, royal magenta, burning amber, sunset coral, phoenix red with gold sparks', elements: 'rising phoenix made of light, sacred flames dancing, floating lanterns, sparkling embers, sunfire rays', nature: 'dramatic sunset over cosmic mountains, volcanic aurora, sun setting between dimensions', mood: 'passionate radiant power' },
+    '土': { colors: 'warm honey gold, rich amber, terracotta with bronze, champagne beige, soft caramel with copper highlights', elements: 'ancient temple silhouettes, rising golden mountains, crystalline geodes growing from earth, sacred desert dunes, weathered gold artifacts', nature: 'grand canyon at golden hour, desert oasis under starry sky, sacred ruins glowing', mood: 'grounded ancient wisdom' }
   };
 
-  // 主題→風格映射
+  // ─── 主題→精準風格映射（量身打造的關鍵）───
   var themeStyles = {
-    wealth: { mood: 'opulent abundance and golden prosperity', symbols: 'golden coins, treasure chest, golden dragon, flowing golden river, precious gems, golden lotus, wealth deities silhouette', bg: 'cosmic golden nebula with floating treasure' },
-    love: { mood: 'romantic divine love and soul connection', symbols: 'intertwined roses, heart constellation, twin flames, love birds, pink lotus, celestial cupid bow', bg: 'rose-tinted aurora borealis with floating petals' },
-    career: { mood: 'powerful ambition and noble achievement', symbols: 'rising eagle, golden throne, ancient compass, lighthouse beam, ascending staircase to stars, crown', bg: 'majestic cosmic city skyline with ascending light pillars' },
-    protection: { mood: 'sacred guardian shield and divine blessing', symbols: 'guardian lion, protective mandala, sacred geometry shield, ancient talisman, angelic wings, vajra', bg: 'ethereal temple surrounded by protective aurora light' },
-    luck: { mood: 'serendipitous fortune and cosmic alignment', symbols: 'four-leaf clover, lucky cat, shooting stars, rainbow bridge, fortune wheel, golden horseshoe, dice showing six', bg: 'magical portal with swirling lucky stars and rainbow energy' }
+    wealth: {
+      mood: 'opulent abundance and golden prosperity, but elegant not gaudy',
+      symbols: 'cascading liquid gold, floating golden coins as constellations, treasure chest opening with cosmic light, abstract golden dragon silhouette, precious gems forming sacred geometry, golden lotus blooming, prosperity deity silhouettes in mist',
+      bg: 'cosmic golden nebula with floating treasure, deep space with golden particles, opulent celestial vault'
+    },
+    love: {
+      mood: 'romantic divine love and soul connection, ethereal not saccharine',
+      symbols: 'intertwined celestial roses, heart-shaped constellation, twin flames dancing, love birds in moonlit flight, pink lotus blossoms drifting, cupid bow made of starlight, sacred feminine geometry',
+      bg: 'rose-tinted aurora borealis with floating petals, dreamy pink-violet cosmic dust, celestial garden'
+    },
+    career: {
+      mood: 'powerful ambition and noble achievement, sophisticated executive aesthetic',
+      symbols: 'rising eagle silhouette against cosmic light, golden throne floating in space, ancient mariner compass, lighthouse beam piercing nebula, ascending staircase to stars, regal crown, geometric power symbols',
+      bg: 'majestic cosmic city skyline with ascending light pillars, otherworldly metropolis at twilight, celestial achievement gateway'
+    },
+    protection: {
+      mood: 'sacred guardian shield and divine blessing, calm and powerful',
+      symbols: 'guardian lion silhouette, protective mandala patterns, sacred geometry shield, ancient talisman glowing, angelic wings stretched wide, vajra thunderbolt, blessing seals',
+      bg: 'ethereal temple surrounded by protective aurora light, divine sanctuary in space, celestial fortress'
+    },
+    luck: {
+      mood: 'serendipitous fortune and cosmic alignment, playful magical realism',
+      symbols: 'four-leaf clover floating in stardust, lucky cat silhouette, shooting stars, rainbow bridge across galaxies, fortune wheel with cosmic patterns, golden horseshoe glowing, magical dice',
+      bg: 'magical portal with swirling lucky stars and rainbow energy, wish-granting cosmic alignment, dimensional gateway'
+    }
   };
 
   var wx = profile.dominantWx || '土';
@@ -784,46 +804,127 @@ async function handleWallpaper(req, res, apiKey) {
     return wxVisuals[w] ? wxVisuals[w].colors.split(',')[0].trim() : '';
   }).filter(Boolean).join(', ');
 
-  // 根據 tier 調整複雜度
-  var complexity = {
-    basic: 'Clean and elegant composition with 2-3 key symbolic elements. Minimalist but powerful.',
-    advanced: 'Rich detailed composition with 4-6 symbolic elements, intricate patterns, and layered depth. Include zodiac animal (' + profile.zodiac + ') subtly integrated.',
-    premium: 'Ultra-detailed masterwork composition with 6-8 symbolic elements, fractal patterns, sacred geometry overlays, zodiac animal (' + profile.zodiac + ') prominently featured, lucky numbers (' + (profile.luckyNums || []).join(',') + ') hidden in the design, and the Chinese character for the dominant element subtly embedded.'
-  };
-
-  // 風格變化（每張不同）
+  // ─── 風格變化（時尚感＋宇宙感為核心；以「佛系／天使系／仙系」這種輕巧語感為主，不要宗教說教味）───
   var styleVariants = [
-    'ethereal cosmic style with deep space background',
-    'traditional Eastern aesthetic with modern twist, silk texture',
-    'art nouveau organic flowing lines with celestial elements',
-    'sacred geometry mandala centered composition',
-    'watercolor dreamscape with luminous highlights',
-    'cyberpunk-meets-ancient mystical fusion',
-    'zen minimalist with single powerful focal point',
-    'baroque ornamental with cosmic elements',
-    'stained glass cathedral light effect',
-    'ancient scroll painting reimagined in cosmic scale',
-    'liquid gold flowing abstract energy',
-    'crystal cave interior with magical light',
-    'floating islands in cosmic space',
-    'bioluminescent deep ocean mystical scene',
-    'northern lights over sacred temple'
+    // [0] 開場：高時尚宇宙
+    'high fashion editorial cosmic dreamscape, Vogue-style composition with deep space background and refined elegance',
+    // [1] 佛系 #1 — 主打（東方禪意，輕盈不沉重）
+    'modern "Buddha-vibe" aesthetic — soft lotus floating in cosmic mist, abstract golden mandala dissolving into stardust, gentle silhouette suggestive of meditation but never literal, Bodhi leaves drifting like petals, warm gold and cream palette, calm serene contemporary spiritual mood, like a wellness magazine cover',
+    // [2] 東方時尚
+    'modern Eastern aesthetic fused with cosmic luxury, silk and starlight texture, museum-quality composition',
+    // [3] 佛系 #2 — 主打第二（日式禪簡約）
+    'Zen lifestyle aesthetic with Japanese minimalist sensibility — single lotus blooming in cosmic void, raked sand garden patterns extending into starfields, abstract enso circle of light, bonsai silhouette under moonlight, ink wash meets nebula, refined emptiness, profound stillness, Muji-meets-galaxy',
+    // [4] 神聖幾何曼陀羅
+    'sacred geometry mandala centered composition, fractal patterns radiating outward, deeply hypnotic',
+    // [5] 天使系 — 西方光感美學（基督/天主共用，輕巧不教條）
+    'modern "angelic vibe" aesthetic — luminous dove gliding through soft golden light, abstract feathered wings made of stardust, ethereal halo glow, dreamy Renaissance-painting palette of cream/gold/blush, soft cathedral light effect without literal cross or scripture, like a high-end fragrance ad',
+    // [6] 水彩夢境
+    'watercolor dreamscape with luminous cosmic highlights, soft ethereal washes meeting starlight',
+    // [7] 仙系 — 東方仙氣美學（道教延伸但不放符咒/八卦字）
+    'modern "immortal sage vibe" aesthetic — misty mountain peaks rising from cloud sea suggesting Penglai realm, white cranes drifting through nebula, abstract swirling clouds forming yin-yang energy, soft jade and pearl palette, traditional Chinese landscape painting meets cosmic dreamscape, ethereal and weightless',
+    // [8] Cyberpunk 古今融合
+    'cyberpunk-meets-ancient mystical fusion, neon-on-gold contrast, futuristic temple aesthetic',
+    // [9] 阿拉伯系 — 幾何寶石美學（伊斯蘭延伸但去宗教化）
+    'modern "Arabian geometric vibe" aesthetic — intricate eight-pointed star pattern with jewel tones, Persian miniature painting style, ornate arabesque tessellations spiraling into cosmic spheres, crescent moon over starry sky, deep sapphire and gold palette, like an opulent perfume bottle wallpaper',
+    // [10-19] 其他風格
+    'zen minimalist with single powerful focal point, abundant negative space, museum gallery feel',
+    'baroque ornamental cosmic luxury, gilded edges, ornate but tasteful celestial composition',
+    'stained glass cathedral light effect with cosmic colors, divine light streaming through',
+    'ancient scroll painting reimagined in cosmic scale, brush stroke meets nebula',
+    'liquid gold flowing abstract energy, hypnotic motion frozen in time',
+    'crystal cave interior with magical cosmic light, deep mineral textures with starlight',
+    'floating islands in cosmic space, surreal dreamlike geography, ghibli-meets-galaxy',
+    'bioluminescent deep ocean mystical scene with cosmic plankton and stardust currents',
+    'northern lights over sacred temple, aurora dancing above ancient architecture',
+    'art nouveau organic flowing lines with celestial elements, Mucha-inspired with cosmic palette'
   ];
   var styleChoice = styleVariants[variant % styleVariants.length];
 
-  var aspectText = device === 'desktop' ? 'desktop wallpaper (landscape 3:2 ratio)' : 'phone wallpaper (portrait 2:3 ratio)';
-  var prompt = 'Create a stunning ' + aspectText + ' in ' + styleChoice + '. ' +
-    'Theme: ' + themeS.mood + '. ' +
-    'Background: ' + themeS.bg + '. ' +
-    'Primary color palette: ' + wxV.colors + '. ' +
-    (compensateColors ? 'Add accent touches of: ' + compensateColors + ' to balance energy. ' : '') +
-    'Include these symbolic elements: ' + themeS.symbols + ', ' + wxV.elements + '. ' +
-    'Nature atmosphere: ' + wxV.nature + '. ' +
-    complexity[tier] + ' ' +
-    'Life path number ' + profile.lifePathNum + ' energy vibration. ' +
-    'The overall feeling should be mystical, luxurious, and deeply personal. ' +
-    'No text, no words, no letters, no watermarks. ' +
-    'Photorealistic quality with magical realism touch. 8K ultra detailed.';
+  // ─── 收集所有個人命理座標（這是 prompt 的核心，所有 tier 都用）───
+  var personalElements = [];
+  if (profile.zodiac) personalElements.push('the ' + profile.zodiac + ' Chinese zodiac as a graceful hidden silhouette');
+  if (profile.dayMaster && profile.dayMasterWx) personalElements.push('day-master ' + profile.dayMaster + ' (' + profile.dayMasterWx + '-element) personal energy signature');
+  if (profile.sunSign) personalElements.push(profile.sunSign + ' solar archetype mood');
+  if (profile.risingSign) personalElements.push(profile.risingSign + ' rising sign aesthetic flavor');
+  if (profile.maya && profile.maya.seal) personalElements.push('Mayan totem ' + profile.maya.seal + ' (' + profile.maya.tone + ') woven subtly into the imagery');
+  if (profile.lifePathNum) personalElements.push('life-path-number-' + profile.lifePathNum + ' vibrational pattern');
+  if (profile.fuling) {
+    var fl = profile.fuling;
+    var flParts = [];
+    if (fl.H) flParts.push('H' + fl.H);
+    if (fl.O) flParts.push('O' + fl.O);
+    if (fl.U) flParts.push('U' + fl.U);
+    if (fl.R) flParts.push('R' + fl.R);
+    if (flParts.length) personalElements.push('FuLing HOUR sacred codes (' + flParts.join('/') + ') as hidden numerical micro-pattern');
+  }
+  if (profile.cityLabel) personalElements.push('a subtle cultural echo of birthplace ' + profile.cityLabel);
+
+  // ─── 八字五行統計（讓 AI 知道整體能量分佈）───
+  var wxStatStr = '';
+  if (profile.baziStat) {
+    var stats = profile.baziStat;
+    wxStatStr = 'Personal Bazi five-element distribution: 木' + (stats['木']||0) + ' 火' + (stats['火']||0) + ' 土' + (stats['土']||0) + ' 金' + (stats['金']||0) + ' 水' + (stats['水']||0) + '. The visual energy must reflect this elemental balance. ';
+  }
+
+  // ─── 性別細節 ───
+  var genderHint = '';
+  if (profile.gender === 'F') genderHint = 'Any human or deity silhouettes should carry subtle feminine grace. ';
+  else if (profile.gender === 'M') genderHint = 'Any human or deity silhouettes should carry subtle masculine strength. ';
+
+  // ─── 主題意圖（祈福核心，所有 tier 都明確帶入）───
+  var themeIntentMap = {
+    wealth:     'attracting prosperity, abundance, financial flow and being-seen-by-fortune',
+    love:       'inviting deep love connection, romantic blessing and being-worthy-of-love',
+    career:     'unlocking career advancement, attracting noble mentors and ambitious achievement',
+    protection: 'invoking guardian blessing, safety, peace and protection from harm',
+    luck:       'shifting fortune, breakthrough timing and serendipitous transformation'
+  };
+  var themeIntent = themeIntentMap[theme] || themeIntentMap.wealth;
+
+  // ─── 根據 tier 決定要塞多少 personal elements 進 prompt（但「個人元素＋祈福意圖」永遠是核心）───
+  var personalElementsToUse;
+  var symbolDepthHint;
+  if (tier === 'premium') {
+    personalElementsToUse = personalElements;
+    symbolDepthHint = 'Ultra-detailed masterwork composition with 6-8 symbolic elements, fractal patterns, sacred geometry overlays, multi-layered cosmic depth. Lucky numbers (' + (profile.luckyNums || []).join(',') + ') hidden in the design as numerical sacred geometry.';
+  } else if (tier === 'advanced') {
+    personalElementsToUse = personalElements.slice(0, 5);
+    symbolDepthHint = 'Rich detailed composition with 4-6 symbolic elements, intricate patterns, layered cosmic depth. Editorial magazine quality.';
+  } else {
+    personalElementsToUse = personalElements.slice(0, 3);
+    symbolDepthHint = 'Clean and elegant composition with 2-3 key symbolic elements. Minimalist but powerful, refined high-fashion sensibility.';
+  }
+  var personalElementsStr = personalElementsToUse.length
+    ? 'CORE PERSONAL ELEMENTS to integrate (this is what makes the wallpaper TRULY belong to one specific person, must be visually present): ' + personalElementsToUse.join('; ') + '. '
+    : '';
+
+  var aspectText = device === 'desktop' ? 'desktop wallpaper (landscape 3:2 ratio, 1536x1024)' : 'phone wallpaper (portrait 2:3 ratio, 1024x1536)';
+
+  // ─── 最終 prompt 構造順序：個人核心 → 祈福意圖 → 五行配色 → 風格包裝 → 技術約束 ───
+  var prompt = 'Create a stunning ' + aspectText + ' that is COMPLETELY personalized for one specific person based on their birth chart. This is NOT a generic wallpaper. ' +
+    // ① 個人核心元素（最重要）
+    personalElementsStr +
+    // ② 祈福意圖（為什麼而做）
+    'INTENT of this wallpaper: a daily visual blessing for ' + themeIntent + '. ' +
+    'Theme mood: ' + themeS.mood + '. ' +
+    'Symbols of this blessing intent: ' + themeS.symbols + '. ' +
+    // ③ 五行配色（顏色根據人）
+    'Primary color palette (based on the person\'s dominant ' + wx + ' element): ' + wxV.colors + '. ' +
+    (compensateColors ? 'Accent compensating colors (because they are missing ' + missingWx.join('/') + '): ' + compensateColors + ' to balance their personal energy. ' : '') +
+    'Element mood: ' + wxV.mood + '. ' +
+    'Five-element nature atmosphere: ' + wxV.nature + '. ' +
+    'Element-based visual elements: ' + wxV.elements + '. ' +
+    wxStatStr +
+    genderHint +
+    // ④ 風格包裝（aesthetic wrapper）
+    'Aesthetic style wrapper: ' + styleChoice + '. ' +
+    'Background atmosphere: ' + themeS.bg + '. ' +
+    symbolDepthHint + ' ' +
+    // ⑤ 整體美學方向
+    'Overall aesthetic direction: high fashion magazine editorial sensibility meets cosmic mysticism. Think Vogue cosmos, dreamy luxury, museum-quality composition. Sophisticated, ethereal, NOT tacky and NOT preachy religious. The personal elements above must feel woven into the visual, not stuck on. ' +
+    // ⑥ 技術約束
+    'CRITICAL: No text, no words, no letters, no numbers visible, no watermarks, no signatures. Pure visual symbolism only. ' +
+    'Photorealistic quality with magical realism touch. Cinematic lighting. 8K ultra detailed. Ready to be a phone wallpaper that the owner will look at 80 times a day and feel something deeply personal each time.';
 
   try {
     var resp = await fetch('https://api.openai.com/v1/images/generations', {
@@ -876,7 +977,23 @@ async function handleWallpaper(req, res, apiKey) {
           email: userEmail || '',
           name: userName || '',
           unlockCode: unlockCode || '',
-          profile: { lifePathNum: profile.lifePathNum, zodiac: profile.zodiac, dominantWx: wx, missingWx: missingWx },
+          profile: {
+            lifePathNum: profile.lifePathNum,
+            zodiac: profile.zodiac,
+            dominantWx: wx,
+            missingWx: missingWx,
+            dayMaster: profile.dayMaster || null,
+            dayMasterWx: profile.dayMasterWx || null,
+            sunSign: profile.sunSign || null,
+            risingSign: profile.risingSign || null,
+            mayaSeal: profile.maya ? profile.maya.seal : null,
+            mayaTone: profile.maya ? profile.maya.tone : null,
+            mayaKin: profile.maya ? profile.maya.kin : null,
+            fuling: profile.fuling || null,
+            cityLabel: profile.cityLabel || null,
+            hourBlockName: profile.hourBlockName || null,
+            gender: profile.gender || null
+          },
           theme: theme,
           tier: tier,
           device: device,

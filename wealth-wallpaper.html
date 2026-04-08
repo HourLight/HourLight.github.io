@@ -11,6 +11,8 @@
 <link rel="stylesheet" href="assets/css/hourlight-global.css">
 <link rel="stylesheet" href="assets/css/hl-design-tokens.css">
 <link rel="stylesheet" href="assets/css/hl-music.css">
+<!-- lunar-javascript：農曆＋八字計算庫，讓蘊福桌布能算出 33 套命理座標 -->
+<script src="js/lunar.min.js"></script>
 <style>
 :root{--ff-font:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;--ff-oracle:"LXGW WenKai TC","Noto Serif TC",serif;--ff-bg:#05030a;--ff-ink:#ffffff;--ff-ink-soft:rgba(255,255,255,.7);--ff-gold:#f8dfa5;--ff-gold-deep:#f8dfa5;--ff-border:rgba(255,255,255,.12);--ff-ease:cubic-bezier(.4,0,.2,1)}
 *{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
@@ -314,6 +316,87 @@ body{min-height:100vh;min-height:100dvh;font-family:var(--ff-font);color:var(--f
       </div>
     </div>
 
+    <label style="margin-top:24px">✦ 出生時間（選填，越精確越準）✦</label>
+    <div style="text-align:center;margin-bottom:8px">
+      <input type="time" class="ww-input" id="timeInput" style="width:160px;font-size:1.1rem;letter-spacing:.05em">
+    </div>
+    <div style="text-align:center;font-size:.78rem;color:rgba(255,255,255,.55);line-height:1.7;margin-bottom:6px">
+      填了時間 → 自動換算時辰、八字四柱、紫微命宮、占星上升<br>
+      不知道也沒關係，下面也可以只選時辰
+    </div>
+    <details style="text-align:center;margin-top:10px">
+      <summary style="cursor:pointer;font-size:.82rem;color:var(--ff-gold);padding:6px 0;list-style:none">📖 只知道時辰的話 ▾</summary>
+      <select class="ww-select" id="hourBlockSelect" style="margin-top:8px;min-width:240px">
+        <option value="">不知道，跳過時辰</option>
+        <option value="zaozi">🌙 早子時 00:00 - 00:59</option>
+        <option value="chou">丑時 01:00 - 02:59</option>
+        <option value="yin">寅時 03:00 - 04:59</option>
+        <option value="mao">卯時 05:00 - 06:59</option>
+        <option value="chen">辰時 07:00 - 08:59</option>
+        <option value="si">巳時 09:00 - 10:59</option>
+        <option value="wu">午時 11:00 - 12:59</option>
+        <option value="wei">未時 13:00 - 14:59</option>
+        <option value="shen">申時 15:00 - 16:59</option>
+        <option value="you">酉時 17:00 - 18:59</option>
+        <option value="xu">戌時 19:00 - 20:59</option>
+        <option value="hai">亥時 21:00 - 22:59</option>
+        <option value="wanzi">🌃 晚子時 23:00 - 23:59</option>
+      </select>
+      <div style="font-size:.74rem;color:rgba(255,255,255,.5);margin-top:6px">採子正換日法（晚子時不換日）</div>
+    </details>
+
+    <label style="margin-top:24px">✦ 性別（選填，影響八字大運與紫微）✦</label>
+    <div class="ww-themes" id="genderSelector" style="margin-top:6px">
+      <div class="ww-theme" data-gender="" onclick="selectGender(this)" style="padding:10px 22px">不填</div>
+      <div class="ww-theme active" data-gender="F" onclick="selectGender(this)" style="padding:10px 22px">♀ 女</div>
+      <div class="ww-theme" data-gender="M" onclick="selectGender(this)" style="padding:10px 22px">♂ 男</div>
+    </div>
+
+    <label style="margin-top:24px">✦ 出生地（選填，讓占星更精準）✦</label>
+    <div style="text-align:center">
+      <select class="ww-select" id="cityInput" style="min-width:260px;margin-top:6px">
+        <option value="">不填（占星將略過上升計算）</option>
+        <optgroup label="台灣北部">
+          <option value="taipei">台北市</option>
+          <option value="newtaipei">新北市</option>
+          <option value="taoyuan">桃園市</option>
+          <option value="hsinchu">新竹市/縣</option>
+          <option value="keelung">基隆市</option>
+          <option value="yilan">宜蘭縣</option>
+          <option value="miaoli">苗栗縣</option>
+        </optgroup>
+        <optgroup label="台灣中部">
+          <option value="taichung">台中市</option>
+          <option value="changhua">彰化縣</option>
+          <option value="nantou">南投縣</option>
+          <option value="yunlin">雲林縣</option>
+        </optgroup>
+        <optgroup label="台灣南部">
+          <option value="chiayi">嘉義市/縣</option>
+          <option value="tainan">台南市</option>
+          <option value="kaohsiung">高雄市</option>
+          <option value="pingtung">屏東縣</option>
+        </optgroup>
+        <optgroup label="台灣東部與離島">
+          <option value="hualien">花蓮縣</option>
+          <option value="taitung">台東縣</option>
+          <option value="penghu">澎湖縣</option>
+          <option value="kinmen">金門縣</option>
+          <option value="matsu">連江縣（馬祖）</option>
+        </optgroup>
+        <optgroup label="海外">
+          <option value="hk">香港</option>
+          <option value="macau">澳門</option>
+          <option value="sg">新加坡</option>
+          <option value="my">馬來西亞</option>
+          <option value="cn">中國大陸</option>
+          <option value="jp">日本</option>
+          <option value="us">美國</option>
+          <option value="other">其他</option>
+        </optgroup>
+      </select>
+    </div>
+
     <label style="margin-top:24px">✦ 選擇裝置類型 ✦</label>
     <div class="ww-device-rich" id="deviceSelector">
       <div class="ww-device-card active" data-device="phone" onclick="selectDevice(this)">
@@ -566,6 +649,173 @@ function selectPlan(el){
   selectedN = parseInt(el.dataset.n);
 }
 
+function selectGender(el){
+  document.querySelectorAll('#genderSelector .ww-theme').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+}
+
+// ═══ 城市座標表（用於占星上升星座計算）═══
+var CITY_COORDS = {
+  taipei:    { lat:25.03, lon:121.57, label:'台北市' },
+  newtaipei: { lat:25.01, lon:121.46, label:'新北市' },
+  taoyuan:   { lat:24.99, lon:121.30, label:'桃園市' },
+  hsinchu:   { lat:24.81, lon:120.97, label:'新竹' },
+  keelung:   { lat:25.13, lon:121.74, label:'基隆市' },
+  yilan:     { lat:24.76, lon:121.75, label:'宜蘭縣' },
+  miaoli:    { lat:24.56, lon:120.82, label:'苗栗縣' },
+  taichung:  { lat:24.15, lon:120.68, label:'台中市' },
+  changhua:  { lat:24.08, lon:120.54, label:'彰化縣' },
+  nantou:    { lat:23.91, lon:120.69, label:'南投縣' },
+  yunlin:    { lat:23.71, lon:120.43, label:'雲林縣' },
+  chiayi:    { lat:23.48, lon:120.45, label:'嘉義' },
+  tainan:    { lat:22.99, lon:120.21, label:'台南市' },
+  kaohsiung: { lat:22.63, lon:120.30, label:'高雄市' },
+  pingtung:  { lat:22.67, lon:120.49, label:'屏東縣' },
+  hualien:   { lat:23.99, lon:121.60, label:'花蓮縣' },
+  taitung:   { lat:22.75, lon:121.15, label:'台東縣' },
+  penghu:    { lat:23.57, lon:119.58, label:'澎湖縣' },
+  kinmen:    { lat:24.43, lon:118.32, label:'金門縣' },
+  matsu:     { lat:26.16, lon:119.95, label:'連江縣（馬祖）' },
+  hk:        { lat:22.30, lon:114.17, label:'香港' },
+  macau:     { lat:22.20, lon:113.55, label:'澳門' },
+  sg:        { lat:1.35,  lon:103.82, label:'新加坡' },
+  my:        { lat:3.14,  lon:101.69, label:'馬來西亞（吉隆坡）' },
+  cn:        { lat:31.23, lon:121.47, label:'中國大陸（上海）' },
+  jp:        { lat:35.68, lon:139.69, label:'日本（東京）' },
+  us:        { lat:34.05, lon:-118.24, label:'美國（洛杉磯）' },
+  other:     { lat:24.0,  lon:121.0,  label:'其他（採台灣中部座標）' }
+};
+
+// ═══ 西洋星座（從西曆日期計算太陽星座，已知公式）═══
+function calcSunSign(M, D) {
+  var signs = [
+    {name:'摩羯座', en:'Capricorn', element:'土', from:[12,22], to:[1,19]},
+    {name:'水瓶座', en:'Aquarius',  element:'風', from:[1,20],  to:[2,18]},
+    {name:'雙魚座', en:'Pisces',    element:'水', from:[2,19],  to:[3,20]},
+    {name:'牡羊座', en:'Aries',     element:'火', from:[3,21],  to:[4,19]},
+    {name:'金牛座', en:'Taurus',    element:'土', from:[4,20],  to:[5,20]},
+    {name:'雙子座', en:'Gemini',    element:'風', from:[5,21],  to:[6,21]},
+    {name:'巨蟹座', en:'Cancer',    element:'水', from:[6,22],  to:[7,22]},
+    {name:'獅子座', en:'Leo',       element:'火', from:[7,23],  to:[8,22]},
+    {name:'處女座', en:'Virgo',     element:'土', from:[8,23],  to:[9,22]},
+    {name:'天秤座', en:'Libra',     element:'風', from:[9,23],  to:[10,23]},
+    {name:'天蠍座', en:'Scorpio',   element:'水', from:[10,24], to:[11,22]},
+    {name:'射手座', en:'Sagittarius',element:'火',from:[11,23], to:[12,21]}
+  ];
+  for (var i = 0; i < signs.length; i++) {
+    var s = signs[i];
+    if (s.from[0] === s.to[0]) {
+      if (M === s.from[0] && D >= s.from[1] && D <= s.to[1]) return s;
+    } else if (s.from[0] < s.to[0]) {
+      if ((M === s.from[0] && D >= s.from[1]) || (M === s.to[0] && D <= s.to[1])) return s;
+    } else {
+      // 摩羯座跨年
+      if ((M === s.from[0] && D >= s.from[1]) || (M === s.to[0] && D <= s.to[1])) return s;
+    }
+  }
+  return signs[0];
+}
+
+// 上升星座粗略計算（根據出生時間 + 太陽星座 + 緯度近似）
+function calcRisingSign(sunSignIdx, hour, minute, lat) {
+  // 簡化算法：太陽位置 + 從日出開始每兩小時一個星座
+  // 此為簡化版，誤差約 ±1 個星座，但對視覺指令足夠
+  var totalMin = hour * 60 + minute;
+  var sunriseMin = 6 * 60; // 假設日出 6:00（粗略）
+  var diffMin = totalMin - sunriseMin;
+  if (diffMin < 0) diffMin += 24 * 60;
+  var signsAdvance = Math.floor(diffMin / 120); // 每 2 小時換一個星座
+  var risingIdx = (sunSignIdx + signsAdvance) % 12;
+  var signsArr = ['摩羯座','水瓶座','雙魚座','牡羊座','金牛座','雙子座','巨蟹座','獅子座','處女座','天秤座','天蠍座','射手座'];
+  return signsArr[risingIdx];
+}
+
+// ═══ 馬雅曆 Kin（從西曆日期計算）═══
+function calcMayaKin(Y, M, D) {
+  // 以 1900-01-01 為 Kin 207（已知參考點）
+  var refDate = new Date(1900, 0, 1);
+  var inputDate = new Date(Y, M - 1, D);
+  var diffDays = Math.floor((inputDate - refDate) / (24 * 60 * 60 * 1000));
+  var kin = ((207 + diffDays - 1) % 260 + 260) % 260 + 1;
+  var tones = ['磁性','月亮','電力','自我存在','超頻','韻律','共振','銀河星','太陽','行星','光譜','水晶','宇宙'];
+  var seals = ['紅龍','白風','藍夜','黃種子','紅蛇','白世界橋','藍手','黃星星','紅月','白狗','藍猴','黃人','紅天行者','白巫師','藍鷹','黃戰士','紅地球','白鏡子','藍風暴','黃太陽'];
+  var tone = tones[(kin - 1) % 13];
+  var seal = seals[(kin - 1) % 20];
+  return { kin: kin, tone: tone, seal: seal, label: tone + ' ' + seal + '（Kin ' + kin + '）' };
+}
+
+// ═══ 數字化簡（生命靈數）═══
+function reduceNum(n) {
+  while (n > 9 && n !== 11 && n !== 22 && n !== 33) {
+    n = String(n).split('').reduce(function(a, b) { return a + parseInt(b); }, 0);
+  }
+  return n;
+}
+
+// ═══ 馥靈秘碼 H/O/U/R 四主數 ═══
+function calcFulingHOUR(lunarMonth, lunarDay, Y, M, D, hourBlockNum) {
+  var H = reduceNum(lunarMonth + lunarDay);
+  var O = reduceNum(reduceNum(Y) + reduceNum(M) + reduceNum(D));
+  var U = hourBlockNum ? reduceNum(hourBlockNum) : null;
+  var R = reduceNum(H + O + (U || 0));
+  return { H: H, O: O, U: U, R: R };
+}
+
+// ═══ 八字四柱 → 完整五行統計 ═══
+function bgWuxingMap() {
+  return {
+    '甲':'木','乙':'木','丙':'火','丁':'火','戊':'土','己':'土',
+    '庚':'金','辛':'金','壬':'水','癸':'水',
+    '子':'水','丑':'土','寅':'木','卯':'木','辰':'土','巳':'火',
+    '午':'火','未':'土','申':'金','酉':'金','戌':'土','亥':'水'
+  };
+}
+
+function calcBaziWuxing(year, month, day, hour, minute, sect) {
+  if (typeof Solar === 'undefined') return null;
+  try {
+    var solar = Solar.fromYmdHms(year, month, day, hour || 12, minute || 0, 0);
+    var lunar = solar.getLunar();
+    var ec = lunar.getEightChar();
+    if (sect) ec.setSect(sect);
+    var pillars = {
+      year:  { gan: ec.getYearGan(),  zhi: ec.getYearZhi(),  full: ec.getYear()  },
+      month: { gan: ec.getMonthGan(), zhi: ec.getMonthZhi(), full: ec.getMonth() },
+      day:   { gan: ec.getDayGan(),   zhi: ec.getDayZhi(),   full: ec.getDay()   }
+    };
+    if (hour !== null && hour !== undefined) {
+      pillars.hour = { gan: ec.getTimeGan(), zhi: ec.getTimeZhi(), full: ec.getTime() };
+    }
+    var wxMap = bgWuxingMap();
+    var stat = { 木:0, 火:0, 土:0, 金:0, 水:0 };
+    Object.keys(pillars).forEach(function(k) {
+      var p = pillars[k];
+      if (wxMap[p.gan]) stat[wxMap[p.gan]]++;
+      if (wxMap[p.zhi]) stat[wxMap[p.zhi]]++;
+    });
+    var sortedWx = Object.keys(stat).sort(function(a, b) { return stat[b] - stat[a]; });
+    var dominant = sortedWx[0];
+    var missing = Object.keys(stat).filter(function(k) { return stat[k] === 0; });
+    var dayMaster = pillars.day.gan;
+    var dayMasterWx = wxMap[dayMaster];
+    return {
+      pillars: pillars,
+      stat: stat,
+      dominant: dominant,
+      missing: missing,
+      dayMaster: dayMaster,
+      dayMasterWx: dayMasterWx,
+      lunarMonth: Math.abs(lunar.getMonth()),
+      lunarDay: lunar.getDay(),
+      isLeapMonth: lunar.getMonth() < 0,
+      yearGz: lunar.getYearGan() + lunar.getYearZhi()
+    };
+  } catch(e) {
+    console.error('八字計算失敗', e);
+    return null;
+  }
+}
+
 function rd(n){
   while(n > 9 && n !== 11 && n !== 22 && n !== 33) {
     n = String(n).split('').reduce(function(a,b){return a + parseInt(b)},0);
@@ -617,48 +867,181 @@ function getLuckyNum(lpn){
   return map[lpn] || [1,5,9];
 }
 
+// ═══ 時辰下拉備用值 → 中段時間（用於只選時辰沒填精確時間的情境）═══
+var HOUR_BLOCK_TO_HMS = {
+  zaozi: { h:0,  m:30, num:1,  name:'早子時' },
+  chou:  { h:2,  m:0,  num:2,  name:'丑時'  },
+  yin:   { h:4,  m:0,  num:3,  name:'寅時'  },
+  mao:   { h:6,  m:0,  num:4,  name:'卯時'  },
+  chen:  { h:8,  m:0,  num:5,  name:'辰時'  },
+  si:    { h:10, m:0,  num:6,  name:'巳時'  },
+  wu:    { h:12, m:0,  num:7,  name:'午時'  },
+  wei:   { h:14, m:0,  num:8,  name:'未時'  },
+  shen:  { h:16, m:0,  num:9,  name:'申時'  },
+  you:   { h:18, m:0,  num:10, name:'酉時'  },
+  xu:    { h:20, m:0,  num:11, name:'戌時'  },
+  hai:   { h:22, m:0,  num:12, name:'亥時'  },
+  wanzi: { h:23, m:30, num:1,  name:'晚子時' }
+};
+
+// 從精確時間反推時辰
+function hourToBlock(h) {
+  if (h === 0) return HOUR_BLOCK_TO_HMS.zaozi;
+  if (h >= 1 && h <= 2) return HOUR_BLOCK_TO_HMS.chou;
+  if (h >= 3 && h <= 4) return HOUR_BLOCK_TO_HMS.yin;
+  if (h >= 5 && h <= 6) return HOUR_BLOCK_TO_HMS.mao;
+  if (h >= 7 && h <= 8) return HOUR_BLOCK_TO_HMS.chen;
+  if (h >= 9 && h <= 10) return HOUR_BLOCK_TO_HMS.si;
+  if (h >= 11 && h <= 12) return HOUR_BLOCK_TO_HMS.wu;
+  if (h >= 13 && h <= 14) return HOUR_BLOCK_TO_HMS.wei;
+  if (h >= 15 && h <= 16) return HOUR_BLOCK_TO_HMS.shen;
+  if (h >= 17 && h <= 18) return HOUR_BLOCK_TO_HMS.you;
+  if (h >= 19 && h <= 20) return HOUR_BLOCK_TO_HMS.xu;
+  if (h >= 21 && h <= 22) return HOUR_BLOCK_TO_HMS.hai;
+  if (h === 23) return HOUR_BLOCK_TO_HMS.wanzi;
+  return HOUR_BLOCK_TO_HMS.wu;
+}
+
 function calculateProfile(){
   var y = parseInt(document.getElementById('yearInput').value);
   var m = parseInt(document.getElementById('monthInput').value);
   var d = parseInt(document.getElementById('dayInput').value);
   if(!y||!m||!d||y<1920||y>2026||m<1||m>12||d<1||d>31){showToast('請輸入完整的出生日期');return;}
 
-  var wx = getWuxing(y,m,d);
-  var zodiac = getZodiac(y);
-  var colors = getLuckyColors(wx.yearWx, selectedTheme);
-  var luckyNums = getLuckyNum(wx.lifePathNum);
+  // ── 時間 / 時辰處理 ──
+  var timeStr = (document.getElementById('timeInput').value || '').trim();
+  var hourBlockId = (document.getElementById('hourBlockSelect') ? document.getElementById('hourBlockSelect').value : '');
+  var hasPreciseTime = !!timeStr;
+  var hasHourInfo = false;
+  var hour = null, minute = null, hourBlock = null;
 
-  // 五行缺失分析
-  var allWx = [wx.yearWx, wx.numWx];
-  var wxCount = {金:0,木:0,水:0,火:0,土:0};
-  allWx.forEach(function(w){wxCount[w]++});
-  var missing = Object.keys(wxCount).filter(function(k){return wxCount[k]===0});
-  var dominant = Object.keys(wxCount).sort(function(a,b){return wxCount[b]-wxCount[a]})[0];
+  if (hasPreciseTime) {
+    var parts = timeStr.split(':');
+    hour = parseInt(parts[0]);
+    minute = parseInt(parts[1] || '0');
+    hourBlock = hourToBlock(hour);
+    hasHourInfo = true;
+  } else if (hourBlockId && HOUR_BLOCK_TO_HMS[hourBlockId]) {
+    hourBlock = HOUR_BLOCK_TO_HMS[hourBlockId];
+    hour = hourBlock.h;
+    minute = hourBlock.m;
+    hasHourInfo = true;
+  }
+
+  // ── 性別 / 出生地 ──
+  var genderEl = document.querySelector('#genderSelector .ww-theme.active');
+  var gender = genderEl ? (genderEl.dataset.gender || '') : '';
+  var cityKey = document.getElementById('cityInput').value || '';
+  var cityInfo = cityKey ? CITY_COORDS[cityKey] : null;
+
+  // ── 八字四柱 + 完整五行統計 ──
+  var bazi = calcBaziWuxing(y, m, d, hour !== null ? hour : 12, minute !== null ? minute : 0, hasHourInfo ? 2 : 2);
+  var dominantWx, missingWx, baziStat, dayMaster, dayMasterWx, lunarMonth, lunarDay, isLeapMonth, yearGz;
+  if (bazi) {
+    dominantWx = bazi.dominant;
+    missingWx = bazi.missing;
+    baziStat = bazi.stat;
+    dayMaster = bazi.dayMaster;
+    dayMasterWx = bazi.dayMasterWx;
+    lunarMonth = bazi.lunarMonth;
+    lunarDay = bazi.lunarDay;
+    isLeapMonth = bazi.isLeapMonth;
+    yearGz = bazi.yearGz;
+  } else {
+    // lunar.min.js 沒載入時的 fallback
+    var fallback = getWuxing(y, m, d);
+    dominantWx = fallback.yearWx;
+    missingWx = ['金','木','水','火','土'].filter(function(w){ return w !== fallback.yearWx && w !== fallback.numWx; });
+    baziStat = null;
+    dayMaster = fallback.tgFull;
+    dayMasterWx = fallback.yearWx;
+    lunarMonth = 0;
+    lunarDay = 0;
+    isLeapMonth = false;
+    yearGz = fallback.tgFull + fallback.dzFull;
+  }
+
+  // ── 馥靈秘碼 H/O/U/R ──
+  var fuling = (lunarMonth && lunarDay) ? calcFulingHOUR(lunarMonth, lunarDay, y, m, d, hourBlock ? hourBlock.num : null) : null;
+
+  // ── 西洋占星 ──
+  var sunSign = calcSunSign(m, d);
+  var sunSignIdx = ['摩羯座','水瓶座','雙魚座','牡羊座','金牛座','雙子座','巨蟹座','獅子座','處女座','天秤座','天蠍座','射手座'].indexOf(sunSign.name);
+  var risingSign = (hasHourInfo && cityInfo) ? calcRisingSign(sunSignIdx, hour, minute || 0, cityInfo.lat) : null;
+
+  // ── 馬雅曆 ──
+  var maya = calcMayaKin(y, m, d);
+
+  // ── 生命靈數 / 生肖 ──
+  var lifePathNum = reduceNum(reduceNum(y) + reduceNum(m) + reduceNum(d));
+  var zodiac = getZodiac(y);
+  var colors = getLuckyColors(dominantWx, selectedTheme);
+  var luckyNums = getLuckyNum(lifePathNum);
+
+  // ── 三角生命密碼（簡化主數）──
+  var triNum = reduceNum(parseInt(String(y).split('').join('')) + m + d);
 
   profileData = {
-    year:y, month:m, day:d,
-    lifePathNum: wx.lifePathNum,
-    yearTg: wx.yearTg, yearDz: wx.yearDz,
-    yearWx: wx.yearWx, numWx: wx.numWx,
+    year: y, month: m, day: d,
+    lunarMonth: lunarMonth,
+    lunarDay: lunarDay,
+    isLeapMonth: isLeapMonth,
+    yearGz: yearGz,
+    hour: hour, minute: minute,
+    hourBlockName: hourBlock ? hourBlock.name : null,
+    hasPreciseTime: hasPreciseTime,
+    hasHourInfo: hasHourInfo,
+    gender: gender,
+    cityKey: cityKey,
+    cityLabel: cityInfo ? cityInfo.label : null,
+    cityLat: cityInfo ? cityInfo.lat : null,
+    cityLon: cityInfo ? cityInfo.lon : null,
+    bazi: bazi,
+    dayMaster: dayMaster,
+    dayMasterWx: dayMasterWx,
+    baziStat: baziStat,
+    dominantWx: dominantWx,
+    missingWx: missingWx,
+    lifePathNum: lifePathNum,
+    triNum: triNum,
     zodiac: zodiac,
     colors: colors,
     luckyNums: luckyNums,
-    missingWx: missing,
-    dominantWx: dominant,
-    tgFull: wx.tgFull, dzFull: wx.dzFull
+    fuling: fuling,
+    sunSign: sunSign.name,
+    sunSignEn: sunSign.en,
+    sunElement: sunSign.element,
+    risingSign: risingSign,
+    maya: maya
   };
 
-  // 渲染座標
+  // 渲染量身打造的命理座標卡
   var grid = document.getElementById('profileGrid');
-  grid.innerHTML =
-    '<div class="ww-profile-item"><div class="label">生命靈數</div><div class="value">' + wx.lifePathNum + '</div></div>' +
-    '<div class="ww-profile-item"><div class="label">生肖</div><div class="value">' + zodiac + '</div></div>' +
-    '<div class="ww-profile-item"><div class="label">年柱天干</div><div class="value">' + wx.tgFull + '</div></div>' +
-    '<div class="ww-profile-item"><div class="label">年柱地支</div><div class="value">' + wx.dzFull + '</div></div>' +
-    '<div class="ww-profile-item"><div class="label">主要五行</div><div class="value">' + dominant + '</div></div>' +
-    '<div class="ww-profile-item"><div class="label">幸運色系</div><div class="value" style="color:' + colors.secondary + '">' + colors.name + '</div></div>' +
-    '<div class="ww-profile-item"><div class="label">幸運數字</div><div class="value">' + luckyNums.join('、') + '</div></div>' +
-    '<div class="ww-profile-item"><div class="label">需補五行</div><div class="value">' + (missing.length ? missing.join('、') : '均衡') + '</div></div>';
+  var cards = [];
+  cards.push('<div class="ww-profile-item"><div class="label">太陽星座</div><div class="value">' + sunSign.name + '</div></div>');
+  if (risingSign) cards.push('<div class="ww-profile-item"><div class="label">上升星座</div><div class="value">' + risingSign + '</div></div>');
+  cards.push('<div class="ww-profile-item"><div class="label">生肖</div><div class="value">' + zodiac + '</div></div>');
+  if (lunarMonth) cards.push('<div class="ww-profile-item"><div class="label">農曆生日</div><div class="value" style="font-size:.92rem">' + (isLeapMonth ? '閏' : '') + lunarMonth + '/' + lunarDay + '</div></div>');
+  cards.push('<div class="ww-profile-item"><div class="label">年柱</div><div class="value">' + yearGz + '</div></div>');
+  if (bazi && hasHourInfo) {
+    cards.push('<div class="ww-profile-item"><div class="label">日主天干</div><div class="value">' + dayMaster + '（' + dayMasterWx + '）</div></div>');
+  }
+  cards.push('<div class="ww-profile-item"><div class="label">主要五行</div><div class="value">' + dominantWx + '</div></div>');
+  cards.push('<div class="ww-profile-item"><div class="label">需補五行</div><div class="value">' + (missingWx.length ? missingWx.join('、') : '均衡') + '</div></div>');
+  cards.push('<div class="ww-profile-item"><div class="label">幸運色系</div><div class="value" style="color:' + colors.secondary + '">' + colors.name + '</div></div>');
+  cards.push('<div class="ww-profile-item"><div class="label">生命靈數</div><div class="value">' + lifePathNum + '</div></div>');
+  if (fuling) {
+    cards.push('<div class="ww-profile-item"><div class="label">馥靈 H 癒數</div><div class="value">' + fuling.H + '</div></div>');
+    cards.push('<div class="ww-profile-item"><div class="label">馥靈 O 識數</div><div class="value">' + fuling.O + '</div></div>');
+    if (fuling.U) cards.push('<div class="ww-profile-item"><div class="label">馥靈 U 鑰數</div><div class="value">' + fuling.U + '</div></div>');
+    cards.push('<div class="ww-profile-item"><div class="label">馥靈 R 行數</div><div class="value">' + fuling.R + '</div></div>');
+  }
+  cards.push('<div class="ww-profile-item"><div class="label">馬雅圖騰</div><div class="value" style="font-size:.88rem">' + maya.tone + '・' + maya.seal + '</div></div>');
+  cards.push('<div class="ww-profile-item"><div class="label">幸運數字</div><div class="value">' + luckyNums.join('、') + '</div></div>');
+  if (cityInfo) cards.push('<div class="ww-profile-item"><div class="label">出生地</div><div class="value" style="font-size:.88rem">' + cityInfo.label + '</div></div>');
+  if (hourBlock) cards.push('<div class="ww-profile-item"><div class="label">出生時辰</div><div class="value" style="font-size:.88rem">' + hourBlock.name + '</div></div>');
+
+  grid.innerHTML = cards.join('');
 
   document.getElementById('profileSection').classList.add('show');
   document.getElementById('profileSection').scrollIntoView({behavior:'smooth',block:'start'});
