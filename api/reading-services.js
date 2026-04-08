@@ -893,6 +893,11 @@ async function handleWallpaper(req, res, apiKey) {
   if (profile.sunSign) personalElements.push(profile.sunSign + ' solar archetype mood');
   if (profile.moonSign) personalElements.push(profile.moonSign + ' lunar emotional palette');
   if (profile.risingSign) personalElements.push(profile.risingSign + ' rising sign aesthetic flavor');
+  if (profile.nsk && profile.nsk.star) personalElements.push('Nine Star Ki ' + profile.nsk.star.n + ' (' + profile.nsk.star.e + ' element) energy direction');
+  if (profile.birthColor && profile.birthColor.mc) personalElements.push('birth chakra color ' + profile.birthColor.mc.n + ' (' + profile.birthColor.mc.ck + ')');
+  if (profile.xiuyao) personalElements.push('Xiuyao constellation ' + profile.xiuyao.name + ' guarded by ' + profile.xiuyao.guard);
+  if (profile.cardology) personalElements.push('Birth card ' + profile.cardology.display + ' (' + profile.cardology.suitElement + ')');
+  if (profile.celtic) personalElements.push('Celtic tree ' + profile.celtic.name + ' totem');
   if (profile.maya && profile.maya.seal) personalElements.push('Mayan totem ' + profile.maya.seal + ' (' + profile.maya.tone + ') woven subtly into the imagery');
   if (profile.lifePathNum) personalElements.push('life-path-number-' + profile.lifePathNum + ' vibrational pattern');
   if (profile.fuling) {

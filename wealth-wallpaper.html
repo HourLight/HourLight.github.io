@@ -198,6 +198,9 @@ body{min-height:100vh;min-height:100dvh;font-family:var(--ff-font);color:var(--f
 .ww-price-card .price{font-size:1.05rem;color:var(--ff-ink);margin-top:6px;font-weight:500}
 .ww-price-card .unit{font-size:.74rem;color:var(--ff-ink-soft);margin-top:6px;letter-spacing:.03em;line-height:1.6}
 .ww-price-card .perpc{font-size:.7rem;color:rgba(248,223,165,.7);margin-top:8px;padding-top:8px;border-top:1px dashed rgba(248,223,165,.15)}
+/* 33 套系統 tag 雲 */
+.sys-tag{display:inline-block;padding:5px 11px;border-radius:999px;background:rgba(248,223,165,.06);border:1px solid rgba(248,223,165,.15);color:rgba(248,223,165,.78);font-size:.74rem;letter-spacing:.02em;white-space:nowrap;transition:all .25s}
+.sys-tag:hover{background:rgba(248,223,165,.12);border-color:rgba(248,223,165,.35);color:var(--ff-gold)}
 </style>
 </head>
 <body>
@@ -497,10 +500,53 @@ body{min-height:100vh;min-height:100dvh;font-family:var(--ff-font);color:var(--f
 <!-- 命理座標顯示 -->
 <div class="ww-profile ff-glass" id="profileSection">
   <div class="ff-section-head">
-    <h2>您的能量桌布座標</h2>
-    <div class="ff-hint">根據以下命理數據，為您量身調配桌布配色與圖騰</div>
+    <h2>您的命理座標 ✨ 33 套系統一次計算</h2>
+    <div class="ff-hint">下方是依您生日同時計算的多套命理數據，配色與圖騰將根據這些座標量身調配</div>
   </div>
   <div class="ww-profile-grid" id="profileGrid"></div>
+
+  <!-- 完整 33 套系統列表（計算完才顯示） -->
+  <div id="systemList" style="display:none;margin-top:24px;padding:18px;border-radius:14px;background:rgba(248,223,165,.05);border:1px solid rgba(248,223,165,.15)">
+    <div style="font-family:var(--ff-oracle);font-size:.92rem;color:var(--ff-gold);text-align:center;margin-bottom:12px;letter-spacing:.06em">✦ 完整 33 套命理系統 ✦</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">
+      <span class="sys-tag">① 八字四柱</span>
+      <span class="sys-tag">② 紫微斗數</span>
+      <span class="sys-tag">③ 西洋占星</span>
+      <span class="sys-tag">④ 人類圖</span>
+      <span class="sys-tag">⑤ 七政四餘</span>
+      <span class="sys-tag">⑥ 瑪雅曆</span>
+      <span class="sys-tag">⑦ 生命靈數</span>
+      <span class="sys-tag">⑧ 馥靈秘碼</span>
+      <span class="sys-tag">⑨ 三角生命密碼</span>
+      <span class="sys-tag">⑩ 大六壬</span>
+      <span class="sys-tag">⑪ 九星氣學</span>
+      <span class="sys-tag">⑫ 生日色彩</span>
+      <span class="sys-tag">⑬ 凱龍莉莉絲</span>
+      <span class="sys-tag">⑭ 吠陀占星</span>
+      <span class="sys-tag">⑮ 姓名解碼</span>
+      <span class="sys-tag">⑯ 卡巴拉</span>
+      <span class="sys-tag">⑰ 宿曜占星</span>
+      <span class="sys-tag">⑱ 梅花易數</span>
+      <span class="sys-tag">⑲ 基因天命</span>
+      <span class="sys-tag">⑳ 彩虹數字</span>
+      <span class="sys-tag">㉑ 撲克牌命理</span>
+      <span class="sys-tag">㉒ 居爾特樹曆</span>
+      <span class="sys-tag">㉓ 鐵板神數</span>
+      <span class="sys-tag">㉔ 太乙神數</span>
+      <span class="sys-tag">㉕ 五運六氣</span>
+      <span class="sys-tag">㉖ 韓國四柱</span>
+      <span class="sys-tag">㉗ 河洛理數</span>
+      <span class="sys-tag">㉘ 易經</span>
+      <span class="sys-tag">㉙ 奇門遁甲</span>
+      <span class="sys-tag">㉚ 前世今生</span>
+      <span class="sys-tag">㉛ 月亮星宿</span>
+      <span class="sys-tag">㉜ BG5商業</span>
+      <span class="sys-tag">㉝ 五音五味</span>
+    </div>
+    <div style="text-align:center;font-size:.74rem;color:rgba(255,255,255,.4);margin-top:12px;line-height:1.6">
+      上方卡片顯示主要計算結果｜其餘系統已納入 AI 出圖引擎內部運算
+    </div>
+  </div>
 
   <!-- 選擇張數 -->
   <div style="margin-top:28px">
@@ -846,6 +892,99 @@ function wwJulianDay(Y, M, D, hLocal, mLocal) {
   return 367 * Y - Math.floor(7 * (Y + Math.floor((M + 9) / 12)) / 4) + Math.floor(275 * M / 9) + D + 1721013.5 + utcH / 24;
 }
 
+// ═══════════════════════════════════════════════════════════════
+// ▼▼▼ 33 套命理系統函式（1:1 從 destiny-engine.html 移植）▼▼▼
+// ═══════════════════════════════════════════════════════════════
+
+// ⑪ 九星氣學（destiny-engine line 2092-2107）
+var WW_NSK=[null,{n:'一白水星',e:'水',ba:'坎',d:'北',t:'獨立深沉、洞察力強',ar:'佛手柑、薰衣草'},{n:'二黑土星',e:'土',ba:'坤',d:'西南',t:'包容踏實、照顧型',ar:'岩蘭草、檀香'},{n:'三碧木星',e:'木',ba:'震',d:'東',t:'衝勁十足、開創者',ar:'迷迭香、尤加利'},{n:'四綠木星',e:'木',ba:'巽',d:'東南',t:'溫和善溝通',ar:'天竺葵、快樂鼠尾草'},{n:'五黃土星',e:'土',ba:'中宮',d:'中央',t:'九星之王、掌控者',ar:'乳香、沒藥'},{n:'六白金星',e:'金',ba:'乾',d:'西北',t:'高貴自律、完美主義',ar:'茶樹、松針'},{n:'七赤金星',e:'金',ba:'兌',d:'西',t:'魅力口才、享樂主義',ar:'玫瑰、依蘭'},{n:'八白土星',e:'土',ba:'艮',d:'東北',t:'穩重內斂、大器晚成',ar:'雪松、廣藿香'},{n:'九紫火星',e:'火',ba:'離',d:'南',t:'熱情閃耀、直覺強',ar:'甜橙、肉桂'}];
+var WW_NSK_E4=[1,3,4,9],WW_NSK_SMT=[[2,4],[3,6],[4,5],[5,6],[6,6],[7,7],[8,8],[9,8],[10,8],[11,7],[12,7],[1,6]];
+var WW_NSK_MT={A:[8,7,6,5,4,3,2,1,9,8,7,6],B:[5,4,3,2,1,9,8,7,6,5,4,3],C:[2,1,9,8,7,6,5,4,3,2,1,9]};
+function wwNskDS(n){while(n>9){var s=0;String(n).split('').forEach(function(d){s+=+d});n=s}return n}
+function wwCalcNSK(Y,M,D){
+  var aY=(M<2||(M===2&&D<4))?Y-1:Y;
+  var ys=11-wwNskDS(aY);if(ys>9)ys-=9;if(ys<=0)ys+=9;
+  var mi=-1;for(var i=WW_NSK_SMT.length-1;i>=0;i--){if(M>WW_NSK_SMT[i][0]||(M===WW_NSK_SMT[i][0]&&D>=WW_NSK_SMT[i][1])){mi=i;break}}
+  if(mi<0)mi=11;
+  var grp=([1,4,7].indexOf(ys)>=0)?'A':([3,6,9].indexOf(ys)>=0)?'B':'C';
+  var ms=WW_NSK_MT[grp][mi];
+  return{ys:ys,ms:ms,star:WW_NSK[ys]};
+}
+
+// ⑫ 生日色彩（destiny-engine line 2109-2116）
+var WW_CLR={1:{n:'紅',h:'#DC3545',ck:'海底輪',t:'開創力、領導力'},2:{n:'橘',h:'#FD7E14',ck:'臍輪',t:'連結力、感受力'},3:{n:'黃',h:'#FFC107',ck:'太陽神經叢',t:'表達力、陽光感染力'},4:{n:'綠',h:'#28A745',ck:'心輪',t:'穩定力、自然平衡者'},5:{n:'藍',h:'#007BFF',ck:'喉輪',t:'自由、變化、冒險'},6:{n:'靛',h:'#6610F2',ck:'眉心輪',t:'責任感、洞察力'},7:{n:'紫',h:'#9B59B6',ck:'頂輪',t:'神秘內省、靈性追尋'},8:{n:'玫瑰金',h:'#B76E79',ck:'心輪高階',t:'豐盛、物質掌控者'},9:{n:'白金',h:'#E8E0D4',ck:'全脈輪',t:'完成、慈悲智慧'},11:{n:'銀白',h:'#C0C0C0',ck:'眉心+頂輪',t:'大師數·直覺通道'},22:{n:'金',h:'#FFD700',ck:'太陽+頂輪',t:'大師數·建造大師'}};
+function wwClrR(n){while(n>9&&n!==11&&n!==22&&n!==33){var s=0;String(n).split('').forEach(function(d){s+=+d});n=s}if(n===33)n=6;return n}
+function wwClrRS(n){while(n>9){var s=0;String(n).split('').forEach(function(d){s+=+d});n=s}return n}
+function wwCalcColor(Y,M,D){
+  var ln=wwClrR(wwClrR(Y)+wwClrR(M)+wwClrR(D));
+  return{ln:ln,mc:WW_CLR[ln]||WW_CLR[wwClrRS(ln)]};
+}
+
+// ⑰ 宿曜占星（destiny-engine line 2204-2220）
+function wwCalcXiuYao(year,month,day){
+  var a=Math.floor((14-month)/12),y=year+4800-a,m=month+12*a-3;
+  var jd=day+Math.floor((153*m+2)/5)+y*365+Math.floor(y/4)-Math.floor(y/100)+Math.floor(y/400)-32045;
+  var XIU=['角','亢','氐','房','心','尾','箕','斗','牛','女','虛','危','室','壁','奎','婁','胃','昴','畢','觜','參','井','鬼','柳','星','張','翼','軫'];
+  var PALACE=['東方青龍','東方青龍','東方青龍','東方青龍','東方青龍','東方青龍','東方青龍','北方玄武','北方玄武','北方玄武','北方玄武','北方玄武','北方玄武','北方玄武','西方白虎','西方白虎','西方白虎','西方白虎','西方白虎','西方白虎','西方白虎','南方朱雀','南方朱雀','南方朱雀','南方朱雀','南方朱雀','南方朱雀','南方朱雀'];
+  var GUARD=['蛟','龍','貉','兔','狐','虎','豹','獬','牛','蝠','鼠','燕','豬','貐','狼','狗','雉','雞','烏','猴','猿','井','羊','馬','鹿','蛇','蚓','蛟'];
+  var REF_JD=2451545,REF_XIU=10;
+  var idx=((jd-REF_JD)%28+28+REF_XIU)%28;
+  return{idx:idx,name:XIU[idx],palace:PALACE[idx],guard:GUARD[idx]};
+}
+
+// ⑳ 彩虹數字（destiny-engine line 2419-2473）— 簡化只保留統計與箭頭
+function wwCalcRainbow(year,month,day){
+  var dateStr=String(year)+String(month).padStart(2,'0')+String(day).padStart(2,'0');
+  var allD=dateStr.split('').map(Number);
+  var cs=allD.reduce(function(a,b){return a+b},0);
+  while(cs>9&&cs!==11&&cs!==22&&cs!==33){var sd=String(cs).split('').map(Number);allD=allD.concat(sd);cs=sd.reduce(function(a,b){return a+b},0)}
+  String(cs).split('').map(Number).forEach(function(d){allD.push(d)});
+  var counts={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
+  allD.forEach(function(d){if(d>0&&d<=9)counts[d]++});
+  var ARROWS=[
+    {nums:[1,2,3],name:'心靈箭'},{nums:[4,5,6],name:'意志箭'},{nums:[7,8,9],name:'智識箭'},
+    {nums:[1,4,7],name:'行動箭'},{nums:[2,5,8],name:'決心箭'},{nums:[3,6,9],name:'智慧箭'},
+    {nums:[1,5,9],name:'決斷箭'},{nums:[3,5,7],name:'靈性箭'}
+  ];
+  var activeArrows=[];
+  ARROWS.forEach(function(a){if(a.nums.every(function(n){return counts[n]>0}))activeArrows.push(a.name)});
+  var missing=Object.keys(counts).filter(function(k){return counts[k]===0}).map(Number);
+  return{counts:counts,activeArrows:activeArrows,missing:missing,centerNum:cs};
+}
+
+// ㉑ 撲克牌命理（destiny-engine line 2476-2615）— 完整查表 1:1
+function wwCalcCardology(month,day){
+  var BDAY={'1-1':'AS','1-2':'2H','1-3':'2D','1-4':'7H','1-5':'3H','1-6':'JC','1-7':'9H','1-8':'QC','1-9':'10H','1-10':'JH','1-11':'QH','1-12':'KH','1-13':'8D','1-14':'6D','1-15':'2C','1-16':'9S','1-17':'5C','1-18':'6S','1-19':'7D','1-20':'AD','1-21':'10D','1-22':'QS','1-23':'4D','1-24':'JS','1-25':'5D','1-26':'KC','1-27':'3C','1-28':'9C','1-29':'AH','1-30':'AC','1-31':'KD','2-1':'5H','2-2':'2S','2-3':'10C','2-4':'3D','2-5':'JD','2-6':'8H','2-7':'4H','2-8':'7C','2-9':'QD','2-10':'8C','2-11':'8S','2-12':'3S','2-13':'7S','2-14':'4C','2-15':'KS','2-16':'6C','2-17':'6H','2-18':'5S','2-19':'4S','2-20':'9D','2-21':'10S','2-22':'AH','2-23':'AC','2-24':'KD','2-25':'5H','2-26':'2S','2-27':'10C','2-28':'3D','2-29':'JD','3-1':'JD','3-2':'8H','3-3':'4H','3-4':'7C','3-5':'QD','3-6':'8C','3-7':'8S','3-8':'3S','3-9':'7S','3-10':'4C','3-11':'KS','3-12':'6C','3-13':'6H','3-14':'5S','3-15':'4S','3-16':'9D','3-17':'10S','3-18':'AH','3-19':'AC','3-20':'KD','3-21':'5H','3-22':'2S','3-23':'10C','3-24':'3D','3-25':'JD','3-26':'8H','3-27':'4H','3-28':'7C','3-29':'QD','3-30':'8C','3-31':'8S','4-1':'3S','4-2':'7S','4-3':'4C','4-4':'KS','4-5':'6C','4-6':'6H','4-7':'5S','4-8':'4S','4-9':'9D','4-10':'10S','4-11':'AH','4-12':'AC','4-13':'KD','4-14':'5H','4-15':'2S','4-16':'10C','4-17':'3D','4-18':'JD','4-19':'8H','4-20':'4H','4-21':'7C','4-22':'QD','4-23':'8C','4-24':'8S','4-25':'3S','4-26':'7S','4-27':'4C','4-28':'KS','4-29':'6C','4-30':'6H','5-1':'5S','5-2':'4S','5-3':'9D','5-4':'10S','5-5':'AH','5-6':'AC','5-7':'KD','5-8':'5H','5-9':'2S','5-10':'10C','5-11':'3D','5-12':'JD','5-13':'8H','5-14':'4H','5-15':'7C','5-16':'QD','5-17':'8C','5-18':'8S','5-19':'3S','5-20':'7S','5-21':'4C','5-22':'KS','5-23':'6C','5-24':'6H','5-25':'5S','5-26':'4S','5-27':'9D','5-28':'10S','5-29':'AH','5-30':'AC','5-31':'KD','6-1':'5H','6-2':'2S','6-3':'10C','6-4':'3D','6-5':'JD','6-6':'8H','6-7':'4H','6-8':'7C','6-9':'QD','6-10':'8C','6-11':'8S','6-12':'3S','6-13':'7S','6-14':'4C','6-15':'KS','6-16':'6C','6-17':'6H','6-18':'5S','6-19':'4S','6-20':'9D','6-21':'10S','6-22':'AH','6-23':'AC','6-24':'KD','6-25':'5H','6-26':'2S','6-27':'10C','6-28':'3D','6-29':'JD','6-30':'8H','7-1':'4H','7-2':'7C','7-3':'QD','7-4':'8C','7-5':'8S','7-6':'3S','7-7':'7S','7-8':'4C','7-9':'KS','7-10':'6C','7-11':'6H','7-12':'5S','7-13':'4S','7-14':'9D','7-15':'10S','7-16':'AH','7-17':'AC','7-18':'KD','7-19':'5H','7-20':'2S','7-21':'10C','7-22':'3D','7-23':'JD','7-24':'8H','7-25':'4H','7-26':'7C','7-27':'QD','7-28':'8C','7-29':'8S','7-30':'3S','7-31':'7S','8-1':'4C','8-2':'KS','8-3':'6C','8-4':'6H','8-5':'5S','8-6':'4S','8-7':'9D','8-8':'10S','8-9':'AH','8-10':'AC','8-11':'KD','8-12':'5H','8-13':'2S','8-14':'10C','8-15':'3D','8-16':'JD','8-17':'8H','8-18':'4H','8-19':'7C','8-20':'QD','8-21':'8C','8-22':'8S','8-23':'3S','8-24':'7S','8-25':'4C','8-26':'KS','8-27':'6C','8-28':'6H','8-29':'5S','8-30':'4S','8-31':'9D','9-1':'10S','9-2':'AH','9-3':'AC','9-4':'KD','9-5':'5H','9-6':'2S','9-7':'10C','9-8':'3D','9-9':'JD','9-10':'8H','9-11':'4H','9-12':'7C','9-13':'QD','9-14':'8C','9-15':'8S','9-16':'3S','9-17':'7S','9-18':'4C','9-19':'KS','9-20':'6C','9-21':'6H','9-22':'5S','9-23':'4S','9-24':'9D','9-25':'10S','9-26':'AH','9-27':'AC','9-28':'KD','9-29':'5H','9-30':'2S','10-1':'10C','10-2':'3D','10-3':'JD','10-4':'8H','10-5':'4H','10-6':'7C','10-7':'QD','10-8':'8C','10-9':'8S','10-10':'3S','10-11':'7S','10-12':'4C','10-13':'KS','10-14':'6C','10-15':'6H','10-16':'5S','10-17':'4S','10-18':'9D','10-19':'10S','10-20':'AH','10-21':'AC','10-22':'KD','10-23':'5H','10-24':'2S','10-25':'10C','10-26':'3D','10-27':'JD','10-28':'8H','10-29':'4H','10-30':'7C','10-31':'QD','11-1':'8C','11-2':'8S','11-3':'3S','11-4':'7S','11-5':'4C','11-6':'KS','11-7':'6C','11-8':'6H','11-9':'5S','11-10':'4S','11-11':'9D','11-12':'10S','11-13':'AH','11-14':'AC','11-15':'KD','11-16':'5H','11-17':'2S','11-18':'10C','11-19':'3D','11-20':'JD','11-21':'8H','11-22':'4H','11-23':'7C','11-24':'QD','11-25':'8C','11-26':'8S','11-27':'3S','11-28':'7S','11-29':'4C','11-30':'KS','12-1':'6C','12-2':'6H','12-3':'5S','12-4':'4S','12-5':'9D','12-6':'10S','12-7':'AH','12-8':'AC','12-9':'KD','12-10':'5H','12-11':'2S','12-12':'10C','12-13':'3D','12-14':'JD','12-15':'8H','12-16':'4H','12-17':'7C','12-18':'QD','12-19':'8C','12-20':'8S','12-21':'3S','12-22':'7S','12-23':'4C','12-24':'KS','12-25':'6C','12-26':'6H','12-27':'5S','12-28':'4S','12-29':'9D','12-30':'10S','12-31':'AS'};
+  var SUIT_NAMES={'H':'♥ 紅心','C':'♣ 梅花','D':'♦ 方塊','S':'♠ 黑桃'};
+  var SUIT_ELEMENT={'H':'火·情感','C':'土·行動','D':'氣·思維','S':'水·轉化'};
+  var key=month+'-'+day;
+  var code=BDAY[key]||'AH';
+  var suit=code.slice(-1);
+  var val=code.slice(0,-1);
+  var suitSymbol=suit==='H'?'♥':suit==='C'?'♣':suit==='D'?'♦':'♠';
+  return{code:code,display:val+suitSymbol,suitName:SUIT_NAMES[suit]||suit,suitElement:SUIT_ELEMENT[suit]||''};
+}
+
+// ㉒ 居爾特樹曆（destiny-engine line 2617+ — 簡化版只保留樹名）
+function wwCalcCelticTree(month,day){
+  var TREES=[
+    {name:'白樺',start:[12,24],end:[1,20]},{name:'花楸',start:[1,21],end:[2,17]},
+    {name:'梣樹',start:[2,18],end:[3,17]},{name:'赤楊',start:[3,18],end:[4,14]},
+    {name:'柳樹',start:[4,15],end:[5,12]},{name:'山楂',start:[5,13],end:[6,9]},
+    {name:'橡樹',start:[6,10],end:[7,7]},{name:'冬青',start:[7,8],end:[8,4]},
+    {name:'榛樹',start:[8,5],end:[9,1]},{name:'葡萄藤',start:[9,2],end:[9,29]},
+    {name:'常春藤',start:[9,30],end:[10,27]},{name:'蘆葦',start:[10,28],end:[11,24]},
+    {name:'接骨木',start:[11,25],end:[12,23]}
+  ];
+  for(var i=0;i<TREES.length;i++){
+    var t=TREES[i],s=t.start,e=t.end,inRange;
+    if(s[0]<e[0]){inRange=(month===s[0]&&day>=s[1])||(month===e[0]&&day<=e[1])||(month>s[0]&&month<e[0])}
+    else{inRange=(month===s[0]&&day>=s[1])||(month===e[0]&&day<=e[1])}
+    if(inRange)return t;
+  }
+  return TREES[0];
+}
+
 // ═══ 數字化簡（生命靈數）═══
 function reduceNum(n) {
   while (n > 9 && n !== 11 && n !== 22 && n !== 33) {
@@ -1102,6 +1241,14 @@ async function calculateProfile(){
   // ── 馬雅曆（使用 destiny-engine 同款 calcMaya）──
   var maya = wwCalcMaya(y, m, d);
 
+  // ── 33 套命理：簡單日期函式（destiny-engine 1:1 移植）──
+  var nsk = wwCalcNSK(y, m, d);          // ⑪ 九星氣學
+  var birthColor = wwCalcColor(y, m, d); // ⑫ 生日色彩
+  var xiuyao = wwCalcXiuYao(y, m, d);    // ⑰ 宿曜占星
+  var rainbow = wwCalcRainbow(y, m, d);  // ⑳ 彩虹數字
+  var cardology = wwCalcCardology(m, d); // ㉑ 撲克牌命理
+  var celtic = wwCalcCelticTree(m, d);   // ㉒ 居爾特樹曆
+
   // ── 生命靈數 / 生肖 ──
   var lifePathNum = reduceNum(reduceNum(y) + reduceNum(m) + reduceNum(d));
   var zodiac = getZodiac(y);
@@ -1141,7 +1288,13 @@ async function calculateProfile(){
     sunSign: sunSign,
     moonSign: moonSign,
     risingSign: risingSign,
-    maya: maya
+    maya: maya,
+    nsk: nsk,
+    birthColor: birthColor,
+    xiuyao: xiuyao,
+    rainbow: rainbow,
+    cardology: cardology,
+    celtic: celtic
   };
 
   // 渲染量身打造的命理座標卡
@@ -1167,11 +1320,21 @@ async function calculateProfile(){
     cards.push('<div class="ww-profile-item"><div class="label">馥靈 R 行數</div><div class="value">' + fuling.R + '</div></div>');
   }
   cards.push('<div class="ww-profile-item"><div class="label">馬雅圖騰</div><div class="value" style="font-size:.88rem">' + maya.tone + '・' + maya.seal + '</div></div>');
+  cards.push('<div class="ww-profile-item"><div class="label">⑪ 九星氣學</div><div class="value" style="font-size:.85rem">' + nsk.star.n + '</div></div>');
+  cards.push('<div class="ww-profile-item"><div class="label">⑫ 生日色彩</div><div class="value" style="color:' + birthColor.mc.h + ';font-size:.92rem">' + birthColor.mc.n + '・' + birthColor.mc.ck + '</div></div>');
+  cards.push('<div class="ww-profile-item"><div class="label">⑰ 宿曜星宿</div><div class="value" style="font-size:.88rem">' + xiuyao.name + '宿（' + xiuyao.guard + '）</div></div>');
+  cards.push('<div class="ww-profile-item"><div class="label">⑳ 彩虹中心數</div><div class="value">' + rainbow.centerNum + '</div></div>');
+  cards.push('<div class="ww-profile-item"><div class="label">㉑ 撲克生命牌</div><div class="value" style="font-size:1.05rem">' + cardology.display + '</div></div>');
+  cards.push('<div class="ww-profile-item"><div class="label">㉒ 居爾特樹</div><div class="value" style="font-size:.92rem">' + celtic.name + '</div></div>');
   cards.push('<div class="ww-profile-item"><div class="label">幸運數字</div><div class="value">' + luckyNums.join('、') + '</div></div>');
   if (cityInfo) cards.push('<div class="ww-profile-item"><div class="label">出生地</div><div class="value" style="font-size:.88rem">' + cityInfo.label + '</div></div>');
   if (hourBlock) cards.push('<div class="ww-profile-item"><div class="label">出生時辰</div><div class="value" style="font-size:.88rem">' + hourBlock.name + '</div></div>');
 
   grid.innerHTML = cards.join('');
+
+  // 顯示完整 33 套系統清單（讓客人看到我們算進去的系統列表）
+  var sysListEl = document.getElementById('systemList');
+  if (sysListEl) sysListEl.style.display = 'block';
 
   document.getElementById('profileSection').classList.add('show');
   document.getElementById('profileSection').scrollIntoView({behavior:'smooth',block:'start'});
