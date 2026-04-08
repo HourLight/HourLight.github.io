@@ -214,11 +214,6 @@ body{min-height:100vh;font-family:var(--ff-font);color:var(--ff-ink);line-height
     </div>
     <div class="nm-manual" id="manualRow" style="display:none">
       <span>手動輸入筆畫：</span>
-      <span>姓</span><input type="number" id="m1" min="1" max="30" placeholder="?">
-      <span id="m2Label" style="display:none">姓2</span><input type="number" id="m2" min="1" max="30" style="display:none">
-      <span>名1</span><input type="number" id="m3" min="1" max="30" placeholder="?">
-      <span id="m4Label" style="display:none">名2</span><input type="number" id="m4" min="1" max="30" style="display:none">
-      <span id="m5Label" style="display:none">名3</span><input type="number" id="m5" min="1" max="30" style="display:none">
     </div>
     <div class="nm-note">系統自動查詢康熙筆畫。若查不到，會顯示手動輸入欄位。</div>
     <button class="ff-btn ff-btn-gold" onclick="analyzeName()">分析姓名五格</button>
@@ -320,17 +315,28 @@ function analyzeName(){
   });
 
   if(missing.length > 0){
-    // 嘗試手動輸入
     var mr = document.getElementById('manualRow');
     mr.style.display = 'flex';
-    // 檢查是否已填入手動值
+    // 動態產生手動輸入欄位（根據實際姓名結構）
+    if(!mr.dataset.built){
+      chars.forEach(function(c,i){
+        var lbl = i < sLen ? (sLen===1 ? '姓' : '姓'+(i+1)) : (chars.length-sLen===1 ? '名' : '名'+(i-sLen+1));
+        var span = document.createElement('span');
+        span.textContent = lbl;
+        span.id = 'ml' + i;
+        var inp = document.createElement('input');
+        inp.type = 'number'; inp.id = 'mc' + i; inp.min = '1'; inp.max = '30'; inp.placeholder = '?';
+        inp.style.display = 'none'; span.style.display = 'none';
+        mr.appendChild(span); mr.appendChild(inp);
+      });
+      mr.dataset.built = '1';
+    }
     var allFilled = true;
     missing.forEach(function(m){
-      var inputId = 'm' + (m.idx + 1);
-      var el = document.getElementById(inputId);
-      if(el){ el.style.display = 'inline'; }
-      var labelEl = document.getElementById(inputId.replace('m','m') + 'Label');
-      if(m.idx > 0 && labelEl) labelEl.style.display = 'inline';
+      var el = document.getElementById('mc' + m.idx);
+      var lbl = document.getElementById('ml' + m.idx);
+      if(el) el.style.display = 'inline';
+      if(lbl) lbl.style.display = 'inline';
       if(!el || !el.value) allFilled = false;
     });
 
@@ -340,7 +346,7 @@ function analyzeName(){
     }
 
     missing.forEach(function(m){
-      var el = document.getElementById('m' + (m.idx + 1));
+      var el = document.getElementById('mc' + m.idx);
       strokes[m.idx] = parseInt(el.value) || 1;
     });
   }
@@ -494,10 +500,19 @@ function _doNameAnalysis(name,btn,content,result){
     var sc=document.getElementById('sancaiDisplay');
     if(sc)sancai=sc.textContent.replace(/\s+/g,' ').trim().substring(0,100);
   }catch(e){}
+  // 傳結構化數據給 API
+  var apiData = {name:name,fiveGrid:fiveGrid,sancai:sancai};
+  if(analysisData){
+    apiData.surname = analysisData.surname;
+    apiData.givenname = analysisData.givenname;
+    apiData.strokes = analysisData.chars.map(function(c,i){return {char:c,stroke:analysisData.strokes[i]}});
+    apiData.grids = analysisData.grids.map(function(g){return {name:g.name,num:g.num,suli:g.suli.n,jx:g.suli.jx,wx:g.wx.wx,role:g.role,desc:g.suli.desc}});
+    apiData.sancaiWx = analysisData.sancai.map(function(s){return s.wx});
+  }
   fetch('https://app.hourlightkey.com/api/reading-services?type=name',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({name:name,fiveGrid:fiveGrid,sancai:sancai})
+    body:JSON.stringify(apiData)
   }).then(function(r){return r.json()}).then(function(data){
     if(data.success&&data.analysis){
       content.textContent=data.analysis;
