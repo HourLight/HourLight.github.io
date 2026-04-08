@@ -575,7 +575,8 @@ body{min-height:100vh;min-height:100dvh;font-family:var(--ff-font);color:var(--f
   <div class="ff-glass" style="padding:40px">
     <div class="ww-spinner"></div>
     <div style="color:var(--ff-gold);font-family:var(--ff-oracle);font-size:1.1rem;letter-spacing:.08em" id="loadingText">正在為您調配能量桌布...</div>
-    <div style="color:var(--ff-ink-soft);font-size:.85rem;margin-top:8px" id="loadingHint">AI 正根據您的命理座標生成獨一無二的圖像，約需 15-30 秒</div>
+    <div style="color:var(--ff-ink-soft);font-size:.85rem;margin-top:8px" id="loadingHint">AI 正根據您的命理座標生成獨一無二的圖像，每張約需 30-60 秒</div>
+    <div style="color:#ff8a8a;font-size:.82rem;margin-top:10px;font-weight:500">⚠️ 請勿關閉或重新整理頁面，否則生成會中斷</div>
     <div style="margin-top:16px;color:var(--ff-ink-soft);font-size:.8rem" id="loadingProgress"></div>
   </div>
 </div>
@@ -1265,7 +1266,10 @@ async function doGenerate(){
   var member = getCurrentMember();
 
   for(var i = 0; i < totalToGenerate; i++){
-    document.getElementById('loadingProgress').textContent = '正在生成第 ' + (i+1) + ' / ' + totalToGenerate + ' 張...';
+    var estimateMin = Math.ceil((totalToGenerate - i) * 30 / 60);
+    var estimateMax = Math.ceil((totalToGenerate - i) * 60 / 60);
+    var estStr = totalToGenerate - i > 1 ? '（剩餘約 ' + estimateMin + '-' + estimateMax + ' 分鐘）' : '';
+    document.getElementById('loadingProgress').textContent = '正在生成第 ' + (i+1) + ' / ' + totalToGenerate + ' 張' + estStr;
 
     // 15張套組：5主題×3張
     var currentTheme = selectedTheme;
