@@ -686,62 +686,116 @@ var CITY_COORDS = {
   other:     { lat:24.0,  lon:121.0,  label:'其他（採台灣中部座標）' }
 };
 
-// ═══ 西洋星座（從西曆日期計算太陽星座，已知公式）═══
-function calcSunSign(M, D) {
-  var signs = [
-    {name:'摩羯座', en:'Capricorn', element:'土', from:[12,22], to:[1,19]},
-    {name:'水瓶座', en:'Aquarius',  element:'風', from:[1,20],  to:[2,18]},
-    {name:'雙魚座', en:'Pisces',    element:'水', from:[2,19],  to:[3,20]},
-    {name:'牡羊座', en:'Aries',     element:'火', from:[3,21],  to:[4,19]},
-    {name:'金牛座', en:'Taurus',    element:'土', from:[4,20],  to:[5,20]},
-    {name:'雙子座', en:'Gemini',    element:'風', from:[5,21],  to:[6,21]},
-    {name:'巨蟹座', en:'Cancer',    element:'水', from:[6,22],  to:[7,22]},
-    {name:'獅子座', en:'Leo',       element:'火', from:[7,23],  to:[8,22]},
-    {name:'處女座', en:'Virgo',     element:'土', from:[8,23],  to:[9,22]},
-    {name:'天秤座', en:'Libra',     element:'風', from:[9,23],  to:[10,23]},
-    {name:'天蠍座', en:'Scorpio',   element:'水', from:[10,24], to:[11,22]},
-    {name:'射手座', en:'Sagittarius',element:'火',from:[11,23], to:[12,21]}
-  ];
-  for (var i = 0; i < signs.length; i++) {
-    var s = signs[i];
-    if (s.from[0] === s.to[0]) {
-      if (M === s.from[0] && D >= s.from[1] && D <= s.to[1]) return s;
-    } else if (s.from[0] < s.to[0]) {
-      if ((M === s.from[0] && D >= s.from[1]) || (M === s.to[0] && D <= s.to[1])) return s;
-    } else {
-      // 摩羯座跨年
-      if ((M === s.from[0] && D >= s.from[1]) || (M === s.to[0] && D <= s.to[1])) return s;
+// ═══════════════════════════════════════════════════════════════
+// ▼▼▼ 命理計算：直接引用 destiny-engine.html 的精準函式（禁止寫近似）▼▼▼
+// 來源：destiny-engine.html line 1263-1371（calcPlacidus / ephLookup）+ 1796+（calcMaya）
+// ═══════════════════════════════════════════════════════════════
+
+// SIGNS — 與 destiny-engine.html line 1266 完全一致（不加「座」字以對齊）
+var WW_SIGNS = ['牡羊座','金牛座','雙子座','巨蟹座','獅子座','處女座','天秤座','天蠍座','射手座','摩羯座','水瓶座','雙魚座'];
+var WW_SIGNS_RAW = ['牡羊','金牛','雙子','巨蟹','獅子','處女','天秤','天蠍','射手','摩羯','水瓶','雙魚']; // 對齊 destiny-engine 內部
+var P_ORDER = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','node','chiron'];
+
+// EPH 星曆延遲載入（4MB，跟 destiny-engine 共用同一份檔案）
+var WW_EPH = null;
+var WW_EPH_LOADING = false;
+function loadEphemeris() {
+  return new Promise(function(resolve, reject) {
+    if (WW_EPH) { resolve(WW_EPH); return; }
+    if (WW_EPH_LOADING) {
+      var iv = setInterval(function() { if (WW_EPH) { clearInterval(iv); resolve(WW_EPH); } }, 200);
+      return;
     }
+    WW_EPH_LOADING = true;
+    fetch('js/ephemeris-1920-2060.json')
+      .then(function(r) { return r.json(); })
+      .then(function(d) { WW_EPH = d; WW_EPH_LOADING = false; resolve(d); })
+      .catch(function(e) { WW_EPH_LOADING = false; reject(e); });
+  });
+}
+
+// ═══ ephLookup — 1:1 從 destiny-engine.html line 1287 移植 ═══
+function wwEphLookup(Y, M, D, H, min) {
+  if (!WW_EPH) return null;
+  var utcH = (H || 0) - 8 + (min || 0) / 60;
+  var uD = D, uM = M, uY = Y;
+  if (utcH < 0) { utcH += 24; uD--; }
+  if (utcH >= 24) { utcH -= 24; uD++; }
+  var key = String(uY).padStart(4, '0') + String(uM).padStart(2, '0') + String(uD).padStart(2, '0');
+  var row = WW_EPH[key];
+  if (!row) return null;
+  var nd = new Date(uY, uM - 1, uD + 1);
+  var nk = String(nd.getFullYear()).padStart(4, '0') + String(nd.getMonth() + 1).padStart(2, '0') + String(nd.getDate()).padStart(2, '0');
+  var nr = WW_EPH[nk];
+  var frac = utcH / 24;
+  var result = {};
+  for (var i = 0; i < P_ORDER.length; i++) {
+    var lon0 = row[i], lon1 = nr ? nr[i] : lon0;
+    var diff = lon1 - lon0;
+    if (diff > 180) diff -= 360;
+    if (diff < -180) diff += 360;
+    var lon = lon0 + diff * frac;
+    if (lon < 0) lon += 360;
+    if (lon >= 360) lon -= 360;
+    var si = Math.floor(lon / 30);
+    var deg = lon - si * 30;
+    var retro = diff < 0;
+    result[P_ORDER[i]] = { lon: lon, sign: WW_SIGNS_RAW[si], deg: Math.floor(deg), min: Math.round((deg % 1) * 60), retro: retro, si: si };
   }
-  return signs[0];
+  return result;
 }
 
-// 上升星座粗略計算（根據出生時間 + 太陽星座 + 緯度近似）
-function calcRisingSign(sunSignIdx, hour, minute, lat) {
-  // 簡化算法：太陽位置 + 從日出開始每兩小時一個星座
-  // 此為簡化版，誤差約 ±1 個星座，但對視覺指令足夠
-  var totalMin = hour * 60 + minute;
-  var sunriseMin = 6 * 60; // 假設日出 6:00（粗略）
-  var diffMin = totalMin - sunriseMin;
-  if (diffMin < 0) diffMin += 24 * 60;
-  var signsAdvance = Math.floor(diffMin / 120); // 每 2 小時換一個星座
-  var risingIdx = (sunSignIdx + signsAdvance) % 12;
-  var signsArr = ['摩羯座','水瓶座','雙魚座','牡羊座','金牛座','雙子座','巨蟹座','獅子座','處女座','天秤座','天蠍座','射手座'];
-  return signsArr[risingIdx];
+// ═══ calcPlacidus — 1:1 從 destiny-engine.html line 1332 移植 ═══
+function wwCalcPlacidus(lat, geo_lon, jd_val) {
+  var T = (jd_val - 2451545.0) / 36525;
+  var GMST = (280.46061837 + 360.98564736629 * (jd_val - 2451545.0) + 0.000387933 * T * T) % 360;
+  if (GMST < 0) GMST += 360;
+  var RAMC = (GMST + geo_lon) % 360;
+  var eps = 23.4393 - 0.013 * T;
+  var er = eps * Math.PI / 180, lr = lat * Math.PI / 180;
+  var ramc_r = RAMC * Math.PI / 180;
+  var asc_val = (Math.atan2(-Math.cos(ramc_r), Math.sin(ramc_r) * Math.cos(er) + Math.tan(lr) * Math.sin(er)) * 180 / Math.PI + 180) % 360;
+  var mc_val = (Math.atan2(Math.sin(ramc_r), Math.cos(ramc_r) * Math.cos(er)) * 180 / Math.PI + 360) % 360;
+  return { asc: asc_val, mc: mc_val, RAMC: RAMC };
 }
 
-// ═══ 馬雅曆 Kin（從西曆日期計算）═══
-function calcMayaKin(Y, M, D) {
-  // 以 1900-01-01 為 Kin 207（已知參考點）
-  var refDate = new Date(1900, 0, 1);
-  var inputDate = new Date(Y, M - 1, D);
-  var diffDays = Math.floor((inputDate - refDate) / (24 * 60 * 60 * 1000));
-  var kin = ((207 + diffDays - 1) % 260 + 260) % 260 + 1;
-  var tones = ['磁性','月亮','電力','自我存在','超頻','韻律','共振','銀河星','太陽','行星','光譜','水晶','宇宙'];
-  var seals = ['紅龍','白風','藍夜','黃種子','紅蛇','白世界橋','藍手','黃星星','紅月','白狗','藍猴','黃人','紅天行者','白巫師','藍鷹','黃戰士','紅地球','白鏡子','藍風暴','黃太陽'];
-  var tone = tones[(kin - 1) % 13];
-  var seal = seals[(kin - 1) % 20];
-  return { kin: kin, tone: tone, seal: seal, label: tone + ' ' + seal + '（Kin ' + kin + '）' };
+// 從黃經算星座（含「座」字版本，給 UI 顯示用）
+function lonToSign(lon) {
+  var si = Math.floor(((lon % 360) + 360) % 360 / 30);
+  return WW_SIGNS[si];
+}
+
+// ═══ calcMaya — 1:1 從 destiny-engine.html line 1796 移植（base 1993/7/26 + 閏日修正 + Kin 144）═══
+var WW_M_SEAL = ['紅龍','白風','藍夜','黃種子','紅蛇','白世界橋','藍手','黃星星','紅月','白狗','藍猴','黃人','紅天行者','白巫師','藍鷹','黃戰士','紅地球','白鏡','藍風暴','黃太陽'];
+var WW_M_TONE = ['磁性的','月亮的','電力的','自我存在的','超頻的','韻律的','共鳴的','銀河的','太陽的','行星的','光譜的','水晶的','宇宙的'];
+
+function wwCalcMaya(Y, M, D) {
+  var base = new Date(1993, 6, 26), tgt = new Date(Y, M - 1, D);
+  var diff = Math.floor((tgt - base) / 86400000);
+  function cntLeap(y1, m1, d1, y2, m2, d2) {
+    var c = 0, d = new Date(y1, m1 - 1, d1), e = new Date(y2, m2 - 1, d2);
+    while (d < e) { if (d.getMonth() == 1 && d.getDate() == 29) c++; d.setDate(d.getDate() + 1); }
+    return c;
+  }
+  var leaps = diff >= 0 ? cntLeap(1993, 7, 26, Y, M, D) : -cntLeap(Y, M, D, 1993, 7, 26);
+  var disp = diff - leaps;
+  var kin = (((144 - 1 + disp) % 260) + 260) % 260 + 1;
+  var tone = ((kin - 1) % 13) + 1;
+  var seal = (kin - 1) % 20;
+  return {
+    kin: kin,
+    toneNum: tone,
+    sealNum: seal,
+    tone: WW_M_TONE[tone - 1],
+    seal: WW_M_SEAL[seal],
+    label: WW_M_TONE[tone - 1] + WW_M_SEAL[seal] + '（Kin ' + kin + '）'
+  };
+}
+
+// 西曆 → Julian Day（與 destiny-engine 同公式）
+function wwJulianDay(Y, M, D, hLocal, mLocal) {
+  var utcH = (hLocal || 0) - 8 + (mLocal || 0) / 60;
+  return 367 * Y - Math.floor(7 * (Y + Math.floor((M + 9) / 12)) / 4) + Math.floor(275 * M / 9) + D + 1721013.5 + utcH / 24;
 }
 
 // ═══ 數字化簡（生命靈數）═══
@@ -902,7 +956,7 @@ function hourToBlock(h) {
   return HOUR_BLOCK_TO_HMS.wu;
 }
 
-function calculateProfile(){
+async function calculateProfile(){
   var y = parseInt(document.getElementById('yearInput').value);
   var m = parseInt(document.getElementById('monthInput').value);
   var d = parseInt(document.getElementById('dayInput').value);
@@ -934,7 +988,18 @@ function calculateProfile(){
   var cityKey = document.getElementById('cityInput').value || '';
   var cityInfo = cityKey ? CITY_COORDS[cityKey] : null;
 
-  // ── 八字四柱 + 完整五行統計 ──
+  // ── 載入星曆（destiny-engine 同款）── 4MB 首次有延遲，之後 cache 命中
+  var btn = document.querySelector('button[onclick="calculateProfile()"]');
+  var btnOriginalText = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ 載入星曆計算中...'; }
+  try {
+    await loadEphemeris();
+  } catch (e) {
+    console.warn('星曆載入失敗，占星將略過', e);
+  }
+  if (btn) { btn.disabled = false; btn.textContent = btnOriginalText; }
+
+  // ── 八字四柱 + 完整五行統計（使用 lunar-javascript，與 destiny-engine / fuling-mima 同款）──
   var bazi = calcBaziWuxing(y, m, d, hour !== null ? hour : 12, minute !== null ? minute : 0, hasHourInfo ? 2 : 2);
   var dominantWx, missingWx, baziStat, dayMaster, dayMasterWx, lunarMonth, lunarDay, isLeapMonth, yearGz;
   if (bazi) {
@@ -964,13 +1029,30 @@ function calculateProfile(){
   // ── 馥靈秘碼 H/O/U/R ──
   var fuling = (lunarMonth && lunarDay) ? calcFulingHOUR(lunarMonth, lunarDay, y, m, d, hourBlock ? hourBlock.num : null) : null;
 
-  // ── 西洋占星 ──
-  var sunSign = calcSunSign(m, d);
-  var sunSignIdx = ['摩羯座','水瓶座','雙魚座','牡羊座','金牛座','雙子座','巨蟹座','獅子座','處女座','天秤座','天蠍座','射手座'].indexOf(sunSign.name);
-  var risingSign = (hasHourInfo && cityInfo) ? calcRisingSign(sunSignIdx, hour, minute || 0, cityInfo.lat) : null;
+  // ── 西洋占星（使用 destiny-engine 同款 ephLookup + calcPlacidus）──
+  var sunSign = null, sunSignFull = null, moonSign = null, risingSign = null;
+  // 太陽星座：用中午 12:00 取，避免時間差影響（destiny-engine 也是這樣）
+  var ephAtNoon = WW_EPH ? wwEphLookup(y, m, d, 12, 0) : null;
+  if (ephAtNoon && ephAtNoon.sun) {
+    sunSign = ephAtNoon.sun.sign + '座'; // ephLookup 回傳不含「座」字，補上
+    sunSignFull = sunSign;
+  }
+  // 月亮星座：需要精確時間
+  if (hasHourInfo && WW_EPH) {
+    var ephAtBirth = wwEphLookup(y, m, d, hour, minute || 0);
+    if (ephAtBirth && ephAtBirth.moon) moonSign = ephAtBirth.moon.sign + '座';
+  }
+  // 上升星座：需要精確時間 + 出生地座標
+  if (hasHourInfo && cityInfo) {
+    var jd = wwJulianDay(y, m, d, hour, minute || 0);
+    var houses = wwCalcPlacidus(cityInfo.lat, cityInfo.lon, jd);
+    if (houses && houses.asc !== undefined) {
+      risingSign = lonToSign(houses.asc);
+    }
+  }
 
-  // ── 馬雅曆 ──
-  var maya = calcMayaKin(y, m, d);
+  // ── 馬雅曆（使用 destiny-engine 同款 calcMaya）──
+  var maya = wwCalcMaya(y, m, d);
 
   // ── 生命靈數 / 生肖 ──
   var lifePathNum = reduceNum(reduceNum(y) + reduceNum(m) + reduceNum(d));
@@ -1008,9 +1090,8 @@ function calculateProfile(){
     colors: colors,
     luckyNums: luckyNums,
     fuling: fuling,
-    sunSign: sunSign.name,
-    sunSignEn: sunSign.en,
-    sunElement: sunSign.element,
+    sunSign: sunSign,
+    moonSign: moonSign,
     risingSign: risingSign,
     maya: maya
   };
@@ -1018,7 +1099,8 @@ function calculateProfile(){
   // 渲染量身打造的命理座標卡
   var grid = document.getElementById('profileGrid');
   var cards = [];
-  cards.push('<div class="ww-profile-item"><div class="label">太陽星座</div><div class="value">' + sunSign.name + '</div></div>');
+  if (sunSign) cards.push('<div class="ww-profile-item"><div class="label">太陽星座</div><div class="value">' + sunSign + '</div></div>');
+  if (moonSign) cards.push('<div class="ww-profile-item"><div class="label">月亮星座</div><div class="value">' + moonSign + '</div></div>');
   if (risingSign) cards.push('<div class="ww-profile-item"><div class="label">上升星座</div><div class="value">' + risingSign + '</div></div>');
   cards.push('<div class="ww-profile-item"><div class="label">生肖</div><div class="value">' + zodiac + '</div></div>');
   if (lunarMonth) cards.push('<div class="ww-profile-item"><div class="label">農曆生日</div><div class="value" style="font-size:.92rem">' + (isLeapMonth ? '閏' : '') + lunarMonth + '/' + lunarDay + '</div></div>');

@@ -845,6 +845,7 @@ async function handleWallpaper(req, res, apiKey) {
   if (profile.zodiac) personalElements.push('the ' + profile.zodiac + ' Chinese zodiac as a graceful hidden silhouette');
   if (profile.dayMaster && profile.dayMasterWx) personalElements.push('day-master ' + profile.dayMaster + ' (' + profile.dayMasterWx + '-element) personal energy signature');
   if (profile.sunSign) personalElements.push(profile.sunSign + ' solar archetype mood');
+  if (profile.moonSign) personalElements.push(profile.moonSign + ' lunar emotional palette');
   if (profile.risingSign) personalElements.push(profile.risingSign + ' rising sign aesthetic flavor');
   if (profile.maya && profile.maya.seal) personalElements.push('Mayan totem ' + profile.maya.seal + ' (' + profile.maya.tone + ') woven subtly into the imagery');
   if (profile.lifePathNum) personalElements.push('life-path-number-' + profile.lifePathNum + ' vibrational pattern');
@@ -985,6 +986,7 @@ async function handleWallpaper(req, res, apiKey) {
             dayMaster: profile.dayMaster || null,
             dayMasterWx: profile.dayMasterWx || null,
             sunSign: profile.sunSign || null,
+            moonSign: profile.moonSign || null,
             risingSign: profile.risingSign || null,
             mayaSeal: profile.maya ? profile.maya.seal : null,
             mayaTone: profile.maya ? profile.maya.tone : null,
