@@ -575,8 +575,8 @@ body{min-height:100vh;min-height:100dvh;font-family:var(--ff-font);color:var(--f
   <div class="ff-glass" style="padding:40px">
     <div class="ww-spinner"></div>
     <div style="color:var(--ff-gold);font-family:var(--ff-oracle);font-size:1.1rem;letter-spacing:.08em" id="loadingText">正在為您調配能量桌布...</div>
-    <div style="color:var(--ff-ink-soft);font-size:.85rem;margin-top:8px" id="loadingHint">AI 正根據您的命理座標生成獨一無二的圖像，每張約需 30-60 秒</div>
-    <div style="color:#ff8a8a;font-size:.82rem;margin-top:10px;font-weight:500">⚠️ 請勿關閉或重新整理頁面，否則生成會中斷</div>
+    <div style="color:var(--ff-ink-soft);font-size:.85rem;margin-top:8px" id="loadingHint">AI 並發生成中，每張約 30-60 秒｜15 張總計約 5-7 分鐘</div>
+    <div style="color:#ff8a8a;font-size:.82rem;margin-top:10px;font-weight:500">⚠️ 請勿關閉頁面｜可切到別的 App，完成時會通知您</div>
     <div style="margin-top:16px;color:var(--ff-ink-soft);font-size:.8rem" id="loadingProgress"></div>
   </div>
 </div>
@@ -1248,7 +1248,89 @@ function getCurrentMember(){
   } catch(e) { return {}; }
 }
 
+// ═══ 請求通知權限（在 generate 前先問）═══
+function ensureNotificationPermission(){
+  try {
+    if (!('Notification' in window)) return Promise.resolve('unsupported');
+    if (Notification.permission === 'granted' || Notification.permission === 'denied') {
+      return Promise.resolve(Notification.permission);
+    }
+    return Notification.requestPermission();
+  } catch(e) { return Promise.resolve('error'); }
+}
+
+// ═══ 生成完成後通知（網頁不在前景時用）═══
+function fireCompletionNotification(successCount, total){
+  try {
+    // 1. 桌面通知
+    if ('Notification' in window && Notification.permission === 'granted' && document.hidden) {
+      var n = new Notification('🌟 馥靈蘊福桌布生成完成', {
+        body: '成功生成 ' + successCount + ' / ' + total + ' 張，請回到頁面查看',
+        icon: '/LOGO-1.png',
+        badge: '/LOGO-1.png',
+        tag: 'wallpaper-done',
+        requireInteraction: true
+      });
+      n.onclick = function(){ window.focus(); n.close(); };
+    }
+    // 2. 標題閃爍提示（document.hidden 時）
+    if (document.hidden) {
+      var orig = document.title;
+      var blinkCount = 0;
+      var blinkInterval = setInterval(function(){
+        document.title = blinkCount % 2 === 0 ? '✅ 桌布生成完成！' : orig;
+        blinkCount++;
+        if (blinkCount > 20 || !document.hidden) { clearInterval(blinkInterval); document.title = orig; }
+      }, 800);
+      var onVisible = function(){
+        if (!document.hidden) { clearInterval(blinkInterval); document.title = orig; document.removeEventListener('visibilitychange', onVisible); }
+      };
+      document.addEventListener('visibilitychange', onVisible);
+    }
+    // 3. 鈴聲（簡單 beep，不下載音檔）
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine'; osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.6);
+      osc.start(); osc.stop(ctx.currentTime + 0.6);
+    } catch(_) {}
+  } catch(e) { console.warn('通知失敗', e); }
+}
+
+// ═══ 並發池：同時跑 N 個 task 的工作池 ═══
+async function runWithConcurrency(tasks, concurrency, onEachDone){
+  var results = new Array(tasks.length);
+  var idx = 0;
+  var doneCount = 0;
+  async function worker(){
+    while (true) {
+      var myIdx = idx++;
+      if (myIdx >= tasks.length) return;
+      try {
+        var r = await tasks[myIdx]();
+        results[myIdx] = r;
+      } catch(e) {
+        results[myIdx] = { error: e };
+      }
+      doneCount++;
+      if (onEachDone) onEachDone(doneCount, tasks.length, results[myIdx], myIdx);
+    }
+  }
+  var workers = [];
+  for (var w = 0; w < Math.min(concurrency, tasks.length); w++) workers.push(worker());
+  await Promise.all(workers);
+  return results;
+}
+
 async function doGenerate(){
+  // 先請求通知權限
+  ensureNotificationPermission();
+
   var loading = document.getElementById('loadingSection');
   var result = document.getElementById('resultSection');
   result.classList.remove('show');
@@ -1259,74 +1341,111 @@ async function doGenerate(){
   var container = document.getElementById('imagesContainer');
   container.innerHTML = '';
 
+  var totalToGenerate = selectedN;
+  var member = getCurrentMember();
   var successCount = 0;
   var emailSentCount = 0;
   var lastEmailedTo = '';
-  var totalToGenerate = selectedN;
-  var member = getCurrentMember();
+  var startTime = Date.now();
 
-  for(var i = 0; i < totalToGenerate; i++){
-    var estimateMin = Math.ceil((totalToGenerate - i) * 30 / 60);
-    var estimateMax = Math.ceil((totalToGenerate - i) * 60 / 60);
-    var estStr = totalToGenerate - i > 1 ? '（剩餘約 ' + estimateMin + '-' + estimateMax + ' 分鐘）' : '';
-    document.getElementById('loadingProgress').textContent = '正在生成第 ' + (i+1) + ' / ' + totalToGenerate + ' 張' + estStr;
+  // 並發數：3 張 = 1 並發，5 張 = 2 並發，15 張 = 3 並發（避免 OpenAI rate limit）
+  var concurrency = totalToGenerate <= 3 ? 1 : (totalToGenerate <= 5 ? 2 : 3);
 
-    // 15張套組：5主題×3張
-    var currentTheme = selectedTheme;
-    if(totalToGenerate === 15){
+  // 預先建立 placeholder（生成時填入圖片）
+  var slots = [];
+  for (var s = 0; s < totalToGenerate; s++) {
+    var slotTheme = selectedTheme;
+    if (totalToGenerate === 15) {
       var themeList = ['wealth','love','career','protection','luck'];
-      currentTheme = themeList[Math.floor(i / 3)];
+      slotTheme = themeList[Math.floor(s / 3)];
     }
-    // 深度等級：3張=basic, 5張=advanced, 15張=premium
-    var tier = totalToGenerate <= 3 ? 'basic' : (totalToGenerate <= 5 ? 'advanced' : 'premium');
-
-    try {
-      var resp = await fetch('https://app.hourlightkey.com/api/reading-services?type=wallpaper', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({
-          profile: profileData,
-          theme: currentTheme,
-          variant: i,
-          index: i,
-          total: totalToGenerate,
-          tier: tier,
-          device: selectedDevice,
-          styleCategory: selectedStyle,
-          unlockCode: window._lastUsedUnlockCode || '',
-          uid: member.uid || '',
-          email: member.email || '',
-          name: member.name || ''
-        })
-      });
-
-      var data = await resp.json();
-      if(data.success && data.imageUrl){
-        successCount++;
-        if(data.emailSent){ emailSentCount++; lastEmailedTo = data.emailTo || lastEmailedTo; }
-        var wrap = document.createElement('div');
-        wrap.className = 'ww-img-wrap' + (selectedDevice === 'desktop' ? ' desktop' : '');
-        var labelText = themeNames[currentTheme] + ' #' + (totalToGenerate === 15 ? ((i%3)+1) : (i+1));
-        wrap.innerHTML = '<img src="' + data.imageUrl + '" alt="馥靈蘊福桌布 - ' + themeNames[currentTheme] + '" loading="lazy">' +
-          '<div class="ww-img-label">' + labelText + '</div>';
-        container.appendChild(wrap);
-      }
-    } catch(e) {
-      console.error('生成失敗:', e);
-    }
+    var slot = document.createElement('div');
+    slot.className = 'ww-img-wrap' + (selectedDevice === 'desktop' ? ' desktop' : '');
+    slot.style.minHeight = selectedDevice === 'desktop' ? '160px' : '320px';
+    slot.style.background = 'linear-gradient(135deg,rgba(248,223,165,.06),rgba(248,223,165,.02))';
+    slot.style.display = 'flex';
+    slot.style.alignItems = 'center';
+    slot.style.justifyContent = 'center';
+    slot.innerHTML = '<div style="text-align:center;color:rgba(248,223,165,.5);font-size:.85rem"><div style="font-size:1.4rem;margin-bottom:6px">⏳</div>第 ' + (s+1) + ' 張<br>排隊中</div>';
+    container.appendChild(slot);
+    slots.push({el: slot, theme: slotTheme});
   }
+
+  // 建立任務陣列
+  var tasks = [];
+  for (var i = 0; i < totalToGenerate; i++) {
+    (function(idx){
+      tasks.push(async function(){
+        var currentTheme = slots[idx].theme;
+        var tier = totalToGenerate <= 3 ? 'basic' : (totalToGenerate <= 5 ? 'advanced' : 'premium');
+        // 標記為生成中
+        slots[idx].el.innerHTML = '<div style="text-align:center;color:rgba(248,223,165,.7);font-size:.85rem"><div style="font-size:1.4rem;margin-bottom:6px">🎨</div>第 ' + (idx+1) + ' 張<br>生成中</div>';
+        try {
+          var resp = await fetch('https://app.hourlightkey.com/api/reading-services?type=wallpaper', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({
+              profile: profileData,
+              theme: currentTheme,
+              variant: idx,
+              index: idx,
+              total: totalToGenerate,
+              tier: tier,
+              device: selectedDevice,
+              styleCategory: selectedStyle,
+              unlockCode: window._lastUsedUnlockCode || '',
+              uid: member.uid || '',
+              email: member.email || '',
+              name: member.name || ''
+            })
+          });
+          var data = await resp.json();
+          if (data.success && data.imageUrl) {
+            // 替換為實際圖片
+            var labelText = themeNames[currentTheme] + ' #' + (totalToGenerate === 15 ? ((idx%3)+1) : (idx+1));
+            slots[idx].el.style.minHeight = '';
+            slots[idx].el.style.background = '';
+            slots[idx].el.style.display = '';
+            slots[idx].el.innerHTML = '<img src="' + data.imageUrl + '" alt="馥靈蘊福桌布 - ' + themeNames[currentTheme] + '" loading="lazy">' +
+              '<div class="ww-img-label">' + labelText + '</div>';
+            return { ok: true, emailSent: data.emailSent, emailTo: data.emailTo };
+          } else {
+            slots[idx].el.innerHTML = '<div style="text-align:center;color:#ff8a8a;font-size:.85rem"><div style="font-size:1.4rem;margin-bottom:6px">⚠️</div>第 ' + (idx+1) + ' 張<br>生成失敗</div>';
+            return { ok: false, error: data.error };
+          }
+        } catch(e) {
+          slots[idx].el.innerHTML = '<div style="text-align:center;color:#ff8a8a;font-size:.85rem"><div style="font-size:1.4rem;margin-bottom:6px">⚠️</div>第 ' + (idx+1) + ' 張<br>連線失敗</div>';
+          return { ok: false, error: e.message };
+        }
+      });
+    })(i);
+  }
+
+  // 並發跑（每張完成時更新進度）
+  var prog = document.getElementById('loadingProgress');
+  await runWithConcurrency(tasks, concurrency, function(done, total, taskResult, taskIdx){
+    if (taskResult && taskResult.ok) {
+      successCount++;
+      if (taskResult.emailSent) { emailSentCount++; lastEmailedTo = taskResult.emailTo || lastEmailedTo; }
+    }
+    var elapsedSec = Math.round((Date.now() - startTime) / 1000);
+    var avgPerImage = elapsedSec / done;
+    var remaining = total - done;
+    var etaSec = Math.round(remaining * avgPerImage / concurrency);
+    var etaStr = remaining > 0 ? '（剩餘約 ' + Math.max(1, Math.round(etaSec / 60)) + ' 分鐘）' : '';
+    prog.textContent = '已完成 ' + done + ' / ' + total + ' 張' + etaStr;
+  });
 
   loading.classList.remove('show');
 
-  if(successCount > 0){
+  if (successCount > 0) {
     document.getElementById('resultTitle').textContent = profileData.zodiac + '年生・靈數 ' + profileData.lifePathNum + '・馥靈蘊福桌布';
-    // 寄送狀態提示
     var deliv = document.getElementById('deliveryNotice');
-    if(deliv){
-      if(emailSentCount > 0 && lastEmailedTo){
+    if (deliv) {
+      if (emailSentCount > 0 && lastEmailedTo) {
         deliv.innerHTML = '📬 已自動寄送 <b>' + emailSentCount + '</b> 張到 <b style="color:#f8dfa5">' + lastEmailedTo + '</b><br><span style="font-size:.78rem;color:rgba(255,255,255,.55)">這封信就是您的存檔證明，請保留以便日後重新下載</span>';
         deliv.style.display = 'block';
-      } else if(member.uid && member.email){
+      } else if (member.uid && member.email) {
         deliv.innerHTML = '⚠️ 桌布已生成，但寄信暫時失敗。<br><span style="font-size:.78rem;color:rgba(255,255,255,.55)">請先長按儲存，並聯繫客服補寄</span>';
         deliv.style.display = 'block';
       } else {
@@ -1336,7 +1455,9 @@ async function doGenerate(){
     }
     result.classList.add('show');
     result.scrollIntoView({behavior:'smooth',block:'start'});
-    if(window.HL_track) HL_track('wallpaper_generated',{toolId:'wealth-wallpaper',theme:selectedTheme,n:selectedN,emailSent:emailSentCount});
+    if (window.HL_track) HL_track('wallpaper_generated', { toolId:'wealth-wallpaper', theme:selectedTheme, n:selectedN, emailSent:emailSentCount });
+    // 觸發背景通知
+    fireCompletionNotification(successCount, totalToGenerate);
   } else {
     showToast('生成失敗，請稍後再試');
   }
