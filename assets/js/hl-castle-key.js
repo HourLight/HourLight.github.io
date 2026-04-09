@@ -674,7 +674,7 @@
 
       // 自動滾到 banner
       setTimeout(function(){
-        banner.scrollIntoView({behavior:'smooth',block:'nearest'});
+        banner.scrollIntoView({behavior:'smooth',block:'start'});
       },300);
     }
 
