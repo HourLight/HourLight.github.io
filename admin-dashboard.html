@@ -2371,6 +2371,16 @@ var HL_PLANS = {
   pro:   { name:'馥靈大師',   icon:'👑', price:999 }
 };
 
+// 月禮代碼產生器：HLW-XXXXXX（桌布兌換）/ HLV-XXXXXX（一對一抵用券）
+function generateGiftCode(prefix) {
+  var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 去掉容易誤認的 0,1,I,O
+  var s = '';
+  for (var i = 0; i < 6; i++) s += chars.charAt(Math.floor(Math.random() * chars.length));
+  // 加 2 位時間戳尾數降低碰撞
+  var t = Date.now().toString(36).slice(-2).toUpperCase();
+  return (prefix || 'HLG') + '-' + s + t;
+}
+
 // 一鍵預設：設定 plan/days 並立即開通
 function quickActivate(plan, days) {
   document.getElementById('actPlan').value = plan;
@@ -2460,16 +2470,132 @@ async function activateMember() {
       })
     }, { merge: true });
 
-    // 寄送開通通知信
+    // ─── 鑰友/大師月禮：自動產生桌布兌換代碼 + (大師) 抵用券 ───
+    var giftCodes = [];
+    var giftVouchers = [];
+    // 月禮 30 天效期統一
+    var giftExp30 = new Date();
+    giftExp30.setDate(giftExp30.getDate() + 30);
+    var giftExpiryISO = giftExp30.toISOString();
+    if (!isTrial && (actualPlan === 'plus' || actualPlan === 'pro')) {
+      var wallpaperCount = actualPlan === 'pro' ? 10 : 3;
+      try {
+        for (var i = 0; i < wallpaperCount; i++) {
+          var code = generateGiftCode('HLW');
+          await db.collection('reading_codes').doc(code).set({
+            code: code,
+            n: 1,
+            type: 'wealth-wallpaper',
+            service: 'wealth-wallpaper',
+            used: false,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            createdBy: currentUser.email,
+            giftedTo: email,
+            giftedToUid: uid,
+            giftedFor: actualPlan,
+            expiresAt: giftExpiryISO
+          });
+          giftCodes.push(code);
+        }
+      } catch (giftErr) {
+        console.error('Gift code generation error:', giftErr);
+      }
+
+      // 大師額外加 2 張 NT$500 一對一抵用券
+      if (actualPlan === 'pro') {
+        try {
+          var voucherExp = new Date();
+          voucherExp.setDate(voucherExp.getDate() + 30);
+          for (var v = 0; v < 2; v++) {
+            var voucherCode = generateGiftCode('HLV');
+            var voucherDoc = {
+              code: voucherCode,
+              value: 500,
+              type: 'one-on-one',
+              used: false,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              createdBy: currentUser.email,
+              giftedFor: 'pro',
+              expiresAt: voucherExp.toISOString()
+            };
+            await db.collection('users').doc(uid).collection('vouchers').doc(voucherCode).set(voucherDoc);
+            giftVouchers.push({ code: voucherCode, expires: voucherExp });
+          }
+        } catch (vErr) {
+          console.error('Voucher generation error:', vErr);
+        }
+      }
+    }
+
+    // ─── 寄送一封整合信：開通通知 + 月禮 + 兌換代碼 + 抵用券 ───
     try {
+      var displayName = userData.displayName || '馥靈夥伴';
+      var contentLines = [];
+      contentLines.push('親愛的 ' + displayName + '：');
+      contentLines.push('');
+      contentLines.push('恭喜！您的「' + pInfo.name + '」方案已成功開通 🎉');
+      contentLines.push('');
+      contentLines.push('► 方案：' + pInfo.icon + ' ' + pInfo.name);
+      contentLines.push('► 有效期：' + expiryLabel);
+      contentLines.push('► AI 深度解讀指令：' + (actualPlan === 'pro' ? '無限次' : (actualPlan === 'plus' ? '每天 10 次' : '免費版')));
+      contentLines.push('');
+
+      if (giftCodes.length > 0) {
+        contentLines.push('═══════════════════════════════════');
+        contentLines.push('🌟 您的會員月禮：馥靈蘊福桌布兌換代碼');
+        contentLines.push('═══════════════════════════════════');
+        contentLines.push('');
+        contentLines.push('您可以用以下代碼，到桌布頁親自挑選主題與風格生成。');
+        contentLines.push('每個代碼可換 1 張專屬能量桌布，30 天內使用完畢。');
+        contentLines.push('');
+        contentLines.push('🔗 桌布頁：https://hourlightkey.com/wealth-wallpaper.html');
+        contentLines.push('');
+        contentLines.push('您的兌換代碼（共 ' + giftCodes.length + ' 個，' + giftExp30.toLocaleDateString('zh-TW') + ' 到期）：');
+        giftCodes.forEach(function(c, idx) {
+          contentLines.push('  ' + (idx + 1) + '. ' + c);
+        });
+        contentLines.push('');
+        contentLines.push('使用方法：到桌布頁 → 計算命理座標 → 選主題與風格 → 點生成 → 輸入代碼即可');
+        contentLines.push('');
+      }
+
+      if (giftVouchers.length > 0) {
+        contentLines.push('═══════════════════════════════════');
+        contentLines.push('💎 您的大師月禮：NT$500 一對一抵用券 × 2 張');
+        contentLines.push('═══════════════════════════════════');
+        contentLines.push('');
+        contentLines.push('每張抵用券可在預約「一對一覺察服務」時折抵 NT$500，');
+        contentLines.push('適用方案：馥靈初探 / 深度覺醒 / 三次轉化 / 半年陪伴 / VIP 年度夥伴 / VIP 紫微事業藍圖');
+        contentLines.push('');
+        giftVouchers.forEach(function(v, idx) {
+          contentLines.push('  抵用券 ' + (idx + 1) + ': ' + v.code + '（30 天內使用，' + v.expires.toLocaleDateString('zh-TW') + ' 到期）');
+        });
+        contentLines.push('');
+        contentLines.push('🔗 服務頁：https://hourlightkey.com/services.html');
+        contentLines.push('預約時請附上抵用券代碼，由覺察師人工確認折抵。');
+        contentLines.push('');
+      }
+
+      contentLines.push('═══════════════════════════════════');
+      contentLines.push('現在就前往體驗：');
+      contentLines.push('🔮 33 大命理一次算：https://hourlightkey.com/destiny-engine.html');
+      contentLines.push('🎴 130 張智慧牌抽牌：https://hourlightkey.com/draw-hl.html');
+      contentLines.push('🌟 馥靈蘊福桌布：https://hourlightkey.com/wealth-wallpaper.html');
+      contentLines.push('');
+      contentLines.push('馥靈之鑰 Hour Light 敬上');
+      contentLines.push('讀懂自己，活對人生');
+
+      var giftLabel = actualPlan === 'pro' ? '+ 月禮 👑' : (actualPlan === 'plus' ? '+ 月禮 ✨' : '');
+      var subjectLine = '馥靈之鑰｜您的「' + pInfo.name + '」方案已開通 ' + giftLabel;
+
       await fetch('https://app.hourlightkey.com/api/send-report', {
         method: 'POST', headers: {'Content-Type':'application/json'},
         body: JSON.stringify({
           email: email,
-          name: userData.displayName || '',
-          subject: '馥靈之鑰｜您的「' + pInfo.name + '」方案已開通 🎉',
+          name: displayName,
+          subject: subjectLine,
           type: 'notification',
-          content: '親愛的 ' + (userData.displayName || '馥靈夥伴') + '：\n\n恭喜！您的「' + pInfo.name + '」方案已成功開通 🎉\n\n► 方案：' + pInfo.icon + ' ' + pInfo.name + '\n► 有效期：' + expiryLabel + '\n► AI深度解讀指令：' + (actualPlan === 'pro' ? '無限次' : '每天 10 次') + '\n\n現在就前往體驗：\nhttps://hourlightkey.com/destiny-engine.html\n\n馥靈之鑰 Hour Light 敬上'
+          content: contentLines.join('\n')
         })
       });
     } catch (mailErr) { console.warn('Activate email failed', mailErr); }
@@ -2477,7 +2603,10 @@ async function activateMember() {
     resultEl.style.display = 'block';
     resultEl.style.background = 'rgba(52,168,83,.08)';
     resultEl.style.color = '#34a853';
-    resultEl.innerHTML = '✅ 開通成功！<br>' + (isTrial ? '🎁' : pInfo.icon) + ' <strong>' + (userData.displayName || email) + '</strong> → ' + (isTrial ? '7天無限體驗（大師等級）' : pInfo.name) + '<br>到期：' + expiryLabel + (isTrial ? '<br><small>體驗期後自動降為免費會員</small>' : '') + '<br>📧 已發送開通通知信至 ' + email;
+    var giftSummary = '';
+    if (giftCodes.length > 0) giftSummary += '<br>🎁 已贈送 ' + giftCodes.length + ' 個桌布代碼';
+    if (giftVouchers.length > 0) giftSummary += ' + ' + giftVouchers.length + ' 張一對一抵用券';
+    resultEl.innerHTML = '✅ 開通成功！<br>' + (isTrial ? '🎁' : pInfo.icon) + ' <strong>' + (userData.displayName || email) + '</strong> → ' + (isTrial ? '7天無限體驗（大師等級）' : pInfo.name) + '<br>到期：' + expiryLabel + (isTrial ? '<br><small>體驗期後自動降為免費會員</small>' : '') + giftSummary + '<br>📧 已發送整合通知信至 ' + email;
     document.getElementById('actEmail').value = '';
     loadActivateHistory();
   } catch (e) {
