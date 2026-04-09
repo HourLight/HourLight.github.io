@@ -406,13 +406,22 @@ body{min-height:100vh;min-height:100dvh;font-family:var(--ff-font);color:var(--f
       <div class="ww-device-card active" data-device="phone" onclick="selectDevice(this)">
         <span class="dv-icon">📱</span>
         <span class="dv-name">手機桌布</span>
-        <span class="dv-spec">1024×1792 直式</span>
+        <span class="dv-spec">直式輸出</span>
       </div>
       <div class="ww-device-card" data-device="desktop" onclick="selectDevice(this)">
         <span class="dv-icon">💻</span>
         <span class="dv-name">電腦桌布</span>
-        <span class="dv-spec">1792×1024 橫式</span>
+        <span class="dv-spec">橫式輸出</span>
       </div>
+    </div>
+
+    <!-- 螢幕比例選擇（依裝置動態切換） -->
+    <label style="margin-top:18px;font-size:.88rem">✦ 選擇螢幕比例 ✦</label>
+    <div id="aspectSelector" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center">
+      <!-- JS 動態填入：手機 9:16 / 9:19.5 / 9:21；電腦 16:9 / 16:10 / 21:9 / 4:3 -->
+    </div>
+    <div style="text-align:center;font-size:.74rem;color:rgba(255,255,255,.5);margin-top:6px">
+      AI 出圖後會裁切成這個真實比例下載
     </div>
 
     <label style="margin-top:24px">✦ 選擇桌布主題 ✦</label>
@@ -678,6 +687,67 @@ var selectedTheme = 'wealth';
 var selectedN = 1;
 var selectedDevice = 'phone';
 var selectedStyle = 'auto';
+var selectedAspect = '9:16';   // 預設手機 9:16
+var selectedTargetSize = { w:1080, h:1920 };  // 真實輸出尺寸
+
+// 各裝置的螢幕比例選項（label/ratio/真實尺寸）
+var ASPECT_OPTIONS = {
+  phone: [
+    { id:'9:16',  label:'9:16',  hint:'一般手機',     w:1080, h:1920 },
+    { id:'9:19.5',label:'9:19.5',hint:'iPhone 系列',  w:1170, h:2532 },
+    { id:'9:21',  label:'9:21',  hint:'窄長螢幕',     w:1080, h:2520 }
+  ],
+  desktop: [
+    { id:'16:9',  label:'16:9',  hint:'多數螢幕',     w:1920, h:1080 },
+    { id:'16:10', label:'16:10', hint:'MacBook',     w:1920, h:1200 },
+    { id:'21:9',  label:'21:9',  hint:'超寬曲面',     w:2560, h:1080 },
+    { id:'4:3',   label:'4:3',   hint:'iPad/舊螢幕',  w:2048, h:1536 }
+  ]
+};
+
+function renderAspectSelector(){
+  var box = document.getElementById('aspectSelector');
+  if(!box) return;
+  var opts = ASPECT_OPTIONS[selectedDevice] || ASPECT_OPTIONS.phone;
+  var html = '';
+  for (var i = 0; i < opts.length; i++) {
+    var o = opts[i];
+    var active = (o.id === selectedAspect) ? ' active' : '';
+    html += '<button type="button" class="ww-aspect-btn' + active + '" data-aspect="' + o.id + '" '
+         + 'data-w="' + o.w + '" data-h="' + o.h + '" '
+         + 'onclick="selectAspect(this)" '
+         + 'style="padding:10px 14px;border-radius:12px;border:1px solid rgba(248,223,165,.25);'
+         + 'background:rgba(248,223,165,.04);color:rgba(248,223,165,.85);font-family:inherit;'
+         + 'font-size:.82rem;cursor:pointer;transition:all .25s;display:flex;flex-direction:column;'
+         + 'align-items:center;gap:2px;min-width:88px">'
+         + '<span style="font-weight:600;letter-spacing:.04em">' + o.label + '</span>'
+         + '<span style="font-size:.66rem;opacity:.7">' + o.hint + '</span>'
+         + '<span style="font-size:.62rem;opacity:.55;margin-top:1px">' + o.w + '×' + o.h + '</span>'
+         + '</button>';
+  }
+  box.innerHTML = html;
+  // 確保 selectedAspect 是該裝置的合法值；不是就重設為第一個
+  var ids = opts.map(function(o){return o.id;});
+  if (ids.indexOf(selectedAspect) < 0) {
+    selectedAspect = opts[0].id;
+    selectedTargetSize = { w: opts[0].w, h: opts[0].h };
+    // 重新渲染以反映 active
+    renderAspectSelector();
+  }
+}
+
+function selectAspect(el){
+  document.querySelectorAll('#aspectSelector .ww-aspect-btn').forEach(function(b){
+    b.classList.remove('active');
+    b.style.background = 'rgba(248,223,165,.04)';
+    b.style.borderColor = 'rgba(248,223,165,.25)';
+  });
+  el.classList.add('active');
+  el.style.background = 'rgba(248,223,165,.18)';
+  el.style.borderColor = 'rgba(248,223,165,.6)';
+  selectedAspect = el.dataset.aspect;
+  selectedTargetSize = { w: parseInt(el.dataset.w, 10), h: parseInt(el.dataset.h, 10) };
+}
 
 function selectTheme(el){
   document.querySelectorAll('#themeSelector .ww-theme-rich').forEach(function(t){t.classList.remove('active')});
@@ -689,6 +759,60 @@ function selectDevice(el){
   document.querySelectorAll('#deviceSelector .ww-device-card').forEach(function(t){t.classList.remove('active')});
   el.classList.add('active');
   selectedDevice = el.dataset.device;
+  // 切換裝置時，重設比例為該裝置的第一個
+  var opts = ASPECT_OPTIONS[selectedDevice] || ASPECT_OPTIONS.phone;
+  selectedAspect = opts[0].id;
+  selectedTargetSize = { w: opts[0].w, h: opts[0].h };
+  renderAspectSelector();
+}
+
+// ═══ Canvas 客戶端裁切：把 AI 出圖裁成使用者選的真實比例 ═══
+function cropImageToAspect(imageUrl, targetW, targetH){
+  return new Promise(function(resolve, reject){
+    var img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function(){
+      try {
+        var srcW = img.naturalWidth, srcH = img.naturalHeight;
+        var srcRatio = srcW / srcH;
+        var dstRatio = targetW / targetH;
+        var sx, sy, sw, sh;
+        if (srcRatio > dstRatio) {
+          // 來源比目標寬 → 裁切左右
+          sh = srcH;
+          sw = srcH * dstRatio;
+          sx = (srcW - sw) / 2;
+          sy = 0;
+        } else {
+          // 來源比目標窄 → 裁切上下
+          sw = srcW;
+          sh = srcW / dstRatio;
+          sx = 0;
+          sy = (srcH - sh) / 2;
+        }
+        var canvas = document.createElement('canvas');
+        canvas.width = targetW;
+        canvas.height = targetH;
+        var ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, targetW, targetH);
+        // 用 PNG 保留品質
+        canvas.toBlob(function(blob){
+          if (!blob) { resolve(imageUrl); return; }
+          var reader = new FileReader();
+          reader.onload = function(){ resolve(reader.result); };
+          reader.onerror = function(){ resolve(imageUrl); };
+          reader.readAsDataURL(blob);
+        }, 'image/png', 0.95);
+      } catch(e) {
+        console.warn('crop failed:', e);
+        resolve(imageUrl);
+      }
+    };
+    img.onerror = function(){ resolve(imageUrl); };
+    img.src = imageUrl;
+  });
 }
 
 function selectPlan(el){
@@ -1512,6 +1636,9 @@ async function doGenerate(){
               total: totalToGenerate,
               tier: tier,
               device: selectedDevice,
+              aspect: selectedAspect,
+              targetW: selectedTargetSize.w,
+              targetH: selectedTargetSize.h,
               styleCategory: selectedStyle,
               unlockCode: window._lastUsedUnlockCode || '',
               uid: member.uid || '',
@@ -1521,13 +1648,25 @@ async function doGenerate(){
           });
           var data = await resp.json();
           if (data.success && data.imageUrl) {
+            // ─── Canvas 客戶端裁切到使用者選的真實比例 ───
+            var displayUrl = data.imageUrl;
+            try {
+              var croppedUrl = await cropImageToAspect(data.imageUrl, selectedTargetSize.w, selectedTargetSize.h);
+              if (croppedUrl) displayUrl = croppedUrl;
+            } catch(cropErr) { console.warn('crop fallback to original:', cropErr); }
+
             // 替換為實際圖片
-            var labelText = themeNames[currentTheme] + ' #' + (idx + 1);
+            var labelText = themeNames[currentTheme] + ' #' + (idx + 1) + ' · ' + selectedTargetSize.w + '×' + selectedTargetSize.h;
+            var dlName = 'fuling-wallpaper-' + currentTheme + '-' + selectedAspect.replace(':','x') + '-' + (idx+1) + '.png';
             slots[idx].el.style.minHeight = '';
             slots[idx].el.style.background = '';
             slots[idx].el.style.display = '';
-            slots[idx].el.innerHTML = '<img src="' + data.imageUrl + '" alt="馥靈蘊福桌布 - ' + themeNames[currentTheme] + '" loading="lazy">' +
-              '<div class="ww-img-label">' + labelText + '</div>';
+            slots[idx].el.innerHTML = '<img src="' + displayUrl + '" alt="馥靈蘊福桌布 - ' + themeNames[currentTheme] + '" loading="lazy">' +
+              '<div class="ww-img-label">' + labelText + '</div>' +
+              '<a href="' + displayUrl + '" download="' + dlName + '" '
+              + 'style="position:absolute;top:8px;right:8px;padding:6px 12px;border-radius:999px;'
+              + 'background:rgba(10,7,20,.78);color:#f8dfa5;font-size:.72rem;text-decoration:none;'
+              + 'border:1px solid rgba(248,223,165,.35);font-weight:600;letter-spacing:.04em">⬇ 下載</a>';
             return { ok: true, emailSent: data.emailSent, emailTo: data.emailTo };
           } else {
             slots[idx].el.innerHTML = '<div style="text-align:center;color:#ff8a8a;font-size:.85rem"><div style="font-size:1.4rem;margin-bottom:6px">⚠️</div>第 ' + (idx+1) + ' 張<br>生成失敗</div>';
@@ -1611,6 +1750,13 @@ async function refreshQuotaChip(){
   if(typeof firebase === 'undefined' || !firebase.auth){ setTimeout(waitAuth, 500); return; }
   firebase.auth().onAuthStateChanged(function(user){ if(user) refreshQuotaChip(); });
 })();
+
+// 初始化螢幕比例選擇器（預設手機 9:16）
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', renderAspectSelector);
+} else {
+  renderAspectSelector();
+}
 </script>
 
 <script src="assets/js/hl-music.js?v=20260309"></script>

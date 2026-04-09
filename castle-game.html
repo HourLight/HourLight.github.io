@@ -623,6 +623,18 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
 </div>
 <div class="prog"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
 
+<!-- 兌換序號 CTA：點數達 200 時自動冒出 -->
+<div id="redeemCta" style="display:none;margin:14px 0 6px;padding:14px 18px;background:linear-gradient(135deg,#fff8e6,#fff0d6);border:1.5px solid rgba(233,160,96,.4);border-radius:14px;box-shadow:0 4px 16px rgba(233,160,96,.18);cursor:pointer;-webkit-tap-highlight-color:transparent" onclick="openRedeemFromCta()">
+  <div style="display:flex;align-items:center;gap:14px">
+    <div style="font-size:1.8rem;animation:pointPop 1.6s ease-in-out infinite">🎁</div>
+    <div style="flex:1">
+      <div style="font-family:'Playfair Display','Noto Serif TC',serif;font-size:.95rem;font-weight:700;color:#5a3c22;line-height:1.3">立即兌換折價券序號</div>
+      <div id="redeemCtaSub" style="font-size:.74rem;color:#a08060;margin-top:2px">您現在有 0 點靈感，可換 NT$199 折價券</div>
+    </div>
+    <div style="padding:8px 16px;background:linear-gradient(135deg,#e9a060,#d48a44);color:#fff;border-radius:999px;font-size:.78rem;font-weight:700;letter-spacing:.04em;box-shadow:0 2px 8px rgba(233,160,96,.3);white-space:nowrap">前往兌換 →</div>
+  </div>
+</div>
+
 <!-- 每週回顧 -->
 <div id="weeklyReview" style="display:none;margin-bottom:20px">
 <div style="background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(255,248,240,.98));border:1.5px solid rgba(240,165,0,.12);border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(29,53,87,.06)">
@@ -859,11 +871,67 @@ function upd(){
     updateAchUI();
     updateInviteUI();
   }
+  // ── 兌換 CTA：點數達 200 時冒出，並依點數動態說可換什麼 ──
+  updateRedeemCta(st.points);
+  // ── 點數跨門檻時主動跳通知（每門檻只跳一次）──
+  checkRedeemThresholdToast(st.points);
   renderZones();
   renderFurnitureOnMap();
   renderPetFurnitureTooltip();
   renderCompleteness();
   renderWeeklyReview();
+}
+
+// 兌換 CTA 顯示邏輯
+function updateRedeemCta(points){
+  var cta = document.getElementById('redeemCta');
+  var sub = document.getElementById('redeemCtaSub');
+  if(!cta || !sub) return;
+  if(points >= 200){
+    cta.style.display = 'block';
+    var canHave;
+    if(points >= 600) canHave = '可換 NT$199 / NT$399 / NT$599 折價券';
+    else if(points >= 400) canHave = '可換 NT$199 或 NT$399 折價券';
+    else canHave = '可換 NT$199 折價券（3 張牌 AI 解讀）';
+    sub.textContent = '您現在有 ' + points + ' 點靈感，' + canHave;
+  } else {
+    cta.style.display = 'none';
+  }
+}
+
+function openRedeemFromCta(){
+  var el = document.getElementById('redeemSec');
+  if(el){ el.style.display = 'block'; el.scrollIntoView({behavior:'smooth',block:'start'}); }
+  // 同步底部導覽 active
+  var btns = document.querySelectorAll('.cq-btn');
+  btns.forEach(function(b){ b.classList.remove('active'); });
+  if(btns[4]) btns[4].classList.add('active');
+}
+
+// 跨門檻通知（200/400/600 各跳一次）
+var REDEEM_THRESHOLDS_KEY = 'hl_castle_redeem_notified';
+function checkRedeemThresholdToast(points){
+  var notified;
+  try { notified = JSON.parse(localStorage.getItem(REDEEM_THRESHOLDS_KEY) || '{}'); } catch(e) { notified = {}; }
+  var levels = [
+    { pt:200, msg:'🎉 您可以兌換 NT$199 折價券了！點上方金色按鈕立即兌換序號' },
+    { pt:400, msg:'🎉 升級！可換 NT$399 折價券（5 張牌深度解讀）' },
+    { pt:600, msg:'🎉 滿級！可換 NT$599 折價券（7 張牌完整覺察）' }
+  ];
+  for(var i=0;i<levels.length;i++){
+    var L = levels[i];
+    if(points >= L.pt && !notified[L.pt]){
+      notified[L.pt] = Date.now();
+      try { localStorage.setItem(REDEEM_THRESHOLDS_KEY, JSON.stringify(notified)); } catch(e){}
+      // 用現有 showAchToast 體系跳出（如果有），否則用 alert 替代
+      if(typeof showAchToast === 'function'){
+        showAchToast({ icon:'🎁', name:'兌換解鎖', desc:L.msg });
+      } else if(typeof showGameToast === 'function'){
+        showGameToast(L.msg, '');
+      }
+      break; // 一次只跳一個
+    }
+  }
 }
 
 // ═══ 每週回顧 ═══
@@ -1627,7 +1695,19 @@ function doRedeem(itemId){
   }
   var item=result.item;
   if(result.couponCode){
-    alert('🎉 兌換成功！\n\n您的折價券碼：\n'+result.couponCode+'\n\n請到馥靈抽牌頁面，選擇 '+item.couponN+' 張牌陣，在付費時輸入此碼即可折抵。\n\n剩餘點數：'+hlCastle.getState().points+' 點');
+    // 自動複製序號到剪貼簿（手機單手操作）
+    var copied = false;
+    try {
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(result.couponCode);
+        copied = true;
+      }
+    } catch(e){}
+    var msg = '🎉 兌換成功！\n\n您的折價券碼：\n' + result.couponCode + '\n\n'
+      + (copied ? '✅ 已自動複製到剪貼簿\n\n' : '')
+      + '請到馥靈抽牌頁面，選擇 ' + item.couponN + ' 張牌陣，在付費時輸入此碼即可折抵。\n\n'
+      + '剩餘點數：' + hlCastle.getState().points + ' 點';
+    alert(msg);
   }else{
     alert('🎉 兌換成功！\n「'+item.name+'」已加入您的帳戶。\n剩餘點數：'+hlCastle.getState().points+' 點');
   }

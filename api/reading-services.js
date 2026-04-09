@@ -732,6 +732,226 @@ async function handleName(req, res, apiKey) {
 // ════════════════════════════════════════
 // Handler 5: 馥靈蘊福桌布 (?type=wallpaper)
 // ════════════════════════════════════════
+
+// ═══ 命理 → Hex 色碼字典 ═══
+// 出處：研究文件 AI.md 的色彩心理學章節 + 紫微天干幸運色 + 西洋占星十行星色 + 馬雅四色
+// 目的：讓同一個人每次生成的顏色一致，不會今天紅明天藍
+var WP_COLOR_DICT = {
+  // 生命靈數 1-9 → 主色 + 副色 + 心理特質
+  lifePath: {
+    1: { primary:'#E63946', primaryName:'深紅', secondary:'#1D1D1D', secondaryName:'黑曜', mood:'力量、衝勁、決斷' },
+    2: { primary:'#F4A261', primaryName:'暖橙', secondary:'#F5B7B1', secondaryName:'柔粉', mood:'溫暖、親和、紓解' },
+    3: { primary:'#FFD60A', primaryName:'太陽黃', secondary:'#FAEBD7', secondaryName:'杏白', mood:'希望、創意、表達' },
+    4: { primary:'#52B788', primaryName:'森林綠', secondary:'#F8C8DC', secondaryName:'櫻粉', mood:'穩定、成長、平衡' },
+    5: { primary:'#0077B6', primaryName:'深海藍', secondary:'#90E0EF', secondaryName:'天藍', mood:'自由、探索、流動' },
+    6: { primary:'#5A189A', primaryName:'靛紫', secondary:'#FFB6C1', secondaryName:'玫瑰粉', mood:'高貴、深度、關懷' },
+    7: { primary:'#7209B7', primaryName:'紫水晶', secondary:'#C77DFF', secondaryName:'薰衣草', mood:'智慧、靈性、貴人' },
+    8: { primary:'#FFD700', primaryName:'純金', secondary:'#B8860B', secondaryName:'古銅金', mood:'財富、權力、成就' },
+    9: { primary:'#F8F9FA', primaryName:'純白', secondary:'#DEE2E6', secondaryName:'銀灰', mood:'純淨、平和、創造' }
+  },
+  // 紫微天干 / 八字日主天干 → 幸運色
+  tianGan: {
+    '甲':{ hex:'#1E3A8A', name:'深藍' },
+    '乙':{ hex:'#15803D', name:'墨綠' },
+    '丙':{ hex:'#FF6F61', name:'珊瑚紅' },
+    '丁':{ hex:'#7F1D1D', name:'紫紅' },
+    '戊':{ hex:'#FFD60A', name:'亮金黃' },
+    '己':{ hex:'#B8860B', name:'土黃' },
+    '庚':{ hex:'#FFFAF0', name:'米白' },
+    '辛':{ hex:'#F8F9FA', name:'純銀白' },
+    '壬':{ hex:'#4B5563', name:'鐵灰' },
+    '癸':{ hex:'#1F2937', name:'深炭' }
+  },
+  // 西洋占星十行星 → 守護色
+  planet: {
+    sun:    { hex:'#FFD60A', name:'太陽金' },
+    moon:   { hex:'#E5E7EB', name:'月銀白' },
+    mercury:{ hex:'#FB923C', name:'水星橙' },
+    venus:  { hex:'#22C55E', name:'金星綠' },
+    mars:   { hex:'#DC2626', name:'火星紅' },
+    jupiter:{ hex:'#3B82F6', name:'木星藍' },
+    saturn: { hex:'#1E1B4B', name:'土星黑紫' },
+    uranus: { hex:'#06B6D4', name:'天王電光藍' },
+    neptune:{ hex:'#0D9488', name:'海王海綠' },
+    pluto:  { hex:'#4C1D95', name:'冥王深紫' }
+  },
+  // 星座 → 守護星
+  zodiacToPlanet: {
+    'Aries':'mars','Taurus':'venus','Gemini':'mercury','Cancer':'moon',
+    'Leo':'sun','Virgo':'mercury','Libra':'venus','Scorpio':'pluto',
+    'Sagittarius':'jupiter','Capricorn':'saturn','Aquarius':'uranus','Pisces':'neptune',
+    '牡羊座':'mars','金牛座':'venus','雙子座':'mercury','巨蟹座':'moon',
+    '獅子座':'sun','處女座':'mercury','天秤座':'venus','天蠍座':'pluto',
+    '射手座':'jupiter','摩羯座':'saturn','水瓶座':'uranus','雙魚座':'neptune',
+    '牡羊':'mars','金牛':'venus','雙子':'mercury','巨蟹':'moon',
+    '獅子':'sun','處女':'mercury','天秤':'venus','天蠍':'pluto',
+    '射手':'jupiter','摩羯':'saturn','水瓶':'uranus','雙魚':'neptune'
+  },
+  // 馬雅四色（依 Kin 1-260 取 mod 4）
+  maya: {
+    red:    { hex:'#DC2626', name:'馬雅紅', meaning:'啟動開創' },
+    white:  { hex:'#F8FAFC', name:'馬雅白', meaning:'淨化純粹' },
+    blue:   { hex:'#1D4ED8', name:'馬雅藍', meaning:'蛻變轉化' },
+    yellow: { hex:'#FBBF24', name:'馬雅黃', meaning:'收成豐盛' }
+  },
+  // 五行五色（主色 + 補色）
+  wuXing: {
+    '木':{ hex:'#15803D', name:'木綠', accent:'#86EFAC' },
+    '火':{ hex:'#DC2626', name:'火紅', accent:'#FCA5A5' },
+    '土':{ hex:'#B8860B', name:'土黃', accent:'#FDE68A' },
+    '金':{ hex:'#F8F9FA', name:'金白', accent:'#D4D4D8' },
+    '水':{ hex:'#1E3A8A', name:'水深藍', accent:'#93C5FD' }
+  }
+};
+
+// ═══ 五大主題符號庫（混合路線：傳統文化符號 + 詩意合成元素）═══
+// 路線 3：5 大主題各自決定，例如護佑用 Nazar、招財用金錢樹、愛情用詩意花瓣
+var WP_SYMBOL_LIB = {
+  wealth: {
+    traditional: [
+      'three-legged toad (jin chan) with golden coin in mouth, abstract glow rendering',
+      'ancient Chinese coins (round with square hole) floating in cosmic vault',
+      'jade money tree with round luminous leaves, root made of stardust',
+      'cornucopia overflowing with golden particles and grain',
+      'koi leaping upward toward a column of gold light'
+    ],
+    poetic: [
+      'liquid gold cascading from cosmic clouds in dramatic vertical column',
+      'spiraling galaxy of golden light particles converging to a glowing heart',
+      'jade vessel overflowing with stardust gold, bas-relief sculpted from luminous matter',
+      'curtains of gold silk parting in cosmic space to reveal an inner radiance'
+    ],
+    intent: 'attracting prosperity, abundance, financial flow, being-seen-by-fortune'
+  },
+  love: {
+    traditional: [
+      'paired peach blossoms drifting through cosmic wind',
+      'twin koi swirling in mirror dance, made of pink-gold light',
+      'jasmine vine wrapping a glowing moonstone',
+      'lotus bloom unfolding in cosmic mist'
+    ],
+    poetic: [
+      'two abstract spheres of pink-gold light orbiting and merging in starfield',
+      'cascading rose silk parting to reveal a glowing heart of warm pink light',
+      'soul-thread of stardust connecting two distant constellations',
+      'cosmic hands of light reaching toward each other, almost touching'
+    ],
+    intent: 'inviting deep love connection, romantic blessing, being-worthy-of-love'
+  },
+  career: {
+    traditional: [
+      'ascending phoenix silhouette made of pure golden light',
+      'mountain peak piercing cosmic clouds with a beam of light at the summit',
+      'open gateway with golden light streaming through',
+      'eagle of stardust soaring above a cosmic mountain range'
+    ],
+    poetic: [
+      'vertical pillar of light cutting through cosmic clouds upward into infinite stars',
+      'ascending staircase of luminous geometry dissolving into starfields',
+      'lighthouse beam of cosmic gold piercing a storm cloud galaxy',
+      'cosmic compass pointing toward a distant golden horizon'
+    ],
+    intent: 'unlocking career advancement, attracting noble mentors, ambitious achievement'
+  },
+  protection: {
+    traditional: [
+      'subtle abstracted Eye of Horus glowing in cosmic field (NOT literal hieroglyph, just the protective gaze suggestion)',
+      'concentric Nazar protective circles in deep cobalt blue, dissolved into stardust',
+      'ancient sanctuary dome of soft pearl light enclosing a sacred center',
+      'guardian wings of stardust stretched protectively across the composition'
+    ],
+    poetic: [
+      'glowing dome of soft white light enclosing sacred space',
+      'circular mandala of warm white-gold radiating protection outward',
+      'cathedral of light arches against cosmic backdrop',
+      'circle of constellation guardians gently watching over a quiet center'
+    ],
+    intent: 'invoking guardian blessing, safety, peace, protection from harm'
+  },
+  luck: {
+    traditional: [
+      'four-leaf clover of pure light hovering in starfield',
+      'horseshoe arc of cosmic energy framing a glowing center',
+      'ladybug constellation made of seven bright stars',
+      'wishbone of stardust suspended in cosmic vault'
+    ],
+    poetic: [
+      'shooting comet of rainbow light arcing across deep starfield, leaving stardust trail',
+      'spiral galaxy of multicolored light with a glowing center of cosmic alignment',
+      'portal of swirling rainbow energy opening in deep space',
+      'cosmic dice tumbling through nebula, each face a different alignment'
+    ],
+    intent: 'shifting fortune, breakthrough timing, serendipitous transformation'
+  }
+};
+
+// ═══ 從 profile 提取個人專屬色彩處方 ═══
+function buildPersonalPalette(profile) {
+  var dict = WP_COLOR_DICT;
+  var palette = [];
+
+  // 1. 生命靈數
+  if (profile.lifePathNum && dict.lifePath[profile.lifePathNum]) {
+    var lp = dict.lifePath[profile.lifePathNum];
+    palette.push({ role:'lifePath', label:'生命靈數 ' + profile.lifePathNum + ' 號核心色', hex:lp.primary, name:lp.primaryName, mood:lp.mood });
+    palette.push({ role:'lifePath2', label:'生命靈數 ' + profile.lifePathNum + ' 號副色', hex:lp.secondary, name:lp.secondaryName });
+  }
+
+  // 2. 八字日主天干（紫微天干 fallback）
+  var tianGanKey = profile.ziWeiTianGan || profile.dayMaster;
+  if (tianGanKey && dict.tianGan[tianGanKey]) {
+    var tg = dict.tianGan[tianGanKey];
+    palette.push({ role:'tianGan', label:'天干 ' + tianGanKey + ' 守護色', hex:tg.hex, name:tg.name });
+  }
+
+  // 3. 太陽星座 → 守護星色
+  if (profile.sunSign) {
+    var sp = dict.zodiacToPlanet[profile.sunSign];
+    if (sp && dict.planet[sp]) {
+      palette.push({ role:'sun', label:'太陽 ' + profile.sunSign + ' 守護星色', hex:dict.planet[sp].hex, name:dict.planet[sp].name });
+    }
+  }
+  // 4. 月亮星座 → 守護星色（內在情緒）
+  if (profile.moonSign) {
+    var mp = dict.zodiacToPlanet[profile.moonSign];
+    if (mp && dict.planet[mp]) {
+      palette.push({ role:'moon', label:'月亮 ' + profile.moonSign + ' 內在情緒色', hex:dict.planet[mp].hex, name:dict.planet[mp].name });
+    }
+  }
+  // 5. 上升星座 → 守護星色（外在風格）
+  if (profile.risingSign) {
+    var rp = dict.zodiacToPlanet[profile.risingSign];
+    if (rp && dict.planet[rp]) {
+      palette.push({ role:'rising', label:'上升 ' + profile.risingSign + ' 外在氣場色', hex:dict.planet[rp].hex, name:dict.planet[rp].name });
+    }
+  }
+
+  // 6. 馬雅圖騰色（依 Kin 1-260）
+  if (profile.maya && profile.maya.kin) {
+    var kin = parseInt(profile.maya.kin, 10) || 1;
+    var mayaColors = ['red','white','blue','yellow'];
+    var mc = mayaColors[(kin - 1) % 4];
+    if (dict.maya[mc]) {
+      palette.push({ role:'maya', label:'馬雅 ' + dict.maya[mc].name + '（' + dict.maya[mc].meaning + '）', hex:dict.maya[mc].hex, name:dict.maya[mc].name });
+    }
+  }
+
+  // 7. 主五行色
+  if (profile.dominantWx && dict.wuXing[profile.dominantWx]) {
+    palette.push({ role:'wuxingMain', label:'主五行 ' + profile.dominantWx, hex:dict.wuXing[profile.dominantWx].hex, name:dict.wuXing[profile.dominantWx].name });
+  }
+  // 8. 補益五行色（缺失五行）
+  if (profile.missingWx && profile.missingWx.length) {
+    profile.missingWx.forEach(function(w) {
+      if (dict.wuXing[w]) {
+        palette.push({ role:'wuxingFix', label:'補益 ' + w, hex:dict.wuXing[w].accent, name:dict.wuXing[w].name + '（補）' });
+      }
+    });
+  }
+
+  return palette;
+}
+
 async function handleWallpaper(req, res, apiKey) {
   var body = req.body || {};
   var profile = body.profile || {};
@@ -740,6 +960,9 @@ async function handleWallpaper(req, res, apiKey) {
   var tier = body.tier || 'basic';
   var total = body.total || 3;
   var device = body.device || 'phone';
+  var aspect = body.aspect || (device === 'desktop' ? '16:9' : '9:16');
+  var targetW = parseInt(body.targetW, 10) || (device === 'desktop' ? 1920 : 1080);
+  var targetH = parseInt(body.targetH, 10) || (device === 'desktop' ? 1080 : 1920);
   var index = typeof body.index === 'number' ? body.index : variant;
   var uid = (body.uid || '').trim();
   var userEmail = (body.email || '').trim().toLowerCase();
@@ -750,10 +973,11 @@ async function handleWallpaper(req, res, apiKey) {
     return res.status(400).json({ error: '請先計算命理座標' });
   }
 
-  // OpenAI API Key
+  // 圖像生成 API Key（優先 xAI Grok，fallback OpenAI gpt-image-1）
+  var xaiKey = process.env.XAI_API_KEY;
   var openaiKey = process.env.OPENAI_API_KEY;
-  if (!openaiKey) {
-    return res.status(500).json({ error: 'OpenAI 服務尚未設定' });
+  if (!xaiKey && !openaiKey) {
+    return res.status(500).json({ error: '圖像服務尚未設定（需要 XAI_API_KEY 或 OPENAI_API_KEY）' });
   }
 
   // ─── 五行 → 飽和但有品味的視覺色彩（戲劇感為主，禁淡寡）───
@@ -974,7 +1198,9 @@ async function handleWallpaper(req, res, apiKey) {
     ? 'CORE PERSONAL ELEMENTS (these MUST be visually present, woven into the imagery): ' + personalElementsToUse.join('; ') + '. '
     : '';
 
-  var aspectText = device === 'desktop' ? 'desktop wallpaper (landscape 3:2 ratio, 1536x1024)' : 'phone wallpaper (portrait 2:3 ratio, 1024x1536)';
+  var aspectText = device === 'desktop'
+    ? ('desktop wallpaper for ' + aspect + ' aspect ratio (final crop ' + targetW + 'x' + targetH + ', landscape composition with focal point centered horizontally)')
+    : ('phone wallpaper for ' + aspect + ' aspect ratio (final crop ' + targetW + 'x' + targetH + ', portrait composition with focal point in the upper-center, leaving room at top for status bar and at bottom for home indicator)');
 
   // ═══════════════════════════════════════════════════════════════
   // STAGE 1：用 Claude 把客人 33 套命理數據合成成「他這個人的能量簽名 + 原創視覺處方」
@@ -1022,6 +1248,26 @@ async function handleWallpaper(req, res, apiKey) {
   var themeNamesZh = { wealth:'招財豐盛', love:'愛情桃花', career:'事業貴人', protection:'護佑平安', luck:'幸運轉運' };
   var themeZhForClaude = themeNamesZh[theme] || theme;
 
+  // ─── 個人專屬色彩處方（從命理 → hex 字典查表，固定每次顏色一致）───
+  var personalPalette = buildPersonalPalette(profile);
+  var paletteText = '';
+  if (personalPalette.length) {
+    paletteText = '\n\n【您的個人色彩處方 — Claude 你必須使用這些 hex 色作為主調，不要憑感覺挑色】\n';
+    personalPalette.forEach(function(p) {
+      paletteText += '• ' + p.label + '：' + p.hex + '（' + p.name + '）' + (p.mood ? ' — ' + p.mood : '') + '\n';
+    });
+    paletteText += '構圖時：核心 hero motif 用前 2-3 個顏色為主；副元素用後幾個。最終 prompt 必須明確寫出至少 4 個 hex 色碼。\n';
+  }
+
+  // ─── 主題符號庫（路線 3：傳統符號 + 詩意合成元素 混合）───
+  var symbolLib = WP_SYMBOL_LIB[theme] || WP_SYMBOL_LIB.wealth;
+  var symbolText = '\n\n【' + themeZhForClaude + ' 主題符號庫 — Claude 你必須從這裡挑】\n';
+  symbolText += '傳統文化符號（挑 1-2 個融入，不要直接畫得像圖鑑）：\n';
+  symbolLib.traditional.forEach(function(s, i){ symbolText += '  ' + (i+1) + '. ' + s + '\n'; });
+  symbolText += '詩意合成元素（挑 2-3 個作為主畫面）：\n';
+  symbolLib.poetic.forEach(function(s, i){ symbolText += '  ' + (i+1) + '. ' + s + '\n'; });
+  symbolText += '組合方式：1-2 個傳統符號 + 2-3 個詩意元素，融合成一張獨一無二的視覺處方。\n';
+
   // 風格類別中英對照
   var styleCategoryNames = {
     auto: '自動混搭（你決定最適合的風格）',
@@ -1036,24 +1282,31 @@ async function handleWallpaper(req, res, apiKey) {
   var userPickedStyle = styleCategoryNames[styleCategory] || styleCategoryNames.auto;
 
   var claudeSystemPrompt = '你是馥靈之鑰的首席視覺藝術總監，專精於把命理數據合成為「這個人獨一無二的視覺處方」。\n\n' +
-    '你的任務是根據客人的 33 套命理 dossier，合成出他這個人的能量簽名，然後為 gpt-image-1 寫一段精準的英文 prompt，用於生成一張高級時尚編輯感的桌布。\n\n' +
+    '你的任務是根據客人的 33 套命理 dossier、個人色彩處方、五大主題符號庫，合成出他這個人的能量簽名，然後為 xAI grok-2-image 寫一段精準的英文 prompt，用於生成一張高級戲劇感的能量桌布。\n\n' +
     '【鐵律】\n' +
-    '1. 不准用既有符號（不准畫巨蟹、老虎、十字、佛陀、金幣、龍、蓮花這種已知圖騰）\n' +
-    '2. 必須「合成」一個原創的視覺圖騰，這個圖騰只屬於這個人\n' +
-    '3. 例如：水多火少 + 變動星座 + 轉化季節 → 不是「畫雙魚」，是「一個用月光與火焰交織而成的螺旋形體，懸浮於深藍宇宙中，火苗化為金色羽毛」這種原創\n' +
-    '4. 美學方向：Vogue 編輯封面 × 唱片美術 × 概念藝術，Rich 不是 minimal，戲劇感不是空洞\n' +
-    '5. 飽和但有品味的色彩，不要艷俗也不要淡寡\n' +
-    '6. 圖中絕對不能有任何文字、字母、數字、符號\n\n' +
+    '1. **色彩必須用個人色彩處方裡給的 hex 色碼**（不能憑感覺挑色）— 同一個人每次生成顏色要一致\n' +
+    '2. **符號從主題符號庫挑** — 1-2 個傳統文化符號 + 2-3 個詩意合成元素，融合而非堆砌\n' +
+    '3. 既有的星座/動物/宗教符號要「抽象化處理」，不要畫得像維基百科圖鑑（避免：寫實的巨蟹、寫實的佛陀、寫實的十字架、教科書插圖風）\n' +
+    '4. 例如：給你「三腳蟾蜍」這個傳統符號，你不要寫 "a literal three-legged toad statue"，要寫 "an abstracted three-legged toad rendered as a constellation of golden stardust, its form catching cosmic light"\n' +
+    '5. 美學方向：Vogue 編輯封面 × 唱片美術 × 概念藝術 × 巴洛克教堂浮雕，Rich 不是 minimal，戲劇感不是空洞\n' +
+    '6. 圖中絕對不能有任何文字、字母、數字\n' +
+    '7. ⚡ **浮雕戲劇感是不可違抗的視覺核心** ⚡ — 每一個視覺元素必須帶有：\n' +
+    '   • dimensional luminous bas-relief surface, sculpted from light itself\n' +
+    '   • particles of stardust forming the silhouette and edges\n' +
+    '   • dramatic chiaroscuro with strong directional spotlight\n' +
+    '   • 3D sculpted depth, the form catches light like sacred jewelry (NOT literal gold borders/outlining)\n' +
+    '   • painterly luminous texture with subsurface scattering glow\n' +
+    '   絕對禁止：flat illustration / vector art / cartoon / anime / 2D digital painting / literal gold outlining\n\n' +
     '【輸出格式】\n' +
-    '只輸出英文 prompt 本身，不要加任何說明。長度約 250-400 字，包含：\n' +
-    '- 原創 hero motif（你為這個人合成的獨特視覺圖騰，不要用已知符號）\n' +
-    '- 整體氛圍與構圖（cinematic / chiaroscuro / atmospheric）\n' +
-    '- 顏色描述（要具體，飽和度高）\n' +
-    '- 美學參考錨點（cinematic concept art / Vogue editorial / album art / Pinterest 風）\n' +
-    '- 必需的負面詞（NO text, NO literal symbols, NO sparse minimalism, NO fantasy game art）\n\n' +
-    '不要在 prompt 裡寫「Cancer」「Tiger」「Dragon」「Buddha」「Lotus」「Cross」這種既有符號，要用你合成的原創圖騰。';
+    '只輸出英文 prompt 本身，不要加任何說明。長度約 320-500 字，必須包含：\n' +
+    '- Hero motif（從符號庫融合 1-2 傳統 + 2-3 詩意，全部 abstracted/dimensional 處理）\n' +
+    '- **明確列出至少 4 個 hex 色碼**（從個人色彩處方挑），格式如「primary palette: #FFD700 (lifePath gold), #FF6F61 (zodiac coral), #15803D (wuxing green), #1E3A8A (moon sapphire)」\n' +
+    '- 整體氛圍與構圖（cinematic / chiaroscuro / atmospheric / dramatic spotlight）\n' +
+    '- 表面質感強制詞：「dimensional bas-relief」「luminous sculpted depth」「stardust particles」「painterly chiaroscuro」必須出現至少 3 個\n' +
+    '- 美學參考錨點（cinematic concept art × baroque cathedral relief × Renaissance dramatic painting × editorial album cover）\n' +
+    '- 必需的負面詞：「NO flat illustration, NO vector art, NO cartoon, NO anime, NO text, NO numbers, NO literal gold outlining, NO encyclopedia illustration, NO sparse minimalism, NO 2D look」\n';
 
-  var claudeUserPrompt = dossier + '\n\n' +
+  var claudeUserPrompt = dossier + paletteText + symbolText + '\n\n' +
     '【今日要做的桌布】\n' +
     '主題：' + themeZhForClaude + '（這個人今天需要的能量是：' + themeIntent + '）\n' +
     '客人選的風格類別：' + userPickedStyle + '\n' +
@@ -1097,42 +1350,119 @@ async function handleWallpaper(req, res, apiKey) {
   }
 
   try {
-    var resp = await fetch('https://api.openai.com/v1/images/generations', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + openaiKey
-      },
-      body: JSON.stringify({
-        model: 'gpt-image-1',
-        prompt: prompt,
-        n: 1,
-        size: device === 'desktop' ? '1536x1024' : '1024x1536',
-        quality: tier === 'premium' ? 'high' : 'medium'
-      })
-    });
-
-    var data = await resp.json();
-
-    if (data.error) {
-      console.error('OpenAI error:', data.error);
-      return res.status(500).json({ error: '圖片生成失敗，請稍後再試' });
-    }
-
+    // ═══════════════════════════════════════════════════════════════
+    // STAGE 2：圖像生成（優先用 xAI Grok，fallback OpenAI gpt-image-1）
+    // ═══════════════════════════════════════════════════════════════
     var imageUrl = '';
     var imageB64 = '';
-    if (data.data && data.data.length > 0) {
-      // gpt-image-1 returns base64
-      if (data.data[0].b64_json) {
-        imageB64 = data.data[0].b64_json;
-        imageUrl = 'data:image/png;base64,' + imageB64;
-      } else if (data.data[0].url) {
-        imageUrl = data.data[0].url;
+    var imageEngine = '';
+    var lastImageErr = '';
+
+    // ── 嘗試 xAI Grok 圖像 ──
+    if (xaiKey) {
+      // 模型 fallback 鏈：可用 env XAI_IMAGE_MODEL 覆蓋第一個
+      var xaiModels = [
+        process.env.XAI_IMAGE_MODEL || 'grok-2-image-1212',
+        'grok-imagine-image',
+        'grok-2-image'
+      ];
+      // 去重
+      var seen = {}; xaiModels = xaiModels.filter(function(m){ if(seen[m])return false; seen[m]=true; return !!m; });
+
+      for (var mi = 0; mi < xaiModels.length && !imageUrl; mi++) {
+        var modelName = xaiModels[mi];
+        try {
+          var xaiResp = await fetch('https://api.x.ai/v1/images/generations', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + xaiKey
+            },
+            body: JSON.stringify({
+              model: modelName,
+              prompt: prompt,
+              n: 1,
+              response_format: 'b64_json'
+            })
+          });
+
+          if (!xaiResp.ok) {
+            lastImageErr = 'xAI ' + modelName + ' http ' + xaiResp.status;
+            try { lastImageErr += ' ' + (await xaiResp.text()).slice(0, 200); } catch(_){}
+            console.error('xAI image error:', lastImageErr);
+            continue;
+          }
+
+          var xaiData = await xaiResp.json();
+          if (xaiData.data && xaiData.data.length > 0) {
+            if (xaiData.data[0].b64_json) {
+              imageB64 = xaiData.data[0].b64_json;
+              imageUrl = 'data:image/png;base64,' + imageB64;
+              imageEngine = 'xai/' + modelName;
+            } else if (xaiData.data[0].url) {
+              // xAI 回 URL → 拉下來轉 base64（為了存檔/寄信）
+              try {
+                var imgFetch = await fetch(xaiData.data[0].url);
+                var ab = await imgFetch.arrayBuffer();
+                imageB64 = Buffer.from(ab).toString('base64');
+                imageUrl = 'data:image/png;base64,' + imageB64;
+                imageEngine = 'xai/' + modelName + '+fetched';
+              } catch(fetchErr) {
+                imageUrl = xaiData.data[0].url;
+                imageEngine = 'xai/' + modelName + '+url-only';
+              }
+            }
+          } else {
+            lastImageErr = 'xAI ' + modelName + ' empty data';
+          }
+        } catch (xaiErr) {
+          lastImageErr = 'xAI ' + modelName + ' exception: ' + xaiErr.message;
+          console.error(lastImageErr);
+        }
+      }
+    }
+
+    // ── Fallback：OpenAI gpt-image-1 ──
+    if (!imageUrl && openaiKey) {
+      console.warn('xAI 全部失敗，fallback 到 OpenAI gpt-image-1');
+      try {
+        var resp = await fetch('https://api.openai.com/v1/images/generations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + openaiKey
+          },
+          body: JSON.stringify({
+            model: 'gpt-image-1',
+            prompt: prompt,
+            n: 1,
+            size: device === 'desktop' ? '1536x1024' : '1024x1536',
+            quality: tier === 'premium' ? 'high' : 'medium'
+          })
+        });
+
+        var data = await resp.json();
+        if (data.error) {
+          lastImageErr = 'OpenAI ' + (data.error.message || data.error.code || 'error');
+          console.error('OpenAI error:', data.error);
+        } else if (data.data && data.data.length > 0) {
+          if (data.data[0].b64_json) {
+            imageB64 = data.data[0].b64_json;
+            imageUrl = 'data:image/png;base64,' + imageB64;
+            imageEngine = 'openai/gpt-image-1';
+          } else if (data.data[0].url) {
+            imageUrl = data.data[0].url;
+            imageEngine = 'openai/gpt-image-1+url-only';
+          }
+        }
+      } catch (oaiErr) {
+        lastImageErr = 'OpenAI exception: ' + oaiErr.message;
+        console.error(lastImageErr);
       }
     }
 
     if (!imageUrl) {
-      return res.status(500).json({ error: '圖片生成失敗' });
+      return res.status(500).json({ error: '圖片生成失敗：' + (lastImageErr || '所有引擎都不可用') });
     }
 
     // ── 存檔：Firestore 記錄（uid + 全站政策）──
@@ -1168,9 +1498,13 @@ async function handleWallpaper(req, res, apiKey) {
           theme: theme,
           tier: tier,
           device: device,
+          aspect: aspect,
+          targetW: targetW,
+          targetH: targetH,
           variant: variant,
           index: index,
           total: total,
+          engine: imageEngine || 'unknown',
           emailSent: false,
           createdAt: nowTs
         };
@@ -1274,6 +1608,7 @@ async function handleWallpaper(req, res, apiKey) {
       imageUrl: imageUrl,
       theme: theme,
       tier: tier,
+      engine: imageEngine,
       archived: !!archiveId,
       emailSent: emailSent,
       emailTo: emailSent ? userEmail : '',
