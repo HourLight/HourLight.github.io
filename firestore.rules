@@ -227,5 +227,58 @@ service cloud.firestore {
     match /{path=**}/biz_codes/{codeId} {
       allow read: if true;
     }
+
+    // ═══ 預約系統 businesses（Hour Light SPA 等店家）═══
+    // businesses/{bizId} → 店家資料
+    // businesses/{bizId}/services/{serviceId} → 服務項目
+    // businesses/{bizId}/staff/{staffId} → 技師
+    // businesses/{bizId}/slots/{slotId} → 開放時段（班表）
+    // businesses/{bizId}/bookings/{bookingId} → 預約紀錄
+    match /businesses/{bizId} {
+      // 店家資料：所有人可讀（客戶預約頁要用），只有 admin 可寫
+      allow read: if true;
+      allow write: if request.auth != null
+        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+
+      // 服務項目：公開可讀，admin 可寫
+      match /services/{serviceId} {
+        allow read: if true;
+        allow write: if request.auth != null
+          && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+      }
+
+      // 技師：公開可讀（不含 email 等敏感欄位由前端過濾），admin 可寫
+      match /staff/{staffId} {
+        allow read: if true;
+        allow write: if request.auth != null
+          && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+      }
+
+      // 開放時段：公開可讀（客戶要看有哪些時段可選），admin 可寫
+      // 客戶預約時可 update 把 status=open 改為 status=booked
+      match /slots/{slotId} {
+        allow read: if true;
+        allow create, delete: if request.auth != null
+          && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+        // admin 全面更新，或已登入用戶把 open 改為 booked（綁定 bookingId）
+        allow update: if (request.auth != null
+          && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'])
+          || (request.auth != null
+              && resource.data.status == 'open'
+              && request.resource.data.status == 'booked'
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'bookedBy', 'bookedAt']));
+      }
+
+      // 預約：admin 全面讀寫；已登入用戶可建立自己的預約並讀取自己建立的
+      match /bookings/{bookingId} {
+        allow read: if request.auth != null
+          && (request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com']
+              || resource.data.createdBy == request.auth.uid);
+        allow create: if request.auth != null
+          && request.resource.data.createdBy == request.auth.uid;
+        allow update, delete: if request.auth != null
+          && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+      }
+    }
   }
 }
