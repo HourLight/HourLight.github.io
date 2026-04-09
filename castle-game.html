@@ -701,9 +701,12 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
 </div>
 
 <!-- 分享城堡按鈕 -->
-<div style="display:flex;gap:10px;justify-content:flex-end;margin-bottom:14px">
-<button onclick="shareCastleImage()" style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:linear-gradient(135deg,var(--coral),var(--rose));color:#fff;border:none;border-radius:20px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(231,111,81,.25);transition:all .3s;letter-spacing:.3px">📸 分享我的城堡</button>
-<button onclick="shareCastleToLine()" style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:#06C755;color:#fff;border:none;border-radius:20px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(6,199,85,.25);transition:all .3s;letter-spacing:.3px">💬 分享到 LINE</button>
+<div style="display:flex;gap:8px;justify-content:flex-end;margin-bottom:14px;flex-wrap:wrap">
+<button onclick="shareCastleImage()" style="display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:linear-gradient(135deg,var(--coral),var(--rose));color:#fff;border:none;border-radius:20px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(231,111,81,.25);transition:all .3s;letter-spacing:.3px;min-height:44px">📸 截圖分享</button>
+<button onclick="shareCastleToLine()" style="display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:#06C755;color:#fff;border:none;border-radius:20px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(6,199,85,.25);transition:all .3s;letter-spacing:.3px;min-height:44px">💬 LINE</button>
+<button onclick="shareCastleToFB()" style="display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:#1877F2;color:#fff;border:none;border-radius:20px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(24,119,242,.25);transition:all .3s;letter-spacing:.3px;min-height:44px">📘 Facebook</button>
+<button onclick="shareCastleToIG()" style="display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;border:none;border-radius:20px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(220,39,67,.25);transition:all .3s;letter-spacing:.3px;min-height:44px">📷 IG 限動</button>
+<button onclick="shareCastleToThreads()" style="display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:#000;color:#fff;border:none;border-radius:20px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(0,0,0,.25);transition:all .3s;letter-spacing:.3px;min-height:44px">🧵 Threads</button>
 </div>
 
 <div class="panel" id="panel"></div>
@@ -1782,6 +1785,8 @@ function copyInviteLink(){
     var inp = document.getElementById('inviteLinkInput');
     if(inp){ inp.select(); document.execCommand('copy'); }
   });
+  // 邀請連結分享計入傳播者進度（之前漏掉）
+  if(window.hlCastle && hlCastle.shareBonus){ hlCastle.shareBonus(); upd(); }
 }
 
 function doShareInvite(){
@@ -1794,6 +1799,65 @@ function doShareInvite(){
       alert('✅ 已複製邀請文案，貼到 LINE / IG 分享給朋友！');
     });
   }
+  // 邀請連結分享計入傳播者進度（之前漏掉）
+  if(window.hlCastle && hlCastle.shareBonus){ hlCastle.shareBonus(); upd(); }
+}
+
+// ═══ FB 分享城堡 ═══
+function shareCastleToFB(){
+  var stats = (typeof getCastleStats === 'function') ? getCastleStats() : {rooms:0,totalRooms:9,materials:0};
+  var url = 'https://hourlightkey.com/castle-game.html';
+  var text = '🏰 我的內在城堡已探索 ' + stats.rooms + '/' + stats.totalRooms
+    + ' 間房間，收集了 ' + stats.materials + ' 種材料。你的城堡長什麼樣？來探索看看！';
+  // FB Sharer：u 是必填的網址，quote 是預填文字（FB 在 2018 後不再保證顯示，但留著當提示）
+  var fbUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url) + '&quote=' + encodeURIComponent(text);
+  // 同步把文案複製到剪貼簿，方便用戶貼到 FB 限動或貼文
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text + '\n' + url).catch(function(){});
+  }
+  window.open(fbUrl, '_blank', 'width=600,height=600');
+  if(window.hlCastle && hlCastle.shareBonus){ hlCastle.shareBonus(); upd(); }
+  if(typeof showGameToast === 'function'){
+    showGameToast('已開啟 Facebook', '文案已複製，可以直接貼到限動或貼文。');
+  }
+}
+
+// ═══ IG 限動分享城堡 ═══
+function shareCastleToIG(){
+  // IG 沒有 web → story API，標準做法：自動截圖 → 下載 → 提示用戶手動發
+  // 這裡借用既有的 shareCastleImage 截圖邏輯，多一步「請開 IG 發限動」的提示
+  if(typeof shareCastleImage === 'function'){
+    shareCastleImage();
+    setTimeout(function(){
+      var msg = '📷 截圖已下載到您的相簿。\n\n下一步（手機）：\n' +
+                '1. 開啟 Instagram\n' +
+                '2. 點頭像「+」或「您的限時動態」\n' +
+                '3. 從相簿選擇剛下載的城堡圖\n' +
+                '4. 加上「@馥靈之鑰」標籤一起分享 ✨';
+      if(typeof showGameToast === 'function'){
+        showGameToast('IG 限動分享', msg);
+      } else {
+        alert(msg);
+      }
+    }, 1200);
+  } else {
+    alert('截圖功能載入中，請稍後再試');
+  }
+  // shareCastleImage 內已經呼叫 shareBonus，這裡不重複
+}
+
+// ═══ Threads 分享城堡 ═══
+function shareCastleToThreads(){
+  var stats = (typeof getCastleStats === 'function') ? getCastleStats() : {rooms:0,totalRooms:9,materials:0};
+  var text = '🏰 我的內在城堡已探索 ' + stats.rooms + '/' + stats.totalRooms
+    + ' 間房間，收集了 ' + stats.materials + ' 種材料。\n\n每天10分鐘，走進自己的城堡 ✨\n\n👉 hourlightkey.com/castle-game.html';
+  // Threads share intent
+  var threadsUrl = 'https://www.threads.net/intent/post?text=' + encodeURIComponent(text);
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).catch(function(){});
+  }
+  window.open(threadsUrl, '_blank');
+  if(window.hlCastle && hlCastle.shareBonus){ hlCastle.shareBonus(); upd(); }
 }
 </script>
 <script src="assets/js/hourlight-global.js?v=20260325"></script>
