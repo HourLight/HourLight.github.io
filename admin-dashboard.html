@@ -970,6 +970,20 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
           </details>
 
           <div id="actResult" style="display:none;margin-top:14px;padding:12px 16px;border-radius:10px;font-size:.88rem;line-height:1.8"></div>
+
+          <!-- 🎁 補贈月禮（不動方案）-->
+          <details style="margin-top:18px;padding-top:14px;border-top:1px dashed var(--adm-border)">
+            <summary style="cursor:pointer;font-size:.86rem;color:var(--adm-text2);padding:8px 0;font-weight:500">🎁 補贈月禮（不動方案）</summary>
+            <div style="font-size:.78rem;color:var(--adm-text3);line-height:1.7;margin:8px 0 12px">
+              如果客人方案沒問題，只是要補送月禮（例如某個 bug 損失需要補償），用這個。<br>
+              不會修改 plan / planExpiry，只發代碼/抵用券＋寄信。
+            </div>
+            <div class="adm-form-row" style="gap:10px">
+              <button class="adm-btn adm-btn-outline" style="flex:1;min-height:44px;font-size:.86rem" onclick="giftOnly('plus')">🔑 補鑰友月禮（3 桌布代碼）</button>
+              <button class="adm-btn adm-btn-outline" style="flex:1;min-height:44px;font-size:.86rem" onclick="giftOnly('pro')">👑 補大師月禮（10 代碼+2 抵用券）</button>
+            </div>
+            <div id="giftOnlyResult" style="display:none;margin-top:14px;padding:12px 16px;border-radius:10px;font-size:.86rem;line-height:1.8"></div>
+          </details>
         </div>
       </div>
 
@@ -2615,6 +2629,128 @@ async function activateMember() {
   btn.disabled = false; btn.textContent = '開通會員';
 }
 window.activateMember = activateMember;
+
+// ═══ 補贈月禮（不修改方案）═══
+async function giftOnly(plan) {
+  var email = document.getElementById('actEmail').value.trim().toLowerCase();
+  var resultEl = document.getElementById('giftOnlyResult');
+  function showErr(msg) {
+    resultEl.style.display = 'block';
+    resultEl.style.background = 'rgba(217,48,37,.08)';
+    resultEl.style.color = '#d93025';
+    resultEl.textContent = msg;
+  }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('請先在上方輸入會員 Email'); return; }
+  if (plan !== 'plus' && plan !== 'pro') { showErr('plan 必須是 plus 或 pro'); return; }
+
+  try {
+    var snap = await db.collection('users').where('email','==',email).limit(1).get();
+    if (snap.empty) { showErr('找不到此 Email 的會員'); return; }
+    var userDoc = snap.docs[0];
+    var uid = userDoc.id;
+    var userData = userDoc.data();
+    var pInfo = HL_PLANS[plan] || HL_PLANS.plus;
+
+    resultEl.style.display = 'block';
+    resultEl.style.background = 'rgba(184,146,42,.08)';
+    resultEl.style.color = 'var(--adm-text2)';
+    resultEl.textContent = '產生月禮中⋯';
+
+    var giftExp = new Date();
+    giftExp.setDate(giftExp.getDate() + 30);
+    var giftExpISO = giftExp.toISOString();
+
+    var giftCodes = [];
+    var giftVouchers = [];
+    var wallpaperCount = plan === 'pro' ? 10 : 3;
+
+    for (var i = 0; i < wallpaperCount; i++) {
+      var code = generateGiftCode('HLW');
+      await db.collection('reading_codes').doc(code).set({
+        code: code, n: 1, type: 'wealth-wallpaper', service: 'wealth-wallpaper',
+        used: false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        createdBy: currentUser.email,
+        giftedTo: email, giftedToUid: uid, giftedFor: plan,
+        compensationGift: true,
+        expiresAt: giftExpISO
+      });
+      giftCodes.push(code);
+    }
+
+    if (plan === 'pro') {
+      for (var v = 0; v < 2; v++) {
+        var voucherCode = generateGiftCode('HLV');
+        await db.collection('users').doc(uid).collection('vouchers').doc(voucherCode).set({
+          code: voucherCode, value: 500, type: 'one-on-one',
+          used: false,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          createdBy: currentUser.email,
+          giftedFor: 'pro',
+          compensationGift: true,
+          expiresAt: giftExpISO
+        });
+        giftVouchers.push({ code: voucherCode, expires: giftExp });
+      }
+    }
+
+    // 寄信
+    try {
+      var displayName = userData.displayName || '馥靈夥伴';
+      var lines = [];
+      lines.push('親愛的 ' + displayName + '：');
+      lines.push('');
+      lines.push('這是您的「' + pInfo.name + '」月禮補贈 ' + (plan === 'pro' ? '👑' : '✨'));
+      lines.push('');
+      lines.push('═══════════════════════════════════');
+      lines.push('🌟 馥靈蘊福桌布兌換代碼');
+      lines.push('═══════════════════════════════════');
+      lines.push('');
+      lines.push('每個代碼可換 1 張專屬能量桌布，30 天內使用完畢。');
+      lines.push('');
+      lines.push('🔗 桌布頁：https://hourlightkey.com/wealth-wallpaper.html');
+      lines.push('');
+      lines.push('您的兌換代碼（共 ' + giftCodes.length + ' 個，' + giftExp.toLocaleDateString('zh-TW') + ' 到期）：');
+      giftCodes.forEach(function(c, idx){ lines.push('  ' + (idx+1) + '. ' + c); });
+      lines.push('');
+      if (giftVouchers.length > 0) {
+        lines.push('═══════════════════════════════════');
+        lines.push('💎 NT$500 一對一抵用券 × 2 張');
+        lines.push('═══════════════════════════════════');
+        lines.push('');
+        lines.push('每張可在預約一對一覺察服務時折抵 NT$500。');
+        giftVouchers.forEach(function(vv, idx){ lines.push('  ' + (idx+1) + '. ' + vv.code + '（' + vv.expires.toLocaleDateString('zh-TW') + ' 到期）'); });
+        lines.push('');
+        lines.push('🔗 服務頁：https://hourlightkey.com/services.html');
+        lines.push('');
+      }
+      lines.push('您可以到會員中心 → 我的月禮 隨時查看代碼狀態。');
+      lines.push('');
+      lines.push('馥靈之鑰 Hour Light 敬上');
+
+      await fetch('https://app.hourlightkey.com/api/send-report', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          email: email,
+          name: displayName,
+          subject: '馥靈之鑰｜您的「' + pInfo.name + '」月禮補贈 ' + (plan === 'pro' ? '👑' : '✨'),
+          type: 'notification',
+          content: lines.join('\n')
+        })
+      });
+    } catch (mailErr) { console.warn('Gift email failed', mailErr); }
+
+    resultEl.style.background = 'rgba(52,168,83,.08)';
+    resultEl.style.color = '#34a853';
+    var summary = '✅ 月禮已補贈！<br>' + pInfo.icon + ' <strong>' + (userData.displayName || email) + '</strong><br>🎁 ' + giftCodes.length + ' 個桌布代碼';
+    if (giftVouchers.length > 0) summary += ' + ' + giftVouchers.length + ' 張一對一抵用券';
+    summary += '<br>📧 已發送通知信至 ' + email + '<br><small style="color:var(--adm-text3)">方案未變更</small>';
+    resultEl.innerHTML = summary;
+  } catch (e) {
+    showErr('補贈失敗：' + e.message);
+  }
+}
+window.giftOnly = giftOnly;
 
 async function loadActivateHistory() {
   var el = document.getElementById('actHistory');
