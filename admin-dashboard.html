@@ -2491,8 +2491,12 @@ async function activateMember() {
     var giftExp30 = new Date();
     giftExp30.setDate(giftExp30.getDate() + 30);
     var giftExpiryISO = giftExp30.toISOString();
+    var giftReadingCodes = [];
     if (!isTrial && (actualPlan === 'plus' || actualPlan === 'pro')) {
-      var wallpaperCount = actualPlan === 'pro' ? 10 : 3;
+      // 鑰友月禮：1 桌布 + 3 解讀代碼
+      // 大師月禮：3 桌布 + 10 解讀代碼 + 2 張 $500 抵用券
+      var wallpaperCount = actualPlan === 'pro' ? 3 : 1;
+      var readingCount = actualPlan === 'pro' ? 10 : 3;
       try {
         for (var i = 0; i < wallpaperCount; i++) {
           var code = generateGiftCode('HLW');
@@ -2510,6 +2514,24 @@ async function activateMember() {
             expiresAt: giftExpiryISO
           });
           giftCodes.push(code);
+        }
+        // 解讀代碼（n=3，draw-hl 的 3 張牌 AI 解讀）
+        for (var r = 0; r < readingCount; r++) {
+          var rcode = generateGiftCode('HLR');
+          await db.collection('reading_codes').doc(rcode).set({
+            code: rcode,
+            n: 3,
+            type: 'reading',
+            service: 'reading',
+            used: false,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            createdBy: currentUser.email,
+            giftedTo: email,
+            giftedToUid: uid,
+            giftedFor: actualPlan,
+            expiresAt: giftExpiryISO
+          });
+          giftReadingCodes.push(rcode);
         }
       } catch (giftErr) {
         console.error('Gift code generation error:', giftErr);
@@ -2556,20 +2578,38 @@ async function activateMember() {
 
       if (giftCodes.length > 0) {
         contentLines.push('═══════════════════════════════════');
-        contentLines.push('🌟 您的會員月禮：馥靈蘊福桌布兌換代碼');
+        contentLines.push('🌟 月禮 ① 馥靈蘊福桌布兌換代碼');
         contentLines.push('═══════════════════════════════════');
         contentLines.push('');
-        contentLines.push('您可以用以下代碼，到桌布頁親自挑選主題與風格生成。');
         contentLines.push('每個代碼可換 1 張專屬能量桌布，30 天內使用完畢。');
         contentLines.push('');
         contentLines.push('🔗 桌布頁：https://hourlightkey.com/wealth-wallpaper.html');
         contentLines.push('');
-        contentLines.push('您的兌換代碼（共 ' + giftCodes.length + ' 個，' + giftExp30.toLocaleDateString('zh-TW') + ' 到期）：');
+        contentLines.push('您的桌布代碼（' + giftExp30.toLocaleDateString('zh-TW') + ' 到期）：');
         giftCodes.forEach(function(c, idx) {
           contentLines.push('  ' + (idx + 1) + '. ' + c);
         });
         contentLines.push('');
         contentLines.push('使用方法：到桌布頁 → 計算命理座標 → 選主題與風格 → 點生成 → 輸入代碼即可');
+        contentLines.push('');
+      }
+
+      if (giftReadingCodes.length > 0) {
+        contentLines.push('═══════════════════════════════════');
+        contentLines.push('🎴 月禮 ② 馥靈智慧牌 3 張牌 AI 解讀代碼');
+        contentLines.push('═══════════════════════════════════');
+        contentLines.push('');
+        contentLines.push('每個代碼可在馥靈智慧牌「3 張牌陣」獲得一次 AI 深度解讀（價值 NT$199）。');
+        contentLines.push('30 天內使用完畢。');
+        contentLines.push('');
+        contentLines.push('🔗 馥靈抽牌頁：https://hourlightkey.com/draw-hl.html');
+        contentLines.push('');
+        contentLines.push('您的解讀代碼（共 ' + giftReadingCodes.length + ' 個）：');
+        giftReadingCodes.forEach(function(c, idx) {
+          contentLines.push('  ' + (idx + 1) + '. ' + c);
+        });
+        contentLines.push('');
+        contentLines.push('使用方法：到馥靈抽牌頁 → 抽 3 張牌 → 點 AI 解讀 → 輸入代碼即可');
         contentLines.push('');
       }
 
@@ -2661,8 +2701,11 @@ async function giftOnly(plan) {
     var giftExpISO = giftExp.toISOString();
 
     var giftCodes = [];
+    var giftReadingCodes = [];
     var giftVouchers = [];
-    var wallpaperCount = plan === 'pro' ? 10 : 3;
+    // 鑰友：1 桌布 + 3 解讀代碼；大師：3 桌布 + 10 解讀代碼 + 2 抵用券
+    var wallpaperCount = plan === 'pro' ? 3 : 1;
+    var readingCount = plan === 'pro' ? 10 : 3;
 
     for (var i = 0; i < wallpaperCount; i++) {
       var code = generateGiftCode('HLW');
@@ -2676,6 +2719,21 @@ async function giftOnly(plan) {
         expiresAt: giftExpISO
       });
       giftCodes.push(code);
+    }
+
+    // 解讀代碼（n=3，draw-hl 的 3 張牌 AI 解讀）
+    for (var r = 0; r < readingCount; r++) {
+      var rcode = generateGiftCode('HLR');
+      await db.collection('reading_codes').doc(rcode).set({
+        code: rcode, n: 3, type: 'reading', service: 'reading',
+        used: false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        createdBy: currentUser.email,
+        giftedTo: email, giftedToUid: uid, giftedFor: plan,
+        compensationGift: true,
+        expiresAt: giftExpISO
+      });
+      giftReadingCodes.push(rcode);
     }
 
     if (plan === 'pro') {
@@ -2702,17 +2760,32 @@ async function giftOnly(plan) {
       lines.push('');
       lines.push('這是您的「' + pInfo.name + '」月禮補贈 ' + (plan === 'pro' ? '👑' : '✨'));
       lines.push('');
-      lines.push('═══════════════════════════════════');
-      lines.push('🌟 馥靈蘊福桌布兌換代碼');
-      lines.push('═══════════════════════════════════');
-      lines.push('');
-      lines.push('每個代碼可換 1 張專屬能量桌布，30 天內使用完畢。');
-      lines.push('');
-      lines.push('🔗 桌布頁：https://hourlightkey.com/wealth-wallpaper.html');
-      lines.push('');
-      lines.push('您的兌換代碼（共 ' + giftCodes.length + ' 個，' + giftExp.toLocaleDateString('zh-TW') + ' 到期）：');
-      giftCodes.forEach(function(c, idx){ lines.push('  ' + (idx+1) + '. ' + c); });
-      lines.push('');
+      if (giftCodes.length > 0) {
+        lines.push('═══════════════════════════════════');
+        lines.push('🌟 月禮 ① 馥靈蘊福桌布');
+        lines.push('═══════════════════════════════════');
+        lines.push('');
+        lines.push('每個代碼可換 1 張專屬能量桌布，30 天內使用完畢。');
+        lines.push('');
+        lines.push('🔗 桌布頁：https://hourlightkey.com/wealth-wallpaper.html');
+        lines.push('');
+        lines.push('您的桌布代碼（' + giftExp.toLocaleDateString('zh-TW') + ' 到期）：');
+        giftCodes.forEach(function(c, idx){ lines.push('  ' + (idx+1) + '. ' + c); });
+        lines.push('');
+      }
+      if (giftReadingCodes.length > 0) {
+        lines.push('═══════════════════════════════════');
+        lines.push('🎴 月禮 ② 馥靈智慧牌 3 張牌 AI 解讀');
+        lines.push('═══════════════════════════════════');
+        lines.push('');
+        lines.push('每個代碼可在馥靈智慧牌「3 張牌陣」獲得一次 AI 深度解讀（價值 NT$199）。');
+        lines.push('');
+        lines.push('🔗 馥靈抽牌頁：https://hourlightkey.com/draw-hl.html');
+        lines.push('');
+        lines.push('您的解讀代碼（共 ' + giftReadingCodes.length + ' 個）：');
+        giftReadingCodes.forEach(function(c, idx){ lines.push('  ' + (idx+1) + '. ' + c); });
+        lines.push('');
+      }
       if (giftVouchers.length > 0) {
         lines.push('═══════════════════════════════════');
         lines.push('💎 NT$500 一對一抵用券 × 2 張');
@@ -2742,8 +2815,10 @@ async function giftOnly(plan) {
 
     resultEl.style.background = 'rgba(52,168,83,.08)';
     resultEl.style.color = '#34a853';
-    var summary = '✅ 月禮已補贈！<br>' + pInfo.icon + ' <strong>' + (userData.displayName || email) + '</strong><br>🎁 ' + giftCodes.length + ' 個桌布代碼';
-    if (giftVouchers.length > 0) summary += ' + ' + giftVouchers.length + ' 張一對一抵用券';
+    var summary = '✅ 月禮已補贈！<br>' + pInfo.icon + ' <strong>' + (userData.displayName || email) + '</strong>';
+    summary += '<br>🌟 ' + giftCodes.length + ' 個桌布代碼';
+    summary += '<br>🎴 ' + giftReadingCodes.length + ' 個 3張牌 AI 解讀代碼';
+    if (giftVouchers.length > 0) summary += '<br>💎 ' + giftVouchers.length + ' 張一對一 NT$500 抵用券';
     summary += '<br>📧 已發送通知信至 ' + email + '<br><small style="color:var(--adm-text3)">方案未變更</small>';
     resultEl.innerHTML = summary;
   } catch (e) {

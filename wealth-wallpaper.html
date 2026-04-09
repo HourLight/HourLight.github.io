@@ -577,7 +577,7 @@ body{min-height:100vh;min-height:100dvh;font-family:var(--ff-font);color:var(--f
   <div class="ff-glass" style="padding:40px">
     <div class="ww-spinner"></div>
     <div style="color:var(--ff-gold);font-family:var(--ff-oracle);font-size:1.1rem;letter-spacing:.08em" id="loadingText">正在為您調配能量桌布...</div>
-    <div style="color:var(--ff-ink-soft);font-size:.85rem;margin-top:8px" id="loadingHint">AI 並發生成中，每張約 30-60 秒｜15 張總計約 5-7 分鐘</div>
+    <div style="color:var(--ff-ink-soft);font-size:.85rem;margin-top:8px" id="loadingHint">AI 生成中，約 30-60 秒</div>
     <div style="color:#ff8a8a;font-size:.82rem;margin-top:10px;font-weight:500">⚠️ 請勿關閉頁面｜可切到別的 App，完成時會通知您</div>
     <div style="margin-top:16px;color:var(--ff-ink-soft);font-size:.8rem" id="loadingProgress"></div>
   </div>
@@ -608,26 +608,31 @@ body{min-height:100vh;min-height:100dvh;font-family:var(--ff-font);color:var(--f
   </div>
 </div>
 
-<!-- 用過的人怎麼說 -->
+<!-- 使用者真實回饋 -->
 <div class="ff-glass">
   <div class="ff-section-head">
     <h2>用過的人怎麼說</h2>
-    <div class="ff-hint">真實回饋，沒有美編過的話</div>
+    <div class="ff-hint">所有見證都來自真實使用者，我們不編造任何文字</div>
   </div>
-  <div class="ww-voices">
-    <div class="ww-voice">
-      <div class="vc-text">換上之後第一週，每次解鎖手機都會多停一秒。沒有特別的事發生，但我發現自己刷手機的時間少了，反而比較願意抬頭。</div>
-      <div class="vc-author">M．32 歲・行銷企劃</div>
-    </div>
-    <div class="ww-voice">
-      <div class="vc-text">本來想說又是一張漂亮圖，結果生出來那個顏色我看了就想笑。剛好是我最近一直被吸引的色系，搞不好身體早就知道要什麼。</div>
-      <div class="vc-author">J．45 歲・美甲師</div>
-    </div>
-    <div class="ww-voice">
-      <div class="vc-text">15 張全套買了之後，每兩天換一張。它變成一種儀式感，今天想要哪一面的自己，就放哪一張。比換口紅還上癮。</div>
-      <div class="vc-author">小 W．28 歲・自由接案</div>
-    </div>
+
+  <!-- 顯示已通過審核的回饋 -->
+  <div id="wallpaperFeedbackList" style="margin-bottom:24px">
+    <div style="text-align:center;color:rgba(248,223,165,.5);font-size:.85rem;padding:20px">載入中⋯</div>
   </div>
+
+  <!-- 回饋表單 -->
+  <details style="background:rgba(248,223,165,.04);border:1px solid rgba(248,223,165,.15);border-radius:14px;padding:16px 18px">
+    <summary style="cursor:pointer;font-size:.92rem;color:#f8dfa5;font-weight:500">✦ 我也想分享我的體驗</summary>
+    <div style="margin-top:14px">
+      <textarea id="feedbackText" placeholder="生成桌布之後，您觀察到什麼？身體有什麼感受？跟原本想像的有什麼不同？" maxlength="300" style="width:100%;min-height:90px;padding:12px;border:1px solid rgba(248,223,165,.2);border-radius:10px;background:rgba(255,255,255,.04);color:#f4f0eb;font-size:.92rem;font-family:inherit;line-height:1.7;resize:vertical;outline:none"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <input type="text" id="feedbackName" placeholder="暱稱（如：M / 小花）" maxlength="20" style="flex:1 1 120px;min-width:0;min-height:44px;padding:10px 14px;border:1px solid rgba(248,223,165,.2);border-radius:10px;background:rgba(255,255,255,.04);color:#f4f0eb;font-size:.9rem;font-family:inherit">
+        <input type="text" id="feedbackRole" placeholder="角色（選填，如：32 歲行銷）" maxlength="30" style="flex:2 1 200px;min-width:0;min-height:44px;padding:10px 14px;border:1px solid rgba(248,223,165,.2);border-radius:10px;background:rgba(255,255,255,.04);color:#f4f0eb;font-size:.9rem;font-family:inherit">
+      </div>
+      <button onclick="submitWallpaperFeedback()" style="width:100%;padding:12px;margin-top:12px;background:linear-gradient(135deg,#c9a044,#f0d48a);color:#0a0612;border:none;border-radius:10px;font-size:.95rem;font-weight:600;font-family:inherit;cursor:pointer;min-height:48px">送出我的真實回饋</button>
+      <div id="feedbackResult" style="margin-top:8px;font-size:.82rem;text-align:center;min-height:18px"></div>
+    </div>
+  </details>
 </div>
 
 <!-- FAQ -->
@@ -643,19 +648,15 @@ body{min-height:100vh;min-height:100dvh;font-family:var(--ff-font);color:var(--f
     </details>
     <details>
       <summary>會員贈送的桌布怎麼用？</summary>
-      <div class="faq-body">鑰友每月贈 1 張、大師每月贈 3 張。系統會自動辨識您的會員身分，登入後選 1 張，就會優先扣會員額度。額度按月份歸零，月初重新計算。</div>
+      <div class="faq-body">鑰友每月贈 1 張桌布代碼、大師每月贈 3 張桌布代碼，配合 3 / 10 個解讀代碼一起寄到您的信箱。每個代碼可在會員中心「我的月禮」查看與複製。一個代碼換一張桌布，30 天內使用完畢。</div>
     </details>
     <details>
       <summary>一張桌布要等多久？</summary>
-      <div class="faq-body">一張大概 15 至 30 秒，多張會排隊生成。整個過程不要切換頁面，等系統跑完，就會直接顯示在下方。長按圖片就能存到相簿。</div>
+      <div class="faq-body">大概 30 至 60 秒，看 AI 排隊狀態。整個過程不要切換頁面，等系統跑完就會直接顯示在下方。長按圖片就能存到相簿。生成失敗時您的代碼不會被消耗，可以重試。</div>
     </details>
     <details>
       <summary>桌布會跟我命格相剋嗎？</summary>
       <div class="faq-body">不會。系統用的是您的「補益」五行去配色，不是「衝突」五行。等於把您比較缺少的能量，用視覺方式補回來。看起來舒服，本來就是身體在告訴您「對」。</div>
-    </details>
-    <details>
-      <summary>1 張和 15 張差在哪？</summary>
-      <div class="faq-body">1 至 3 張是基礎能量配色；5 張是進階圖騰；15 張是完整套組（5 主題各 3 張），等於把招財、桃花、貴人、平安、轉運整套帶回家。可以按月換、按事件換、按心情換。</div>
     </details>
     <details>
       <summary>可以印出來嗎？</summary>
@@ -1703,6 +1704,92 @@ if(document.readyState === 'loading'){
   document.addEventListener('DOMContentLoaded', renderAspectSelector);
 } else {
   renderAspectSelector();
+}
+
+// ═══ 使用者真實回饋 ═══
+async function loadWallpaperFeedback(){
+  var listEl = document.getElementById('wallpaperFeedbackList');
+  if(!listEl) return;
+  try {
+    if(typeof firebase === 'undefined' || !firebase.firestore){
+      listEl.innerHTML = '';
+      return;
+    }
+    var snap = await firebase.firestore().collection('wallpaper_feedback')
+      .where('status','==','approved')
+      .orderBy('createdAt','desc')
+      .limit(6).get();
+    if(snap.empty){
+      listEl.innerHTML = '<div style="text-align:center;color:rgba(248,223,165,.45);font-size:.84rem;padding:14px 8px;line-height:1.8">還沒有公開的使用者回饋。<br>第一個分享真實體驗的人，就是您 ✨</div>';
+      return;
+    }
+    var html = '';
+    snap.forEach(function(doc){
+      var d = doc.data();
+      var name = d.name || '匿名馥靈夥伴';
+      var role = d.role ? '・' + d.role : '';
+      var text = (d.text || '').replace(/[<>]/g,'');
+      html += '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(248,223,165,.12);border-radius:12px;padding:14px 16px;margin-bottom:10px">'
+        + '<div style="font-size:.9rem;color:rgba(244,240,235,.85);line-height:1.85;margin-bottom:8px">' + text + '</div>'
+        + '<div style="font-size:.78rem;color:rgba(248,223,165,.55)">— ' + name + role + '</div>'
+        + '</div>';
+    });
+    listEl.innerHTML = html;
+  } catch(e){
+    console.warn('Load feedback error:', e);
+    listEl.innerHTML = '';
+  }
+}
+
+window.submitWallpaperFeedback = async function(){
+  var textEl = document.getElementById('feedbackText');
+  var nameEl = document.getElementById('feedbackName');
+  var roleEl = document.getElementById('feedbackRole');
+  var resultEl = document.getElementById('feedbackResult');
+  var text = (textEl.value || '').trim();
+  var name = (nameEl.value || '').trim();
+  var role = (roleEl.value || '').trim();
+
+  if(!text || text.length < 10){
+    resultEl.style.color = '#ff8a8a';
+    resultEl.textContent = '請寫下至少 10 個字的真實感受';
+    return;
+  }
+  if(!name){
+    resultEl.style.color = '#ff8a8a';
+    resultEl.textContent = '請填一個暱稱（可以是英文字母）';
+    return;
+  }
+  resultEl.style.color = 'rgba(248,223,165,.7)';
+  resultEl.textContent = '送出中⋯';
+  try {
+    if(typeof firebase === 'undefined' || !firebase.firestore) throw new Error('系統載入中，請稍後');
+    var user = firebase.auth().currentUser;
+    await firebase.firestore().collection('wallpaper_feedback').add({
+      text: text,
+      name: name,
+      role: role,
+      status: 'pending',
+      uid: user ? user.uid : 'guest',
+      email: user ? (user.email || '') : '',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    resultEl.style.color = '#34a853';
+    resultEl.textContent = '✅ 收到！審核後會顯示在頁面上，謝謝您的真實分享 💛';
+    textEl.value = '';
+    nameEl.value = '';
+    roleEl.value = '';
+  } catch(e){
+    resultEl.style.color = '#ff8a8a';
+    resultEl.textContent = '送出失敗：' + (e.message || '請稍後再試');
+  }
+};
+
+// 載入回饋
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(loadWallpaperFeedback, 1500); });
+} else {
+  setTimeout(loadWallpaperFeedback, 1500);
 }
 </script>
 
