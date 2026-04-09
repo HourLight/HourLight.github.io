@@ -281,6 +281,7 @@ var MEMBER_PLANS = {
 /**
  * 會員到期自動降級
  * 每次頁面載入時檢查 planExpiry，過期就自動降回 free
+ * v2：到期前先檢查 prevPlan，若有未到期的原方案就還原（避免試用蓋掉付費方案）
  */
 (function(){
   if(typeof firebase==='undefined') return;
@@ -295,15 +296,45 @@ var MEMBER_PLANS = {
           var d=doc.data();
           if(!d.plan||d.plan==='free') return;
           if(!d.planExpiry) return;
+          if(d.planExpiry==='permanent') return;
           var expiry=d.planExpiry;
           if(expiry.toDate) expiry=expiry.toDate();
           else if(typeof expiry==='string') expiry=new Date(expiry);
           if(!(expiry instanceof Date)||isNaN(expiry)) return;
           if(new Date()>expiry){
+            // ─── 先檢查是否有未到期的原方案可以還原（小花事件 patch）───
+            if(d.prevPlan && d.prevPlan!=='free' && d.prevPlanExpiry){
+              var prevValid=false;
+              if(d.prevPlanExpiry==='permanent'){
+                prevValid=true;
+              }else{
+                var prevExp=d.prevPlanExpiry;
+                if(prevExp.toDate) prevExp=prevExp.toDate();
+                else if(typeof prevExp==='string') prevExp=new Date(prevExp);
+                if(prevExp instanceof Date && !isNaN(prevExp) && prevExp>new Date()){
+                  prevValid=true;
+                }
+              }
+              if(prevValid){
+                db.doc('users/'+user.uid).update({
+                  plan:d.prevPlan,
+                  planExpiry:d.prevPlanExpiry,
+                  prevPlan:firebase.firestore.FieldValue.delete(),
+                  prevPlanExpiry:firebase.firestore.FieldValue.delete(),
+                  prevPlanSavedAt:firebase.firestore.FieldValue.delete(),
+                  isTrial:firebase.firestore.FieldValue.delete(),
+                  planRestoredAt:firebase.firestore.FieldValue.serverTimestamp(),
+                  planRestoredFrom:d.plan
+                }).catch(function(){});
+                return;
+              }
+            }
+            // 沒有原方案可還原 → 降回 free
             db.doc('users/'+user.uid).update({
               plan:'free',
               planExpiredAt:firebase.firestore.FieldValue.serverTimestamp(),
-              planExpiredFrom:d.plan
+              planExpiredFrom:d.plan,
+              isTrial:firebase.firestore.FieldValue.delete()
             }).catch(function(){});
           }
         }).catch(function(){});

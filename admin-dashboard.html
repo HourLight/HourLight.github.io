@@ -937,7 +937,6 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
 
           <!-- 一鍵預設按鈕 -->
           <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px">
-            <button class="adm-btn adm-btn-outline" style="flex:1;min-width:140px;min-height:48px;font-size:.92rem" onclick="quickActivate('trial_pro',7)">🎁 7天體驗</button>
             <button class="adm-btn adm-btn-outline" style="flex:1;min-width:140px;min-height:48px;font-size:.92rem" onclick="quickActivate('plus',30)">🔑 30天鑰友</button>
             <button class="adm-btn adm-btn-outline" style="flex:1;min-width:140px;min-height:48px;font-size:.92rem" onclick="quickActivate('pro',30)">👑 30天大師</button>
             <button class="adm-btn adm-btn-outline" style="flex:1;min-width:140px;min-height:48px;font-size:.92rem" onclick="quickActivate('pro',365)">👑 365天大師</button>
@@ -950,7 +949,6 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
               <div class="adm-form-group">
                 <label class="adm-label">方案</label>
                 <select class="adm-select" id="actPlan" style="width:200px">
-                  <option value="trial_pro">🎁 7天體驗（等同大師）</option>
                   <option value="plus">🔑 馥靈鑰友（$399/月）</option>
                   <option value="pro">👑 馥靈大師（$999/月）</option>
                 </select>
@@ -983,6 +981,21 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
         </div>
         <div class="adm-card-body">
           <div id="actHistory" style="font-size:.86rem;color:var(--adm-text2);line-height:1.9">載入中⋯</div>
+        </div>
+      </div>
+
+      <!-- 🩹 試用受害者修復工具 -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">🩹 試用受害者修復工具</div>
+          <button class="adm-btn adm-btn-sm adm-btn-outline" onclick="scanTrialVictims()" id="trialScanBtn">掃描受害者</button>
+        </div>
+        <div class="adm-card-body">
+          <p style="font-size:.82rem;color:var(--adm-text2);line-height:1.7;margin-bottom:14px">
+            掃描所有曾被開通 trial_pro（7 天體驗）的會員，比對開通紀錄找出原本還在效期內的付費方案，一鍵還原。<br>
+            <strong>原理：</strong>從 admin/activate_log 找 trial_pro 紀錄 → 比對該 email 之前的 plus/pro 開通紀錄 → 若原方案到今天還沒到期，且該用戶現在是 free，就還原回原方案。
+          </p>
+          <div id="trialVictimList" style="font-size:.86rem;line-height:1.8"></div>
         </div>
       </div>
 
@@ -2414,6 +2427,25 @@ async function activateMember() {
       expiryLabel = exp.toLocaleDateString('zh-TW') + '（' + days + ' 天）';
     }
 
+    // ─── 備份原本的付費方案，避免被覆蓋（小花事件 patch）───
+    // 若原本有付費方案且未到期，先存起來，到期時 firebase-config.js 會自動還原
+    if (userData.plan && userData.plan !== 'free') {
+      var prevStillValid = userData.planExpiry === 'permanent' ||
+        (userData.planExpiry && new Date(userData.planExpiry) > new Date());
+      if (prevStillValid) {
+        // 若新方案到期日比原方案還晚，就沒必要備份（純升級不用還原）
+        var newExpDate = data.planExpiry === 'permanent' ? null : new Date(data.planExpiry);
+        var origExpDate = userData.planExpiry === 'permanent' ? null : new Date(userData.planExpiry);
+        var newCoversOriginal = data.planExpiry === 'permanent' ||
+          (origExpDate && newExpDate && newExpDate >= origExpDate);
+        if (!newCoversOriginal) {
+          data.prevPlan = userData.plan;
+          data.prevPlanExpiry = userData.planExpiry;
+          data.prevPlanSavedAt = new Date().toISOString();
+        }
+      }
+    }
+
     await db.collection('users').doc(uid).update(data);
 
     await db.collection('admin').doc('activate_log').set({
@@ -2481,6 +2513,138 @@ async function loadActivateHistory() {
 }
 window.loadActivateHistory = loadActivateHistory;
 
+// ─── 試用受害者修復工具（小花事件 patch）───
+async function scanTrialVictims() {
+  var listEl = document.getElementById('trialVictimList');
+  var btn = document.getElementById('trialScanBtn');
+  if (!listEl) return;
+  btn.disabled = true; btn.textContent = '掃描中⋯';
+  listEl.innerHTML = '<div style="color:var(--adm-text3)">讀取 activate_log⋯</div>';
+  try {
+    var snap = await db.collection('admin').doc('activate_log').get();
+    if (!snap.exists || !snap.data().logs || !snap.data().logs.length) {
+      listEl.innerHTML = '<div style="color:var(--adm-text3)">沒有開通紀錄</div>';
+      btn.disabled = false; btn.textContent = '掃描受害者';
+      return;
+    }
+    var logs = snap.data().logs;
+    // 按 email 分組
+    var byEmail = {};
+    logs.forEach(function(l) {
+      if (!l.email) return;
+      var key = l.email.toLowerCase();
+      if (!byEmail[key]) byEmail[key] = [];
+      byEmail[key].push(l);
+    });
+    var now = new Date();
+    var victims = [];
+    // 找出每個 email 是否有 trial_pro 紀錄 + 之前的付費方案還沒到期
+    Object.keys(byEmail).forEach(function(email) {
+      var entries = byEmail[email].slice().sort(function(a, b) {
+        return new Date(a.activatedAt || 0) - new Date(b.activatedAt || 0);
+      });
+      // 找最後一筆 trial_pro
+      var lastTrial = null;
+      for (var i = entries.length - 1; i >= 0; i--) {
+        if (entries[i].plan === 'trial_pro') { lastTrial = entries[i]; break; }
+      }
+      if (!lastTrial) return;
+      // 找該 trial_pro 之前最後一筆 plus/pro（且不是 trial_pro）
+      var prevPaid = null;
+      var trialTime = new Date(lastTrial.activatedAt || 0);
+      for (var j = entries.length - 1; j >= 0; j--) {
+        var e = entries[j];
+        if (e.plan === 'trial_pro') continue;
+        if (e.plan !== 'plus' && e.plan !== 'pro') continue;
+        if (new Date(e.activatedAt || 0) >= trialTime) continue;
+        prevPaid = e; break;
+      }
+      if (!prevPaid) return;
+      // 檢查原方案到今天是否還沒到期
+      var stillValid = false;
+      if (prevPaid.expiry === 'permanent') stillValid = true;
+      else if (prevPaid.expiry && new Date(prevPaid.expiry) > now) stillValid = true;
+      if (!stillValid) return;
+      victims.push({ email: email, name: lastTrial.name || prevPaid.name || '', trial: lastTrial, prev: prevPaid });
+    });
+    if (!victims.length) {
+      listEl.innerHTML = '<div style="color:#34a853">✅ 沒有需要修復的受害者</div>';
+      btn.disabled = false; btn.textContent = '掃描受害者';
+      return;
+    }
+    // 列出受害者並比對其當下實際狀態
+    listEl.innerHTML = '<div style="color:var(--adm-text2);margin-bottom:10px">找到 ' + victims.length + ' 筆候選，正在比對 Firestore 當前狀態⋯</div>';
+    var rows = [];
+    for (var k = 0; k < victims.length; k++) {
+      var v = victims[k];
+      var userSnap = await db.collection('users').where('email', '==', v.email).limit(1).get();
+      if (userSnap.empty) {
+        rows.push({ ...v, status: 'missing', currentPlan: '?', uid: null });
+        continue;
+      }
+      var uDoc = userSnap.docs[0];
+      var uData = uDoc.data();
+      var needsFix = false;
+      // 需要修復的條件：當前 plan 是 free（被降級了）OR 當前 plan 是 pro 且 isTrial=true 且 planExpiry 還沒到原方案的到期日
+      if (uData.plan === 'free') needsFix = true;
+      else if (uData.isTrial === true) needsFix = true;
+      rows.push({ ...v, status: needsFix ? 'fixable' : 'ok', currentPlan: uData.plan || 'free', currentExpiry: uData.planExpiry || '', uid: uDoc.id });
+    }
+    var html = rows.map(function(r, idx) {
+      var prevExpLabel = r.prev.expiry === 'permanent' ? '永久' : new Date(r.prev.expiry).toLocaleDateString('zh-TW');
+      var statusBadge = '';
+      var actionBtn = '';
+      if (r.status === 'missing') {
+        statusBadge = '<span style="color:#888;font-size:.75rem">（找不到用戶）</span>';
+      } else if (r.status === 'ok') {
+        statusBadge = '<span style="color:#34a853;font-size:.75rem">（不用修，已是 ' + (r.currentPlan || 'free') + '）</span>';
+      } else {
+        statusBadge = '<span style="color:#d93025;font-size:.75rem">（需要修復，當前：' + r.currentPlan + '）</span>';
+        actionBtn = '<button class="adm-btn adm-btn-sm adm-btn-gold" style="min-height:44px;margin-top:6px" onclick="restoreTrialVictim(\'' + r.uid + '\',\'' + r.prev.plan + '\',\'' + r.prev.expiry + '\',this)">🔧 還原成 ' + r.prev.plan + '（到 ' + prevExpLabel + '）</button>';
+      }
+      return '<div style="padding:14px 0;border-bottom:1px solid var(--adm-border)">'
+        + '<div><strong>' + (r.name || r.email) + '</strong> ' + statusBadge + '</div>'
+        + '<div style="font-size:.78rem;color:var(--adm-text3);margin-top:4px">'
+        + '原方案：' + r.prev.plan + '（' + prevExpLabel + '）｜試用開通：' + new Date(r.trial.activatedAt).toLocaleString('zh-TW')
+        + '</div>'
+        + actionBtn
+        + '</div>';
+    }).join('');
+    listEl.innerHTML = html;
+    btn.disabled = false; btn.textContent = '重新掃描';
+  } catch (e) {
+    listEl.innerHTML = '<div style="color:#d93025">掃描失敗：' + e.message + '</div>';
+    btn.disabled = false; btn.textContent = '掃描受害者';
+  }
+}
+window.scanTrialVictims = scanTrialVictims;
+
+async function restoreTrialVictim(uid, prevPlan, prevExpiry, btnEl) {
+  if (!uid || !prevPlan) return;
+  if (!confirm('確定要還原成 ' + prevPlan + '（到 ' + (prevExpiry === 'permanent' ? '永久' : new Date(prevExpiry).toLocaleDateString('zh-TW')) + '）？')) return;
+  btnEl.disabled = true; btnEl.textContent = '還原中⋯';
+  try {
+    var update = {
+      plan: prevPlan,
+      planExpiry: prevExpiry,
+      isTrial: firebase.firestore.FieldValue.delete(),
+      prevPlan: firebase.firestore.FieldValue.delete(),
+      prevPlanExpiry: firebase.firestore.FieldValue.delete(),
+      prevPlanSavedAt: firebase.firestore.FieldValue.delete(),
+      planRestoredAt: firebase.firestore.FieldValue.serverTimestamp(),
+      planRestoredFrom: 'trial_pro_manual_fix'
+    };
+    await db.collection('users').doc(uid).update(update);
+    btnEl.textContent = '✅ 已還原';
+    btnEl.style.background = '#34a853';
+    btnEl.style.color = '#fff';
+  } catch (e) {
+    btnEl.disabled = false;
+    btnEl.textContent = '❌ 失敗：' + e.message;
+  }
+}
+window.restoreTrialVictim = restoreTrialVictim;
+
 async function redeemUnlimitedCode() {
   var email = document.getElementById('hluEmail').value.trim().toLowerCase();
   var code = document.getElementById('hluCode').value.trim().toUpperCase();
@@ -2512,7 +2676,22 @@ async function redeemUnlimitedCode() {
     var exp = new Date(); exp.setDate(exp.getDate() + 7);
     var expISO = exp.toISOString();
 
-    await db.collection('users').doc(uid).update({ plan: 'pro', planExpiry: expISO });
+    // ─── 備份原本的付費方案（小花事件 patch）───
+    var hluUpdate = { plan: 'pro', planExpiry: expISO };
+    if (userData.plan && userData.plan !== 'free') {
+      var hluPrevValid = userData.planExpiry === 'permanent' ||
+        (userData.planExpiry && new Date(userData.planExpiry) > new Date());
+      if (hluPrevValid) {
+        var hluNewCovers = userData.planExpiry !== 'permanent' &&
+          new Date(userData.planExpiry) <= exp;
+        if (!hluNewCovers) {
+          hluUpdate.prevPlan = userData.plan;
+          hluUpdate.prevPlanExpiry = userData.planExpiry;
+          hluUpdate.prevPlanSavedAt = new Date().toISOString();
+        }
+      }
+    }
+    await db.collection('users').doc(uid).update(hluUpdate);
     await db.collection('reading_codes').doc(code).update({
       used: true,
       usedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -2566,11 +2745,28 @@ async function redeemTrialCode() {
     var days = codeData.days || 7;
     var exp = new Date(); exp.setDate(exp.getDate() + days);
 
-    await db.collection('users').doc(currentUser.uid).update({
+    // ─── 備份原本的付費方案（小花事件 patch）───
+    var trialUpdate = {
       plan: 'pro',
       isTrial: true,
       planExpiry: exp.toISOString()
-    });
+    };
+    var curUserDoc = await db.collection('users').doc(currentUser.uid).get();
+    var curUserData = curUserDoc.exists ? curUserDoc.data() : {};
+    if (curUserData.plan && curUserData.plan !== 'free') {
+      var hltPrevValid = curUserData.planExpiry === 'permanent' ||
+        (curUserData.planExpiry && new Date(curUserData.planExpiry) > new Date());
+      if (hltPrevValid) {
+        var hltNewCovers = curUserData.planExpiry !== 'permanent' &&
+          new Date(curUserData.planExpiry) <= exp;
+        if (!hltNewCovers) {
+          trialUpdate.prevPlan = curUserData.plan;
+          trialUpdate.prevPlanExpiry = curUserData.planExpiry;
+          trialUpdate.prevPlanSavedAt = new Date().toISOString();
+        }
+      }
+    }
+    await db.collection('users').doc(currentUser.uid).update(trialUpdate);
     await db.collection('trial_codes').doc(code).update({
       used: true,
       usedAt: firebase.firestore.FieldValue.serverTimestamp(),
