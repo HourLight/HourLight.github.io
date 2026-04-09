@@ -804,85 +804,13 @@ var WP_COLOR_DICT = {
   }
 };
 
-// ═══ 五大主題符號庫（混合路線：傳統文化符號 + 詩意合成元素）═══
-// 路線 3：5 大主題各自決定，例如護佑用 Nazar、招財用金錢樹、愛情用詩意花瓣
-var WP_SYMBOL_LIB = {
-  wealth: {
-    traditional: [
-      'three-legged toad (jin chan) with golden coin in mouth, abstract glow rendering',
-      'ancient Chinese coins (round with square hole) floating in cosmic vault',
-      'jade money tree with round luminous leaves, root made of stardust',
-      'cornucopia overflowing with golden particles and grain',
-      'koi leaping upward toward a column of gold light'
-    ],
-    poetic: [
-      'liquid gold cascading from cosmic clouds in dramatic vertical column',
-      'spiraling galaxy of golden light particles converging to a glowing heart',
-      'jade vessel overflowing with stardust gold, bas-relief sculpted from luminous matter',
-      'curtains of gold silk parting in cosmic space to reveal an inner radiance'
-    ],
-    intent: 'attracting prosperity, abundance, financial flow, being-seen-by-fortune'
-  },
-  love: {
-    traditional: [
-      'paired peach blossoms drifting through cosmic wind',
-      'twin koi swirling in mirror dance, made of pink-gold light',
-      'jasmine vine wrapping a glowing moonstone',
-      'lotus bloom unfolding in cosmic mist'
-    ],
-    poetic: [
-      'two abstract spheres of pink-gold light orbiting and merging in starfield',
-      'cascading rose silk parting to reveal a glowing heart of warm pink light',
-      'soul-thread of stardust connecting two distant constellations',
-      'cosmic hands of light reaching toward each other, almost touching'
-    ],
-    intent: 'inviting deep love connection, romantic blessing, being-worthy-of-love'
-  },
-  career: {
-    traditional: [
-      'ascending phoenix silhouette made of pure golden light',
-      'mountain peak piercing cosmic clouds with a beam of light at the summit',
-      'open gateway with golden light streaming through',
-      'eagle of stardust soaring above a cosmic mountain range'
-    ],
-    poetic: [
-      'vertical pillar of light cutting through cosmic clouds upward into infinite stars',
-      'ascending staircase of luminous geometry dissolving into starfields',
-      'lighthouse beam of cosmic gold piercing a storm cloud galaxy',
-      'cosmic compass pointing toward a distant golden horizon'
-    ],
-    intent: 'unlocking career advancement, attracting noble mentors, ambitious achievement'
-  },
-  protection: {
-    traditional: [
-      'subtle abstracted Eye of Horus glowing in cosmic field (NOT literal hieroglyph, just the protective gaze suggestion)',
-      'concentric Nazar protective circles in deep cobalt blue, dissolved into stardust',
-      'ancient sanctuary dome of soft pearl light enclosing a sacred center',
-      'guardian wings of stardust stretched protectively across the composition'
-    ],
-    poetic: [
-      'glowing dome of soft white light enclosing sacred space',
-      'circular mandala of warm white-gold radiating protection outward',
-      'cathedral of light arches against cosmic backdrop',
-      'circle of constellation guardians gently watching over a quiet center'
-    ],
-    intent: 'invoking guardian blessing, safety, peace, protection from harm'
-  },
-  luck: {
-    traditional: [
-      'four-leaf clover of pure light hovering in starfield',
-      'horseshoe arc of cosmic energy framing a glowing center',
-      'ladybug constellation made of seven bright stars',
-      'wishbone of stardust suspended in cosmic vault'
-    ],
-    poetic: [
-      'shooting comet of rainbow light arcing across deep starfield, leaving stardust trail',
-      'spiral galaxy of multicolored light with a glowing center of cosmic alignment',
-      'portal of swirling rainbow energy opening in deep space',
-      'cosmic dice tumbling through nebula, each face a different alignment'
-    ],
-    intent: 'shifting fortune, breakthrough timing, serendipitous transformation'
-  }
+// ═══ 五大主題意圖（不再寫死視覺符號，讓 Claude 根據意圖自由發揮）═══
+var WP_THEME_INTENT = {
+  wealth: 'attracting prosperity, abundance, financial flow, being-seen-by-fortune',
+  love: 'inviting deep love connection, romantic blessing, being-worthy-of-love',
+  career: 'unlocking career advancement, attracting noble mentors, ambitious achievement',
+  protection: 'invoking guardian blessing, safety, peace, protection from harm',
+  luck: 'shifting fortune, breakthrough timing, serendipitous transformation'
 };
 
 // ═══ 從 profile 提取個人專屬色彩處方 ═══
@@ -1259,14 +1187,9 @@ async function handleWallpaper(req, res, apiKey) {
     paletteText += '構圖時：核心 hero motif 用前 2-3 個顏色為主；副元素用後幾個。最終 prompt 必須明確寫出至少 4 個 hex 色碼。\n';
   }
 
-  // ─── 主題符號庫（路線 3：傳統符號 + 詩意合成元素 混合）───
-  var symbolLib = WP_SYMBOL_LIB[theme] || WP_SYMBOL_LIB.wealth;
-  var symbolText = '\n\n【' + themeZhForClaude + ' 主題符號庫 — Claude 你必須從這裡挑】\n';
-  symbolText += '傳統文化符號（挑 1-2 個融入，不要直接畫得像圖鑑）：\n';
-  symbolLib.traditional.forEach(function(s, i){ symbolText += '  ' + (i+1) + '. ' + s + '\n'; });
-  symbolText += '詩意合成元素（挑 2-3 個作為主畫面）：\n';
-  symbolLib.poetic.forEach(function(s, i){ symbolText += '  ' + (i+1) + '. ' + s + '\n'; });
-  symbolText += '組合方式：1-2 個傳統符號 + 2-3 個詩意元素，融合成一張獨一無二的視覺處方。\n';
+  // ─── 主題意圖（符號讓 Claude 根據意圖 + 個人色彩自由發揮，不寫死視覺符號）───
+  var themeIntent = WP_THEME_INTENT[theme] || WP_THEME_INTENT.wealth;
+  var symbolText = '\n\n【' + themeZhForClaude + ' 主題意圖】\n' + themeIntent + '\n';
 
   // 風格類別中英對照
   var styleCategoryNames = {
@@ -1282,15 +1205,14 @@ async function handleWallpaper(req, res, apiKey) {
   var userPickedStyle = styleCategoryNames[styleCategory] || styleCategoryNames.auto;
 
   var claudeSystemPrompt = '你是馥靈之鑰的首席視覺藝術總監，專精於把命理數據合成為「這個人獨一無二的視覺處方」。\n\n' +
-    '你的任務是根據客人的 33 套命理 dossier、個人色彩處方、五大主題符號庫，合成出他這個人的能量簽名，然後為 xAI grok-2-image 寫一段精準的英文 prompt，用於生成一張高級戲劇感的能量桌布。\n\n' +
+    '你的任務是根據客人的 33 套命理 dossier、個人色彩處方、和主題意圖，合成出他這個人的能量簽名，然後為 xAI grok-2-image 寫一段精準的英文 prompt，用於生成一張高級戲劇感的能量桌布。\n\n' +
     '【鐵律】\n' +
     '1. **色彩必須用個人色彩處方裡給的 hex 色碼**（不能憑感覺挑色）— 同一個人每次生成顏色要一致\n' +
-    '2. **符號從主題符號庫挑** — 1-2 個傳統文化符號 + 2-3 個詩意合成元素，融合而非堆砌\n' +
-    '3. 既有的星座/動物/宗教符號要「抽象化處理」，不要畫得像維基百科圖鑑（避免：寫實的巨蟹、寫實的佛陀、寫實的十字架、教科書插圖風）\n' +
-    '4. 例如：給你「三腳蟾蜍」這個傳統符號，你不要寫 "a literal three-legged toad statue"，要寫 "an abstracted three-legged toad rendered as a constellation of golden stardust, its form catching cosmic light"\n' +
-    '5. 美學方向：Vogue 編輯封面 × 唱片美術 × 概念藝術 × 巴洛克教堂浮雕，Rich 不是 minimal，戲劇感不是空洞\n' +
-    '6. 圖中絕對不能有任何文字、字母、數字\n' +
-    '7. ⚡ **浮雕戲劇感是不可違抗的視覺核心** ⚡ — 每一個視覺元素必須帶有：\n' +
+    '2. **視覺主體完全自由發揮**：根據主題意圖（招財／愛情／事業／護佑／轉運）+ 客人的命理座標 + 個人五行 + 你的藝術判斷，自己決定 hero motif。可以是任何抽象意象、自然元素、神話原型、宇宙意象、建築結構、光的形狀。**不要被任何固定符號清單綁住**。同一個主題每次出來應該都不一樣，這是你身為總監的價值。\n' +
+    '3. 既有的星座/動物/宗教符號如果你選用，必須「抽象化處理」，不要畫得像維基百科圖鑑（避免：寫實的巨蟹、寫實的佛陀、寫實的十字架、教科書插圖風）。處理方式：rendered as constellation of stardust / abstracted as luminous sculpture / dissolved into cosmic light\n' +
+    '4. 美學方向：Vogue 編輯封面 × 唱片美術 × 概念藝術 × 巴洛克教堂浮雕，Rich 不是 minimal，戲劇感不是空洞\n' +
+    '5. 圖中絕對不能有任何文字、字母、數字\n' +
+    '6. ⚡ **浮雕戲劇感是不可違抗的視覺核心** ⚡ — 每一個視覺元素必須帶有：\n' +
     '   • dimensional luminous bas-relief surface, sculpted from light itself\n' +
     '   • particles of stardust forming the silhouette and edges\n' +
     '   • dramatic chiaroscuro with strong directional spotlight\n' +
@@ -1299,7 +1221,7 @@ async function handleWallpaper(req, res, apiKey) {
     '   絕對禁止：flat illustration / vector art / cartoon / anime / 2D digital painting / literal gold outlining\n\n' +
     '【輸出格式】\n' +
     '只輸出英文 prompt 本身，不要加任何說明。長度約 320-500 字，必須包含：\n' +
-    '- Hero motif（從符號庫融合 1-2 傳統 + 2-3 詩意，全部 abstracted/dimensional 處理）\n' +
+    '- Hero motif（你自由創造，根據主題意圖 + 命理座標合成獨一無二的視覺，每次不同）\n' +
     '- **明確列出至少 4 個 hex 色碼**（從個人色彩處方挑），格式如「primary palette: #FFD700 (lifePath gold), #FF6F61 (zodiac coral), #15803D (wuxing green), #1E3A8A (moon sapphire)」\n' +
     '- 整體氛圍與構圖（cinematic / chiaroscuro / atmospheric / dramatic spotlight）\n' +
     '- 表面質感強制詞：「dimensional bas-relief」「luminous sculpted depth」「stardust particles」「painterly chiaroscuro」必須出現至少 3 個\n' +
@@ -1463,6 +1385,30 @@ async function handleWallpaper(req, res, apiKey) {
 
     if (!imageUrl) {
       return res.status(500).json({ error: '圖片生成失敗：' + (lastImageErr || '所有引擎都不可用') });
+    }
+
+    // ── 圖片生成成功 → 才消耗代碼（小花事件 patch：失敗時保留代碼）──
+    var consumeCode = body.consumeCode === true || body.consumeCode === 'true';
+    if (consumeCode && unlockCode && unlockCode !== HL_MASTER_CODE) {
+      try {
+        var dbForCode = getFirestore();
+        if (dbForCode) {
+          var codeRef = dbForCode.collection('reading_codes').doc(unlockCode);
+          var codeDoc = await codeRef.get();
+          if (codeDoc.exists && !codeDoc.data().used) {
+            await codeRef.update({
+              used: true,
+              usedAt: new Date(),
+              usedBy: uid || 'guest',
+              usedByEmail: userEmail || '',
+              service: 'wealth-wallpaper'
+            });
+          }
+        }
+      } catch (codeErr) {
+        console.error('Wallpaper code consume error:', codeErr.message);
+        // 不阻斷主流程，記錄錯誤但繼續回傳圖片
+      }
     }
 
     // ── 存檔：Firestore 記錄（uid + 全站政策）──

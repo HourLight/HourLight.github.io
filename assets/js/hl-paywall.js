@@ -140,6 +140,8 @@ window.hlPaywall = (function(){
       var _onProceed = config.onProceed || null;
       var _n = config.n;
       var _pageType = config.pageType || '';
+      // deferConsume：true = 只驗證不標記已用（由後端在生成成功後標記）
+      var _deferConsume = config.deferConsume === true;
       window._hlPaywallRedeemCode = async function() {
         var input = document.getElementById('hlPaywallCodeInput');
         var errEl = document.getElementById('hlPaywallCodeErr');
@@ -217,14 +219,16 @@ window.hlPaywall = (function(){
             if (btn) { btn.disabled = false; btn.textContent = '✨ 兌換'; }
             return;
           }
-          // 標記已用
-          var currentUser = firebase.auth().currentUser;
-          await db.collection('reading_codes').doc(code).update({
-            used: true,
-            usedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            usedBy: currentUser ? currentUser.uid : 'guest',
-            usedByEmail: currentUser ? (currentUser.email || '') : ''
-          });
+          // 標記已用（除非 deferConsume，由後端在生成成功後才消耗）
+          if (!_deferConsume) {
+            var currentUser = firebase.auth().currentUser;
+            await db.collection('reading_codes').doc(code).update({
+              used: true,
+              usedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              usedBy: currentUser ? currentUser.uid : 'guest',
+              usedByEmail: currentUser ? (currentUser.email || '') : ''
+            });
+          }
 
           // 記錄使用的解鎖碼（供後續 Firestore 留底）
           window._lastUsedUnlockCode = code;
