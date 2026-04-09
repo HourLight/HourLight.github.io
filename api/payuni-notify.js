@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════
 // 馥靈之鑰 · PAYUNi 付款通知 API (NotifyURL)
 // 接收 PAYUNi 背景 POST 通知 → 寫入 Firestore
-// v2.0 · 實作 firebase-admin Firestore 寫入
+// v2.1 · 加入會員方案升級邏輯 + prevPlan 備份（小花事件 patch）
 // © 2026 Hour Light International
 // ═══════════════════════════════════════
 //
@@ -31,6 +31,24 @@ function payuniDecrypt(encryptedHex, key, iv) {
 function payuniHash(encryptedStr, key, iv) {
   const raw = iv + encryptedStr + key;
   return crypto.createHash('sha256').update(raw).digest('hex').toUpperCase();
+}
+
+// ── 商品 ID → 會員方案對照（可擴充）──
+// productId 命名規則：
+//   plus-30 / plus-90 / plus-365  → 馥靈鑰友 N 天
+//   pro-30  / pro-90  / pro-365   → 馥靈大師 N 天
+//   pro-permanent / plus-permanent → 永久
+// 其他 productId（pet-/spa-/nail-/family-/course-...）→ 不動會員方案，只開通課程（沿用既有邏輯）
+function parseMembershipProduct(productId) {
+  if (!productId || typeof productId !== 'string') return null;
+  const m = productId.match(/^(plus|pro)-(\d+|permanent)$/i);
+  if (!m) return null;
+  const plan = m[1].toLowerCase();
+  const daysOrPerm = m[2].toLowerCase();
+  if (daysOrPerm === 'permanent') return { plan, days: 0, permanent: true };
+  const days = parseInt(daysOrPerm, 10);
+  if (!days || days <= 0 || days > 36500) return null;
+  return { plan, days, permanent: false };
 }
 
 // ── Firebase Admin 初始化（懶載入）──
@@ -145,6 +163,69 @@ module.exports = async function handler(req, res) {
           await pendingRef.update({ status: 'paid', paidAt: now });
 
           console.log(`✅ 課程開通：userId=${userId} productId=${productId} orderId=${MerTradeNo}`);
+
+          // ── 5. 若是會員方案商品，升級 user.plan + planExpiry（小花事件 patch）──
+          const membership = parseMembershipProduct(productId);
+          if (membership) {
+            try {
+              const userRef = db.collection('users').doc(userId);
+              const userSnap = await userRef.get();
+              const userData = userSnap.exists ? userSnap.data() : {};
+
+              // 計算新的到期日
+              let newExpiry;
+              let newExpiryLabel;
+              if (membership.permanent) {
+                newExpiry = 'permanent';
+                newExpiryLabel = '永久';
+              } else {
+                // 若原方案還沒到期且是同 tier 或更低 tier，從原到期日往後加；否則從現在加
+                let baseDate = now;
+                if (userData.planExpiry && userData.planExpiry !== 'permanent') {
+                  const origExp = new Date(userData.planExpiry);
+                  if (origExp instanceof Date && !isNaN(origExp) && origExp > now) {
+                    // 同 tier：續訂往後加
+                    if (userData.plan === membership.plan) baseDate = origExp;
+                  }
+                }
+                const exp = new Date(baseDate);
+                exp.setDate(exp.getDate() + membership.days);
+                newExpiry = exp.toISOString();
+                newExpiryLabel = exp.toLocaleDateString('zh-TW') + '（+' + membership.days + ' 天）';
+              }
+
+              const planUpdate = {
+                plan: membership.plan,
+                planExpiry: newExpiry,
+                planUpgradedAt: now,
+                planUpgradedFrom: userData.plan || 'free',
+                planUpgradedBy: 'payuni:' + MerTradeNo,
+              };
+
+              // ─── 備份原本的付費方案（小花事件 patch）───
+              // 條件：原方案是付費（plus/pro）且未到期，且新方案不會完全覆蓋原效期
+              if (userData.plan && userData.plan !== 'free') {
+                const prevValid = userData.planExpiry === 'permanent' ||
+                  (userData.planExpiry && new Date(userData.planExpiry) > now);
+                if (prevValid) {
+                  // 跨 tier 升級（例如 plus → pro）才需要備份，避免 pro 到期後掉到 free
+                  // 若是同 tier 續訂，已合併在 baseDate 計算中，不需備份
+                  const isCrossTierUpgrade = userData.plan !== membership.plan;
+                  if (isCrossTierUpgrade && newExpiry !== 'permanent') {
+                    planUpdate.prevPlan = userData.plan;
+                    planUpdate.prevPlanExpiry = userData.planExpiry;
+                    planUpdate.prevPlanSavedAt = now.toISOString();
+                  }
+                }
+              }
+
+              await userRef.update(planUpdate);
+              console.log(`✅ 會員方案升級：userId=${userId} → ${membership.plan} (${newExpiryLabel})`);
+            } catch (planErr) {
+              console.error('PAYUNi notify: 會員方案升級失敗', planErr.message);
+              // 不阻斷主流程，付款仍視為成功
+            }
+          }
         }
       } else {
         // Firestore 未設定時，至少把訂單記到 console 方便人工處理
