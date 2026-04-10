@@ -346,49 +346,113 @@ module.exports = async function handler(req, res) {
               });
               console.log(`✅ 預約確認：bizId=${bizId} bookingId=${bookingId} orderId=${MerTradeNo}`);
 
-              // 讀預約資料 + 店家 LINE Token → 發 LINE Notify
+              // 讀預約資料 + 店家 LINE Channel Access Token → 發 Messaging API push / broadcast
+              // LINE Notify 已於 2025/3/31 結束服務，改用 Messaging API
               const bookingSnap = await bookingRef.get();
               const bizSnap = await db.collection('businesses').doc(bizId).get();
               if (bookingSnap.exists && bizSnap.exists) {
                 const bk = bookingSnap.data();
                 const biz = bizSnap.data();
-                const lineToken = biz.lineToken;
+                const lineToken = biz.lineToken; // LINE Channel Access Token（Messaging API）
+
                 if (lineToken) {
-                  const msg = `\n🔔 新預約通知\n` +
-                    `客人：${bk.customerName || '未知'}\n` +
-                    `服務：${bk.serviceName || ''}\n` +
-                    `日期：${bk.date || ''} ${bk.time || ''}\n` +
-                    `人員：${bk.staffName || '系統安排'}\n` +
-                    `金額：NT$ ${(bk.price||0).toLocaleString()}\n` +
-                    `電話：${bk.customerPhone || ''}\n` +
-                    (bk.note ? `備註：${bk.note}\n` : '') +
-                    `訂單：${MerTradeNo}`;
+                  // 建立 Flex Message（對齊美業歐巴的預約成功卡片）
+                  const flexMsg = {
+                    type: 'flex',
+                    altText: `預約成功 - ${bk.customerName || '客人'} ${bk.serviceName || ''}`,
+                    contents: {
+                      type: 'bubble',
+                      header: {
+                        type: 'box', layout: 'vertical',
+                        backgroundColor: '#f8dfa5',
+                        contents: [
+                          { type: 'text', text: '預約成功', weight: 'bold', size: 'lg', color: '#1a1520', align: 'center' }
+                        ]
+                      },
+                      body: {
+                        type: 'box', layout: 'vertical', spacing: 'md',
+                        contents: [
+                          { type: 'text', text: '訂單資訊', weight: 'bold', size: 'sm', color: '#8b6f4e' },
+                          { type: 'box', layout: 'horizontal', contents: [
+                            { type: 'text', text: '預約日期', size: 'sm', color: '#888888', flex: 3 },
+                            { type: 'text', text: bk.date || '-', size: 'sm', color: '#333333', flex: 5, align: 'end' }
+                          ]},
+                          { type: 'separator' },
+                          { type: 'text', text: '詳細資訊', weight: 'bold', size: 'sm', color: '#8b6f4e', margin: 'md' },
+                          { type: 'box', layout: 'horizontal', contents: [
+                            { type: 'text', text: '服務項目', size: 'sm', color: '#888888', flex: 3 },
+                            { type: 'text', text: bk.serviceName || '-', size: 'sm', color: '#333333', flex: 5, align: 'end' }
+                          ]},
+                          ...(bk.addonNames && bk.addonNames.length ? [{ type: 'box', layout: 'horizontal', contents: [
+                            { type: 'text', text: '附加服務', size: 'sm', color: '#888888', flex: 3 },
+                            { type: 'text', text: bk.addonNames.join('、'), size: 'sm', color: '#333333', flex: 5, align: 'end', wrap: true }
+                          ]}] : []),
+                          { type: 'box', layout: 'horizontal', contents: [
+                            { type: 'text', text: '預約時間', size: 'sm', color: '#888888', flex: 3 },
+                            { type: 'text', text: bk.time || '系統安排', size: 'sm', color: '#333333', flex: 5, align: 'end' }
+                          ]},
+                          { type: 'box', layout: 'horizontal', contents: [
+                            { type: 'text', text: '服務人員', size: 'sm', color: '#888888', flex: 3 },
+                            { type: 'text', text: bk.staffName || '系統安排', size: 'sm', color: '#333333', flex: 5, align: 'end' }
+                          ]},
+                          { type: 'box', layout: 'horizontal', contents: [
+                            { type: 'text', text: '金額', size: 'sm', color: '#888888', flex: 3 },
+                            { type: 'text', text: 'NT$ ' + (bk.price||0).toLocaleString(), size: 'sm', color: '#333333', weight: 'bold', flex: 5, align: 'end' }
+                          ]},
+                          ...(bk.customerPhone ? [{ type: 'box', layout: 'horizontal', contents: [
+                            { type: 'text', text: '客人電話', size: 'sm', color: '#888888', flex: 3 },
+                            { type: 'text', text: bk.customerPhone, size: 'sm', color: '#333333', flex: 5, align: 'end' }
+                          ]}] : []),
+                          ...(bk.note ? [{ type: 'box', layout: 'horizontal', contents: [
+                            { type: 'text', text: '備註', size: 'sm', color: '#888888', flex: 3 },
+                            { type: 'text', text: bk.note, size: 'sm', color: '#333333', flex: 5, align: 'end', wrap: true }
+                          ]}] : [])
+                        ]
+                      },
+                      footer: {
+                        type: 'box', layout: 'vertical', spacing: 'sm',
+                        contents: [
+                          { type: 'button', style: 'primary', color: '#8b6f4e', action: {
+                            type: 'uri', label: '查看預約管理',
+                            uri: `https://hourlightkey.com/booking-admin.html?biz=${bizId}`
+                          }}
+                        ]
+                      }
+                    }
+                  };
+
+                  // 用 Messaging API broadcast（發給所有追蹤者）
+                  // 如果要發給特定人，需要 userId，這裡先用 broadcast 通知管理者
                   try {
                     const https = require('https');
-                    const postData = `message=${encodeURIComponent(msg)}`;
+                    const postData = JSON.stringify({ messages: [flexMsg] });
                     const options = {
-                      hostname: 'notify-api.line.me',
-                      path: '/api/notify',
+                      hostname: 'api.line.me',
+                      path: '/v2/bot/message/broadcast',
                       method: 'POST',
                       headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Content-Type': 'application/json',
                         'Authorization': 'Bearer ' + lineToken,
                         'Content-Length': Buffer.byteLength(postData)
                       }
                     };
                     const req2 = https.request(options, (res2) => {
-                      console.log(`✅ LINE Notify sent: status=${res2.statusCode}`);
+                      let body = '';
+                      res2.on('data', c => body += c);
+                      res2.on('end', () => {
+                        console.log(`✅ LINE Messaging API broadcast: status=${res2.statusCode} body=${body}`);
+                      });
                     });
                     req2.on('error', (e) => {
-                      console.error('⚠️ LINE Notify 發送失敗：', e.message);
+                      console.error('⚠️ LINE Messaging API 發送失敗：', e.message);
                     });
                     req2.write(postData);
                     req2.end();
                   } catch (lineErr) {
-                    console.error('⚠️ LINE Notify error：', lineErr.message);
+                    console.error('⚠️ LINE Messaging API error：', lineErr.message);
                   }
                 } else {
-                  console.log('ℹ️  LINE Token 未設定，跳過通知');
+                  console.log('ℹ️  LINE Channel Access Token 未設定，跳過通知');
                 }
               }
             } catch (bookingErr) {
