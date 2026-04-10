@@ -379,6 +379,8 @@ body {
   font-size: 0.95rem;
   padding: 14px 20px;
   border-radius: 30px;
+  border: none;
+  cursor: pointer;
   transition: all 0.3s;
 }
 
@@ -1249,6 +1251,7 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
           初次體驗、想釐清單一議題、送禮體驗
         </div>
         <div class="pricing-cta">
+          <button type="button" class="pricing-btn pricing-btn-primary" onclick="hlServicePay('service-6800','馥靈初探｜單次體驗',6800,this)">線上付款 NT$ 6,800</button>
           <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" class="pricing-btn pricing-btn-secondary">LINE 了解更多</a>
         </div>
       </div>
@@ -1279,7 +1282,8 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
           想要改變但不知從何開始、需要持續陪伴
         </div>
         <div class="pricing-cta">
-          <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" class="pricing-btn pricing-btn-primary">LINE 立即諮詢</a>
+          <button type="button" class="pricing-btn pricing-btn-primary" onclick="hlServicePay('service-8800','深度覺醒｜30天陪跑',8800,this)">線上付款 NT$ 8,800</button>
+          <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" class="pricing-btn pricing-btn-secondary">LINE 諮詢後付款</a>
         </div>
       </div>
 
@@ -1308,6 +1312,7 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
           有明確目標、想要系統性調整、轉換期
         </div>
         <div class="pricing-cta">
+          <button type="button" class="pricing-btn pricing-btn-primary" onclick="hlServicePay('service-12800','三次轉化｜90天深度',12800,this)">線上付款 NT$ 12,800</button>
           <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" class="pricing-btn pricing-btn-secondary">LINE 了解更多</a>
         </div>
       </div>
@@ -1338,7 +1343,8 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
           長期調整、創業轉型、人生重大決策期
         </div>
         <div class="pricing-cta">
-          <a href="abundance.html" class="pricing-btn pricing-btn-primary">了解豐碩計畫</a>
+          <button type="button" class="pricing-btn pricing-btn-primary" onclick="hlServicePay('service-39800','半年陪伴｜180天深度共創',39800,this)">線上付款 NT$ 39,800</button>
+          <a href="abundance.html" class="pricing-btn pricing-btn-secondary">了解豐碩計畫</a>
           <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" class="pricing-btn pricing-btn-secondary">LINE 預約諮詢</a>
         </div>
       </div>
@@ -1356,7 +1362,8 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
               <div class="pricing-price" style="font-size:2.4rem;"><span class="currency">NT$</span>59,800</div>
               <div class="value-sub">專屬顧問制｜限額服務</div>
             </div>
-            <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" class="btn btn-gold">💬 專屬顧問諮詢</a>
+            <button type="button" class="btn btn-gold" style="display:block;width:100%;margin-bottom:10px;border:none;cursor:pointer" onclick="hlServicePay('service-59800','VIP 年度夥伴｜365天全方位守護',59800,this)">線上付款 NT$ 59,800</button>
+            <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" class="btn btn-gold" style="display:block;width:100%;background:transparent;border:1.5px solid rgba(240,212,138,.4);color:#f0d48a">LINE 專屬顧問諮詢</a>
           </div>
           <div class="vip-right">
             <ul class="pricing-features">
@@ -1402,7 +1409,8 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
             <li>完整諮詢錄音檔 + PDF 報告</li>
           </ul>
           <p class="business-audience">適合：創業者、老闆、自由工作者、事業轉型期</p>
-          <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" class="business-btn">LINE 了解更多</a>
+          <button type="button" class="business-btn" style="border:none;cursor:pointer;margin-bottom:8px" onclick="hlServicePay('service-16800','VIP 紫微事業藍圖',16800,this)">線上付款 NT$ 16,800</button>
+          <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" class="business-btn" style="background:transparent;border:1.5px solid rgba(240,212,138,.4);color:#f0d48a">LINE 了解更多</a>
         </div>
       </div>
     </div>
@@ -1685,6 +1693,24 @@ function toggleLegalContent(){
   var t=document.querySelector('.hl-footer-legal-toggle');
   var c=document.getElementById('legalContent');
   if(t&&c){t.classList.toggle('active');c.classList.toggle('active');}
+}
+</script>
+<script>
+// PAYUNi 線上付款（一對一服務）
+function hlServicePay(productId,productName,amount,btnEl){
+  var u=(typeof firebase!=='undefined'&&firebase.auth)?firebase.auth().currentUser:null;
+  if(!u){alert('請先登入會員才能線上付款。');location.href='app.html?redirect='+encodeURIComponent(location.href.split('?')[0]);return;}
+  if(btnEl){btnEl.disabled=true;btnEl.textContent='處理中⋯⋯';}
+  function go(){
+    window.HLPayment.pay({
+      productId:productId,productName:productName,amount:amount,
+      userId:u.uid,userEmail:u.email||'',returnUrl:'https://hourlightkey.com/services.html'
+    });
+  }
+  if(window.HLPayment&&window.HLPayment.pay){go();return;}
+  var s=document.createElement('script');s.src='assets/js/hl-payment.js';
+  s.onload=go;s.onerror=function(){alert('付款模組載入失敗，請透過 LINE 聯繫我們。');if(btnEl){btnEl.disabled=false;btnEl.textContent='線上付款';}};
+  document.head.appendChild(s);
 }
 </script>
 <script src="assets/js/hl-topnav.js"></script>

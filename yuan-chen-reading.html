@@ -431,16 +431,32 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="datetime-local
         <div class="price-desc">約 5000 字沉浸式元辰宮導覽報告</div>
       </div>
       <div id="premiumCta">
+        <!-- PAYUNi 線上付款 -->
+        <div style="margin-bottom:16px">
+          <button id="ycPayuniBtn" onclick="ycPayuniPay()" style="width:100%;padding:14px 20px;border-radius:10px;background:linear-gradient(135deg,#f0d48a,#c9a060);color:#1a1520;font-weight:700;font-size:.95rem;border:none;cursor:pointer;letter-spacing:.04em">線上付款 NT$ 599</button>
+          <div style="font-size:.72rem;color:var(--text-dim);text-align:center;margin-top:6px">信用卡 / ATM / 超商｜付款後自動發碼，立即解讀</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <div style="flex:1;height:1px;background:rgba(255,255,255,.07)"></div>
+          <div style="font-size:.72rem;color:rgba(255,255,255,.35);letter-spacing:.1em">或</div>
+          <div style="flex:1;height:1px;background:rgba(255,255,255,.07)"></div>
+        </div>
+        <!-- 代碼兌換 -->
         <div class="code-input-wrap">
           <input type="text" id="ycCodeInput" placeholder="輸入解讀代碼" style="text-transform:uppercase">
           <button id="ycRedeemBtn" onclick="redeemCode()">兌換</button>
         </div>
         <div id="ycCodeMsg" style="min-height:20px;font-size:.78rem;margin-top:6px;text-align:center"></div>
-        <div class="payment-info">
-          <p>匯款 NT$599 至國泰世華 248-50-624013-3（王逸君）</p>
-          <p>傳截圖到 LINE 索取解讀代碼</p>
-          <a href="https://lin.ee/RdQBFAN" target="_blank" class="line-btn" rel="noopener noreferrer">LINE 傳送付款資料</a>
-        </div>
+        <details style="margin-top:12px;border:1px solid rgba(240,212,138,.1);border-radius:10px;overflow:hidden">
+          <summary style="padding:10px 14px;cursor:pointer;color:rgba(255,255,255,.4);font-size:.78rem;list-style:none;display:flex;align-items:center;gap:6px">
+            <span style="font-size:.68rem">&#9654;</span> 銀行轉帳取得代碼
+          </summary>
+          <div class="payment-info" style="border:none;margin:0;padding:8px 14px 14px">
+            <p>匯款 NT$599 至國泰世華 248-50-624013-3（王逸君）</p>
+            <p>傳截圖到 LINE 索取解讀代碼</p>
+            <a href="https://lin.ee/RdQBFAN" target="_blank" class="line-btn" rel="noopener noreferrer">LINE 傳送付款資料</a>
+          </div>
+        </details>
       </div>
 
       <!-- 載入中 -->
@@ -979,6 +995,26 @@ function escapeHtml(text) {
   var div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+</script>
+
+<!-- PAYUNi 線上付款 -->
+<script>
+function ycPayuniPay(){
+  var btn=document.getElementById('ycPayuniBtn');
+  var u=(typeof firebase!=='undefined'&&firebase.auth)?firebase.auth().currentUser:null;
+  if(!u){alert('請先登入會員才能線上付款。');location.href='app.html?redirect='+encodeURIComponent(location.href.split('?')[0]);return;}
+  btn.disabled=true;btn.textContent='處理中⋯⋯';
+  function go(){
+    window.HLPayment.pay({
+      productId:'yuanchen-1',productName:'元辰宮 AI 深度解讀',amount:599,
+      userId:u.uid,userEmail:u.email||'',returnUrl:location.href.split('?')[0]
+    });
+  }
+  if(window.HLPayment&&window.HLPayment.pay){go();return;}
+  var s=document.createElement('script');s.src='assets/js/hl-payment.js';
+  s.onload=go;s.onerror=function(){alert('付款模組載入失敗，請改用代碼兌換。');btn.disabled=false;btn.textContent='線上付款 NT$ 599';};
+  document.head.appendChild(s);
 }
 </script>
 
