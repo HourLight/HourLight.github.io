@@ -264,6 +264,7 @@
       <a href="#massage" style="background:rgba(248,223,165,.1);color:#f8dfa5;text-decoration:none;padding:8px 16px;border-radius:20px;font-size:.9rem;border:1px solid rgba(248,223,165,.2)">按摩手法</a>
       <a href="#naha" style="background:rgba(248,223,165,.1);color:#f8dfa5;text-decoration:none;padding:8px 16px;border-radius:20px;font-size:.9rem;border:1px solid rgba(248,223,165,.2)">NAHA認證</a>
       <a href="#quiz-section" style="background:rgba(248,223,165,.1);color:#f8dfa5;text-decoration:none;padding:8px 16px;border-radius:20px;font-size:.9rem;border:1px solid rgba(248,223,165,.2)">模擬考</a>
+      <a href="#dictionary" style="background:rgba(248,223,165,.1);color:#f8dfa5;text-decoration:none;padding:8px 16px;border-radius:20px;font-size:.9rem;border:1px solid rgba(248,223,165,.2)">精油辭典 A-Z</a>
       <a href="#formulas" style="background:rgba(248,223,165,.1);color:#f8dfa5;text-decoration:none;padding:8px 16px;border-radius:20px;font-size:.9rem;border:1px solid rgba(248,223,165,.2)">配方速查</a>
       <a href="#psychology" style="background:rgba(248,223,165,.1);color:#f8dfa5;text-decoration:none;padding:8px 16px;border-radius:20px;font-size:.9rem;border:1px solid rgba(248,223,165,.2)">芳療心理學</a>
       <a href="#meridians" style="background:rgba(248,223,165,.1);color:#f8dfa5;text-decoration:none;padding:8px 16px;border-radius:20px;font-size:.9rem;border:1px solid rgba(248,223,165,.2)">12經絡</a>
@@ -718,6 +719,75 @@
     </div>
   </div>
 
+  <!-- ═══ 精油辭典 A-Z ═══ -->
+  <div class="garden-section" id="dictionary">
+    <h2>精油辭典 A-Z</h2>
+    <p style="color:rgba(255,255,255,.6);margin-bottom:16px">50+ 支精油完整資料庫。輸入中文名、英文名或拉丁學名搜尋，或按字母瀏覽。</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+      <input type="text" id="dictSearch" placeholder="搜尋：薰衣草、Lavender、Lavandula..." oninput="filterDict()" style="flex:1;min-width:200px;background:rgba(20,16,32,.9);border:1px solid rgba(248,223,165,.25);border-radius:12px;padding:12px 16px;font-size:15px;color:#fff;outline:none">
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px" id="dictLetters"></div>
+    <div id="dictList"></div>
+    <p id="dictCount" style="color:rgba(255,255,255,.4);font-size:.85rem;margin-top:12px"></p>
+  </div>
+  <script src="assets/js/aroma-dictionary.js"></script>
+  <script>
+  (function(){
+    var DATA = window.AROMA_DICTIONARY || [];
+    var currentLetter = '';
+    // 建立字母索引
+    var letters = {};
+    DATA.forEach(function(o){ var c = o.en.charAt(0).toUpperCase(); letters[c] = true; });
+    var letterBar = document.getElementById('dictLetters');
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(function(L){
+      var btn = document.createElement('button');
+      btn.textContent = L;
+      btn.setAttribute('data-letter', L);
+      var has = letters[L];
+      btn.style.cssText = 'min-width:32px;height:32px;border-radius:6px;font-size:.85rem;cursor:pointer;border:1px solid ' + (has ? 'rgba(248,223,165,.25)' : 'rgba(255,255,255,.08)') + ';background:' + (has ? 'rgba(248,223,165,.05)' : 'transparent') + ';color:' + (has ? 'rgba(248,223,165,.7)' : 'rgba(255,255,255,.2)');
+      if(has) btn.onclick = function(){ toggleLetter(L); };
+      letterBar.appendChild(btn);
+    });
+    function toggleLetter(L){
+      currentLetter = currentLetter === L ? '' : L;
+      document.querySelectorAll('#dictLetters button').forEach(function(b){
+        var l = b.getAttribute('data-letter');
+        var active = l === currentLetter;
+        if(letters[l]){
+          b.style.background = active ? 'rgba(248,223,165,.2)' : 'rgba(248,223,165,.05)';
+          b.style.color = active ? '#f8dfa5' : 'rgba(248,223,165,.7)';
+          b.style.borderColor = active ? 'rgba(248,223,165,.4)' : 'rgba(248,223,165,.25)';
+        }
+      });
+      filterDict();
+    }
+    window.filterDict = function(){
+      var q = (document.getElementById('dictSearch').value || '').toLowerCase();
+      var html = '';
+      var count = 0;
+      DATA.forEach(function(o){
+        if(currentLetter && o.en.charAt(0).toUpperCase() !== currentLetter) return;
+        if(q && o.zh.toLowerCase().indexOf(q) === -1 && o.en.toLowerCase().indexOf(q) === -1 && o.latin.toLowerCase().indexOf(q) === -1 && (o.uses||'').toLowerCase().indexOf(q) === -1) return;
+        count++;
+        html += '<details class="knowledge-card" style="cursor:pointer;margin-bottom:8px"><summary style="color:#ecd098;font-size:1rem;padding:4px 0">' + o.zh + '（' + o.en + '）<span style="color:rgba(255,255,255,.4);font-size:.82rem;font-style:italic;margin-left:8px">' + o.latin + '</span></summary>';
+        html += '<div style="margin-top:10px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.9rem;line-height:1.7">';
+        html += '<span style="color:rgba(248,223,165,.6)">科屬</span><span style="color:rgba(255,255,255,.75)">' + o.family + '</span>';
+        html += '<span style="color:rgba(248,223,165,.6)">萃取</span><span style="color:rgba(255,255,255,.75)">' + o.part + '｜' + o.method + '</span>';
+        html += '<span style="color:rgba(248,223,165,.6)">主要成分</span><span style="color:rgba(255,255,255,.75)">' + o.compounds + '</span>';
+        html += '<span style="color:rgba(248,223,165,.6)">氣味</span><span style="color:rgba(255,255,255,.75)">' + o.aroma + '</span>';
+        html += '<span style="color:rgba(248,223,165,.6)">用途</span><span style="color:rgba(255,255,255,.75)">' + o.uses + '</span>';
+        html += '<span style="color:rgba(248,223,165,.6)">適用系統</span><span style="color:rgba(255,255,255,.75)">' + o.systems + '</span>';
+        html += '<span style="color:rgba(248,223,165,.6)">安全</span><span style="color:rgba(255,255,255,.75)">' + o.safety + '</span>';
+        if(o.note) html += '<span style="color:rgba(248,223,165,.6)">備註</span><span style="color:rgba(255,255,255,.6);font-style:italic">' + o.note + '</span>';
+        html += '</div></details>';
+      });
+      document.getElementById('dictList').innerHTML = html || '<p style="color:rgba(255,255,255,.4);padding:20px;text-align:center">沒有找到符合的精油，試試其他關鍵字</p>';
+      document.getElementById('dictCount').textContent = count + ' / ' + DATA.length + ' 支精油';
+    };
+    filterDict();
+  })();
+  </script>
+
   <!-- ═══ 精油配方搜尋器 ═══ -->
   <div class="garden-section" id="formulas">
     <h2>精油配方搜尋器</h2>
@@ -1145,6 +1215,7 @@ document.getElementById('gardenCode').addEventListener('keydown', function(e) {
 <script src="assets/js/hl-topnav.js"></script>
 <script src="assets/js/hl-bottomnav.js"></script>
 <script src="assets/js/hl-tracker.js"></script>
+<script src="assets/js/hl-awareness.js"></script>
 <script src="assets/js/hl-music.js"></script>
 </body>
 </html>

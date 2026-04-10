@@ -112,7 +112,87 @@
   }
 
   /* ==========================================================
-     4. 微賦能結尾語 — 所有工具結尾注入「我更懂自己了」
+     4. destiny-engine.html — 命盤回訪提示
+     ========================================================== */
+  function initDestinyAwareness(){
+    var KEY = 'hl_destiny_visits';
+    try {
+      var visits = parseInt(localStorage.getItem(KEY)) || 0;
+      visits++;
+      localStorage.setItem(KEY, visits);
+      if(visits >= 3){
+        setTimeout(function(){
+          showAwarenessToast(
+            '這是你第 ' + visits + ' 次來查命盤。每一次查，都代表你在認真對待自己的人生方向。',
+            4500
+          );
+        }, 800);
+      }
+    } catch(e){}
+  }
+
+  /* ==========================================================
+     5. 占卜工具 — 跨工具種類累計提示
+     ========================================================== */
+  var DIVINATION_TOOLS = [
+    'yijing-oracle', 'angel-oracle', 'tarot-draw', 'bone-casting',
+    'dream-decoder', 'mirror-oracle', 'season-oracle', 'witch-power',
+    'projection-cards', 'phone-oracle', 'name-oracle'
+  ];
+
+  function initDivinationAwareness(toolSlug){
+    var VISIT_KEY = 'hl_divination_' + toolSlug;
+    var CATEGORY_KEY = 'hl_divination_tools_used';
+    try {
+      // 記錄這支工具被用過
+      var used = {};
+      try { used = JSON.parse(localStorage.getItem(CATEGORY_KEY)) || {}; } catch(e){}
+      used[toolSlug] = true;
+      localStorage.setItem(CATEGORY_KEY, JSON.stringify(used));
+
+      // 計算用過幾種不同的工具
+      var toolCount = 0;
+      for(var k in used){ if(used.hasOwnProperty(k)) toolCount++; }
+
+      // 個別工具回訪次數
+      var visits = parseInt(localStorage.getItem(VISIT_KEY)) || 0;
+      visits++;
+      localStorage.setItem(VISIT_KEY, visits);
+
+      // 跨工具種類提示（優先）：用過 3 種以上才說
+      if(toolCount >= 3){
+        setTimeout(function(){
+          showAwarenessToast(
+            '你已經用了 ' + toolCount + ' 種不同的占卜工具。每多一個角度，就多一份清晰。',
+            4500
+          );
+        }, 800);
+      }
+    } catch(e){}
+  }
+
+  /* ==========================================================
+     6. aroma-garden.html — 芳療園地回訪提示
+     ========================================================== */
+  function initAromaAwareness(){
+    var KEY = 'hl_aroma_visits';
+    try {
+      var visits = parseInt(localStorage.getItem(KEY)) || 0;
+      visits++;
+      localStorage.setItem(KEY, visits);
+      if(visits >= 3){
+        setTimeout(function(){
+          showAwarenessToast(
+            '你來芳療園地 ' + visits + ' 次了。氣味是最誠實的記憶。',
+            4000
+          );
+        }, 800);
+      }
+    } catch(e){}
+  }
+
+  /* ==========================================================
+     7. 微賦能結尾語 — 所有工具結尾注入「我更懂自己了」
      讓每次互動結尾都有一個反思的呼吸點
      ========================================================== */
   var CLOSING_POOL = [
@@ -174,6 +254,39 @@
       document.addEventListener('DOMContentLoaded', initDrawAwareness);
     } else {
       initDrawAwareness();
+    }
+  }
+
+  // 命盤引擎
+  if(path === 'destiny-engine.html' || path.indexOf('destiny-engine') !== -1){
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', initDestinyAwareness);
+    } else {
+      initDestinyAwareness();
+    }
+  }
+
+  // 占卜工具（跨工具種類追蹤）
+  (function(){
+    for(var i = 0; i < DIVINATION_TOOLS.length; i++){
+      var slug = DIVINATION_TOOLS[i];
+      if(path === slug + '.html' || path.indexOf(slug) !== -1){
+        if(document.readyState === 'loading'){
+          (function(s){ document.addEventListener('DOMContentLoaded', function(){ initDivinationAwareness(s); }); })(slug);
+        } else {
+          initDivinationAwareness(slug);
+        }
+        break;
+      }
+    }
+  })();
+
+  // 芳療園地
+  if(path === 'aroma-garden.html' || path.indexOf('aroma-garden') !== -1){
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', initAromaAwareness);
+    } else {
+      initAromaAwareness();
     }
   }
 
