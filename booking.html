@@ -167,6 +167,10 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],in
     </div>
     <div class="bk-section-title" id="svcTitle" style="display:none">選擇服務項目</div>
     <div class="bk-svc-list" id="svcList"></div>
+    <div id="addonSection" style="display:none;margin-top:16px">
+      <div class="bk-section-title">加選附加服務（選填）</div>
+      <div id="addonList" class="bk-svc-list"></div>
+    </div>
     <button class="bk-btn bk-btn-gold" id="btn1" style="display:none" onclick="goStep(2)">下一步</button>
   </div>
 
@@ -267,10 +271,12 @@ if (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey !== 'YOUR_A
 var state = {
   services: [],
   staff: [],
+  addons: [],
   selectedCategory: null,
   selectedService: null,
   selectedMode: null,      // 'appointment' | 'dispatch'
   selectedStaff: null,
+  selectedAddons: [],      // array of addon objects
   selectedDate: null,
   selectedTime: null,
   currentStep: 1
@@ -297,12 +303,15 @@ function loadData(){
 
   Promise.all([
     db.collection('businesses').doc(BUSINESS_ID).collection('services').where('active','==',true).orderBy('order').get(),
-    db.collection('businesses').doc(BUSINESS_ID).collection('staff').where('active','==',true).orderBy('order').get()
+    db.collection('businesses').doc(BUSINESS_ID).collection('staff').where('active','==',true).orderBy('order').get(),
+    db.collection('businesses').doc(BUSINESS_ID).collection('addons').where('active','==',true).orderBy('order').get()
   ]).then(function(results){
     state.services = [];
     results[0].forEach(function(doc){ var d = doc.data(); d._id = doc.id; state.services.push(d); });
     state.staff = [];
     results[1].forEach(function(doc){ var d = doc.data(); d._id = doc.id; state.staff.push(d); });
+    state.addons = [];
+    results[2].forEach(function(doc){ var d = doc.data(); d._id = doc.id; state.addons.push(d); });
     renderCategories();
   }).catch(function(e){
     document.getElementById('catGrid').innerHTML = '<div class="bk-loading" style="color:#e57373">載入失敗：' + e.message + '</div>';
@@ -356,10 +365,55 @@ function selectCategory(catId){
 
 function selectService(svcId){
   state.selectedService = state.services.find(function(s){ return s._id === svcId; });
+  state.selectedAddons = [];
   document.querySelectorAll('.bk-svc').forEach(function(el){ el.classList.remove('selected'); });
   var el = document.querySelector('.bk-svc[data-svc="' + svcId + '"]');
   if (el) el.classList.add('selected');
   document.getElementById('btn1').style.display = 'block';
+
+  // Show available add-ons for this service
+  var available = state.addons.filter(function(a){
+    if (!a.services || !a.services.length) return true; // 不綁 = 全部適用
+    return a.services.indexOf(svcId) !== -1;
+  });
+
+  var addonSection = document.getElementById('addonSection');
+  var addonList = document.getElementById('addonList');
+  if (available.length > 0) {
+    addonSection.style.display = 'block';
+    addonList.innerHTML = available.map(function(a){
+      var priceText = a.displayPrice || ('NT$ ' + (a.price||0).toLocaleString());
+      var durText = a.duration ? ' +' + a.duration + '分鐘' : '';
+      return '<div class="bk-svc" style="border-color:rgba(255,255,255,.06)" onclick="toggleAddon(\'' + a._id + '\',this)" data-addon="' + a._id + '">'
+        + '<div class="bk-svc-info">'
+        + '<div class="bk-svc-name" style="font-size:.88rem">' + escHtml(a.name) + '</div>'
+        + '<div class="bk-svc-meta">' + priceText + durText + '</div>'
+        + '</div>'
+        + '<div style="width:22px;height:22px;border:2px solid rgba(248,223,165,.3);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s" class="addon-check"></div>'
+        + '</div>';
+    }).join('');
+  } else {
+    addonSection.style.display = 'none';
+  }
+}
+
+function toggleAddon(addonId, el){
+  var addon = state.addons.find(function(a){ return a._id === addonId; });
+  if (!addon) return;
+  var idx = state.selectedAddons.findIndex(function(a){ return a._id === addonId; });
+  if (idx !== -1) {
+    state.selectedAddons.splice(idx, 1);
+    el.classList.remove('selected');
+    el.querySelector('.addon-check').innerHTML = '';
+    el.querySelector('.addon-check').style.borderColor = 'rgba(248,223,165,.3)';
+    el.querySelector('.addon-check').style.background = 'transparent';
+  } else {
+    state.selectedAddons.push(addon);
+    el.classList.add('selected');
+    el.querySelector('.addon-check').innerHTML = '<span style="color:#f8dfa5;font-size:.8rem;font-weight:700">✓</span>';
+    el.querySelector('.addon-check').style.borderColor = '#f8dfa5';
+    el.querySelector('.addon-check').style.background = 'rgba(248,223,165,.15)';
+  }
 }
 
 // ── Step Navigation ──
@@ -563,15 +617,29 @@ function setupSummary(){
   var timeDisplay = state.selectedTime || '未選';
   var typeLabel = svc.serviceType === 'online' ? '線上服務' : '實體到店';
 
+  // Calculate total with add-ons
+  var totalPrice = svc.price || 0;
+  var totalDuration = svc.duration || 0;
+  var addonsHtml = '';
+  if (state.selectedAddons.length) {
+    addonsHtml = state.selectedAddons.map(function(a){
+      totalPrice += (a.price || 0);
+      totalDuration += (a.duration || 0);
+      var priceText = a.displayPrice || ('+ NT$ ' + (a.price||0).toLocaleString());
+      return '<div class="bk-summary-row"><span class="bk-summary-label" style="padding-left:12px">+ ' + escHtml(a.name) + '</span><span class="bk-summary-value">' + priceText + '</span></div>';
+    }).join('');
+  }
+
   document.getElementById('summary').innerHTML =
     '<div class="bk-summary-row"><span class="bk-summary-label">服務</span><span class="bk-summary-value">' + escHtml(svc.name) + '</span></div>' +
     '<div class="bk-summary-row"><span class="bk-summary-label">類型</span><span class="bk-summary-value">' + typeLabel + '</span></div>' +
-    '<div class="bk-summary-row"><span class="bk-summary-label">時長</span><span class="bk-summary-value">' + (svc.duration||0) + ' 分鐘</span></div>' +
+    '<div class="bk-summary-row"><span class="bk-summary-label">時長</span><span class="bk-summary-value">' + totalDuration + ' 分鐘</span></div>' +
     '<div class="bk-summary-row"><span class="bk-summary-label">服務人員</span><span class="bk-summary-value">' + escHtml(staffName) + '</span></div>' +
     (svc.serviceType !== 'online' ?
       '<div class="bk-summary-row"><span class="bk-summary-label">日期</span><span class="bk-summary-value">' + dateDisplay + '</span></div>' +
       '<div class="bk-summary-row"><span class="bk-summary-label">時段</span><span class="bk-summary-value">' + timeDisplay + '</span></div>' : '') +
-    '<div class="bk-summary-total">NT$ ' + (svc.price||0).toLocaleString() + '</div>';
+    addonsHtml +
+    '<div class="bk-summary-total">NT$ ' + totalPrice.toLocaleString() + '</div>';
 
   // Pre-fill customer info if logged in
   var u = auth ? auth.currentUser : null;
@@ -601,6 +669,18 @@ function submitBooking(){
   btn.disabled = true;
   btn.textContent = '處理中⋯⋯';
 
+  // Calculate total with add-ons
+  var bookingPrice = svc.price || 0;
+  var bookingDuration = svc.duration || 0;
+  var addonIds = [];
+  var addonNames = [];
+  state.selectedAddons.forEach(function(a){
+    bookingPrice += (a.price || 0);
+    bookingDuration += (a.duration || 0);
+    addonIds.push(a._id);
+    addonNames.push(a.name);
+  });
+
   // Write booking to Firestore
   var bookingData = {
     businessId: BUSINESS_ID,
@@ -608,8 +688,11 @@ function submitBooking(){
     serviceName: svc.name,
     serviceCategory: svc.category,
     serviceType: svc.serviceType || 'inperson',
-    price: svc.price || 0,
-    duration: svc.duration || 0,
+    price: bookingPrice,
+    basePrice: svc.price || 0,
+    duration: bookingDuration,
+    addons: addonIds,
+    addonNames: addonNames,
     mode: state.selectedMode,
     staffId: state.selectedStaff ? state.selectedStaff._id : null,
     staffName: state.selectedStaff ? state.selectedStaff.name : '系統安排',
@@ -631,8 +714,8 @@ function submitBooking(){
     function doPay(){
       window.HLPayment.pay({
         productId: productId,
-        productName: svc.name + '（預約）',
-        amount: svc.price || 0,
+        productName: svc.name + (addonNames.length ? ' + ' + addonNames.join('+') : '') + '（預約）',
+        amount: bookingPrice,
         userId: u.uid,
         userEmail: u.email || '',
         returnUrl: 'https://hourlightkey.com/booking.html?payment=success&booking=' + docRef.id
