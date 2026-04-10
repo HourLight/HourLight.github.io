@@ -658,6 +658,34 @@ function submitBooking(){
   if (!custName) { alert('請填寫姓名'); return; }
   if (!custPhone) { alert('請填寫聯絡電話'); return; }
 
+  // 預約衝突檢查（實體服務 + 指定人員時）
+  if (svc.serviceType !== 'online' && state.selectedStaff && state.selectedDate && state.selectedTime) {
+    var btn = document.getElementById('btnPay');
+    btn.disabled = true; btn.textContent = '確認時段中⋯⋯';
+    db.collection('businesses').doc(BUSINESS_ID).collection('bookings')
+      .where('staffId','==',state.selectedStaff._id)
+      .where('date','==',state.selectedDate)
+      .where('time','==',state.selectedTime)
+      .where('status','in',['confirmed','pending_payment','pending'])
+      .get().then(function(snap){
+        if (!snap.empty) {
+          alert('此時段已被預約，請選擇其他時段。');
+          btn.disabled = false; btn.textContent = '確認預約並付款';
+          goStep(3); // 回到選時段
+          return;
+        }
+        doSubmitBooking(svc, custName, custPhone);
+      }).catch(function(e){
+        // 查詢失敗不阻擋（Fail-Open）
+        doSubmitBooking(svc, custName, custPhone);
+      });
+    return;
+  }
+  doSubmitBooking(svc, custName, custPhone);
+}
+
+function doSubmitBooking(svc, custName, custPhone){
+
   var u = auth ? auth.currentUser : null;
   if (!u) {
     alert('請先登入會員才能預約。');
