@@ -274,10 +274,28 @@ a{color:inherit;text-decoration:none}
 
   <!-- ═══ TAB: Bookings ═══ -->
   <div class="tab-pane" id="tab-bookings" style="display:none">
+
+    <!-- 當日預約行事曆（對齊美業歐巴「當日預約行事曆」） -->
     <div class="card">
       <div class="card-head">
-        <div class="card-title">📅 預約列表</div>
-        <button class="btn btn-outline btn-sm" onclick="loadBookings()">🔄 重新載入</button>
+        <div class="card-title">當日預約行事曆</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input type="date" id="dailyCalDate" class="input" style="width:auto;padding:8px 12px;font-size:.85rem" onchange="loadDailyCalendar()">
+          <button class="btn btn-outline btn-sm" onclick="setDailyCalToday()">今天</button>
+          <button class="btn btn-outline btn-sm" onclick="loadBookings()">重新載入</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+        <div id="dailyCalendar" style="min-width:500px;position:relative">
+          <div style="text-align:center;padding:32px;color:var(--text3)">選擇日期後顯示行事曆</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 預約列表 -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">預約列表</div>
       </div>
       <div class="card-desc">客戶透過 booking 頁面送出的預約會出現在這裡。可以一鍵確認或取消。</div>
       <div style="margin-bottom:12px">
@@ -1799,6 +1817,126 @@ window.clearScheduleCell = function(){
     toast('已清除排班','ok');
   });
 };
+
+// ═══════════════════════════════════════════════════════════════
+//  DAILY CALENDAR (當日預約行事曆)
+// ═══════════════════════════════════════════════════════════════
+window.setDailyCalToday = function(){
+  document.getElementById('dailyCalDate').value = new Date().toISOString().slice(0,10);
+  loadDailyCalendar();
+};
+
+window.loadDailyCalendar = function(){
+  var dateStr = document.getElementById('dailyCalDate').value;
+  if (!dateStr) return;
+  var container = document.getElementById('dailyCalendar');
+  container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3)">載入中⋯</div>';
+
+  // Ensure staff loaded
+  var staffPromise = cachedStaff.length ? Promise.resolve() :
+    db.collection('businesses').doc(BUSINESS_ID).collection('staff').where('active','==',true).orderBy('order').get().then(function(snap){
+      cachedStaff = []; snap.forEach(function(doc){ var d = doc.data(); d._id = doc.id; cachedStaff.push(d); });
+    });
+
+  staffPromise.then(function(){
+    // Load bookings for this date
+    return db.collection('businesses').doc(BUSINESS_ID).collection('bookings')
+      .where('date','==',dateStr)
+      .get();
+  }).then(function(snap){
+    var bookings = [];
+    snap.forEach(function(doc){ var d = doc.data(); d._id = doc.id; bookings.push(d); });
+
+    // Also load schedule for this date to show shift background
+    return db.collection('businesses').doc(BUSINESS_ID).collection('schedule')
+      .where('date','==',dateStr)
+      .get().then(function(schSnap){
+        var schedules = {};
+        schSnap.forEach(function(doc){ var d = doc.data(); schedules[d.staffId] = d; });
+        renderDailyCalendar(dateStr, bookings, schedules);
+      });
+  }).catch(function(e){
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--red)">載入失敗：'+e.message+'</div>';
+  });
+};
+
+function renderDailyCalendar(dateStr, bookings, schedules){
+  var container = document.getElementById('dailyCalendar');
+  var activeStaff = cachedStaff.filter(function(s){ return s.active !== false; });
+
+  if (!activeStaff.length) {
+    container.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text3)">請先新增服務人員</div>';
+    return;
+  }
+
+  // Time range: 8:00 - 22:00 (every 30 min = 28 rows)
+  var START_HOUR = 8, END_HOUR = 22, STEP = 30;
+  var timeSlots = [];
+  for (var h = START_HOUR; h < END_HOUR; h++){
+    timeSlots.push(h + ':00');
+    timeSlots.push(h + ':30');
+  }
+
+  // Build header
+  var html = '<table style="width:100%;border-collapse:collapse;font-size:.78rem">';
+  html += '<thead><tr><th style="padding:8px 4px;border-bottom:2px solid var(--border);text-align:left;width:50px;font-weight:600;position:sticky;left:0;background:var(--card);z-index:1">時間</th>';
+  activeStaff.forEach(function(s){
+    var sch = schedules[s._id];
+    var headerBg = sch ? (sch.color || '#f0c040') + '18' : 'transparent';
+    html += '<th style="padding:8px 4px;border-bottom:2px solid var(--border);text-align:center;font-weight:600;min-width:100px;background:'+headerBg+'">'
+      + escapeHtml(s.name)
+      + (sch ? '<div style="font-size:.66rem;font-weight:400;color:var(--text3)">' + (sch.startTime||'') + '-' + (sch.endTime||'') + '</div>' : '')
+      + '</th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  // Build rows
+  timeSlots.forEach(function(t){
+    var isHour = t.endsWith(':00');
+    html += '<tr>';
+    html += '<td style="padding:4px;border-bottom:1px solid '+(isHour?'var(--border)':'var(--border) transparent')+';font-size:.72rem;color:var(--text3);position:sticky;left:0;background:var(--card);z-index:1">'
+      + (isHour ? t : '') + '</td>';
+
+    activeStaff.forEach(function(s){
+      // Check if this staff has a booking at this time
+      var booking = bookings.find(function(b){
+        return (b.staffId === s._id || b.staffName === s.name) && b.time === t;
+      });
+      // Check if within shift
+      var sch = schedules[s._id];
+      var inShift = false;
+      if (sch && sch.startTime && sch.endTime) {
+        inShift = t >= sch.startTime && t < sch.endTime;
+      }
+
+      var cellBg = 'transparent';
+      if (booking && (booking.status === 'confirmed' || booking.status === 'pending_payment' || booking.status === 'pending')) {
+        cellBg = booking.status === 'confirmed' ? 'var(--green-bg)' : 'var(--orange-bg)';
+      } else if (inShift) {
+        cellBg = (sch.color || '#f0c040') + '08';
+      }
+
+      html += '<td style="padding:3px 4px;border-bottom:1px solid '+(isHour?'var(--border)':'rgba(0,0,0,.03)')+';background:'+cellBg+';font-size:.72rem;vertical-align:top;min-height:24px">';
+      if (booking) {
+        var statusIcon = booking.status === 'confirmed' ? '●' : '○';
+        var statusColor = booking.status === 'confirmed' ? 'var(--green)' : 'var(--orange)';
+        html += '<div style="color:'+statusColor+';font-weight:500;line-height:1.4">'
+          + '<span style="font-size:.6rem">'+statusIcon+'</span> '
+          + escapeHtml(booking.customerName||'客人')
+          + '<div style="font-size:.66rem;color:var(--text3);font-weight:400">' + escapeHtml(booking.serviceName||'') + '</div>'
+          + '</div>';
+      }
+      html += '</td>';
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+// Auto-set today when bookings tab loads
+var _origLoadBookings = typeof loadBookings === 'function' ? loadBookings : null;
 
 // Override loadSlots to also load schedule
 var _origLoadSlots = typeof loadSlots === 'function' ? loadSlots : null;
