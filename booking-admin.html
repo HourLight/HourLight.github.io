@@ -216,25 +216,60 @@ a{color:inherit;text-decoration:none}
     </div>
   </div>
 
-  <!-- ═══ TAB: Slots ═══ -->
+  <!-- ═══ TAB: Schedule (排班行事曆) ═══ -->
   <div class="tab-pane" id="tab-slots" style="display:none">
+
+    <!-- 班別管理 -->
     <div class="card">
       <div class="card-head">
-        <div class="card-title">🗓 開放時段（班表）</div>
-        <button class="btn btn-gold btn-sm" onclick="openSlotModal()">➕ 新增時段</button>
+        <div class="card-title">班別設定</div>
+        <button class="btn btn-gold btn-sm" onclick="openShiftModal()">新增班別</button>
       </div>
-      <div class="card-desc">
-        <strong>只有這裡開出來的時段客戶才能預約。</strong>沒有開放的時間等於休息。<br>
-        可以單筆新增，或用「批次開放」一次開好幾天。每個時段要選一位技師，也可以限定能做哪些服務。
-      </div>
-      <div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-outline btn-sm" onclick="openBatchSlotModal()">📆 批次開放</button>
-        <button class="btn btn-outline btn-sm" onclick="loadSlots()">🔄 重新載入</button>
-      </div>
-      <div id="slotList" class="item-list">
+      <div class="card-desc">定義常用班別（早班、晚班、全天等），排班時直接選用。</div>
+      <div id="shiftList" class="item-list" style="margin-top:8px">
         <div class="item-empty">載入中⋯</div>
       </div>
     </div>
+
+    <!-- 排班行事曆 -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">排班行事曆</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="scheduleNav(-1)">上週</button>
+          <span id="scheduleWeekLabel" style="font-size:.88rem;color:var(--text2);min-width:140px;text-align:center"></span>
+          <button class="btn btn-outline btn-sm" onclick="scheduleNav(1)">下週</button>
+          <button class="btn btn-outline btn-sm" onclick="scheduleNav(0)">今天</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+        <table id="scheduleTable" style="width:100%;border-collapse:collapse;font-size:.82rem;min-width:640px">
+          <thead id="scheduleHead"></thead>
+          <tbody id="scheduleBody"></tbody>
+        </table>
+      </div>
+      <div class="card-desc" style="margin-top:12px">
+        點擊格子指派班別。空白 = 休息。排班後客人端預約頁才能看到可預約時段。
+      </div>
+    </div>
+
+    <!-- 舊版時段管理（折疊備用） -->
+    <details style="margin-top:8px">
+      <summary style="cursor:pointer;color:var(--text3);font-size:.82rem;padding:8px 0">舊版時段管理（進階）</summary>
+      <div class="card" style="margin-top:8px">
+        <div class="card-head">
+          <div class="card-title">開放時段（舊版）</div>
+          <button class="btn btn-gold btn-sm" onclick="openSlotModal()">新增時段</button>
+        </div>
+        <div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="openBatchSlotModal()">批次開放</button>
+          <button class="btn btn-outline btn-sm" onclick="loadSlots()">重新載入</button>
+        </div>
+        <div id="slotList" class="item-list">
+          <div class="item-empty">載入中⋯</div>
+        </div>
+      </div>
+    </details>
   </div>
 
   <!-- ═══ TAB: Bookings ═══ -->
@@ -516,6 +551,67 @@ a{color:inherit;text-decoration:none}
     </div>
     <div class="modal-actions" id="slotDeleteRow" style="display:none;margin-top:10px;padding-top:0;border-top:none">
       <button class="btn btn-red btn-block" onclick="deleteSlot()">🗑 關閉此時段</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Shift Template Modal ═══ -->
+<div class="modal" id="shiftModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title" id="shiftModalTitle">新增班別</div>
+      <button class="modal-close" onclick="closeShiftModal()">×</button>
+    </div>
+    <input type="hidden" id="shfId">
+    <div class="field">
+      <label class="field-label">班別名稱 <span class="required">*</span></label>
+      <input type="text" class="input" id="shfName" placeholder="例如：早班、晚班、全天">
+    </div>
+    <div class="field">
+      <label class="field-label">代號</label>
+      <input type="text" class="input" id="shfCode" placeholder="例如：D、N、A" maxlength="5">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">開始時間 <span class="required">*</span></label>
+        <input type="time" class="input" id="shfStart" value="10:00">
+      </div>
+      <div class="field">
+        <label class="field-label">結束時間 <span class="required">*</span></label>
+        <input type="time" class="input" id="shfEnd" value="18:00">
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">顏色</label>
+      <input type="color" id="shfColor" value="#f0c040" style="width:60px;height:36px;border:1px solid var(--border);border-radius:6px;cursor:pointer">
+    </div>
+    <div class="field">
+      <label class="field-label">排序</label>
+      <input type="number" class="input" id="shfOrder" value="0" min="0">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeShiftModal()" style="flex:1">取消</button>
+      <button class="btn btn-gold" id="saveShfBtn" onclick="saveShift()" style="flex:1">儲存</button>
+    </div>
+    <div id="shfDeleteRow" style="display:none;margin-top:12px;text-align:center">
+      <button class="btn btn-red btn-sm" onclick="deleteShift()">刪除此班別</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Schedule Cell Modal (assign shift to staff×date) ═══ -->
+<div class="modal" id="scheduleCellModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title" id="cellModalTitle">指派班別</div>
+      <button class="modal-close" onclick="closeScheduleCellModal()">×</button>
+    </div>
+    <input type="hidden" id="cellStaffId">
+    <input type="hidden" id="cellDate">
+    <div id="cellShiftOptions" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeScheduleCellModal()" style="flex:1">取消</button>
+      <button class="btn btn-red btn-sm" onclick="clearScheduleCell()">清除（休息）</button>
     </div>
   </div>
 </div>
@@ -1458,6 +1554,264 @@ window.runBatchSlots = function(){
     btn.disabled = false; btn.textContent = '🚀 批次開放';
   });
 };
+
+// ═══════════════════════════════════════════════════════════════
+//  SHIFTS (班別管理)
+// ═══════════════════════════════════════════════════════════════
+var cachedShifts = [];
+
+function loadShifts(cb){
+  db.collection('businesses').doc(BUSINESS_ID).collection('shifts')
+    .orderBy('order').get().then(function(snap){
+      cachedShifts = [];
+      snap.forEach(function(doc){ var d = doc.data(); d._id = doc.id; cachedShifts.push(d); });
+      renderShifts();
+      if (cb) cb();
+    });
+}
+
+function renderShifts(){
+  var el = document.getElementById('shiftList');
+  if (!cachedShifts.length) {
+    el.innerHTML = '<div class="item-empty">還沒有班別<br><br><button class="btn btn-gold btn-sm" onclick="openShiftModal()">新增第一個班別</button></div>';
+    return;
+  }
+  el.innerHTML = cachedShifts.map(function(s){
+    return '<div class="item"><div class="item-color" style="background:'+(s.color||'#f0c040')+'"></div>'
+      + '<div class="item-body"><div class="item-name">'+escapeHtml(s.name)+(s.code?' <span class="item-category">'+escapeHtml(s.code)+'</span>':'')+'</div>'
+      + '<div class="item-meta"><span>'+(s.startTime||'?')+' - '+(s.endTime||'?')+'</span></div></div>'
+      + '<div class="item-actions"><button class="btn btn-outline btn-sm" onclick="openShiftModal(\''+s._id+'\')">編輯</button></div></div>';
+  }).join('');
+}
+
+window.openShiftModal = function(id){
+  var modal = document.getElementById('shiftModal');
+  var s = id ? cachedShifts.find(function(x){ return x._id === id; }) : null;
+  document.getElementById('shiftModalTitle').textContent = s ? '編輯班別' : '新增班別';
+  document.getElementById('shfId').value = s ? id : '';
+  document.getElementById('shfName').value = s ? (s.name||'') : '';
+  document.getElementById('shfCode').value = s ? (s.code||'') : '';
+  document.getElementById('shfStart').value = s ? (s.startTime||'10:00') : '10:00';
+  document.getElementById('shfEnd').value = s ? (s.endTime||'18:00') : '18:00';
+  document.getElementById('shfColor').value = s ? (s.color||'#f0c040') : '#f0c040';
+  document.getElementById('shfOrder').value = s ? (s.order||0) : cachedShifts.length;
+  document.getElementById('shfDeleteRow').style.display = s ? 'block' : 'none';
+  modal.classList.add('open');
+};
+
+window.closeShiftModal = function(){ document.getElementById('shiftModal').classList.remove('open'); };
+
+window.saveShift = function(){
+  var id = document.getElementById('shfId').value;
+  var name = document.getElementById('shfName').value.trim();
+  if (!name) { toast('請填班別名稱','err'); return; }
+  var data = {
+    name: name,
+    code: document.getElementById('shfCode').value.trim(),
+    startTime: document.getElementById('shfStart').value,
+    endTime: document.getElementById('shfEnd').value,
+    color: document.getElementById('shfColor').value,
+    order: parseInt(document.getElementById('shfOrder').value,10)||0,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  var col = db.collection('businesses').doc(BUSINESS_ID).collection('shifts');
+  var promise = id ? col.doc(id).update(data) : (data.createdAt = firebase.firestore.FieldValue.serverTimestamp(), col.add(data));
+  promise.then(function(){ closeShiftModal(); loadShifts(); toast('班別已儲存','ok'); })
+    .catch(function(e){ toast('儲存失敗：'+e.message,'err'); });
+};
+
+window.deleteShift = function(){
+  var id = document.getElementById('shfId').value;
+  if (!id || !confirm('確定刪除此班別？')) return;
+  db.collection('businesses').doc(BUSINESS_ID).collection('shifts').doc(id).delete()
+    .then(function(){ closeShiftModal(); loadShifts(); toast('已刪除','ok'); });
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  SCHEDULE CALENDAR (排班行事曆)
+// ═══════════════════════════════════════════════════════════════
+var scheduleWeekStart = null; // Monday of current view
+var cachedSchedule = {}; // key: 'YYYY-MM-DD_staffId' → { shiftId, shiftName, color, startTime, endTime }
+
+function initScheduleWeek(){
+  var today = new Date();
+  var day = today.getDay(); // 0=Sun
+  var diff = day === 0 ? -6 : 1 - day; // go to Monday
+  scheduleWeekStart = new Date(today);
+  scheduleWeekStart.setDate(today.getDate() + diff);
+  scheduleWeekStart.setHours(0,0,0,0);
+}
+
+window.scheduleNav = function(dir){
+  if (!scheduleWeekStart) initScheduleWeek();
+  if (dir === 0) { initScheduleWeek(); }
+  else { scheduleWeekStart.setDate(scheduleWeekStart.getDate() + dir * 7); }
+  loadSchedule();
+};
+
+function loadSchedule(){
+  if (!scheduleWeekStart) initScheduleWeek();
+  if (!cachedStaff.length || !cachedShifts.length) {
+    // Need staff + shifts first
+    Promise.all([
+      cachedStaff.length ? Promise.resolve() : db.collection('businesses').doc(BUSINESS_ID).collection('staff').orderBy('order').get().then(function(snap){
+        cachedStaff = []; snap.forEach(function(doc){ var d = doc.data(); d._id = doc.id; cachedStaff.push(d); });
+      }),
+      cachedShifts.length ? Promise.resolve() : db.collection('businesses').doc(BUSINESS_ID).collection('shifts').orderBy('order').get().then(function(snap){
+        cachedShifts = []; snap.forEach(function(doc){ var d = doc.data(); d._id = doc.id; cachedShifts.push(d); });
+      })
+    ]).then(function(){ loadScheduleData(); });
+  } else {
+    loadScheduleData();
+  }
+}
+
+function loadScheduleData(){
+  // Load schedule docs for this week (7 days)
+  var dates = [];
+  for (var i = 0; i < 7; i++){
+    var d = new Date(scheduleWeekStart);
+    d.setDate(d.getDate() + i);
+    dates.push(d.toISOString().slice(0,10));
+  }
+
+  var from = dates[0];
+  var to = dates[6];
+
+  db.collection('businesses').doc(BUSINESS_ID).collection('schedule')
+    .where('date','>=',from).where('date','<=',to)
+    .get().then(function(snap){
+      cachedSchedule = {};
+      snap.forEach(function(doc){
+        var d = doc.data();
+        var key = d.date + '_' + d.staffId;
+        d._id = doc.id;
+        cachedSchedule[key] = d;
+      });
+      renderSchedule(dates);
+    }).catch(function(e){
+      document.getElementById('scheduleBody').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--red)">載入失敗：'+e.message+'</td></tr>';
+    });
+}
+
+function renderSchedule(dates){
+  var DAYS_SHORT = ['一','二','三','四','五','六','日'];
+
+  // Update week label
+  document.getElementById('scheduleWeekLabel').textContent = dates[0].slice(5) + ' ~ ' + dates[6].slice(5);
+
+  // Header
+  var headHtml = '<tr><th style="padding:10px 8px;border-bottom:2px solid var(--border);text-align:left;font-weight:600;min-width:80px">人員</th>';
+  dates.forEach(function(d, i){
+    var today = new Date().toISOString().slice(0,10) === d;
+    headHtml += '<th style="padding:10px 6px;border-bottom:2px solid var(--border);text-align:center;font-weight:'+(today?'700':'400')+';color:'+(today?'var(--gold)':'var(--text2)')+';font-size:.78rem">'
+      + d.slice(8) + ' ' + DAYS_SHORT[i] + '</th>';
+  });
+  headHtml += '</tr>';
+  document.getElementById('scheduleHead').innerHTML = headHtml;
+
+  // Body
+  var activeStaff = cachedStaff.filter(function(s){ return s.active !== false; });
+  if (!activeStaff.length) {
+    document.getElementById('scheduleBody').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text3)">請先新增服務人員</td></tr>';
+    return;
+  }
+
+  var bodyHtml = activeStaff.map(function(staff){
+    var row = '<tr><td style="padding:8px;border-bottom:1px solid var(--border);font-weight:500;font-size:.85rem">' + escapeHtml(staff.name) + '</td>';
+    dates.forEach(function(d){
+      var key = d + '_' + staff._id;
+      var sch = cachedSchedule[key];
+      var cellStyle = 'padding:6px 4px;border-bottom:1px solid var(--border);text-align:center;cursor:pointer;min-height:40px;transition:background .2s;';
+      if (sch) {
+        cellStyle += 'background:' + (sch.color || '#f0c040') + '22;';
+        row += '<td style="'+cellStyle+'" onclick="openScheduleCell(\''+staff._id+'\',\''+d+'\')">'
+          + '<div style="font-size:.72rem;font-weight:600;color:'+(sch.color||'#b8922a')+'">' + escapeHtml(sch.shiftName||sch.shiftId||'') + '</div>'
+          + '<div style="font-size:.66rem;color:var(--text3)">' + (sch.startTime||'') + '-' + (sch.endTime||'') + '</div>'
+          + '</td>';
+      } else {
+        row += '<td style="'+cellStyle+'" onclick="openScheduleCell(\''+staff._id+'\',\''+d+'\')" onmouseover="this.style.background=\'rgba(184,146,42,.06)\'" onmouseout="this.style.background=\'transparent\'"></td>';
+      }
+    });
+    row += '</tr>';
+    return row;
+  }).join('');
+
+  document.getElementById('scheduleBody').innerHTML = bodyHtml;
+}
+
+window.openScheduleCell = function(staffId, date){
+  document.getElementById('cellStaffId').value = staffId;
+  document.getElementById('cellDate').value = date;
+  var staffName = (cachedStaff.find(function(s){ return s._id === staffId; }) || {}).name || '';
+  document.getElementById('cellModalTitle').textContent = staffName + ' · ' + date.slice(5);
+
+  var optHtml = cachedShifts.map(function(sh){
+    return '<button class="btn btn-outline" style="justify-content:flex-start;gap:10px;border-color:'+sh.color+'44" onclick="assignShift(\''+sh._id+'\')">'
+      + '<span style="width:14px;height:14px;border-radius:50%;background:'+sh.color+';flex-shrink:0"></span>'
+      + escapeHtml(sh.name) + ' (' + (sh.startTime||'?') + '-' + (sh.endTime||'?') + ')'
+      + '</button>';
+  }).join('');
+  if (!optHtml) optHtml = '<div style="color:var(--text3);font-size:.85rem">請先新增班別</div>';
+  document.getElementById('cellShiftOptions').innerHTML = optHtml;
+  document.getElementById('scheduleCellModal').classList.add('open');
+};
+
+window.closeScheduleCellModal = function(){ document.getElementById('scheduleCellModal').classList.remove('open'); };
+
+window.assignShift = function(shiftId){
+  var staffId = document.getElementById('cellStaffId').value;
+  var date = document.getElementById('cellDate').value;
+  var shift = cachedShifts.find(function(s){ return s._id === shiftId; });
+  if (!shift) return;
+
+  var docId = date + '_' + staffId;
+  db.collection('businesses').doc(BUSINESS_ID).collection('schedule').doc(docId).set({
+    date: date,
+    staffId: staffId,
+    shiftId: shiftId,
+    shiftName: shift.name,
+    startTime: shift.startTime,
+    endTime: shift.endTime,
+    color: shift.color,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    closeScheduleCellModal();
+    // Update local cache
+    cachedSchedule[docId] = { date:date, staffId:staffId, shiftId:shiftId, shiftName:shift.name, startTime:shift.startTime, endTime:shift.endTime, color:shift.color };
+    var dates = [];
+    for (var i = 0; i < 7; i++){ var d = new Date(scheduleWeekStart); d.setDate(d.getDate()+i); dates.push(d.toISOString().slice(0,10)); }
+    renderSchedule(dates);
+    toast(shift.name + ' 已排班','ok');
+  }).catch(function(e){ toast('排班失敗：'+e.message,'err'); });
+};
+
+window.clearScheduleCell = function(){
+  var staffId = document.getElementById('cellStaffId').value;
+  var date = document.getElementById('cellDate').value;
+  var docId = date + '_' + staffId;
+  db.collection('businesses').doc(BUSINESS_ID).collection('schedule').doc(docId).delete().then(function(){
+    closeScheduleCellModal();
+    delete cachedSchedule[docId];
+    var dates = [];
+    for (var i = 0; i < 7; i++){ var d = new Date(scheduleWeekStart); d.setDate(d.getDate()+i); dates.push(d.toISOString().slice(0,10)); }
+    renderSchedule(dates);
+    toast('已清除排班','ok');
+  });
+};
+
+// Override loadSlots to also load schedule
+var _origLoadSlots = typeof loadSlots === 'function' ? loadSlots : null;
+function loadSlots(){
+  // Load shifts + schedule calendar
+  loadShifts(function(){ loadSchedule(); });
+  // Also load old slots list
+  if (_origLoadSlots) _origLoadSlots();
+  else {
+    var listEl = document.getElementById('slotList');
+    if (listEl) listEl.innerHTML = '<div class="item-empty">舊版時段列表</div>';
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════
 //  UTILS
