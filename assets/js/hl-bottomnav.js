@@ -236,13 +236,34 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
 
   document.body.appendChild(nav);
 
-  // ── 在 footer-links 注入「AI 認識我們」連結 ──
+  // ── 在 footer-links 注入全站共用連結 ──
   var footerLinks = document.querySelector('.hl-footer-links');
-  if (footerLinks && !footerLinks.querySelector('a[href="ai-about.html"]')) {
-    var aiLink = document.createElement('a');
-    aiLink.href = 'ai-about.html';
-    aiLink.textContent = 'AI 認識我們';
-    footerLinks.appendChild(aiLink);
+  if (footerLinks) {
+    var injectFooterLink = function(href, label){
+      if (!footerLinks.querySelector('a[href="' + href + '"]')) {
+        var a = document.createElement('a');
+        a.href = href;
+        a.textContent = label;
+        footerLinks.appendChild(a);
+      }
+    };
+    injectFooterLink('pricing.html', '💰 服務價目');
+    injectFooterLink('price-list.html', '📋 價目表');
+    injectFooterLink('pricing.html#contact', '💬 客服聯絡');
+    injectFooterLink('ai-about.html', 'AI 認識我們');
+  }
+
+  // ── 在 footer copyright 區注入客服聯絡資訊（一行） ──
+  var copyEl = document.querySelector('.hl-footer-copyright');
+  if (copyEl && !document.getElementById('hl-footer-contact-line')) {
+    var contactLine = document.createElement('div');
+    contactLine.id = 'hl-footer-contact-line';
+    contactLine.style.cssText = 'font-size:.78rem;color:rgba(248,223,165,.7);margin:8px 0;letter-spacing:.5px;line-height:1.8';
+    contactLine.innerHTML =
+      '客服 LINE <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" style="color:#f8dfa5;text-decoration:underline">@hourlight</a>' +
+      ' ｜ 服務信箱 <a href="mailto:info@hourlightkey.com" style="color:#f8dfa5;text-decoration:underline">info@hourlightkey.com</a>' +
+      ' ｜ 服務時間 週一–五 10:00–18:00';
+    copyEl.parentNode.insertBefore(contactLine, copyEl);
   }
 
   // ── 音樂整合 ──
