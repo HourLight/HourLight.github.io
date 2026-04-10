@@ -383,7 +383,7 @@ a{color:inherit;text-decoration:none}
       </div>
       <div class="field">
         <label class="field-label">公開預約頁網址</label>
-        <input type="text" class="input" id="publicBookingUrl" value="https://hourlightkey.com/booking/hourlight-spa.html" readonly onclick="this.select()">
+        <input type="text" class="input" id="publicBookingUrl" readonly onclick="this.select()">
         <div class="field-hint">把這個網址分享給客戶即可。也可以做成 QR code 貼在店裡</div>
       </div>
     </div>
@@ -779,7 +779,9 @@ var auth = firebase.auth();
 var db = firebase.firestore();
 
 // ─── Config ───
-var BUSINESS_ID = 'hourlight-spa';
+// Multi-tenant: 從 URL ?biz=xxx 讀公司 ID，預設 hourlight-spa（馥靈之鑰自用）
+// 任何公司都可以用 booking-admin.html?biz=their-company-id 開自己的管理後台
+var BUSINESS_ID = new URLSearchParams(location.search).get('biz') || 'hourlight-spa';
 var ADMIN_EMAILS = ['judyanee@gmail.com','info@hourlightkey.com','judyanee@hotmail.com'];
 var DAYS = ['週日','週一','週二','週三','週四','週五','週六'];
 
@@ -865,6 +867,9 @@ window.switchTab = function(name){
 //  INIT
 // ═══════════════════════════════════════════════════════════════
 function initApp(){
+  // 顯示當前管理的公司 ID
+  var sub = document.querySelector('.topbar-sub');
+  if (sub) sub.textContent = 'BIZ: ' + BUSINESS_ID;
   ensureBusinessDoc().then(function(){
     loadServices();
   });
@@ -1322,6 +1327,10 @@ window.completeBooking = function(id){
 //  SETTINGS
 // ═══════════════════════════════════════════════════════════════
 function loadSettings(){
+  // 動態設定公開預約頁網址（multi-tenant）
+  var pubUrl = document.getElementById('publicBookingUrl');
+  if (pubUrl) pubUrl.value = 'https://hourlightkey.com/booking.html?biz=' + BUSINESS_ID;
+
   db.collection('businesses').doc(BUSINESS_ID).get().then(function(doc){
     if (!doc.exists) return;
     var d = doc.data();
