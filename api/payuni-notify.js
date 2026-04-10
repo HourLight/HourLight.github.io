@@ -15,11 +15,17 @@
 
 const crypto = require('crypto');
 
-// ── PAYUNi 解密工具 ──
+// ── PAYUNi 解密工具（照抄官方 Node.js 範例 docs.payuni.com.tw/web/#/7/312）──
 function payuniDecrypt(encryptedHex, key, iv) {
-  const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-  let decrypted = decipher.update(encryptedHex, 'hex', 'utf8');
+  // 1. hex → string → split ":::" → [base64_ciphertext, base64_tag]
+  const [encryptData, tag] = Buffer.from(encryptedHex, 'hex').toString().split(':::');
+  // 2. AES-256-GCM 解密（iv 必須是 Buffer）
+  const ivBuf = Buffer.from(iv);
+  const decipher = crypto.createDecipheriv('aes-256-gcm', key, ivBuf);
+  decipher.setAuthTag(Buffer.from(tag, 'base64'));
+  let decrypted = decipher.update(encryptData, 'base64', 'utf8');
   decrypted += decipher.final('utf8');
+  // 3. 解析 URL-encoded query string
   const result = {};
   decrypted.split('&').forEach(pair => {
     const [k, v] = pair.split('=');
@@ -29,10 +35,10 @@ function payuniDecrypt(encryptedHex, key, iv) {
 }
 
 function payuniHash(encryptedStr, key, iv) {
-  // PAYUNi HashInfo 公式：SHA256( HashIV + EncryptInfo + HashKey ).toUpperCase()
-  // EncryptInfo 傳入時應已是大寫 hex（與 payuni-create.js 對齊）
-  const raw = iv + encryptedStr + key;
-  return crypto.createHash('sha256').update(raw).digest('hex').toUpperCase();
+  // PAYUNi 官方公式：SHA256( key + encryptedStr + iv ).toUpperCase()
+  // 注意順序：key 在前、iv 在後（不是 iv + encrypted + key）
+  const hash = crypto.createHash('sha256').update(`${key}${encryptedStr}${iv}`);
+  return hash.digest('hex').toUpperCase();
 }
 
 // ── 商品 ID → 會員方案對照（可擴充）──

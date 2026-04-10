@@ -30,31 +30,40 @@ function getFirestore() {
   }
 }
 
-// ── PAYUNi 加解密工具 ──
+// ── PAYUNi 加解密工具（照抄官方 Node.js 範例 docs.payuni.com.tw/web/#/7/312）──
+const querystring = require('querystring');
+
 function payuniEncrypt(data, key, iv) {
-  // 將物件轉為 URL-encoded query string
-  const qs = Object.entries(data)
-    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-    .join('&');
-  // AES-256-CBC 加密，輸出 hex 全大寫（PAYUNi 規格）
-  const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
-  let encrypted = cipher.update(qs, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-  return encrypted.toUpperCase();
+  // 1. 物件轉 URL-encoded query string（用 Node.js 標準 querystring）
+  const plaintext = querystring.stringify(data);
+  // 2. AES-256-GCM 加密（iv 必須是 Buffer）
+  const ivBuf = Buffer.from(iv);
+  const cipher = crypto.createCipheriv('aes-256-gcm', key, ivBuf);
+  let cipherText = cipher.update(plaintext, 'utf8', 'base64');
+  cipherText += cipher.final('base64');
+  // 3. 取得 auth tag（base64）
+  const tag = cipher.getAuthTag().toString('base64');
+  // 4. 格式：base64(ciphertext) + ":::" + base64(tag) → 整段轉 hex
+  return Buffer.from(`${cipherText}:::${tag}`).toString('hex').trim();
 }
 
 function payuniHash(encryptedStr, key, iv) {
-  // PAYUNi UPP HashInfo 公式：SHA256( HashIV + EncryptInfo + HashKey ).toUpperCase()
-  // EncryptInfo 在傳入前已是大寫 hex
-  const raw = iv + encryptedStr + key;
-  return crypto.createHash('sha256').update(raw).digest('hex').toUpperCase();
+  // PAYUNi 官方公式：SHA256( key + encryptedStr + iv ).toUpperCase()
+  // 注意順序：key 在前、iv 在後（不是 iv + encrypted + key）
+  const hash = crypto.createHash('sha256').update(`${key}${encryptedStr}${iv}`);
+  return hash.digest('hex').toUpperCase();
 }
 
 function payuniDecrypt(encryptedHex, key, iv) {
-  const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-  let decrypted = decipher.update(encryptedHex, 'hex', 'utf8');
+  // 1. hex → string → split ":::" → [base64_ciphertext, base64_tag]
+  const [encryptData, tag] = Buffer.from(encryptedHex, 'hex').toString().split(':::');
+  // 2. AES-256-GCM 解密
+  const ivBuf = Buffer.from(iv);
+  const decipher = crypto.createDecipheriv('aes-256-gcm', key, ivBuf);
+  decipher.setAuthTag(Buffer.from(tag, 'base64'));
+  let decrypted = decipher.update(encryptData, 'base64', 'utf8');
   decrypted += decipher.final('utf8');
-  // 解析 URL-encoded query string 回物件
+  // 3. 解析 URL-encoded query string
   const result = {};
   decrypted.split('&').forEach(pair => {
     const [k, v] = pair.split('=');
