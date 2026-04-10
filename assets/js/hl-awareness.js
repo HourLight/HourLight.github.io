@@ -111,6 +111,60 @@
     }, 1200);
   }
 
+  /* ==========================================================
+     4. 微賦能結尾語 — 所有工具結尾注入「我更懂自己了」
+     讓每次互動結尾都有一個反思的呼吸點
+     ========================================================== */
+  var CLOSING_POOL = [
+    '看到這些結果的時候，你心裡第一個浮現的念頭是什麼？那個念頭，比任何分析都準。',
+    '測驗量的不是你有多好或多差，是你此刻站在哪裡。知道自己在哪的人，不會迷路。',
+    '數字和類型都只是座標。你不需要變成另一個人，只需要更清楚地看見這個自己。',
+    '如果這份結果裡有一句話讓你停了一下，那就是今天最重要的收穫。',
+    '你願意花這幾分鐘來認識自己，這件事本身就已經比結果重要了。',
+    '結果只是起點。你接下來選擇怎麼回應它，才是真正的覺察。',
+    '這份報告是一面鏡子，不是一張考卷。鏡子不打分數，它只是讓你看見。',
+    '你剛剛回答的每一題，都是在跟自己對話。有些對話，只有你自己聽得到。',
+    '不需要記住所有結果。記住那個讓你「嗯，好像是」的瞬間就夠了。',
+    '看完了。現在深吸一口氣，問自己：我想帶走哪一個發現？'
+  ];
+
+  function injectMicroEmpowerment(){
+    // 找到結果區域
+    var resultEl = document.getElementById('quizResult')
+      || document.getElementById('result-area')
+      || document.getElementById('ra');
+    if(!resultEl) return;
+    // 如果已經注入過就不重複
+    if(document.getElementById('hl-micro-empower')) return;
+    // 隨機選一句結尾語
+    var msg = CLOSING_POOL[Math.floor(Math.random() * CLOSING_POOL.length)];
+    // 建立結尾語區塊
+    var wrap = document.createElement('div');
+    wrap.id = 'hl-micro-empower';
+    wrap.style.cssText = 'margin:20px auto 8px;max-width:520px;padding:16px 20px;' +
+      'text-align:center;font-size:.88rem;line-height:1.75;' +
+      'color:rgba(248,223,165,.85);letter-spacing:.3px;' +
+      'border-top:1px solid rgba(248,223,165,.1);' +
+      'border-bottom:1px solid rgba(248,223,165,.1);' +
+      'opacity:0;transition:opacity 1.2s ease;';
+    wrap.textContent = msg;
+    // 找注入位置：resultHour 後面，或 share-row 前面，或結果區尾巴
+    var hourBridge = resultEl.querySelector('.result-hour-bridge')
+      || document.getElementById('resultHour');
+    var shareRow = resultEl.querySelector('.share-row');
+    if(hourBridge && hourBridge.nextSibling){
+      hourBridge.parentNode.insertBefore(wrap, hourBridge.nextSibling);
+    } else if(shareRow){
+      shareRow.parentNode.insertBefore(wrap, shareRow);
+    } else {
+      resultEl.appendChild(wrap);
+    }
+    // 淡入
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){ wrap.style.opacity = '1'; });
+    });
+  }
+
   /* ---------- 自動偵測頁面類型並初始化 ---------- */
   var path = location.pathname.replace(/^\//, '');
 
@@ -126,7 +180,8 @@
   // 會員中心 — 暴露 hook 讓 app.html 在取得統計後呼叫
   window.hlAwareness = {
     showAppStats: initAppAwareness,
-    showQuizDone: initQuizAwareness
+    showQuizDone: initQuizAwareness,
+    injectClosing: injectMicroEmpowerment
   };
 
   // quiz 結果頁 — 攔截 showResult
@@ -142,6 +197,7 @@
         window.showResult = function(){
           _origShowResult.apply(this, arguments);
           initQuizAwareness();
+          setTimeout(injectMicroEmpowerment, 600);
         };
       }
     }

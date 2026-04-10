@@ -191,7 +191,7 @@
   // ==================== 覺察累積微互動 ====================
   (function(){
     var s = document.createElement('script');
-    s.src = 'assets/js/hl-awareness.js?v=20260401';
+    s.src = 'assets/js/hl-awareness.js?v=20260411';
     s.defer = true;
     document.head.appendChild(s);
   })();
