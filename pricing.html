@@ -255,6 +255,16 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
       <button type="button" class="topup-cta" onclick="HLPricingPay.subscribe('topup-10','AI 解讀加購 10 次',199)">立即加購</button>
     </div>
 
+    <!-- 測試付款方案（隱藏，網址加 ?test=1 才會顯示，僅供開發測試 PAYUNi 流程） -->
+    <div id="hlTestPayCard" class="topup-card" style="display:none;background:#fff5f0;border-color:#e8c8b8;margin-top:14px">
+      <div class="topup-info">
+        <div class="topup-name" style="color:#a04040">PAYUNi 測試付款｜NT$ 1</div>
+        <div class="topup-desc" style="color:#a04040">僅供開發測試金流通路。productId=topup-1 會給付款者 +1 次 AI 解讀加購。測試完成後此卡片會被移除。</div>
+      </div>
+      <div class="topup-price" style="color:#a04040">1<span>NT$</span></div>
+      <button type="button" class="topup-cta" style="background:#a04040" onclick="HLPricingPay.subscribe('topup-1','PAYUNi 測試付款 NT$1',1)">測試付款</button>
+    </div>
+
     <p class="plan-footnote">付費後自動開通 30 天，到期自動恢復免費方案。不綁自動扣款，不續就停，不會多收錢。<br><a href="#" onclick="HLBenefits.open();return false" style="color:#8b6f4e;text-decoration:underline;font-weight:500">查看完整會員權益（含塔羅 / 易經等占卜工具次數限制）→</a></p>
   </section>
 
@@ -880,6 +890,17 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
 <script src="assets/js/hl-benefits-modal.js"></script>
 <script src="assets/js/hl-payment.js"></script>
 <script>
+// 測試付款方案：URL 加 ?test=1 才顯示（僅供開發測試 PAYUNi 通路）
+(function showTestPayCardIfNeeded(){
+  try {
+    var params = new URLSearchParams(location.search);
+    if (params.get('test') === '1') {
+      var card = document.getElementById('hlTestPayCard');
+      if (card) card.style.display = 'flex';
+    }
+  } catch(e){}
+})();
+
 // pricing.html 付款 wrapper：呼叫 HLPayment 前先檢查登入
 window.HLPricingPay = {
   subscribe: function(productId, productName, amount){
