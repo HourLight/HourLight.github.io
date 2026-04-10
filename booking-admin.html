@@ -185,6 +185,7 @@ a{color:inherit;text-decoration:none}
     <button class="tab" data-tab="staff" onclick="switchTab('staff')"><span class="tab-ico">💁</span>夥伴</button>
     <button class="tab" data-tab="slots" onclick="switchTab('slots')"><span class="tab-ico">🗓</span>班表</button>
     <button class="tab" data-tab="bookings" onclick="switchTab('bookings')"><span class="tab-ico">📅</span>預約</button>
+    <button class="tab" data-tab="courses" onclick="switchTab('courses')"><span class="tab-ico">📚</span>課程</button>
     <button class="tab" data-tab="settings" onclick="switchTab('settings')"><span class="tab-ico">⚙️</span>設定</button>
   </div>
 
@@ -319,6 +320,20 @@ a{color:inherit;text-decoration:none}
         </div>
       </div>
       <div id="bookingList" class="item-list">
+        <div class="item-empty">載入中⋯</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB: Courses (課程管理) ═══ -->
+  <div class="tab-pane" id="tab-courses" style="display:none">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">課程管理</div>
+        <button class="btn btn-gold btn-sm" onclick="openCourseModal()">新增課程</button>
+      </div>
+      <div class="card-desc">管理線上課程。每門課程可包含多個章節（影片 + 文字教材）。學員付費後解鎖內容。</div>
+      <div id="courseList" class="item-list">
         <div class="item-empty">載入中⋯</div>
       </div>
     </div>
@@ -581,6 +596,62 @@ a{color:inherit;text-decoration:none}
     </div>
     <div class="modal-actions" id="slotDeleteRow" style="display:none;margin-top:10px;padding-top:0;border-top:none">
       <button class="btn btn-red btn-block" onclick="deleteSlot()">🗑 關閉此時段</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Course Modal ═══ -->
+<div class="modal" id="courseModal">
+  <div class="modal-box" style="max-width:640px">
+    <div class="modal-head">
+      <div class="modal-title" id="courseModalTitle">新增課程</div>
+      <button class="modal-close" onclick="closeCourseModal()">×</button>
+    </div>
+    <input type="hidden" id="crsId">
+    <div class="field">
+      <label class="field-label">課程名稱 <span class="required">*</span></label>
+      <input type="text" class="input" id="crsName" placeholder="例如：馥靈覺察師認證班">
+    </div>
+    <div class="field">
+      <label class="field-label">簡介</label>
+      <textarea class="textarea" id="crsDesc" placeholder="這門課程會學到什麼？"></textarea>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">價格 NT$ <span class="required">*</span></label>
+        <input type="number" class="input" id="crsPrice" placeholder="12800" min="0">
+      </div>
+      <div class="field">
+        <label class="field-label">分類</label>
+        <select class="input" id="crsCategory">
+          <option value="覺察培訓">覺察培訓</option>
+          <option value="美甲課程">美甲課程</option>
+          <option value="美容SPA">美容 SPA</option>
+          <option value="品牌經營">品牌經營</option>
+          <option value="其他">其他</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">章節（JSON 格式，每章有 title / content / videoUrl）</label>
+      <textarea class="textarea" id="crsChapters" style="min-height:200px;font-family:monospace;font-size:.82rem" placeholder='[
+  {"title":"第一課：入門概念","content":"<p>歡迎來到第一課...</p>","videoUrl":""},
+  {"title":"第二課：基礎練習","content":"<p>這堂課...</p>","videoUrl":"https://vimeo.com/123456"}
+]'></textarea>
+      <div class="field-hint">影片網址支援 Vimeo（推薦，可鎖定網域） 或 YouTube。沒影片的章節 videoUrl 留空。</div>
+    </div>
+    <div class="field">
+      <label class="field-label">
+        <input type="checkbox" id="crsActive" checked style="margin-right:6px;width:18px;height:18px;vertical-align:middle">
+        上架（關閉後學員看不到）
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeCourseModal()" style="flex:1">取消</button>
+      <button class="btn btn-gold" id="saveCrsBtn" onclick="saveCourse()" style="flex:1">儲存</button>
+    </div>
+    <div id="crsDeleteRow" style="display:none;margin-top:12px;text-align:center">
+      <button class="btn btn-red btn-sm" onclick="deleteCourse()">刪除此課程</button>
     </div>
   </div>
 </div>
@@ -1646,6 +1717,105 @@ window.runBatchSlots = function(){
   }).finally(function(){
     btn.disabled = false; btn.textContent = '🚀 批次開放';
   });
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  COURSES (課程管理)
+// ═══════════════════════════════════════════════════════════════
+var cachedCourses = [];
+
+function loadCourses(){
+  var el = document.getElementById('courseList');
+  if (!el) return;
+  el.innerHTML = '<div class="item-empty">載入中⋯</div>';
+  db.collection('courses').orderBy('createdAt','desc').get().then(function(snap){
+    cachedCourses = [];
+    snap.forEach(function(doc){ var d = doc.data(); d._id = doc.id; cachedCourses.push(d); });
+    renderCourses();
+  }).catch(function(e){
+    el.innerHTML = '<div class="item-empty" style="color:var(--red)">載入失敗：'+e.message+'</div>';
+  });
+}
+
+function renderCourses(){
+  var el = document.getElementById('courseList');
+  if (!cachedCourses.length) {
+    el.innerHTML = '<div class="item-empty">還沒有課程<br><br><button class="btn btn-gold btn-sm" onclick="openCourseModal()">新增第一門課程</button></div>';
+    return;
+  }
+  el.innerHTML = cachedCourses.map(function(c){
+    var chapters = c.chapters || [];
+    return '<div class="item '+(c.active===false?'inactive':'')+'">'
+      + '<div class="item-color" style="background:var(--blue)"></div>'
+      + '<div class="item-body">'
+      +   '<div class="item-name">'+escapeHtml(c.name||'')+(c.category?'<span class="item-category">'+escapeHtml(c.category)+'</span>':'')+'</div>'
+      +   (c.desc?'<div class="item-desc">'+escapeHtml(c.desc.substring(0,60))+'</div>':'')
+      +   '<div class="item-meta">'
+      +     '<span><strong>NT$</strong> '+(c.price||0).toLocaleString()+'</span>'
+      +     '<span>'+chapters.length+' 章節</span>'
+      +     (c.active===false?'<span style="color:var(--red)">已下架</span>':'')
+      +   '</div>'
+      + '</div>'
+      + '<div class="item-actions">'
+      +   '<button class="btn btn-outline btn-sm" onclick="openCourseModal(\''+c._id+'\')">編輯</button>'
+      +   '<a class="btn btn-outline btn-sm" href="course-viewer.html?id='+c._id+'" target="_blank">預覽</a>'
+      + '</div></div>';
+  }).join('');
+}
+
+window.openCourseModal = function(id){
+  var modal = document.getElementById('courseModal');
+  var c = id ? cachedCourses.find(function(x){ return x._id === id; }) : null;
+  document.getElementById('courseModalTitle').textContent = c ? '編輯課程' : '新增課程';
+  document.getElementById('crsId').value = c ? id : '';
+  document.getElementById('crsName').value = c ? (c.name||'') : '';
+  document.getElementById('crsDesc').value = c ? (c.desc||'') : '';
+  document.getElementById('crsPrice').value = c ? (c.price||'') : '';
+  document.getElementById('crsCategory').value = c ? (c.category||'覺察培訓') : '覺察培訓';
+  document.getElementById('crsChapters').value = c && c.chapters ? JSON.stringify(c.chapters, null, 2) : '[]';
+  document.getElementById('crsActive').checked = c ? c.active !== false : true;
+  document.getElementById('crsDeleteRow').style.display = c ? 'block' : 'none';
+  modal.classList.add('open');
+};
+
+window.closeCourseModal = function(){ document.getElementById('courseModal').classList.remove('open'); };
+
+window.saveCourse = function(){
+  var id = document.getElementById('crsId').value;
+  var name = document.getElementById('crsName').value.trim();
+  if (!name) { toast('請填課程名稱','err'); return; }
+  var chaptersRaw = document.getElementById('crsChapters').value.trim();
+  var chapters = [];
+  try { chapters = JSON.parse(chaptersRaw || '[]'); } catch(e){ toast('章節 JSON 格式錯誤：'+e.message,'err'); return; }
+
+  var data = {
+    name: name,
+    desc: document.getElementById('crsDesc').value.trim(),
+    price: parseInt(document.getElementById('crsPrice').value,10) || 0,
+    category: document.getElementById('crsCategory').value,
+    chapters: chapters,
+    active: document.getElementById('crsActive').checked,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  var col = db.collection('courses');
+  var promise = id ? col.doc(id).update(data) : (data.createdAt = firebase.firestore.FieldValue.serverTimestamp(), col.add(data));
+  promise.then(function(){ closeCourseModal(); loadCourses(); toast('課程已儲存','ok'); })
+    .catch(function(e){ toast('儲存失敗：'+e.message,'err'); });
+};
+
+window.deleteCourse = function(){
+  var id = document.getElementById('crsId').value;
+  if (!id || !confirm('確定刪除此課程？已購買的學員仍保留存取權。')) return;
+  db.collection('courses').doc(id).delete()
+    .then(function(){ closeCourseModal(); loadCourses(); toast('已刪除','ok'); });
+};
+
+// Load courses when tab opens
+var _origSwitchTab = switchTab;
+switchTab = function(name){
+  _origSwitchTab(name);
+  if (name === 'courses') loadCourses();
 };
 
 // ═══════════════════════════════════════════════════════════════
