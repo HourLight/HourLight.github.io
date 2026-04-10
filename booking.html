@@ -466,22 +466,83 @@ function loadTimeSlots(){
   state.selectedDate = dateStr;
   state.selectedTime = null;
 
-  // Generate time slots (10:00 - 18:00, every 30 min)
-  var slots = [];
-  for (var h = 10; h < 18; h++){
-    slots.push(h + ':00');
-    slots.push(h + ':30');
-  }
-
+  var grid = document.getElementById('timeGrid');
+  grid.innerHTML = '<div class="bk-loading" style="grid-column:1/-1">查詢可預約時段⋯</div>';
   document.getElementById('timeTitle').style.display = 'block';
-  document.getElementById('timeGrid').innerHTML = slots.map(function(t){
-    return '<div class="bk-time" onclick="selectTime(\'' + t + '\')" data-time="' + t + '">' + t + '</div>';
-  }).join('');
-
   document.getElementById('btn3').style.display = 'none';
 
-  // TODO: Check actual staff availability from Firestore slots collection
-  // For now, show all slots as available
+  // Determine which staff to check schedule for
+  var staffToCheck = [];
+  if (state.selectedMode === 'appointment' && state.selectedStaff) {
+    staffToCheck = [state.selectedStaff._id];
+  } else {
+    // System dispatch — check all staff who can do this service
+    var svcId = state.selectedService ? state.selectedService._id : null;
+    staffToCheck = state.staff.filter(function(s){
+      return !svcId || (s.services || []).indexOf(svcId) !== -1;
+    }).map(function(s){ return s._id; });
+  }
+
+  if (!staffToCheck.length) {
+    grid.innerHTML = '<div class="bk-loading" style="grid-column:1/-1;color:rgba(255,255,255,.5)">沒有可服務的人員<br>請選擇其他日期或服務</div>';
+    return;
+  }
+
+  // Load schedule for this date + existing bookings
+  Promise.all([
+    db.collection('businesses').doc(BUSINESS_ID).collection('schedule')
+      .where('date','==',dateStr).get(),
+    db.collection('businesses').doc(BUSINESS_ID).collection('bookings')
+      .where('date','==',dateStr).where('status','in',['confirmed','pending_payment','pending']).get()
+  ]).then(function(results){
+    var schedules = {};
+    results[0].forEach(function(doc){ var d = doc.data(); schedules[d.staffId] = d; });
+
+    var bookedSlots = {};
+    results[1].forEach(function(doc){
+      var d = doc.data();
+      if (d.staffId && d.time) bookedSlots[d.staffId + '_' + d.time] = true;
+    });
+
+    // Find available time slots from schedules of relevant staff
+    var availableSlots = {};
+    staffToCheck.forEach(function(staffId){
+      var sch = schedules[staffId];
+      if (!sch || !sch.startTime || !sch.endTime) return;
+
+      // Generate 30-min slots within shift
+      var start = sch.startTime.split(':');
+      var end = sch.endTime.split(':');
+      var startMin = parseInt(start[0],10) * 60 + parseInt(start[1],10);
+      var endMin = parseInt(end[0],10) * 60 + parseInt(end[1],10);
+
+      for (var m = startMin; m < endMin; m += 30){
+        var h = Math.floor(m/60);
+        var mm = m % 60;
+        var t = (h<10?'0':'') + h + ':' + (mm<10?'0':'') + mm;
+        var key = staffId + '_' + t;
+        if (!bookedSlots[key]) {
+          availableSlots[t] = (availableSlots[t] || 0) + 1;
+        }
+      }
+    });
+
+    var sortedSlots = Object.keys(availableSlots).sort();
+
+    if (!sortedSlots.length) {
+      grid.innerHTML = '<div class="bk-loading" style="grid-column:1/-1;color:rgba(255,255,255,.5)">這天沒有可預約的時段<br>請選擇其他日期</div>';
+      return;
+    }
+
+    grid.innerHTML = sortedSlots.map(function(t){
+      var count = availableSlots[t];
+      return '<div class="bk-time" onclick="selectTime(\'' + t + '\')" data-time="' + t + '">'
+        + t + (count > 1 ? '<div style="font-size:.6rem;color:rgba(255,255,255,.35)">' + count + ' 人可選</div>' : '')
+        + '</div>';
+    }).join('');
+  }).catch(function(e){
+    grid.innerHTML = '<div class="bk-loading" style="grid-column:1/-1;color:rgba(229,115,115,.8)">查詢失敗：' + e.message + '</div>';
+  });
 }
 
 function selectTime(t){
