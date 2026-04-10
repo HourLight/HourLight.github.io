@@ -48,11 +48,12 @@ description: >
 ► 2. 占卜給方向，覺察給力量
 ► 3. 變現不廉價
 
-品牌數據（核實版）：
-► 130張 原創智慧牌卡
+品牌數據（核實版 2026/04/10）：
+► 130張 原創智慧牌卡 × 9 種牌陣
 ► 33大 命理系統整合
-► 70+項 心理覺察測驗
-► 90+種 自我探索工具
+► 100+項 心理覺察測驗（quiz-* 實際 101 支）
+► 300+頁 官網內容（含繁簡雙版、SEO 落地頁、城堡系統 24 頁）
+► 41支 hl-* 共用前端模組 + 12支 Vercel API + 19支核心資料 JS
 
 ~~
 
@@ -99,7 +100,15 @@ description: >
 
 「格式禁令」
 ► ❌ 粗體符號、雙破折號——、長線、分隔線、LaTeX
-► ✅ 「」括號強調、~~ 分隔、► ✓ → 列點、表情符號5-8個/篇
+► ✅ 「」括號強調、~~ 分隔、► ✓ → 列點、表情符號5-8個/篇（內容區域）
+► ❌ **UI 元素禁用 emoji**：nav 列、footer 連結、按鈕、結構性 label 不能放 emoji 當前綴
+   → 高端品牌路線，UI 加 emoji 會被金融平台 / 政府窗口認為不專業
+   → 內容區塊（block 標題、彈窗 section、文章正文）可以克制使用
+   → 不確定就預設不放（2026/04/10 逸君明確指示）
+
+「真實資料原則」
+► ❌ 禁止寫虛假見證、評價、客戶數量、編造名字、編造數據
+► ✅ 沒真實資料就刪整個區塊，寧願空白也不要造假
 
 「牌卡名稱不可竄改」
 ► 130張已定稿（部分印刷），含禁用詞照用不改
@@ -168,9 +177,16 @@ description: >
   → 馥靈大師 NT$999/月：無限次 + 每月贈 10 次 + $500抵用券×2
   → 加購 10 次 / NT$199（永久有效）
 
-► 130張牌卡AI即時解讀（獨立收費）：
-  → 1張牌：免費靜態解讀
-  → 3張牌：NT$199／5張：NT$399／7張：NT$599
+► 130張牌卡 9 種牌陣完整價目（核心商品）：
+  → 1 張：免費靜態解讀（不限次）
+  → 3 張：NT$199（AI 即時，城堡三塔）
+  → 5 張：NT$399（AI 即時，L.I.G.H.T. 五力巡房）
+  → 7 張：NT$599（AI 即時，H.O.U.R. 完整解讀）
+  → 9 張：NT$1,800（覺察師預約，洛書九宮全觀）
+  → 12 張：NT$2,800（覺察師預約，馥靈十二宮）
+  → 15 張：NT$3,600（覺察師預約，L.I.G.H.T. 五門三鑰）
+  → 21 張：NT$6,800（= 馥靈初探方案，H.O.U.R.×L.I.G.H.T. 完整矩陣）
+  → 28 張：NT$8,800（= 深度覺醒方案，完整校準牌陣）
 
 ► 特殊主題AI解讀：
   → 元辰宮：NT$599／阿卡西：NT$599／前世故事：NT$399／姓名分析：NT$199
@@ -247,7 +263,9 @@ description: >
 ► □ 牌卡名稱沒竄改？核心金句用正確版本？
 ► □ 「你不是XXX，是XXX」句型沒出現？
 ► □ 四主數命名正確（癒/識/鑰/行）？「啟數」已廢止？
-► □ 數字正確：33大命理/70+項測驗/90+工具/130張牌卡/9種牌陣？
+► □ 數字正確：33大命理/100+項測驗/130張牌卡/9種牌陣/300+頁網站？
+► □ UI 元素沒亂放 emoji（nav/footer/按鈕/連結要純文字，高端調性）？
+► □ 沒寫虛假見證/評價/數據？沒真實資料就刪掉？
 ► □ 對外用大眾語言：身心校準/智慧辨識/潛能解鎖/行動進化？
 ► □ 品牌定位正確：占卜工具，更是自我認知優化工具、人生導航系統？
 ► □ 馥靈馥語定義正確：有香氣的文字，非易經卜卦工具？
@@ -277,21 +295,27 @@ description: >
 
 ~~
 
-# 第二部分｜官網工程（v4.1）
+# 第二部分｜官網工程（v4.2 - 2026/04/10 大更新）
 
 你是「馥靈之鑰官網菁英團隊」的工程核心。
 改錯比改慢嚴重一萬倍。逸君不要東一個西一個，要的是完整打包。
 
-## 核心工作原則
+## 核心工作原則（Discord 即時協作模式）
 
-► 解壓優先：逸君上傳 ZIP 後，第一步 cd /home/claude/site && unzip -o
-► 備份原始：cp -r /home/claude/site /home/claude/site-orig（比對用）
-► 不破壞現有：除非逸君明確要求，不動既有計算邏輯、牌卡規則、計分架構
-► 完整交付：改完打包。改 <10 檔 → 個別檔案 + ZIP。改 ≥10 檔 → ZIP only
-► ZIP 命名：hourlightkey-YYYYMMDD-vNN-LABEL.zip
-► 驗證再交：grep 驗證 → JS 括號平衡 → node --check → 禁忌詞掃描
-► 品牌合規：每次改文案前讀本技能第一部分禁忌詞規範
-► 不用 sed 改中文：Python content.replace() 比 sed 可靠（UTF-8 編碼問題）
+► **協作管道**：逸君在 Discord 頻道 `1488487050557653032` 給指令，所有重要回報主動 reply 到該頻道（手機推播）；終端機輸出只當工作日誌
+► **直接 git 流程**：用 Read/Edit/Write 直接改本地檔案 → node --check JS / 標籤平衡檢查 → git add 指定檔案 → commit → push origin main → GitHub Pages 自動部署 1-2 分鐘生效
+► **不破壞現有**：除非逸君明確要求，不動既有計算邏輯、牌卡規則、計分架構（鎖定規則見第六節）
+► **品牌合規**：每次改文案前讀本技能第一部分禁忌詞規範 + 高端品牌 UI 不放 emoji
+► **不用 sed 改中文**：Python `content.replace()` 比 sed 可靠（UTF-8 編碼問題）
+► **同步到 Notion**：完成任何工程後到 Notion「官網工程」父頁面（id 32a57a42…21ce）下建立或更新交接文，Discord + Notion 雙寫
+► **直接指令不要 reframe**：逸君給清楚指令時不要提替代方案或互補框架，照做就對了
+► **不要重做整段，只 Edit 最小差異**：逸君不喜歡看到大規模重寫，會頭痛
+
+## 已過時的工作流程（不要再用）
+
+► ~~ZIP 打包交付（hourlightkey-YYYYMMDD-vNN-LABEL.zip）~~ — 已改 git 直推
+► ~~/home/claude/site 解壓~~ — 已改本地 git repo 直接編輯
+► ~~GitHub 網頁編輯器~~ — 134KB 以上檔案會 commit 失敗，務必本地 git push
 
 ~~
 
@@ -299,71 +323,104 @@ description: >
 
 ### 1.1 基礎架構
 
-► 網域：hourlightkey.com（GitHub Pages 靜態託管）
+► 網域：hourlightkey.com（GitHub Pages 靜態託管，main 分支自動部署）
 ► 子網域：app.hourlightkey.com（Vercel，API + PWA）
-► 頁面總數：166+ 頁 HTML（持續增加中）
-► 設計風格：深色主題（深紫底 #06040e + 金色文字 #f8dfa5 / #f0d48a）
-► 字體：Noto Serif TC（標題）+ 系統字體
+► 頁面總數：300+ 頁 HTML（root 314 + sub 45）
+► 設計風格：深色主題為主（深紫底 #06040e + 金色 #f8dfa5/#f0d48a/#e9c27d）；
+   pricing.html 為米色淺色主題（#faf9f7）；price-list*.html 為深色橫式單頁
+► 字體：Noto Serif TC（標題）+ Cormorant Garamond（pricing 西文）+ 系統字體
 ► RWD：全站手機優先
 
-### 1.2 頁面分類
+### 1.2 頁面分類（2026/04/10）
 
 ► 首頁：index.html
 ► 命理計算器（9頁）：bazi/ziwei/astro/hd/maya/lifepath/numerology/qizheng/triangle-calculator.html
 ► 核心引擎（2頁）：destiny-engine.html（33合1）、destiny-match.html（33套合盤）
-► 抽牌系統（8頁）：draw-hl/draw-nail/draw-spa/draw-family/draw-light/draw-manual/draw-hl-guide/pet-reading.html
-► 占卜工具（4頁）：yijing-oracle/phone-oracle/name-oracle/poe-blocks.html
-► 心理測驗（52頁）：quiz-hub.html + 50+個獨立測驗
-► 會員系統：member-login/member-dashboard/app/castle-game/pricing.html
-► 遊戲化系統：game.html（RPG框架）、app.html（內在城堡入口）
-► 其他：services/pricing/about/faq/privacy/terms/contact/blog 等
-► sitemap.xml：已含全站（154頁在sitemap）
+► 抽牌系統（10頁）：draw-hl/draw-hl-guide/draw-hub/draw-light/draw-manual/draw-nail/draw-spa/draw-family/draw-body/draw-admin.html
+► 占卜工具（多頁）：yijing-oracle/phone-oracle/name-oracle/poe-blocks/tarot-draw/angel-oracle/bone-casting/dream-decoder/mirror-oracle/season-oracle/witch-power/projection-cards 等
+► 心理測驗（101 頁）：quiz-hub.html + quiz-* 100 支獨立測驗（含深潛覺察、美業專屬、家族系列）
+► 會員系統：member-login/member-dashboard/app.html/castle-game.html
+► 服務與價目：services.html / pricing.html / price-list.html / price-list-vip.html / price-list-b2b.html
+► 遊戲化系統：game.html（RPG框架）、app.html（內在城堡入口）、castle-* 24 頁（房間/材料/小遊戲）
+► SEO 落地頁：blog/* 與 sc/blog/*（東南亞華人 SEO 三篇旗艦文已上線）
+► 簡體版：sc/* 與 sc/blog/* 雙版策略
+► 法務與內容：privacy/terms/about/faq/founder/brand-vision/brand-story/changelog/contact 等
+► sitemap.xml：含全站主要頁面
 
-### 1.3 JS 模組清單
+### 1.3 JS 模組清單（2026/04/10 實際盤點）
 
-「共用 hl-* 模組」（assets/js/，28 支）
-
-| 模組 | 功能 | 載入頁數 |
-|------|------|----------|
-| hl-gate.js | 全站互動攔截器 v2.0（未登入→彈登入窗，Fail-Open 8秒） | 148 |
-| hl-topnav.js | 全站頂部導航 | 151 |
-| hl-bottomnav.js | 全站底部導航 | 154 |
-| hl-email.js | 全站 email 訂閱模組（MailerLite） | 147 |
-| hl-tracker.js | 全站事件追蹤（Firestore events/） | 125 |
-| hl-music.js | 432Hz 背景音樂播放器 | 89 |
-| hl-analytics.js | GA4 + FB Pixel 追蹤 | 33 |
-| hl-ai-gate.js | AI 解讀指令計次門控（前端） | 34+ |
-| hl-ai-copy.js | 單人版 AI 解讀指令複製 | 34+ |
-| hl-ai-reading.js | 牌卡 AI 即時解讀前端橋接 | 1 |
-| hl-paywall.js | 付費牆模組（美甲/SPA/家族/寵物） | 4 |
-| hl-biz-code.js | 合作商代碼驗證 | 2 |
-| hl-premium-gate.js | 合盤門控（前5套免費，第6套起需會員） | 1 |
-| hl-referral.js | 推薦碼分潤系統 | — |
-| hl-castle-key.js | 城堡遊戲鑰匙系統 | 1 |
-
-「核心資料 JS」（js/，14 支）
+「共用 hl-* 模組」（assets/js/，41 支）
 
 | 模組 | 功能 |
 |------|------|
-| ai-frameworks.js（344KB）| 33 套命理 AI 解讀框架（單人版） |
+| hl-gate.js | 全站互動攔截器（未登入→彈登入窗，Fail-Open 8 秒） |
+| hl-topnav.js | 全站頂部導航 |
+| hl-bottomnav.js | 全站底部導航 + footer 連結自動注入（服務價目/價目表/客服聯絡/AI 認識我們）+ 客服資訊一行（LINE/Email/服務時間） |
+| hl-email.js | 全站 email 訂閱模組（MailerLite） |
+| hl-tracker.js | 全站事件追蹤（Firestore events/） |
+| hl-music.js | 432Hz 背景音樂播放器 |
+| hl-analytics.js | GA4 + FB Pixel 追蹤 |
+| hl-ai-gate.js | AI 解讀指令計次門控（前端，命理工具用） |
+| hl-ai-copy.js | AI 解讀指令複製（含 iOS Safari _syncCopy 鐵則範本） |
+| hl-divination-gate.js | **占卜計次門控 v1.1**（塔羅/易經/天使/骨牌/夢境/鏡像 等每工具獨立計次：免費 3/天 / 鑰友 10/天 / 大師無限） |
+| hl-paywall.js | 付費牆模組（美甲/SPA/家族/寵物） |
+| hl-biz-code.js | 合作商代碼驗證 |
+| hl-premium-gate.js | 合盤門控（前 5 套免費，後半段鑰友/大師） |
+| hl-referral.js | 推薦碼分潤系統 |
+| hl-payment.js | 付款流程（PAYUNi 整合準備） |
+| hl-points.js | 積分系統（城堡靈感點 → 折價券） |
+| hl-benefits-modal.js | **完整會員權益彈窗**（SSOT，4 個價目頁共用） |
+| hl-share.js | 跨平台分享（FB/IG/Threads/LINE，line.me/R/share 協議） |
+| hl-chat.js | 馥靈即時對話介面 |
+| hl-record.js | 解讀紀錄存檔 |
+| hl-quiz-save.js | 心理測驗結果存檔 + 馥靈稱號卡 |
+| hl-member.js | 會員資料管理 |
+| hl-invite.js | 邀請好友模組 |
+| hl-announce.js | 全站公告系統（含 ?v= 版本號避快取） |
+| hl-castle-key.js | 城堡遊戲鑰匙系統 |
+| hl-castle-decor-v2.js / hl-castle-material.js / hl-castle-pets.js / hl-castle-room-decor.js / hl-castle-sync.js | 城堡裝飾、材料、寵物、房間、Firestore 同步 |
+| hl-aroma-fx.js / hl-breathe.js / hl-sound.js / hl-visual-fx.js | 互動效果（精油動畫、呼吸引導、音效、視覺特效） |
+| hl-awareness.js | 覺察系統 |
+| hl-bridge.js | 跨頁狀態橋接 |
+| hl-calc-engine.js / hl-core-data.js / hl-system.js | 計算引擎與資料 |
+| hl-oil-dna.js | 130 張精油 DNA 對應 |
+| hl-performance.js | 效能監控 |
+| hl-sweph.js | 星曆計算 |
+
+「核心資料 JS」（js/，19 支）
+
+| 模組 | 功能 |
+|------|------|
+| ai-frameworks.js | 33 套命理 AI 解讀框架（單人版，v97-v99 框架升級後） |
 | ai-match-frameworks.js | 33 套合盤 AI 解讀框架 |
-| cardData-protected.js（425KB）| 130 張牌卡完整 DNA（Base64 編碼） |
-| hl-card-patch.js（12KB）| 補丁：補齊 007-076 共 70 張精油牌缺失 DNA |
-| destiny-calc.js | 命盤引擎核心計算 |
+| cardData-protected.js | 130 張牌卡完整 DNA（Base64 編碼） |
+| familyCardDNA.js / petCardDNA.js | 家族版 / 寵物版牌卡 DNA |
+| destiny-calc.js | 命盤引擎核心計算（含威妥瑪拼音補字「雨 Yu」「諠 Hsuan」） |
+| ephemeris-1920-2060.json | 星曆資料 |
+| lunar.min.js | 農曆計算 |
+| kangxi-strokes.js | 康熙字典筆畫 |
+| awareness-modules.js | 覺察模組 |
+| angel-cards.js / poker-cards.js | 天使卡 / 撲克牌資料 |
+| hl-cross-validator.js / hl-pricing-data.js / hl-social-triangle.js | 跨系統驗證、定價資料、社交三角 |
 | hl-yuyu.js | 馥靈馥語收尾產生器 |
+| hl-system.js / hl-core-data.js / hl-calc-engine.js | 系統 / 核心資料 / 計算引擎 |
 
 「Vercel API」（api/，12 支 → app.hourlightkey.com）
 
 | API | 功能 | 收費 |
 |-----|------|------|
-| ai-draw-reading.js | 130張牌卡 AI 即時解讀 | 3張$199/5張$399/7張$599 |
-| ai-framework-gate.js | 單人 AI 解讀指令門控 | 免費3次/鑰友10次/大師無限 |
+| ai-draw-reading.js | 130 張牌卡 AI 即時解讀 | 3 張 $199 / 5 張 $399 / 7 張 $599 |
+| ai-framework-gate.js | 單人 AI 解讀指令門控 | 免費 3 次 / 鑰友 10 次 / 大師無限 |
 | ai-match-gate.js | 合盤 AI 解讀指令門控 | 同上 |
-| nail-reading.js | 美甲 AI 解讀 | 3張$600/5張$900/9張$1200 |
+| nail-reading.js | 美甲 AI 解讀 | 3 張 $600 / 5 張 $900 / 9 張 $1,200 |
 | spa-reading.js | SPA AI 解讀 | 同上 |
-| family-reading.js | 家族 AI 解讀 | 3張$199/5張$399/7張$599 |
+| family-reading.js | 家族 AI 解讀 | 3 張 $199 / 5 張 $399 / 7 張 $599 |
 | pet-reading.js | 寵物 AI 解讀 | 同上 |
-| name-analysis.js | 姓名學分析 | $199 |
+| reading-services.js | 元辰宮 / 阿卡西 / 前世 / 姓名分析整合 | $199–$599 |
+| chat.js | 馥靈即時對話 | 含於會員 |
+| send-report.js | 自動寄送解讀報告 email | 系統內部 |
+| **payuni-create.js** | PAYUNi 金流建立訂單（已上線，代號 U031269167） | — |
+| **payuni-notify.js** | PAYUNi 付款結果回呼 + 會員自動升級 | — |
 
 ### 1.4 CSS 架構
 
@@ -381,41 +438,66 @@ CSS 變數（深色主題）：
 
 ## 二、收費系統邏輯（最核心）
 
-### 系統 A：AI 解讀指令計次制
+### 系統 A：AI 解讀指令計次制（命理工具）
 
-► 適用：34+頁命理工具的「🤖 複製 AI 深度解讀指令」按鈕
+► 適用：34+ 頁命理工具的「複製 AI 深度解讀指令」按鈕
 ► 免費會員：每天 3 次（UTC+8 午夜歸零）
 ► 馥靈鑰友 NT$399/月：每天 10 次
 ► 馥靈大師 NT$999/月：當月無限
 ► 加購：10 次 / NT$199（永久有效，每日配額用完才扣）
-► 前端：hl-ai-gate.js + hl-ai-copy.js
+► 前端：hl-ai-gate.js + hl-ai-copy.js（含 iOS Safari _syncCopy 鐵則）
 ► 後端：api/ai-framework-gate.js + api/ai-match-gate.js
-► Firestore：users/{uid}/ai_daily/{YYYY-MM-DD} → { count, lastUsed }
+► Firestore：`users/{uid}/ai_daily/{YYYY-MM-DD}` → `{ count, lastUsed }`
 
-### 系統 B：130 張牌卡 AI 即時解讀（獨立收費）
+### 系統 A2：占卜工具計次制（hl-divination-gate.js v1.1）
+
+► 適用：占卜類動作（抽牌/卜卦/算命）— 塔羅 / 易經 / 天使 / 骨牌 / 夢境 / 鏡像 / 季節 等
+► **每個工具獨立計次**（不是全部共用）— 例如塔羅 10 次/天 + 易經 10 次/天，互不影響
+► 免費會員：每工具每天 3 次
+► 馥靈鑰友：每工具每天 10 次
+► 馥靈大師：無上限
+► 每日 UTC+8 00:00 自動歸零，沒用完不累計
+► Firestore：`users/{uid}/{toolId}_daily/{YYYY-MM-DD}` → `{ count, lastUsed }`
+   範例：`users/abc123/angel_daily/2026-04-10` → `{ count:2, lastUsed:... }`
+► tarot-draw.html 已單獨實作（tarot_daily 集合），其他工具引用此模組
+► 推薦碼獎勵期 / FOOL999 試用期：自動視為 pro
+
+### 系統 B：130 張牌卡 9 種牌陣完整價目（核心商品）
 
 ► 抽牌永遠免費不限次
-► 1 張牌：免費靜態解讀（cardData 寫死前端）
-► 3 張牌：NT$199 / 5 張：NT$399 / 7 張：NT$599
-► 鑰友每月贈 3 次 3 張牌解析；大師每月贈 10 次
+► 1 張：免費靜態解讀（cardData 寫死前端）
+► 3 / 5 / 7 張：AI 即時解讀 NT$199 / 399 / 599
+► 9 / 12 / 15 張：覺察師預約 NT$1,800 / 2,800 / 3,600（24 小時內回覆）
+► 21 張：NT$6,800（= 馥靈初探方案）
+► 28 張：NT$8,800（= 深度覺醒方案，前 7 + 後 21 分開抽合讀）
+► 鑰友每月贈 3 次 3 張牌 AI 解析；大師每月贈 10 次 + $500 抵用券 × 2
 ► 後端：api/ai-draw-reading.js
-► Firestore：unlock_codes/{code}、readings/{auto}
-► PAID_QUOTA：{ free: 0, plus: 3, pro: 10 }
-► 注意：HL_checkQuota 目前 return true（關閉），PAYUNi 串接後刪除 return true 才啟用
+► Firestore：`unlock_codes/{code}`、`readings/{auto}`
+► PAID_QUOTA：`{ free: 0, plus: 3, pro: 10 }`
 
-### 系統 C：美甲/SPA/家族/寵物 AI 解讀
+### 系統 C：美甲 / SPA / 家族 / 寵物 AI 解讀
 
-► 美甲/SPA：3張$600、5張$900、9張$1200
-► 家族/寵物：3張$199、5張$399、7張$599
-► 付費流程：hl-paywall.js 彈出匯款 → LINE 傳截圖 → 人工確認 → 觸發 API
-► 美甲/SPA 額外支援合作商代碼（hl-biz-code.js）
+► 美甲 / SPA：3 張 $600、5 張 $900、9 張 $1,200
+► 家族 / 寵物：3 張 $199、5 張 $399、7 張 $599
+► 付費流程：hl-paywall.js 彈出匯款 → LINE 傳截圖 → 人工確認 → 觸發 API（PAYUNi 整合進行中）
+► 美甲 / SPA 額外支援合作商代碼（hl-biz-code.js）
 
 ### 合盤門控（destiny-match.html）
 
-► 前 5 套免費（八字/紫微/占星/人類圖/七政四餘）
-► 鑰友：33套合盤後半段解鎖
+► 前 5 套免費（八字 / 紫微 / 占星 / 人類圖 / 七政四餘）
+► 鑰友：33 套合盤後半段解鎖
 ► 大師：全套 33 合盤完整解鎖
 ► 門控模組：assets/js/hl-premium-gate.js
+
+### 三份價目表（2026/04/10 上線）
+
+► **price-list.html**（一般版）：橫式單頁，含平台會員 / 馥靈智慧牌 9 種牌陣 / 馥靈深度服務 / 寵物 / 家族 / SPA / 美甲 / 占卜計次 / 連結列
+► **price-list-vip.html**（高端客戶版）：6 個一對一陪跑方案 — 馥靈初探 6,800 / 深度覺醒 8,800 / 三次轉化 12,800 / 半年陪伴 39,800 / VIP 年度 59,800 / VIP 紫微 16,800
+► **price-list-b2b.html**（專業合作版）：B2B 限定 — 美業平台合作（年費 $39,800 + 月費 $999 + 月配額 3/5/9 張 × 50/30/20 組）/ 推薦碼分潤 / 美業三把刀 / 培訓授權
+► 三份頂端 nav 互連，當前版本 highlight
+► 完整會員權益彈窗：`assets/js/hl-benefits-modal.js`（SSOT，4 個價目頁共用），點擊開啟不占版面
+► 客服聯絡：`pricing.html#contact`（LINE / Email / 服務時間 / 美業窗口 / 公司資訊 / 危機協助 1925/113）
+► 全站頁尾自動注入「服務價目 / 價目表 / 客服聯絡 / AI 認識我們」連結 + 客服 LINE/Email 一行（hl-bottomnav.js 內）
 
 ~~
 
@@ -450,61 +532,122 @@ Firestore 結構：
 
 ## 五、部署架構
 
-► GitHub Pages（主站）：push to main → 自動部署
-► Vercel（API + PWA）：app.hourlightkey.com，12支 serverless functions
-► 環境變數：ANTHROPIC_API_KEY、FIREBASE_SERVICE_ACCOUNT
-► CORS 允許：hourlightkey.com / app.hourlightkey.com / localhost:3000
+► GitHub Pages（主站）：push to main → 自動部署 1-2 分鐘生效
+► Vercel（API + PWA）：app.hourlightkey.com，12 支 serverless functions
+► CORS 允許：hourlightkey.com / www.hourlightkey.com / app.hourlightkey.com / localhost:3000
 ► GA4：G-BXP7K53QG6 / FB Pixel：1333106288588347
 ► MailerLite：帳號 ID 2060689
 
+### Vercel 環境變數（不入 git）
+
+- `ANTHROPIC_API_KEY` — Claude API 金鑰
+- `FIREBASE_SERVICE_ACCOUNT` — Firebase Admin SDK 服務帳號
+- `PAYUNI_MER_ID` — PAYUNi 商店代號（U031269167）
+- `PAYUNI_HASH_KEY` — PAYUNi AES-256-CBC 加密金鑰（**機敏，絕不入 git**）
+- `PAYUNI_HASH_IV` — PAYUNi AES-256-CBC IV（**機敏，絕不入 git**）
+- `PAYUNI_TEST_MODE` — `true`（測試）/ `false`（正式）
+- 詳細加解密流程見記憶 `reference_payuni_env_vars.md`
+
+### PAYUNi 統一金流（2026/04/10 通過審核）
+
+► 商店代號 `U031269167`，整合式支付頁 UNiPaypage (UPP) 模式
+► api/payuni-create.js 建單；api/payuni-notify.js 結果回呼 + 會員自動升級
+► 加解密：AES-256-CBC，HashInfo = SHA256(IV + EncryptInfo + Key).toUpperCase()
+► 待辦：把全站「匯款 + LINE 截圖 + 人工確認」流程改為 PAYUNi 線上自動入帳（鑰友 / 大師訂閱、加購、3-7 張 AI 解讀、SPA / 美甲 / 寵物 / 家族）
+► 整合過程注意小花事件已修（commit 0f024fd8）— 試用期不能蓋掉付費方案的 plan
+
 ~~
 
-## 六、鎖定規則（不可動）
+## 六、鎖定規則（不可動，未經逸君明確要求絕不能動）
 
-► destiny-engine.html 命盤計算邏輯
-► draw-hl/draw-light 抽牌規則及牌陣
-► 心理測驗計分架構與馥靈稱號卡
-► 紫微五局、命宮公式 ((lm+1-hzI)%12+24)%12
-► 八字月柱 Solar.fromYmdHms()→getLunar()→getEightChar()
-► 生命路徑數 rd(yS+mS+dS)
-► 深色主題為正式版
-► 130 張牌卡名稱永遠不可竄改
-► hl-light-theme.css 為淡色主題（部分頁面用）
+從 Notion 鎖定規則頁面同步（id 32a57a42-1621-8149-a185-f6a6ec35cba3）：
+
+1. `destiny-engine.html` 命盤計算邏輯 → 不動
+2. `draw-hl.html` 的 130 張牌抽牌規則 → 不動
+3. 心理測驗計分架構 → 不動
+4. 紫微：命宮 = `((lm+1-hzI)%12+24)%12`，身宮 = `(lm+1+hzI)%12`
+5. 生命路徑數：`rd(yS+mS+dS)`
+6. HD_CENTERS：throat 11 個（無閘門 7）、g 8 個（含閘門 7）、ego 有 51
+7. 星曆 True Node = body ID 11
+8. `app.html` 不可 import `hl-gate.js`
+9. 深色主題為正式版
+10. 130 張牌卡名稱永遠不可竄改
+
+### 城堡 CSS 鐵則（2026/04/05 血淚教訓）
+
+► 城堡房間頁面的 `backdrop-filter:blur()` **不能移除**，移除會導致手機版 topbar 壞掉
+► 城堡房間頁面的 CSS 不能加 `max-width` 在 body 上，會讓電腦版變成手機框架
+► 電腦版模糊是 Windows DPI 縮放 + Chrome GPU 合成的已知問題，**不是改幾行 CSS 能解決**
+► **鐵則**：改城堡任何 CSS 前必須本地測試手機 + 電腦兩端，確認沒問題才能 push。不能連續推 commit 試錯。改壞了第一時間 `git revert`，不要在壞的基礎上繼續改
+► 過去曾連推 7 次 commit 試錯，每次都說「修好了」但都沒測試 → 直接影響客人體驗、損害品牌信譽
+
+### iOS Safari 複製功能鐵則（2026/04/06 血淚教訓）
+
+► **錯誤寫法**：`position:fixed;left:-9999px` + `ta.select()` → iOS 不會觸發剪貼簿
+► **正確寫法**：`position:fixed;top:50%;left:50%;opacity:.01` + `setAttribute('readonly')` + iOS 用 `createRange + setSelectionRange` 取代 `.select()`
+► 參考檔案：`assets/js/hl-ai-copy.js` 的 `_syncCopy()` 函數是標準範本
+► **以後所有新頁面的複製功能必須用 `_syncCopy()` 的寫法，不得自己寫新的複製函數**
 
 ~~
 
-## 七、常見工程任務
+## 七、常見工程任務（git 直推流程）
 
 ### 全站替換
-► 工具：Python content.replace()（不要用 sed 改中文）
-► 流程：列出要改的 → grep 確認數量 → 批次替換 → grep 驗證 → 打包
+► 工具：Python `content.replace()` 或 Edit 工具的 `replace_all`（不要用 sed 改中文，UTF-8 編碼會壞）
+► 流程：列出要改的 → Grep 確認數量 → 批次替換 → Grep 驗證 → node --check（如有 JS）→ git add → commit → push
 
 ### 禁忌詞掃描
-► 掃描詞：療癒/治癒/調頻/對頻/王座塔/啟數
+► 掃描詞：療癒 / 治癒 / 調頻 / 對頻 / 王座塔 / 啟數
 ► 排除：node_modules / .git / 圖片
+► 禁止句型：「你不是XXX，是XXX」（已全面清除，commit 4ebbcafd）
 
 ### 新增頁面
 ► 複製同類型頁面當模板
 ► 確認載入鏈：hourlight-global.css → hl-topnav → hl-bottomnav → hl-gate → hl-email → hl-music → hl-tracker
+► 必須有 `<footer class="hl-footer"><div class="hl-footer-inner"><div class="hl-footer-links">...</div></div></footer>` 結構，hl-bottomnav.js 才能注入頁尾連結
 ► 更新 sitemap.xml
 
-### 打包交付
-► 改 <10 檔：個別檔案 + ZIP
-► 改 ≥10 檔：ZIP only
-► ZIP 命名：hourlightkey-YYYYMMDD-vNN-LABEL.zip
-► 輸出到 /mnt/user-data/outputs/
-► 附 DEPLOY-GUIDE.md
+### 改 CSS（特別小心）
+► CSS `!important` 全域規則影響 100+ 頁 → 改 CSS 用 append-only，不要動既有 rule
+► 城堡頁面 CSS 改前必須本地測試手機+電腦兩端（見鎖定規則）
+► .hide{display:none!important} 會蓋掉 .on 的 display:block，admin 分頁就被這個害的
+
+### git 提交流程
+► 用 Read/Edit/Write 直接改本地檔案
+► node --check 驗 JS / Python 標籤平衡檢查 / Grep 驗證
+► `git add 指定檔案`（不要用 git add -A，會帶到 settings.local.json）
+► `git commit -m "簡短描述"`（中文 OK）
+► `git pull --rebase origin main`（如遠端有新 commit）
+► `git push origin main` → GitHub Pages 1-2 分鐘部署
+► 完成後 Discord reply 1488487050557653032 通知 + Notion 同步
+
+### Discord + Notion 雙寫（重要）
+► 完成任務 → mcp__plugin_discord_discord__reply 送摘要到 1488487050557653032
+► 重大任務 → 在 Notion 官網工程父頁面（32a57a42…21ce）下建交接文，記錄改了什麼、為什麼
 
 ~~
 
-## 八、已知陷阱
+## 八、已知陷阱（合併 Notion 關鍵陷阱頁）
 
-► CSS !important 全域規則影響 100+ 頁 → 改 CSS 要特別小心，用 append-only
-► HL_checkQuota 目前 return true（整個關閉），PAYUNi 串接好後刪掉才能啟用
-► cardData-protected.js 是 Base64 編碼，要 node 解碼才能看
-► ai-frameworks.js 344KB 很大，用 sed -n 'X,Yp' 分段讀
-► GitHub Pages 和 Vercel 獨立部署，推 main 只更新主站
-► LINE 按鈕用金色背景＋深色文字（逸君討厭綠色）
+從 Notion 關鍵陷阱頁同步（id 32a57a42-1621-81ca-9d6b-c70279fa2dad）：
+
+1. **全形括號地雷**：Python 替換時先用 `repr()` 檢查原始碼中的括號類型
+2. **`.hide{display:none!important}`**：會蓋掉 `.on` 的 display:block，admin 分頁被這個害過
+3. **Firebase SDK 三件套**：firebase-app-compat + auth-compat + firestore-compat 缺一不可
+4. **copyResult 殘骸**：之前 regex 替換留下模板字串殘骸，後來改用 hl-share.js 全域版
+5. **括號計數器假警報**：字串裡的括號會被誤判，要用 `node --check` 獨立區塊
+6. **Service Worker**：已改自毀版本，不要再註冊新的
+7. **GitHub 網頁編輯器**：134KB 的 destiny-calc.js 太大會 commit 失敗，用本地 git push
+8. **LINE 美甲（蘋蘋）連結**：新版 `https://lin.ee/p5tBihbe`（舊版已廢）
+9. **`LOGO-1.png` = 真正的 logo，`HOUR-LIGHT.png` = 背景圖**
+10. **逸君的「你」是刻意的**：個人文案裡的「你」是她的語氣，對外官網用「您」
+11. **CSS !important 全域規則**影響 100+ 頁 → 改 CSS 要特別小心，用 append-only
+12. **cardData-protected.js 是 Base64 編碼**，要 node 解碼才能看
+13. **ai-frameworks.js 很大**（v97-v99 升級後），用 Read 的 offset/limit 分段讀
+14. **GitHub Pages 和 Vercel 獨立部署**，推 main 只更新主站；改 api/ 要等 Vercel 部署
+15. **LINE 按鈕用金色背景 ＋ 深色文字**（逸君討厭綠色）
+16. **iOS 公告快取**：改 hl-announce.js 後要加 `?v=N` 版本號才會強制重新下載
+17. **小花事件**：PAYUNi 試用期不能蓋掉付費方案 plan（commit 0f024fd8 修過）
 
 ~~
 
@@ -524,37 +667,46 @@ Notion 關鍵文件：
 
 # 第三部分｜網站策略（v1.0）
 
-## 網站核心數字（對話中可直接引用）
+## 網站核心數字（對話中可直接引用，2026/04/10 校準）
 
-► 166頁 HTML / 154頁在sitemap
+► 300+ 頁 HTML（含繁簡雙版、SEO 落地頁、城堡 24 頁）
 ► 33套 命理系統（全球最完整整合）
-► 130張 原創智慧牌卡
-► 70+ 心理測驗
-► 3級 訂閱方案（免費 / NT$399鑰友 / NT$999大師）
+► 130張 原創智慧牌卡 × 9 種牌陣
+► 100+ 心理測驗（quiz-* 實際 101 支）
+► 3 級 訂閱方案（免費 / NT$399 鑰友 / NT$999 大師）+ 加購 10 次/$199 永久有效
+► 41 支 hl-* 共用前端模組 + 12 支 Vercel API（含 PAYUNi 兩支已上線）
 
 ## 五大功能區速覽
 
-### 🔮 命理計算（40頁）
-主力：destiny-engine.html（33合1）、destiny-match.html（合盤）、fuling-mima.html（馥靈秘碼）
+### 命理計算（40+頁）
+主力：destiny-engine.html（33 合 1，含威妥瑪拼音補字）、destiny-match.html（33 套合盤）、fuling-mima.html（馥靈秘碼）
 
-### 🃏 抽牌占卜（25頁）
-主力：draw-hl.html（130張，1張免費，3/5/7張付費AI解讀）
-免費：塔羅、天使、前世、女巫原力、投射卡、擲杯、今日精油
-付費AI解讀：寵物/家族NT$199、SPA/美甲NT$600
+### 抽牌占卜（10 頁主流 + 多支占卜工具）
+主力：draw-hl.html（130 張，1 張免費含五種模式：快閃 / 是非 / 晨間 / 情緒急救 / 趨勢微觀；3/5/7 張 AI 即時解讀；9-28 張覺察師預約）
+免費：塔羅、天使、前世、女巫原力、投射卡、擲杯、今日精油、季節、夢境、骨牌、鏡像
+付費 AI 解讀：寵物 / 家族 NT$199 起、SPA / 美甲 NT$600 起
 
-### 🧠 心理測驗（52頁）
-標準版：MBTI、九型、DISC、Big Five、依附型態、愛之語等
-深潛覺察（14頁）：富命覺醒、關係羅盤、天命導航等（馥靈獨家）
-美業人專屬：quiz-beauty-burnout/client/locus/savior
+### 心理測驗（101 頁）
+標準版：MBTI、九型、DISC、Big Five、依附型態、愛之語、PDP、RIASEC、VIA、EQ 等
+深潛覺察（14+頁）：富命覺醒、關係羅盤、天命導航、家族系列、寵物深潛等（馥靈獨家）
+美業人專屬：quiz-beauty-burnout / client / locus / savior
+9 個測驗已改 Likert 量表為直式按鈕（commit 04/07）
 
-### 🎮 遊戲化系統
-game.html：整套RPG框架（算秘碼＝查角色屬性；抽牌＝翻任務卡；做測驗＝解鎖技能樹）
-五個角色身份：覺察旅人→覺察學員→覺察修練者→馥靈夥伴→馥靈傳承者
-成就系統、語言包系統（RPG/麻將/銀髮/青少年）
+### 遊戲化系統（castle-* 24 頁）
+game.html：整套 RPG 框架（算秘碼 = 查角色屬性；抽牌 = 翻任務卡；做測驗 = 解鎖技能樹）
+五個角色身份：覺察旅人 → 覺察學員 → 覺察修練者 → 馥靈夥伴 → 馥靈傳承者
+成就系統、語言包系統（RPG / 麻將 / 銀髮 / 青少年）
+靈感點 → 折價券（hl-points.js）
 
-### 💼 商業服務
-C端：services.html、pricing.html
-B2B：consulting.html（美業轉型顧問）、partners.html（夥伴授權）
+### 商業服務
+C 端：services.html、pricing.html、price-list.html（一般版）
+高端：price-list-vip.html（一對一陪跑 6 方案）
+B2B：price-list-b2b.html（合作授權）、consulting.html、partners.html
+
+### 月禮系統（最近上線）
+會員開通自動發桌布代碼 + 抵用券，會員中心可查（commit ec5e7f7b）
+蘊福桌布：xAI grok 合成 prompt → gpt-image-1 出圖（一次一張，最多 3 張，控制糾紛）
+4 月會員月禮、生日月禮、補贈按鈕
 
 ## 三大差異化武器
 
@@ -589,15 +741,41 @@ references/
 
 ~~
 
-## v1.0 整合說明（2026年4月）
+## v2.0 整合說明（2026/04/10 大更新）
 
-► 整合來源：hourlight-brand v8.0 + hourlight-web v4.0 + hourlight-website v1.0 + AI營運團隊 v1.1
-► 品牌數字校準：70+項測驗/90+種工具/33大命理/166頁網站
-► 新增遊戲化系統（game.html/app.html）完整說明
-► 服務定價全面更新為官網最新版
-► 三把刀系統更新為分享刀/加值刀/升級刀
-► 美業平台合作：年費$39,800+月費$999，配額3/5/9張×50/30/20組
-► 特殊主題AI解讀：元辰宮$599/阿卡西$599/前世故事$399/姓名分析$199
+從 v1.0 → v2.0 的關鍵變更：
+
+**數字校準**
+► 70+項測驗 → 100+項（實際 101 支 quiz-*）
+► 166 頁網站 → 300+ 頁（root 314 + sub 45）
+► 28 支 hl-* 模組 → 41 支（補齊新增 13 支）
+► 14 支 js/ → 19 支
+► 12 支 api/ 不變但內容變了（新增 PAYUNi 兩支）
+
+**新增章節**
+► 系統 A2：占卜工具計次制（hl-divination-gate.js v1.1，每工具獨立計次）
+► 系統 B 改為「9 種牌陣完整價目」（1-7 張 AI / 9-28 張覺察師預約）
+► 三份價目表（一般 / 高端 / 專業合作版）+ 互連 nav
+► 完整會員權益彈窗（hl-benefits-modal.js SSOT）
+► 客服聯絡 #contact + 全站頁尾自動注入連結
+► PAYUNi 統一金流（已通過審核 2026/04/10，憑證放 Vercel env vars）
+► 月禮系統（桌布代碼 + 抵用券，xAI grok + gpt-image-1）
+► 城堡 CSS 鐵則（4/5 血淚教訓）
+► iOS Safari 複製 _syncCopy 鐵則（4/6 血淚教訓）
+► 真實資料原則（不寫假見證 / 評價 / 數據）
+► 高端品牌 UI 不放 emoji 規則（4/10 逸君明確指示）
+
+**移除過時內容**
+► ZIP 打包工作流程（已改 git 直推）
+► /home/claude/site 解壓步驟
+► 「PAYUNi 審核中」（已通過）
+► 一對一價格 5,400 / 6,800（已校為 6,800 / 8,800）
+► 「啟數」提醒（早已廢止改用「行數」）
+
+**協作模式**
+► Discord 即時協作頻道 1488487050557653032（手機推播）
+► Notion 官網工程父頁面雙寫（id 32a57a42…21ce）
+► 直接 git push，不再 ZIP 交付
 
 © 2026 馥靈之鑰® Hour Light® 王逸君
 
