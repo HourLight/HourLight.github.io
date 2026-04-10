@@ -340,9 +340,32 @@ a{color:inherit;text-decoration:none}
       <input type="text" class="input" id="svcName" placeholder="例如：馥靈初探 21 張牌陣覺察">
     </div>
     <div class="field">
-      <label class="field-label">分類</label>
-      <input type="text" class="input" id="svcCategory" placeholder="例如：覺察導航 / 芳療 SPA / 命理深度">
-      <div class="field-hint">同分類的服務會在客戶頁集中顯示</div>
+      <label class="field-label">服務類別 <span class="required">*</span></label>
+      <select class="input" id="svcCategory">
+        <option value="">請選擇</option>
+        <option value="覺察解讀">覺察解讀（線上）</option>
+        <option value="美甲">美甲（實體）</option>
+        <option value="美容SPA">美容 SPA（實體）</option>
+        <option value="教學課程">教學課程</option>
+        <option value="其他">其他</option>
+      </select>
+      <div class="field-hint">同類別的服務會在客戶頁集中顯示</div>
+    </div>
+    <div class="field">
+      <label class="field-label">服務形式</label>
+      <select class="input" id="svcServiceType">
+        <option value="inperson">實體到店</option>
+        <option value="online">線上（不需到店）</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="field-label">預約模式</label>
+      <select class="input" id="svcBookingMode">
+        <option value="both">指定人員 + 系統安排（兩者皆可）</option>
+        <option value="appointment">僅限指定人員預約</option>
+        <option value="dispatch">僅限系統安排（派單）</option>
+      </select>
+      <div class="field-hint">「指定人員」客戶自選技師/覺察師；「系統安排」由系統分配當班人員</div>
     </div>
     <div class="field">
       <label class="field-label">內容簡介</label>
@@ -400,7 +423,14 @@ a{color:inherit;text-decoration:none}
     </div>
     <div class="field">
       <label class="field-label">角色 / 職稱</label>
-      <input type="text" class="input" id="stfRole" placeholder="例如：覺察導師 / 芳療師 / 美甲師">
+      <select class="input" id="stfRole">
+        <option value="">請選擇</option>
+        <option value="覺察師">覺察師</option>
+        <option value="美甲師">美甲師</option>
+        <option value="SPA芳療師">SPA 芳療師</option>
+        <option value="教學講師">教學講師</option>
+        <option value="全能">全能（多角色）</option>
+      </select>
     </div>
     <div class="field">
       <label class="field-label">簡介</label>
@@ -710,6 +740,8 @@ function renderServices(){
   }
   listEl.innerHTML = cachedServices.map(function(s){
     var cat = s.category ? '<span class="item-category">'+escapeHtml(s.category)+'</span>' : '';
+    var typeLabel = s.serviceType === 'online' ? '線上' : '實體';
+    var modeLabel = s.bookingMode === 'dispatch' ? '派單' : s.bookingMode === 'appointment' ? '指定' : '指定+派單';
     return '<div class="item '+(s.active===false?'inactive':'')+'">'
       + '<div class="item-color" style="background:'+(s.color||'#b8922a')+'"></div>'
       + '<div class="item-body">'
@@ -718,6 +750,7 @@ function renderServices(){
       +   '<div class="item-meta">'
       +     '<span><strong>NT$</strong> '+(s.price||0).toLocaleString()+'</span>'
       +     '<span><strong>時長</strong> '+(s.duration||0)+' 分鐘</span>'
+      +     '<span>'+typeLabel+' · '+modeLabel+'</span>'
       +     (s.active===false?'<span style="color:var(--red)">已停用</span>':'')
       +   '</div>'
       + '</div>'
@@ -739,6 +772,8 @@ window.openServiceModal = function(id){
     document.getElementById('svcId').value = id;
     document.getElementById('svcName').value = s.name || '';
     document.getElementById('svcCategory').value = s.category || '';
+    document.getElementById('svcServiceType').value = s.serviceType || 'inperson';
+    document.getElementById('svcBookingMode').value = s.bookingMode || 'both';
     document.getElementById('svcDesc').value = s.desc || '';
     document.getElementById('svcPrice').value = s.price || '';
     document.getElementById('svcDuration').value = s.duration || '';
@@ -751,6 +786,8 @@ window.openServiceModal = function(id){
     document.getElementById('svcId').value = '';
     document.getElementById('svcName').value = '';
     document.getElementById('svcCategory').value = '';
+    document.getElementById('svcServiceType').value = 'inperson';
+    document.getElementById('svcBookingMode').value = 'both';
     document.getElementById('svcDesc').value = '';
     document.getElementById('svcPrice').value = '';
     document.getElementById('svcDuration').value = '';
@@ -776,6 +813,8 @@ window.saveService = function(){
   var data = {
     name: name,
     category: document.getElementById('svcCategory').value.trim(),
+    serviceType: document.getElementById('svcServiceType').value,
+    bookingMode: document.getElementById('svcBookingMode').value,
     desc: document.getElementById('svcDesc').value.trim(),
     price: price,
     duration: duration,
