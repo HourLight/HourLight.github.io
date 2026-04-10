@@ -2165,8 +2165,8 @@ function bindWgEvents(){
     nameEl.addEventListener('input',function(){if(!composing)update()});
     nameEl.addEventListener('blur',function(){update()});
     if(enEl){
-      enEl.addEventListener('input',function(){enEl._edited=!!enEl.value});
-      enEl.addEventListener('focus',function(){enEl._edited=true});
+      enEl.addEventListener('input',function(){enEl._edited=!!enEl.value.trim()});
+      // 不再用 focus 標記 edited — 點進去再點出來不應該阻止自動填入
     }
   });
 }
@@ -2185,6 +2185,12 @@ function buildData(prefix){
   var H=gi(prefix+'_hour'),min=gi(prefix+'_min');
   var gen=gv(prefix+'_gen');
   var nameZh=gv(prefix+'_name');
+  // 強制補填英文拼音（修乙方拼音不自動填入的 bug）
+  var enEl=document.getElementById(prefix+'_name_en');
+  if(enEl&&!enEl.value.trim()&&nameZh){
+    var wg=typeof wgTranslate==='function'?wgTranslate(nameZh):'';
+    if(wg){enEl.value=wg;}
+  }
   var nameEn=(gv(prefix+'_name_en')||wgTranslate(nameZh)||nameZh);
 
   if(!Y||!M||!D)return null;
