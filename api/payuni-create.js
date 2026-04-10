@@ -122,25 +122,26 @@ module.exports = async function handler(req, res) {
     }
 
     // ── 決定 ReturnURL ──
-    // 1. 客戶端有指定 returnUrl（必須是 hourlightkey.com 主站白名單），優先使用
-    // 2. 否則預設導回 member-dashboard
-    let returnUrl;
+    // PAYUNi 付款完成後用 POST 導回 ReturnURL，但 GitHub Pages 不接受 POST（405）
+    // 所以先導到 Vercel 的 api/payuni-return?to=目標URL，再 302 GET 跳轉到靜態頁面
+    let finalPageUrl;
     const allowedReturnHosts = ['hourlightkey.com', 'www.hourlightkey.com'];
     if (clientReturnUrl) {
       try {
         const u = new URL(clientReturnUrl);
         if (allowedReturnHosts.includes(u.hostname)) {
-          // 加上 payment=success 與 order 參數（如有 code 也帶）
           u.searchParams.set('payment', 'success');
           u.searchParams.set('order', merTradeNo);
           if (preGeneratedCode) u.searchParams.set('code', preGeneratedCode);
-          returnUrl = u.toString();
+          finalPageUrl = u.toString();
         }
       } catch (e) { /* invalid url, fall through */ }
     }
-    if (!returnUrl) {
-      returnUrl = 'https://hourlightkey.com/member-dashboard.html?tab=plans&payment=success';
+    if (!finalPageUrl) {
+      finalPageUrl = 'https://hourlightkey.com/member-dashboard.html?payment=success';
     }
+    // 透過 Vercel 中繼 endpoint 避免 GitHub Pages 405
+    const returnUrl = `${siteUrl}/api/payuni-return?to=${encodeURIComponent(finalPageUrl)}`;
 
     // 建立加密參數
     const encryptData = {
