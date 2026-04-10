@@ -74,7 +74,7 @@ function parseTopupProduct(productId) {
 //   nail-3 / nail-5 / nail-9   → 美甲指尖 N 張
 function parseDrawProduct(productId) {
   if (!productId || typeof productId !== 'string') return null;
-  const m = productId.match(/^(draw|pet|family|spa|nail)-(\d+)$/i);
+  const m = productId.match(/^(draw|pet|family|spa|nail|light)-(\d+)$/i);
   if (!m) return null;
   const category = m[1].toLowerCase();
   const n = parseInt(m[2], 10);

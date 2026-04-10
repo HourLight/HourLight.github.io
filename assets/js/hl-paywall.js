@@ -1,11 +1,42 @@
 // ═══════════════════════════════════════
-// 馥靈之鑰 · 付款牆模組 hl-paywall.js
+// 馥靈之鑰 · 付款牆模組 hl-paywall.js v2.0
 // 在 AI 解讀觸發前攔截，顯示付款資訊
+// v2.0：加入 PAYUNi 線上付款（路徑 A）+ 保留代碼兌換（路徑 B）
 // © 2026 Hour Light International
 // ═══════════════════════════════════════
 
 window.hlPaywall = (function(){
   'use strict';
+
+  // ── 從 URL pathname 自動偵測商品類別（productCategory） ──
+  function detectCategory() {
+    var p = (location.pathname || '').toLowerCase();
+    if (p.indexOf('pet-reading') !== -1 || p.indexOf('pet-') !== -1) return 'pet';
+    if (p.indexOf('family-reading') !== -1 || p.indexOf('draw-family') !== -1) return 'family';
+    if (p.indexOf('draw-spa') !== -1) return 'spa';
+    if (p.indexOf('draw-nail') !== -1) return 'nail';
+    if (p.indexOf('draw-light') !== -1) return 'light';
+    if (p.indexOf('draw-hl') !== -1 || p.indexOf('draw-') !== -1) return 'draw';
+    return null;
+  }
+
+  // ── lazy-load hl-payment.js（讓不同頁面的 paywall 都能用 PAYUNi 線上付款） ──
+  function ensurePaymentLoaded(cb) {
+    if (window.HLPayment && window.HLPayment.pay) { cb(); return; }
+    if (document.querySelector('script[data-hl-payment-loader]')) {
+      // 已有人在載，等 200ms 後重試
+      setTimeout(function(){ ensurePaymentLoaded(cb); }, 200);
+      return;
+    }
+    var s = document.createElement('script');
+    s.src = 'assets/js/hl-payment.js';
+    s.setAttribute('data-hl-payment-loader', '1');
+    s.onload = function(){ cb(); };
+    s.onerror = function(){
+      alert('線上付款模組載入失敗，請改用代碼兌換或銀行轉帳。');
+    };
+    document.head.appendChild(s);
+  }
 
   // ── 建立付款牆 DOM ──
   function createOverlay(config) {
@@ -14,6 +45,8 @@ window.hlPaywall = (function(){
     var price = priceMap[n];
     var serviceName = config.serviceName || '智慧解讀';
     var lineUrl = 'https://lin.ee/RdQBFAN';
+    var category = config.productCategory || detectCategory();
+    var canPayOnline = !!(category && price && n >= 1 && n <= 99);
 
     if (!price && price !== 0) {
       // 沒有對應價格 = 不收費（理論上不該到這裡）
@@ -28,7 +61,6 @@ window.hlPaywall = (function(){
     overlay.innerHTML =
       '<div style="max-width:480px;width:100%;background:rgba(20,16,32,.95);border:1px solid rgba(240,212,138,.2);border-radius:20px;padding:32px 24px;max-height:90vh;overflow-y:auto">' +
         '<div style="text-align:center;margin-bottom:20px">' +
-          '<div style="font-size:2.5rem;margin-bottom:8px">🔮</div>' +
           '<div style="font-size:1.2rem;font-weight:700;color:#f0d48a;letter-spacing:.06em">' + serviceName + '</div>' +
           '<div style="font-size:.85rem;color:rgba(255,255,255,.5);margin-top:6px">' + n + ' 張牌卡智慧解讀</div>' +
         '</div>' +
@@ -37,31 +69,24 @@ window.hlPaywall = (function(){
         '<div style="text-align:center;padding:16px;background:rgba(240,212,138,.06);border:1px solid rgba(240,212,138,.15);border-radius:14px;margin-bottom:20px">' +
           '<div style="font-size:.78rem;color:rgba(255,255,255,.4)">服務費用</div>' +
           '<div style="font-size:1.8rem;font-weight:700;color:#f0d48a;margin:6px 0">NT$ ' + price.toLocaleString() + '</div>' +
-          '<div style="font-size:.78rem;color:rgba(255,255,255,.4)">單次計費，付款後生成完整報告</div>' +
+          '<div style="font-size:.78rem;color:rgba(255,255,255,.4)">單次計費，付款後立即生成完整報告</div>' +
         '</div>' +
 
-        // 步驟
-        '<div style="margin-bottom:20px">' +
-          '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">' +
-            '<span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:rgba(240,212,138,.12);color:rgba(240,212,138,.85);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700">1</span>' +
-            '<span style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.7">匯款 <strong style="color:#f0d48a">NT$ ' + price.toLocaleString() + '</strong> 至下方帳戶</span>' +
-          '</div>' +
-          '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">' +
-            '<span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:rgba(240,212,138,.12);color:rgba(240,212,138,.85);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700">2</span>' +
-            '<span style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.7">將<strong style="color:#f0d48a">匯款截圖</strong>傳到 LINE，索取解鎖碼</span>' +
-          '</div>' +
-          '<div style="display:flex;align-items:flex-start;gap:10px">' +
-            '<span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:rgba(240,212,138,.12);color:rgba(240,212,138,.85);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700">3</span>' +
-            '<span style="font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.7">輸入解鎖碼後即可抽牌，系統將自動生成完整智慧解讀報告</span>' +
-          '</div>' +
-        '</div>' +
+        // ── 路徑 A：PAYUNi 線上付款（最推薦）──
+        (canPayOnline ?
+        '<div style="background:linear-gradient(135deg,rgba(240,212,138,.12),rgba(201,160,96,.06));border:1.5px solid rgba(240,212,138,.4);border-radius:14px;padding:18px;margin-bottom:14px">' +
+          '<div style="color:#f8dfa5;font-weight:700;font-size:.92rem;margin-bottom:6px">線上付款｜信用卡 ／ ATM ／ 超商</div>' +
+          '<div style="font-size:.78rem;color:rgba(248,223,165,.65);line-height:1.7;margin-bottom:12px">PAYUNi 安全結帳，付款完成後系統自動發碼，立即回到頁面繼續解讀。不需要等人工確認。</div>' +
+          '<button id="hlPayuniBtn" style="width:100%;padding:14px 20px;border-radius:10px;background:linear-gradient(135deg,#f0d48a,#c9a060);color:#1a1520;font-weight:700;font-size:.95rem;border:none;cursor:pointer;letter-spacing:.04em">立即線上付款 NT$ ' + price.toLocaleString() + '</button>' +
+        '</div>' : '') +
 
-        // 匯款資訊
-        '<div style="background:rgba(240,212,138,.04);border:1px solid rgba(240,212,138,.12);border-radius:12px;padding:14px;margin-bottom:18px;font-size:.85rem;color:rgba(255,255,255,.6);line-height:2">' +
-          '► 銀行：國泰世華銀行 同德分行（013）<br>' +
-          '► 帳號：<span style="color:#f0d48a;font-family:monospace;font-weight:700">248-50-624013-3</span><br>' +
-          '► 戶名：<span style="color:#f0d48a;font-weight:700">王逸君</span>' +
-        '</div>' +
+        // 分隔線
+        (canPayOnline ?
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">' +
+          '<div style="flex:1;height:1px;background:rgba(255,255,255,.07)"></div>' +
+          '<div style="font-size:.72rem;color:rgba(255,255,255,.35);letter-spacing:.1em">或</div>' +
+          '<div style="flex:1;height:1px;background:rgba(255,255,255,.07)"></div>' +
+        '</div>' : '') +
 
         // 代碼兌換區塊
         '<div style="background:rgba(240,212,138,.05);border:1px solid rgba(240,212,138,.2);border-radius:14px;padding:16px;margin-bottom:16px">' +
@@ -74,36 +99,24 @@ window.hlPaywall = (function(){
               ' style="padding:10px 18px;border-radius:10px;background:linear-gradient(135deg,#f0d48a,#c9a060);color:#1a1520;font-weight:700;font-size:.85rem;border:none;cursor:pointer;white-space:nowrap">✨ 兌換</button>' +
           '</div>' +
           '<div id="hlPaywallCodeErr" style="display:none;margin-top:8px;padding:8px 12px;border-radius:8px;background:rgba(217,48,37,.08);color:#e57373;font-size:.78rem"></div>' +
-          '<div style="margin-top:6px;font-size:.72rem;color:rgba(255,255,255,.3)">付款完成後，請傳 LINE 索取解鎖碼</div>' +
-        '</div>' +
-
-        // 分隔線
-        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">' +
-          '<div style="flex:1;height:1px;background:rgba(255,255,255,.07)"></div>' +
-          '<div style="font-size:.75rem;color:rgba(255,255,255,.3)">或</div>' +
-          '<div style="flex:1;height:1px;background:rgba(255,255,255,.07)"></div>' +
-        '</div>' +
-
-        // LINE 按鈕
-        '<div style="text-align:center;margin-bottom:16px">' +
-          '<a href="' + lineUrl + '" target="_blank" rel="noopener" style="display:inline-block;padding:14px 32px;border-radius:12px;font-size:1rem;font-weight:700;color:#1a1520;background:linear-gradient(135deg,#f0d48a,#e9c27d);text-decoration:none;letter-spacing:.04em;box-shadow:0 4px 16px rgba(240,212,138,.2)">💬 LINE 傳送匯款截圖，索取解鎖碼</a>' +
+          '<div style="margin-top:6px;font-size:.72rem;color:rgba(255,255,255,.35)">代碼來源：會員月禮、活動贈送、行銷促銷、過去 LINE 索取的解鎖碼</div>' +
         '</div>' +
 
         // 服務承諾
-        '<div style="font-size:.78rem;color:rgba(255,255,255,.4);line-height:1.9;margin-bottom:14px">' +
-          '⏰ 上班時間（週一至週五 10:00-18:00）確認付款後 <strong style="color:rgba(240,212,138,.6)">30 分鐘內</strong>回覆<br>' +
-          '⏰ 下班時間或假日次營業日處理｜急件請加 LINE ID <strong style="color:rgba(240,212,138,.6)">judyanee</strong>' +
+        '<div style="font-size:.76rem;color:rgba(255,255,255,.45);line-height:1.9;margin-top:14px;margin-bottom:12px">' +
+          '線上付款後系統立即發碼，無需等待人工確認。<br>' +
+          '若使用代碼兌換，付款相關問題請聯繫官方 LINE <strong style="color:rgba(240,212,138,.7)">@hourlight</strong>。'+
         '</div>' +
 
         // 消費者保護
-        '<div style="font-size:.72rem;color:rgba(255,255,255,.3);line-height:1.8;padding-top:12px;border-top:1px solid rgba(255,255,255,.04)">' +
-          '🛡️ 付款後尚未收到報告前可申請全額退款。報告交付後恕不退費。每份報告皆為針對您的牌卡組合獨立撰寫。<br>' +
+        '<div style="font-size:.7rem;color:rgba(255,255,255,.32);line-height:1.8;padding-top:12px;border-top:1px solid rgba(255,255,255,.04)">' +
+          '付款後尚未收到報告前可申請全額退款。報告交付後恕不退費。每份報告皆為針對您的牌卡組合獨立撰寫。<br>' +
           '服務提供者：馥靈之鑰國際有限公司（統編：60303284）' +
         '</div>' +
 
         // 關閉按鈕
         '<div style="text-align:center;margin-top:16px">' +
-          '<button onclick="hlPaywall.close()" style="padding:10px 24px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.5);font-size:.85rem;cursor:pointer">← 返回</button>' +
+          '<button onclick="hlPaywall.close()" style="padding:10px 24px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.5);font-size:.85rem;cursor:pointer">返回</button>' +
         '</div>' +
       '</div>';
 
@@ -140,6 +153,36 @@ window.hlPaywall = (function(){
       var _onProceed = config.onProceed || null;
       var _n = config.n;
       var _pageType = config.pageType || '';
+      var _category = config.productCategory || detectCategory();
+      var _serviceName = config.serviceName || '智慧解讀';
+      var _price = (config.priceMap || {})[_n];
+
+      // ── 路徑 A：PAYUNi 線上付款按鈕 ──
+      var payuniBtn = document.getElementById('hlPayuniBtn');
+      if (payuniBtn && _category && _price) {
+        payuniBtn.addEventListener('click', function(){
+          // 檢查登入
+          var u = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
+          if (!u) {
+            alert('請先登入會員才能線上付款。\n按確定前往登入頁。');
+            var redirect = encodeURIComponent(location.href.split('?')[0]);
+            location.href = 'app.html?redirect=' + redirect;
+            return;
+          }
+          payuniBtn.disabled = true;
+          payuniBtn.textContent = '處理中⋯⋯';
+          ensurePaymentLoaded(function(){
+            HLPayment.pay({
+              productId:   _category + '-' + _n,
+              productName: _serviceName + '（' + _n + ' 張）',
+              amount:      _price,
+              userId:      u.uid,
+              userEmail:   u.email || '',
+              returnUrl:   location.href.split('?')[0]
+            });
+          });
+        });
+      }
       // deferConsume：true = 只驗證不標記已用（由後端在生成成功後標記）
       var _deferConsume = config.deferConsume === true;
       window._hlPaywallRedeemCode = async function() {
