@@ -149,9 +149,25 @@ module.exports = async function handler(req, res) {
       encryptData.PrdtName = productName;
     }
 
+    // ── 加密前 debug log（協助排查資料解密失敗）──
+    console.log('=== PAYUNi create order DEBUG ===');
+    console.log('IS_TEST:', IS_TEST, '| baseUrl:', baseUrl);
+    console.log('MER_ID:', MER_ID, '| length:', MER_ID && MER_ID.length);
+    console.log('HASH_KEY length:', HASH_KEY && HASH_KEY.length, '| should be 32');
+    console.log('HASH_IV length:', HASH_IV && HASH_IV.length, '| should be 16');
+    console.log('HASH_KEY first/last 4 chars:', HASH_KEY ? (HASH_KEY.substring(0,4) + '...' + HASH_KEY.substring(HASH_KEY.length-4)) : 'undefined');
+    console.log('HASH_KEY has whitespace:', HASH_KEY && /\s/.test(HASH_KEY));
+    console.log('HASH_IV has whitespace:', HASH_IV && /\s/.test(HASH_IV));
+    console.log('encryptData:', JSON.stringify(encryptData));
+
     // 加密
     const encryptInfo = payuniEncrypt(encryptData, HASH_KEY, HASH_IV);
     const hashInfo = payuniHash(encryptInfo, HASH_KEY, HASH_IV);
+
+    console.log('encryptInfo (hex) length:', encryptInfo.length);
+    console.log('encryptInfo first 60 chars:', encryptInfo.substring(0, 60));
+    console.log('hashInfo:', hashInfo);
+    console.log('=== END DEBUG ===');
 
     // ── 寫入 pendingOrders（payuni-notify.js 需要從這對應 userId / productId）──
     // 即使 Firestore 寫入失敗，付款流程仍要繼續，避免擋住客人結帳
