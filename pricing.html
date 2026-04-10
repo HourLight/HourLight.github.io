@@ -56,6 +56,25 @@ body{background:#faf9f7;color:#1a1714;font-family:'Noto Sans TC',sans-serif;font
 
 .plan-footnote{font-size:.93rem;color:#6e6259;line-height:1.8;padding:12px 16px;background:#fdf8f3;border-left:2px solid #d4c4a8;margin-top:0}
 
+/* ── Plan Card CTA ── */
+.plan-cta{margin-top:18px;width:100%;padding:13px 18px;background:#1a1714;color:#f8dfa5;border:1px solid #1a1714;font-size:.92rem;letter-spacing:.12em;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:all .2s;text-align:center;text-decoration:none;display:inline-block}
+.plan-cta:hover{background:#2a2420;border-color:#2a2420}
+.plan-cta.featured{background:#8b6f4e;color:#fff;border-color:#8b6f4e}
+.plan-cta.featured:hover{background:#6d5640;border-color:#6d5640}
+.plan-cta.outline{background:#fff;color:#1a1714;border:1px solid #c4a882}
+.plan-cta.outline:hover{background:#faf6ef;border-color:#8b6f4e;color:#8b6f4e}
+.plan-cta:disabled{opacity:.55;cursor:not-allowed}
+
+/* 加購卡 */
+.topup-card{background:#fdf8f3;border:1px solid #d4c4a8;padding:22px 26px;margin-top:20px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.topup-info{flex:1;min-width:240px}
+.topup-name{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:#1a1714;letter-spacing:.04em;margin-bottom:4px}
+.topup-desc{font-size:.85rem;color:#6e6259;line-height:1.7}
+.topup-price{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:#8b6f4e;letter-spacing:.02em;white-space:nowrap}
+.topup-price span{font-size:.78rem;color:#6e6259;font-family:'Noto Sans TC',sans-serif;margin-left:4px}
+.topup-cta{padding:11px 24px;background:#8b6f4e;color:#fff;border:none;font-size:.88rem;letter-spacing:.1em;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:background .2s;white-space:nowrap}
+.topup-cta:hover{background:#6d5640}
+
 /* ── Reading Tables (AI 解讀) ── */
 .reading-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .reading-grid.g3{grid-template-columns:repeat(3,1fr)}
@@ -183,6 +202,7 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
           <li>1 張牌免費靜態解讀</li>
           <li>全部 100+ 項心理測驗</li>
         </ul>
+        <a href="app.html" class="plan-cta outline">免費註冊</a>
       </div>
 
       <!-- 鑰友 -->
@@ -200,6 +220,7 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
           <li>每月贈 3 次 3 張牌 AI 解讀</li>
           <li>33套合盤後半段解鎖</li>
         </ul>
+        <button type="button" class="plan-cta featured" onclick="HLPricingPay.subscribe('plus-30','馥靈鑰友 30 天',399)">立即升級鑰友</button>
       </div>
 
       <!-- 大師 -->
@@ -219,11 +240,22 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
           <li>全套 33 合盤完整解鎖</li>
         </ul>
         <div class="plan-badge" style="margin-top:12px">超值</div>
+        <button type="button" class="plan-cta" onclick="HLPricingPay.subscribe('pro-30','馥靈大師 30 天',999)">立即升級大師</button>
       </div>
 
     </div>
 
-    <p class="plan-footnote">付費後自動開通 30 天，到期自動恢復免費方案。不綁自動扣款，不續就停，不會多收錢。加購「AI深度解讀指令 10 次 / NT$199」永久有效，每日配額用完才扣。<br><a href="#" onclick="HLBenefits.open();return false" style="color:#8b6f4e;text-decoration:underline;font-weight:500">📖 查看完整會員權益（含塔羅 / 易經等占卜工具次數限制）→</a></p>
+    <!-- 加購方案（獨立卡） -->
+    <div class="topup-card">
+      <div class="topup-info">
+        <div class="topup-name">AI 深度解讀指令｜加購 10 次</div>
+        <div class="topup-desc">永久有效，每日配額用完才扣，不歸零。適合臨時需要、不想綁訂閱的會員。</div>
+      </div>
+      <div class="topup-price">199<span>NT$</span></div>
+      <button type="button" class="topup-cta" onclick="HLPricingPay.subscribe('topup-10','AI 解讀加購 10 次',199)">立即加購</button>
+    </div>
+
+    <p class="plan-footnote">付費後自動開通 30 天，到期自動恢復免費方案。不綁自動扣款，不續就停，不會多收錢。<br><a href="#" onclick="HLBenefits.open();return false" style="color:#8b6f4e;text-decoration:underline;font-weight:500">查看完整會員權益（含塔羅 / 易經等占卜工具次數限制）→</a></p>
   </section>
 
   <div class="sec-line"></div>
@@ -846,5 +878,31 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
 <script src="assets/js/hl-tracker.js"></script>
 <script src="assets/js/hl-analytics.js?v=20260401"></script>
 <script src="assets/js/hl-benefits-modal.js"></script>
+<script src="assets/js/hl-payment.js"></script>
+<script>
+// pricing.html 付款 wrapper：呼叫 HLPayment 前先檢查登入
+window.HLPricingPay = {
+  subscribe: function(productId, productName, amount){
+    var u = (firebase && firebase.auth) ? firebase.auth().currentUser : null;
+    if (!u) {
+      alert('請先登入會員才能付款。\n按「確定」前往登入頁。');
+      var redirect = encodeURIComponent('https://hourlightkey.com/pricing.html');
+      location.href = 'app.html?redirect=' + redirect;
+      return;
+    }
+    if (!window.HLPayment || !window.HLPayment.pay) {
+      alert('付款模組尚未載入，請重新整理頁面再試。');
+      return;
+    }
+    HLPayment.pay({
+      productId: productId,
+      productName: productName,
+      amount: amount,
+      userId: u.uid,
+      userEmail: u.email || ''
+    });
+  }
+};
+</script>
 </body>
 </html>

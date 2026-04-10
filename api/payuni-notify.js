@@ -51,6 +51,20 @@ function parseMembershipProduct(productId) {
   return { plan, days, permanent: false };
 }
 
+// ── 商品 ID → 加購次數對照 ──
+// productId 命名規則：
+//   topup-10  → AI 解讀指令加購 10 次（永久有效，每日配額用完才扣）
+//   topup-30  → 加購 30 次
+//   topup-100 → 加購 100 次
+function parseTopupProduct(productId) {
+  if (!productId || typeof productId !== 'string') return null;
+  const m = productId.match(/^topup-(\d+)$/i);
+  if (!m) return null;
+  const count = parseInt(m[1], 10);
+  if (!count || count <= 0 || count > 100000) return null;
+  return { count };
+}
+
 // ── Firebase Admin 初始化（懶載入）──
 let adminDb = null;
 
@@ -164,7 +178,23 @@ module.exports = async function handler(req, res) {
 
           console.log(`✅ 課程開通：userId=${userId} productId=${productId} orderId=${MerTradeNo}`);
 
-          // ── 5. 若是會員方案商品，升級 user.plan + planExpiry（小花事件 patch）──
+          // ── 5a. 若是加購商品（topup-N），把次數加到 user.aiBonus ──
+          const topup = parseTopupProduct(productId);
+          if (topup) {
+            try {
+              const userRef = db.collection('users').doc(userId);
+              await userRef.set({
+                aiBonus: require('firebase-admin').firestore.FieldValue.increment(topup.count),
+                lastTopupAt: now,
+                lastTopupOrderId: MerTradeNo,
+              }, { merge: true });
+              console.log(`✅ 加購開通：userId=${userId} +${topup.count} 次 orderId=${MerTradeNo}`);
+            } catch (topupErr) {
+              console.error('PAYUNi notify: 加購寫入失敗', topupErr.message);
+            }
+          }
+
+          // ── 5b. 若是會員方案商品，升級 user.plan + planExpiry（小花事件 patch）──
           const membership = parseMembershipProduct(productId);
           if (membership) {
             try {
