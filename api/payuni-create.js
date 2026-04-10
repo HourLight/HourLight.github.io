@@ -36,18 +36,17 @@ function payuniEncrypt(data, key, iv) {
   const qs = Object.entries(data)
     .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
     .join('&');
-  // AES-256-CBC 加密
+  // AES-256-CBC 加密，輸出 hex 全大寫（PAYUNi 規格）
   const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
   let encrypted = cipher.update(qs, 'utf8', 'hex');
   encrypted += cipher.final('hex');
-  return encrypted;
+  return encrypted.toUpperCase();
 }
 
 function payuniHash(encryptedStr, key, iv) {
-  // PAYUNi / 智付寶系列正確格式：
-  // HashInfo = SHA256( "HashKey=" + key + "&" + encryptedStr + "&HashIV=" + iv ).toUpperCase()
-  // 注意要帶 "HashKey=" 與 "&HashIV=" 前綴與分隔符，不是直接連接
-  const raw = `HashKey=${key}&${encryptedStr}&HashIV=${iv}`;
+  // PAYUNi UPP HashInfo 公式：SHA256( HashIV + EncryptInfo + HashKey ).toUpperCase()
+  // EncryptInfo 在傳入前已是大寫 hex
+  const raw = iv + encryptedStr + key;
   return crypto.createHash('sha256').update(raw).digest('hex').toUpperCase();
 }
 

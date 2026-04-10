@@ -29,8 +29,9 @@ function payuniDecrypt(encryptedHex, key, iv) {
 }
 
 function payuniHash(encryptedStr, key, iv) {
-  // PAYUNi 正確 HashInfo 公式（與 payuni-create.js 對齊）
-  const raw = `HashKey=${key}&${encryptedStr}&HashIV=${iv}`;
+  // PAYUNi HashInfo 公式：SHA256( HashIV + EncryptInfo + HashKey ).toUpperCase()
+  // EncryptInfo 傳入時應已是大寫 hex（與 payuni-create.js 對齊）
+  const raw = iv + encryptedStr + key;
   return crypto.createHash('sha256').update(raw).digest('hex').toUpperCase();
 }
 
