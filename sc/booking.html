@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>线上预约｜馥灵之钥 Hour Light</title>
+<meta name="description" content="线上预约馥灵之钥觉察师解读、美甲、SPA芳疗服务。选择指定人员或由系统安排，付款后即时确认。"/>
+<meta property="og:title" content="线上预约｜馥灵之钥 Hour Light"/>
+<meta property="og:description" content="预约觉察师解读、美甲、SPA芳疗服务，选择指定人员或由系统安排，付款后即时确认。"/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://hourlightkey.com/sc/booking.html"/>
+<link rel="icon" href="../favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/hourlight-global.css">
+<link rel="stylesheet" href="../assets/css/hl-footer.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#06040e;color:rgba(255,255,255,.85);font-family:'Noto Sans TC',sans-serif;line-height:1.7;min-height:100vh;padding-bottom:100px}
+
+.bk-hero{text-align:center;padding:48px 24px 32px}
+.bk-hero h1{font-family:'Noto Serif TC',serif;font-size:clamp(1.5rem,4vw,2.2rem);color:#f8dfa5;font-weight:500;letter-spacing:.08em;margin-bottom:8px}
+.bk-hero p{font-size:.92rem;color:rgba(255,255,255,.55);max-width:480px;margin:0 auto;line-height:1.85}
+
+.bk-body{max-width:680px;margin:0 auto;padding:0 20px}
+
+/* Steps indicator */
+.bk-steps{display:flex;gap:0;margin-bottom:32px;position:relative}
+.bk-step{flex:1;text-align:center;position:relative;padding-top:28px}
+.bk-step::before{content:'';position:absolute;top:10px;left:0;right:0;height:2px;background:rgba(255,255,255,.08)}
+.bk-step:first-child::before{left:50%}
+.bk-step:last-child::before{right:50%}
+.bk-step-dot{position:absolute;top:2px;left:50%;transform:translateX(-50%);width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.15);z-index:1;transition:all .3s}
+.bk-step.active .bk-step-dot{background:#f8dfa5;border-color:#f8dfa5}
+.bk-step.done .bk-step-dot{background:#4a8a5a;border-color:#4a8a5a}
+.bk-step-label{font-size:.72rem;color:rgba(255,255,255,.35);letter-spacing:.06em;transition:color .3s}
+.bk-step.active .bk-step-label{color:#f8dfa5}
+.bk-step.done .bk-step-label{color:rgba(255,255,255,.55)}
+
+/* Panels */
+.bk-panel{display:none}
+.bk-panel.active{display:block;animation:bkFadeIn .3s ease}
+@keyframes bkFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Category cards */
+.bk-cats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.bk-cat{padding:20px 16px;border:1px solid rgba(248,223,165,.15);border-radius:14px;text-align:center;cursor:pointer;transition:all .3s;background:rgba(255,255,255,.02)}
+.bk-cat:hover{border-color:rgba(248,223,165,.4);background:rgba(248,223,165,.06)}
+.bk-cat.selected{border-color:#f8dfa5;background:rgba(248,223,165,.1)}
+.bk-cat-icon{font-size:1.8rem;margin-bottom:8px}
+.bk-cat-name{font-family:'Noto Serif TC',serif;font-size:1rem;color:#f8dfa5;letter-spacing:.04em;margin-bottom:4px}
+.bk-cat-desc{font-size:.72rem;color:rgba(255,255,255,.4);line-height:1.6}
+
+/* Service list */
+.bk-svc-list{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+.bk-svc{padding:16px 18px;border:1px solid rgba(255,255,255,.08);border-radius:12px;cursor:pointer;transition:all .3s;display:flex;justify-content:space-between;align-items:center;gap:14px}
+.bk-svc:hover{border-color:rgba(248,223,165,.3);background:rgba(255,255,255,.02)}
+.bk-svc.selected{border-color:#f8dfa5;background:rgba(248,223,165,.08)}
+.bk-svc-info{flex:1}
+.bk-svc-name{font-size:.95rem;color:rgba(255,255,255,.9);font-weight:500;margin-bottom:2px}
+.bk-svc-meta{font-size:.78rem;color:rgba(255,255,255,.4)}
+.bk-svc-price{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:#f8dfa5;font-weight:500;white-space:nowrap}
+.bk-svc-price span{font-size:.7rem;color:rgba(255,255,255,.4);font-family:'Noto Sans TC',sans-serif}
+
+/* Mode selection (指定 vs 系統安排) */
+.bk-mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.bk-mode{padding:18px 14px;border:1px solid rgba(255,255,255,.1);border-radius:14px;text-align:center;cursor:pointer;transition:all .3s}
+.bk-mode:hover{border-color:rgba(248,223,165,.3)}
+.bk-mode.selected{border-color:#f8dfa5;background:rgba(248,223,165,.08)}
+.bk-mode-title{font-size:.95rem;color:#f8dfa5;font-weight:500;margin-bottom:4px}
+.bk-mode-desc{font-size:.72rem;color:rgba(255,255,255,.4);line-height:1.6}
+
+/* Staff selection */
+.bk-staff-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+.bk-staff{padding:16px;border:1px solid rgba(255,255,255,.08);border-radius:12px;text-align:center;cursor:pointer;transition:all .3s}
+.bk-staff:hover{border-color:rgba(248,223,165,.3)}
+.bk-staff.selected{border-color:#f8dfa5;background:rgba(248,223,165,.08)}
+.bk-staff-avatar{width:52px;height:52px;border-radius:50%;background:rgba(248,223,165,.12);color:#f8dfa5;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin:0 auto 8px;font-weight:700}
+.bk-staff-name{font-size:.9rem;color:rgba(255,255,255,.85);font-weight:500}
+.bk-staff-role{font-size:.72rem;color:rgba(255,255,255,.4)}
+
+/* Date picker */
+.bk-date-input{width:100%;padding:14px 18px;border:1px solid rgba(248,223,165,.25);border-radius:12px;background:rgba(255,255,255,.03);color:#fff;font-size:1rem;outline:none;margin-bottom:16px;font-family:inherit}
+.bk-date-input:focus{border-color:#f8dfa5}
+
+/* Time slots */
+.bk-time-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px}
+.bk-time{padding:10px;border:1px solid rgba(255,255,255,.1);border-radius:8px;text-align:center;cursor:pointer;font-size:.85rem;color:rgba(255,255,255,.6);transition:all .2s}
+.bk-time:hover{border-color:rgba(248,223,165,.4);color:#f8dfa5}
+.bk-time.selected{border-color:#f8dfa5;background:rgba(248,223,165,.1);color:#f8dfa5}
+.bk-time.disabled{opacity:.3;cursor:not-allowed;pointer-events:none}
+
+/* Form fields */
+.bk-field{margin-bottom:16px}
+.bk-label{font-size:.82rem;color:rgba(248,223,165,.7);margin-bottom:6px;letter-spacing:.04em}
+.bk-input{width:100%;padding:12px 16px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:rgba(255,255,255,.03);color:#fff;font-size:1rem;outline:none;font-family:inherit}
+.bk-input:focus{border-color:rgba(248,223,165,.4)}
+.bk-textarea{min-height:80px;resize:vertical}
+
+/* Buttons */
+.bk-btn{width:100%;padding:14px 24px;border-radius:12px;font-size:1rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;font-family:inherit;letter-spacing:.04em}
+.bk-btn-gold{background:linear-gradient(135deg,#f0d48a,#c9a060);color:#1a1520}
+.bk-btn-gold:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(240,212,138,.25)}
+.bk-btn-gold:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.bk-btn-outline{background:transparent;border:1.5px solid rgba(248,223,165,.3);color:#f8dfa5}
+.bk-btn-outline:hover{border-color:#f8dfa5;background:rgba(248,223,165,.06)}
+.bk-btn-back{background:transparent;border:none;color:rgba(255,255,255,.4);font-size:.85rem;padding:10px;cursor:pointer;margin-bottom:12px}
+.bk-btn-back:hover{color:#f8dfa5}
+
+/* Section title */
+.bk-section-title{font-family:'Noto Serif TC',serif;font-size:1.1rem;color:#f8dfa5;letter-spacing:.04em;margin-bottom:16px}
+
+/* Summary card */
+.bk-summary{background:rgba(248,223,165,.05);border:1px solid rgba(248,223,165,.2);border-radius:14px;padding:24px;margin-bottom:24px}
+.bk-summary-row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.88rem}
+.bk-summary-row:last-child{border-bottom:none}
+.bk-summary-label{color:rgba(255,255,255,.5)}
+.bk-summary-value{color:rgba(255,255,255,.85);font-weight:500}
+.bk-summary-total{font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:#f8dfa5;text-align:center;padding-top:14px;margin-top:8px;border-top:1px solid rgba(248,223,165,.2)}
+
+/* Note / hint */
+.bk-note{font-size:.78rem;color:rgba(255,255,255,.35);line-height:1.8;margin-top:16px;padding:12px 16px;background:rgba(255,255,255,.02);border-radius:10px}
+
+/* Loading */
+.bk-loading{text-align:center;padding:40px;color:rgba(255,255,255,.4)}
+
+/* Mobile */
+@media(max-width:480px){
+  .bk-cats{grid-template-columns:1fr}
+  .bk-time-grid{grid-template-columns:repeat(3,1fr)}
+  .bk-staff-list{grid-template-columns:1fr}
+}
+
+/* Touch feel */
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+button,a,select,input[type=submit]{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button:active,input[type=submit]:active{transform:scale(.97);transition:transform .08s}
+select,input[type=text],input[type=number],input[type=date],input[type=email],input[type=tel],textarea{font-size:16px!important}
+@media(max-width:600px){
+  body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  button,input[type=submit]{min-height:48px}
+}
+</style>
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://hourlightkey.com/sc/booking.html">
+<meta property="og:title" content="线上预约｜馥灵之钥 Hour Light">
+<meta property="og:description" content="预约觉察师解读、美甲、SPA 芳疗服务">
+<meta property="og:image" content="https://hourlightkey.com/og-image.jpg">
+</head>
+<body>
+
+<div class="bk-hero">
+  <h1>线上预约</h1>
+  <p>选择您需要的服务，指定心仪的觉察师或伙伴，或让我们为您安排最适合的人选。</p>
+</div>
+
+<!-- Steps -->
+<div class="bk-body">
+  <div class="bk-steps">
+    <div class="bk-step active" id="step1"><div class="bk-step-dot"></div><div class="bk-step-label">选择服务</div></div>
+    <div class="bk-step" id="step2"><div class="bk-step-dot"></div><div class="bk-step-label">选择方式</div></div>
+    <div class="bk-step" id="step3"><div class="bk-step-dot"></div><div class="bk-step-label">选择时间</div></div>
+    <div class="bk-step" id="step4"><div class="bk-step-dot"></div><div class="bk-step-label">确认预约</div></div>
+  </div>
+
+  <!-- Panel 1: 选择服务 -->
+  <div class="bk-panel active" id="panel1">
+    <div class="bk-section-title">选择服务类别</div>
+    <div class="bk-cats" id="catGrid">
+      <div class="bk-loading">载入服务中⋯</div>
+    </div>
+    <div class="bk-section-title" id="svcTitle" style="display:none">选择服务项目</div>
+    <div class="bk-svc-list" id="svcList"></div>
+    <div id="addonSection" style="display:none;margin-top:16px">
+      <div class="bk-section-title">加选附加服务（选填）</div>
+      <div id="addonList" class="bk-svc-list"></div>
+    </div>
+    <button class="bk-btn bk-btn-gold" id="btn1" style="display:none" onclick="goStep(2)">下一步</button>
+  </div>
+
+  <!-- Panel 2: 选择方式 + 人员 -->
+  <div class="bk-panel" id="panel2">
+    <button class="bk-btn-back" onclick="goStep(1)">← 返回上一步</button>
+    <div class="bk-section-title">选择预约方式</div>
+    <div class="bk-mode-cards" id="modeCards">
+      <div class="bk-mode" data-mode="appointment" onclick="selectMode('appointment')">
+        <div class="bk-mode-title">指定人员</div>
+        <div class="bk-mode-desc">选择您喜欢的觉察师或伙伴</div>
+      </div>
+      <div class="bk-mode" data-mode="dispatch" onclick="selectMode('dispatch')">
+        <div class="bk-mode-title">系统安排</div>
+        <div class="bk-mode-desc">由系统为您配对最适合的人员</div>
+      </div>
+    </div>
+    <div id="staffSection" style="display:none">
+      <div class="bk-section-title">选择服务人员</div>
+      <div class="bk-staff-list" id="staffList">
+        <div class="bk-loading">载入人员中⋯</div>
+      </div>
+    </div>
+    <button class="bk-btn bk-btn-gold" id="btn2" style="display:none" onclick="goStep(3)">下一步</button>
+  </div>
+
+  <!-- Panel 3: 选择日期时间 -->
+  <div class="bk-panel" id="panel3">
+    <button class="bk-btn-back" onclick="goStep(2)">← 返回上一步</button>
+    <div class="bk-section-title">选择日期</div>
+    <input type="date" class="bk-date-input" id="dateInput" onchange="loadTimeSlots()">
+    <div class="bk-section-title" id="timeTitle" style="display:none">选择时段</div>
+    <div class="bk-time-grid" id="timeGrid"></div>
+    <button class="bk-btn bk-btn-gold" id="btn3" style="display:none" onclick="goStep(4)">下一步</button>
+  </div>
+
+  <!-- Panel 4: 确认 + 填资料 + 付款 -->
+  <div class="bk-panel" id="panel4">
+    <button class="bk-btn-back" onclick="goStep(3)">← 返回上一步</button>
+    <div class="bk-section-title">确认预约</div>
+    <div class="bk-summary" id="summary"></div>
+    <div class="bk-field">
+      <div class="bk-label">您的姓名</div>
+      <input type="text" class="bk-input" id="custName" placeholder="请输入姓名">
+    </div>
+    <div class="bk-field">
+      <div class="bk-label">联络电话</div>
+      <input type="tel" class="bk-input" id="custPhone" placeholder="0912-345-678">
+    </div>
+    <div class="bk-field">
+      <div class="bk-label">备注（选填）</div>
+      <textarea class="bk-input bk-textarea" id="custNote" placeholder="有什么想先让我们知道的？"></textarea>
+    </div>
+    <button class="bk-btn bk-btn-gold" id="btnPay" onclick="submitBooking()">确认预约并付款</button>
+    <div class="bk-note">
+      付款后预约即时确认。线上服务（觉察解读）付款后觉察师会在 24 小时内联系您。<br>
+      实体服务（美甲 / SPA）请于预约时间提前 10 分钟到场。<br>
+      取消政策：预约时间 24 小时前可免费取消；24 小时内取消酌收 50% 手续费。<br>
+      服务提供者：馥灵之钥国际有限公司（统编：60303284）
+    </div>
+  </div>
+</div>
+
+<footer class="hl-footer">
+  <div class="hl-footer-inner">
+    <div class="hl-footer-brand">
+      <div class="hl-footer-logo"><img src="../LOGO-1.png" alt="" class="hl-logo-icon" aria-hidden="true" loading="lazy">馥灵之钥 Hour Light</div>
+      <div class="hl-footer-tagline">读懂自己，活对人生｜创办人 王逸君</div>
+    </div>
+    <div class="hl-footer-links">
+      <a href="../index.html">首页</a>
+      <a href="../draw-hl.html">线上抽牌</a>
+      <a href="../services.html">服务项目</a>
+      <a href="../pricing.html">服务价目</a>
+      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener">LINE 咨询</a>
+    </div>
+    <div class="hl-footer-copyright">© 2026 馥灵之钥国际有限公司 Hour Light International Co., Ltd.｜统编：60303284<br>All Rights Reserved.</div>
+  </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="../assets/js/firebase-config.js"></script>
+<script>
+'use strict';
+
+// Multi-tenant: 從 URL ?biz=xxx 讀公司 ID，預設 hourlight-spa
+var BUSINESS_ID = new URLSearchParams(location.search).get('biz') || 'hourlight-spa';
+var db, auth;
+if (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY') {
+  if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+  auth = firebase.auth();
+  db = firebase.firestore();
+}
+
+// ── State ──
+var state = {
+  services: [],
+  staff: [],
+  addons: [],
+  selectedCategory: null,
+  selectedService: null,
+  selectedMode: null,      // 'appointment' | 'dispatch'
+  selectedStaff: null,
+  selectedAddons: [],      // array of addon objects
+  selectedDate: null,
+  selectedTime: null,
+  currentStep: 1
+};
+
+// ── Categories ──
+var CATEGORIES = [
+  { id: '覺察解讀', name: '覺察解讀', desc: '線上牌卡解讀、命理諮詢', icon: '🔮' },
+  { id: '美甲',     name: '美甲',     desc: '指尖能量覺察美甲', icon: '💅' },
+  { id: '美容SPA',  name: '美容 SPA', desc: '身心校準芳療護膚', icon: '🧖' },
+  { id: '教學課程', name: '教學課程', desc: '覺察師培訓、進階班', icon: '📚' }
+];
+
+// ── Init ──
+window.addEventListener('DOMContentLoaded', function(){
+  // Set min date to today
+  var today = new Date().toISOString().split('T')[0];
+  document.getElementById('dateInput').setAttribute('min', today);
+  loadData();
+});
+
+function loadData(){
+  if (!db) { document.getElementById('catGrid').innerHTML = '<div class="bk-loading">Firebase 未載入</div>'; return; }
+
+  Promise.all([
+    db.collection('businesses').doc(BUSINESS_ID).collection('services').where('active','==',true).orderBy('order').get(),
+    db.collection('businesses').doc(BUSINESS_ID).collection('staff').where('active','==',true).orderBy('order').get(),
+    db.collection('businesses').doc(BUSINESS_ID).collection('addons').where('active','==',true).orderBy('order').get()
+  ]).then(function(results){
+    state.services = [];
+    results[0].forEach(function(doc){ var d = doc.data(); d._id = doc.id; state.services.push(d); });
+    state.staff = [];
+    results[1].forEach(function(doc){ var d = doc.data(); d._id = doc.id; state.staff.push(d); });
+    state.addons = [];
+    results[2].forEach(function(doc){ var d = doc.data(); d._id = doc.id; state.addons.push(d); });
+    renderCategories();
+  }).catch(function(e){
+    document.getElementById('catGrid').innerHTML = '<div class="bk-loading" style="color:#e57373">載入失敗：' + e.message + '</div>';
+  });
+}
+
+function renderCategories(){
+  var grid = document.getElementById('catGrid');
+  // Only show categories that have services
+  var activeCats = {};
+  state.services.forEach(function(s){ if (s.category) activeCats[s.category] = true; });
+
+  var html = CATEGORIES.filter(function(c){ return activeCats[c.id]; }).map(function(c){
+    var count = state.services.filter(function(s){ return s.category === c.id; }).length;
+    return '<div class="bk-cat" onclick="selectCategory(\'' + c.id + '\')" data-cat="' + c.id + '">'
+      + '<div class="bk-cat-icon">' + c.icon + '</div>'
+      + '<div class="bk-cat-name">' + c.name + '</div>'
+      + '<div class="bk-cat-desc">' + c.desc + '<br>' + count + ' 項服務</div>'
+      + '</div>';
+  }).join('');
+
+  if (!html) html = '<div class="bk-loading">目前沒有可預約的服務<br><br><a href="../services.html" style="color:#f8dfa5">查看所有服務項目 →</a></div>';
+  grid.innerHTML = html;
+}
+
+function selectCategory(catId){
+  state.selectedCategory = catId;
+  state.selectedService = null;
+
+  // Highlight
+  document.querySelectorAll('.bk-cat').forEach(function(el){ el.classList.remove('selected'); });
+  var el = document.querySelector('.bk-cat[data-cat="' + catId + '"]');
+  if (el) el.classList.add('selected');
+
+  // Show services
+  var filtered = state.services.filter(function(s){ return s.category === catId; });
+  document.getElementById('svcTitle').style.display = 'block';
+  document.getElementById('svcList').innerHTML = filtered.map(function(s){
+    var typeLabel = s.serviceType === 'online' ? '線上' : '實體';
+    return '<div class="bk-svc" onclick="selectService(\'' + s._id + '\')" data-svc="' + s._id + '">'
+      + '<div class="bk-svc-info">'
+      + '<div class="bk-svc-name">' + escHtml(s.name) + '</div>'
+      + '<div class="bk-svc-meta">' + typeLabel + ' · ' + (s.duration||0) + ' 分鐘' + (s.desc ? ' · ' + escHtml(s.desc.substring(0,30)) : '') + '</div>'
+      + '</div>'
+      + '<div class="bk-svc-price">' + (s.price||0).toLocaleString() + ' <span>NT$</span></div>'
+      + '</div>';
+  }).join('');
+
+  document.getElementById('btn1').style.display = 'none';
+}
+
+function selectService(svcId){
+  state.selectedService = state.services.find(function(s){ return s._id === svcId; });
+  state.selectedAddons = [];
+  document.querySelectorAll('.bk-svc').forEach(function(el){ el.classList.remove('selected'); });
+  var el = document.querySelector('.bk-svc[data-svc="' + svcId + '"]');
+  if (el) el.classList.add('selected');
+  document.getElementById('btn1').style.display = 'block';
+
+  // Show available add-ons for this service
+  var available = state.addons.filter(function(a){
+    if (!a.services || !a.services.length) return true; // 不綁 = 全部適用
+    return a.services.indexOf(svcId) !== -1;
+  });
+
+  var addonSection = document.getElementById('addonSection');
+  var addonList = document.getElementById('addonList');
+  if (available.length > 0) {
+    addonSection.style.display = 'block';
+    addonList.innerHTML = available.map(function(a){
+      var priceText = a.displayPrice || ('NT$ ' + (a.price||0).toLocaleString());
+      var durText = a.duration ? ' +' + a.duration + '分鐘' : '';
+      return '<div class="bk-svc" style="border-color:rgba(255,255,255,.06)" onclick="toggleAddon(\'' + a._id + '\',this)" data-addon="' + a._id + '">'
+        + '<div class="bk-svc-info">'
+        + '<div class="bk-svc-name" style="font-size:.88rem">' + escHtml(a.name) + '</div>'
+        + '<div class="bk-svc-meta">' + priceText + durText + '</div>'
+        + '</div>'
+        + '<div style="width:22px;height:22px;border:2px solid rgba(248,223,165,.3);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s" class="addon-check"></div>'
+        + '</div>';
+    }).join('');
+  } else {
+    addonSection.style.display = 'none';
+  }
+}
+
+function toggleAddon(addonId, el){
+  var addon = state.addons.find(function(a){ return a._id === addonId; });
+  if (!addon) return;
+  var idx = state.selectedAddons.findIndex(function(a){ return a._id === addonId; });
+  if (idx !== -1) {
+    state.selectedAddons.splice(idx, 1);
+    el.classList.remove('selected');
+    el.querySelector('.addon-check').innerHTML = '';
+    el.querySelector('.addon-check').style.borderColor = 'rgba(248,223,165,.3)';
+    el.querySelector('.addon-check').style.background = 'transparent';
+  } else {
+    state.selectedAddons.push(addon);
+    el.classList.add('selected');
+    el.querySelector('.addon-check').innerHTML = '<span style="color:#f8dfa5;font-size:.8rem;font-weight:700">✓</span>';
+    el.querySelector('.addon-check').style.borderColor = '#f8dfa5';
+    el.querySelector('.addon-check').style.background = 'rgba(248,223,165,.15)';
+  }
+}
+
+// ── Step Navigation ──
+function goStep(n){
+  state.currentStep = n;
+  for (var i = 1; i <= 4; i++){
+    document.getElementById('panel' + i).classList.remove('active');
+    var stepEl = document.getElementById('step' + i);
+    stepEl.classList.remove('active','done');
+    if (i < n) stepEl.classList.add('done');
+    if (i === n) stepEl.classList.add('active');
+  }
+  document.getElementById('panel' + n).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (n === 2) setupModePanel();
+  if (n === 3) setupDatePanel();
+  if (n === 4) setupSummary();
+}
+
+function setupModePanel(){
+  if (!state.selectedService) return;
+  var mode = state.selectedService.bookingMode || 'both';
+  var cards = document.getElementById('modeCards');
+
+  if (mode === 'appointment') {
+    // Only appointment
+    cards.style.display = 'none';
+    selectMode('appointment');
+  } else if (mode === 'dispatch') {
+    // Only dispatch
+    cards.style.display = 'none';
+    selectMode('dispatch');
+  } else {
+    // Both — show cards
+    cards.style.display = 'grid';
+    state.selectedMode = null;
+    state.selectedStaff = null;
+    document.querySelectorAll('.bk-mode').forEach(function(el){ el.classList.remove('selected'); });
+    document.getElementById('staffSection').style.display = 'none';
+    document.getElementById('btn2').style.display = 'none';
+  }
+}
+
+function selectMode(mode){
+  state.selectedMode = mode;
+  state.selectedStaff = null;
+
+  document.querySelectorAll('.bk-mode').forEach(function(el){ el.classList.remove('selected'); });
+  var el = document.querySelector('.bk-mode[data-mode="' + mode + '"]');
+  if (el) el.classList.add('selected');
+
+  if (mode === 'appointment') {
+    // Show staff for this service
+    var svcId = state.selectedService._id;
+    var available = state.staff.filter(function(s){
+      return (s.services || []).indexOf(svcId) !== -1;
+    });
+
+    document.getElementById('staffSection').style.display = 'block';
+    if (available.length === 0) {
+      document.getElementById('staffList').innerHTML = '<div class="bk-loading">目前沒有可指定的服務人員<br>請選擇「系統安排」</div>';
+    } else {
+      document.getElementById('staffList').innerHTML = available.map(function(s){
+        var initial = (s.name || '?').charAt(0);
+        return '<div class="bk-staff" onclick="selectStaff(\'' + s._id + '\')" data-staff="' + s._id + '">'
+          + '<div class="bk-staff-avatar">' + initial + '</div>'
+          + '<div class="bk-staff-name">' + escHtml(s.name) + '</div>'
+          + '<div class="bk-staff-role">' + escHtml(s.role || '') + '</div>'
+          + '</div>';
+      }).join('');
+    }
+    document.getElementById('btn2').style.display = 'none';
+  } else {
+    // System dispatch — no staff selection needed
+    document.getElementById('staffSection').style.display = 'none';
+    document.getElementById('btn2').style.display = 'block';
+  }
+}
+
+function selectStaff(staffId){
+  state.selectedStaff = state.staff.find(function(s){ return s._id === staffId; });
+  document.querySelectorAll('.bk-staff').forEach(function(el){ el.classList.remove('selected'); });
+  var el = document.querySelector('.bk-staff[data-staff="' + staffId + '"]');
+  if (el) el.classList.add('selected');
+  document.getElementById('btn2').style.display = 'block';
+}
+
+function setupDatePanel(){
+  // For online services, skip date/time
+  if (state.selectedService && state.selectedService.serviceType === 'online') {
+    state.selectedDate = new Date().toISOString().split('T')[0];
+    state.selectedTime = '系統安排';
+    goStep(4);
+    return;
+  }
+  document.getElementById('timeTitle').style.display = 'none';
+  document.getElementById('timeGrid').innerHTML = '';
+  document.getElementById('btn3').style.display = 'none';
+}
+
+function loadTimeSlots(){
+  var dateStr = document.getElementById('dateInput').value;
+  if (!dateStr) return;
+  state.selectedDate = dateStr;
+  state.selectedTime = null;
+
+  var grid = document.getElementById('timeGrid');
+  grid.innerHTML = '<div class="bk-loading" style="grid-column:1/-1">查詢可預約時段⋯</div>';
+  document.getElementById('timeTitle').style.display = 'block';
+  document.getElementById('btn3').style.display = 'none';
+
+  // Determine which staff to check schedule for
+  var staffToCheck = [];
+  if (state.selectedMode === 'appointment' && state.selectedStaff) {
+    staffToCheck = [state.selectedStaff._id];
+  } else {
+    // System dispatch — check all staff who can do this service
+    var svcId = state.selectedService ? state.selectedService._id : null;
+    staffToCheck = state.staff.filter(function(s){
+      return !svcId || (s.services || []).indexOf(svcId) !== -1;
+    }).map(function(s){ return s._id; });
+  }
+
+  if (!staffToCheck.length) {
+    grid.innerHTML = '<div class="bk-loading" style="grid-column:1/-1;color:rgba(255,255,255,.5)">沒有可服務的人員<br>請選擇其他日期或服務</div>';
+    return;
+  }
+
+  // Load schedule for this date + existing bookings
+  Promise.all([
+    db.collection('businesses').doc(BUSINESS_ID).collection('schedule')
+      .where('date','==',dateStr).get(),
+    db.collection('businesses').doc(BUSINESS_ID).collection('bookings')
+      .where('date','==',dateStr).where('status','in',['confirmed','pending_payment','pending']).get()
+  ]).then(function(results){
+    var schedules = {};
+    results[0].forEach(function(doc){ var d = doc.data(); schedules[d.staffId] = d; });
+
+    var bookedSlots = {};
+    results[1].forEach(function(doc){
+      var d = doc.data();
+      if (d.staffId && d.time) bookedSlots[d.staffId + '_' + d.time] = true;
+    });
+
+    // Find available time slots from schedules of relevant staff
+    var availableSlots = {};
+    staffToCheck.forEach(function(staffId){
+      var sch = schedules[staffId];
+      if (!sch || !sch.startTime || !sch.endTime) return;
+
+      // Generate 30-min slots within shift
+      var start = sch.startTime.split(':');
+      var end = sch.endTime.split(':');
+      var startMin = parseInt(start[0],10) * 60 + parseInt(start[1],10);
+      var endMin = parseInt(end[0],10) * 60 + parseInt(end[1],10);
+
+      for (var m = startMin; m < endMin; m += 30){
+        var h = Math.floor(m/60);
+        var mm = m % 60;
+        var t = (h<10?'0':'') + h + ':' + (mm<10?'0':'') + mm;
+        var key = staffId + '_' + t;
+        if (!bookedSlots[key]) {
+          availableSlots[t] = (availableSlots[t] || 0) + 1;
+        }
+      }
+    });
+
+    var sortedSlots = Object.keys(availableSlots).sort();
+
+    if (!sortedSlots.length) {
+      grid.innerHTML = '<div class="bk-loading" style="grid-column:1/-1;color:rgba(255,255,255,.5)">這天沒有可預約的時段<br>請選擇其他日期</div>';
+      return;
+    }
+
+    grid.innerHTML = sortedSlots.map(function(t){
+      var count = availableSlots[t];
+      return '<div class="bk-time" onclick="selectTime(\'' + t + '\')" data-time="' + t + '">'
+        + t + (count > 1 ? '<div style="font-size:.6rem;color:rgba(255,255,255,.35)">' + count + ' 人可選</div>' : '')
+        + '</div>';
+    }).join('');
+  }).catch(function(e){
+    grid.innerHTML = '<div class="bk-loading" style="grid-column:1/-1;color:rgba(229,115,115,.8)">查詢失敗：' + e.message + '</div>';
+  });
+}
+
+function selectTime(t){
+  state.selectedTime = t;
+  document.querySelectorAll('.bk-time').forEach(function(el){ el.classList.remove('selected'); });
+  var el = document.querySelector('.bk-time[data-time="' + t + '"]');
+  if (el) el.classList.add('selected');
+  document.getElementById('btn3').style.display = 'block';
+}
+
+function setupSummary(){
+  var svc = state.selectedService;
+  if (!svc) return;
+
+  var staffName = state.selectedMode === 'dispatch' ? '系統安排' : (state.selectedStaff ? state.selectedStaff.name : '未選');
+  var dateDisplay = state.selectedDate || '未選';
+  var timeDisplay = state.selectedTime || '未選';
+  var typeLabel = svc.serviceType === 'online' ? '線上服務' : '實體到店';
+
+  // Calculate total with add-ons
+  var totalPrice = svc.price || 0;
+  var totalDuration = svc.duration || 0;
+  var addonsHtml = '';
+  if (state.selectedAddons.length) {
+    addonsHtml = state.selectedAddons.map(function(a){
+      totalPrice += (a.price || 0);
+      totalDuration += (a.duration || 0);
+      var priceText = a.displayPrice || ('+ NT$ ' + (a.price||0).toLocaleString());
+      return '<div class="bk-summary-row"><span class="bk-summary-label" style="padding-left:12px">+ ' + escHtml(a.name) + '</span><span class="bk-summary-value">' + priceText + '</span></div>';
+    }).join('');
+  }
+
+  document.getElementById('summary').innerHTML =
+    '<div class="bk-summary-row"><span class="bk-summary-label">服務</span><span class="bk-summary-value">' + escHtml(svc.name) + '</span></div>' +
+    '<div class="bk-summary-row"><span class="bk-summary-label">類型</span><span class="bk-summary-value">' + typeLabel + '</span></div>' +
+    '<div class="bk-summary-row"><span class="bk-summary-label">時長</span><span class="bk-summary-value">' + totalDuration + ' 分鐘</span></div>' +
+    '<div class="bk-summary-row"><span class="bk-summary-label">服務人員</span><span class="bk-summary-value">' + escHtml(staffName) + '</span></div>' +
+    (svc.serviceType !== 'online' ?
+      '<div class="bk-summary-row"><span class="bk-summary-label">日期</span><span class="bk-summary-value">' + dateDisplay + '</span></div>' +
+      '<div class="bk-summary-row"><span class="bk-summary-label">時段</span><span class="bk-summary-value">' + timeDisplay + '</span></div>' : '') +
+    addonsHtml +
+    '<div class="bk-summary-total">NT$ ' + totalPrice.toLocaleString() + '</div>';
+
+  // Pre-fill customer info if logged in
+  var u = auth ? auth.currentUser : null;
+  if (u) {
+    if (u.displayName) document.getElementById('custName').value = u.displayName;
+    if (u.email) document.getElementById('custPhone').placeholder = u.email;
+  }
+}
+
+function submitBooking(){
+  var svc = state.selectedService;
+  if (!svc) { alert('請先選擇服務'); return; }
+
+  var custName = document.getElementById('custName').value.trim();
+  var custPhone = document.getElementById('custPhone').value.trim();
+  if (!custName) { alert('請填寫姓名'); return; }
+  if (!custPhone) { alert('請填寫聯絡電話'); return; }
+
+  // 預約衝突檢查（實體服務 + 指定人員時）
+  if (svc.serviceType !== 'online' && state.selectedStaff && state.selectedDate && state.selectedTime) {
+    var btn = document.getElementById('btnPay');
+    btn.disabled = true; btn.textContent = '確認時段中⋯⋯';
+    db.collection('businesses').doc(BUSINESS_ID).collection('bookings')
+      .where('staffId','==',state.selectedStaff._id)
+      .where('date','==',state.selectedDate)
+      .where('time','==',state.selectedTime)
+      .where('status','in',['confirmed','pending_payment','pending'])
+      .get().then(function(snap){
+        if (!snap.empty) {
+          alert('此時段已被預約，請選擇其他時段。');
+          btn.disabled = false; btn.textContent = '確認預約並付款';
+          goStep(3); // 回到選時段
+          return;
+        }
+        doSubmitBooking(svc, custName, custPhone);
+      }).catch(function(e){
+        // 查詢失敗不阻擋（Fail-Open）
+        doSubmitBooking(svc, custName, custPhone);
+      });
+    return;
+  }
+  doSubmitBooking(svc, custName, custPhone);
+}
+
+function doSubmitBooking(svc, custName, custPhone){
+
+  var u = auth ? auth.currentUser : null;
+  if (!u) {
+    alert('請先登入會員才能預約。');
+    location.href = 'app.html?redirect=' + encodeURIComponent(location.href);
+    return;
+  }
+
+  var btn = document.getElementById('btnPay');
+  btn.disabled = true;
+  btn.textContent = '處理中⋯⋯';
+
+  // Calculate total with add-ons
+  var bookingPrice = svc.price || 0;
+  var bookingDuration = svc.duration || 0;
+  var addonIds = [];
+  var addonNames = [];
+  state.selectedAddons.forEach(function(a){
+    bookingPrice += (a.price || 0);
+    bookingDuration += (a.duration || 0);
+    addonIds.push(a._id);
+    addonNames.push(a.name);
+  });
+
+  // Write booking to Firestore
+  var bookingData = {
+    businessId: BUSINESS_ID,
+    serviceId: svc._id,
+    serviceName: svc.name,
+    serviceCategory: svc.category,
+    serviceType: svc.serviceType || 'inperson',
+    price: bookingPrice,
+    basePrice: svc.price || 0,
+    duration: bookingDuration,
+    addons: addonIds,
+    addonNames: addonNames,
+    mode: state.selectedMode,
+    staffId: state.selectedStaff ? state.selectedStaff._id : null,
+    staffName: state.selectedStaff ? state.selectedStaff.name : '系統安排',
+    date: state.selectedDate,
+    time: state.selectedTime,
+    customerUid: u.uid,
+    customerName: custName,
+    customerPhone: custPhone,
+    customerEmail: u.email || '',
+    note: document.getElementById('custNote').value.trim(),
+    status: 'pending_payment',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  db.collection('businesses').doc(BUSINESS_ID).collection('bookings').add(bookingData).then(function(docRef){
+    // Proceed to PAYUNi payment
+    var productId = 'booking-' + docRef.id;
+
+    function doPay(){
+      window.HLPayment.pay({
+        productId: productId,
+        productName: svc.name + (addonNames.length ? ' + ' + addonNames.join('+') : '') + '（預約）',
+        amount: bookingPrice,
+        userId: u.uid,
+        userEmail: u.email || '',
+        businessId: BUSINESS_ID,
+        returnUrl: 'https://hourlightkey.com/sc/booking.html?biz=' + BUSINESS_ID + '&payment=success&booking=' + docRef.id
+      });
+    }
+
+    if (window.HLPayment && window.HLPayment.pay) {
+      doPay();
+    } else {
+      var s = document.createElement('script');
+      s.src = 'assets/js/hl-payment.js';
+      s.onload = doPay;
+      s.onerror = function(){
+        alert('付款模組載入失敗，請聯繫 LINE @hourlight');
+        btn.disabled = false;
+        btn.textContent = '確認預約並付款';
+      };
+      document.head.appendChild(s);
+    }
+  }).catch(function(e){
+    alert('建立預約失敗：' + e.message);
+    btn.disabled = false;
+    btn.textContent = '確認預約並付款';
+  });
+}
+
+// ── Payment return handling ──
+(function handlePaymentReturn(){
+  var params = new URLSearchParams(location.search);
+  var payment = params.get('payment');
+  var bookingId = params.get('booking');
+
+  if (payment === 'success' && bookingId) {
+    // Update booking status
+    if (db) {
+      db.collection('businesses').doc(BUSINESS_ID).collection('bookings').doc(bookingId).update({
+        status: 'confirmed',
+        paidAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(function(){});
+    }
+
+    // Show success message
+    setTimeout(function(){
+      var body = document.querySelector('.bk-body');
+      body.innerHTML =
+        '<div style="text-align:center;padding:60px 20px">' +
+        '<div style="font-family:\'Noto Serif TC\',serif;font-size:1.5rem;color:#f8dfa5;margin-bottom:16px">預約已確認</div>' +
+        '<div style="font-size:.95rem;color:rgba(255,255,255,.7);line-height:2;margin-bottom:32px">' +
+        '付款成功，您的預約已即時確認。<br>' +
+        '線上服務：覺察師會在 24 小時內透過 LINE 聯繫您。<br>' +
+        '實體服務：請於預約時間提前 10 分鐘到場。<br>' +
+        '如有問題請聯繫 LINE @hourlight' +
+        '</div>' +
+        '<a href="member-dashboard.html" class="bk-btn bk-btn-gold" style="display:inline-block;width:auto;padding:14px 32px;text-decoration:none">查看我的預約</a>' +
+        '</div>';
+    }, 500);
+
+    if (history.replaceState) history.replaceState(null, '', location.pathname);
+  }
+})();
+
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+
+<script src="../assets/js/hl-topnav.js"></script>
+<script src="../assets/js/hl-bottomnav.js"></script>
+<script src="../assets/js/hl-gate.js"></script>
+<script src="../assets/js/hl-email.js"></script>
+<script src="../assets/js/hl-music.js"></script>
+<script src="../assets/js/hl-tracker.js" data-tool="booking" data-tool-name="線上預約" data-tool-type="tool"></script>
+</body>
+</html>
