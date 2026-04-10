@@ -44,8 +44,10 @@ function payuniEncrypt(data, key, iv) {
 }
 
 function payuniHash(encryptedStr, key, iv) {
-  // HashInfo = SHA256( HashIV + EncryptInfo + HashKey )
-  const raw = iv + encryptedStr + key;
+  // PAYUNi / 智付寶系列正確格式：
+  // HashInfo = SHA256( "HashKey=" + key + "&" + encryptedStr + "&HashIV=" + iv ).toUpperCase()
+  // 注意要帶 "HashKey=" 與 "&HashIV=" 前綴與分隔符，不是直接連接
+  const raw = `HashKey=${key}&${encryptedStr}&HashIV=${iv}`;
   return crypto.createHash('sha256').update(raw).digest('hex').toUpperCase();
 }
 
