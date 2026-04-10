@@ -2,10 +2,33 @@
 // 馥靈之鑰 · PAYUNi 統一金流建立訂單 API
 // Vercel Serverless Function
 // 整合式支付頁 UNiPaypage (UPP) 模式
+// v1.1 · 加入 pendingOrders 寫入 + ReturnURL 修正
 // © 2026 Hour Light International
 // ═══════════════════════════════════════
 
 const crypto = require('crypto');
+
+// ── Firebase Admin 初始化（懶載入）──
+let adminDb = null;
+function getFirestore() {
+  if (adminDb) return adminDb;
+  const SA_JSON = process.env.FIREBASE_SERVICE_ACCOUNT;
+  if (!SA_JSON) {
+    console.warn('⚠️  FIREBASE_SERVICE_ACCOUNT 未設定，pendingOrders 寫入跳過');
+    return null;
+  }
+  try {
+    const admin = require('firebase-admin');
+    if (!admin.apps.length) {
+      admin.initializeApp({ credential: admin.credential.cert(JSON.parse(SA_JSON)) });
+    }
+    adminDb = admin.firestore();
+    return adminDb;
+  } catch (err) {
+    console.error('Firebase Admin 初始化失敗：', err.message);
+    return null;
+  }
+}
 
 // ── PAYUNi 加解密工具 ──
 function payuniEncrypt(data, key, iv) {
@@ -78,6 +101,8 @@ module.exports = async function handler(req, res) {
       : 'https://api.payuni.com.tw';
 
     const siteUrl = 'https://app.hourlightkey.com';
+    // 付款完成後客人會被導回的頁面（必須是 hourlightkey.com 主站，不能是 app 子網域）
+    const returnUrl = 'https://hourlightkey.com/member-dashboard.html?tab=plans&payment=success';
 
     // 建立加密參數
     const encryptData = {
@@ -88,7 +113,7 @@ module.exports = async function handler(req, res) {
       TradeType: '1',            // 1=即時交易
       Timestamp: String(Math.floor(now / 1000)),
       NotifyURL: `${siteUrl}/api/payuni-notify`,
-      ReturnURL: `${siteUrl}/api/payuni-return`,
+      ReturnURL: returnUrl,
     };
 
     // 選填：消費者資訊（有助於提高授權成功率）
@@ -99,6 +124,27 @@ module.exports = async function handler(req, res) {
     // 加密
     const encryptInfo = payuniEncrypt(encryptData, HASH_KEY, HASH_IV);
     const hashInfo = payuniHash(encryptInfo, HASH_KEY, HASH_IV);
+
+    // ── 寫入 pendingOrders（payuni-notify.js 需要從這對應 userId / productId）──
+    // 即使 Firestore 寫入失敗，付款流程仍要繼續，避免擋住客人結帳
+    try {
+      const db = getFirestore();
+      if (db) {
+        await db.collection('pendingOrders').doc(merTradeNo).set({
+          merTradeNo,
+          userId,
+          userEmail: userEmail || null,
+          productId: productId || null,
+          productName,
+          amount: Number(amount),
+          status: 'pending',
+          createdAt: new Date(now),
+        });
+        console.log(`✅ pendingOrders 已建立：${merTradeNo} userId=${userId} productId=${productId}`);
+      }
+    } catch (fsErr) {
+      console.error('⚠️  pendingOrders 寫入失敗（不阻斷付款）：', fsErr.message);
+    }
 
     // 回傳表單資訊，前端用 form POST 跳轉到 PAYUNi 支付頁
     return res.status(200).json({

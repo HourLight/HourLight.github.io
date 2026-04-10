@@ -376,7 +376,62 @@ if(typeof FIREBASE_CONFIG!=='undefined'&&FIREBASE_CONFIG.apiKey!=='YOUR_API_KEY'
     loadHistory();
     loadNotes();
     loadProfile();
+    handlePaymentReturn(u);
   });
+}
+
+// ─── PAYUNi 付款返回處理（ReturnURL = member-dashboard.html?payment=success）───
+async function handlePaymentReturn(u){
+  var params = new URLSearchParams(location.search);
+  var payment = params.get('payment');
+  if (!payment) return;
+
+  // 等 1 秒讓 payuni-notify webhook 寫入 Firestore，再 reload 會員資料
+  if (payment === 'success') {
+    setTimeout(async function(){
+      try { await loadUserData(u); } catch(e){}
+      // 顯示開通成功彈窗
+      showPaymentModal('success');
+    }, 1500);
+  } else if (payment === 'fail' || payment === 'cancel') {
+    showPaymentModal(payment);
+  }
+
+  // 清掉 query string 避免重整重複觸發
+  if (history.replaceState) {
+    history.replaceState(null, '', location.pathname);
+  }
+}
+
+function showPaymentModal(state){
+  var titles = {
+    success: '付款已完成',
+    fail:    '付款未成功',
+    cancel:  '付款已取消'
+  };
+  var bodies = {
+    success: '您的方案已自動開通，最新狀態會在下方資料中顯示。如果幾分鐘後仍未更新，請聯繫官方 LINE @hourlight。',
+    fail:    '這筆交易未能完成。如果款項已從您的銀行帳戶扣除但方案未開通，請聯繫 LINE @hourlight，提供交易時間與金額，我們會立即處理。',
+    cancel:  '您已取消這次付款。隨時可以從服務價目重新選擇方案。'
+  };
+  var colors = {
+    success: { border: 'rgba(248,223,165,0.4)', accent: '#f8dfa5' },
+    fail:    { border: 'rgba(220,140,140,0.4)', accent: '#e8a8a8' },
+    cancel:  { border: 'rgba(180,180,200,0.4)', accent: '#c0c0d8' }
+  };
+  var c = colors[state] || colors.success;
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(5,3,10,.85);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:99998;padding:24px;animation:hlpmFade .3s ease';
+  overlay.innerHTML =
+    '<style>@keyframes hlpmFade{from{opacity:0}to{opacity:1}}</style>' +
+    '<div style="background:#0c0716;border:1px solid '+c.border+';border-radius:14px;max-width:460px;width:100%;padding:36px 32px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6);font-family:\'Noto Serif TC\',\'Noto Sans TC\',sans-serif">' +
+    '  <div style="font-family:\'Noto Serif TC\',serif;font-size:1.5rem;color:'+c.accent+';font-weight:500;letter-spacing:4px;margin-bottom:14px">'+titles[state]+'</div>' +
+    '  <div style="font-size:.92rem;color:rgba(244,240,235,.78);line-height:1.85;margin-bottom:24px;letter-spacing:.5px">'+bodies[state]+'</div>' +
+    '  <button id="hlpmClose" style="background:'+c.accent+';color:#0c0716;border:none;padding:11px 36px;font-size:.92rem;letter-spacing:2px;cursor:pointer;border-radius:6px;font-family:inherit;font-weight:500">了解</button>' +
+    '</div>';
+  document.body.appendChild(overlay);
+  document.getElementById('hlpmClose').addEventListener('click', function(){ overlay.remove(); });
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
 }
 
 function tab(name){
