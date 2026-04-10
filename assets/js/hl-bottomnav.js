@@ -247,9 +247,9 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
         footerLinks.appendChild(a);
       }
     };
-    injectFooterLink('pricing.html', '💰 服務價目');
-    injectFooterLink('price-list.html', '📋 價目表');
-    injectFooterLink('pricing.html#contact', '💬 客服聯絡');
+    injectFooterLink('pricing.html', '服務價目');
+    injectFooterLink('price-list.html', '價目表');
+    injectFooterLink('pricing.html#contact', '客服聯絡');
     injectFooterLink('ai-about.html', 'AI 認識我們');
   }
 
@@ -261,8 +261,8 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
     contactLine.style.cssText = 'font-size:.78rem;color:rgba(248,223,165,.7);margin:8px 0;letter-spacing:.5px;line-height:1.8';
     contactLine.innerHTML =
       '客服 LINE <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" style="color:#f8dfa5;text-decoration:underline">@hourlight</a>' +
-      ' ｜ 服務信箱 <a href="mailto:info@hourlightkey.com" style="color:#f8dfa5;text-decoration:underline">info@hourlightkey.com</a>' +
-      ' ｜ 服務時間 週一–五 10:00–18:00';
+      '　|　服務信箱 <a href="mailto:info@hourlightkey.com" style="color:#f8dfa5;text-decoration:underline">info@hourlightkey.com</a>' +
+      '　|　服務時間 週一至週五 10:00–18:00';
     copyEl.parentNode.insertBefore(contactLine, copyEl);
   }
 
