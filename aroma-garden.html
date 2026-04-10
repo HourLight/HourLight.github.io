@@ -104,9 +104,11 @@
     min-height: 24px;
   }
 
-  /* Main content (hidden until verified) */
-  .garden-content { display: none; }
-  .garden-content.show { display: block; }
+  /* Main content - public sections always visible */
+  .garden-content { display: block; }
+  /* Locked sections need code */
+  .locked-section { display: none; }
+  .locked-section.unlocked { display: block; }
 
   .garden-hero {
     text-align: center;
@@ -240,38 +242,8 @@
 <script src="assets/js/hl-topnav.js"></script>
 
 <!-- ═══ Gate: Code Verification ═══ -->
-<div class="garden-gate" id="gardenGate">
-  <h1>芳療共享園地</h1>
-  <p style="max-width:500px;line-height:1.8">逸君老師 34 年美業資歷 × NAHA 國際認證講師<br>為芳療學員打造的專業知識寶庫</p>
-
-  <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:28px 0;max-width:600px">
-    <div style="background:rgba(14,10,24,.7);border:1px solid rgba(248,223,165,.12);border-radius:10px;padding:12px 18px;text-align:center;min-width:110px">
-      <div style="color:#f8dfa5;font-size:1.3rem;font-weight:700">25+</div>
-      <div style="color:rgba(255,255,255,.5);font-size:.8rem">核心精油</div>
-    </div>
-    <div style="background:rgba(14,10,24,.7);border:1px solid rgba(248,223,165,.12);border-radius:10px;padding:12px 18px;text-align:center;min-width:110px">
-      <div style="color:#f8dfa5;font-size:1.3rem;font-weight:700">45+</div>
-      <div style="color:rgba(255,255,255,.5);font-size:.8rem">實用配方</div>
-    </div>
-    <div style="background:rgba(14,10,24,.7);border:1px solid rgba(248,223,165,.12);border-radius:10px;padding:12px 18px;text-align:center;min-width:110px">
-      <div style="color:#f8dfa5;font-size:1.3rem;font-weight:700">18+</div>
-      <div style="color:rgba(255,255,255,.5);font-size:.8rem">模擬考題</div>
-    </div>
-    <div style="background:rgba(14,10,24,.7);border:1px solid rgba(248,223,165,.12);border-radius:10px;padding:12px 18px;text-align:center;min-width:110px">
-      <div style="color:#f8dfa5;font-size:1.3rem;font-weight:700">12</div>
-      <div style="color:rgba(255,255,255,.5);font-size:.8rem">經絡對照</div>
-    </div>
-  </div>
-
-  <p style="color:rgba(255,255,255,.5);font-size:.9rem;max-width:460px;line-height:1.7;margin-bottom:24px">精油化學、人體系統、經絡穴道、NAHA/IFA 認證、按摩手法、特殊族群芳療、芳療心理學、DIY 配方、模擬考題，一站式學習。</p>
-
-  <div class="gate-input-wrap">
-    <input type="text" id="gardenCode" placeholder="輸入學員代碼" autocomplete="off" maxlength="20">
-    <button onclick="verifyGardenCode()">進入園地</button>
-  </div>
-  <div class="gate-error" id="gateError"></div>
-  <p style="margin-top:32px;font-size:.85rem;color:rgba(255,255,255,.35)">逸君老師的芳療學員專屬空間｜聯絡老師取得代碼</p>
-</div>
+<!-- Gate removed: content is now public. Exam sections locked with code. -->
+<div id="gardenGate" style="display:none"></div>
 
 <!-- ═══ Main Content (hidden until verified) ═══ -->
 <div class="garden-content" id="gardenContent">
@@ -299,6 +271,9 @@
       <a href="#safety" style="background:rgba(248,223,165,.1);color:#f8dfa5;text-decoration:none;padding:8px 16px;border-radius:20px;font-size:.9rem;border:1px solid rgba(248,223,165,.2)">安全速查</a>
       <a href="#fun-facts" style="background:rgba(248,223,165,.1);color:#f8dfa5;text-decoration:none;padding:8px 16px;border-radius:20px;font-size:.9rem;border:1px solid rgba(248,223,165,.2)">冷知識</a>
       <a href="#special" style="background:rgba(248,223,165,.1);color:#f8dfa5;text-decoration:none;padding:8px 16px;border-radius:20px;font-size:.9rem;border:1px solid rgba(248,223,165,.2)">特殊族群</a>
+      <a href="#carrier-oils" style="background:rgba(248,223,165,.1);color:#f8dfa5;text-decoration:none;padding:8px 16px;border-radius:20px;font-size:.9rem;border:1px solid rgba(248,223,165,.2)">基底油</a>
+      <a href="#case-template" style="background:rgba(248,223,165,.1);color:#f8dfa5;text-decoration:none;padding:8px 16px;border-radius:20px;font-size:.9rem;border:1px solid rgba(248,223,165,.2)">個案模板</a>
+      <a href="#faq" style="background:rgba(248,223,165,.1);color:#f8dfa5;text-decoration:none;padding:8px 16px;border-radius:20px;font-size:.9rem;border:1px solid rgba(248,223,165,.2)">FAQ</a>
       <a href="#tests" style="background:rgba(248,223,165,.1);color:#f8dfa5;text-decoration:none;padding:8px 16px;border-radius:20px;font-size:.9rem;border:1px solid rgba(248,223,165,.2)">心理測驗</a>
       <a href="#courses" style="background:rgba(248,223,165,.1);color:#f8dfa5;text-decoration:none;padding:8px 16px;border-radius:20px;font-size:.9rem;border:1px solid rgba(248,223,165,.2)">進修課程</a>
     </div>
@@ -366,8 +341,22 @@
     </div>
   </div>
 
-  <!-- ═══ NAHA 認證專區 ═══ -->
-  <div class="garden-section">
+  <!-- ═══ 學員專區解鎖 ═══ -->
+  <div class="garden-section" id="unlock-section" style="text-align:center">
+    <div style="background:rgba(14,10,24,.82);border:1px solid rgba(248,223,165,.25);border-radius:16px;padding:32px;max-width:500px;margin:0 auto">
+      <h2 style="color:#f8dfa5;margin-bottom:8px;font-size:1.3rem">學員專區</h2>
+      <p style="color:rgba(255,255,255,.6);margin-bottom:20px;font-size:.95rem">NAHA 認證重點 + 模擬考題需要學員代碼解鎖</p>
+      <div class="gate-input-wrap" style="max-width:360px;margin:0 auto">
+        <input type="text" id="gardenCode" placeholder="輸入學員代碼" autocomplete="off" maxlength="20" style="background:rgba(20,16,32,.9);border:1px solid rgba(248,223,165,.25);border-radius:12px;padding:12px 16px;font-size:15px;color:#fff;outline:none;flex:1">
+        <button onclick="verifyGardenCode()" style="background:linear-gradient(135deg,#f8dfa5,#d4a850);color:#0a0814;border:none;border-radius:12px;padding:12px 20px;font-size:.95rem;font-weight:700;cursor:pointer;white-space:nowrap">解鎖</button>
+      </div>
+      <div class="gate-error" id="gateError" style="color:#e57373;margin-top:8px;font-size:.85rem;min-height:20px"></div>
+      <p style="color:rgba(255,255,255,.3);font-size:.8rem;margin-top:16px">逸君老師的芳療學員專屬｜聯絡老師取得代碼</p>
+    </div>
+  </div>
+
+  <!-- ═══ NAHA 認證專區（需代碼）═══ -->
+  <div class="garden-section locked-section" id="naha">
     <h2>NAHA 初階認證重點</h2>
     <div class="knowledge-grid">
       <div class="knowledge-card">
@@ -679,8 +668,8 @@
     </div>
   </div>
 
-  <!-- ═══ 模擬考題 ═══ -->
-  <div class="garden-section" id="quiz-section">
+  <!-- ═══ 模擬考題（需代碼）═══ -->
+  <div class="garden-section locked-section" id="quiz-section">
     <h2>模擬考題練習</h2>
     <p style="color:rgba(255,255,255,.6);margin-bottom:24px">點擊題目展開答案。反覆練習到不用想就能答出來。</p>
 
@@ -874,6 +863,106 @@
     </div>
   </div>
 
+  <!-- ═══ 基底油大全 ═══ -->
+  <div class="garden-section" id="carrier-oils">
+    <h2>基底油大全</h2>
+    <p style="color:rgba(255,255,255,.6);margin-bottom:20px">基底油是精油的「載具」。選對基底油，效果差很多。冷壓未精煉的品質最好。</p>
+    <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:.88rem">
+      <tr style="background:rgba(248,223,165,.12)">
+        <th style="padding:10px;color:#f8dfa5;border-bottom:1px solid rgba(248,223,165,.3)">基底油</th>
+        <th style="padding:10px;color:#f8dfa5;border-bottom:1px solid rgba(248,223,165,.3)">適合膚質</th>
+        <th style="padding:10px;color:#f8dfa5;border-bottom:1px solid rgba(248,223,165,.3)">吸收速度</th>
+        <th style="padding:10px;color:#f8dfa5;border-bottom:1px solid rgba(248,223,165,.3)">特殊功效</th>
+        <th style="padding:10px;color:#f8dfa5;border-bottom:1px solid rgba(248,223,165,.3)">價位</th>
+      </tr>
+      <tr style="border-bottom:1px solid rgba(255,255,255,.06)"><td style="padding:8px;color:rgba(255,255,255,.9)">甜杏仁油</td><td style="padding:8px;color:rgba(255,255,255,.7)">全膚質（萬用）</td><td style="padding:8px;color:rgba(255,255,255,.7)">中</td><td style="padding:8px;color:rgba(255,255,255,.7)">溫和滋潤、嬰兒可用、按摩最常用</td><td style="padding:8px;color:rgba(248,223,165,.6)">$</td></tr>
+      <tr style="border-bottom:1px solid rgba(255,255,255,.06)"><td style="padding:8px;color:rgba(255,255,255,.9)">荷荷巴油</td><td style="padding:8px;color:rgba(255,255,255,.7)">全膚質（含油肌）</td><td style="padding:8px;color:rgba(255,255,255,.7)">快</td><td style="padding:8px;color:rgba(255,255,255,.7)">結構最接近皮脂，不堵毛孔。臉部首選。保質期最長（不易氧化）</td><td style="padding:8px;color:rgba(248,223,165,.6)">$$</td></tr>
+      <tr style="border-bottom:1px solid rgba(255,255,255,.06)"><td style="padding:8px;color:rgba(255,255,255,.9)">椰子油</td><td style="padding:8px;color:rgba(255,255,255,.7)">乾燥肌、身體</td><td style="padding:8px;color:rgba(255,255,255,.7)">慢</td><td style="padding:8px;color:rgba(255,255,255,.7)">強滋潤、天然防曬 SPF4。低溫會凝固。不建議油肌臉部用</td><td style="padding:8px;color:rgba(248,223,165,.6)">$</td></tr>
+      <tr style="border-bottom:1px solid rgba(255,255,255,.06)"><td style="padding:8px;color:rgba(255,255,255,.9)">玫瑰果油</td><td style="padding:8px;color:rgba(255,255,255,.7)">熟齡、疤痕、乾燥</td><td style="padding:8px;color:rgba(255,255,255,.7)">快</td><td style="padding:8px;color:rgba(255,255,255,.7)">富含維他命 A（視黃酸）+ 必需脂肪酸。抗皺、淡疤首選。保質期短（3-6月）</td><td style="padding:8px;color:rgba(248,223,165,.6)">$$</td></tr>
+      <tr style="border-bottom:1px solid rgba(255,255,255,.06)"><td style="padding:8px;color:rgba(255,255,255,.9)">摩洛哥堅果油</td><td style="padding:8px;color:rgba(255,255,255,.7)">乾燥、熟齡、頭髮</td><td style="padding:8px;color:rgba(255,255,255,.7)">中</td><td style="padding:8px;color:rgba(255,255,255,.7)">「液體黃金」。富含維他命 E，深層滋潤不油膩。護髮聖品</td><td style="padding:8px;color:rgba(248,223,165,.6)">$$$</td></tr>
+      <tr style="border-bottom:1px solid rgba(255,255,255,.06)"><td style="padding:8px;color:rgba(255,255,255,.9)">葡萄籽油</td><td style="padding:8px;color:rgba(255,255,255,.7)">油性、混合肌</td><td style="padding:8px;color:rgba(255,255,255,.7)">快</td><td style="padding:8px;color:rgba(255,255,255,.7)">質地最輕薄，富含原花青素（抗氧化）。油肌按摩首選</td><td style="padding:8px;color:rgba(248,223,165,.6)">$</td></tr>
+      <tr style="border-bottom:1px solid rgba(255,255,255,.06)"><td style="padding:8px;color:rgba(255,255,255,.9)">月見草油</td><td style="padding:8px;color:rgba(255,255,255,.7)">女性、濕疹、經前</td><td style="padding:8px;color:rgba(255,255,255,.7)">中</td><td style="padding:8px;color:rgba(255,255,255,.7)">含 GLA（γ-亞麻酸），幫助荷爾蒙平衡。PMS、更年期、濕疹的好夥伴</td><td style="padding:8px;color:rgba(248,223,165,.6)">$$</td></tr>
+      <tr style="border-bottom:1px solid rgba(255,255,255,.06)"><td style="padding:8px;color:rgba(255,255,255,.9)">金盞花浸泡油</td><td style="padding:8px;color:rgba(255,255,255,.7)">敏感、受損、嬰兒</td><td style="padding:8px;color:rgba(255,255,255,.7)">中</td><td style="padding:8px;color:rgba(255,255,255,.7)">超強修復力。傷口、濕疹、尿布疹、曬後。嬰兒也安全</td><td style="padding:8px;color:rgba(248,223,165,.6)">$$</td></tr>
+      <tr style="border-bottom:1px solid rgba(255,255,255,.06)"><td style="padding:8px;color:rgba(255,255,255,.9)">聖約翰草浸泡油</td><td style="padding:8px;color:rgba(255,255,255,.7)">肌肉、神經痛</td><td style="padding:8px;color:rgba(255,255,255,.7)">中</td><td style="padding:8px;color:rgba(255,255,255,.7)">天然止痛油。肌肉痠痛、坐骨神經痛、關節炎的最佳基底。有光敏性（塗抹後避免日曬）</td><td style="padding:8px;color:rgba(248,223,165,.6)">$$</td></tr>
+      <tr style="border-bottom:1px solid rgba(255,255,255,.06)"><td style="padding:8px;color:rgba(255,255,255,.9)">山金車浸泡油</td><td style="padding:8px;color:rgba(255,255,255,.7)">瘀傷、扭傷</td><td style="padding:8px;color:rgba(255,255,255,.7)">中</td><td style="padding:8px;color:rgba(255,255,255,.7)">運動傷害首選。消瘀、消腫。不能用在開放性傷口上</td><td style="padding:8px;color:rgba(248,223,165,.6)">$$</td></tr>
+      <tr style="border-bottom:1px solid rgba(255,255,255,.06)"><td style="padding:8px;color:rgba(255,255,255,.9)">杏桃核仁油</td><td style="padding:8px;color:rgba(255,255,255,.7)">敏感、嬰兒</td><td style="padding:8px;color:rgba(255,255,255,.7)">快</td><td style="padding:8px;color:rgba(255,255,255,.7)">比甜杏仁油更輕盈。嬰兒按摩吸收最快的選擇。敏感肌友好</td><td style="padding:8px;color:rgba(248,223,165,.6)">$</td></tr>
+      <tr><td style="padding:8px;color:rgba(255,255,255,.9)">橄欖油</td><td style="padding:8px;color:rgba(255,255,255,.7)">乾燥、身體</td><td style="padding:8px;color:rgba(255,255,255,.7)">慢</td><td style="padding:8px;color:rgba(255,255,255,.7)">最古老的按摩油。廚房就有。質地較重，適合身體不適合臉。特級初榨品質最好</td><td style="padding:8px;color:rgba(248,223,165,.6)">$</td></tr>
+    </table>
+    </div>
+    <p style="color:rgba(248,223,165,.4);font-size:.8rem;margin-top:10px">$ = 平價 / $$ = 中等 / $$$ = 較高。冷壓未精煉的價格比精煉的高，但品質也好很多。</p>
+  </div>
+
+  <!-- ═══ 芳療個案模板 ═══ -->
+  <div class="garden-section" id="case-template">
+    <h2>芳療個案報告模板</h2>
+    <p style="color:rgba(255,255,255,.6);margin-bottom:20px">NAHA 認證需要提交 5 份個案報告。以下是標準格式，照著填就好。</p>
+
+    <div class="knowledge-card" style="margin-bottom:16px">
+      <h3>個案報告標準架構</h3>
+      <p style="color:rgba(255,255,255,.8);line-height:2;margin-top:8px">
+        一、基本資料：姓名（化名可）/ 年齡 / 性別 / 職業 / 主訴（來找你的原因）<br>
+        二、諮詢評估：情緒狀態 / 身體狀況 / 生活習慣 / 壓力來源 / 睡眠品質 / 過敏史<br>
+        三、精油選擇：選用精油（拉丁學名）/ 選擇理由 / 化學成分與功效對應<br>
+        四、調配處方：基底油種類與用量 / 精油滴數與濃度計算 / 使用方式（按摩/擴香/泡澡）<br>
+        五、療程設計：療程步驟（含時間分配）/ 按摩手法 / 特殊注意事項<br>
+        六、個案回饋：療程後感受 / 身體變化 / 情緒變化 / 睡眠改善<br>
+        七、追蹤紀錄：一週後追蹤 / 是否需要調整配方 / 後續建議<br>
+        八、芳療師反思：這次學到什麼 / 下次可以改進的地方
+      </p>
+    </div>
+
+    <details class="knowledge-card" style="cursor:pointer;margin-bottom:12px"><summary style="color:#ecd098;font-size:1.05rem;padding:4px 0">範例：情緒釋放療程（去名化）</summary><div style="margin-top:12px"><p style="color:rgba(255,255,255,.8);line-height:1.9">
+      一、基本資料：A小姐 / 32歲 / 女 / 上班族 / 主訴：長期肩頸緊繃、失眠、工作壓力大<br><br>
+      二、諮詢評估：情緒壓抑、容易焦慮、夜間難以入睡（通常凌晨1-2點才睡著）、肩頸僵硬已持續半年、無過敏史<br><br>
+      三、精油選擇：<br>
+      ► 真正薰衣草 Lavandula angustifolia — 鎮靜安眠、抗焦慮（主成分沉香醇+乙酸沉香酯）<br>
+      ► 佛手柑 Citrus bergamia — 抗焦慮、提振心情（柑橘類最強抗焦慮，含乙酸沉香酯）<br>
+      ► 甜馬鬱蘭 Origanum majorana — 肌肉放鬆、降血壓（含松油烯-4-醇）<br><br>
+      四、調配處方：甜杏仁油 20ml / 薰衣草 4 滴 + 佛手柑 2 滴 + 甜馬鬱蘭 2 滴（2% 濃度）/ 身體按摩用<br><br>
+      五、療程設計（60分鐘）：諮詢10分鐘 → 靜心呼吸5分鐘 → 背部按摩20分鐘（膀胱經為主）→ 肩頸按摩15分鐘 → 頭部放鬆5分鐘 → 收尾休息5分鐘<br><br>
+      六、個案回饋：療程中在背部按摩時眼眶泛淚（情緒釋放反應）。結束後表示肩頸輕鬆很多，當晚11點就睡著了（比平時早2小時）<br><br>
+      七、追蹤：一週後回報睡眠改善約60%，肩頸仍偶爾緊繃但比之前好。建議居家用薰衣草擴香助眠，每週一次芳療按摩維持<br><br>
+      八、反思：個案在按摩過程中出現情緒釋放是正常的，下次可以在療程前多花幾分鐘建立安全感。佛手柑的愉悅感對長期壓抑的個案特別有效
+    </p></div></details>
+
+    <details class="knowledge-card" style="cursor:pointer;margin-bottom:12px"><summary style="color:#ecd098;font-size:1.05rem;padding:4px 0">範例：肌肉痠痛療程（去名化）</summary><div style="margin-top:12px"><p style="color:rgba(255,255,255,.8);line-height:1.9">
+      一、基本資料：B先生 / 45歲 / 男 / 工程師 / 主訴：長期下背痛、久坐、運動量少<br><br>
+      二、諮詢評估：每天坐 8-10 小時、下背痛已持續一年、偶爾會延伸到臀部和大腿後側、沒有運動習慣、睡眠品質尚可<br><br>
+      三、精油選擇：<br>
+      ► 迷迭香 Rosmarinus officinalis CT Cineole — 促進循環、止痛（含1,8-桉油醇+樟腦）<br>
+      ► 薑 Zingiber officinale — 溫暖活血、抗發炎（含薑烯）<br>
+      ► 真正薰衣草 Lavandula angustifolia — 止痛、放鬆肌肉（平衡配方的溫和度）<br><br>
+      四、調配處方：聖約翰草浸泡油 20ml / 迷迭香 3 滴 + 薑 3 滴 + 薰衣草 2 滴（2% 濃度）/ 局部按摩用<br><br>
+      五、療程設計（45分鐘）：諮詢5分鐘 → 背部撫觸法暖身5分鐘 → 腰部深層按摩15分鐘（揉捏法+摩擦法）→ 臀部和大腿後側10分鐘 → 熱敷腰部5分鐘 → 伸展指導5分鐘<br><br>
+      六、個案回饋：按摩後腰部明顯放鬆，隔天回報疼痛減少約50%。特別喜歡薑的溫暖感<br><br>
+      七、追蹤：建議每天做簡單腰部伸展、每週一次芳療按摩。提供居家配方讓他自行塗抹<br><br>
+      八、反思：久坐族的下背痛需要搭配伸展運動才能根本改善。聖約翰草浸泡油對神經性疼痛效果很好，下次可以加黑胡椒增強溫暖感
+    </p></div></details>
+  </div>
+
+  <!-- ═══ 常見問題 FAQ ═══ -->
+  <div class="garden-section" id="faq">
+    <h2>芳療常見問題 FAQ</h2>
+    <p style="color:rgba(255,255,255,.6);margin-bottom:20px">新手最常問的 30 個問題，答案都在這裡。</p>
+
+    <details class="knowledge-card" style="cursor:pointer;margin-bottom:8px"><summary style="color:rgba(255,255,255,.9)">精油可以直接塗在皮膚上嗎？</summary><p style="margin-top:10px;color:rgba(248,223,165,.8)">絕大多數不行，必須用基底油稀釋。只有真正薰衣草和茶樹可以微量純用（例如點在痘痘或蚊蟲叮咬處），但也不建議大面積。未稀釋的精油可能導致皮膚灼傷、過敏或致敏。</p></details>
+    <details class="knowledge-card" style="cursor:pointer;margin-bottom:8px"><summary style="color:rgba(255,255,255,.9)">精油可以吃嗎？</summary><p style="margin-top:10px;color:rgba(248,223,165,.8)">在英系和美系（NAHA）芳療中，不建議內服精油。法系芳療在醫師指導下才允許。精油濃度極高，一滴精油 = 數十朵植物的精華。口服風險包括胃黏膜灼傷、肝腎負擔。不要相信任何品牌叫你直接喝精油。</p></details>
+    <details class="knowledge-card" style="cursor:pointer;margin-bottom:8px"><summary style="color:rgba(255,255,255,.9)">便宜的精油跟貴的有什麼差別？</summary><p style="margin-top:10px;color:rgba(248,223,165,.8)">差在純度。便宜的「精油」很可能是合成香精或稀釋過的。真正的精油需要大量植物原料（1公斤玫瑰精油需要 3-5 噸玫瑰花瓣）。判斷方式：看拉丁學名、產地、萃取方式。有 GC-MS 報告更好。如果一瓶「玫瑰精油」只賣幾百塊，那一定不是純精油。</p></details>
+    <details class="knowledge-card" style="cursor:pointer;margin-bottom:8px"><summary style="color:rgba(255,255,255,.9)">擴香多久比較好？</summary><p style="margin-top:10px;color:rgba(248,223,165,.8)">建議 30-60 分鐘，然後休息 30 分鐘再開。持續擴香反而會讓嗅覺疲勞（聞不到了）。睡覺時擴香也建議用定時器，不要整夜開。房間要保持通風。</p></details>
+    <details class="knowledge-card" style="cursor:pointer;margin-bottom:8px"><summary style="color:rgba(255,255,255,.9)">孕婦完全不能用精油嗎？</summary><p style="margin-top:10px;color:rgba(248,223,165,.8)">不是完全不能，但要很謹慎。前三個月建議只擴香不塗抹。中後期可以低濃度（0.5-1%）使用安全精油：真正薰衣草、甜橙、檸檬（嗅吸）。避開快樂鼠尾草、迷迭香、肉桂等通經精油。有疑慮請諮詢醫師。</p></details>
+    <details class="knowledge-card" style="cursor:pointer;margin-bottom:8px"><summary style="color:rgba(255,255,255,.9)">精油過敏怎麼辦？</summary><p style="margin-top:10px;color:rgba(248,223,165,.8)">立即用基底油（不是水！）大量塗抹稀釋，然後清水沖洗。精油不溶於水，用水沖只會擴散。嚴重的紅腫刺痛請就醫。以後使用新精油前，先做皮膚測試：稀釋後塗手臂內側，24 小時無反應再使用。</p></details>
+    <details class="knowledge-card" style="cursor:pointer;margin-bottom:8px"><summary style="color:rgba(255,255,255,.9)">精油和香氛蠟燭一樣嗎？</summary><p style="margin-top:10px;color:rgba(248,223,165,.8)">完全不同。大部分香氛蠟燭使用人工合成香精，沒有芳療效果。加熱燃燒還會產生有害物質。如果蠟燭標榜「精油」，看看價格——一顆含真正精油的蠟燭成本至少 500 元以上。想享受精油的好處，用擴香儀（超音波霧化）最好。</p></details>
+    <details class="knowledge-card" style="cursor:pointer;margin-bottom:8px"><summary style="color:rgba(255,255,255,.9)">為什麼同一支精油不同品牌聞起來不一樣？</summary><p style="margin-top:10px;color:rgba(248,223,165,.8)">因為精油是農產品，不是工業產品。同一種植物在不同地區、不同海拔、不同年份種出來的精油，化學成分比例會有差異（這就是化學類型 Chemotype 的概念）。就像同一品種的葡萄在不同產區釀出來的酒味道不同。</p></details>
+    <details class="knowledge-card" style="cursor:pointer;margin-bottom:8px"><summary style="color:rgba(255,255,255,.9)">精油可以給寵物用嗎？</summary><p style="margin-top:10px;color:rgba(248,223,165,.8)">狗可以（極低濃度），貓要非常小心。貓缺乏代謝精油中酚類的肝酵素，茶樹、尤加利、薄荷、肉桂對貓有毒性。鳥類和小型動物（兔、鼠）不建議使用。狗狗用的精油濃度是人的 1/4 到 1/10。</p></details>
+    <details class="knowledge-card" style="cursor:pointer;margin-bottom:8px"><summary style="color:rgba(255,255,255,.9)">NAHA 認證有用嗎？</summary><p style="margin-top:10px;color:rgba(248,223,165,.8)">NAHA 是美國國家整體芳療協會，是國際認可的芳療認證。Level 1 讓你有基礎知識和專業背書，Level 2 可以獨立執業。對於想做芳療師的人，有認證跟沒認證的差別是：客人信任度、收費底氣、自己的專業自信。</p></details>
+    <details class="knowledge-card" style="cursor:pointer;margin-bottom:8px"><summary style="color:rgba(255,255,255,.9)">精油會不會跟藥物衝突？</summary><p style="margin-top:10px;color:rgba(248,223,165,.8)">會。某些精油可能影響藥物代謝。例如：葡萄柚精油可能影響肝臟的 CYP 酵素（跟吃葡萄柚一樣）、快樂鼠尾草可能跟荷爾蒙藥物交互作用。正在服藥的人，使用精油前請告知芳療師你吃什麼藥，必要時諮詢醫師。</p></details>
+    <details class="knowledge-card" style="cursor:pointer;margin-bottom:8px"><summary style="color:rgba(255,255,255,.9)">為什麼有些精油特別貴？</summary><p style="margin-top:10px;color:rgba(248,223,165,.8)">取決於原料稀缺性和萃取難度。玫瑰精油：3-5 噸花瓣 = 1 公斤精油。橙花精油：1 噸花 = 1 公斤精油。檀香：樹要長 30 年以上才能砍。這些精油一瓶 5ml 賣幾千塊是合理的。柑橘類（檸檬、甜橙）因為用果皮冷壓，產量大所以便宜。</p></details>
+    <details class="knowledge-card" style="cursor:pointer;margin-bottom:8px"><summary style="color:rgba(255,255,255,.9)">精油可以放冰箱嗎？</summary><p style="margin-top:10px;color:rgba(248,223,165,.8)">可以但不必要。大部分精油在 15-25°C 陰涼處就好。柑橘類精油開封後放冰箱可以延長保質期。但注意：有些精油低溫會結晶（如玫瑰精油），回溫後會恢復，不影響品質。不要放在溫差大的地方（車上）。</p></details>
+    <details class="knowledge-card" style="cursor:pointer;margin-bottom:8px"><summary style="color:rgba(255,255,255,.9)">什麼是「前調、中調、後調」？</summary><p style="margin-top:10px;color:rgba(248,223,165,.8)">香水和精油調配的分層概念。前調（Top Note）：最先聞到，揮發最快（柑橘、薄荷）。中調（Middle Note）：主體香氣，持續 2-4 小時（薰衣草、天竺葵）。後調（Base Note）：最後留下，持續最久（檀香、廣藿香）。調配時前:中:後 ≈ 3:5:2 最平衡。</p></details>
+    <details class="knowledge-card" style="cursor:pointer;margin-bottom:8px"><summary style="color:rgba(255,255,255,.9)">芳療可以取代看醫生嗎？</summary><p style="margin-top:10px;color:rgba(248,223,165,.8)">不行。芳療是輔助療法，不是替代醫療。它可以幫助放鬆、舒緩不適、改善情緒、加速恢復，但不能治病。嚴重的身體問題請先看醫生。芳療師的角色是陪伴和支持，不是診斷和治療。這是專業倫理的底線。</p></details>
+  </div>
+
   <!-- ═══ 進修課程資訊 ═══ -->
   <div class="garden-section">
     <h2 id="courses">進修課程與認證資訊</h2>
@@ -1033,8 +1122,13 @@ function verifyGardenCode() {
 var FALLBACK_CODES = ['AROMA2026', 'HISTUDIO', 'NAHA2026'];
 
 function showGarden() {
-  document.getElementById('gardenGate').style.display = 'none';
-  document.getElementById('gardenContent').classList.add('show');
+  // Unlock locked sections
+  document.querySelectorAll('.locked-section').forEach(function(el) {
+    el.classList.add('unlocked');
+  });
+  // Hide unlock banner
+  var unlockSection = document.getElementById('unlock-section');
+  if (unlockSection) unlockSection.style.display = 'none';
 }
 
 // Check session on load
