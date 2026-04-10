@@ -329,6 +329,72 @@ module.exports = async function handler(req, res) {
               // 不阻斷主流程，付款仍視為成功
             }
           }
+
+          // ── 5c. 若是預約商品（booking-{bookingId}），更新預約狀態 + LINE 通知 ──
+          const bookingMatch = (productId || '').match(/^booking-(.+)$/i);
+          if (bookingMatch) {
+            const bookingId = bookingMatch[1];
+            const bizId = pendingDoc.exists ? (pendingDoc.data().businessId || 'hourlight-spa') : 'hourlight-spa';
+            try {
+              // 更新預約狀態為已確認
+              const bookingRef = db.collection('businesses').doc(bizId).collection('bookings').doc(bookingId);
+              await bookingRef.update({
+                status: 'confirmed',
+                paidAt: now,
+                paidOrderId: MerTradeNo,
+                paidAmount: Number(TradeAmt),
+              });
+              console.log(`✅ 預約確認：bizId=${bizId} bookingId=${bookingId} orderId=${MerTradeNo}`);
+
+              // 讀預約資料 + 店家 LINE Token → 發 LINE Notify
+              const bookingSnap = await bookingRef.get();
+              const bizSnap = await db.collection('businesses').doc(bizId).get();
+              if (bookingSnap.exists && bizSnap.exists) {
+                const bk = bookingSnap.data();
+                const biz = bizSnap.data();
+                const lineToken = biz.lineToken;
+                if (lineToken) {
+                  const msg = `\n🔔 新預約通知\n` +
+                    `客人：${bk.customerName || '未知'}\n` +
+                    `服務：${bk.serviceName || ''}\n` +
+                    `日期：${bk.date || ''} ${bk.time || ''}\n` +
+                    `人員：${bk.staffName || '系統安排'}\n` +
+                    `金額：NT$ ${(bk.price||0).toLocaleString()}\n` +
+                    `電話：${bk.customerPhone || ''}\n` +
+                    (bk.note ? `備註：${bk.note}\n` : '') +
+                    `訂單：${MerTradeNo}`;
+                  try {
+                    const https = require('https');
+                    const postData = `message=${encodeURIComponent(msg)}`;
+                    const options = {
+                      hostname: 'notify-api.line.me',
+                      path: '/api/notify',
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': 'Bearer ' + lineToken,
+                        'Content-Length': Buffer.byteLength(postData)
+                      }
+                    };
+                    const req2 = https.request(options, (res2) => {
+                      console.log(`✅ LINE Notify sent: status=${res2.statusCode}`);
+                    });
+                    req2.on('error', (e) => {
+                      console.error('⚠️ LINE Notify 發送失敗：', e.message);
+                    });
+                    req2.write(postData);
+                    req2.end();
+                  } catch (lineErr) {
+                    console.error('⚠️ LINE Notify error：', lineErr.message);
+                  }
+                } else {
+                  console.log('ℹ️  LINE Token 未設定，跳過通知');
+                }
+              }
+            } catch (bookingErr) {
+              console.error('PAYUNi notify: 預約確認失敗', bookingErr.message);
+            }
+          }
         }
       } else {
         // Firestore 未設定時，至少把訂單記到 console 方便人工處理

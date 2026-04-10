@@ -94,7 +94,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const body = req.body || {};
-    const { productName, amount, userId, userEmail, productId, returnUrl: clientReturnUrl } = body;
+    const { productName, amount, userId, userEmail, productId, returnUrl: clientReturnUrl, businessId } = body;
 
     if (!productName || !amount || !userId) {
       return res.status(400).json({ error: '缺少必要參數' });
@@ -177,6 +177,7 @@ module.exports = async function handler(req, res) {
           productId: productId || null,
           productName,
           amount: Number(amount),
+          businessId: businessId || null,
           status: 'pending',
           createdAt: new Date(now),
         };
