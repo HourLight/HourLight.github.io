@@ -84,7 +84,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const body = req.body || {};
-    const { productName, amount, userId, userEmail, productId } = body;
+    const { productName, amount, userId, userEmail, productId, returnUrl: clientReturnUrl } = body;
 
     if (!productName || !amount || !userId) {
       return res.status(400).json({ error: '缺少必要參數' });
@@ -101,8 +101,36 @@ module.exports = async function handler(req, res) {
       : 'https://api.payuni.com.tw';
 
     const siteUrl = 'https://app.hourlightkey.com';
-    // 付款完成後客人會被導回的頁面（必須是 hourlightkey.com 主站，不能是 app 子網域）
-    const returnUrl = 'https://hourlightkey.com/member-dashboard.html?tab=plans&payment=success';
+
+    // ── 若是 draw-N 抽牌商品，先產生 unlock code ──
+    let preGeneratedCode = null;
+    const drawMatch = (productId || '').match(/^draw-(\d+)$/i);
+    if (drawMatch) {
+      const drawN = parseInt(drawMatch[1], 10);
+      const codeRand = Math.random().toString(36).substring(2, 8).toUpperCase().replace(/[^A-Z0-9]/g, 'X');
+      preGeneratedCode = `HL${drawN}-${codeRand}`;
+    }
+
+    // ── 決定 ReturnURL ──
+    // 1. 客戶端有指定 returnUrl（必須是 hourlightkey.com 主站白名單），優先使用
+    // 2. 否則預設導回 member-dashboard
+    let returnUrl;
+    const allowedReturnHosts = ['hourlightkey.com', 'www.hourlightkey.com'];
+    if (clientReturnUrl) {
+      try {
+        const u = new URL(clientReturnUrl);
+        if (allowedReturnHosts.includes(u.hostname)) {
+          // 加上 payment=success 與 order 參數（如有 code 也帶）
+          u.searchParams.set('payment', 'success');
+          u.searchParams.set('order', merTradeNo);
+          if (preGeneratedCode) u.searchParams.set('code', preGeneratedCode);
+          returnUrl = u.toString();
+        }
+      } catch (e) { /* invalid url, fall through */ }
+    }
+    if (!returnUrl) {
+      returnUrl = 'https://hourlightkey.com/member-dashboard.html?tab=plans&payment=success';
+    }
 
     // 建立加密參數
     const encryptData = {
@@ -130,7 +158,7 @@ module.exports = async function handler(req, res) {
     try {
       const db = getFirestore();
       if (db) {
-        await db.collection('pendingOrders').doc(merTradeNo).set({
+        const pendingPayload = {
           merTradeNo,
           userId,
           userEmail: userEmail || null,
@@ -139,8 +167,10 @@ module.exports = async function handler(req, res) {
           amount: Number(amount),
           status: 'pending',
           createdAt: new Date(now),
-        });
-        console.log(`✅ pendingOrders 已建立：${merTradeNo} userId=${userId} productId=${productId}`);
+        };
+        if (preGeneratedCode) pendingPayload.unlockCode = preGeneratedCode;
+        await db.collection('pendingOrders').doc(merTradeNo).set(pendingPayload);
+        console.log(`✅ pendingOrders 已建立：${merTradeNo} userId=${userId} productId=${productId}${preGeneratedCode ? ' code=' + preGeneratedCode : ''}`);
       }
     } catch (fsErr) {
       console.error('⚠️  pendingOrders 寫入失敗（不阻斷付款）：', fsErr.message);

@@ -12,11 +12,13 @@
   /**
    * 發起付款
    * @param {Object} opts
-   * @param {string} opts.productId    - 商品ID（如 'pet-5', 'member-699'）
+   * @param {string} opts.productId    - 商品ID（如 'pet-5', 'plus-30', 'draw-3'）
    * @param {string} opts.productName  - 商品名稱（如 '寵物溝通五感覺察'）
    * @param {number} opts.amount       - 金額（整數，新台幣）
    * @param {string} opts.userId       - Firebase UID
    * @param {string} opts.userEmail    - 使用者 email（選填）
+   * @param {string} opts.returnUrl    - 付款完成後客人被導回的 hourlightkey.com 頁面（選填，
+   *                                     不填則預設導回 member-dashboard.html）
    */
   window.HLPayment = {
     pay: async function(opts) {
@@ -43,7 +45,8 @@
             productName: opts.productName,
             amount: opts.amount,
             userId: opts.userId,
-            userEmail: opts.userEmail || ''
+            userEmail: opts.userEmail || '',
+            returnUrl: opts.returnUrl || ''
           })
         });
 

@@ -1294,11 +1294,17 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
       <div style="margin-bottom:20px">
         <div style="color:rgba(240,212,138,.75);font-weight:700;font-size:.9rem;margin-bottom:14px;text-align:center">請選擇付款方式</div>
         <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+          <!-- 線上付款 PAYUNi -->
+          <button type="button" onclick="payOnlinePayUni()" id="payuniBtn"
+            style="flex:1;min-width:200px;max-width:280px;padding:16px 20px;border-radius:14px;border:1px solid rgba(240,212,138,.4);background:linear-gradient(135deg,rgba(240,212,138,.18),rgba(201,160,96,.12));color:#f8dfa5;font-size:1rem;font-weight:700;cursor:pointer;transition:all .3s;letter-spacing:.04em">
+            線上付款｜信用卡 / ATM
+            <div style="font-size:.75rem;font-weight:400;color:rgba(248,223,165,.7);margin-top:4px">PAYUNi 安全結帳，付完立即解讀</div>
+          </button>
           <!-- 銀行轉帳 -->
           <button onclick="toggleBankTransfer()" id="bankBtn"
             style="flex:1;min-width:200px;max-width:280px;padding:16px 20px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:rgba(255,255,255,.7);font-size:1rem;font-weight:700;cursor:pointer;transition:all .3s;letter-spacing:.04em">
-            🏦 銀行轉帳
-            <div style="font-size:.75rem;font-weight:400;color:rgba(255,255,255,.35);margin-top:4px">匯款後傳截圖，3分鐘搞定</div>
+            銀行轉帳
+            <div style="font-size:.75rem;font-weight:400;color:rgba(255,255,255,.35);margin-top:4px">匯款後傳截圖，3 分鐘搞定</div>
           </button>
         </div>
       </div>
@@ -2010,6 +2016,118 @@ function toggleBankTransfer() {
   }
 }
 
+// ===== PAYUNi 線上付款（路徑 A） =====
+// 客人按「線上付款」→ 呼叫 HLPayment.pay() → 跳 PAYUNi 結帳頁
+// 付款成功後 PAYUNi 把客人導回 https://hourlightkey.com/draw-hl.html?payment=success&code=HL5-XXXXXX
+// 頁面 onload 偵測 query string，自動填入 unlockCodeInput → 觸發 triggerAIReading()
+function payOnlinePayUni() {
+  var n = selected.length;
+  if (!n || n < 3 || n > 7) {
+    alert('PAYUNi 線上付款適用 3 / 5 / 7 張牌的 AI 即時解讀。9 張以上請使用覺察師預約。');
+    return;
+  }
+  var priceMap = { 3: 199, 5: 399, 7: 599 };
+  var amount = priceMap[n];
+  if (!amount) { alert('未知張數'); return; }
+
+  // 記錄當前選牌，付款後回來才能恢復
+  try {
+    sessionStorage.setItem('hl_pay_pending', JSON.stringify({
+      n: n,
+      selected: selected,
+      ts: Date.now()
+    }));
+  } catch(e){}
+
+  // 檢查登入
+  var u = (firebase && firebase.auth) ? firebase.auth().currentUser : null;
+  if (!u) {
+    alert('請先登入會員才能付款。\n按確定前往登入頁。');
+    var redirect = encodeURIComponent(location.href.split('?')[0]);
+    location.href = 'app.html?redirect=' + redirect;
+    return;
+  }
+
+  if (!window.HLPayment || !window.HLPayment.pay) {
+    alert('付款模組尚未載入，請重新整理頁面再試。');
+    return;
+  }
+
+  // 呼叫 HLPayment 並指定 returnUrl
+  HLPayment.pay({
+    productId:   'draw-' + n,
+    productName: '馥靈智慧牌 ' + n + ' 張 AI 即時解讀',
+    amount:      amount,
+    userId:      u.uid,
+    userEmail:   u.email || '',
+    returnUrl:   'https://hourlightkey.com/draw-hl.html'
+  });
+}
+
+// ===== 付款返回偵測（onload） =====
+// 偵測 ?payment=success&code=HL5-XXXXXX → 自動填入 + 觸發兌換
+(function handleDrawPaymentReturn(){
+  var params = new URLSearchParams(location.search);
+  var payment = params.get('payment');
+  var codeFromUrl = params.get('code');
+
+  if (payment === 'success' && codeFromUrl) {
+    // 等 firebase auth 與 cardData 載入
+    var tries = 0;
+    var poll = setInterval(function(){
+      tries++;
+      if (typeof selected !== 'undefined' && document.getElementById('unlockCodeInput')) {
+        clearInterval(poll);
+        // 還原 sessionStorage 裡的選牌
+        try {
+          var pending = JSON.parse(sessionStorage.getItem('hl_pay_pending') || '{}');
+          if (pending.selected && Array.isArray(pending.selected)) {
+            // 觸發抽牌恢復（如 draw-hl 內部有相應 API）
+            if (typeof selected !== 'undefined') {
+              selected.length = 0;
+              for (var i = 0; i < pending.selected.length; i++) selected.push(pending.selected[i]);
+            }
+            sessionStorage.removeItem('hl_pay_pending');
+          }
+        } catch(e){}
+
+        // 顯示 AI 區塊
+        if (typeof showAISection === 'function' && selected.length >= 3) {
+          showAISection(selected.length);
+        }
+
+        // 等 1.5 秒讓 webhook 跑完，再自動填入 code 並觸發
+        setTimeout(function(){
+          var input = document.getElementById('unlockCodeInput');
+          if (input) {
+            input.value = codeFromUrl;
+            // 顯示成功提示
+            var hint = document.createElement('div');
+            hint.style.cssText = 'margin-top:10px;padding:10px 14px;border-radius:8px;background:rgba(143,210,143,.12);color:#a0e0a0;font-size:.85rem;border:1px solid rgba(143,210,143,.3)';
+            hint.textContent = '✓ 付款已完成，已自動填入您的解讀代碼，正在啟動解讀...';
+            input.parentNode.parentNode.appendChild(hint);
+            // 觸發兌換
+            setTimeout(function(){
+              if (typeof triggerAIReading === 'function') triggerAIReading();
+            }, 800);
+          }
+          // 清除 query string 避免重整重複觸發
+          if (history.replaceState) {
+            var clean = location.pathname + (location.hash || '');
+            history.replaceState(null, '', clean);
+          }
+        }, 1500);
+      }
+      if (tries > 60) clearInterval(poll); // 30 秒後放棄
+    }, 500);
+  } else if (payment === 'fail' || payment === 'cancel') {
+    setTimeout(function(){
+      alert(payment === 'cancel' ? '您已取消付款。' : '付款未成功，請重新嘗試或聯繫 LINE @hourlight。');
+      if (history.replaceState) history.replaceState(null, '', location.pathname);
+    }, 500);
+  }
+})();
+
 // ===== AI 即時解讀功能 =====
 
 var AI_READING_API = 'https://app.hourlightkey.com/api/ai-draw-reading';
@@ -2586,6 +2704,7 @@ document.addEventListener('DOMContentLoaded',function(){
 <script src="assets/js/hl-tracker.js" data-tool="draw-hl" data-tool-name="馥靈牌陣抽牌" data-tool-type="draw"></script>
 <script src="assets/js/hl-castle-material.js"></script>
 <script src="assets/js/hl-castle-sync.js"></script>
+<script src="assets/js/hl-payment.js"></script>
 
 <script>
 /* ── 配額橋接：在 draw-hl.html 內實作 HL_checkQuota ── */

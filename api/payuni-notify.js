@@ -65,6 +65,23 @@ function parseTopupProduct(productId) {
   return { count };
 }
 
+// ── 商品 ID → 抽牌張數對照（draw-hl / pet / family / 等）──
+// productId 命名規則：
+//   draw-3 / draw-5 / draw-7  → 馥靈智慧牌 N 張 AI 即時解讀
+//   pet-3 / pet-5 / pet-7      → 寵物溝通 N 張
+//   family-3 / family-5 / family-7 → 家族覺察 N 張
+//   spa-3 / spa-5 / spa-9      → SPA 處方箋 N 張
+//   nail-3 / nail-5 / nail-9   → 美甲指尖 N 張
+function parseDrawProduct(productId) {
+  if (!productId || typeof productId !== 'string') return null;
+  const m = productId.match(/^(draw|pet|family|spa|nail)-(\d+)$/i);
+  if (!m) return null;
+  const category = m[1].toLowerCase();
+  const n = parseInt(m[2], 10);
+  if (!n || n <= 0 || n > 99) return null;
+  return { category, n };
+}
+
 // ── Firebase Admin 初始化（懶載入）──
 let adminDb = null;
 
@@ -177,6 +194,38 @@ module.exports = async function handler(req, res) {
           await pendingRef.update({ status: 'paid', paidAt: now });
 
           console.log(`✅ 課程開通：userId=${userId} productId=${productId} orderId=${MerTradeNo}`);
+
+          // ── 5z. 若是抽牌商品（draw-N / pet-N / family-N / spa-N / nail-N），啟用 reading_codes ──
+          // pendingOrders 在 create 時已先產生 unlockCode，這邊把它正式寫入 reading_codes 集合
+          // （reading_codes 是官網現役 collection，draw-hl/pet-reading 等讀這個；unlock_codes 是 legacy）
+          const draw = parseDrawProduct(productId);
+          if (draw && pendingDoc.exists) {
+            const unlockCode = pendingDoc.data().unlockCode;
+            if (unlockCode) {
+              try {
+                // 寫入格式對齊 admin-unlock.html 第 241 行（service / n / spreads / price / used）
+                await db.collection('reading_codes').doc(unlockCode).set({
+                  service:   draw.category,         // draw / pet / family / spa / nail
+                  n:         draw.n,                // 3 / 5 / 7 / 9 等
+                  spreads:   draw.n,                // 與既有欄位相容
+                  price:     Number(TradeAmt),
+                  used:      false,
+                  source:    'payuni',
+                  orderId:   MerTradeNo,
+                  userId:    userId,
+                  userEmail: userEmail || null,
+                  paidAt:    now,
+                  createdAt: now,
+                  memo:      `PAYUNi 線上付款 ${MerTradeNo}`,
+                });
+                console.log(`✅ reading_codes 啟用：${unlockCode} (${draw.category}-${draw.n}張) userId=${userId} orderId=${MerTradeNo}`);
+              } catch (drawErr) {
+                console.error('PAYUNi notify: reading_codes 寫入失敗', drawErr.message);
+              }
+            } else {
+              console.warn(`⚠️  draw 商品 ${productId} 但 pendingOrders 沒有 unlockCode，無法啟用`);
+            }
+          }
 
           // ── 5a. 若是加購商品（topup-N），把次數加到 user.aiBonus ──
           const topup = parseTopupProduct(productId);
