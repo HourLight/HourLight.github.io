@@ -1,29 +1,31 @@
 /**
- * 馥靈之鑰 占卜抽牌計次門控 v1.0
+ * 馥靈之鑰 占卜抽牌計次門控 v1.1
  *
  * 收費邏輯（逸君確認 2026/04/09）：
  * ► 占卜類動作（抽牌/卜卦/算命）每天計次
  * ► 每日午夜 00:00 (UTC+8) 自動歸零，沒用完不累計
- * ► 全部占卜工具共用同一個計次（不是每個工具獨立 3 次）
+ * ► 每個占卜工具獨立計次（不是全部共用）
+ *   例如：天使占卜 3 次/天 + 骨牌占卜 3 次/天 + 夢境解碼 3 次/天，互不影響
  *
- * 每日限額：
+ * 每日限額（每個工具獨立）：
  *   free  → 每天 3 次
  *   plus  → 每天 10 次（馥靈鑰友 $399/月）
  *   pro   → 無上限（馥靈大師 $999/月）
  *
  * Firestore 結構：
- *   users/{uid}/divination_daily/{YYYY-MM-DD} → { count: N, lastUsed: timestamp }
+ *   users/{uid}/{toolId}_daily/{YYYY-MM-DD} → { count: N, lastUsed: timestamp }
+ *   例如：users/abc123/angel_daily/2026-04-10 → { count:2, lastUsed:... }
  *
  * 已單獨實作（不需引用此模組）：
  *   - tarot-draw.html  （tarot_daily 集合）
- *   - yijing-oracle.html（自有實作）
  *
  * 整合方式（其他占卜工具）：
  *   1. <script src="assets/js/hl-divination-gate.js"></script>
  *   2. 把抽牌按鈕的點擊處理改為：
  *      function onDrawClick(){
  *        if (window.HL_drawCheck) {
- *          HL_drawCheck(function(){ doActualDraw(); });
+ *          HL_drawCheck('angel', function(){ doActualDraw(); });
+ *          //          ^^^^^ tool id（angel/bone/dream/mirror/yijing 等）
  *        } else {
  *          doActualDraw();
  *        }
@@ -79,11 +81,17 @@
     }
   }
 
-  function getDailyUsage(uid, cb){
+  function _toolCol(toolId){
+    // 工具 id 轉為集合名稱：angel → angel_daily
+    var safeId = String(toolId || 'divination').replace(/[^a-z0-9_-]/gi, '').toLowerCase();
+    return safeId + '_daily';
+  }
+
+  function getDailyUsage(uid, toolId, cb){
     try {
       firebase.firestore()
         .collection('users').doc(uid)
-        .collection('divination_daily').doc(getDayKey())
+        .collection(_toolCol(toolId)).doc(getDayKey())
         .get()
         .then(function(doc){
           cb(doc.exists ? (doc.data().count || 0) : 0);
@@ -94,11 +102,11 @@
     }
   }
 
-  function recordUsage(uid){
+  function recordUsage(uid, toolId){
     try {
       firebase.firestore()
         .collection('users').doc(uid)
-        .collection('divination_daily').doc(getDayKey())
+        .collection(_toolCol(toolId)).doc(getDayKey())
         .set({
           count: firebase.firestore.FieldValue.increment(1),
           lastUsed: firebase.firestore.FieldValue.serverTimestamp()
@@ -169,14 +177,20 @@
 
   /**
    * 主要 API：在執行抽牌前呼叫，會自動處理計次與門控
+   * @param {String} toolId - 工具 id（angel/bone/dream/mirror/yijing/...）每個工具獨立計次
    * @param {Function} callback - 通過檢查時要執行的抽牌動作
    * @example
-   *   HL_drawCheck(function(){
+   *   HL_drawCheck('angel', function(){
    *     // 你的實際抽牌邏輯
    *     doActualDraw();
    *   });
    */
-  window.HL_drawCheck = function(callback){
+  window.HL_drawCheck = function(toolId, callback){
+    // 兼容舊呼叫：HL_drawCheck(callback)
+    if (typeof toolId === 'function') {
+      callback = toolId;
+      toolId = 'divination';
+    }
     var user = getUser();
     if (!user) {
       showLoginPrompt();
@@ -185,13 +199,13 @@
     getUserPlan(user.uid, function(plan){
       var limit = DAILY_LIMITS[plan] || DAILY_LIMITS['free'];
       if (limit === Infinity) {
-        recordUsage(user.uid);
+        recordUsage(user.uid, toolId);
         if (callback) callback();
         return;
       }
-      getDailyUsage(user.uid, function(count){
+      getDailyUsage(user.uid, toolId, function(count){
         if (count < limit) {
-          recordUsage(user.uid);
+          recordUsage(user.uid, toolId);
           if (callback) callback();
           showRemainingHint(count + 1, limit);
         } else {
