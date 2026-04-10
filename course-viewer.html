@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>課程學習｜馥靈之鑰 Hour Light</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/hourlight-global.css">
+<link rel="stylesheet" href="assets/css/hl-footer.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#06040e;color:rgba(255,255,255,.85);font-family:'Noto Sans TC',sans-serif;line-height:1.7;min-height:100vh}
+
+.cv-layout{display:flex;max-width:1200px;margin:0 auto;min-height:calc(100vh - 52px)}
+
+/* Sidebar — chapter list */
+.cv-sidebar{width:300px;flex-shrink:0;background:rgba(255,255,255,.02);border-right:1px solid rgba(248,223,165,.08);overflow-y:auto;position:sticky;top:52px;height:calc(100vh - 52px)}
+.cv-sidebar-head{padding:20px;border-bottom:1px solid rgba(248,223,165,.08)}
+.cv-sidebar-title{font-family:'Noto Serif TC',serif;font-size:1rem;color:#f8dfa5;font-weight:500;letter-spacing:.04em;margin-bottom:4px}
+.cv-sidebar-meta{font-size:.75rem;color:rgba(255,255,255,.4)}
+.cv-chapter{display:block;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer;transition:all .2s;font-size:.88rem;color:rgba(255,255,255,.6);text-decoration:none;position:relative}
+.cv-chapter:hover{background:rgba(248,223,165,.04);color:rgba(255,255,255,.8)}
+.cv-chapter.active{background:rgba(248,223,165,.08);color:#f8dfa5;border-left:3px solid #f8dfa5}
+.cv-chapter.completed::after{content:'';position:absolute;right:16px;top:50%;transform:translateY(-50%);width:8px;height:8px;border-radius:50%;background:#4a8a5a}
+.cv-chapter-num{font-size:.7rem;color:rgba(248,223,165,.5);margin-right:8px}
+
+/* Main content */
+.cv-main{flex:1;padding:32px 40px 80px;max-width:800px;overflow-y:auto}
+.cv-content-title{font-family:'Noto Serif TC',serif;font-size:1.5rem;color:#f8dfa5;font-weight:500;letter-spacing:.04em;margin-bottom:20px}
+
+/* Video embed */
+.cv-video{position:relative;width:100%;padding-bottom:56.25%;background:rgba(255,255,255,.03);border-radius:12px;overflow:hidden;margin-bottom:24px;border:1px solid rgba(248,223,165,.1)}
+.cv-video iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.cv-video-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:.9rem;text-align:center;padding:20px}
+
+/* Text content */
+.cv-text{font-size:.95rem;color:rgba(255,255,255,.75);line-height:2}
+.cv-text h2{font-family:'Noto Serif TC',serif;font-size:1.2rem;color:#f8dfa5;margin:28px 0 12px;font-weight:500}
+.cv-text h3{font-size:1rem;color:rgba(248,223,165,.8);margin:20px 0 10px;font-weight:500}
+.cv-text p{margin-bottom:14px}
+.cv-text ul,.cv-text ol{margin:12px 0;padding-left:24px}
+.cv-text li{margin-bottom:6px}
+.cv-text blockquote{border-left:3px solid rgba(248,223,165,.3);padding:12px 18px;margin:16px 0;background:rgba(248,223,165,.03);border-radius:0 8px 8px 0;font-style:italic;color:rgba(255,255,255,.6)}
+.cv-text img{max-width:100%;border-radius:10px;margin:16px 0}
+
+/* Navigation */
+.cv-nav{display:flex;justify-content:space-between;gap:16px;margin-top:32px;padding-top:24px;border-top:1px solid rgba(255,255,255,.06)}
+.cv-nav-btn{padding:12px 24px;border-radius:10px;font-size:.88rem;cursor:pointer;border:none;font-family:inherit;transition:all .2s;min-height:44px}
+.cv-nav-prev{background:transparent;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5)}
+.cv-nav-prev:hover{border-color:rgba(248,223,165,.3);color:#f8dfa5}
+.cv-nav-next{background:linear-gradient(135deg,#f0d48a,#c9a060);color:#1a1520;font-weight:600}
+.cv-nav-next:hover{transform:translateY(-1px)}
+.cv-nav-complete{background:#4a8a5a;color:#fff;font-weight:600}
+
+/* Progress bar */
+.cv-progress{height:3px;background:rgba(255,255,255,.06);margin-bottom:24px;border-radius:2px;overflow:hidden}
+.cv-progress-bar{height:100%;background:linear-gradient(90deg,#f0d48a,#c9a060);transition:width .5s ease}
+
+/* Guard */
+.cv-guard{display:flex;align-items:center;justify-content:center;min-height:60vh;text-align:center;padding:40px}
+.cv-guard-box{max-width:400px}
+.cv-guard-title{font-family:'Noto Serif TC',serif;font-size:1.3rem;color:#f8dfa5;margin-bottom:12px}
+.cv-guard-desc{font-size:.9rem;color:rgba(255,255,255,.5);line-height:1.8;margin-bottom:24px}
+.cv-guard-btn{display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#f0d48a,#c9a060);color:#1a1520;border-radius:12px;font-weight:600;text-decoration:none;font-size:.95rem}
+
+/* Mobile */
+@media(max-width:768px){
+  .cv-layout{flex-direction:column}
+  .cv-sidebar{width:100%;position:relative;top:0;height:auto;max-height:40vh;border-right:none;border-bottom:1px solid rgba(248,223,165,.08)}
+  .cv-main{padding:24px 20px 80px}
+}
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+</style>
+</head>
+<body>
+
+<div id="guardArea" class="cv-guard" style="display:none">
+  <div class="cv-guard-box">
+    <div class="cv-guard-title" id="guardTitle">請先登入</div>
+    <div class="cv-guard-desc" id="guardDesc">登入會員帳號後即可觀看已購買的課程。</div>
+    <a href="app.html" class="cv-guard-btn" id="guardBtn">登入會員</a>
+  </div>
+</div>
+
+<div id="viewerArea" class="cv-layout" style="display:none">
+  <aside class="cv-sidebar">
+    <div class="cv-sidebar-head">
+      <div class="cv-sidebar-title" id="courseTitle">課程名稱</div>
+      <div class="cv-sidebar-meta" id="courseMeta"></div>
+    </div>
+    <div id="chapterList"></div>
+  </aside>
+
+  <main class="cv-main">
+    <div class="cv-progress"><div class="cv-progress-bar" id="progressBar" style="width:0%"></div></div>
+    <h1 class="cv-content-title" id="chapterTitle">選擇章節開始學習</h1>
+    <div id="videoArea"></div>
+    <div class="cv-text" id="chapterContent">
+      <p style="color:rgba(255,255,255,.4)">從左側選擇章節開始學習。</p>
+    </div>
+    <div class="cv-nav" id="chapterNav" style="display:none">
+      <button class="cv-nav-btn cv-nav-prev" id="prevBtn" onclick="navChapter(-1)">上一章</button>
+      <button class="cv-nav-btn cv-nav-next" id="nextBtn" onclick="navChapter(1)">下一章</button>
+    </div>
+  </main>
+</div>
+
+<footer class="hl-footer">
+  <div class="hl-footer-inner">
+    <div class="hl-footer-brand">
+      <div class="hl-footer-logo"><img src="LOGO-1.png" alt="" class="hl-logo-icon" aria-hidden="true" loading="lazy">馥靈之鑰 Hour Light</div>
+    </div>
+    <div class="hl-footer-links">
+      <a href="index.html">首頁</a><a href="courses.html">所有課程</a><a href="member-dashboard.html">會員中心</a>
+    </div>
+    <div class="hl-footer-copyright">© 2026 馥靈之鑰國際有限公司</div>
+  </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+<script>
+'use strict';
+var db, auth;
+if (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY') {
+  if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+  auth = firebase.auth();
+  db = firebase.firestore();
+}
+
+var courseId = new URLSearchParams(location.search).get('id');
+var courseData = null;
+var userProgress = null;
+var currentChapter = 0;
+
+auth.onAuthStateChanged(function(user){
+  if (!user) {
+    document.getElementById('guardArea').style.display = 'flex';
+    document.getElementById('viewerArea').style.display = 'none';
+    return;
+  }
+  if (!courseId) {
+    document.getElementById('guardArea').style.display = 'flex';
+    document.getElementById('guardTitle').textContent = '請選擇課程';
+    document.getElementById('guardDesc').textContent = '請從課程列表選擇要學習的課程。';
+    document.getElementById('guardBtn').href = 'courses.html';
+    document.getElementById('guardBtn').textContent = '瀏覽課程';
+    return;
+  }
+  loadCourse(user);
+});
+
+function loadCourse(user){
+  Promise.all([
+    db.collection('courses').doc(courseId).get(),
+    db.collection('users').doc(user.uid).collection('courses').doc(courseId).get()
+  ]).then(function(results){
+    var courseDoc = results[0];
+    var progressDoc = results[1];
+
+    if (!courseDoc.exists) {
+      document.getElementById('guardArea').style.display = 'flex';
+      document.getElementById('guardTitle').textContent = '找不到課程';
+      document.getElementById('guardDesc').textContent = '此課程不存在或已下架。';
+      document.getElementById('guardBtn').href = 'courses.html';
+      document.getElementById('guardBtn').textContent = '瀏覽其他課程';
+      return;
+    }
+
+    courseData = courseDoc.data();
+
+    // Check if paid
+    if (!progressDoc.exists || !progressDoc.data().paid) {
+      document.getElementById('guardArea').style.display = 'flex';
+      document.getElementById('guardTitle').textContent = courseData.name || '課程';
+      document.getElementById('guardDesc').innerHTML = (courseData.desc || '') + '<br><br>NT$ ' + (courseData.price||0).toLocaleString();
+      document.getElementById('guardBtn').href = 'courses.html';
+      document.getElementById('guardBtn').textContent = '前往購買';
+      return;
+    }
+
+    userProgress = progressDoc.data();
+    currentChapter = (userProgress.progress && userProgress.progress.chapterIndex) || 0;
+
+    document.getElementById('guardArea').style.display = 'none';
+    document.getElementById('viewerArea').style.display = 'flex';
+    renderCourse();
+  }).catch(function(e){
+    document.getElementById('guardArea').style.display = 'flex';
+    document.getElementById('guardTitle').textContent = '載入失敗';
+    document.getElementById('guardDesc').textContent = e.message;
+  });
+}
+
+function renderCourse(){
+  document.getElementById('courseTitle').textContent = courseData.name || '課程';
+  var chapters = courseData.chapters || [];
+  document.getElementById('courseMeta').textContent = chapters.length + ' 章節';
+
+  // Render chapter list
+  var completed = (userProgress.progress && userProgress.progress.completed) || [];
+  document.getElementById('chapterList').innerHTML = chapters.map(function(ch, i){
+    var isComplete = completed.indexOf(i) !== -1;
+    var isActive = i === currentChapter;
+    return '<a class="cv-chapter' + (isActive?' active':'') + (isComplete?' completed':'') + '" onclick="goChapter(' + i + ')">'
+      + '<span class="cv-chapter-num">' + (i+1) + '.</span>'
+      + (ch.title || '第 ' + (i+1) + ' 章')
+      + '</a>';
+  }).join('');
+
+  // Progress bar
+  var pct = chapters.length ? Math.round(completed.length / chapters.length * 100) : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+
+  goChapter(currentChapter);
+}
+
+function goChapter(idx){
+  var chapters = courseData.chapters || [];
+  if (idx < 0 || idx >= chapters.length) return;
+  currentChapter = idx;
+  var ch = chapters[idx];
+
+  document.getElementById('chapterTitle').textContent = (ch.title || '第 ' + (idx+1) + ' 章');
+
+  // Video
+  var videoArea = document.getElementById('videoArea');
+  if (ch.videoUrl) {
+    // Support Vimeo / YouTube embed
+    var embedUrl = ch.videoUrl;
+    if (embedUrl.indexOf('vimeo.com/') !== -1 && embedUrl.indexOf('player') === -1) {
+      var vimeoId = embedUrl.match(/vimeo\.com\/(\d+)/);
+      if (vimeoId) embedUrl = 'https://player.vimeo.com/video/' + vimeoId[1] + '?dnt=1';
+    }
+    if (embedUrl.indexOf('youtube.com/watch') !== -1 || embedUrl.indexOf('youtu.be/') !== -1) {
+      var ytId = embedUrl.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+      if (ytId) embedUrl = 'https://www.youtube-nocookie.com/embed/' + ytId[1];
+    }
+    videoArea.innerHTML = '<div class="cv-video"><iframe src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>';
+  } else {
+    videoArea.innerHTML = '<div class="cv-video"><div class="cv-video-placeholder">此章節尚未提供影片<br>請閱讀下方文字教材</div></div>';
+  }
+
+  // Content
+  document.getElementById('chapterContent').innerHTML = ch.content || '<p style="color:rgba(255,255,255,.4)">此章節內容準備中。</p>';
+
+  // Nav buttons
+  document.getElementById('chapterNav').style.display = 'flex';
+  document.getElementById('prevBtn').style.display = idx > 0 ? 'block' : 'none';
+
+  var completed = (userProgress.progress && userProgress.progress.completed) || [];
+  var isLast = idx === chapters.length - 1;
+  var nextBtn = document.getElementById('nextBtn');
+  if (isLast) {
+    nextBtn.textContent = '完成課程';
+    nextBtn.className = 'cv-nav-btn cv-nav-complete';
+    nextBtn.onclick = function(){ completeCourse(); };
+  } else {
+    nextBtn.textContent = '下一章';
+    nextBtn.className = 'cv-nav-btn cv-nav-next';
+    nextBtn.onclick = function(){ markComplete(idx); navChapter(1); };
+  }
+
+  // Highlight active chapter in sidebar
+  document.querySelectorAll('.cv-chapter').forEach(function(el, i){
+    el.classList.toggle('active', i === idx);
+  });
+
+  // Save progress
+  saveProgress(idx);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function navChapter(dir){
+  markComplete(currentChapter);
+  goChapter(currentChapter + dir);
+}
+
+function markComplete(idx){
+  if (!userProgress.progress) userProgress.progress = { chapterIndex: 0, completed: [] };
+  if (userProgress.progress.completed.indexOf(idx) === -1) {
+    userProgress.progress.completed.push(idx);
+  }
+  // Update progress bar
+  var chapters = courseData.chapters || [];
+  var pct = chapters.length ? Math.round(userProgress.progress.completed.length / chapters.length * 100) : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+
+  // Update sidebar completed marks
+  document.querySelectorAll('.cv-chapter').forEach(function(el, i){
+    if (userProgress.progress.completed.indexOf(i) !== -1) el.classList.add('completed');
+  });
+}
+
+function saveProgress(idx){
+  var user = auth.currentUser;
+  if (!user || !courseId) return;
+  if (!userProgress.progress) userProgress.progress = { chapterIndex: 0, completed: [] };
+  userProgress.progress.chapterIndex = idx;
+  db.collection('users').doc(user.uid).collection('courses').doc(courseId).update({
+    'progress.chapterIndex': idx,
+    'progress.completed': userProgress.progress.completed,
+    lastViewedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(function(){});
+}
+
+function completeCourse(){
+  markComplete(currentChapter);
+  saveProgress(currentChapter);
+  var user = auth.currentUser;
+  if (user) {
+    db.collection('users').doc(user.uid).collection('courses').doc(courseId).update({
+      completedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      'progress.completed': userProgress.progress.completed
+    }).catch(function(){});
+  }
+  alert('恭喜完成課程！\n\n您的學習紀錄已儲存。');
+}
+</script>
+<script src="assets/js/hl-topnav.js"></script>
+<script src="assets/js/hl-bottomnav.js"></script>
+</body>
+</html>
