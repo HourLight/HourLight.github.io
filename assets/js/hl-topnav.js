@@ -32,7 +32,7 @@
 .htn-logo{display:flex;align-items:center;gap:8px;color:#f0d48a;font-size:.92rem;letter-spacing:.12em;font-weight:500;white-space:nowrap;flex-shrink:0}
 .htn-logo img{width:28px;height:28px;border-radius:50%;object-fit:cover}
 .htn-links{display:flex;align-items:center;gap:6px}
-.htn-link{color:rgba(244,240,235,.65);font-size:.72rem;letter-spacing:.06em;padding:6px 10px;border-radius:16px;border:1px solid transparent;white-space:nowrap}
+.htn-link{color:rgba(244,240,235,.65);font-size:.78rem;letter-spacing:.06em;padding:8px 14px;border-radius:16px;border:1px solid transparent;white-space:nowrap;min-height:36px;display:inline-flex;align-items:center}
 .htn-link:hover{color:#f0d48a;border-color:rgba(240,212,138,.15);background:rgba(240,212,138,.04)}
 .htn-link.active{color:#f0d48a;border-color:rgba(240,212,138,.2);background:rgba(240,212,138,.06)}
 .htn-menu-btn{display:none;background:none;border:none;color:rgba(244,240,235,.7);cursor:pointer;padding:8px;font-size:1.2rem}
@@ -42,7 +42,7 @@
   max-height:70vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.5)}
 .htn-dropdown.show{display:block;animation:htnDown .25s ease}
 @keyframes htnDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
-.htn-dropdown a{display:block;color:rgba(244,240,235,.75);font-size:.85rem;padding:13px 14px;border-radius:10px;text-decoration:none;letter-spacing:.05em;transition:all .2s;min-height:44px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.htn-dropdown a{display:block;color:rgba(244,240,235,.75);font-size:.9rem;padding:15px 16px;border-radius:10px;text-decoration:none;letter-spacing:.05em;transition:all .2s;min-height:48px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .htn-dropdown a:hover,.htn-dropdown a.active{color:#f0d48a;background:rgba(240,212,138,.05)}
 .htn-dropdown .htn-group{font-size:.7rem;color:rgba(200,188,170,.4);letter-spacing:.12em;padding:14px 14px 6px;text-transform:uppercase}
 @media(max-width:768px){
@@ -52,36 +52,35 @@
 `;
   document.head.appendChild(css);
 
-  // NAV DATA
+  // NAV DATA — 上方放品牌 + 關於（逸君 2026/04/10 指示）
   var NAV = [
-    {group:'探索', items:[
+    {group:'關於', items:[
       {label:'首頁', href:'index.html'},
-      {label:'三十三大命盤', href:'destiny-engine.html'},
+      {label:'服務項目', href:'services.html'},
+      {label:'服務價目', href:'pricing.html'},
+      {label:'線上預約', href:'booking.html'},
+      {label:'創辦人', href:'founder.html'},
+      {label:'著作', href:'book.html'},
+    ]},
+    {group:'功能', items:[
+      {label:'命盤引擎', href:'destiny-engine.html'},
+      {label:'智慧抽牌', href:'draw-hl.html'},
+      {label:'覺察測驗', href:'quiz-hub.html'},
       {label:'合盤配對', href:'destiny-match.html'},
       {label:'馥靈秘碼', href:'fuling-mima.html'},
-      {label:'智慧抽牌', href:'draw-hl.html'},
-      {label:'女巫原力', href:'witch-power.html'},
-      {label:'前世密碼', href:'past-life.html'},
-    ]},
-    {group:'工具', items:[
-      {label:'覺察測驗', href:'quiz-hub.html'},
+      {label:'內在城堡', href:'app.html'},
       {label:'網站地圖', href:'hourlight-sitemap.html'},
-    ]},
-    {group:'關於', items:[
-      {label:'創辦人', href:'founder.html'},
-      {label:'服務項目', href:'services.html'},
     ]}
   ];
 
-  // Quick links for desktop
+  // Quick links for desktop — 精簡 6 個
   var QUICK = [
     {label:'首頁', href:'index.html'},
-    {label:'命盤引擎', href:'destiny-engine.html'},
-    {label:'合盤', href:'destiny-match.html'},
-    {label:'馥靈秘碼', href:'fuling-mima.html'},
-    {label:'抽牌', href:'draw-hl.html'},
-    {label:'測驗', href:'quiz-hub.html'},
-    {label:'地圖', href:'hourlight-sitemap.html'},
+    {label:'服務項目', href:'services.html'},
+    {label:'服務價目', href:'pricing.html'},
+    {label:'線上預約', href:'booking.html'},
+    {label:'創辦人', href:'founder.html'},
+    {label:'著作', href:'book.html'},
   ];
 
   // Build
