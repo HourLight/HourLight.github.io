@@ -118,6 +118,22 @@ function getFirestore() {
 }
 
 module.exports = async function handler(req, res) {
+  // ── PAYUNi 付款返回中繼（302 GET redirect）──
+  // PAYUNi 付完款後 POST 導回 ReturnURL，但 GitHub Pages 不接受 POST（405）
+  // 所以 ReturnURL 指向這裡（api/payuni-notify?to=目標URL），
+  // 有 ?to= 參數就直接 302 redirect，不走 notify 邏輯
+  // Notify URL（server-to-server）不帶 ?to=，會正常走下面的 notify 流程
+  if (req.query && req.query.to) {
+    let target = 'https://hourlightkey.com/member-dashboard.html?payment=success';
+    try {
+      const u = new URL(req.query.to);
+      if (u.hostname === 'hourlightkey.com' || u.hostname === 'www.hourlightkey.com') {
+        target = req.query.to;
+      }
+    } catch (e) { /* invalid URL, use default */ }
+    return res.redirect(302, target);
+  }
+
   if (req.method !== 'POST') return res.status(405).send('Method not allowed');
 
   const HASH_KEY = process.env.PAYUNI_HASH_KEY;

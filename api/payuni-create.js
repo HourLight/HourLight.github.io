@@ -140,8 +140,9 @@ module.exports = async function handler(req, res) {
     if (!finalPageUrl) {
       finalPageUrl = 'https://hourlightkey.com/member-dashboard.html?payment=success';
     }
-    // 透過 Vercel 中繼 endpoint 避免 GitHub Pages 405
-    const returnUrl = `${siteUrl}/api/payuni-return?to=${encodeURIComponent(finalPageUrl)}`;
+    // 透過 payuni-notify 的 ?to= 參數做 302 redirect，避免 GitHub Pages 405
+    // （不用 api/payuni-return.js 因為 Vercel Hobby plan 限 12 個 function）
+    const returnUrl = `${siteUrl}/api/payuni-notify?to=${encodeURIComponent(finalPageUrl)}`;
 
     // 建立加密參數
     const encryptData = {
