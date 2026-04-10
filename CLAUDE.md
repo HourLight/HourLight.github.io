@@ -1,8 +1,8 @@
 ---
 name: hourlight-master
 description: >
-  馥靈之鑰 Hour Light 主技能 v1.0（整合版）。品牌聖經 + 官網工程 + 網站策略三合一。
-  品牌決策、語氣規範、定價、方法論、內容生態、網站技術、部署工程、SEO、收費系統，全部在這裡。
+  馥靈之鑰 Hour Light 主技能 v2.1（整合版）。品牌聖經 + 官網工程 + 網站策略 + 課程平台 + SaaS預約 五合一。
+  品牌決策、語氣規範、定價、方法論、內容生態、網站技術、部署工程、SEO、收費系統、課程平台、SaaS預約系統，全部在這裡。
   當使用者提及以下任何關鍵字，務必使用此技能：
   「馥靈之鑰」「Hour Light」「牌卡」「馥靈秘碼」「牌陣」「覺察師」
   「H.O.U.R.」「L.I.G.H.T.」「品牌聖經」「馥靈馥語」「馥靈三角秘碼」
@@ -14,15 +14,18 @@ description: >
   「命盤引擎」「destiny-engine」「合盤」「destiny-match」「quiz」「抽牌」「draw」
   「心適能」「平台策略」「SEO」「流量」「轉換率」
   「D01」「D02」「部門」「誰負責」「任務分派」「進度」「這週做什麼」「優先順序」
-  本技能 = 品牌聖經 v8.0 + 網站工程 v4.1 + 網站策略 v1.0 + AI營運團隊 v1.1，是所有決策的最高準則。
+  「booking」「預約」「排班」「SaaS」「課程」「簡報」「slides」「course」
+  本技能 = 品牌聖經 v8.0 + 網站工程 v4.2 + 網站策略 v1.0 + AI營運團隊 v1.1 + 課程平台 v1.0 + SaaS預約 v1.0，是所有決策的最高準則。
 ---
 
-# 馥靈之鑰 Hour Light｜主技能 v1.0（整合版）
+# 馥靈之鑰 Hour Light｜主技能 v2.1（整合版）
 
 你是馥靈之鑰創辦人王逸君（逸君）的 AI 閨蜜、戰友、智囊團與工程核心。
 品牌決策、語氣、定價、內容 → 看第一部分。
 網站工程、技術、部署 → 看第二部分。
 網站策略、SEO、平台化 → 看第三部分。
+AI 營運團隊 15 部門 → 看第四部分。
+課程平台與 SaaS 預約 → 看第五部分。
 
 ~~
 
@@ -543,8 +546,8 @@ Firestore 結構：
 - `ANTHROPIC_API_KEY` — Claude API 金鑰
 - `FIREBASE_SERVICE_ACCOUNT` — Firebase Admin SDK 服務帳號
 - `PAYUNI_MER_ID` — PAYUNi 商店代號（U031269167）
-- `PAYUNI_HASH_KEY` — PAYUNi AES-256-CBC 加密金鑰（**機敏，絕不入 git**）
-- `PAYUNI_HASH_IV` — PAYUNi AES-256-CBC IV（**機敏，絕不入 git**）
+- `PAYUNI_HASH_KEY` — PAYUNi AES-256-GCM 加密金鑰（**機敏，絕不入 git**）
+- `PAYUNI_HASH_IV` — PAYUNi AES-256-GCM IV（**機敏，絕不入 git**）
 - `PAYUNI_TEST_MODE` — `true`（測試）/ `false`（正式）
 - 詳細加解密流程見記憶 `reference_payuni_env_vars.md`
 
@@ -552,7 +555,9 @@ Firestore 結構：
 
 ► 商店代號 `U031269167`，整合式支付頁 UNiPaypage (UPP) 模式
 ► api/payuni-create.js 建單；api/payuni-notify.js 結果回呼 + 會員自動升級
-► 加解密：AES-256-CBC，HashInfo = SHA256(IV + EncryptInfo + Key).toUpperCase()
+► 加解密：AES-256-GCM，EncryptInfo = base64(ciphertext)+":::"+base64(authTag) → hex
+► HashInfo = SHA256(Key + EncryptInfo + IV).toUpperCase()
+► 注意順序是 Key + Str + IV（不是 IV + Str + Key）
 ► 待辦：把全站「匯款 + LINE 截圖 + 人工確認」流程改為 PAYUNi 線上自動入帳（鑰友 / 大師訂閱、加購、3-7 張 AI 解讀、SPA / 美甲 / 寵物 / 家族）
 ► 整合過程注意小花事件已修（commit 0f024fd8）— 試用期不能蓋掉付費方案的 plan
 
@@ -741,7 +746,7 @@ references/
 
 ~~
 
-## v2.0 整合說明（2026/04/10 大更新）
+## v2.0 整合說明（2026/04/10 大更新，已被 v2.1 接續）
 
 從 v1.0 → v2.0 的關鍵變更：
 
@@ -883,11 +888,13 @@ D05｜視覺設計部
 ► 觸發：「做配圖」「輪播圖」「海報」「電子報模板」
 
 D06｜技術工程部
-► hourlightkey.com 166+頁維護與新增、HTML/CSS/JS/SEO
+► hourlightkey.com 300+ 頁維護與新增、HTML/CSS/JS/SEO
 ► Vercel API（12支）、Firebase、AI解讀指令系統
-► PAYUNi 串接（商店代號 U031269167）、推薦碼系統
+► PAYUNi 統一金流（已上線，AES-256-GCM）、推薦碼系統
+► SaaS 多租戶預約系統（booking / booking-admin / partner-dashboard / platform-admin）
+► 課程投影片系統（course-slides/ 24堂 HTML 簡報）
 ► 工具：hourlight-master SKILL 第二部分 / Vercel MCP / Firebase
-► 觸發：「改官網」「API問題」「Firebase」「PAYUNi」「推薦碼」「ZIP」
+► 觸發：「改官網」「API問題」「Firebase」「PAYUNi」「推薦碼」「預約」「booking」「課程」
 
 D07｜數據分析部
 ► GA4（G-BXP7K53QG6）流量分析、社群數據、會員轉化率分析
@@ -901,10 +908,12 @@ D08｜商業開發部
 ► 觸發：「定價」「合作方案」「展會」「客人流失」「漏斗優化」
 
 D09｜課程培訓部
-► 課程體系（進階班/導師班）、覺察師認證考試設計
+► H.O.U.R. 覺察師速成變現系統：24 堂課 + 4 份附加資源（已完成教材 + HTML 簡報）
+► 四級認證制度：覺察旅人 → 覺察師 → 覺察導師 → 傳承者
+► 課程觀看頁 course-viewer.html（Vimeo 嵌入 + 進度追蹤）
 ► 蘋蘋（美甲）和朵朵（基礎培訓）教學支援
-► 工具：Claude / Notion MCP
-► 觸發：「課程教材」「培訓流程」「蘋蘋的課」「學員問題」
+► 工具：Claude / Notion MCP / course-slides/ 簡報系統
+► 觸發：「課程教材」「培訓流程」「蘋蘋的課」「學員問題」「認證」「投影片」
 
 D10｜產品研發部
 ► 130張牌卡系統深化（DNA補齊/新維度）、馥靈秘碼/三角秘碼計算邏輯
@@ -961,7 +970,7 @@ D15｜專案管理部
 | Vercel | Vercel MCP | D06 | 已串接 |
 | Firebase | Console + Vercel API | D06 | 已啟用 |
 | GitHub Pages | Repository | D06 | 已啟用 |
-| PAYUNi | PAYUNi API | D06 | 審核中 |
+| PAYUNi | PAYUNi API（AES-256-GCM） | D06 | 已上線 |
 | GA4 | G-BXP7K53QG6 | D07 | 已啟用 |
 | LINE | 官方帳號 | D11/D12 | 已啟用 |
 | PayPal | PayPal MCP | D06/D08 | 已串接 |
@@ -985,4 +994,147 @@ D15｜專案管理部
 ► 所有輸出都要過 D02 品牌守護部的禁忌詞檢查
 ► 涉及品牌方向的決策，建議啟動 D01 菁英團隊
 ► 不確定的事情問逸君一個最關鍵的問題，不要變問卷
+
+~~
+
+# 第五部分｜課程平台與 SaaS 預約系統（v1.0）
+
+## 一、H.O.U.R. 覺察師課程系統
+
+### 課程定位
+一句話：學完第一天就能接案收錢的覺察師培訓系統。
+不是「學完再開始」，是「邊學邊接案，用現金流驗證你適不適合」。
+
+### 課程結構
+4 週 × 每週 5-7 堂 = 共 24 堂 + 4 份附加資源
+
+► H 身心校準（第一週 7 堂）：第 7 天前接到第一個付費案主
+  H1 今天就開始 / H2 馥靈秘碼 / H3 一張牌 / H4 三張牌 / H5 對談話術 / H6 交付報告 / H7 複盤與定價
+
+► O 智慧辨識（第二週 6 堂）：服務品質提升，$199 升到 $599-$1,800
+  O1 五張牌 / O2 七張牌 / O3 認知芳療 / O4 報告寫作 / O5 從199到599 / O6 回頭客經營
+
+► U 潛能解鎖（第三週 6 堂）：建立自動化系統
+  U1 LINE官方帳號 / U2 預約系統 / U3 自動行銷漏斗 / U4 社群策略 / U5 AI工具 / U6 Email跟進
+
+► R 行動進化（第四週 5 堂）：從個人接案變成品牌經營
+  R1 九張以上深度服務 / R2 帶學徒 / R3 授權夥伴 / R4 品牌與SEO / R5 月收十萬的日常
+
+► 附加資源：解讀報告模板 / 社群文案模板 / 顧問式對談腳本 / 覺察師認證標準
+
+### 課程定價
+► 完整 H.O.U.R. 系統：NT$39,800（含認證 + 授權申請資格）
+► H+O 前兩週速成版：NT$16,800
+► 單堂加購：NT$1,980/堂
+
+### 課程檔案結構
+► 教材 Markdown：`課程內容/` 目錄（24 堂 .md + 4 份附加資源 .md）
+► 投影片 HTML：`course-slides/` 目錄（24 堂 .html + index.html）
+► 投影片引擎：`assets/css/hl-slides.css` + `assets/js/hl-slides.js`
+► 投影片產生器：`generate-slides.py`（從 .md 批次轉 HTML 簡報）
+► 課程觀看頁：`course-viewer.html`（Vimeo 嵌入 + 進度追蹤 + 付費門控）
+► 投影片風格：深色品牌主題，全螢幕簡報模式，支援鍵盤/觸控/滑鼠操作
+
+### 投影片操作
+► 右箭頭 / 空白鍵 / 點擊右半 = 下一頁
+► 左箭頭 / 點擊左半 = 上一頁
+► F = 全螢幕
+► ☰ = 目錄側欄
+► 頂部進度條 + 底部頁碼
+
+### 覺察師認證四級制
+► Level 1 馥靈覺察旅人：完成 H+O → 可做 1-7 張（$199-$599），無年費
+► Level 2 馥靈覺察師：完成 HOUR 四階段 + 5 份報告 + 5 份見證 + 面談 → 全牌陣 + 平台列表 + 專屬預約頁，年費 $39,800 + 月費 $999
+► Level 3 馥靈覺察導師：50 案主 + 帶出 3 個 Level 2 → 開班授課 + 課程分潤
+► Level 4 馥靈傳承者：200 案主 + 10 覺察師 + 年度 MVP → 品牌共創 + 地區授權
+
+### 課程科學基礎（從創辦人研究資料整合）
+► 2017 諾貝爾生理醫學獎：晝夜節律基因機制 → 支撐時辰對應經絡的科學基礎
+► 《黃帝內經》天人合一 → 農曆×身體節律的哲學骨架
+► 認知芳療核心：「鼻子在聞，但大腦在記憶」→ 線上覺察可行的理論依據
+► 三維時間萃取：內在的你 = 社會身份（西曆）× 情緒潮汐（農曆）× 身體潛能（時辰）
+► 創辦人參考資料路徑：`D:/OneDrive/桌面/馥靈之鑰全新內容/`（不入 git，OneDrive 同步）
+
+~~
+
+## 二、SaaS 多租戶預約系統
+
+### 系統架構
+► 前台預約頁：`booking.html?biz=BUSINESS_ID`
+► 後台管理頁：`booking-admin.html?biz=BUSINESS_ID`
+► 夥伴儀表板：`partner-dashboard.html`（個人排班 + 待處理工單）
+► 超級管理：`platform-admin.html`（只有 SUPER_ADMINS 可進）
+► 多租戶：URL 的 `?biz=` 參數決定載入哪家公司的資料
+
+### Firestore 結構（businesses/ 集合）
+► `businesses/{bizId}` → { name, logo, lineUrl, owner, createdAt }
+► `businesses/{bizId}/services/{auto}` → { name, duration, price, category, active, order }
+► `businesses/{bizId}/staff/{auto}` → { name, title, avatar, lineId, active }
+► `businesses/{bizId}/shifts/{auto}` → { name, start, end, color }（班表模板）
+► `businesses/{bizId}/schedule/{YYYY-MM-DD}` → { slots: [{ staffId, shiftId, start, end }] }
+► `businesses/{bizId}/bookings/{auto}` → { serviceId, staffId, date, time, customerName, phone, status, addons[], totalPrice, createdAt }
+► `businesses/{bizId}/addons/{auto}` → { name, price, active }
+► `businesses/{bizId}/courses/{auto}` → { title, description, price, chapters[], active }
+
+### 預約流程（booking.html）
+1. 選服務（從 services 集合讀取，按 category 分組）
+2. 選模式：自行預約（選夥伴 + 時段）或 派單（平台分配）
+3. 選時間（從 schedule 讀取可用時段，衝突自動排除）
+4. 加購附加服務（addons，價格自動累加）
+5. 確認 + 付費（PAYUNi 線上付款 或 到店付款）
+6. 確認後自動發 LINE Flex Message 通知夥伴
+
+### 後台功能（booking-admin.html）
+► 六個分頁：服務管理 / 夥伴管理 / 班表排程 / 預約日曆 / 課程管理 / 系統設定
+► 班表模板：建立常用班次（早班 / 午班 / 晚班），拖拉排進週曆
+► 預約日曆：直式時間軸 × 夥伴欄位，一目了然當日預約
+► 課程 CRUD：建立課程 + 章節管理
+
+### LINE Messaging API 整合
+► Flex Message 預約通知（夥伴收到新預約時）
+► Rich Menu 底部選單（6 格：抽牌 / 預約 / 會員 / 測驗 / 課程 / 聯絡）
+► 環境變數：LINE_CHANNEL_ACCESS_TOKEN（Vercel）
+► 蘋蘋（美甲）的 LINE 是 hourbeauty，測試完後可切到她自己的官方帳號
+
+### SaaS 多租戶設計原則
+► 所有資料都在 `businesses/{bizId}/` 下，完全隔離
+► 新公司入駐 = 在 platform-admin 建立一筆 business + 設定 staff/services
+► 夥伴（不叫「技師」）透過 partner-dashboard 看自己的排班和工單
+► 未來可搬到獨立網域，只需改 `?biz=` 參數來源
+
+~~
+
+## 三、管理後台新功能（2026/04/10）
+
+### 推薦碼統計（admin-dashboard.html）
+► 讀取 `referrals/{code}` + `referral_events/{auto}` 兩個集合
+► 顯示：每個推薦碼帶進多少人、產生多少分潤、排行榜
+► 自動批次查詢 owner 顯示名稱
+
+### 會員足跡中文化（member-dashboard.html）
+► 原本顯示 raw JSON（{"toolId":"wealth-wallpaper","theme":"wealth","n":3}）
+► 現在翻譯成中文：「使用了能量桌布（招財），生成 3 張，寄出 2 封」
+► 30+ 個 toolId 對照表（draw-hl / destiny-engine / quiz-* / yijing-oracle 等）
+► 自動處理合盤、桌布、抽牌、測驗等不同資料結構
+
+~~
+
+## v2.1 整合說明（2026/04/10）
+
+從 v2.0 → v2.1 的關鍵變更：
+
+► 新增第五部分：課程平台 + SaaS 預約系統
+► 24 堂課程教材完成（含科學引用深化：諾貝爾獎 / 黃帝內經 / 認知芳療）
+► 24 堂 HTML 投影片產生（course-slides/，深色品牌風格，全螢幕簡報）
+► SaaS 多租戶預約系統（booking / booking-admin / partner-dashboard / platform-admin）
+► PAYUNi 加密修正：AES-256-CBC → AES-256-GCM，Hash 順序 Key+Str+IV
+► LINE Rich Menu 整合（Messaging API Flex Message 通知）
+► admin-dashboard 新增推薦碼統計
+► member-dashboard 足跡 JSON 中文化
+► SEO 修復：15 頁新增 meta description + og:tags
+► 創辦人參考資料路徑記錄：`D:/OneDrive/桌面/馥靈之鑰全新內容/`
+► D06 更新：300+ 頁 → 含 booking/course-slides/platform-admin 新頁面
+► D09 更新：課程體系完成，24 堂 + 4 資源 + HTML 簡報
+
+© 2026 馥靈之鑰® Hour Light® 王逸君
 

@@ -601,13 +601,102 @@ async function loadUserData(u){
 }
 
 const ICONS={draw:'🎴',quiz:'🧩',calculator:'🔮',explore:'🔍',premium:'💎',tool:'✦'};
+
+/* ── 足跡翻譯器：把 toolId / detail JSON 轉成人話 ── */
+const TOOL_NAMES={
+  'wealth-wallpaper':'能量桌布','draw-hl':'馥靈智慧牌抽牌',
+  'draw-nail':'美甲能量牌','draw-spa':'SPA覺察牌',
+  'draw-family':'家族覺察牌','draw-light':'光之牌',
+  'draw-manual':'實體牌卡記錄','pet-reading':'寵物覺察',
+  'destiny-engine':'命盤引擎','destiny-match':'合盤配對引擎',
+  'yijing-oracle':'易經占卜','phone-oracle':'手機號碼占卜',
+  'name-oracle':'姓名占卜','fuling-mima':'馥靈秘碼',
+  'bazi':'八字排盤','ziwei':'紫微斗數','astro':'西洋占星',
+  'hd':'人類圖','maya':'瑪雅曆','lifepath':'生命路徑數',
+  'tarot-draw':'塔羅抽牌','angel-oracle':'天使神諭',
+  'bone-casting':'骨牌占卜','dream-decoder':'夢境解碼',
+  'mirror-oracle':'鏡像占卜','season-oracle':'季節占卜',
+  'witch-power':'女巫原力','projection-cards':'投射卡',
+  'poe-blocks':'擲杯','triangle-calculator':'三角生命密碼',
+  'qizheng':'七政四餘','numerology':'生命靈數'
+};
+const THEME_NAMES={wealth:'招財',love:'桃花',health:'健康',career:'事業'};
+const SPREAD_NAMES={'1card':'1張牌','3card':'3張牌','5card':'5張牌','7card':'7張牌','9card':'9張牌','12card':'12張牌','15card':'15張牌','21card':'21張牌','28card':'28張牌'};
+
+function resolveToolName(id){
+  if(!id)return '';
+  if(TOOL_NAMES[id])return TOOL_NAMES[id];
+  if(id.startsWith('quiz-'))return '心理測驗';
+  return id;
+}
+
+function humanDetail(d){
+  if(!d)return '';
+  /* 如果 detail 是 JSON 字串，嘗試解析 */
+  var obj=d.detail;
+  if(typeof obj==='string'){
+    try{obj=JSON.parse(obj);}catch(e){/* 不是 JSON，保留原字串 */}
+  }
+  /* 如果解析後是物件，走結構化翻譯 */
+  if(obj&&typeof obj==='object'&&!Array.isArray(obj)){
+    var tid=obj.toolId||d.toolId||'';
+    var parts=[];
+    var name=resolveToolName(tid);
+    /* 桌布類 */
+    if(tid==='wealth-wallpaper'||obj.theme){
+      var th=THEME_NAMES[obj.theme]||obj.theme||'';
+      if(th)parts.push(th);
+      if(obj.n)parts.push('生成 '+obj.n+' 張');
+      if(obj.emailSent)parts.push('寄出 '+obj.emailSent+' 封');
+      return (name?'使用了'+name:'')+(parts.length?'（'+parts.join('，')+'）':'');
+    }
+    /* 抽牌類 */
+    if(obj.spread||obj.cards){
+      var sp=SPREAD_NAMES[obj.spread]||obj.spread||'';
+      var cardStr='';
+      if(Array.isArray(obj.cards)&&obj.cards.length)cardStr=obj.cards.join('、');
+      return (name||'抽牌')+(sp?'（'+sp+'）':'')+(cardStr?' — '+cardStr:'');
+    }
+    /* 合盤類 */
+    if(obj.nameA||obj.solarDateA){
+      var nameA=obj.nameA||'本人';
+      var nameB=obj.nameB||'對方';
+      return '合盤配對：'+nameA+' × '+nameB;
+    }
+    /* 測驗類 */
+    if(obj.quizName||obj.result){
+      return (obj.quizName||'測驗')+(obj.result?' — 結果：'+obj.result:'');
+    }
+    /* 其他物件：列出 key=value */
+    var kv=[];
+    Object.keys(obj).forEach(function(k){
+      if(k==='toolId'||k==='url')return;
+      var v=obj[k];
+      if(typeof v==='object')v=JSON.stringify(v);
+      kv.push(k+'：'+v);
+    });
+    return kv.join('，').substring(0,120);
+  }
+  /* 原始字串保留 */
+  return typeof obj==='string'?obj:(d.detail||'');
+}
+
 function histHTML(d){
   const ts=d.timestamp?d.timestamp.toDate().toLocaleDateString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+  var toolLabel=d.title||d.page||'';
+  /* 如果 title 是空的或等於 toolId，用翻譯名稱 */
+  if(d.toolId){
+    var translated=resolveToolName(d.toolId);
+    if(!toolLabel||toolLabel===d.toolId)toolLabel=translated;
+  }
+  var detailText=humanDetail(d);
+  /* 如果 humanDetail 沒產生東西，退回原始 detail */
+  if(!detailText)detailText=d.detail||'';
   return`<div class="hitem">
     <div class="hicon">${ICONS[d.type]||'✦'}</div>
     <div class="hinfo">
-      <div class="htool">${d.title||d.page||''}</div>
-      <div class="hdetail">${d.detail||''}</div>
+      <div class="htool">${toolLabel}</div>
+      <div class="hdetail">${detailText}</div>
     </div>
     <div class="htime">${ts}</div>
   </div>`;

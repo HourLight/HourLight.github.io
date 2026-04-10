@@ -2443,6 +2443,12 @@ function _fbCopy(text){
 function hlMatchCopy(preId, system, btn) {
   var pre = document.getElementById(preId);
   if (!pre) return;
+  // 按需載入 7MB 框架檔
+  if (!window.AI_MATCH_FRAMEWORKS && window._loadMatchFw) {
+    btn && (btn.textContent = '載入中…');
+    window._loadMatchFw(function(){ hlMatchCopy(preId, system, btn); });
+    return;
+  }
   var data = pre.textContent;
   var rel = gv('relType') || 'any';
   var fw = (window.AI_MATCH_FRAMEWORKS && window.AI_MATCH_FRAMEWORKS[system]) || {};
@@ -4700,7 +4706,18 @@ function renderMatch(a,b){
 <script src="assets/js/hl-aroma-fx.js" defer></script>
 
 <!-- destiny-match 只鎖 AI 按鈕，不鎖整頁 -->
-<script src="js/ai-match-frameworks.js"></script>
+<!-- ai-match-frameworks.js (7MB) 改為按需載入，點 AI 按鈕時才載入 -->
+<script>
+window._matchFwLoaded=false;
+window._loadMatchFw=function(cb){
+  if(window._matchFwLoaded){cb&&cb();return}
+  var s=document.createElement('script');
+  s.src='js/ai-match-frameworks.js';
+  s.onload=function(){window._matchFwLoaded=true;cb&&cb()};
+  s.onerror=function(){console.warn('ai-match-frameworks load failed');cb&&cb()};
+  document.head.appendChild(s);
+};
+</script>
 <script src="assets/js/hl-points.js"></script>
 <script>
 (function(){

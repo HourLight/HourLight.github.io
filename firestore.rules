@@ -241,6 +241,139 @@ service cloud.firestore {
         && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
     }
 
+    // ═══ 公告系統 ═══
+    match /announcements/{docId} {
+      allow read: if true;  // 前端 hl-announce.js 讀取
+      allow write: if request.auth != null
+        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+    }
+
+    // ═══ 愚人節第三輪 ═══
+    match /april_gifts_r3/{docId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // ═══ 聊天紀錄（馥靈對話）═══
+    match /chat_logs/{docId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow write: if false; // server 補充回應
+    }
+
+    // ═══ 課程進度 ═══
+    match /courseProgress/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // ═══ 合作夥伴請款 ═══
+    match /partner_payouts/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+    }
+
+    // ═══ 推薦紀錄 ═══
+    match /partner_referrals/{docId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+    }
+
+    // ═══ 待領獎勵（subcollection）═══
+    match /users/{userId}/pending_rewards/{rewardId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // ═══ 積分系統 ═══
+    match /users/{userId}/points/{pointId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // ═══ AI 解讀紀錄 ═══
+    match /readings/{docId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if false; // server only
+    }
+
+    // ═══ 推薦事件 ═══
+    match /referral_events/{docId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+    }
+
+    // ═══ 推薦碼 ═══
+    match /referrals/{codeId} {
+      allow read: if true; // 前端驗證推薦碼
+      allow write: if request.auth != null
+        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+    }
+
+    // ═══ Ruby Brain 系統 ═══
+    match /ruby_brain/{docId} {
+      allow read: if request.auth != null
+        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+      allow write: if request.auth != null
+        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+    }
+
+    // ═══ 系統設定 ═══
+    match /system/{docId} {
+      allow read: if true; // 前端讀取設定
+      allow write: if request.auth != null
+        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+    }
+
+    // ═══ 每日塔羅計次 ═══
+    match /users/{userId}/tarot_daily/{dayKey} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // ═══ 占卜工具每日計次（通用）═══
+    match /users/{userId}/{toolDaily}/{dayKey} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId
+        && toolDaily.matches('.*_daily');
+    }
+
+    // ═══ 試用碼 ═══
+    match /trial_codes/{codeId} {
+      allow read: if true; // 前端驗證
+      allow write: if request.auth != null
+        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+    }
+
+    // ═══ 抵用券使用紀錄 ═══
+    match /voucher_log/{docId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+    }
+
+    // ═══ 桌布生成紀錄 ═══
+    match /wallpaper_generations/{docId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if false; // server only
+    }
+
+    // ═══ 桌布額度 ═══
+    match /wallpaper_quota/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // ═══ 易經日記 ═══
+    match /yijing_diary/{docId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+    }
+
     // ═══ 預約系統 businesses（Hour Light SPA 等店家）═══
     // businesses/{bizId} → 店家資料
     // businesses/{bizId}/services/{serviceId} → 服務項目

@@ -1293,6 +1293,22 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
           </div>
         </div>
       </div>
+
+      <!-- Referral Statistics (referrals + referral_events collections) -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">推薦碼統計（referrals 集合）</div>
+          <button class="adm-btn adm-btn-sm adm-btn-outline" onclick="loadReferralStats()">重新載入</button>
+        </div>
+        <div class="adm-card-body">
+          <div id="refStatsOverview" style="margin-bottom:16px">
+            <div class="adm-loading"><div class="adm-spinner"></div> 載入統計中</div>
+          </div>
+          <div class="adm-table-wrap" id="refStatsTable">
+            <div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ═══ Tab 8: Destiny Records ═══ -->
@@ -1477,7 +1493,7 @@ tabBtns.forEach(function(btn) {
     if (tab === 'codes') { onCodeServiceChange(); loadCodes(); loadWallpaperGenerations(); }
     if (tab === 'feedback') loadFeedback();
     if (tab === 'monitor') startMonitor();
-    if (tab === 'referral') { loadReferrals(); loadRefOverviewStats(); }
+    if (tab === 'referral') { loadReferrals(); loadRefOverviewStats(); loadReferralStats(); }
     if (tab === 'destiny') loadDestinyRecords();
     if (tab === 'readings') loadReadingRecords();
     if (tab === 'analysis') loadAnalysisTab();
@@ -3909,6 +3925,160 @@ function loadCommissionTable() {
     container.innerHTML = '<div class="adm-empty">載入失敗：' + esc(e.message) + '</div>';
   });
 }
+
+// ═══════════════════════════════════════════════════════════════
+//  REFERRAL STATS (referrals + referral_events collections)
+// ═══════════════════════════════════════════════════════════════
+
+function loadReferralStats() {
+  var overviewEl = document.getElementById('refStatsOverview');
+  var tableEl = document.getElementById('refStatsTable');
+  if (!overviewEl || !tableEl) return;
+
+  overviewEl.innerHTML = '<div class="adm-loading"><div class="adm-spinner"></div> 載入統計中</div>';
+  tableEl.innerHTML = '<div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>';
+
+  // Load referrals/{code} and referral_events/{auto} in parallel
+  Promise.all([
+    db.collection('referrals').get(),
+    db.collection('referral_events').get()
+  ]).then(function(results) {
+    var refSnap = results[0];
+    var eventsSnap = results[1];
+
+    // Build event count & revenue per code
+    var eventsByCode = {};
+    var totalRevenue = 0;
+    var totalEvents = eventsSnap.size;
+
+    eventsSnap.forEach(function(doc) {
+      var ev = doc.data();
+      var code = ev.code || '';
+      if (!eventsByCode[code]) {
+        eventsByCode[code] = { count: 0, revenue: 0 };
+      }
+      eventsByCode[code].count++;
+      var amt = parseFloat(ev.amount) || 0;
+      eventsByCode[code].revenue += amt;
+      totalRevenue += amt;
+    });
+
+    // Count by type
+    var typeCount = { strategy: 0, platform: 0, other: 0 };
+    refSnap.forEach(function(doc) {
+      var d = doc.data();
+      var t = (d.type || '').toLowerCase();
+      if (t === 'strategy' || t === 'strategic') typeCount.strategy++;
+      else if (t === 'platform') typeCount.platform++;
+      else typeCount.other++;
+    });
+
+    // Render overview stats
+    var ovHtml = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">';
+    ovHtml += refStatBox('📋', '推薦碼總數', refSnap.size, 'var(--adm-gold)');
+    ovHtml += refStatBox('🎯', '策略夥伴', typeCount.strategy, 'var(--adm-purple)');
+    ovHtml += refStatBox('🔗', '平台夥伴', typeCount.platform, 'var(--adm-blue)');
+    ovHtml += refStatBox('💰', '總推薦營收', 'NT$' + totalRevenue.toLocaleString(), 'var(--adm-green)');
+    ovHtml += '</div>';
+    ovHtml += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px">';
+    ovHtml += refStatBox('📊', '推薦事件總數', totalEvents, 'var(--adm-orange,#c47a2a)');
+    ovHtml += refStatBox('📈', '平均每碼事件', refSnap.size > 0 ? (totalEvents / refSnap.size).toFixed(1) : '0', 'var(--adm-text2)');
+    ovHtml += '</div>';
+    overviewEl.innerHTML = ovHtml;
+
+    // Render table
+    if (refSnap.empty) {
+      tableEl.innerHTML = '<div class="adm-empty"><div class="adm-empty-icon">📋</div>referrals 集合中尚無推薦碼</div>';
+      return;
+    }
+
+    // Collect all ownerUids to batch-fetch user info
+    var rows = [];
+    var uidSet = {};
+    refSnap.forEach(function(doc) {
+      var d = doc.data();
+      var code = doc.id;
+      var stats = eventsByCode[code] || { count: 0, revenue: 0 };
+      rows.push({
+        code: code,
+        ownerUid: d.ownerUid || '',
+        type: d.type || '-',
+        percentage: d.percentage != null ? d.percentage : '-',
+        eventCount: stats.count,
+        revenue: stats.revenue
+      });
+      if (d.ownerUid) uidSet[d.ownerUid] = true;
+    });
+
+    // Fetch owner display names/emails
+    var uidList = Object.keys(uidSet);
+    var userLookup = {};
+
+    var userPromise;
+    if (uidList.length > 0) {
+      // Firestore 'in' query supports max 30 per batch
+      var batches = [];
+      for (var i = 0; i < uidList.length; i += 30) {
+        batches.push(uidList.slice(i, i + 30));
+      }
+      var batchPromises = batches.map(function(batch) {
+        return db.collection('users').where(firebase.firestore.FieldPath.documentId(), 'in', batch).get();
+      });
+      userPromise = Promise.all(batchPromises).then(function(snaps) {
+        snaps.forEach(function(snap) {
+          snap.forEach(function(doc) {
+            var u = doc.data();
+            userLookup[doc.id] = u.displayName || u.email || doc.id;
+          });
+        });
+      }).catch(function() { /* ignore lookup errors */ });
+    } else {
+      userPromise = Promise.resolve();
+    }
+
+    userPromise.then(function() {
+      // Sort by event count descending
+      rows.sort(function(a, b) { return b.eventCount - a.eventCount; });
+
+      var tHtml = '<table class="adm-table"><thead><tr>' +
+        '<th>推薦碼</th><th>擁有者</th><th>類型</th><th>分潤 %</th><th>推薦事件</th><th>產生營收</th>' +
+        '</tr></thead><tbody>';
+
+      rows.forEach(function(r) {
+        var ownerDisplay = r.ownerUid ? (userLookup[r.ownerUid] || r.ownerUid.substring(0, 12) + '...') : '-';
+        var typeBadge;
+        var tLower = (r.type || '').toLowerCase();
+        if (tLower === 'strategy' || tLower === 'strategic') {
+          typeBadge = '<span class="badge badge-purple">策略</span>';
+        } else if (tLower === 'platform') {
+          typeBadge = '<span class="badge badge-blue">平台</span>';
+        } else {
+          typeBadge = '<span class="badge badge-gold">' + esc(r.type) + '</span>';
+        }
+        var pctDisplay = typeof r.percentage === 'number'
+          ? (r.percentage < 1 ? (r.percentage * 100).toFixed(0) : r.percentage.toFixed(0)) + '%'
+          : esc(String(r.percentage));
+
+        tHtml += '<tr>' +
+          '<td style="font-family:monospace;font-weight:600;color:var(--adm-gold)">' + esc(r.code) + '</td>' +
+          '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + esc(r.ownerUid) + '">' + esc(ownerDisplay) + '</td>' +
+          '<td>' + typeBadge + '</td>' +
+          '<td style="text-align:center">' + pctDisplay + '</td>' +
+          '<td style="text-align:center;font-weight:600">' + r.eventCount + '</td>' +
+          '<td style="font-weight:600;color:var(--adm-green)">NT$' + r.revenue.toLocaleString() + '</td>' +
+          '</tr>';
+      });
+
+      tHtml += '</tbody></table>';
+      tableEl.innerHTML = tHtml;
+    });
+
+  }).catch(function(e) {
+    overviewEl.innerHTML = '<div class="adm-empty">載入失敗：' + esc(e.message) + '</div>';
+    tableEl.innerHTML = '';
+  });
+}
+window.loadReferralStats = loadReferralStats;
 
 // ═══════════════════════════════════════════════════════════════
 //  DESTINY RECORDS (Tab 8)
