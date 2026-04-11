@@ -142,14 +142,18 @@ function buildReportHTML(name, system, content) {
     + '<div style="padding:28px 24px">'
     + '<p style="font-size:15px;color:#333;line-height:1.8;margin-bottom:16px">' + esc(greeting) + '</p>'
     + '<p style="font-size:14px;color:#666;line-height:1.8;margin-bottom:20px">'
-    + '以下是您在「' + esc(system) + '」的測算資料。<br>'
-    + '您可以將這段內容複製後貼到 ChatGPT 或 Claude 等 AI 工具中，即可獲得深度解讀。</p>'
+    + '這是你剛才在馥靈之鑰「' + esc(system) + '」算出來的結果，幫你存起來了。<br><br>'
+    + '你可以慢慢看，也可以把下面這段資料複製起來，貼到我們官網的「AI 深度解讀」功能，就能得到更完整的分析。</p>'
     + '<div style="background:#faf6ee;border:1px solid #e8d5a8;border-radius:8px;padding:20px;margin:16px 0">'
     + '<div style="font-size:13px;color:#555;line-height:1.85;font-family:monospace,serif;white-space:pre-wrap;word-break:break-word">'
     + formatted
     + '</div></div>'
-    + '<p style="font-size:13px;color:#999;margin-top:20px;line-height:1.7">'
-    + '💡 使用方式：複製上方內容 → 貼到 AI 對話工具 → 獲得完整解讀</p>'
+    + '<p style="font-size:13px;color:#888;margin-top:20px;line-height:1.7">'
+    + '想更深入了解自己？試試這些免費工具：</p>'
+    + '<div style="text-align:center;margin:16px 0 24px">'
+    + '<a href="https://hourlightkey.com/draw-hl.html" style="display:inline-block;padding:10px 24px;background:#e9c27d;color:#1a1a2e;border-radius:8px;text-decoration:none;font-size:14px;margin:4px">抽一張牌</a>'
+    + '<a href="https://hourlightkey.com/quiz-hub.html" style="display:inline-block;padding:10px 24px;background:transparent;color:#c9985e;border:1px solid #e8d5a8;border-radius:8px;text-decoration:none;font-size:14px;margin:4px">做個測驗</a>'
+    + '</div>'
     + '</div>'
     + emailFooter()
     + '</div></body></html>';
