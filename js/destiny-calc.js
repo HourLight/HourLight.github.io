@@ -45,8 +45,11 @@ function ephLookup(Y,M,D,H,min){
   var nr=EPH[nk];
   var frac=utcH/24;
   var result={};
+  // EPH 索引映射：P_ORDER index → EPH body ID（node=True Node=11，跳過10=Mean Node）
+  var EPH_IDX=[0,1,2,3,4,5,6,7,8,9,11,null];
   for(var i=0;i<P_ORDER.length;i++){
-    var lon0=row[i], lon1=nr?nr[i]:lon0;
+    var ei=EPH_IDX[i];if(ei===null)continue;
+    var lon0=row[ei], lon1=nr?nr[ei]:lon0;
     // 處理跨0度情況
     var diff=lon1-lon0;
     if(diff>180)diff-=360;
