@@ -719,8 +719,11 @@ function ephLookup(Y,M,D,H,min,tzOff){
   var nd=new Date(uY,uM-1,uD+1);
   var nk=String(nd.getFullYear()).padStart(4,'0')+String(nd.getMonth()+1).padStart(2,'0')+String(nd.getDate()).padStart(2,'0');
   var nr=EPH[nk];var frac=utcH/24;var result={};
+  // EPH 索引映射：P_ORDER index → EPH body ID（node=True Node=11，跳過10=Mean Node）
+  var EPH_IDX=[0,1,2,3,4,5,6,7,8,9,11,null];
   for(var i=0;i<P_ORDER.length;i++){
-    var lon0=row[i],lon1=nr?nr[i]:lon0;
+    var ei=EPH_IDX[i];if(ei===null)continue;
+    var lon0=row[ei],lon1=nr?nr[ei]:lon0;
     var diff=lon1-lon0;if(diff>180)diff-=360;if(diff<-180)diff+=360;
     var lon=lon0+diff*frac;if(lon<0)lon+=360;if(lon>=360)lon-=360;
     result[P_ORDER[i]]={lon:lon};
@@ -753,9 +756,12 @@ function getDesignDate(Y,M,D,H,min,tzOff,planets){
   }
   if(!bestKey)return null;
   var dPlanets={};
+  // EPH 索引映射：P_ORDER index → EPH body ID
+  var EPH_IDX2=[0,1,2,3,4,5,6,7,8,9,11,null];
   P_ORDER.forEach(function(k,i){
+    var ei=EPH_IDX2[i];if(ei===null)return;
     if(!EPH[bestKey.ck]||!EPH[bestKey.nk])return;
-    var v1=EPH[bestKey.ck][i],v2=EPH[bestKey.nk][i];
+    var v1=EPH[bestKey.ck][ei],v2=EPH[bestKey.nk][ei];
     if(v1===undefined)return;
     var dd=v2-v1;if(dd>180)dd-=360;if(dd<-180)dd+=360;
     var lon=(v1+dd*bestFrac+360)%360;
