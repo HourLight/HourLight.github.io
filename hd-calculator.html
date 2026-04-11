@@ -1101,18 +1101,8 @@ async function doCalc(){
       dPlanets=getDesignDate(Y,M,D,H,Min,tz,planets);
       engineUsed='馥靈星曆';
     }else{
-      // JSON 載入失敗時 Fallback 到 WASM
-      if(!SWE_READY&&!SWE_TRIED){msg.textContent='正在載入瑞士星曆表...';await loadSwissEph();}
-      if(SWE_READY){
-        msg.textContent='瑞士星曆表計算中...';
-        var pRes=sweCalcPlanets(Y,M,D,H,Min,tz);
-        planets=pRes.planets;
-        var dRes=sweDesignDate(pRes.jd,planets.sun.lon);
-        dPlanets=dRes.dPlanets;
-        engineUsed='Swiss Ephemeris';
-      }else{
-        alert('星曆載入失敗，請重新整理頁面');return;
-      }
+      // JSON 載入失敗
+      alert('星曆載入失敗，請重新整理頁面');return;
     }
     msg.textContent=engineUsed;setTimeout(function(){msg.textContent='';},2500);
     var hd=calcHumanDesign(planets,dPlanets);
