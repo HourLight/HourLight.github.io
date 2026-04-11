@@ -229,7 +229,7 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
           <li>每月贈 3 次 3 張牌 AI 解讀</li>
           <li>33套合盤後半段解鎖</li>
         </ul>
-        <button type="button" class="plan-cta featured" onclick="HLPricingPay.subscribe('plus-30','馥靈鑰友 30 天',399)">每天不到 $13，開始認識自己</button>
+        <button type="button" class="plan-cta featured" onclick="HLPricingPay.subscribe('plus-30','馥靈鑰友月訂閱',399)">每天不到 $13，開始認識自己</button>
       </div>
 
       <!-- 大師 -->
@@ -249,7 +249,7 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
           <li>全套 33 合盤完整解鎖</li>
         </ul>
         <div class="plan-badge" style="margin-top:12px">超值</div>
-        <button type="button" class="plan-cta" onclick="HLPricingPay.subscribe('pro-30','馥靈大師 30 天',999)">無限解讀，先試再說</button>
+        <button type="button" class="plan-cta" onclick="HLPricingPay.subscribe('pro-30','馥靈大師月訂閱',999)">無限解讀，先試再說</button>
       </div>
 
     </div>
@@ -261,7 +261,7 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
         <div class="topup-desc">永久有效，每日配額用完才扣，不歸零。適合臨時需要、不想綁訂閱的會員。</div>
       </div>
       <div class="topup-price">199<span>NT$</span></div>
-      <button type="button" class="topup-cta" onclick="HLPricingPay.subscribe('topup-10','AI 解讀加購 10 次',199)">10 次 $199，永久有效</button>
+      <button type="button" class="topup-cta" onclick="HLPricingPay.subscribe('topup-10','AI解讀加購 10次',199)">10 次 $199，永久有效</button>
     </div>
 
     <p class="plan-footnote">付費後自動開通 30 天，到期自動恢復免費方案。不綁自動扣款，不續就停，不會多收錢。<br><a href="#" onclick="HLBenefits.open();return false" style="color:#8b6f4e;text-decoration:underline;font-weight:500">查看完整會員權益（含塔羅 / 易經等占卜工具次數限制）→</a></p>
@@ -919,10 +919,31 @@ window.HLPricingPay = {
       productName: productName,
       amount: amount,
       userId: u.uid,
-      userEmail: u.email || ''
+      userEmail: u.email || '',
+      returnUrl: 'https://hourlightkey.com/pricing.html?payment=success'
     });
   }
 };
+
+// 付款成功返回偵測
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('payment') === 'success') {
+    // 清除 URL 參數，避免重複顯示
+    window.history.replaceState({}, '', window.location.pathname);
+    // 顯示成功提示
+    var banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#8b6f4e;color:#fff;text-align:center;padding:16px 20px;font-size:.95rem;letter-spacing:.06em;line-height:1.6;box-shadow:0 2px 12px rgba(0,0,0,.15)';
+    banner.innerHTML = '付款已完成，方案升級處理中，通常 1–2 分鐘內生效。<br><span style="font-size:.85rem;opacity:.8">如超過 5 分鐘未生效，請聯繫客服。</span>';
+    document.body.appendChild(banner);
+    // 8 秒後自動淡出
+    setTimeout(function(){
+      banner.style.transition = 'opacity .5s';
+      banner.style.opacity = '0';
+      setTimeout(function(){ banner.remove(); }, 500);
+    }, 8000);
+  }
+})();
 </script>
 </body>
 </html>
