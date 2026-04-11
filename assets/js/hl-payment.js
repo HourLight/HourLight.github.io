@@ -47,7 +47,9 @@
             userId: opts.userId,
             userEmail: opts.userEmail || '',
             returnUrl: opts.returnUrl || '',
-            businessId: opts.businessId || ''
+            businessId: opts.businessId || '',
+            cards: opts.cards || null,
+            question: opts.question || ''
           })
         });
 

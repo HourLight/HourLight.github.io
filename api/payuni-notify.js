@@ -243,6 +243,50 @@ module.exports = async function handler(req, res) {
                   memo:      `PAYUNi 線上付款 ${MerTradeNo}`,
                 });
                 console.log(`✅ reading_codes 啟用：${unlockCode} (${draw.category}-${draw.n}張) userId=${userId} orderId=${MerTradeNo}`);
+
+                // ── 超商/ATM 延遲付款：自動觸發 AI 解讀 + 寄信 ──
+                const pendingData = pendingDoc.data();
+                if (pendingData.cards && pendingData.cards.length > 0 && draw.category === 'draw') {
+                  try {
+                    console.log(`📮 自動觸發 AI 解讀：${draw.n}張 for ${userEmail}`);
+                    const readingResp = await fetch(`https://app.hourlightkey.com/api/ai-draw-reading`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        n: draw.n,
+                        cards: pendingData.cards,
+                        question: pendingData.question || '',
+                        unlockCode: unlockCode,
+                        uid: userId,
+                        email: userEmail || ''
+                      })
+                    });
+                    const readingResult = await readingResp.json();
+                    if (readingResult.reading && userEmail) {
+                      // 寄信給用戶
+                      try {
+                        await fetch(`https://app.hourlightkey.com/api/send-report`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            email: userEmail,
+                            name: '',
+                            subject: '你的馥靈智慧牌 AI 解讀報告',
+                            content: readingResult.reading,
+                            system: `${draw.n}張牌卡深度解讀`,
+                            type: 'report'
+                          })
+                        });
+                        console.log(`📧 解讀報告已寄送：${userEmail}`);
+                      } catch (mailErr) {
+                        console.error('寄信失敗:', mailErr.message);
+                      }
+                    }
+                  } catch (readErr) {
+                    console.error('自動解讀觸發失敗:', readErr.message);
+                  }
+                }
+
               } catch (drawErr) {
                 console.error('PAYUNi notify: reading_codes 寫入失敗', drawErr.message);
               }

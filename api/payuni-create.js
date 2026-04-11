@@ -191,6 +191,9 @@ module.exports = async function handler(req, res) {
           createdAt: new Date(now),
         };
         if (preGeneratedCode) pendingPayload.unlockCode = preGeneratedCode;
+        // 延遲付款時需要的牌卡資料（超商/ATM 繳費完成後自動解讀用）
+        if (body.cards) pendingPayload.cards = body.cards;
+        if (body.question) pendingPayload.question = body.question;
         await db.collection('pendingOrders').doc(merTradeNo).set(pendingPayload);
         console.log(`✅ pendingOrders 已建立：${merTradeNo} userId=${userId} productId=${productId}${preGeneratedCode ? ' code=' + preGeneratedCode : ''}`);
       }

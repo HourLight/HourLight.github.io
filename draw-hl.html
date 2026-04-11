@@ -1990,13 +1990,24 @@ function payOnlinePayUni() {
   }
 
   // 呼叫 HLPayment 並指定 returnUrl
+  // 收集牌卡資料（延遲付款時 notify 需要用來自動解讀）
+  var payCards = selected.map(function(idx) {
+    var file = allFiles[idx];
+    var code = file.replace('.png', '');
+    var info = window.cardData ? window.cardData[code] : {};
+    return { code: code, title: info.title || '' };
+  });
+  var payQuestion = document.getElementById('hl-v2-question') ? document.getElementById('hl-v2-question').value : '';
+
   HLPayment.pay({
     productId:   'draw-' + n,
     productName: '馥靈智慧牌 ' + n + ' 張 AI 即時解讀',
     amount:      amount,
     userId:      u.uid,
     userEmail:   u.email || '',
-    returnUrl:   'https://hourlightkey.com/draw-hl.html'
+    returnUrl:   'https://hourlightkey.com/draw-hl.html',
+    cards:       payCards,
+    question:    payQuestion
   });
 }
 
