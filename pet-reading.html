@@ -377,7 +377,7 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
         <div style="color:#f0c060;font-size:.88rem;font-weight:500;margin-bottom:8px;letter-spacing:.5px">🐱 貓咪精油安全提醒</div>
         <div style="font-size:.8rem;color:rgba(255,255,255,.65);line-height:1.85">
           貓咪肝臟的代謝機制和人類不同，以下精油即使環境擴香也對貓咪有毒性風險：<br>
-          <span style="color:rgba(240,160,60,.85)">茶樹、薄荷、桉樹（尤加利）、丁香、肉桂、樟腦、冬青、依蘭、所有柑橘類精油</span><br><br>
+          <span style="color:rgba(240,160,60,.85)">茶樹、薄荷、松樹、桉樹（尤加利）、丁香、肉桂、樟腦、冬青、依蘭、牛至、百里香、所有柑橘類精油</span><br><br>
           AI 解讀時會依據您的貓咪狀況，提供安全的替代建議。如有任何健康疑慮，請先諮詢獸醫師。
         </div>
       </div>
@@ -797,9 +797,24 @@ function buildPrompt(){
 
 function copyReading(){
   var t=document.getElementById('readingBox').textContent;
-  navigator.clipboard.writeText(t).then(function(){
-    event.target.textContent='✅ 已複製';setTimeout(function(){event.target.textContent='📋 複製解讀結果';},2000);
-  });
+  var btn=event.currentTarget||event.target;
+  // iOS Safari 相容寫法（_syncCopy 鐵則：position:fixed+top:50%+opacity:.01）
+  var ta=document.createElement('textarea');
+  ta.value=t;
+  ta.setAttribute('readonly','');
+  ta.style.cssText='position:fixed;top:50%;left:50%;width:2em;height:2em;padding:0;border:none;outline:none;background:transparent;font-size:16px;opacity:.01;transform:translate(-50%,-50%);z-index:99999;';
+  document.body.appendChild(ta);
+  if(/ipad|iphone/i.test(navigator.userAgent)){
+    ta.focus();
+    var rng=document.createRange();rng.selectNodeContents(ta);
+    var sel=window.getSelection();sel.removeAllRanges();sel.addRange(rng);
+    ta.setSelectionRange(0,999999);
+  }else{
+    ta.focus();ta.select();
+  }
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  if(btn){btn.textContent='✅ 已複製';setTimeout(function(){btn.textContent='📋 複製解讀結果';},2000);}
 }
 
 // ══════ Session Storage System ══════
