@@ -737,9 +737,9 @@ function getDesignDate(Y,M,D,H,min,tzOff,planets){
   var targetSun=(planets.sun.lon-88+360)%360;
   var utcH=H-tzOff+(min||0)/60;
   var bd=new Date(Y,M-1,D);
-  bd.setDate(bd.getDate()-89);
+  bd.setDate(bd.getDate()-100);
   var bestDiff=999,bestKey=null,bestFrac=0;
-  for(var di=0;di<10;di++){
+  for(var di=0;di<30;di++){
     var cd=new Date(bd.getTime()+di*86400000);
     var ck=String(cd.getFullYear()).padStart(4,'0')+String(cd.getMonth()+1).padStart(2,'0')+String(cd.getDate()).padStart(2,'0');
     var nd2=new Date(cd.getTime()+86400000);
@@ -1100,6 +1100,9 @@ async function doCalc(){
       if(!planets){alert('找不到星曆資料，請確認年份在1920-2060之間');return;}
       dPlanets=getDesignDate(Y,M,D,H,Min,tz,planets);
       engineUsed='馥靈星曆';
+      console.log('[HD DEBUG] EPH_IDX:', JSON.stringify(EPH_IDX));
+      console.log('[HD DEBUG] Personality planets:', JSON.stringify(planets));
+      console.log('[HD DEBUG] Design planets:', JSON.stringify(dPlanets));
     }else{
       // JSON 載入失敗
       alert('星曆載入失敗，請重新整理頁面');return;
