@@ -143,7 +143,12 @@ function buildReportHTML(name, system, content) {
     + '<p style="font-size:15px;color:#333;line-height:1.8;margin-bottom:16px">' + esc(greeting) + '</p>'
     + '<p style="font-size:14px;color:#666;line-height:1.8;margin-bottom:20px">'
     + '這是你剛才在馥靈之鑰「' + esc(system) + '」算出來的結果，幫你存起來了。<br><br>'
-    + '你可以慢慢看，也可以把下面這段資料複製起來，貼到 <a href="https://claude.ai" style="color:#c9985e;text-decoration:underline">Claude AI</a> 就能得到更完整的深度解讀。（我們最推薦用 Claude，解讀品質最好。）</p>'
+    + '你可以慢慢看，也可以把下面這段資料複製起來，貼到 AI 工具就能得到更完整的深度解讀。</p>'
+    + '<p style="font-size:13px;color:#888;line-height:1.7;margin-bottom:16px">我們推薦的 AI 解讀工具：</p>'
+    + '<div style="text-align:center;margin:0 0 20px">'
+    + '<a href="https://claude.ai/referral/h5rHG3kOjA" style="display:inline-block;padding:8px 20px;background:#e9c27d;color:#1a1a2e;border-radius:8px;text-decoration:none;font-size:13px;margin:4px">Claude AI（最推薦）</a>'
+    + '<a href="https://manus.im/invitation/ADFDJWHFVORWIO?utm_source=invitation&utm_medium=social&utm_campaign=copy_link" style="display:inline-block;padding:8px 20px;background:transparent;color:#c9985e;border:1px solid #e8d5a8;border-radius:8px;text-decoration:none;font-size:13px;margin:4px">Manus AI</a>'
+    + '</div>'
     + '<div style="background:#faf6ee;border:1px solid #e8d5a8;border-radius:8px;padding:20px;margin:16px 0">'
     + '<div style="font-size:13px;color:#555;line-height:1.85;font-family:monospace,serif;white-space:pre-wrap;word-break:break-word">'
     + formatted
