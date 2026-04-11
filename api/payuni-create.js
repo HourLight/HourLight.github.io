@@ -154,6 +154,15 @@ module.exports = async function handler(req, res) {
       Timestamp: String(Math.floor(now / 1000)),
       NotifyURL: `${siteUrl}/api/payuni-notify`,
       ReturnURL: returnUrl,
+      // ── 支付方式全開 ──
+      Credit: '1',               // 信用卡一次付清
+      ATM: '1',                  // ATM 虛擬帳號
+      CVS: '1',                  // 超商代碼
+      Aftee: '1',                // AFTEE 先買後付
+      ApplePay: '1',             // Apple Pay
+      GooglePay: '1',            // Google Pay
+      SamsungPay: '1',           // Samsung Pay
+      CreditInst: '3,6,12',     // 信用卡分期（3/6/12期）
     };
 
     // 選填：消費者資訊（有助於提高授權成功率）
