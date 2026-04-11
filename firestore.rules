@@ -1,35 +1,16 @@
-// Firestore Security Rules for hourlightkey.com
-// 版本：2026-03-23
-// Firebase Project: hourlight-key
-//
-// 部署方式：
-// 1. 到 Firebase Console → Firestore → Rules
-// 2. 貼上以下內容
-// 3. 點 Publish
-//
-// 或用 Firebase CLI：
-// firebase deploy --only firestore:rules
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ═══ 管理員白名單函數 ═══
     function isAdmin() {
       return request.auth != null
         && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
     }
 
-    // ═══ 用戶主文件 ═══
-    // users/{uid} → 用戶資料（plan, email, displayName 等）
     match /users/{userId} {
-      // 本人讀寫 + admin 可讀所有用戶（管理後台統計用）
       allow read: if (request.auth != null && request.auth.uid == userId) || isAdmin();
       allow write: if request.auth != null && request.auth.uid == userId;
 
-      // ═══ AI 每週計次 ═══
-      // users/{uid}/ai_weekly/{YYYY-WNN} → { count: N, lastUsed: timestamp }
-      // 每週一自然歸零（key 不同）
       match /ai_weekly/{weekKey} {
         allow read: if request.auth != null && request.auth.uid == userId;
         allow write: if request.auth != null && request.auth.uid == userId
@@ -39,424 +20,326 @@ service cloud.firestore {
           && request.resource.data.count <= 100;
       }
 
-      // ═══ 課程購買紀錄 ═══
-      // users/{uid}/courses/{productId} → { paid: true, paidAt: timestamp }
       match /courses/{courseId} {
         allow read: if request.auth != null && request.auth.uid == userId;
-        // 只有 server（admin SDK）可以寫入，前端不可
         allow write: if false;
       }
 
-      // ═══ 抽牌歷史紀錄 ═══
       match /draw_history/{drawId} {
         allow read: if request.auth != null && request.auth.uid == userId;
         allow create: if request.auth != null && request.auth.uid == userId;
-        allow update, delete: if false;
+        allow update: if false;
+        allow delete: if false;
       }
 
-      // ═══ 測驗結果 ═══
       match /quiz_results/{quizId} {
         allow read: if request.auth != null && request.auth.uid == userId;
         allow create: if request.auth != null && request.auth.uid == userId;
         allow update: if request.auth != null && request.auth.uid == userId;
         allow delete: if false;
       }
+
+      match /ai_daily/{dayKey} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /analyses/{analysisId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /vouchers/{voucherId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /history/{docId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow create: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /pending_rewards/{rewardId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /points/{pointId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /tarot_daily/{dayKey} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /{toolDaily}/{dayKey} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
     }
 
-    // ═══ 公開集合（無需登入）═══
-    // 例如公告、FAQ 等
     match /public/{docId} {
       allow read: if true;
       allow write: if false;
     }
 
-    // ═══ 管理員集合 ═══
-    // admin 帳號：judyanee@gmail.com, info@hourlightkey.com
     match /admin/{docId} {
-      allow read, write: if request.auth != null
-        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com'];
+      allow read: if isAdmin();
+      allow write: if isAdmin();
     }
 
-    // ═══ PAYUNi 付款紀錄 ═══
-    // 由 Vercel webhook 寫入，前端只讀
     match /payments/{paymentId} {
       allow read: if request.auth != null;
-      allow write: if false; // 只有 server 可寫
+      allow write: if false;
     }
 
-    // ═══ 解鎖碼（AI 解讀用）═══
-    // unlock_codes/{CODE} → { n, price, used, memo, createdBy, createdAt, usedAt }
-    // admin 前端可讀寫（生成碼）；server 可寫（標記已使用）；一般用戶可讀（驗證碼）
     match /unlock_codes/{codeId} {
-      // 所有登入用戶可讀（前端驗證用），未登入也放行（1張免費不需登入）
       allow read: if true;
-      // 只有 admin 可從前端寫入（生成新碼）
-      allow create: if request.auth != null
-        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
-      // server（admin SDK）負責標記 used，前端不可 update/delete
-      allow update, delete: if false;
+      allow create: if isAdmin();
+      allow update: if false;
+      allow delete: if false;
     }
 
-    // ═══ 解讀代碼（reading_codes，新版）═══
-    // reading_codes/{CODE} → { n, price, used, memo, createdBy, createdAt, usedAt }
-    // 所有登入用戶可讀（驗證碼）+ 可 create（抽獎/城堡兌換生碼）+ 可 update（標記已用）
     match /reading_codes/{codeId} {
       allow read: if true;
       allow create: if request.auth != null;
       allow update: if request.auth != null;
     }
 
-    // ═══ 促銷碼兌換紀錄 ═══
     match /promo_redemptions/{docId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
     }
 
-    // ═══ 分潤紀錄 ═══
     match /commissions/{docId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
-      allow update: if request.auth != null
-        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+      allow update: if isAdmin();
     }
 
-    // ═══ 愚人節抽獎紀錄 ═══
     match /april_gifts/{docId} {
       allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow write: if request.auth != null;
-    }
-    match /april_gifts_r2/{docId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
       allow write: if request.auth != null;
     }
 
-    // ═══ 推薦獎勵 ═══
+    match /april_gifts_r2/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    match /april_gifts_r3/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
     match /referral_rewards/{docId} {
       allow read: if request.auth != null;
       allow write: if request.auth != null;
     }
 
-    // ═══ AI 每日計次 ═══
-    match /users/{userId}/ai_daily/{dayKey} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // ═══ 用戶分析資料 ═══
-    match /users/{userId}/analyses/{analysisId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // ═══ 抵用券 ═══
-    match /users/{userId}/vouchers/{voucherId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // ═══ 使用紀錄 ═══
-    match /users/{userId}/history/{docId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // ═══ 抽牌 session（寵物/家族/SPA/美甲）═══
     match /pet_sessions/{sessionId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
     }
+
     match /family_sessions/{sessionId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
     }
+
     match /spa_sessions/{sessionId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
     }
+
     match /nail_sessions/{sessionId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
     }
 
-    // ═══ 問題回報 ═══
     match /feedback/{docId} {
       allow read: if request.auth != null;
-      allow create: if true;  // 未登入也可回報
+      allow create: if true;
     }
 
-    // ═══ 事件追蹤 ═══
     match /events/{docId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
     }
 
-    // ═══ 合作者（推薦碼系統）═══
-    // partners/{partnerId} → { name, referral_code, role, status, line_url, ... }
-    // 所有人可讀（前端驗證推薦碼）；只有 admin 可寫
     match /partners/{partnerId} {
       allow read: if true;
-      allow write: if request.auth != null
-        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+      allow write: if isAdmin();
     }
 
-    // ═══ 訂單紀錄（PAYUNi webhook 寫入）═══
     match /orders/{orderId} {
       allow read: if request.auth != null;
-      allow write: if false; // 只有 server 可寫
+      allow write: if false;
     }
 
-    // ═══ 待付款訂單 ═══
     match /pendingOrders/{orderId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
-      allow update, delete: if false; // server 負責更新狀態
+      allow update: if false;
+      allow delete: if false;
     }
 
-    // ═══ 美業合作商 ═══
     match /biz_partners/{partnerId} {
-      // 管理員讀寫
-      allow read, write: if request.auth != null
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'curator'];
-      // 一般用戶可讀（驗證額度用）+ 可更新 usedThisMonth
       allow read: if true;
+      allow write: if isAdmin();
       allow update: if request.resource.data.diff(resource.data).affectedKeys()
         .hasOnly(['usedThisMonth', 'quotaResetDate']);
 
-      // 合作商代碼子集合
       match /biz_codes/{codeId} {
         allow read: if true;
-        allow write: if request.auth != null
-          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'curator'];
-        // 一般用戶可標記 used
+        allow write: if isAdmin();
         allow update: if request.resource.data.diff(resource.data).affectedKeys()
           .hasOnly(['used', 'usedAt']);
       }
     }
 
-    // collectionGroup 查詢（跨合作商查 biz_codes）
     match /{path=**}/biz_codes/{codeId} {
       allow read: if true;
     }
 
-    // ═══ 蘊福桌布使用者回饋 ═══
-    // wallpaper_feedback/{auto} → { text, name, role, status, uid, email, createdAt }
-    // 公開可讀（前端只查 status='approved'）；任何人可建立 pending；admin 可改狀態
     match /wallpaper_feedback/{feedbackId} {
       allow read: if true;
       allow create: if request.resource.data.status == 'pending'
         && request.resource.data.text is string
         && request.resource.data.text.size() >= 5
         && request.resource.data.text.size() <= 500;
-      allow update, delete: if request.auth != null
-        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
 
-    // ═══ 公告系統 ═══
     match /announcements/{docId} {
-      allow read: if true;  // 前端 hl-announce.js 讀取
-      allow write: if request.auth != null
-        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
-    // ═══ 愚人節第三輪 ═══
-    match /april_gifts_r3/{docId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow write: if request.auth != null;
-    }
-
-    // ═══ 聊天紀錄（馥靈對話）═══
     match /chat_logs/{docId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
-      allow write: if false; // server 補充回應
     }
 
-    // ═══ 課程進度 ═══
     match /courseProgress/{docId} {
       allow read: if request.auth != null;
       allow write: if request.auth != null;
     }
 
-    // ═══ 合作夥伴請款 ═══
     match /partner_payouts/{docId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null
-        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+      allow write: if isAdmin();
     }
 
-    // ═══ 推薦紀錄 ═══
     match /partner_referrals/{docId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
     }
 
-    // ═══ 待領獎勵（subcollection）═══
-    match /users/{userId}/pending_rewards/{rewardId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // ═══ 積分系統 ═══
-    match /users/{userId}/points/{pointId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // ═══ AI 解讀紀錄 ═══
     match /readings/{docId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
-      allow update, delete: if false; // server only
+      allow update: if false;
+      allow delete: if false;
     }
 
-    // ═══ 推薦事件 ═══
     match /referral_events/{docId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
     }
 
-    // ═══ 推薦碼 ═══
     match /referrals/{codeId} {
-      allow read: if true; // 前端驗證推薦碼
-      allow write: if request.auth != null
-        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
-    // ═══ Ruby Brain 系統 ═══
     match /ruby_brain/{docId} {
-      allow read: if request.auth != null
-        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
-      allow write: if request.auth != null
-        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+      allow read: if isAdmin();
+      allow write: if isAdmin();
     }
 
-    // ═══ 系統設定 ═══
     match /system/{docId} {
-      allow read: if true; // 前端讀取設定
-      allow write: if request.auth != null
-        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
-    // ═══ 每日塔羅計次 ═══
-    match /users/{userId}/tarot_daily/{dayKey} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // ═══ 占卜工具每日計次（通用）═══
-    match /users/{userId}/{toolDaily}/{dayKey} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow write: if request.auth != null && request.auth.uid == userId
-        && toolDaily.matches('.*_daily');
-    }
-
-    // ═══ 試用碼 ═══
     match /trial_codes/{codeId} {
-      allow read: if true; // 前端驗證
-      allow write: if request.auth != null
-        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
-    // ═══ 抵用券使用紀錄 ═══
     match /voucher_log/{docId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
     }
 
-    // ═══ 桌布生成紀錄 ═══
     match /wallpaper_generations/{docId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
-      allow update: if false; // server only
+      allow update: if false;
     }
 
-    // ═══ 桌布額度 ═══
     match /wallpaper_quota/{docId} {
       allow read: if request.auth != null;
       allow write: if request.auth != null;
     }
 
-    // ═══ 易經日記 ═══
     match /yijing_diary/{docId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
       allow update: if request.auth != null;
     }
 
-    // ═══ 預約系統 businesses（Hour Light SPA 等店家）═══
-    // businesses/{bizId} → 店家資料
-    // businesses/{bizId}/services/{serviceId} → 服務項目
-    // businesses/{bizId}/staff/{staffId} → 技師
-    // businesses/{bizId}/slots/{slotId} → 開放時段（班表）
-    // businesses/{bizId}/bookings/{bookingId} → 預約紀錄
     match /businesses/{bizId} {
-      // 店家資料：所有人可讀（客戶預約頁要用），只有 admin 可寫
       allow read: if true;
-      allow write: if request.auth != null
-        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+      allow write: if isAdmin();
 
-      // 服務項目：公開可讀，admin 可寫
       match /services/{serviceId} {
         allow read: if true;
-        allow write: if request.auth != null
-          && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+        allow write: if isAdmin();
       }
 
-      // 技師：公開可讀（不含 email 等敏感欄位由前端過濾），admin 可寫
       match /staff/{staffId} {
         allow read: if true;
-        allow write: if request.auth != null
-          && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+        allow write: if isAdmin();
       }
 
-      // 開放時段：公開可讀（客戶要看有哪些時段可選），admin 可寫
-      // 客戶預約時可 update 把 status=open 改為 status=booked
       match /slots/{slotId} {
         allow read: if true;
-        allow create, delete: if request.auth != null
-          && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
-        // admin 全面更新，或已登入用戶把 open 改為 booked（綁定 bookingId）
-        allow update: if (request.auth != null
-          && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'])
+        allow create: if isAdmin();
+        allow delete: if isAdmin();
+        allow update: if isAdmin()
           || (request.auth != null
               && resource.data.status == 'open'
               && request.resource.data.status == 'booked'
               && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'bookedBy', 'bookedAt']));
       }
 
-      // 預約：admin 全面讀寫；已登入用戶可建立+讀取自己的預約，付款後可 update status
       match /bookings/{bookingId} {
         allow read: if request.auth != null;
         allow create: if request.auth != null;
-        allow update: if request.auth != null
-          && (request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com']
-              || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'paidAt']));
-        allow delete: if request.auth != null
-          && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+        allow update: if isAdmin()
+          || (request.auth != null
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'paidAt']));
+        allow delete: if isAdmin();
       }
 
-      // 班別設定：公開可讀（排班頁用），admin 可寫
       match /shifts/{shiftId} {
         allow read: if true;
-        allow write: if request.auth != null
-          && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+        allow write: if isAdmin();
       }
 
-      // 排班行事曆：公開可讀（預約頁查空檔用），admin 可寫
       match /schedule/{scheduleId} {
         allow read: if true;
-        allow write: if request.auth != null
-          && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+        allow write: if isAdmin();
       }
 
-      // 附加服務：公開可讀（預約頁顯示用），admin 可寫
       match /addons/{addonId} {
         allow read: if true;
-        allow write: if request.auth != null
-          && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+        allow write: if isAdmin();
       }
     }
   }
