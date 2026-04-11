@@ -201,10 +201,12 @@ module.exports = async function handler(req, res) {
         // ── 2. 寫入訂單記錄（總表）──
         await db.collection('orders').doc(MerTradeNo).set(orderPayload);
 
-        // ── 3. 在 user 的課程記錄中開通課程 ──
-        if (userId && productId) {
+        // ── 3. 若是課程商品（course-*），在 user 的課程記錄中開通 ──
+        const courseMatch = (productId || '').match(/^course-(.+)$/i);
+        if (userId && courseMatch) {
+          const realCourseId = courseMatch[1]; // 去掉 course- 前綴
           await db.collection('users').doc(userId)
-            .collection('courses').doc(productId)
+            .collection('courses').doc(realCourseId)
             .set({
               paid:       true,
               paidAt:     now,
@@ -213,11 +215,14 @@ module.exports = async function handler(req, res) {
               amount:     Number(TradeAmt),
               productId:  productId,
             }, { merge: true });
+          console.log(`✅ 課程開通：userId=${userId} courseId=${realCourseId} orderId=${MerTradeNo}`);
+        }
 
+        if (userId && productId) {
           // ── 4. 更新 pendingOrder 狀態為已付款 ──
           await pendingRef.update({ status: 'paid', paidAt: now });
 
-          console.log(`✅ 課程開通：userId=${userId} productId=${productId} orderId=${MerTradeNo}`);
+          console.log(`✅ 訂單完成：userId=${userId} productId=${productId} orderId=${MerTradeNo}`);
 
           // ── 5z. 若是抽牌商品（draw-N / pet-N / family-N / spa-N / nail-N），啟用 reading_codes ──
           // pendingOrders 在 create 時已先產生 unlockCode，這邊把它正式寫入 reading_codes 集合
