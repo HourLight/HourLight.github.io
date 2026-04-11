@@ -104,22 +104,23 @@ body{background:#faf9f7;color:#1a1714;font-family:'Noto Sans TC',sans-serif;font
 .mg-toc a:hover{color:#8b6914}
 
 /* ── Interactive Body Map ── */
-.body-map-container{display:flex;gap:24px;align-items:flex-start;margin:24px 0;flex-wrap:wrap}
-.body-map-svg{flex:0 0 320px;max-width:100%;cursor:pointer}
-.body-map-svg svg{width:100%;height:auto}
-.body-map-panel{flex:1;min-width:280px;background:#fff;border:1px solid #e8e4de;padding:20px;min-height:280px;transition:border-color .2s}
-.body-map-panel.active{border-color:#c4a882}
+.body-map-container{display:flex;flex-direction:column;align-items:center;margin:24px 0}
+.body-map-img-wrap{position:relative;max-width:600px;width:100%;margin:0 auto}
+.body-map-img-wrap img{width:100%;display:block;border-radius:12px}
+#meridianHotspots{position:absolute;top:0;left:0;width:100%;height:100%}
+.body-map-hotspot{position:absolute;width:28px;height:28px;border-radius:50%;background:rgba(233,194,125,.35);border:2px solid rgba(233,194,125,.7);cursor:pointer;transform:translate(-50%,-50%);transition:transform .2s,background .2s,box-shadow .2s;z-index:2}
+.body-map-hotspot::after{content:'';position:absolute;top:-4px;left:-4px;right:-4px;bottom:-4px;border-radius:50%;border:1.5px solid rgba(233,194,125,.4);animation:meridianPulse 2s ease-in-out infinite}
+.body-map-hotspot:hover,.body-map-hotspot.active{transform:translate(-50%,-50%) scale(1.3);background:rgba(233,194,125,.6);box-shadow:0 0 16px rgba(233,194,125,.5)}
+.body-map-hotspot .hotspot-label{position:absolute;top:50%;left:calc(100% + 6px);transform:translateY(-50%);white-space:nowrap;font-size:.72rem;color:#a0917f;pointer-events:none;opacity:0;transition:opacity .2s;background:rgba(255,255,255,.9);padding:2px 6px;border-radius:4px}
+.body-map-hotspot:hover .hotspot-label,.body-map-hotspot.active .hotspot-label{opacity:1}
+.body-map-hotspot.left-label .hotspot-label{left:auto;right:calc(100% + 6px)}
+@keyframes meridianPulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+.body-map-panel{width:100%;max-width:600px;background:#f5f0e8;border:1px solid #e8d5a8;padding:20px;margin-top:16px;border-radius:12px;display:none;transition:border-color .2s}
+.body-map-panel.active{display:block;border-color:#c4a882}
 .body-map-panel h4{font-size:1.05rem;color:#6b4f1a;margin-bottom:8px;font-weight:500}
 .body-map-panel p{font-size:.88rem;color:#3a342e;line-height:1.85;margin-bottom:6px}
 .body-map-panel .bm-label{font-size:.8rem;color:#a0917f;letter-spacing:.04em;display:block;margin-top:8px}
-
-.meridian-line{stroke-width:2.5;fill:none;opacity:.35;cursor:pointer;transition:opacity .25s,stroke-width .25s}
-.meridian-line:hover,.meridian-line.active{opacity:1;stroke-width:3.5}
-.meridian-line.dim{opacity:.12}
-.acupoint{fill:#6b4f1a;cursor:pointer;opacity:0;transition:opacity .25s}
-.acupoint.visible{opacity:1}
-.acupoint-label{font-size:7px;fill:#6b4f1a;pointer-events:none;opacity:0;transition:opacity .25s}
-.acupoint-label.visible{opacity:1}
+@media(max-width:480px){.body-map-hotspot{width:22px;height:22px}.body-map-hotspot .hotspot-label{font-size:.65rem}}
 
 /* ── Meridian Clock ── */
 .clock-container{position:relative;width:360px;max-width:100%;margin:24px auto}
@@ -292,140 +293,20 @@ body{background:#faf9f7;color:#1a1714;font-family:'Noto Sans TC',sans-serif;font
 <!-- ═══ Section 3: 互動式人體經絡圖 ═══ -->
 <section class="mg-section" id="body-map">
   <h2 class="mg-section-title">互動式人體經絡圖</h2>
-  <p class="mg-section-desc">點擊或觸碰任何一條經絡線，右側（手機為下方）會顯示該經絡的完整資訊。</p>
+  <p class="mg-section-desc">點擊圖上的金色脈衝圓點，下方會顯示該經絡的走向、穴位、對應情緒、推薦精油和水晶。</p>
   <div class="mg-rule"></div>
 
   <div class="body-map-container">
-    <div class="body-map-svg" id="bodyMapSvg">
-      <svg viewBox="0 0 260 520" xmlns="http://www.w3.org/2000/svg" aria-label="人體經絡圖">
-        <!-- Human body outline -->
-        <g fill="none" stroke="#d4cbc0" stroke-width="1.2">
-          <!-- Head -->
-          <ellipse cx="130" cy="52" rx="28" ry="34"/>
-          <!-- Neck -->
-          <line x1="118" y1="84" x2="118" y2="100"/>
-          <line x1="142" y1="84" x2="142" y2="100"/>
-          <!-- Shoulders -->
-          <path d="M118,100 Q100,100 82,115"/>
-          <path d="M142,100 Q160,100 178,115"/>
-          <!-- Torso -->
-          <path d="M82,115 L78,120 L75,200 L80,280 L95,310"/>
-          <path d="M178,115 L182,120 L185,200 L180,280 L165,310"/>
-          <!-- Arms left -->
-          <path d="M82,115 L60,160 L48,210 L42,260 L38,290"/>
-          <!-- Arms right -->
-          <path d="M178,115 L200,160 L212,210 L218,260 L222,290"/>
-          <!-- Legs left -->
-          <path d="M95,310 L90,370 L85,430 L82,480 L80,510"/>
-          <!-- Legs right -->
-          <path d="M165,310 L170,370 L175,430 L178,480 L180,510"/>
-          <!-- Hips -->
-          <path d="M95,310 Q130,325 165,310"/>
-        </g>
-
-        <!-- Meridian lines -->
-        <!-- LU Lung -->
-        <path class="meridian-line" id="ml-LU" stroke="#8fa3bf" d="M108,120 L95,135 L78,160 L62,200 L52,240 L44,270 L40,288"/>
-        <!-- LI Large Intestine -->
-        <path class="meridian-line" id="ml-LI" stroke="#c4a67a" d="M40,288 L46,260 L56,220 L68,180 L80,150 L100,120 L120,100 L130,75 L136,58"/>
-        <!-- ST Stomach -->
-        <path class="meridian-line" id="ml-ST" stroke="#d4a05a" d="M128,44 L122,60 L118,80 L115,110 L112,160 L108,220 L105,280 L102,340 L98,400 L95,460 L93,510"/>
-        <!-- SP Spleen -->
-        <path class="meridian-line" id="ml-SP" stroke="#c9b87a" d="M88,510 L90,470 L92,420 L95,370 L98,320 L102,280 L108,230 L112,180 L115,140"/>
-        <!-- HT Heart -->
-        <path class="meridian-line" id="ml-HT" stroke="#c47a7a" d="M120,120 L108,140 L92,170 L76,210 L62,250 L50,280 L42,295"/>
-        <!-- SI Small Intestine -->
-        <path class="meridian-line" id="ml-SI" stroke="#d49a7a" d="M222,290 L218,260 L210,220 L198,180 L186,150 L172,120 L160,100 L148,80 L142,60"/>
-        <!-- BL Bladder -->
-        <path class="meridian-line" id="ml-BL" stroke="#7a9ab4" d="M126,38 L124,52 L122,70 L125,90 L128,110 L132,160 L136,220 L140,280 L145,340 L150,400 L155,460 L160,510"/>
-        <!-- KI Kidney -->
-        <path class="meridian-line" id="ml-KI" stroke="#5a7a8a" d="M84,510 L86,480 L88,440 L90,390 L92,350 L96,300 L102,250 L108,200 L115,150 L118,120"/>
-        <!-- PC Pericardium -->
-        <path class="meridian-line" id="ml-PC" stroke="#b47aa0" d="M125,125 L115,145 L100,180 L85,220 L70,260 L55,290"/>
-        <!-- TE Triple Energizer -->
-        <path class="meridian-line" id="ml-TE" stroke="#a0927a" d="M222,290 L216,255 L208,215 L196,175 L182,140 L168,115 L155,95 L148,72"/>
-        <!-- GB Gallbladder -->
-        <path class="meridian-line" id="ml-GB" stroke="#7ab47a" d="M140,42 L148,50 L155,65 L160,80 L158,100 L162,130 L168,180 L172,240 L175,300 L178,360 L180,420 L182,480 L184,510"/>
-        <!-- LR Liver -->
-        <path class="meridian-line" id="ml-LR" stroke="#5a9a6a" d="M86,510 L88,475 L90,440 L93,400 L96,360 L100,320 L106,280 L112,240 L115,200 L118,160 L122,130"/>
-        <!-- CV Conception Vessel -->
-        <path class="meridian-line" id="ml-CV" stroke="#c9a0b4" d="M130,320 L130,290 L130,250 L130,210 L130,170 L130,130 L130,100 L130,78"/>
-        <!-- GV Governing Vessel -->
-        <path class="meridian-line" id="ml-GV" stroke="#8a7ab4" d="M130,320 L132,290 L134,250 L136,210 L138,170 L138,130 L136,100 L134,80 L132,60 L130,40 L130,30"/>
-
-        <!-- Key acupoints (hidden by default, shown on meridian select) -->
-        <g id="acupoints-LU">
-          <circle class="acupoint" cx="108" cy="120" r="3"/><text class="acupoint-label" x="96" y="117">中府</text>
-          <circle class="acupoint" cx="78" cy="160" r="3"/><text class="acupoint-label" x="66" y="157">尺澤</text>
-          <circle class="acupoint" cx="52" cy="240" r="3"/><text class="acupoint-label" x="38" y="237">列缺</text>
-          <circle class="acupoint" cx="40" cy="288" r="3"/><text class="acupoint-label" x="26" y="285">少商</text>
-        </g>
-        <g id="acupoints-LI">
-          <circle class="acupoint" cx="44" cy="270" r="3"/><text class="acupoint-label" x="30" y="267">合谷</text>
-          <circle class="acupoint" cx="68" cy="180" r="3"/><text class="acupoint-label" x="56" y="177">曲池</text>
-          <circle class="acupoint" cx="136" cy="58" r="3"/><text class="acupoint-label" x="142" y="55">迎香</text>
-        </g>
-        <g id="acupoints-ST">
-          <circle class="acupoint" cx="122" cy="60" r="3"/><text class="acupoint-label" x="104" y="57">四白</text>
-          <circle class="acupoint" cx="108" cy="220" r="3"/><text class="acupoint-label" x="92" y="217">天樞</text>
-          <circle class="acupoint" cx="98" cy="400" r="3"/><text class="acupoint-label" x="82" y="397">足三里</text>
-        </g>
-        <g id="acupoints-SP">
-          <circle class="acupoint" cx="90" cy="470" r="3"/><text class="acupoint-label" x="68" y="467">三陰交</text>
-          <circle class="acupoint" cx="95" cy="370" r="3"/><text class="acupoint-label" x="79" y="367">血海</text>
-        </g>
-        <g id="acupoints-HT">
-          <circle class="acupoint" cx="120" cy="120" r="3"/><text class="acupoint-label" x="124" y="117">極泉</text>
-          <circle class="acupoint" cx="50" cy="280" r="3"/><text class="acupoint-label" x="34" y="277">神門</text>
-        </g>
-        <g id="acupoints-SI">
-          <circle class="acupoint" cx="222" cy="290" r="3"/><text class="acupoint-label" x="204" y="296">少澤</text>
-          <circle class="acupoint" cx="218" cy="260" r="3"/><text class="acupoint-label" x="200" y="257">後谿</text>
-          <circle class="acupoint" cx="142" cy="60" r="3"/><text class="acupoint-label" x="148" y="68">聽宮</text>
-        </g>
-        <g id="acupoints-BL">
-          <circle class="acupoint" cx="126" cy="38" r="3"/><text class="acupoint-label" x="108" y="36">睛明</text>
-          <circle class="acupoint" cx="150" cy="400" r="3"/><text class="acupoint-label" x="156" y="397">委中</text>
-          <circle class="acupoint" cx="160" cy="510" r="3"/><text class="acupoint-label" x="164" y="507">至陰</text>
-        </g>
-        <g id="acupoints-KI">
-          <circle class="acupoint" cx="84" cy="510" r="3"/><text class="acupoint-label" x="62" y="507">湧泉</text>
-          <circle class="acupoint" cx="88" cy="440" r="3"/><text class="acupoint-label" x="68" y="437">太谿</text>
-        </g>
-        <g id="acupoints-PC">
-          <circle class="acupoint" cx="85" cy="220" r="3"/><text class="acupoint-label" x="68" y="217">內關</text>
-          <circle class="acupoint" cx="70" cy="260" r="3"/><text class="acupoint-label" x="52" y="257">勞宮</text>
-        </g>
-        <g id="acupoints-TE">
-          <circle class="acupoint" cx="216" cy="255" r="3"/><text class="acupoint-label" x="198" y="252">外關</text>
-          <circle class="acupoint" cx="148" cy="72" r="3"/><text class="acupoint-label" x="154" y="78">翳風</text>
-        </g>
-        <g id="acupoints-GB">
-          <circle class="acupoint" cx="140" cy="42" r="3"/><text class="acupoint-label" x="148" y="40">瞳子髎</text>
-          <circle class="acupoint" cx="155" cy="65" r="3"/><text class="acupoint-label" x="162" y="62">風池</text>
-          <circle class="acupoint" cx="160" cy="80" r="3"/><text class="acupoint-label" x="166" y="86">肩井</text>
-          <circle class="acupoint" cx="178" cy="360" r="3"/><text class="acupoint-label" x="184" y="357">陽陵泉</text>
-        </g>
-        <g id="acupoints-LR">
-          <circle class="acupoint" cx="86" cy="510" r="3"/><text class="acupoint-label" x="66" y="517">大敦</text>
-          <circle class="acupoint" cx="88" cy="475" r="3"/><text class="acupoint-label" x="68" y="480">太衝</text>
-        </g>
-        <g id="acupoints-CV">
-          <circle class="acupoint" cx="130" cy="250" r="3"/><text class="acupoint-label" x="136" y="248">關元</text>
-          <circle class="acupoint" cx="130" cy="230" r="3"/><text class="acupoint-label" x="136" y="228">氣海</text>
-          <circle class="acupoint" cx="130" cy="150" r="3"/><text class="acupoint-label" x="136" y="148">膻中</text>
-        </g>
-        <g id="acupoints-GV">
-          <circle class="acupoint" cx="130" cy="30" r="3"/><text class="acupoint-label" x="136" y="28">百會</text>
-          <circle class="acupoint" cx="136" cy="100" r="3"/><text class="acupoint-label" x="142" y="98">大椎</text>
-          <circle class="acupoint" cx="138" cy="210" r="3"/><text class="acupoint-label" x="144" y="208">命門</text>
-        </g>
-      </svg>
+    <div class="body-map-img-wrap" id="bodyMapWrap">
+      <img src="assets/images/meridian/meridian-body-front.png" alt="十四經絡走向總覽" loading="lazy">
+      <div id="meridianHotspots">
+        <!-- 14 hotspots rendered by JS -->
+      </div>
     </div>
 
     <div class="body-map-panel" id="bodyMapPanel">
-      <h4 id="bmpTitle" style="color:#a0917f">點擊經絡線查看詳情</h4>
-      <p id="bmpDesc" style="color:#72655a">在左側的人體圖上，點擊任何一條彩色經絡線，這裡會顯示該經絡的走向、穴位數量、對應情緒、推薦精油和水晶。</p>
+      <h4 id="bmpTitle" style="color:#a0917f">點擊金色圓點查看經絡詳情</h4>
+      <p id="bmpDesc" style="color:#72655a">圖上每個脈衝圓點代表一條經絡的代表位置，點擊後這裡會顯示走向、穴位、對應情緒、推薦精油和水晶。</p>
       <span class="bm-label" id="bmpRoute" style="display:none">走向</span>
       <p id="bmpRouteText" style="display:none"></p>
       <span class="bm-label" id="bmpPointsLabel" style="display:none">穴位數 / 主要穴位</span>
@@ -1571,26 +1452,52 @@ body{background:#faf9f7;color:#1a1714;font-family:'Noto Sans TC',sans-serif;font
     GV:{name:'督脈（奇經八脈）',en:'Governing Vessel',route:'從尾骨長強穴沿脊椎上行，過頭頂到上唇齦交穴。陽脈之海。',points:'28 穴｜長強、命門、大椎、百會、人中',emotion:'缺乏主見和領導力',oil:'迷迭香、尤加利、乳香',crystal:'黑曜石、拉長石',color:'#8a7ab4'}
   };
 
-  var activeM = null;
-  var lines = document.querySelectorAll('.meridian-line');
+  /* Hotspot positions (% from top-left of image, tuned to meridian-body-front.png) */
+  var hotspotPositions = {
+    LU:{x:30,y:23,label:'肺經'},
+    LI:{x:70,y:23,label:'大腸經',leftLabel:true},
+    ST:{x:40,y:40,label:'胃經'},
+    SP:{x:60,y:40,label:'脾經',leftLabel:true},
+    HT:{x:28,y:30,label:'心經'},
+    SI:{x:72,y:30,label:'小腸經',leftLabel:true},
+    BL:{x:55,y:12,label:'膀胱經',leftLabel:true},
+    KI:{x:42,y:82,label:'腎經'},
+    PC:{x:25,y:38,label:'心包經'},
+    TE:{x:75,y:38,label:'三焦經',leftLabel:true},
+    GB:{x:68,y:55,label:'膽經',leftLabel:true},
+    LR:{x:38,y:72,label:'肝經'},
+    CV:{x:50,y:50,label:'任脈'},
+    GV:{x:50,y:8,label:'督脈'}
+  };
+
+  var hotspotContainer = document.getElementById('meridianHotspots');
   var panel = document.getElementById('bodyMapPanel');
+  var activeM = null;
+  var allDots = [];
+
+  Object.keys(hotspotPositions).forEach(function(id){
+    var pos = hotspotPositions[id];
+    var dot = document.createElement('div');
+    dot.className = 'body-map-hotspot' + (pos.leftLabel ? ' left-label' : '');
+    dot.style.left = pos.x + '%';
+    dot.style.top = pos.y + '%';
+    dot.dataset.meridian = id;
+    var lbl = document.createElement('span');
+    lbl.className = 'hotspot-label';
+    lbl.textContent = pos.label;
+    dot.appendChild(lbl);
+    dot.addEventListener('click', function(){ showMeridian(id); });
+    hotspotContainer.appendChild(dot);
+    allDots.push(dot);
+  });
 
   function showMeridian(id){
     var d = meridianData[id];
     if(!d) return;
     activeM = id;
-    lines.forEach(function(l){
-      var lid = l.id.replace('ml-','');
-      if(lid===id){l.classList.add('active');l.classList.remove('dim');}
-      else{l.classList.remove('active');l.classList.add('dim');}
-    });
-    // Show acupoints
-    document.querySelectorAll('[id^="acupoints-"]').forEach(function(g){
-      var gid = g.id.replace('acupoints-','');
-      g.querySelectorAll('.acupoint,.acupoint-label').forEach(function(el){
-        if(gid===id) el.classList.add('visible');
-        else el.classList.remove('visible');
-      });
+    allDots.forEach(function(dot){
+      if(dot.dataset.meridian === id) dot.classList.add('active');
+      else dot.classList.remove('active');
     });
     panel.classList.add('active');
     document.getElementById('bmpTitle').textContent = d.name + ' ' + d.en;
@@ -1604,11 +1511,8 @@ body{background:#faf9f7;color:#1a1714;font-family:'Noto Sans TC',sans-serif;font
       else document.getElementById('bmp'+k+'Text').textContent = d[k.toLowerCase()];
       document.getElementById('bmp'+k+'Text').style.display = 'block';
     });
+    panel.scrollIntoView({behavior:'smooth',block:'nearest'});
   }
-
-  lines.forEach(function(l){
-    l.addEventListener('click',function(){showMeridian(l.id.replace('ml-',''));});
-  });
 
   /* ──────────────────────────────────────
      Meridian Clock
