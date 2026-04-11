@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-BXP7K53QG6');
+</script>
+<!-- Facebook Pixel -->
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1333106288588347');
+  fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" alt=""
+  src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"></noscript>
+<!-- End Facebook Pixel -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover">
+    <title>馥灵秘码 Hour Light v8.2 - 生命數字解码系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/hourlight-global.css">
+<link rel="stylesheet" href="../assets/css/hl-design-tokens.css">
+<style>
+        :root {
+            --gold: #D4AF37;
+            --gold-light: #F5E6A3;
+            --cream: #FDF8E8;
+            --brown: #4A3728;
+            --night-bg: #1A1A2E;
+            --night-card: #16213E;
+            --purple: #9F5FDB;
+        }
+        
+        body { font-family: 'Noto Sans TC', sans-serif; }
+        .serif { font-family: 'Noto Serif TC', serif; }
+        
+        body.day-mode {
+            background: linear-gradient(135deg, #FDF8E8 0%, #F5E6A3 50%, #FDF8E8 100%);
+            color: #e8d5c0;
+        }
+        
+        body.night-mode {
+            background: linear-gradient(135deg, #1A1A2E 0%, #16213E 50%, #0F0F23 100%);
+            color: #efe6ff;
+        }
+        
+        .gold-text { color: var(--gold); }
+        .night-mode .gold-text { color: #FFD700; text-shadow: 0 0 15px rgba(255,215,0,0.3); }
+
+        .gold-btn {
+            background: linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%);
+            color: #f0e5d5;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            transition: all 0.3s;
+        }
+        .gold-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4); }
+        .night-mode .gold-btn {
+            background: linear-gradient(135deg, #6B2C91 0%, #9F5FDB 50%, #6B2C91 100%);
+            color:#ffffff;
+        }
+
+        /* 馥灵之钥专用按鈕 - 更突出 */
+        .key-btn {
+            background: linear-gradient(135deg, #1E3A5F 0%, #2D5A8C 50%, #1E3A5F 100%);
+            color: #FFD700;
+            font-weight: 700;
+            box-shadow: 0 4px 20px rgba(30, 58, 95, 0.5);
+            transition: all 0.3s;
+            border: 2px solid #D4AF37;
+        }
+        .key-btn:hover { 
+            transform: translateY(-3px) scale(1.02); 
+            box-shadow: 0 8px 30px rgba(30, 58, 95, 0.6);
+        }
+        .night-mode .key-btn {
+            background: linear-gradient(135deg, #2D1B4E 0%, #4A2C7A 50%, #2D1B4E 100%);
+            border-color: #9F5FDB;
+        }
+
+        .card {
+            -webkit-backdrop-filter:blur(10px);backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            transition: all 0.3s;
+        }
+        .day-mode .card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 4px 20px rgba(139, 115, 85, 0.1);
+        }
+        .night-mode .card {
+            background: rgba(22, 33, 62, 0.9);
+            border: 1px solid rgba(159, 95, 219, 0.3);
+        }
+
+        .tab-btn { transition: all 0.3s; border-bottom: 3px solid transparent; }
+        .tab-btn.active { border-bottom-color: var(--gold); }
+        .night-mode .tab-btn.active { border-bottom-color: var(--purple); }
+
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7);
+            -webkit-backdrop-filter:blur(8px);backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 100;
+        }
+        .modal-content { max-height: 90vh; overflow-y: auto;-webkit-overflow-scrolling:touch}
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath fill='%23D4AF37' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            appearance: none;
+        }
+
+        .score-bar { height: 8px; border-radius: 4px; overflow: hidden; }
+        .score-fill { height: 100%; transition: width 0.8s ease-out; }
+
+        .master-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        .day-mode .master-badge { background: linear-gradient(135deg, #D4AF37, #F5E6A3); color: #e8d5c0; }
+        .night-mode .master-badge { background: linear-gradient(135deg, #9F5FDB, #E066FF); color: #ffffff; }
+        
+        @keyframes glow {
+            from { box-shadow: 0 0 5px rgba(212, 175, 55, 0.5); }
+            to { box-shadow: 0 0 15px rgba(212, 175, 55, 0.8); }
+        }
+
+        .detail-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .detail-panel.open {
+            max-height: 2000px;
+        }
+
+        /* 五行能量条样式 */
+        .element-bar {
+            height: 24px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        .element-fill {
+            height: 100%;
+            transition: width 0.8s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            
+        }
+        .element-wood { background: linear-gradient(90deg, #2D5016, #4A7C23); }
+        .element-fire { background: linear-gradient(90deg, #C41E3A, #FF6B6B); }
+        .element-earth { background: linear-gradient(90deg, #8B6914, #D4A017); }
+        .element-metal { background: linear-gradient(90deg, #71797E, #C0C0C0); }
+        .element-water { background: linear-gradient(90deg, #1E3A5F, #4A90D9); }
+
+        /* 转化橋段特效 */
+        .bridge-section {
+            position: relative;
+            overflow: hidden;
+        }
+        .bridge-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212,175,55,0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* 浮动按鈕样式 */
+        .floating-cta {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 50;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    
+/* ── 馥灵之钥 LOGO 图标 ── */
+.hl-logo-icon {
+  height: 1.15em;
+  width: 1.15em;
+  border-radius: 50%;
+  object-fit: cover;
+  vertical-align: middle;
+  margin-right: 4px;
+  display: inline-block;
+  position: relative;
+  top: -0.08em;
+}
+.hl-logo-hero {
+  display: block;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 14px auto;
+  filter: drop-shadow(0 0 18px rgba(233,194,125,0.55));
+}
+
+/* light bg */
+.hl-bg-castle {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:#05030a;
+  opacity: 1;
+  filter: saturate(1.1) brightness(.72);
+  pointer-events: none;
+}
+
+/* ── Mobile App Touch Feel ── */
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+button,a,select,input[type=submit],input[type=button]{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+button:active,input[type=submit]:active{transform:scale(.97);transition:transform .08s}
+select,input[type=text],input[type=number],input[type=date],input[type=email],textarea{font-size:16px!important}
+@media(max-width:600px){
+  body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  button,input[type=submit],input[type=button]{min-height:48px}
+}
+</style>
+    <meta name="description" content="馥灵秘码完整版生命數字解码系统｜深度分析您的生命蓝图、天賦潜能与人生课题。">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hourlightkey.com/sc/master.html">
+    <meta property="og:title" content="馥灵秘码 Hour Light v8.2 - 生命數字解码系统">
+    <meta property="og:description" content="馥灵秘码完整版生命數字解码系统｜深度分析您的生命蓝图、天賦潜能与人生课题。">
+    <meta property="og:image" content="https://hourlightkey.com/og-image.jpg">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:site_name" content="馥灵之钥 Hour Light">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="馥灵秘码 Hour Light v8.2 - 生命數字解码系统">
+    <meta name="twitter:description" content="馥灵秘码完整版生命數字解码系统｜深度分析您的生命蓝图、天賦潜能与人生课题。">
+    <meta name="twitter:image" content="https://hourlightkey.com/og-image.jpg">
+
+    
+    <link rel="canonical" href="https://hourlightkey.com/sc/master.html">
+    <meta name="keywords" content="生命數字解码, 馥灵秘码完整版">
+    <!-- Schema.org 結构化资料 -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": "https://hourlightkey.com/#organization",
+  "name": "馥靈之鑰國際有限公司",
+  "alternateName": [
+    "Hour Light International Co., Ltd.",
+    "馥靈之鑰",
+    "Hour Light"
+  ],
+  "url": "https://hourlightkey.com",
+  "logo": {
+    "@type": "ImageObject",
+    "url": "https://hourlightkey.com/logo.svg",
+    "width": "200",
+    "height": "200"
+  },
+  "image": "https://hourlightkey.com/og-image.jpg",
+  "description": "馥靈之鑰 Hour Light｜讀懂自己，活對人生。結合感官科學與自我導航的自我認識系統，免費線上工具與一對一深度陪伴。",
+  "foundingDate": "2024",
+  "founder": {
+    "@type": "Person",
+    "@id": "https://hourlightkey.com/#founder",
+    "name": "王逸君",
+    "alternateName": "Ruby Wang"
+  },
+  "sameAs": [
+    "https://www.youtube.com/@judyanee",
+    "https://www.facebook.com/SUFUYASPA",
+    "https://www.instagram.com/hourlight",
+    "https://lin.ee/RdQBFAN"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer service",
+    "email": "info@hourlightkey.com",
+    "url": "https://lin.ee/RdQBFAN",
+    "availableLanguage": [
+      "zh-TW",
+      "zh-CN"
+    ]
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "Taiwan"
+  },
+  "knowsAbout": [
+    "芳香療法",
+    "能量覺察",
+    "情緒管理",
+    "美容美業",
+    "生命靈數",
+    "塔羅牌"
+  ]
+}
+    </script>
+<link rel="stylesheet" href="../assets/css/hl-cosmos.css">
+<link rel="stylesheet" href="../assets/css/hl-music.css">
+<script src="assets/js/hl-analytics.js?v=20260401" defer></script>
+<!-- MailerLite Universal -->
+<script>
+    (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
+    .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
+    n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
+    (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
+    ml('account', '2060689');
+</script>
+<!-- End MailerLite Universal -->
+<style>
+/* ========== 浮动 LINE 按鈕（玻璃擬态）========== */
+
+@media(max-width:768px){}@media(min-width:769px) and (max-width:900px){}
+</style>
+<style>
+/* ========== 背景音樂控制按鈕 ========== */
+</style>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0612">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="馥灵之钥">
+<link rel="icon" href="../favicon.ico">
+</head>
+<body class="night-mode min-h-screen">
+<img src="images/page-banners-web/master.webp" alt="" style="width:100%;max-width:600px;max-height:180px;object-fit:cover;margin:0 auto 20px;display:block;border-radius:12px" loading="lazy" onerror="this.style.display='none'">
+
+
+
+<!-- ========== 背景音樂 ========== -->
+<!-- 星空背景 -->
+<div class="hl-bg-castle"></div>
+<div class="hl-cosmos">
+  <div class="hl-stars-layer hl-stars-1"></div>
+  <div class="hl-stars-layer hl-stars-2"></div>
+  <div class="hl-stars-layer hl-stars-3"></div>
+  <div class="hl-meteors">
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+  </div>
+  <div class="hl-aura hl-aura-1"></div>
+  <div class="hl-aura hl-aura-2"></div>
+  <div class="hl-aura hl-aura-3"></div>
+</div>
+
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo } = React;
+
+        // ==================== 資料庫 ====================
+        
+        // 數字基本資料
+        const numberData = {
+            1: { keyword: '領袖', element: '大木', planet: '太陽', archetype: '英雄', color: '#228B22', colorName: '森林綠', oils: ['迷迭香', '尤加利', '茶樹'], chakra: '眉心輪', bodyPart: '頭部', meridian: '膽經', threat: '被否定', need: '尊重', gift: '開創力', shadow: '孤傲', growth: '學會合作' },
+            2: { keyword: '協調', element: '大水', planet: '月亮', archetype: '照顧者', color: '#4169E1', colorName: '皇家藍', oils: ['薰衣草', '洋甘菊', '玫瑰'], chakra: '臍輪', bodyPart: '腹部', meridian: '腎經', threat: '被拋棄', need: '陪伴', gift: '同理心', shadow: '依賴', growth: '學會獨立' },
+            3: { keyword: '創意', element: '大火', planet: '木星', archetype: '藝術家', color: '#FFD700', colorName: '金黃', oils: ['甜橙', '佛手柑', '葡萄柚'], chakra: '太陽神經叢', bodyPart: '胃部', meridian: '脾經', threat: '被忽視', need: '認可', gift: '表達力', shadow: '膚淺', growth: '學會深度' },
+            4: { keyword: '穩定', element: '小金', planet: '天王星', archetype: '建造者', color: '#8B4513', colorName: '深褐', oils: ['岩蘭草', '雪松', '廣藿香'], chakra: '海底輪', bodyPart: '骨骼', meridian: '大腸經', threat: '混亂', need: '安全感', gift: '執行力', shadow: '僵化', growth: '學會彈性' },
+            5: { keyword: '自由', element: '小土', planet: '水星', archetype: '探險家', color: '#FF8C00', colorName: '橙色', oils: ['薄荷', '檸檬', '萊姆'], chakra: '喉輪', bodyPart: '呼吸系統', meridian: '肺經', threat: '被綁住', need: '空間', gift: '適應力', shadow: '逃避', growth: '學會承諾' },
+            6: { keyword: '責任', element: '大金', planet: '金星', archetype: '照顧者', color: '#FF69B4', colorName: '粉紅', oils: ['玫瑰', '天竺葵', '依蘭'], chakra: '心輪', bodyPart: '心臟', meridian: '心經', threat: '不被需要', need: '被需要', gift: '愛的能力', shadow: '犧牲', growth: '學會放手' },
+            7: { keyword: '智慧', element: '小水', planet: '海王星', archetype: '智者', color: '#800080', colorName: '紫羅蘭', oils: ['乳香', '檀香', '沒藥'], chakra: '頂輪', bodyPart: '神經系統', meridian: '膀胱經', threat: '被看穿', need: '理解', gift: '洞察力', shadow: '疏離', growth: '學會信任' },
+            8: { keyword: '權力', element: '小木', planet: '土星', archetype: '統治者', color: '#2F4F4F', colorName: '深灰', oils: ['黑胡椒', '薑', '肉桂'], chakra: '海底輪', bodyPart: '肌肉', meridian: '胃經', threat: '失去控制', need: '掌控', gift: '領導力', shadow: '控制', growth: '學會臣服' },
+            9: { keyword: '智者', element: '小火', planet: '火星', archetype: '賢者', color: '#DC143C', colorName: '深紅', oils: ['玫瑰', '茉莉', '橙花'], chakra: '頂輪', bodyPart: '免疫系統', meridian: '三焦經', threat: '不完美', need: '接納', gift: '包容力', shadow: '逃避世俗', growth: '學會落地' },
+            11: { keyword: '靈感大師', element: '雙木', planet: '太陽+月亮', archetype: '先知', color: '#E6E6FA', colorName: '薰衣草紫', oils: ['乳香', '檀香', '薰衣草'], chakra: '眉心輪+頂輪', bodyPart: '松果體', meridian: '督脈', threat: '不被理解', need: '覺察力共鳴', gift: '覺察力直覺', shadow: '過度敏感', growth: '接地' },
+            22: { keyword: '建築大師', element: '雙土', planet: '土星+天王星', archetype: '大建築師', color: '#D4AF37', colorName: '金色', oils: ['乳香', '雪松', '岩蘭草'], chakra: '全脈輪', bodyPart: '脊椎', meridian: '任督二脈', threat: '達不到理想', need: '實現願景', gift: '願景實現', shadow: '壓力過大', growth: '允許不完美' },
+            33: { keyword: '覺察大師', element: '雙火', planet: '金星+海王星', archetype: '覺察者', color: '#FFB6C1', colorName: '淺粉', oils: ['玫瑰', '橙花', '茉莉'], chakra: '心輪+頂輪', bodyPart: '心輪能量場', meridian: '心包經', threat: '愛無處給', need: '無條件的愛', gift: '無條件的愛', shadow: '犧牲殉道', growth: '愛自己' }
+        };
+
+        // 心理學對應
+        const psychologyData = {
+            1: { defense: '否認', pattern: '「我不需要別人」', shadow: '害怕軟弱', unlock: '承認需要幫助不是示弱，而是智慧' },
+            2: { defense: '退化', pattern: '遇壓力時變得依賴', shadow: '害怕被拋棄', unlock: '建立內在安全感，不依賴外在認可' },
+            3: { defense: '轉移', pattern: '把情緒轉到其他事上', shadow: '害怕不夠特別', unlock: '面對深層感受，真實比特別更有價值' },
+            4: { defense: '理智化', pattern: '用邏輯逃避感受', shadow: '害怕失控', unlock: '接納情緒的流動，控制不等於安全' },
+            5: { defense: '逃避', pattern: '直接離開不舒服的情境', shadow: '害怕被束縛', unlock: '練習停留，自由不是逃避的藉口' },
+            6: { defense: '反向形成', pattern: '過度付出來掩飾需要被愛', shadow: '害怕不被需要', unlock: '接受幫助，你的存在本身就有價值' },
+            7: { defense: '隔離', pattern: '切斷情緒，只留思考', shadow: '害怕被看穿', unlock: '信任他人，脆弱是連結的橋樑' },
+            8: { defense: '投射', pattern: '把控制欲投射到別人身上', shadow: '害怕失去權力', unlock: '放下掌控，真正的力量來自臣服' },
+            9: { defense: '壓抑', pattern: '把需求藏起來，假裝沒事', shadow: '害怕不夠完美', unlock: '表達真實需求，完整比完美更重要' }
+        };
+
+        // 12宮位資料
+        const palaceData = {
+            1: { name: '勇氣殿', theme: '自我認同', question: '我是誰？', meridian: '膽經', time: '23:00-01:00' },
+            2: { name: '力量廳', theme: '價值觀', question: '什麼對我重要？', meridian: '肝經', time: '01:00-03:00' },
+            3: { name: '告別苑', theme: '溝通學習', question: '我如何表達？', meridian: '肺經', time: '03:00-05:00' },
+            4: { name: '家族苑', theme: '家庭根基', question: '我的根在哪？', meridian: '大腸經', time: '05:00-07:00' },
+            5: { name: '創造殿', theme: '創造力', question: '我如何創造？', meridian: '胃經', time: '07:00-09:00' },
+            6: { name: '執行廳', theme: '健康服務', question: '我如何服務？', meridian: '脾經', time: '09:00-11:00' },
+            7: { name: '合作殿', theme: '關係合作', question: '我如何連結？', meridian: '心經', time: '11:00-13:00' },
+            8: { name: '轉化廳', theme: '深層轉化', question: '我如何重生？', meridian: '小腸經', time: '13:00-15:00' },
+            9: { name: '遠航苑', theme: '信念哲學', question: '我相信什麼？', meridian: '膀胱經', time: '15:00-17:00' },
+            10: { name: '榮耀殿', theme: '事業使命', question: '我的使命？', meridian: '腎經', time: '17:00-19:00' },
+            11: { name: '群聚廳', theme: '社群理想', question: '我屬於哪裡？', meridian: '心包經', time: '19:00-21:00' },
+            12: { name: '靜觀苑', theme: '潛意識整合', question: '我從何而來？', meridian: '三焦經', time: '21:00-23:00' }
+        };
+
+        // 五行對應
+        const elementMapping = {
+            1: { element: '木', type: '大木', yin: false },
+            2: { element: '水', type: '大水', yin: true },
+            3: { element: '火', type: '大火', yin: false },
+            4: { element: '金', type: '小金', yin: true },
+            5: { element: '土', type: '小土', yin: false },
+            6: { element: '金', type: '大金', yin: true },
+            7: { element: '水', type: '小水', yin: true },
+            8: { element: '木', type: '小木', yin: false },
+            9: { element: '火', type: '小火', yin: true }
+        };
+
+        // ==================== 計算函數 ====================
+        
+        const lunarData = {
+            1976: [0, 31, 23, 22, 21, 21, 20, 19, 18, 17, 16, 16, 15],
+            1977: [0, 31, 12, 12, 11, 10, 9, 8, 8, 7, 6, 5, 4],
+            1990: [0, 27, 25, 27, 25, 25, 23, 23, 21, 20, 19, 18, 17],
+            2000: [0, 6, 5, 5, 4, 4, 2, 1, 30, 28, 28, 26, 26]
+        };
+
+        const solarToLunar = (year, month, day) => {
+            if (lunarData[year]) {
+                const offset = lunarData[year][month] || 0;
+                let lunarDay = day - offset;
+                let lunarMonth = month;
+                if (lunarDay <= 0) {
+                    lunarMonth = month - 1;
+                    lunarDay += 30;
+                }
+                if (lunarMonth <= 0) { lunarMonth = 12; }
+                return { lunarMonth, lunarDay };
+            }
+            const dayOfYear = Math.floor((Date.UTC(year, month - 1, day) - Date.UTC(year, 0, 1)) / 86400000) + 1;
+            const approxLunarMonth = Math.ceil((dayOfYear - 30) / 29.5) || 1;
+            const approxLunarDay = ((dayOfYear - 30) % 30) + 1 || 1;
+            return { 
+                lunarMonth: Math.max(1, Math.min(12, approxLunarMonth)), 
+                lunarDay: Math.max(1, Math.min(30, approxLunarDay)) 
+            };
+        };
+
+        const reduceToSingle = (num) => {
+            if (num === 11 || num === 22 || num === 33) return num;
+            while (num > 9 && num !== 11 && num !== 22 && num !== 33) {
+                num = String(num).split('').reduce((a, b) => a + parseInt(b), 0);
+            }
+            return num;
+        };
+
+        const sumDigits = (num) => {
+            return String(num).split('').reduce((a, b) => a + parseInt(b), 0);
+        };
+
+        const calculateHOUR = (year, month, day, hour) => {
+            const { lunarMonth, lunarDay } = solarToLunar(year, month, day);
+            const hRaw = lunarMonth + lunarDay;
+            const h = reduceToSingle(hRaw);
+            
+            const oRaw = sumDigits(year) + sumDigits(month) + sumDigits(day);
+            const o = reduceToSingle(oRaw);
+            
+            const hourNum = Math.floor(hour / 2) + 1;
+            const u = reduceToSingle(hourNum);
+            
+            const rRaw = (h === 11 || h === 22 || h === 33 ? h : h) + 
+                         (o === 11 || o === 22 || o === 33 ? o : o) + 
+                         (u === 11 || u === 22 || u === 33 ? u : u);
+            const r = reduceToSingle(rRaw);
+            
+            return { h, o, u, r, lunarMonth, lunarDay };
+        };
+
+        const calculateBridgeNumber = (a, b) => {
+            return Math.abs((a > 9 ? reduceToSingle(a) : a) - (b > 9 ? reduceToSingle(b) : b));
+        };
+
+        const calculateElementAnalysis = (hour) => {
+            const nums = [hour.h, hour.o, hour.u, hour.r].map(n => n > 9 ? reduceToSingle(n) : n);
+            const elements = { 木: 0, 火: 0, 土: 0, 金: 0, 水: 0 };
+            
+            nums.forEach(n => {
+                if (elementMapping[n]) {
+                    elements[elementMapping[n].element]++;
+                }
+            });
+            
+            const total = Object.values(elements).reduce((a, b) => a + b, 0);
+            const percentages = {};
+            Object.keys(elements).forEach(e => {
+                percentages[e] = Math.round((elements[e] / total) * 100);
+            });
+            
+            const maxElement = Object.keys(elements).reduce((a, b) => elements[a] > elements[b] ? a : b);
+            const minElement = Object.keys(elements).reduce((a, b) => elements[a] < elements[b] ? a : b);
+            
+            return { counts: elements, percentages, maxElement, minElement };
+        };
+
+        // ==================== UI元件 ====================
+
+        // 數字徽章
+        const NumberBadge = ({ num, isNight }) => {
+            const isMaster = [11, 22, 33].includes(num);
+            return (
+                <span className={`inline-flex items-center justify-center w-10 h-10 rounded-full font-bold text-lg ${
+                    isNight ? 'bg-purple-900/50 text-purple-200' : 'bg-amber-100 text-amber-800'
+                } ${isMaster ? 'ring-2 ring-offset-2 ring-amber-400' : ''}`}>
+                    {num}
+                    {isMaster && <span className="master-badge ml-1">大師數</span>}
+                </span>
+            );
+        };
+
+        // 五行能量視覺化
+        const ElementAnalysisCard = ({ elementAnalysis, isNight }) => {
+            const elementColors = {
+                木: { bg: 'element-wood', icon: '🌳' },
+                火: { bg: 'element-fire', icon: '🔥' },
+                土: { bg: 'element-earth', icon: '🏔️' },
+                金: { bg: 'element-metal', icon: '⚙️' },
+                水: { bg: 'element-water', icon: '💧' }
+            };
+
+            const elementAdvice = {
+                木: { excess: '容易急躁、過度擴張', lack: '缺乏方向感、難以成長', balance: '雪松、絲柏精油' },
+                火: { excess: '容易衝動、情緒起伏大', lack: '缺乏熱情、動力不足', balance: '薰衣草、洋甘菊精油' },
+                土: { excess: '過度固執、難以改變', lack: '缺乏穩定、容易焦慮', balance: '岩蘭草、廣藿香精油' },
+                金: { excess: '過度完美主義、批判', lack: '缺乏原則、界限模糊', balance: '尤加利、茶樹精油' },
+                水: { excess: '過度敏感、情緒化', lack: '缺乏彈性、適應力弱', balance: '乳香、檀香精油' }
+            };
+
+            return (
+                <div className="card p-6 fade-in">
+                    <h3 className="text-lg font-bold gold-text mb-4 serif">🌿 五行能量分析</h3>
+                    
+                    <div className="space-y-3 mb-6">
+                        {Object.entries(elementAnalysis.percentages).map(([element, pct]) => (
+                            <div key={element}>
+                                <div className="flex justify-between text-sm mb-1">
+                                    <span>{elementColors[element].icon} {element}</span>
+                                    <span>{pct}%</span>
+                                </div>
+                                <div className={`element-bar ${isNight ? 'bg-gray-700' : 'bg-gray-200'}`}>
+                                    <div className={`element-fill ${elementColors[element].bg}`} style={{ width: `${pct}%` }}>
+                                        {pct > 20 && `${pct}%`}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className={`p-4 rounded-lg ${isNight ? 'bg-purple-900/30' : 'bg-amber-50'}`}>
+                        <div className="text-sm">
+                            <p className="font-bold mb-2">
+                                {elementColors[elementAnalysis.maxElement].icon} 主導能量：{elementAnalysis.maxElement}
+                            </p>
+                            <p className="text-xs opacity-80 mb-3">
+                                {elementAdvice[elementAnalysis.maxElement].excess}
+                            </p>
+                            <p className="font-bold mb-2">
+                                {elementColors[elementAnalysis.minElement].icon} 需補充：{elementAnalysis.minElement}
+                            </p>
+                            <p className="text-xs opacity-80 mb-3">
+                                {elementAdvice[elementAnalysis.minElement].lack}
+                            </p>
+                            <p className="text-xs">
+                                💧 調和建議：{elementAdvice[elementAnalysis.minElement].balance}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // 心理學分析卡（完整版，不再鎖定）
+        const PsychologyCard = ({ num, label, isNight }) => {
+            const baseNum = num > 9 ? reduceToSingle(num) : num;
+            const psych = psychologyData[baseNum];
+            if (!psych) return null;
+
+            return (
+                <div className={`p-4 rounded-lg ${isNight ? 'bg-indigo-900/30' : 'bg-purple-50'}`}>
+                    <h4 className="font-bold text-sm mb-2">🧠 {label}的心理防衛機制</h4>
+                    <div className="text-sm space-y-2">
+                        <div><span className="opacity-60">防衛類型：</span>{psych.defense}</div>
+                        <div><span className="opacity-60">慣性模式：</span>{psych.pattern}</div>
+                        <div><span className="opacity-60">核心恐懼：</span>{psych.shadow}</div>
+                        <div className={`p-2 rounded ${isNight ? 'bg-purple-800/30' : 'bg-purple-100'}`}>
+                            <span className="opacity-60">解鎖方向：</span>
+                            <span className="font-medium">{psych.unlock}</span>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // 數字完整解讀卡（大方給！）
+        const NumberFullCard = ({ num, label, subLabel, isNight }) => {
+            const data = numberData[num];
+            const [expanded, setExpanded] = useState(false);
+            
+            if (!data) return null;
+
+            return (
+                <div className="card p-6 fade-in">
+                    <div className="flex items-start gap-4 mb-4">
+                        <NumberBadge num={num} isNight={isNight} />
+                        <div className="flex-1">
+                            <h3 className="text-lg font-bold gold-text serif">{label}</h3>
+                            <p className="text-sm opacity-70">{subLabel}</p>
+                            <p className="text-xl font-bold mt-1">{num}號・{data.keyword}</p>
+                        </div>
+                    </div>
+
+                    {/* 基本資訊 - 完整顯示 */}
+                    <div className="grid grid-cols-2 gap-3 text-sm mb-4">
+                        <div className={`p-3 rounded-lg ${isNight ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                            <div className="opacity-60 text-xs">五行屬性</div>
+                            <div className="font-bold">{data.element}</div>
+                        </div>
+                        <div className={`p-3 rounded-lg ${isNight ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                            <div className="opacity-60 text-xs">守護星</div>
+                            <div className="font-bold">{data.planet}</div>
+                        </div>
+                        <div className={`p-3 rounded-lg ${isNight ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                            <div className="opacity-60 text-xs">原型</div>
+                            <div className="font-bold">{data.archetype}</div>
+                        </div>
+                        <div className={`p-3 rounded-lg ${isNight ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                            <div className="opacity-60 text-xs">脈輪</div>
+                            <div className="font-bold">{data.chakra}</div>
+                        </div>
+                    </div>
+
+                    {/* 核心特質 - 完整顯示 */}
+                    <div className={`p-4 rounded-lg mb-4 ${isNight ? 'bg-amber-900/20' : 'bg-amber-50'}`}>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <div className="font-bold text-green-600">✨ 天賦禮物</div>
+                                <div>{data.gift}</div>
+                            </div>
+                            <div>
+                                <div className="font-bold text-red-600">🌑 陰影面</div>
+                                <div>{data.shadow}</div>
+                            </div>
+                            <div>
+                                <div className="font-bold text-blue-600">💙 核心需求</div>
+                                <div>被{data.need}</div>
+                            </div>
+                            <div>
+                                <div className="font-bold text-purple-600">⚡ 最怕</div>
+                                <div>{data.threat}</div>
+                            </div>
+                        </div>
+                        <div className="mt-3 pt-3 border-t border-current border-opacity-20">
+                            <div className="font-bold text-amber-600">🌱 成長方向</div>
+                            <div>{data.growth}</div>
+                        </div>
+                    </div>
+
+                    {/* 展開更多 */}
+                    <button 
+                        onClick={() => setExpanded(!expanded)}
+                        className="w-full text-sm text-center py-2 opacity-70 hover:opacity-100"
+                    >
+                        {expanded ? '收起詳細 ▲' : '展開詳細解讀 ▼'}
+                    </button>
+
+                    <div className={`detail-panel ${expanded ? 'open' : ''}`}>
+                        <div className="pt-4 space-y-4">
+                            {/* 身體對應 */}
+                            <div className={`p-4 rounded-lg ${isNight ? 'bg-blue-900/20' : 'bg-blue-50'}`}>
+                                <h4 className="font-bold text-sm mb-2">🏥 身體能量對應</h4>
+                                <div className="grid grid-cols-3 gap-2 text-sm">
+                                    <div>
+                                        <div className="opacity-60 text-xs">對應部位</div>
+                                        <div>{data.bodyPart}</div>
+                                    </div>
+                                    <div>
+                                        <div className="opacity-60 text-xs">經絡</div>
+                                        <div>{data.meridian}</div>
+                                    </div>
+                                    <div>
+                                        <div className="opacity-60 text-xs">色彩</div>
+                                        <div style={{ color: data.color }}>{data.colorName}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 精油處方 */}
+                            <div className={`p-4 rounded-lg ${isNight ? 'bg-green-900/20' : 'bg-green-50'}`}>
+                                <h4 className="font-bold text-sm mb-2">🌿 覺察精油處方</h4>
+                                <div className="flex flex-wrap gap-2">
+                                    {data.oils.map((oil, i) => (
+                                        <span key={i} className={`px-3 py-1 rounded-full text-sm ${
+                                            isNight ? 'bg-green-800/30' : 'bg-green-100'
+                                        }`}>
+                                            {oil}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* 心理學分析 */}
+                            <PsychologyCard num={num} label={label} isNight={isNight} />
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ==================== 轉化橋段元件 ====================
+
+        const TransformBridge = ({ isNight, onDrawCard }) => (
+            <div className="bridge-section card p-8 text-center my-8 fade-in">
+                <div className="text-4xl mb-4">🔮</div>
+                <h3 className="text-xl font-bold gold-text serif mb-4">
+                    你已經「看見」了，下一步呢？
+                </h3>
+                <p className={`mb-6 ${isNight ? 'text-gray-300' : 'text-gray-600'}`}>
+                    馥靈秘碼讓你看見自己的生命密碼。<br/>
+                    但「看見」只是第一步，「轉化」才是真正的開始。
+                </p>
+                
+                <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                    {/* 主CTA：馥靈之鑰抽牌 */}
+                    <div className={`p-6 rounded-xl ${isNight ? 'bg-indigo-900/40' : 'bg-gradient-to-br from-amber-50 to-amber-100'}`}>
+                        <div className="text-3xl mb-2">🎴</div>
+                        <h4 className="font-bold mb-2">抽一張馥靈之鑰</h4>
+                        <p className="text-sm opacity-80 mb-4">
+                            讓植物精靈告訴你：<br/>
+                            現在的你，需要什麼？
+                        </p>
+                        <button 
+                            onClick={onDrawCard}
+                            className="key-btn w-full py-3 px-6 rounded-lg text-lg"
+                        >
+                            🔮 內在 GPS
+                        </button>
+                    </div>
+
+                    {/* 次CTA：書籍 */}
+                    <div className={`p-6 rounded-xl ${isNight ? 'bg-purple-900/40' : 'bg-gradient-to-br from-purple-50 to-purple-100'}`}>
+                        <div className="text-3xl mb-2">📖</div>
+                        <h4 className="font-bold mb-2">深入理解這套系統</h4>
+                        <p className="text-sm opacity-80 mb-4">
+                            為什麼這個數字代表這個意思？<br/>
+                            背後的智慧是什麼？
+                        </p>
+                        <a 
+                            href="#book"
+                            className="gold-btn block w-full py-3 px-6 rounded-lg text-center"
+                        >
+                            📚 《馥靈秘碼》新書
+                        </a>
+                    </div>
+                </div>
+
+                <p className="text-xs opacity-50 mt-6">
+                    馥靈秘碼是地圖，馥靈之鑰是那台車。<br/>
+                    地圖讓你知道路在哪，車子帶你真正抵達。
+                </p>
+            </div>
+        );
+
+        // 結尾轉化區
+        const FinalTransformSection = ({ isNight }) => (
+            <div className="card p-8 my-8 fade-in" id="book">
+                <div className="text-center mb-8">
+                    <h2 className="text-2xl font-bold gold-text serif mb-4">
+                        🌟 你的生命密碼，只是冰山一角
+                    </h2>
+                    <p className={isNight ? 'text-gray-300' : 'text-gray-600'}>
+                        馥靈秘碼揭示的，是你與生俱來的設定。<br/>
+                        但人生不只是「知道」，還要「轉化」。
+                    </p>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-6">
+                    {/* 書籍 */}
+                    <div className={`p-6 rounded-xl text-center ${isNight ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                        <div className="text-4xl mb-4">📖</div>
+                        <h3 className="font-bold mb-2">《馥靈秘碼》書籍</h3>
+                        <p className="text-sm opacity-70 mb-4">
+                            理解這套系統的完整世界觀<br/>
+                            為什麼數字能揭示生命密碼？
+                        </p>
+                        <div className="text-2xl font-bold gold-text mb-4">電子書上架</div>
+                        <a href="book.html" className="gold-btn w-full py-2 rounded-lg text-sm inline-block text-center">
+                            前往購書
+                        </a>
+                    </div>
+
+                    {/* 牌卡體驗 */}
+                    <div className={`p-6 rounded-xl text-center ${isNight ? 'bg-indigo-900/40' : 'bg-amber-50'} ring-2 ring-amber-400`}>
+                        <div className="text-4xl mb-4">🎴</div>
+                        <h3 className="font-bold mb-2">馥靈之鑰・抽牌</h3>
+                        <p className="text-sm opacity-70 mb-4">
+                            130張智慧牌卡<br/>
+                            每一張都是轉化的鑰匙
+                        </p>
+                        <div className="text-2xl font-bold gold-text mb-4">免費體驗</div>
+                        <a 
+                            href="https://lin.ee/RdQBFAN" 
+                            target="_blank" rel="noopener"
+                            className="key-btn block w-full py-2 rounded-lg text-sm"
+                        >
+                            🔑 LINE 抽牌
+                        </a>
+                    </div>
+
+                    {/* 培訓 */}
+                    <div className={`p-6 rounded-xl text-center ${isNight ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                        <div className="text-4xl mb-4">🗝️</div>
+                        <h3 className="font-bold mb-2">馥靈之鑰・培訓</h3>
+                        <p className="text-sm opacity-70 mb-4">
+                            想用這套系統幫助更多人？<br/>
+                            成為認證導師
+                        </p>
+                        <div className="text-2xl font-bold gold-text mb-4">進階課程</div>
+                        <a 
+                            href="https://lin.ee/RdQBFAN" 
+                            target="_blank" rel="noopener"
+                            className="gold-btn w-full py-2 rounded-lg text-sm block"
+                        >
+                            了解培訓資訊
+                        </a>
+                    </div>
+                </div>
+
+                <div className={`mt-8 p-6 rounded-xl text-center ${isNight ? 'bg-purple-900/30' : 'bg-gradient-to-r from-amber-50 via-purple-50 to-amber-50'}`}>
+                    <p className="text-lg serif italic">
+                        「馥靈秘碼是地圖，讓你知道路在哪；<br/>
+                        馥靈之鑰是鑰匙，帶你開啟每一扇門。」
+                    </p>
+                    <p className="text-sm opacity-60 mt-2">｜ 王逸君・馥靈之鑰創辦人</p>
+                </div>
+            </div>
+        );
+
+        // ==================== 主應用 ====================
+
+        const App = () => {
+            const [isNight, setIsNight] = useState(false);
+            const [step, setStep] = useState('input');
+            const [birthData, setBirthData] = useState({ year: 1990, month: 1, day: 1, hour: 12 });
+            const [result, setResult] = useState(null);
+            const [activeTab, setActiveTab] = useState('hour');
+            const [showCardModal, setShowCardModal] = useState(false);
+
+            useEffect(() => {
+                document.body.className = isNight ? 'night-mode' : 'day-mode';
+            }, [isNight]);
+
+            const handleCalculate = () => {
+                const hour = calculateHOUR(birthData.year, birthData.month, birthData.day, birthData.hour);
+                const elementAnalysis = calculateElementAnalysis(hour);
+                const bridges = {
+                    ho: calculateBridgeNumber(hour.h, hour.o),
+                    ou: calculateBridgeNumber(hour.o, hour.u),
+                    ur: calculateBridgeNumber(hour.u, hour.r),
+                    hr: calculateBridgeNumber(hour.h, hour.r)
+                };
+                setResult({ hour, elementAnalysis, bridges });
+                setStep('result');
+            };
+
+            const handleDrawCard = () => {
+                setShowCardModal(true);
+            };
+
+            // 輸入頁面
+            if (step === 'input') {
+                return (
+                    <div className="min-h-screen p-4 md:p-8">
+                        <div className="max-w-lg mx-auto">
+                            {/* Header */}
+                            <div className="text-center mb-8 fade-in">
+                                <h1 className="text-3xl md:text-4xl font-bold gold-text serif mb-2">馥靈秘碼</h1>
+                                <p className="text-lg opacity-80">Hour Light 生命數字解碼系統</p>
+                                <p className="text-sm opacity-60 mt-2">輸入出生資料，解讀你的生命密碼</p>
+                            </div>
+
+                            {/* 日夜切換 */}
+                            <div className="flex justify-center mb-6">
+                                <button
+                                    onClick={() => setIsNight(!isNight)}
+                                    className={`px-4 py-2 rounded-full text-sm ${isNight ? 'bg-purple-900' : 'bg-amber-100'}`}
+                                >
+                                    {isNight ? '🌙 夜間模式' : '☀️ 日間模式'}
+                                </button>
+                            </div>
+
+                            {/* 輸入表單 */}
+                            <div className="card p-6 fade-in">
+                                <div className="grid grid-cols-2 gap-4 mb-6">
+                                    <div>
+                                        <label className="block text-sm mb-1">西曆年份</label>
+                                        <select
+                                            value={birthData.year}
+                                            onChange={e => setBirthData({ ...birthData, year: parseInt(e.target.value) })}
+                                            className={`w-full p-3 rounded-lg ${isNight ? 'bg-gray-800 border-purple-500' : 'bg-white border-amber-300'} border-2`}
+                                        >
+                                            {Array.from({ length: 100 }, (_, i) => 2025 - i).map(y => (
+                                                <option key={y} value={y}>{y}年</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm mb-1">月份</label>
+                                        <select
+                                            value={birthData.month}
+                                            onChange={e => setBirthData({ ...birthData, month: parseInt(e.target.value) })}
+                                            className={`w-full p-3 rounded-lg ${isNight ? 'bg-gray-800 border-purple-500' : 'bg-white border-amber-300'} border-2`}
+                                        >
+                                            {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
+                                                <option key={m} value={m}>{m}月</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm mb-1">日期</label>
+                                        <select
+                                            value={birthData.day}
+                                            onChange={e => setBirthData({ ...birthData, day: parseInt(e.target.value) })}
+                                            className={`w-full p-3 rounded-lg ${isNight ? 'bg-gray-800 border-purple-500' : 'bg-white border-amber-300'} border-2`}
+                                        >
+                                            {Array.from({ length: 31 }, (_, i) => i + 1).map(d => (
+                                                <option key={d} value={d}>{d}日</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm mb-1">出生時辰</label>
+                                        <select
+                                            value={birthData.hour}
+                                            onChange={e => setBirthData({ ...birthData, hour: parseInt(e.target.value) })}
+                                            className={`w-full p-3 rounded-lg ${isNight ? 'bg-gray-800 border-purple-500' : 'bg-white border-amber-300'} border-2`}
+                                        >
+                                            {Array.from({ length: 24 }, (_, i) => (
+                                                <option key={i} value={i}>{String(i).padStart(2, '0')}:00</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={handleCalculate}
+                                    className="gold-btn w-full py-4 rounded-xl text-lg font-bold"
+                                >
+                                    🔮 解碼我的生命密碼
+                                </button>
+                            </div>
+
+                            {/* 簡介 */}
+                            <div className="mt-8 text-center text-sm opacity-60">
+                                <p>馥靈秘碼整合12項東西方命理系統</p>
+                                <p>用科學化的方式解讀你的生命藍圖</p>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // 結果頁面
+            return (
+                <div className="min-h-screen p-4 md:p-8">
+                    <div className="max-w-4xl mx-auto">
+                        {/* Header */}
+                        <div className="flex justify-between items-center mb-6">
+                            <button onClick={() => setStep('input')} className="text-sm opacity-70 hover:opacity-100">
+                                ← 重新輸入
+                            </button>
+                            <h1 className="text-xl font-bold gold-text serif">馥靈秘碼 解讀報告</h1>
+                            <button
+                                onClick={() => setIsNight(!isNight)}
+                                className={`px-3 py-1 rounded-full text-sm ${isNight ? 'bg-purple-900' : 'bg-amber-100'}`}
+                            >
+                                {isNight ? '🌙' : '☀️'}
+                            </button>
+                        </div>
+
+                        {/* Tab 導航 */}
+                        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+                            {[
+                                { id: 'hour', label: 'H.O.U.R.', icon: '🔢' },
+                                { id: 'element', label: '五行', icon: '🌿' },
+                                { id: 'bridge', label: '橋樑數', icon: '🌉' },
+                                { id: 'palace', label: '12宮位', icon: '🏛️' }
+                            ].map(tab => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={`tab-btn px-4 py-2 whitespace-nowrap ${activeTab === tab.id ? 'active font-bold' : 'opacity-70'}`}
+                                >
+                                    {tab.icon} {tab.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* H.O.U.R. 四主數 */}
+                        {activeTab === 'hour' && result && (
+                            <div className="space-y-6 fade-in">
+                                <div className="card p-6 text-center">
+                                    <h2 className="text-xl font-bold gold-text serif mb-4">你的 H.O.U.R. 四主數</h2>
+                                    <div className="grid grid-cols-4 gap-4">
+                                        {[
+                                            { key: 'h', label: 'H', name: '癒數', sub: '內在需求' },
+                                            { key: 'o', label: 'O', name: '識數', sub: '外在呈現' },
+                                            { key: 'u', label: 'U', name: '鑰數', sub: '隱藏潛能' },
+                                            { key: 'r', label: 'R', name: '行數', sub: '人生使命' }
+                                        ].map(item => (
+                                            <div key={item.key} className={`p-4 rounded-xl ${isNight ? 'bg-gray-800' : 'bg-amber-50'}`}>
+                                                <div className="text-2xl font-bold gold-text">{result.hour[item.key]}</div>
+                                                <div className="font-bold">{item.label}</div>
+                                                <div className="text-xs opacity-60">{item.name}</div>
+                                                <div className="text-xs opacity-40">{item.sub}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* 四主數詳細解讀 - 完整給！ */}
+                                <div className="grid md:grid-cols-2 gap-6">
+                                    <NumberFullCard num={result.hour.h} label="H 癒數" subLabel="內在需求・農曆月日" isNight={isNight} />
+                                    <NumberFullCard num={result.hour.o} label="O 識數" subLabel="外在呈現・西曆全加" isNight={isNight} />
+                                    <NumberFullCard num={result.hour.u} label="U 鑰數" subLabel="隱藏潛能・時辰" isNight={isNight} />
+                                    <NumberFullCard num={result.hour.r} label="R 行數" subLabel="人生使命・H+O+U" isNight={isNight} />
+                                </div>
+
+                                {/* 第一個轉化橋段 */}
+                                <TransformBridge isNight={isNight} onDrawCard={handleDrawCard} />
+                            </div>
+                        )}
+
+                        {/* 五行分析 */}
+                        {activeTab === 'element' && result && (
+                            <div className="fade-in">
+                                <ElementAnalysisCard elementAnalysis={result.elementAnalysis} isNight={isNight} />
+                                <TransformBridge isNight={isNight} onDrawCard={handleDrawCard} />
+                            </div>
+                        )}
+
+                        {/* 橋樑數 */}
+                        {activeTab === 'bridge' && result && (
+                            <div className="fade-in">
+                                <div className="card p-6">
+                                    <h3 className="text-lg font-bold gold-text mb-4 serif">🌉 橋樑數分析</h3>
+                                    <p className="text-sm opacity-70 mb-4">橋樑數代表兩個數字之間需要跨越的距離，數字越大，需要越多的覺察與整合。</p>
+                                    
+                                    <div className="space-y-4">
+                                        {[
+                                            { label: 'H-O 橋樑', value: result.bridges.ho, desc: '內在需求與外在表現的差距' },
+                                            { label: 'O-U 橋樑', value: result.bridges.ou, desc: '外在表現與隱藏潛能的距離' },
+                                            { label: 'U-R 橋樑', value: result.bridges.ur, desc: '潛能開發與使命實現的落差' },
+                                            { label: 'H-R 橋樑', value: result.bridges.hr, desc: '內心渴望與人生方向的連結' }
+                                        ].map((bridge, i) => (
+                                            <div key={i} className={`p-4 rounded-lg ${isNight ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <span className="font-bold">{bridge.label}</span>
+                                                    <span className={`text-2xl font-bold ${bridge.value >= 5 ? 'text-red-500' : bridge.value >= 3 ? 'text-amber-500' : 'text-green-500'}`}>
+                                                        {bridge.value}
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm opacity-70">{bridge.desc}</p>
+                                                <p className="text-xs mt-2">
+                                                    {bridge.value === 0 && '✨ 完美整合，能量流暢'}
+                                                    {bridge.value === 1 && '🌱 輕微落差，容易調和'}
+                                                    {bridge.value === 2 && '🌿 需要一些覺察與練習'}
+                                                    {bridge.value === 3 && '🌊 明顯差距，需要刻意整合'}
+                                                    {bridge.value === 4 && '⚡ 較大張力，是成長的動力'}
+                                                    {bridge.value >= 5 && '🔥 強烈對比，蘊含巨大轉化潛能'}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <TransformBridge isNight={isNight} onDrawCard={handleDrawCard} />
+                            </div>
+                        )}
+
+                        {/* 12宮位 */}
+                        {activeTab === 'palace' && result && (
+                            <div className="fade-in">
+                                <div className="card p-6">
+                                    <h3 className="text-lg font-bold gold-text mb-4 serif">🏛️ 12宮位總覽</h3>
+                                    <p className="text-sm opacity-70 mb-4">每個宮位對應不同的人生領域與經絡能量</p>
+                                    
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                        {Object.entries(palaceData).map(([num, palace]) => (
+                                            <div key={num} className={`p-3 rounded-lg ${isNight ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${isNight ? 'bg-purple-900' : 'bg-amber-200'}`}>
+                                                        {num}
+                                                    </span>
+                                                    <span className="font-bold text-sm">{palace.name}</span>
+                                                </div>
+                                                <div className="text-xs opacity-70">{palace.theme}</div>
+                                                <div className="text-xs opacity-50">{palace.meridian} | {palace.time}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <TransformBridge isNight={isNight} onDrawCard={handleDrawCard} />
+                            </div>
+                        )}
+
+                        {/* 結尾轉化區 */}
+                        <FinalTransformSection isNight={isNight} />
+
+                        {/* 免責聲明 */}
+                        <div className="text-center text-xs opacity-50 mt-8 pb-8">
+                            <p>⚠️ 本解讀僅供參考，屬於情緒紓解、壓力管理、能量覺察用途</p>
+                            <p>非命理預測或醫療行為。如有身心健康相關問題，請尋求合格醫療人員協助。</p>
+                            <p className="mt-4">© 2026 王逸君・馥靈之鑰 Hour Light</p>
+                        </div>
+                    </div>
+
+                    {/* 浮動CTA按鈕 */}
+                    <div className="floating-cta">
+                        <button 
+                            onClick={handleDrawCard}
+                            className="key-btn px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3"
+                        >
+                            <span className="text-2xl">🎴</span>
+                            <div className="text-left">
+                                <div className="font-bold">抽一張牌</div>
+                                <div className="text-xs opacity-80">馥靈之鑰</div>
+                            </div>
+                        </button>
+                    </div>
+
+                    {/* 抽牌彈窗 */}
+                    {showCardModal && (
+                        <div className="modal-overlay" onClick={() => setShowCardModal(false)}>
+                            <div className="card modal-content max-w-md w-full mx-4 p-8 text-center" onClick={e => e.stopPropagation()}>
+                                <div className="text-5xl mb-4">🎴</div>
+                                <h3 className="text-2xl font-bold gold-text mb-4 serif">馥靈之鑰・抽牌</h3>
+                                <p className={`mb-6 ${isNight ? 'text-gray-300' : 'text-gray-600'}`}>
+                                    130張智慧牌卡，每一張都是轉化的鑰匙。<br/>
+                                    讓植物精靈告訴你，現在的你需要什麼。
+                                </p>
+                                
+                                <div className={`p-4 rounded-lg mb-6 ${isNight ? 'bg-indigo-900/30' : 'bg-amber-50'}`}>
+                                    <p className="text-sm mb-2">馥靈之鑰，幫你找到定位</p>
+                                    <p className="text-xs opacity-60">由馥靈之鑰專業覺察師為你解牌</p>
+                                </div>
+
+                                <a 
+                                    href="https://lin.ee/RdQBFAN"
+                                    target="_blank" rel="noopener"
+                                    className="key-btn block w-full py-4 rounded-xl text-lg font-bold mb-4"
+                                >
+                                    🔑 LINE 抽牌
+                                </a>
+
+                                <p className="text-xs opacity-50">LINE ID: judyanee</p>
+
+                                <button 
+                                    onClick={() => setShowCardModal(false)}
+                                    className="mt-4 text-sm opacity-60 hover:opacity-100"
+                                >
+                                    稍後再說
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+
+
+<!-- ========== 馥灵之钥完整版权声明 Footer ========== -->
+
+
+<!-- ========== Footer End ========== -->
+
+
+<script src="assets/js/hourlight-global.js?v=20260309"></script>
+
+
+  <script src="assets/js/hl-music.js?v=20260309"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-referral.js?v=20260323"></script>
+  <script src="assets/js/hl-member.js?v=20260401"></script>
+<!-- ===== Footer ===== -->
+<footer class="hl-footer">
+  <div class="hl-footer-inner">
+    <div class="hl-footer-brand">
+      <div class="hl-footer-logo"><img src="LOGO-1.png" alt="" class="hl-logo-icon" aria-hidden="true" loading="lazy">馥灵之钥 Hour Light</div>
+      <div class="hl-footer-tagline">读懂自己，活对人生｜创办人 王逸君</div>
+    </div>
+    <div class="hl-footer-social" style="display:flex;gap:16px;justify-content:center;align-items:center;margin:16px 0;flex-wrap:wrap">
+      <a href="https://www.facebook.com/share/1QoZr7swk4/?mibextid=wwXIfr" target="_blank" rel="noopener" title="Facebook 馥灵之钥" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">f</a>
+      <a href="https://www.instagram.com/judyanee" target="_blank" rel="noopener" title="Instagram @judyanee" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">📸</a>
+      <a href="https://www.youtube.com/@judyanee" target="_blank" rel="noopener" title="YouTube @judyanee" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">▶</a>
+      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" title="LINE @hourlight" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">💬</a>
+      <a href="podcast.html" title="Podcast" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">🎙</a>
+    </div>
+    <div class="hl-footer-links">
+      <a href="app.html">🔑 我的內在城堡</a>
+      <a href="index.html">首页</a>
+      <a href="fuling-mima.html">生命秘码</a>
+      <a href="draw-hl.html">线上抽牌</a>
+      <a href="destiny-engine.html">命盘引擎</a>
+      <a href="services.html">服務項目</a>
+      <a href="courses.html">课程学苑</a>
+      <a href="book.html">著作</a>
+      <a href="founder.html">关於创办人</a>
+      <a href="hourlight-sitemap.html">网站地图</a>
+      <a href="privacy.html">隐私政策</a>
+      <a href="terms.html">服務条款</a>
+      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener">LINE 咨詢</a>
+    </div>
+    <div class="hl-footer-legal-toggle" onclick="toggleLegalContent()">
+      <span>📜 法律声明与免責条款</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="hl-footer-legal-content" id="legalContent">
+      <div class="hl-legal-section">
+        <div class="hl-legal-title">🌿 服務性质说明</div>
+        <div class="hl-legal-text">本网站提供之服務（芳香能量觉察、牌卡解读、生命數字分析等）仅供<strong>个人压力管理、情緒紓解、自我探索</strong>參考。本服務<strong>不构成亦不取代</strong>医疗诊断、专业臨床评估、法律或财務建议。如有身心健康疑慮，请咨詢合格医疗专业人员。</div>
+      </div>
+      <div class="hl-legal-section">
+        <div class="hl-legal-title">📄 智慧财产权声明</div>
+        <div class="hl-legal-text">本网站所有內容（文字、图片、程式码、方法论、课程架构、牌卡系统、H.O.U.R. 方法论）均受著作权法保护。未经书面授权，禁止複製、转载、改作或商业使用。</div>
+      </div>
+      <div class="hl-legal-section">
+        <div class="hl-legal-title">™ 商标声明</div>
+        <div class="hl-legal-text">「馥灵之钥」「Hour Light」「H.O.U.R.」「馥灵秘码」及相关标誌为馥灵之钥国际有限公司之商标（申请中）。未经授权不得使用或註冊近似商标。</div>
+      </div>
+    </div>
+    <div class="hl-footer-copyright">
+      © 2026 馥灵之钥国际有限公司 Hour Light International Co., Ltd.｜统编：60303284<br>All Rights Reserved.
+    </div>
+  </div>
+</footer>
+<script>
+function toggleLegalContent(){
+  var t=document.querySelector('.hl-footer-legal-toggle');
+  var c=document.getElementById('legalContent');
+  if(t&&c){t.classList.toggle('active');c.classList.toggle('active');}
+}
+</script>
+<script src="assets/js/hl-topnav.js"></script>
+<script src="assets/js/hl-bottomnav.js"></script>
+<script src="assets/js/hl-gate.js"></script>
+<script src="assets/js/hl-record.js"></script>
+<script src="assets/js/hl-email.js"></script>
+<script src="assets/js/hl-chat.js"></script>
+<script src="assets/js/hl-aroma-fx.js" defer></script>
+<script src="assets/js/hl-share.js"></script>
+</body>
+</html>
