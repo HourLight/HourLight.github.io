@@ -41,6 +41,16 @@
               gtag('event', 'draw_card', { spread: (detail && detail.spread) || '1張', tool_id: TOOL_ID });
             }
           }
+          // 同步到 FB Pixel Custom Audience
+          if (typeof fbq === 'function') {
+            if (eventType === 'quiz_complete') {
+              fbq('trackCustom', 'QuizComplete', { quiz_name: (detail && detail.toolName) || TOOL_NAME, tool_id: (detail && detail.toolId) || TOOL_ID });
+            } else if (eventType === 'draw_complete') {
+              fbq('trackCustom', 'DrawCard', { spread: (detail && detail.spread) || '1張', tool_id: TOOL_ID });
+            } else if (eventType === 'page_enter') {
+              if (TOOL_TYPE === 'destiny') fbq('trackCustom', 'UseDestinyTool', { tool_id: TOOL_ID });
+            }
+          }
         };
       });
     } catch(e) {}

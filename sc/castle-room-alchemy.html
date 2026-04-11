@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="zh-Hans-CN">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-BXP7K53QG6');</script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>炼金室｜你的内在城堡｜馥灵之钥 Hour Light</title>
+<meta name="description" content="炼金不是把铜变成金，是把你经历过的痛苦，炼成你最强的武器。"/>
+<link rel="canonical" href="https://hourlightkey.com/sc/castle-room-alchemy.html"/>
+<link rel="icon" href="../favicon.ico"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=LXGW+WenKai+TC&family=Noto+Serif+TC:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#fdf6ef;
+  --bg2:#f7ede2;
+  --card:rgba(255,255,255,.92);
+  --warm:#3e2a1a;
+  --warm2:#6b4a30;
+  --muted:#9a7a60;
+  --gold:#c8862a;
+  --gold-l:#e8b86d;
+  --gold-ll:#f5dfa8;
+  --teal:#2a8a7c;
+  --teal-l:#4eb8a8;
+  --rose:#c0334d;
+  --rose-l:#e85a72;
+  --navy:#1a3050;
+  --accent:#c46030;
+  --border:rgba(200,134,42,.15);
+  --shadow:0 8px 32px rgba(62,42,26,.08);
+  --shadow-lg:0 20px 60px rgba(62,42,26,.14);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Noto Serif TC',serif;
+  color:var(--warm);
+  background:var(--bg);
+  min-height:100vh;min-height:100dvh;
+  overflow-x:hidden;
+}
+
+/* ── Topbar ── */
+.topbar{
+  position:sticky;top:0;z-index:300;
+  height:52px;
+  background:rgba(253,246,239,.94);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;
+}
+@media(min-width:521px){.topbar{-webkit-backdrop-filter:none;backdrop-filter:none;background:#fdf6ef}}
+.topbar-back{
+  display:flex;align-items:center;gap:6px;
+  font-size:.78rem;color:var(--muted);text-decoration:none;
+  transition:color .2s;
+}
+.topbar-back:hover{color:var(--warm)}
+.topbar-title{
+  font-family:'Playfair Display',serif;
+  font-size:.95rem;font-weight:700;color:var(--warm);
+  letter-spacing:.06em;
+}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.room-completeness{
+  font-size:.7rem;color:var(--muted);
+  display:flex;align-items:center;gap:5px;
+}
+.completeness-bar{
+  width:48px;height:4px;
+  background:rgba(200,134,42,.15);
+  border-radius:2px;overflow:hidden;
+}
+.completeness-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--gold),var(--gold-l));
+  border-radius:2px;
+  transition:width .6s cubic-bezier(.16,1,.3,1);
+}
+
+.room-header{
+  padding:20px 18px 0;
+  display:flex;align-items:baseline;gap:10px;
+}
+.room-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:.68rem;letter-spacing:.12em;color:var(--muted);
+  background:rgba(200,134,42,.08);
+  border:1px solid var(--border);
+  border-radius:20px;padding:3px 12px;
+  text-transform:uppercase;
+}
+.room-phase{
+  font-size:.68rem;color:var(--accent);letter-spacing:.1em;
+}
+.servant-greeting{margin:8px 18px 0;padding:12px 16px;background:linear-gradient(135deg,rgba(200,134,42,.06),rgba(42,138,124,.04));border:1px solid var(--border);border-radius:14px;font-size:.82rem;color:var(--warm2);line-height:1.6;text-align:center}
+
+.room-scene-wrap{
+  margin:12px 16px 0;
+  border-radius:24px;
+  overflow:hidden;
+  border:1.5px solid var(--border);
+  box-shadow:var(--shadow-lg);
+  background:#1a0e08;
+  position:relative;
+  cursor:pointer;
+}
+.room-scene-wrap:hover .scene-hint{opacity:1}
+.scene-hint{
+  position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.55);color:rgba(255,248,235,.85);
+  font-size:.68rem;padding:5px 14px;border-radius:20px;
+  letter-spacing:.08em;white-space:nowrap;
+  opacity:0;transition:opacity .3s;pointer-events:none;
+  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+}
+
+.furniture-slot{cursor:pointer;transition:filter .25s}
+.furniture-slot:hover{filter:brightness(1.25) drop-shadow(0 0 8px rgba(232,184,109,.6))}
+.furniture-slot.occupied{cursor:default}
+.furniture-slot.occupied:hover{filter:drop-shadow(0 0 6px rgba(232,184,109,.4))}
+.slot-empty{opacity:.35;transition:opacity .25s}
+.furniture-slot:hover .slot-empty{opacity:.6}
+
+.status-strip{
+  margin:14px 16px 0;
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:8px;
+}
+.status-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:12px 10px;
+  text-align:center;
+}
+.status-icon{font-size:18px;margin-bottom:3px;display:block}
+.status-label{font-size:.62rem;color:var(--muted);letter-spacing:.06em;display:block;margin-bottom:2px}
+.status-val{font-size:.88rem;font-weight:700;color:var(--warm);display:block}
+
+.riddle-section{margin:14px 16px 0}
+.section-label{
+  font-size:.68rem;letter-spacing:.12em;color:var(--muted);
+  text-transform:uppercase;margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.riddle-card{
+  background:var(--card);
+  border:1.5px solid var(--border);
+  border-radius:20px;
+  padding:20px 16px;
+  box-shadow:var(--shadow);
+}
+.riddle-type-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:.63rem;letter-spacing:.1em;color:var(--gold);
+  border:1px solid rgba(200,134,42,.25);
+  border-radius:20px;padding:3px 10px;
+  margin-bottom:12px;background:rgba(200,134,42,.05);
+}
+.riddle-q{
+  font-family:'LXGW WenKai TC','Noto Serif TC',serif;
+  font-size:1rem;color:var(--warm);line-height:1.75;
+  margin-bottom:16px;
+}
+.riddle-opts{display:flex;flex-direction:column;gap:8px}
+.riddle-opt{
+  padding:12px 14px;
+  border:1.5px solid var(--border);
+  border-radius:12px;
+  background:rgba(200,134,42,.03);
+  cursor:pointer;
+  font-size:.88rem;color:var(--warm2);
+  line-height:1.55;
+  transition:all .2s;
+  position:relative;
+}
+.riddle-opt::before{
+  content:'';position:absolute;left:0;top:0;
+  width:3px;height:100%;
+  background:var(--accent);
+  border-radius:3px 0 0 3px;
+  transform:scaleY(0);transition:transform .22s;
+}
+.riddle-opt:hover{
+  border-color:rgba(200,134,42,.4);
+  background:rgba(200,134,42,.07);
+  transform:translateX(3px);
+}
+.riddle-opt:hover::before,.riddle-opt.sel::before{transform:scaleY(1)}
+.riddle-opt.sel{
+  border-color:rgba(196,96,48,.4);
+  background:rgba(196,96,48,.06);
+  color:var(--warm);font-weight:500;
+}
+.aroma-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.aroma-card{
+  padding:14px 10px;
+  border:1.5px solid var(--border);
+  border-radius:14px;
+  background:rgba(200,134,42,.03);
+  cursor:pointer;text-align:center;
+  transition:all .22s;
+}
+.aroma-card:hover{border-color:rgba(200,134,42,.4);background:rgba(200,134,42,.07);transform:translateY(-2px)}
+.aroma-card.sel{border-color:rgba(42,138,124,.45);background:rgba(42,138,124,.07)}
+.aroma-icon{font-size:24px;margin-bottom:5px;display:block}
+.aroma-name{font-size:.75rem;font-weight:700;color:var(--warm);margin-bottom:2px}
+.aroma-note{font-size:.65rem;color:var(--muted);line-height:1.4}
+.insight-box{
+  margin-top:14px;padding:16px;
+  background:linear-gradient(135deg,rgba(26,48,80,.04),rgba(42,138,124,.04));
+  border:1px solid rgba(42,138,124,.2);
+  border-radius:14px;
+  display:none;animation:fadeSlideUp .5s ease;
+}
+.insight-box.show{display:block}
+.insight-txt{
+  font-family:'LXGW WenKai TC','Noto Serif TC',serif;
+  font-size:.88rem;color:var(--warm2);line-height:1.9;
+}
+.insight-txt strong{color:var(--warm);font-weight:700}
+.btn-complete{
+  display:block;width:100%;
+  margin-top:16px;padding:14px;
+  background:linear-gradient(135deg,var(--teal),var(--teal-l));
+  color:#fff;border:none;border-radius:14px;
+  font-family:'Playfair Display','Noto Serif TC',serif;
+  font-size:.95rem;font-weight:700;letter-spacing:.06em;
+  cursor:pointer;transition:all .25s;
+  position:relative;overflow:hidden;
+}
+.btn-complete::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);
+  transform:translateX(-100%);transition:transform .5s;
+}
+.btn-complete:hover::after{transform:translateX(100%)}
+.btn-complete:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(42,138,124,.3)}
+.btn-complete:disabled{opacity:.35;cursor:default;transform:none;box-shadow:none}
+.btn-complete:disabled::after{display:none}
+
+.furniture-section{
+  margin:14px 16px 0;
+  background:var(--card);
+  border:1.5px solid var(--border);
+  border-radius:20px;
+  padding:18px 16px;
+}
+.care-title{
+  font-family:'Playfair Display',serif;
+  font-size:.88rem;font-weight:700;color:var(--warm);
+  letter-spacing:.06em;margin-bottom:14px;
+  display:flex;align-items:center;gap:7px;
+}
+.care-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.furniture-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.furniture-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 12px;border-radius:12px;
+  background:rgba(200,134,42,.04);border:1px solid var(--border);
+}
+.furniture-item.placed{border-color:rgba(200,134,42,.3);background:rgba(200,134,42,.07)}
+.furniture-item-icon{font-size:20px;flex-shrink:0}
+.furniture-item-info{flex:1;min-width:0}
+.furniture-item-name{font-size:.82rem;font-weight:700;color:var(--warm)}
+.furniture-item-desc{font-size:.68rem;color:var(--muted);line-height:1.4;margin-top:1px}
+.furniture-item-action{
+  padding:5px 12px;border-radius:20px;font-size:.68rem;font-weight:700;
+  border:1px solid;cursor:pointer;transition:all .2s;font-family:inherit;
+}
+.btn-place{border-color:var(--gold);color:var(--gold);background:transparent}
+.btn-place:hover{background:var(--gold);color:#fff}
+.btn-placed{border-color:rgba(42,138,124,.4);color:var(--teal);background:rgba(42,138,124,.06);cursor:default}
+.furniture-empty{text-align:center;padding:20px;font-size:.78rem;color:var(--muted);line-height:1.8}
+
+/* 日记区 */
+.diary-section{
+  margin:14px 16px 0;
+  background:var(--card);
+  border:1.5px solid var(--border);
+  border-radius:20px;
+  padding:18px 16px;
+}
+.diary-textarea{
+  width:100%;min-height:120px;padding:14px;
+  border:1.5px solid var(--border);border-radius:14px;
+  background:rgba(200,134,42,.03);
+  font-family:'LXGW WenKai TC','Noto Serif TC',serif;
+  font-size:16px;color:var(--warm);line-height:1.8;
+  resize:vertical;transition:border-color .2s;
+}
+.diary-textarea:focus{outline:none;border-color:rgba(196,96,48,.45);background:rgba(196,96,48,.03)}
+.diary-textarea::placeholder{color:var(--muted);opacity:.6}
+.diary-save-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.diary-save-btn{
+  padding:8px 20px;border-radius:20px;
+  background:linear-gradient(135deg,var(--accent),#d87848);
+  color:#fff;border:none;
+  font-family:'Noto Serif TC',serif;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+  cursor:pointer;transition:all .2s;
+}
+.diary-save-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(196,96,48,.25)}
+.diary-saved-hint{font-size:.7rem;color:var(--teal);opacity:0;transition:opacity .3s}
+.diary-saved-hint.show{opacity:1}
+.diary-history{margin-top:14px}
+.diary-entry{padding:12px 14px;background:rgba(200,134,42,.04);border:1px solid var(--border);border-radius:12px;margin-bottom:8px}
+.diary-entry-date{font-size:.65rem;color:var(--muted);margin-bottom:4px;letter-spacing:.06em}
+.diary-entry-text{font-family:'LXGW WenKai TC','Noto Serif TC',serif;font-size:.82rem;color:var(--warm2);line-height:1.75;white-space:pre-wrap}
+
+.care-overlay{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,.45);align-items:center;justify-content:center;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+}
+.care-overlay.show{display:flex;animation:fadeIn .3s ease}
+.care-modal{
+  background:var(--bg);border:1.5px solid var(--border);border-radius:28px;
+  padding:32px 24px 28px;max-width:340px;width:90%;text-align:center;
+  box-shadow:var(--shadow-lg);animation:modalPop .5s cubic-bezier(.16,1,.3,1);
+}
+.care-modal-icon{font-size:3.2rem;margin-bottom:12px;display:block}
+.care-modal-title{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;color:var(--warm);margin-bottom:6px;letter-spacing:.04em}
+.care-modal-close{
+  width:100%;padding:12px;border:1.5px solid var(--border);border-radius:12px;
+  background:transparent;color:var(--warm2);font-size:.88rem;cursor:pointer;
+  font-family:'Noto Serif TC',serif;transition:all .2s;
+}
+.care-modal-close:hover{background:rgba(200,134,42,.07);border-color:rgba(200,134,42,.35)}
+
+.completion-banner{
+  margin:14px 16px 0;
+  background:linear-gradient(135deg,var(--navy),#2a4060);
+  border-radius:16px;padding:14px 16px;
+  display:flex;align-items:center;gap:12px;
+}
+.completion-pct{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:800;color:var(--gold-l);flex-shrink:0}
+.completion-info{flex:1}
+.completion-label{font-size:.72rem;color:rgba(245,223,168,.65);margin-bottom:4px;letter-spacing:.06em}
+.completion-track{height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+.completion-prog{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:3px;transition:width .8s cubic-bezier(.16,1,.3,1)}
+.completion-sub{font-size:.65rem;color:rgba(245,223,168,.5);margin-top:4px}
+
+.bottom-nav-row{margin:20px 16px 8px;display:flex;gap:8px}
+.room-nav-btn{
+  flex:1;padding:11px;border-radius:12px;font-size:.75rem;font-weight:700;
+  border:1.5px solid var(--border);background:var(--card);color:var(--warm2);
+  cursor:pointer;font-family:'Noto Serif TC',serif;transition:all .2s;text-decoration:none;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.room-nav-btn:hover{border-color:rgba(200,134,42,.4);background:rgba(200,134,42,.06)}
+.room-nav-btn.primary{background:linear-gradient(135deg,var(--gold),var(--gold-l));border-color:transparent;color:#fff}
+.room-nav-btn.primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(200,134,42,.25)}
+.bottom-pad{height:80px}
+
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes modalPop{from{opacity:0;transform:scale(.88) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes candleFlicker{0%,100%{transform:scaleY(1) scaleX(1)}25%{transform:scaleY(1.08) scaleX(.93)}50%{transform:scaleY(.95) scaleX(1.04)}75%{transform:scaleY(1.05) scaleX(.96)}}
+@keyframes glowPulse{0%,100%{opacity:.5}50%{opacity:.85}}
+@keyframes dustFloat{0%{transform:translateY(0) translateX(0);opacity:0}20%{opacity:.6}80%{opacity:.3}100%{transform:translateY(-40px) translateX(8px);opacity:0}}
+@keyframes bubbleRise{0%{transform:translateY(0);opacity:0}20%{opacity:.7}80%{opacity:.4}100%{transform:translateY(-50px);opacity:0}}
+/* ── Story Intro ── */
+.story-intro{
+  margin:12px 16px 0;
+  padding:14px 18px;
+  background:linear-gradient(135deg,rgba(255,255,255,.6),rgba(255,255,255,.3));
+  border-left:3px solid var(--accent, var(--gold));
+  border-radius:0 14px 14px 0;
+  font-size:.85rem;color:var(--warm2, var(--warm));
+  line-height:1.8;
+  animation:storyFadeIn .8s ease both;
+}
+@keyframes storyFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){
+  .room-scene-wrap,.furniture-section,.diary-section,.aroma-section{margin-left:8px;margin-right:8px}
+  .aroma-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .furniture-grid{grid-template-columns:repeat(2,1fr)}
+  body{padding-bottom:72px}
+}
+@media(min-width:1024px){
+  .room-scene-wrap,.furniture-section,.diary-section,.aroma-section{max-width:640px;margin-left:auto;margin-right:auto}
+}
+
+/* ── Mobile App Touch Feel ── */
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+button,a,.riddle-opt,.aroma-card,.diary-entry,.aroma-item,.furniture-card{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;min-height:44px;
+}
+button:active,a:active{transform:scale(.97);transition:transform .08s}
+.riddle-opt:active,.aroma-card:active{transform:scale(.96);transition:transform .1s}
+@media(max-width:600px){
+  body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  .topbar{padding:0 14px}
+  .topbar-back{min-height:44px;display:flex;align-items:center}
+}
+</style>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://hourlightkey.com/sc/castle-room-alchemy.html"/>
+<meta property="og:title" content="炼金室｜你的内在城堡｜馥灵之钥 Hour Light"/>
+<meta property="og:description" content="炼金不是把铜变成金，是把你经历过的痛苦，炼成你最强的武器。"/>
+<meta property="og:image" content="https://hourlightkey.com/og-image.jpg"/>
+<meta name="twitter:card" content="summary_large_image"/>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="castle-game.html" class="topbar-back">← 城堡地图</a>
+  <span class="topbar-title">⚗️ 炼金室</span>
+  <div class="topbar-right">
+    <div class="room-completeness">
+      <span id="comp-label">完整度</span>
+      <div class="completeness-bar"><div class="completeness-fill" id="comp-bar" style="width:0%"></div></div>
+      <span id="comp-pct">0%</span>
+    </div>
+  </div>
+</div>
+
+<div class="room-header">
+  <span class="room-badge">🏰 U 塔楼 · 转化殿</span>
+  <span class="room-phase">Unlock</span>
+</div>
+<div class="servant-greeting" id="servantGreeting"></div>
+
+<div class="story-intro" id="storyIntro">学到的知识，在这里被炼成智慧。</div>
+
+<!-- ══ SVG 房间场景 ══ -->
+<div class="room-scene-wrap" id="sceneWrap" onclick="toggleFurnitureMode()">
+  <svg id="roomSvg" viewBox="0 0 420 280" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%">
+    <defs>
+      <linearGradient id="wallGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:#1a1218"/>
+        <stop offset="100%" style="stop-color:#120a10"/>
+      </linearGradient>
+      <linearGradient id="floorGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:#2a1a12"/>
+        <stop offset="100%" style="stop-color:#1a0e08"/>
+      </linearGradient>
+      <radialGradient id="fireGlow" cx="50%" cy="80%" r="50%">
+        <stop offset="0%" style="stop-color:#ff6622;stop-opacity:.6"/>
+        <stop offset="100%" style="stop-color:#ff6622;stop-opacity:0"/>
+      </radialGradient>
+      <radialGradient id="potionGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" style="stop-color:#44cc88;stop-opacity:.4"/>
+        <stop offset="100%" style="stop-color:#44cc88;stop-opacity:0"/>
+      </radialGradient>
+      <linearGradient id="woodGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:#5a3018"/>
+        <stop offset="50%" style="stop-color:#4a2510"/>
+        <stop offset="100%" style="stop-color:#5a3018"/>
+      </linearGradient>
+    </defs>
+
+    <!-- 背景墙 -->
+    <rect x="0" y="0" width="420" height="280" fill="url(#wallGrad)"/>
+    <!-- 砖墙纹理 -->
+    <rect x="0" y="40" width="420" height="20" fill="none" stroke="#3a2228" stroke-width=".5" opacity=".4"/>
+    <rect x="0" y="80" width="420" height="20" fill="none" stroke="#3a2228" stroke-width=".5" opacity=".4"/>
+    <rect x="0" y="120" width="420" height="20" fill="none" stroke="#3a2228" stroke-width=".5" opacity=".4"/>
+    <line x1="60" y1="0" x2="60" y2="170" stroke="#3a2228" stroke-width=".4" opacity=".3"/>
+    <line x1="150" y1="0" x2="150" y2="170" stroke="#3a2228" stroke-width=".4" opacity=".3"/>
+    <line x1="240" y1="0" x2="240" y2="170" stroke="#3a2228" stroke-width=".4" opacity=".3"/>
+    <line x1="330" y1="0" x2="330" y2="170" stroke="#3a2228" stroke-width=".4" opacity=".3"/>
+
+    <!-- 地板 -->
+    <rect x="0" y="210" width="420" height="70" fill="url(#floorGrad)"/>
+    <line x1="0" y1="218" x2="420" y2="218" stroke="#2a1808" stroke-width=".6" opacity=".5"/>
+    <line x1="0" y1="228" x2="420" y2="228" stroke="#2a1808" stroke-width=".6" opacity=".5"/>
+    <line x1="0" y1="238" x2="420" y2="238" stroke="#2a1808" stroke-width=".6" opacity=".5"/>
+
+    <!-- 炼金大锅（核心道具）-->
+    <!-- 炉火 -->
+    <ellipse cx="210" cy="240" rx="50" ry="15" fill="#4a1808" opacity=".6"/>
+    <rect x="170" y="220" width="80" height="8" rx="2" fill="#3a1a0a"/>
+    <!-- 火焰 -->
+    <ellipse cx="195" cy="225" rx="8" ry="14" fill="#ff6622" opacity=".7" style="transform-origin:195px 225px;animation:candleFlicker 1.5s ease-in-out infinite"/>
+    <ellipse cx="210" cy="222" rx="10" ry="18" fill="#ff8844" opacity=".65" style="transform-origin:210px 222px;animation:candleFlicker 1.8s .2s ease-in-out infinite"/>
+    <ellipse cx="225" cy="225" rx="8" ry="14" fill="#ff6622" opacity=".7" style="transform-origin:225px 225px;animation:candleFlicker 1.6s .4s ease-in-out infinite"/>
+    <ellipse cx="210" cy="220" rx="6" ry="10" fill="#ffcc44" opacity=".5" style="transform-origin:210px 220px;animation:candleFlicker 1.3s .1s ease-in-out infinite"/>
+    <!-- 火焰光晕 -->
+    <ellipse cx="210" cy="225" rx="60" ry="40" fill="url(#fireGlow)" style="animation:glowPulse 1.8s ease-in-out infinite"/>
+    <!-- 大锅 -->
+    <ellipse cx="210" cy="190" rx="55" ry="20" fill="#3a3a3a"/>
+    <ellipse cx="210" cy="188" rx="52" ry="18" fill="#4a4a4a"/>
+    <rect x="158" y="170" width="104" height="22" rx="4" fill="#3a3a3a"/>
+    <ellipse cx="210" cy="170" rx="52" ry="18" fill="#4a4a4a"/>
+    <!-- 锅内液体 -->
+    <ellipse cx="210" cy="172" rx="46" ry="14" fill="#2a6a4a" opacity=".8"/>
+    <ellipse cx="210" cy="172" rx="46" ry="14" fill="url(#potionGlow)"/>
+    <!-- 冒泡 -->
+    <circle cx="198" cy="168" r="3" fill="#44cc88" opacity="0" style="animation:bubbleRise 2.5s 0.5s ease-in-out infinite"/>
+    <circle cx="215" cy="170" r="2" fill="#44cc88" opacity="0" style="animation:bubbleRise 3s 1s ease-in-out infinite"/>
+    <circle cx="225" cy="169" r="2.5" fill="#44cc88" opacity="0" style="animation:bubbleRise 2.8s 1.8s ease-in-out infinite"/>
+    <circle cx="205" cy="167" r="1.8" fill="#66ddaa" opacity="0" style="animation:bubbleRise 3.2s 0.3s ease-in-out infinite"/>
+    <!-- 锅把手 -->
+    <rect x="148" y="176" width="12" height="6" rx="2" fill="#5a5a5a"/>
+    <rect x="260" y="176" width="12" height="6" rx="2" fill="#5a5a5a"/>
+
+    <!-- 药草架（左侧）-->
+    <rect x="18" y="40" width="80" height="140" rx="3" fill="#4a2810"/>
+    <rect x="20" y="42" width="76" height="136" rx="2" fill="#3a1e08" opacity=".8"/>
+    <rect x="18" y="80" width="80" height="5" fill="#5a3018"/>
+    <rect x="18" y="120" width="80" height="5" fill="#5a3018"/>
+    <!-- 瓶罐 -->
+    <rect x="24" y="48" width="10" height="28" rx="5" fill="#4a7a5a" opacity=".8"/>
+    <rect x="36" y="50" width="8" height="26" rx="4" fill="#7a4a6a" opacity=".8"/>
+    <rect x="46" y="48" width="12" height="28" rx="4" fill="#c46030" opacity=".7"/>
+    <rect x="60" y="49" width="9" height="27" rx="4" fill="#3a5a8a" opacity=".8"/>
+    <rect x="71" y="48" width="10" height="28" rx="5" fill="#8a7a3a" opacity=".8"/>
+    <rect x="24" y="88" width="12" height="28" rx="4" fill="#6a3a5a" opacity=".8"/>
+    <rect x="38" y="90" width="8" height="26" rx="4" fill="#3a7a5a" opacity=".8"/>
+    <rect x="48" y="88" width="11" height="28" rx="4" fill="#8a5a2a" opacity=".7"/>
+    <rect x="61" y="89" width="10" height="27" rx="5" fill="#4a6a3a" opacity=".8"/>
+    <rect x="73" y="88" width="8" height="28" rx="4" fill="#7a3a4a" opacity=".8"/>
+    <!-- 干草束 -->
+    <rect x="26" y="128" width="20" height="24" rx="2" fill="#8a7a40" opacity=".6"/>
+    <rect x="50" y="130" width="16" height="20" rx="2" fill="#6a8a40" opacity=".5"/>
+    <rect x="70" y="128" width="18" height="24" rx="2" fill="#7a6a30" opacity=".6"/>
+
+    <!-- 工作台（右侧）-->
+    <rect x="320" y="140" width="85" height="8" rx="2" fill="url(#woodGrad)"/>
+    <rect x="325" y="148" width="6" height="60" rx="2" fill="#4a2810"/>
+    <rect x="394" y="148" width="6" height="60" rx="2" fill="#4a2810"/>
+    <!-- 桌上器具 -->
+    <rect x="330" y="128" width="14" height="14" rx="7" fill="#7a9ab0" opacity=".7"/>
+    <rect x="335" y="124" width="4" height="6" rx="1" fill="#9ab0c0" opacity=".6"/>
+    <rect x="350" y="130" width="20" height="12" rx="2" fill="#5a3018" opacity=".8"/>
+    <circle cx="380" cy="136" r="8" fill="#c8862a" opacity=".5"/>
+    <rect x="392" y="128" width="8" height="14" rx="3" fill="#4a7a5a" opacity=".7"/>
+
+    <!-- 符文图（墙上）-->
+    <circle cx="210" cy="80" r="35" fill="none" stroke="#c46030" stroke-width="1.2" opacity=".4"/>
+    <circle cx="210" cy="80" r="28" fill="none" stroke="#c46030" stroke-width=".8" opacity=".3"/>
+    <!-- 符文十字 -->
+    <line x1="210" y1="50" x2="210" y2="110" stroke="#c46030" stroke-width=".6" opacity=".3"/>
+    <line x1="180" y1="80" x2="240" y2="80" stroke="#c46030" stroke-width=".6" opacity=".3"/>
+    <!-- 符文三角 -->
+    <polygon points="210,55 235,100 185,100" fill="none" stroke="#e8b86d" stroke-width=".8" opacity=".25"/>
+
+    <!-- 漂浮光尘粒子 -->
+    <circle cx="90" cy="90" r="1.2" fill="#e8c880" opacity="0" style="animation:dustFloat 4s 0.5s ease-in-out infinite"/>
+    <circle cx="130" cy="120" r="1" fill="#ff8844" opacity="0" style="animation:dustFloat 5s 1.2s ease-in-out infinite"/>
+    <circle cx="280" cy="80" r="1.4" fill="#e8c880" opacity="0" style="animation:dustFloat 4.5s 2s ease-in-out infinite"/>
+    <circle cx="340" cy="100" r="1" fill="#ff8844" opacity="0" style="animation:dustFloat 3.8s 0.8s ease-in-out infinite"/>
+
+    <!-- ══ 家具插槽（3个）══ -->
+    <g class="furniture-slot" id="slot1" data-slot="1" onclick="clickSlot(1)">
+      <rect x="130" y="198" width="22" height="22" rx="4" fill="#c8862a" opacity=".08" class="slot-empty"/>
+      <rect x="130" y="198" width="22" height="22" rx="4" fill="none" stroke="#c8862a" stroke-width="1" stroke-dasharray="3,2" opacity=".35" class="slot-empty"/>
+      <text x="141" y="213" text-anchor="middle" font-size="10" fill="#c8862a" opacity=".45" class="slot-empty">+</text>
+      <text id="slot1-icon" x="141" y="215" text-anchor="middle" font-size="16" style="display:none"></text>
+    </g>
+    <g class="furniture-slot" id="slot2" data-slot="2" onclick="clickSlot(2)">
+      <rect x="108" y="175" width="26" height="26" rx="4" fill="#c8862a" opacity=".08" class="slot-empty"/>
+      <rect x="108" y="175" width="26" height="26" rx="4" fill="none" stroke="#c8862a" stroke-width="1" stroke-dasharray="3,2" opacity=".35" class="slot-empty"/>
+      <text x="121" y="192" text-anchor="middle" font-size="10" fill="#c8862a" opacity=".45" class="slot-empty">+</text>
+      <text id="slot2-icon" x="121" y="193" text-anchor="middle" font-size="18" style="display:none"></text>
+    </g>
+    <g class="furniture-slot" id="slot3" data-slot="3" onclick="clickSlot(3)">
+      <rect x="312" y="162" width="26" height="26" rx="4" fill="#c8862a" opacity=".08" class="slot-empty"/>
+      <rect x="312" y="162" width="26" height="26" rx="4" fill="none" stroke="#c8862a" stroke-width="1" stroke-dasharray="3,2" opacity=".35" class="slot-empty"/>
+      <text x="325" y="179" text-anchor="middle" font-size="10" fill="#c8862a" opacity=".45" class="slot-empty">+</text>
+      <text id="slot3-icon" x="325" y="181" text-anchor="middle" font-size="18" style="display:none"></text>
+    </g>
+  </svg>
+  <span class="scene-hint">点击场景放置家具</span>
+</div>
+
+<!-- 今日状态 -->
+<div class="status-strip">
+  <div class="status-card">
+    <span class="status-icon">🔥</span>
+    <span class="status-label">今日炼化</span>
+    <span class="status-val" id="riddle-status">待完成</span>
+  </div>
+  <div class="status-card">
+    <span class="status-icon">💭</span>
+    <span class="status-label">今日觉察</span>
+    <span class="status-val" id="diary-status">未纪录</span>
+  </div>
+  <div class="status-card">
+    <span class="status-icon">⚗️</span>
+    <span class="status-label">探索次数</span>
+    <span class="status-val" id="visit-count">0</span>
+  </div>
+</div>
+
+<!-- 觉察谜语 -->
+<div class="riddle-section">
+  <div class="section-label">✦ 今日觉察</div>
+  <div class="riddle-card" id="riddleCard">
+    <div id="riddle-content"></div>
+  </div>
+</div>
+
+<!-- 日记区 -->
+<div class="diary-section">
+  <div class="care-title">✦ 炼金手记</div>
+  <textarea class="diary-textarea" id="diaryText" placeholder="今天你想炼化什么？那些痛苦里藏著什么力量？写下来吧..."></textarea>
+  <div class="diary-save-row">
+    <span class="diary-saved-hint" id="diarySaved">✓ 已储存</span>
+    <button class="diary-save-btn" onclick="saveDiary()">储存手记</button>
+  </div>
+  <div class="diary-history" id="diaryHistory"></div>
+</div>
+
+<!-- 家具清单 -->
+<div class="furniture-section">
+  <div class="care-title">✦ 房间陈设</div>
+  <div class="furniture-list" id="furniture-list"></div>
+</div>
+
+<!-- 城堡完整度 -->
+<div class="completion-banner">
+  <div class="completion-pct" id="total-pct">0%</div>
+  <div class="completion-info">
+    <div class="completion-label">城堡完整度</div>
+    <div class="completion-track">
+      <div class="completion-prog" id="total-prog" style="width:0%"></div>
+    </div>
+    <div class="completion-sub" id="total-sub">放置更多家具，提升完整度</div>
+  </div>
+</div>
+
+<div class="bottom-nav-row">
+  <a href="castle-game.html" class="room-nav-btn">🏰 城堡地图</a>
+  <a href="castle-materials.html" class="room-nav-btn primary">🧪 去合成家具</a>
+</div>
+<div class="bottom-pad"></div>
+
+<!-- 家具放置提示浮层 -->
+<div class="care-overlay" id="furnitureOverlay" onclick="closeFurnitureOverlay(event)">
+  <div class="care-modal" onclick="event.stopPropagation()" style="padding:24px 20px 20px">
+    <span class="care-modal-icon" id="fo-icon">🪔</span>
+    <div class="care-modal-title" id="fo-name" style="font-size:1rem;margin-bottom:4px"></div>
+    <div style="font-size:.75rem;color:var(--muted);margin-bottom:14px" id="fo-desc"></div>
+    <div style="display:flex;flex-direction:column;gap:8px" id="fo-slots"></div>
+    <button class="care-modal-close" style="margin-top:12px" onclick="closeFurnitureOverlay()">取消</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="../assets/js/firebase-config.js"></script>
+<script src="castle-riddles.js?v=20260407"></script>
+<script src="../assets/js/hl-castle-key.js?v=20260407"></script>
+<script src="../assets/js/hl-castle-material.js?v=20260407"></script>
+<script src="../assets/js/hl-castle-sync.js?v=20260407"></script>
+<script src="../assets/js/hl-castle-room-decor.js?v=20260407"></script>
+<script src="../assets/js/hl-topnav.js"></script>
+<script src="../assets/js/hl-bottomnav.js"></script>
+<script src="../assets/js/hl-tracker.js" data-tool="castle-room-alchemy" data-tool-name="炼金室" data-tool-type="castle_room"></script>
+
+<script>
+'use strict';
+
+var ROOM_ID = 'alchemy';
+// 仆人问候
+(function(){function showServant(){if(window.hlCastle&&hlCastle.getServant){var s=hlCastle.getServant(ROOM_ID);if(s){var el=document.getElementById('servantGreeting');if(el)el.innerHTML=s.emoji+' '+s.name+'：「'+s.greeting+'」';}}else{setTimeout(showServant,300);}}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',showServant);}else{showServant();}})();
+var ROOM_STORAGE = 'hl_room_alchemy_v1';
+var DIARY_STORAGE = 'hl_room_alchemy_diary_v1';
+
+var _roomRiddle = null;
+
+function todayKey(){
+  var tw = new Date(new Date().getTime() + 8*3600000);
+  return tw.getUTCFullYear() + '-' +
+    String(tw.getUTCMonth()+1).padStart(2,'0') + '-' +
+    String(tw.getUTCDate()).padStart(2,'0');
+}
+
+function getTodayRiddle(){
+  if(_roomRiddle) return _roomRiddle;
+  if(!window.ROOMS) return null;
+  var room = ROOMS.find(function(r){ return r.id === ROOM_ID; });
+  if(!room) return null;
+  var today = todayKey();
+  var seed = 0;
+  for(var i=0;i<today.length;i++) seed = ((seed<<5)-seed) + today.charCodeAt(i);
+  seed = Math.abs(seed) + 99;
+  _roomRiddle = room.riddles[seed % room.riddles.length];
+  return _roomRiddle;
+}
+
+function loadRoomState(){
+  var def = { totalVisits:0, riddleDone:{}, furniture:[], completeness:0 };
+  try{
+    var raw = localStorage.getItem(ROOM_STORAGE);
+    if(!raw) return def;
+    return Object.assign(def, JSON.parse(raw));
+  }catch(e){ return def; }
+}
+function saveRoomState(st){ try{ localStorage.setItem(ROOM_STORAGE, JSON.stringify(st)); }catch(e){} }
+function isRiddleDone(st){ return !!st.riddleDone[todayKey()]; }
+
+function loadDiary(){ try{ var raw=localStorage.getItem(DIARY_STORAGE); return raw?JSON.parse(raw):[]; }catch(e){ return []; } }
+function saveDiaryData(entries){ try{ localStorage.setItem(DIARY_STORAGE, JSON.stringify(entries)); }catch(e){} }
+
+function saveDiary(){
+  var text=document.getElementById('diaryText').value.trim();
+  if(!text) return;
+  var entries=loadDiary(); var today=todayKey(); var found=false;
+  entries.forEach(function(e){ if(e.date===today){ e.text=text; found=true; } });
+  if(!found) entries.unshift({date:today,text:text});
+  if(entries.length>30) entries=entries.slice(0,30);
+  saveDiaryData(entries); renderDiaryHistory(); renderStatus();
+  var hint=document.getElementById('diarySaved');
+  hint.classList.add('show'); setTimeout(function(){ hint.classList.remove('show'); },2000);
+}
+
+function renderDiaryHistory(){
+  var entries=loadDiary(); var container=document.getElementById('diaryHistory');
+  if(!entries.length){ container.innerHTML=''; return; }
+  var html='';
+  entries.slice(0,7).forEach(function(e){
+    html+='<div class="diary-entry"><div class="diary-entry-date">'+e.date+'</div>';
+    html+='<div class="diary-entry-text">'+e.text.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div></div>';
+  });
+  container.innerHTML=html;
+  var today=todayKey();
+  var todayEntry=entries.find(function(e){ return e.date===today; });
+  if(todayEntry) document.getElementById('diaryText').value=todayEntry.text;
+}
+
+function calcCompleteness(st){
+  var furniturePts=Math.min(45,st.furniture.length*15);
+  var riddlePts=Math.min(30,Object.keys(st.riddleDone).length*3);
+  var diaryPts=Math.min(25,loadDiary().length*3);
+  return Math.min(100,furniturePts+riddlePts+diaryPts);
+}
+
+var _state=null; var _furnitureModeItem=null;
+
+function init(){
+  if(!window.ROOMS||!window.hlCastle){ setTimeout(init,200); return; }
+  hlCastle.giveKey(ROOM_ID);
+  _state=loadRoomState();
+  _state.totalVisits=(_state.totalVisits||0)+1;
+  saveRoomState(_state);
+  renderStatus(); renderRiddle(); renderDiaryHistory(); renderFurnitureList(); renderCompleteness(); renderPlacedFurniture();
+}
+
+function renderStatus(){
+  document.getElementById('riddle-status').textContent=isRiddleDone(_state)?'✓ 完成':'待完成';
+  var todayDiary=loadDiary().find(function(e){ return e.date===todayKey(); });
+  document.getElementById('diary-status').textContent=todayDiary?'✓ 已纪录':'未纪录';
+  document.getElementById('visit-count').textContent=_state.totalVisits+' 次';
+  var c=calcCompleteness(_state);
+  document.getElementById('comp-bar').style.width=c+'%';
+  document.getElementById('comp-pct').textContent=c+'%';
+}
+
+function renderRiddle(){
+  var rd=getTodayRiddle(); var done=isRiddleDone(_state);
+  var box=document.getElementById('riddle-content');
+  if(!rd){ box.innerHTML='<p style="color:var(--muted);font-size:.82rem">今日谜语载入中…</p>'; return; }
+  var typeLabel=rd.type==='aroma'?'🌿 认知芳疗':rd.type==='fuyu'?'🌿 馥灵馥语':'💭 觉察问答';
+  var h='<div class="riddle-type-badge">'+typeLabel+'</div>';
+  h+='<div class="riddle-q">'+rd.q+'</div>';
+  if(done){
+    h+='<div class="insight-box show"><div class="insight-txt">✓ 今日觉察已完成。明天有新的问题等著你。</div></div>';
+  } else if(rd.isAroma&&rd.aromas){
+    h+='<div class="aroma-grid">';
+    rd.aromas.forEach(function(a,i){ h+='<div class="aroma-card" onclick="selAroma('+i+')" id="a'+i+'"><span class="aroma-icon">'+a.icon+'</span><div class="aroma-name">'+a.name+'</div><div class="aroma-note">'+a.note+'</div></div>'; });
+    h+='</div><div class="insight-box" id="ins"></div><button class="btn-complete" id="btnDone" disabled onclick="finishRiddle()">✦ 收下这份觉察</button>';
+  } else {
+    h+='<div class="riddle-opts">';
+    rd.opts.forEach(function(o,i){ h+='<div class="riddle-opt" onclick="selOpt('+i+')" id="o'+i+'">'+o.text+'</div>'; });
+    h+='</div><div class="insight-box" id="ins2"></div><button class="btn-complete" id="btnDone2" disabled onclick="finishRiddle()">✦ 收下这份觉察</button>';
+  }
+  box.innerHTML=h;
+}
+
+function selOpt(i){
+  var rd=getTodayRiddle(); if(!rd||rd.isAroma) return;
+  rd.opts.forEach(function(_,j){ var e=document.getElementById('o'+j); if(e) e.className='riddle-opt'+(j===i?' sel':''); });
+  showInsight(rd.opts[i].insight);
+}
+function selAroma(i){
+  var rd=getTodayRiddle(); if(!rd||!rd.aromas) return;
+  rd.aromas.forEach(function(_,j){ var e=document.getElementById('a'+j); if(e) e.className='aroma-card'+(j===i?' sel':''); });
+  showInsight(rd.aromas[i].insight);
+}
+function showInsight(t){
+  var el=document.getElementById('ins')||document.getElementById('ins2'); if(!el) return;
+  el.innerHTML='<div class="insight-txt">'+t.replace(/\\n/g,'<br>').replace(/\n/g,'<br>')+'</div>';
+  el.classList.add('show');
+  var btn=document.getElementById('btnDone')||document.getElementById('btnDone2'); if(btn) btn.disabled=false;
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function finishRiddle(){
+  var insEl=document.getElementById('ins')||document.getElementById('ins2'); var insight=insEl?insEl.textContent:'';
+  var qEl=document.querySelector('.riddle-q'); var question=qEl?qEl.textContent:'';
+  var selEl=document.querySelector('.riddle-opt.sel, .aroma-card.sel'); var answer=selEl?selEl.textContent:'';
+  if(window.hlCastle&&hlCastle.hasKey(ROOM_ID)) hlCastle.completeRoom(ROOM_ID,question,answer,insight);
+  if(window.hlMaterial) hlMaterial.drop('castle_riddle');
+  _state.riddleDone[todayKey()]=true; saveRoomState(_state); renderStatus(); renderCompleteness();
+  var btn=document.getElementById('btnDone')||document.getElementById('btnDone2');
+  if(btn){ btn.disabled=true; btn.textContent='✓ 已收下'; }
+  setTimeout(function(){ renderRiddle(); },800);
+  // 导航提示（完成后 2 秒显示）
+  setTimeout(function(){
+    var nav = document.createElement('div');
+    nav.style.cssText='text-align:center;margin-top:20px;padding:16px;background:rgba(200,134,42,.06);border:1px solid rgba(200,134,42,.15);border-radius:16px';
+    nav.innerHTML='<div style="font-size:.88rem;color:var(--warm);margin-bottom:12px">✨ 今天的觉察完成了</div><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><a href="castle-game.html" style="padding:10px 20px;background:var(--gold);color:#fff;border-radius:20px;text-decoration:none;font-size:.85rem;font-weight:600">🏰 回城堡看变化</a><button onclick="this.parentElement.parentElement.remove()" style="padding:10px 20px;border:1px solid var(--border);background:transparent;color:var(--muted);border-radius:20px;font-size:.85rem;cursor:pointer;font-family:inherit">留在这个房间</button></div>';
+    var riddleBox = document.querySelector('.riddle-box')||document.querySelector('.room-card');
+    if(riddleBox) riddleBox.appendChild(nav);
+  }, 2000);
+}
+
+function renderFurnitureList(){
+  var container=document.getElementById('furniture-list');
+  var roomFurniture=getRoomFurniture();
+  var placed=_state.furniture.map(function(f){ return f.id; });
+  if(!roomFurniture.length){ container.innerHTML='<div class="furniture-empty">还没有适合炼金室的家具。<br>去材料库合成家具，可以放在这里。</div>'; return; }
+  var html='';
+  roomFurniture.forEach(function(item){
+    var isPlaced=placed.indexOf(item.id)>-1;
+    html+='<div class="furniture-item'+(isPlaced?' placed':'')+'">';
+    html+='<span class="furniture-item-icon">'+item.icon+'</span>';
+    html+='<div class="furniture-item-info"><div class="furniture-item-name">'+item.name+'</div><div class="furniture-item-desc">'+(item.desc||'')+'</div></div>';
+    html+=isPlaced?'<button class="furniture-item-action btn-placed">✓ 已放入</button>':'<button class="furniture-item-action btn-place" onclick="openFurniturePlace(\''+item.id+'\')">放入房间</button>';
+    html+='</div>';
+  });
+  container.innerHTML=html;
+}
+
+function getRoomFurniture(){
+  if(!window.hlMaterial) return [];
+  var furniture=hlMaterial.getFurniture();
+  var roomIds=['transmute_flame'];
+  return furniture.filter(function(f){ return roomIds.indexOf(f.id)>-1; });
+}
+
+function openFurniturePlace(itemId){
+  if(!window.hlMaterial) return;
+  var recipes=hlMaterial.getRecipes();
+  var recipe=recipes.find(function(r){ return r.id===itemId; });
+  if(!recipe) return;
+  _furnitureModeItem=recipe;
+  document.getElementById('fo-icon').textContent=recipe.icon;
+  document.getElementById('fo-name').textContent=recipe.name;
+  document.getElementById('fo-desc').textContent='「'+(recipe.desc||'')+'」';
+  var placedSlots=_state.furniture.map(function(f){ return f.slot; });
+  var slotsHtml='';
+  [1,2,3].forEach(function(s){
+    var occupied=placedSlots.indexOf(s)>-1;
+    slotsHtml+='<button onclick="placeFurniture(\''+itemId+'\','+s+')" '+(occupied?'disabled style="opacity:.4;cursor:default"':'')+' style="width:100%;padding:10px;border-radius:10px;border:1.5px solid var(--border);background:'+(occupied?'rgba(0,0,0,.04)':'rgba(200,134,42,.06)')+';color:var(--warm2);font-size:.82rem;cursor:pointer;font-family:inherit;transition:all .2s">'+(occupied?'槽位 '+s+'（已占用）':'放入槽位 '+s)+'</button>';
+  });
+  document.getElementById('fo-slots').innerHTML=slotsHtml;
+  document.getElementById('furnitureOverlay').classList.add('show');
+}
+
+function placeFurniture(itemId,slot){
+  if(!_furnitureModeItem) return;
+  _state.furniture=_state.furniture.filter(function(f){ return f.slot!==slot; });
+  _state.furniture.push({id:itemId,slot:slot,icon:_furnitureModeItem.icon,name:_furnitureModeItem.name});
+  saveRoomState(_state); closeFurnitureOverlay(); renderFurnitureList(); renderPlacedFurniture(); renderCompleteness(); renderStatus();
+  showToast(_furnitureModeItem.icon+' '+_furnitureModeItem.name+' 已放入炼金室！');
+}
+
+function closeFurnitureOverlay(e){
+  if(e&&e.target!==document.getElementById('furnitureOverlay')&&e.type==='click') return;
+  document.getElementById('furnitureOverlay').classList.remove('show'); _furnitureModeItem=null;
+}
+function toggleFurnitureMode(){}
+function clickSlot(slotNum){
+  var placed=_state.furniture.find(function(f){ return f.slot===slotNum; });
+  if(placed){ showToast(placed.icon+' '+placed.name+' 正放在这里。'); return; }
+  showToast('这个位置还空著。去材料库合成家具，就能放在这里。');
+}
+
+function renderPlacedFurniture(){
+  _state.furniture.forEach(function(f){
+    var iconEl=document.getElementById('slot'+f.slot+'-icon');
+    var emptyEls=document.querySelectorAll('#slot'+f.slot+' .slot-empty');
+    if(iconEl){ iconEl.textContent=f.icon; iconEl.style.display=''; }
+    emptyEls.forEach(function(e){ e.style.display='none'; });
+    var slotEl=document.getElementById('slot'+f.slot);
+    if(slotEl) slotEl.classList.add('occupied');
+  });
+}
+
+function renderCompleteness(){
+  var c=calcCompleteness(_state);
+  var sub=c>=100?'🎉 炼金室已完整！':c>=60?'继续探索，越来越完整了':c>=30?'每天回来，完整度慢慢上升':'放置家具，提升完整度';
+  document.getElementById('total-pct').textContent=c+'%';
+  document.getElementById('total-prog').style.width=c+'%';
+  document.getElementById('total-sub').textContent=sub;
+  document.getElementById('comp-bar').style.width=c+'%';
+  document.getElementById('comp-pct').textContent=c+'%';
+}
+
+var _toastTimeout=null;
+function showToast(msg){
+  var t=document.getElementById('hlToast');
+  if(!t){ t=document.createElement('div'); t.id='hlToast'; t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(12px);background:rgba(62,42,26,.97);color:#f5dfa8;padding:10px 20px;border-radius:12px;font-size:.82rem;z-index:9999;border:1px solid rgba(200,134,42,.35);pointer-events:none;opacity:0;transition:all .3s;white-space:nowrap;max-width:88vw;text-align:center;'; document.body.appendChild(t); }
+  t.textContent=msg; t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(_toastTimeout);
+  _toastTimeout=setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(12px)'; },2600);
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  var tries=0;
+  var check=setInterval(function(){ tries++; if((window.ROOMS&&window.hlCastle)||tries>25){ clearInterval(check); init(); } },150);
+});
+</script>
+</body>
+</html>

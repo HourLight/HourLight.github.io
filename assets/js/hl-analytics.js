@@ -97,15 +97,23 @@
   }
   
   // 服務/價格頁
-  if (pagePath.includes('pricing') || 
-      pagePath.includes('services') || 
-      pagePath.includes('consulting')) {
+  if (pagePath.includes('pricing') ||
+      pagePath.includes('services') ||
+      pagePath.includes('consulting') ||
+      pagePath.includes('price-list')) {
     trackEvent(
       'view_service',
       { event_category: 'consideration', event_label: pagePath },
       'ViewContent',
       { content_name: pageTitle, content_category: 'service', value: 1 }
     );
+    // FB Custom Audience: 看過價目表的人
+    if (hasFB) fbq('trackCustom', 'ViewPricing', { page: pagePath });
+  }
+
+  // 課程頁
+  if (pagePath.includes('course')) {
+    if (hasFB) fbq('trackCustom', 'ViewCourses', { page: pagePath });
   }
 
   // ========== 滾動深度追蹤 ==========
