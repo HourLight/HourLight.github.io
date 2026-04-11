@@ -55,8 +55,8 @@ AI 營運團隊 15 部門 → 看第四部分。
 ► 130張 原創智慧牌卡 × 9 種牌陣
 ► 33大 命理系統整合
 ► 100+項 心理覺察測驗（quiz-* 實際 101 支）
-► 300+頁 官網內容（含繁簡雙版、SEO 落地頁、城堡系統 24 頁）
-► 41支 hl-* 共用前端模組 + 12支 Vercel API + 19支核心資料 JS
+► 727+頁 官網內容（繁體367頁+簡體360頁，含SEO文章29篇、城堡23頁、課程投影片33頁）
+► 46支 hl-* 共用前端模組 + 12支 Vercel API + 20支核心資料 JS
 
 ~~
 
@@ -266,7 +266,7 @@ AI 營運團隊 15 部門 → 看第四部分。
 ► □ 牌卡名稱沒竄改？核心金句用正確版本？
 ► □ 「你不是XXX，是XXX」句型沒出現？
 ► □ 四主數命名正確（癒/識/鑰/行）？「啟數」已廢止？
-► □ 數字正確：33大命理/100+項測驗/130張牌卡/9種牌陣/300+頁網站？
+► □ 數字正確：33大命理/100+項測驗/130張牌卡/9種牌陣/727+頁網站？
 ► □ UI 元素沒亂放 emoji（nav/footer/按鈕/連結要純文字，高端調性）？
 ► □ 沒寫虛假見證/評價/數據？沒真實資料就刪掉？
 ► □ 對外用大眾語言：身心校準/智慧辨識/潛能解鎖/行動進化？
@@ -328,7 +328,7 @@ AI 營運團隊 15 部門 → 看第四部分。
 
 ► 網域：hourlightkey.com（GitHub Pages 靜態託管，main 分支自動部署）
 ► 子網域：app.hourlightkey.com（Vercel，API + PWA）
-► 頁面總數：300+ 頁 HTML（root 314 + sub 45）
+► 頁面總數：727+ 頁 HTML（繁體 367 + 簡體 360，含 blog 29+10 篇）
 ► 設計風格：深色主題為主（深紫底 #06040e + 金色 #f8dfa5/#f0d48a/#e9c27d）；
    pricing.html 為米色淺色主題（#faf9f7）；price-list*.html 為深色橫式單頁
 ► 字體：Noto Serif TC（標題）+ Cormorant Garamond（pricing 西文）+ 系統字體
@@ -558,7 +558,7 @@ Firestore 結構：
 ► 加解密：AES-256-GCM，EncryptInfo = base64(ciphertext)+":::"+base64(authTag) → hex
 ► HashInfo = SHA256(Key + EncryptInfo + IV).toUpperCase()
 ► 注意順序是 Key + Str + IV（不是 IV + Str + Key）
-► 待辦：把全站「匯款 + LINE 截圖 + 人工確認」流程改為 PAYUNi 線上自動入帳（鑰友 / 大師訂閱、加購、3-7 張 AI 解讀、SPA / 美甲 / 寵物 / 家族）
+► 已完成（2026/04/12）：全站「匯款 + LINE 截圖 + 人工確認」流程已全面改為 PAYUNi 線上付款（鑰友/大師訂閱、加購、3-7張AI解讀、SPA/美甲/寵物/家族、元辰宮/前世/阿卡西/生日禮、課程、預約）
 ► 整合過程注意小花事件已修（commit 0f024fd8）— 試用期不能蓋掉付費方案的 plan
 
 ~~
@@ -674,12 +674,12 @@ Notion 關鍵文件：
 
 ## 網站核心數字（對話中可直接引用，2026/04/10 校準）
 
-► 300+ 頁 HTML（含繁簡雙版、SEO 落地頁、城堡 24 頁）
+► 727+ 頁 HTML（繁體 367 + 簡體 360，含 SEO 文章 39 篇、城堡 23 頁）
 ► 33套 命理系統（全球最完整整合）
 ► 130張 原創智慧牌卡 × 9 種牌陣
 ► 100+ 心理測驗（quiz-* 實際 101 支）
 ► 3 級 訂閱方案（免費 / NT$399 鑰友 / NT$999 大師）+ 加購 10 次/$199 永久有效
-► 41 支 hl-* 共用前端模組 + 12 支 Vercel API（含 PAYUNi 兩支已上線）
+► 46 支 hl-* 共用前端模組 + 12 支 Vercel API（含 PAYUNi 兩支，Hobby plan 已滿）
 
 ## 五大功能區速覽
 
@@ -752,9 +752,9 @@ references/
 
 **數字校準**
 ► 70+項測驗 → 100+項（實際 101 支 quiz-*）
-► 166 頁網站 → 300+ 頁（root 314 + sub 45）
-► 28 支 hl-* 模組 → 41 支（補齊新增 13 支）
-► 14 支 js/ → 19 支
+► 166 頁網站 → 727+ 頁（繁體 367 + 簡體 360）
+► 28 支 hl-* 模組 → 46 支
+► 14 支 js/ → 20 支
 ► 12 支 api/ 不變但內容變了（新增 PAYUNi 兩支）
 
 **新增章節**
@@ -888,7 +888,7 @@ D05｜視覺設計部
 ► 觸發：「做配圖」「輪播圖」「海報」「電子報模板」
 
 D06｜技術工程部
-► hourlightkey.com 300+ 頁維護與新增、HTML/CSS/JS/SEO
+► hourlightkey.com 727+ 頁維護與新增、HTML/CSS/JS/SEO
 ► Vercel API（12支）、Firebase、AI解讀指令系統
 ► PAYUNi 統一金流（已上線，AES-256-GCM）、推薦碼系統
 ► SaaS 多租戶預約系統（booking / booking-admin / partner-dashboard / platform-admin）
@@ -1133,7 +1133,7 @@ D15｜專案管理部
 ► member-dashboard 足跡 JSON 中文化
 ► SEO 修復：15 頁新增 meta description + og:tags
 ► 創辦人參考資料路徑記錄：`D:/OneDrive/桌面/馥靈之鑰全新內容/`
-► D06 更新：300+ 頁 → 含 booking/course-slides/platform-admin/aroma-garden 新頁面
+► D06 更新：727+ 頁 → 含 booking/course-slides/platform-admin/aroma-garden/knowledge-hub 新頁面
 ► D09 更新：課程體系完成，24 堂 + 4 資源 + HTML 簡報
 ► 芳療共享園地 aroma-garden.html（1150+ 行知識寶庫）
 ► 精油配方搜尋器 305 個（assets/js/aroma-formulas.js）
