@@ -1824,5 +1824,24 @@ body{background:#faf9f7;color:#1a1714;font-family:'Noto Sans TC',sans-serif;font
 <script src="assets/js/hl-email.js"></script>
 <script src="assets/js/hl-music.js"></script>
 <script src="assets/js/hl-tracker.js"></script>
+<script>
+// 閱讀完畢觸發城堡材料掉落
+(function(){
+  var triggered = false;
+  window.addEventListener('scroll', function(){
+    if(triggered) return;
+    var scrollPct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+    if(scrollPct > 0.8){
+      triggered = true;
+      if(window.hlMaterial && hlMaterial.drop){
+        var result = hlMaterial.drop('knowledge');
+        if(result && result.ok){
+          hlMaterial.showToast(result);
+        }
+      }
+    }
+  });
+})();
+</script>
 </body>
 </html>
