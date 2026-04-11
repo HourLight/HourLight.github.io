@@ -111,6 +111,13 @@
       { id:'scent_memory',     name:'氣味記憶',   icon:'🌸', rarity:'rare',      weight:40, zone:'馥語書房' }
     ],
 
+    // 知識學苑（knowledge 閱讀知識頁完畢掉落）
+    knowledge: [
+      { id:'moonlight_shard',  name:'月光碎片',   icon:'🌙', rarity:'common',    weight:60, zone:'知識學苑' },
+      { id:'wisdom_scroll',    name:'智慧卷軸',   icon:'📜', rarity:'rare',      weight:30, zone:'知識學苑' },
+      { id:'starlight_page',   name:'星光書頁',   icon:'✨', rarity:'legendary', weight:10, zone:'知識學苑' }
+    ],
+
     // ── 鑰友專屬材料（plus 以上）──
     member_plus: [
       { id:'key_friend_seal',  name:'鑰友印記',   icon:'🔑', rarity:'rare',      weight:50, zone:'會員殿堂', memberOnly:'plus', dropHint:'每日登入自動掉落' },
@@ -254,6 +261,7 @@
     commerce: 999,   // 購課不限
     brand: 2,
     draw_dna: 2,         // 牌卡DNA每天最多2次
+    knowledge: 5,        // 知識頁每天最多掉5次月光碎片
     nature_event: 999,   // 節氣活動不限（限時掉落）
     inner_realm: 1,      // 深宮材料每天最多1次
     member_plus: 2,      // 鑰友材料每天最多2次（登入+測驗）
