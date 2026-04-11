@@ -239,6 +239,7 @@ module.exports = async function handler(req, res) {
     var cards = body.cards || [];
     var question = (body.question || '').trim();
     var unlockCode = (body.unlockCode || '').trim().toUpperCase();
+    var _pendingCodeRef = null; // 解讀成功後才標記 used
     var uid = (body.uid || '').trim();
     var userEmail = (body.email || '').trim();
 
@@ -305,12 +306,8 @@ module.exports = async function handler(req, res) {
             });
           }
 
-          // 標記為已使用
-          await codeRef.update({
-            used: true,
-            usedAt: new Date(),
-            actualN: n
-          });
+          // 不在這裡標記 used，等解讀成功後才標記
+          _pendingCodeRef = codeRef;
 
         } catch (dbErr) {
           console.error('Firestore unlock code error:', dbErr.message);
@@ -470,6 +467,15 @@ ${GENERAL_PRINCIPLES}`;
     } catch (saveErr) {
       console.error('Reading save error:', saveErr.message);
       // 存檔失敗不影響解讀回傳
+    }
+
+    // 解讀成功，標記代碼為已使用
+    if (_pendingCodeRef) {
+      try {
+        await _pendingCodeRef.update({ used: true, usedAt: new Date(), actualN: n });
+      } catch (markErr) {
+        console.warn('Code mark-used failed:', markErr.message);
+      }
     }
 
     return res.status(200).json({
