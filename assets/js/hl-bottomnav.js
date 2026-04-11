@@ -297,4 +297,19 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
     });
   }
 
+  // ── 動態載入 exit-intent popup ──
+  (function loadExitIntent() {
+    // 從 bottomnav 自身 src 推算 assets/js/ 路徑，確保子目錄也能正確載入
+    var scripts = document.querySelectorAll('script[src*="hl-bottomnav"]');
+    var basePath = 'assets/js/';
+    if (scripts.length) {
+      var src = scripts[scripts.length - 1].getAttribute('src') || '';
+      basePath = src.replace('hl-bottomnav.js', '');
+    }
+    var s = document.createElement('script');
+    s.src = basePath + 'hl-exit-intent.js';
+    s.defer = true;
+    document.body.appendChild(s);
+  })();
+
 })();

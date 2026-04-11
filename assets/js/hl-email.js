@@ -209,4 +209,103 @@
   // 暴露全局函數（供 destiny-engine 內聯使用）
   window.hlEmailOpen = openModal;
 
+  // ── Sticky Footer CTA：email 訂閱引導 ──
+  (function initStickyEmailCTA() {
+    // 已訂閱或已關閉 7 天內不顯示
+    var SUBSCRIBED_KEY = 'hl_email_subscribed';
+    var DISMISSED_KEY = 'hl_email_cta_dismissed';
+    if (localStorage.getItem(SUBSCRIBED_KEY)) return;
+    var dismissed = localStorage.getItem(DISMISSED_KEY);
+    if (dismissed && (Date.now() - parseInt(dismissed, 10)) < 7 * 24 * 60 * 60 * 1000) return;
+
+    // 注入 CSS
+    var ctaCss = document.createElement('style');
+    ctaCss.textContent = [
+      '#hlEmailCta{position:fixed;bottom:0;left:0;right:0;z-index:9998;height:48px;background:#e9c27d;display:flex;align-items:center;justify-content:center;gap:12px;cursor:pointer;opacity:0;transform:translateY(48px);transition:opacity .5s,transform .5s;pointer-events:none;font-family:inherit}',
+      '#hlEmailCta.show{opacity:1;transform:translateY(0);pointer-events:auto}',
+      '#hlEmailCta .hle-cta-text{color:#0a0714;font-size:.85rem;font-weight:600;letter-spacing:.06em}',
+      '#hlEmailCta .hle-cta-close{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#0a0714;font-size:1.1rem;cursor:pointer;padding:6px;opacity:.6;transition:opacity .2s}',
+      '#hlEmailCta .hle-cta-close:hover{opacity:1}',
+      '#hlEmailCtaForm{position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0a0714;border-top:2px solid #e9c27d;padding:16px 20px;display:none;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}',
+      '#hlEmailCtaForm.show{display:flex}',
+      '#hlEmailCtaForm input[type=email]{padding:10px 14px;border:1px solid rgba(240,212,138,.3);border-radius:8px;background:rgba(255,255,255,.06);color:#f4f0eb;font-size:.9rem;outline:none;min-width:220px;font-family:inherit}',
+      '#hlEmailCtaForm input:focus{border-color:#f0d48a}',
+      '#hlEmailCtaForm .hle-cta-submit{padding:10px 22px;border:none;border-radius:8px;background:linear-gradient(135deg,#c9985e,#f0d48a);color:#0a0714;font-size:.88rem;font-weight:600;cursor:pointer;letter-spacing:.08em}',
+      '#hlEmailCtaForm .hle-cta-submit:hover{transform:translateY(-1px)}',
+      '#hlEmailCtaForm .hle-cta-cancel{background:none;border:1px solid rgba(240,212,138,.2);border-radius:8px;padding:10px 16px;color:rgba(200,188,170,.7);font-size:.85rem;cursor:pointer}',
+      '#hlEmailCtaForm .hle-cta-msg{font-size:.82rem;width:100%;text-align:center;margin-top:4px;min-height:18px}'
+    ].join('\n');
+    document.head.appendChild(ctaCss);
+
+    // 建立 sticky bar
+    var bar = document.createElement('div');
+    bar.id = 'hlEmailCta';
+    bar.innerHTML = '<span class="hle-cta-text">加入馥靈之鑰，每週收到專屬覺察指引</span><button class="hle-cta-close" aria-label="關閉">&#x2715;</button>';
+    document.body.appendChild(bar);
+
+    // 建立展開表單
+    var form = document.createElement('div');
+    form.id = 'hlEmailCtaForm';
+    form.innerHTML =
+      '<input type="email" id="hlCtaEmail" placeholder="請輸入您的電子信箱" autocomplete="email">' +
+      '<button class="hle-cta-submit" id="hlCtaSubmit">訂閱</button>' +
+      '<button class="hle-cta-cancel" id="hlCtaCancel">取消</button>' +
+      '<div class="hle-cta-msg" id="hlCtaMsg"></div>';
+    document.body.appendChild(form);
+
+    // 30 秒後淡入
+    setTimeout(function() { bar.classList.add('show'); }, 30000);
+
+    // 點擊 bar → 展開表單
+    bar.addEventListener('click', function(e) {
+      if (e.target.closest('.hle-cta-close')) return;
+      bar.classList.remove('show');
+      form.classList.add('show');
+      var inp = document.getElementById('hlCtaEmail');
+      if (inp) inp.focus();
+    });
+
+    // 關閉（7 天不再顯示）
+    bar.querySelector('.hle-cta-close').addEventListener('click', function(e) {
+      e.stopPropagation();
+      bar.classList.remove('show');
+      localStorage.setItem(DISMISSED_KEY, String(Date.now()));
+    });
+
+    // 取消
+    document.getElementById('hlCtaCancel').addEventListener('click', function() {
+      form.classList.remove('show');
+      localStorage.setItem(DISMISSED_KEY, String(Date.now()));
+    });
+
+    // 提交訂閱
+    document.getElementById('hlCtaSubmit').addEventListener('click', function() {
+      var email = (document.getElementById('hlCtaEmail').value || '').trim();
+      var msg = document.getElementById('hlCtaMsg');
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        msg.innerHTML = '<span style="color:#d4694a">請輸入正確的電子信箱</span>'; return;
+      }
+      msg.innerHTML = '<span style="color:rgba(244,240,235,.8)">訂閱中...</span>';
+      // MailerLite API subscribe（與既有 MailerLite 整合一致）
+      fetch('https://assets.mailerlite.com/jsonp/872953/forms/133498498498498132/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields: { email: email } })
+      }).then(function() {
+        msg.innerHTML = '<span style="color:#5a9e7a">訂閱成功，感謝您的加入</span>';
+        localStorage.setItem(SUBSCRIBED_KEY, '1');
+        if (window.hlTrackSubscribe) hlTrackSubscribe();
+        if (typeof gtag === 'function') gtag('event', 'email_subscribe', { event_category: 'conversion', method: 'sticky_cta' });
+        setTimeout(function() { form.classList.remove('show'); }, 2500);
+      }).catch(function() {
+        msg.innerHTML = '<span style="color:#d4694a">訂閱失敗，請稍後再試</span>';
+      });
+    });
+
+    // Enter 鍵提交
+    document.getElementById('hlCtaEmail').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') document.getElementById('hlCtaSubmit').click();
+    });
+  })();
+
 })();

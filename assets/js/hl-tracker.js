@@ -29,6 +29,19 @@
           recordDraw: function(cards, spread){ record(db, user, 'draw_complete', { cards: Array.isArray(cards)?cards.join(','):cards, spread: spread||'1張' }); },
           recordQuiz: function(qName, result){ record(db, user, 'quiz_complete', { quizName: qName, result: result }); }
         };
+        // GA4 同步：quiz_complete 事件也送 gtag
+        var _origTrack = window.HL_track;
+        window.HL_track = function(eventType, detail) {
+          if (_origTrack) _origTrack(eventType, detail);
+          // 同步到 GA4
+          if (typeof gtag === 'function') {
+            if (eventType === 'quiz_complete') {
+              gtag('event', 'quiz_complete', { quiz_name: (detail && detail.toolName) || TOOL_NAME, tool_id: (detail && detail.toolId) || TOOL_ID });
+            } else if (eventType === 'draw_complete') {
+              gtag('event', 'draw_card', { spread: (detail && detail.spread) || '1張', tool_id: TOOL_ID });
+            }
+          }
+        };
       });
     } catch(e) {}
   }

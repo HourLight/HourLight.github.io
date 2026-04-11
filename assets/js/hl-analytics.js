@@ -166,4 +166,50 @@
     );
   };
 
+  // ========== GA4 Conversion Goals ==========
+
+  // 1. 課程頁載入追蹤
+  if (pagePath.includes('courses.html') || pagePath.includes('course-viewer.html')) {
+    trackEvent(
+      'view_courses',
+      { event_category: 'consideration', event_label: pagePath },
+      'ViewContent',
+      { content_name: pageTitle, content_category: 'course' }
+    );
+  }
+
+  // 2. pricing 購買按鈕追蹤
+  if (pagePath.includes('pricing')) {
+    document.addEventListener('click', function(e) {
+      var btn = e.target.closest('.plan-cta, [onclick*="subscribe"], [onclick*="checkout"]');
+      if (!btn) return;
+      var itemName = btn.textContent.trim().substring(0, 50);
+      trackEvent(
+        'begin_checkout',
+        { event_category: 'conversion', item_name: itemName, event_label: pagePath },
+        'InitiateCheckout',
+        { content_name: itemName, content_category: 'subscription' }
+      );
+    });
+  }
+
+  // 3. draw-hl 抽牌按鈕追蹤
+  if (pagePath.includes('draw-hl')) {
+    document.addEventListener('click', function(e) {
+      var btn = e.target.closest('#drawBtn, [onclick*="drawCard"], [onclick*="startDraw"], .draw-btn');
+      if (!btn) return;
+      trackEvent(
+        'draw_card',
+        { event_category: 'engagement', event_label: 'draw_hl' },
+        'CustomizeProduct',
+        { content_name: '130張牌卡抽牌', content_category: 'draw' }
+      );
+    });
+  }
+
+  // 4. 公開 GA4 轉換追蹤函數（供 hl-tracker.js 和其他模組呼叫）
+  window.hlTrackGA4 = function(eventName, params) {
+    if (hasGA) gtag('event', eventName, params || {});
+  };
+
 })();
