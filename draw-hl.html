@@ -2067,6 +2067,16 @@ function payOnlinePayUni() {
       }
       if (tries > 60) clearInterval(poll); // 30 秒後放棄
     }, 500);
+  } else if (payment === 'success' && !codeFromUrl) {
+    // 超商代碼 / ATM 轉帳等延遲付款：尚未取得代碼
+    setTimeout(function(){
+      var banner = document.createElement('div');
+      banner.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:9999;padding:14px 24px;border-radius:10px;background:rgba(18,13,28,.96);color:#f8dfa5;font-size:.9rem;border:1px solid rgba(248,223,165,.3);box-shadow:0 4px 20px rgba(0,0,0,.4);max-width:90vw;text-align:center;line-height:1.6';
+      banner.innerHTML = '✓ 訂單已建立<br>繳費完成後，AI 解讀會自動寄到您的信箱';
+      document.body.appendChild(banner);
+      setTimeout(function(){ banner.style.opacity='0'; banner.style.transition='opacity .5s'; setTimeout(function(){ banner.remove(); }, 600); }, 8000);
+      if (history.replaceState) history.replaceState(null, '', location.pathname);
+    }, 500);
   } else if (payment === 'fail' || payment === 'cancel') {
     setTimeout(function(){
       alert(payment === 'cancel' ? '您已取消付款。' : '付款未成功，請重新嘗試或聯繫 LINE @hourlight。');
