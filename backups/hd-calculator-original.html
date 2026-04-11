@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-BXP7K53QG6');</script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>人類圖計算器｜馥靈之鑰</title>
+<meta name="description" content="馥靈之鑰人類圖計算器免費生成完整人體圖，輸入出生時間與地點即時計算類型、策略、內在權威、人生角色、九大能量中心與通道。支援一鍵複製AI深度解讀指令。">
+<link rel="icon" href="favicon.ico"/>
+<link rel="alternate" hreflang="zh-Hant" href="https://hourlightkey.com/hd-calculator.html">
+<link rel="alternate" hreflang="zh-Hans" href="https://hourlightkey.com/sc/human-design.html">
+<link rel="stylesheet" href="assets/css/hourlight-global.css">
+<link rel="stylesheet" href="assets/css/hl-design-tokens.css">
+<link rel="stylesheet" href="assets/css/hl-music.css">
+<style>
+:root{
+  --gold:#f8dfa5;--gold2:#c9954a;--deep:#08050f;--panel:rgba(12,8,22,0.94);
+  --text:#f0e8d8;--sub:#ffffff;--border:rgba(233,194,125,0.18);
+  --def:#b8922a;--undef:rgba(233,194,125,0.18);
+  --channel-d:#e05555;--channel-p:#5588e0;--channel-dp:#9966cc;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;min-height:100dvh;font-family:'LXGW WenKai TC','Noto Serif TC',serif;color:var(--text);background:var(--deep);padding:20px 16px 120px;}
+.wrap{max-width:860px;margin:0 auto;}
+.hero{text-align:center;padding:36px 0 24px;}
+.hero h1{font-size:1.8rem;font-weight:500;color:var(--gold);letter-spacing:.08em;margin-bottom:8px;}
+.hero p{font-size:.95rem;color:var(--sub);line-height:1.7;}
+
+/* INPUT */
+.input-card{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:28px 24px;margin-bottom:24px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+.input-label{font-size:.9rem;color:var(--gold);letter-spacing:.06em;margin-bottom:10px;display:block;}
+.field-row{display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.field-row input,.field-row select{background:rgba(233,194,125,0.06);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:inherit;font-size:.9rem;outline:none;transition:.2s;}
+.field-row input:focus,.field-row select:focus{border-color:var(--gold);}
+.field-row select option{background:#1a1030;color:var(--text);}
+.fw{flex:1;min-width:80px;}
+.fw-wide{flex:2;min-width:120px;}
+.hint{font-size:.95rem;color:var(--sub);margin-top:6px;}
+.load-msg{font-size:.95rem;color:var(--gold);text-align:center;min-height:18px;margin-bottom:8px;}
+.calc-btn{width:100%;margin-top:6px;padding:14px;background:linear-gradient(135deg,var(--gold2),var(--gold));color: #ffffff;font-family:inherit;font-size:1rem;font-weight:600;border:none;border-radius:12px;cursor:pointer;letter-spacing:.06em;transition:.2s;}
+.calc-btn:hover{opacity:.9;transform:translateY(-1px);}
+
+/* RESULT */
+.result{display:none;}.result.show{display:block;}
+
+/* Type badge */
+.type-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;align-items:stretch;}
+.type-main{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;flex:2;min-width:200px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+.type-label{font-size:.95rem;color:var(--sub);letter-spacing:.1em;margin-bottom:6px;}
+.type-name{font-size:1.5rem;font-weight:500;color:var(--gold);margin-bottom:8px;}
+.type-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.tag{padding:4px 12px;border-radius:16px;font-size:.95rem;border:1px solid;}
+.tag.strat{color:#55b888;border-color:rgba(85,184,136,0.75);background:rgba(85,184,136,0.08);}
+.tag.auth{color:#5588e0;border-color:rgba(85,136,224,0.75);background:rgba(85,136,224,0.08);}
+.tag.prof{color:#cc88ff;border-color:rgba(204,136,255,0.75);background:rgba(204,136,255,0.08);}
+.tag.nst{color:#e07755;border-color:rgba(224,119,85,0.75);background:rgba(224,119,85,0.08);}
+.type-side{display:flex;flex-direction:column;gap:12px;flex:1;min-width:140px;}
+.side-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);flex:1;}
+.sc-label{font-size:.95rem;color:var(--sub);letter-spacing:.08em;margin-bottom:4px;}
+.sc-val{font-size:.9rem;color:var(--text);}
+
+/* BodyGraph layout */
+.bg-layout{display:grid;grid-template-columns:180px 1fr 180px;gap:0;margin-bottom:24px;align-items:start;}
+@media(max-width:640px){.bg-layout{grid-template-columns:1fr;}}
+.design-col,.person-col{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+.design-col{border-radius:16px 0 0 16px;border-right:none;}
+.person-col{border-radius:0 16px 16px 0;border-left:none;}
+.col-header{font-size:.95rem;letter-spacing:.12em;text-align:center;padding:6px 0 10px;border-bottom:1px solid var(--border);margin-bottom:10px;}
+.col-header.d{color:#e05555;}
+.col-header.p{color:#5588e0;}
+.gate-row{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.95rem;}
+.gate-row .planet{width:18px;text-align:center;opacity:.7;}
+.gate-row .gnum{width:32px;font-weight:600;}
+.gate-row.dc .gnum{color:#e05555;}
+.gate-row.pc .gnum{color:#5588e0;}
+.gate-row.both .gnum{color:#9966cc;}
+
+/* SVG bodygraph */
+.bg-svg-wrap{background:var(--panel);border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;padding:12px 0;}
+#bgSvg{width:100%;max-width:280px;display:block;margin:0 auto;}
+
+/* Channels */
+.channels-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:16px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+.ch-title{font-size:.92rem;color:var(--gold);letter-spacing:.08em;margin-bottom:14px;}
+.ch-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+@media(max-width:480px){.ch-list{grid-template-columns:1fr;}}
+.ch-item{display:flex;gap:8px;align-items:center;padding:8px 10px;background:rgba(233,194,125,0.04);border:1px solid var(--border);border-radius:10px;}
+.ch-gates{font-size:.9rem;font-weight:600;color:var(--gold);min-width:40px;}
+.ch-name{font-size:.9rem;color:var(--text);}
+
+/* Centers */
+.centers-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+@media(max-width:480px){.centers-grid{grid-template-columns:1fr 1fr;}}
+.center-item{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+.center-item.defined{border-color:rgba(233,194,125,0.82);background:rgba(233,194,125,0.06);}
+.center-item.undefined{opacity:.65;}
+.ci-name{font-size:.9rem;color:var(--text);margin-bottom:4px;}
+.ci-state{font-size:.7rem;letter-spacing:.08em;}
+.ci-state.d{color:#55b888;}.ci-state.u{color:var(--sub);}
+
+/* Profile */
+.profile-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:16px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+.pf-title{font-size:.92rem;color:var(--gold);margin-bottom:14px;}
+.pf-num{font-size:2.5rem;font-weight:500;color:var(--gold);line-height:1;margin-bottom:8px;}
+.pf-name{font-size:1rem;color:var(--text);margin-bottom:10px;}
+.pf-desc{font-size:.92rem;color:var(--sub);line-height:1.7;}
+
+/* AI block */
+.ai-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:16px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+.ai-title{font-size:.92rem;color:var(--gold);margin-bottom:12px;}
+.ai-pre{white-space:pre-wrap;font-size:.95rem;color:var(--sub);line-height:1.7;font-family:inherit;}
+.copy-btn{margin-top:12px;padding:9px 20px;background:rgba(233,194,125,0.1);border:1px solid var(--border);border-radius:8px;color:var(--gold);font-family:inherit;font-size:.9rem;cursor:pointer;transition:.2s;}
+.copy-btn:hover{background:rgba(233,194,125,0.18);}
+
+.cta-block{background:linear-gradient(135deg,rgba(233,194,125,0.08),rgba(92,58,128,0.08));border:1px solid var(--border);border-radius:16px;padding:24px;text-align:center;margin-top:24px;}
+.cta-block h3{font-size:1rem;color:var(--gold);margin-bottom:8px;}
+.cta-block p{font-size:.83rem;color:var(--sub);margin-bottom:16px;line-height:1.6;}
+.cta-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.cta-btn{padding:10px 22px;border-radius:24px;font-family:inherit;font-size:.92rem;cursor:pointer;text-decoration:none;border:none;}
+.cta-btn.p{background:linear-gradient(135deg,var(--gold2),var(--gold));color: #ffffff;font-weight:600;}
+.cta-btn.s{background:transparent;border:1px solid var(--gold);color:var(--gold);}
+
+.origin-block{background:rgba(233,194,125,.03);border:1px solid rgba(233,194,125,.12);border-radius:16px;padding:0;margin:0 0 24px;overflow:hidden}
+.origin-toggle{padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:.92rem;color:var(--gd,var(--gold,var(--ff-gold,#f8dfa5)));letter-spacing:.06em;transition:.2s;user-select:none}
+.origin-toggle:hover{background:rgba(233,194,125,.05)}
+.origin-arrow{font-size:.7rem;transition:transform .3s}
+.origin-block.open .origin-arrow{transform:rotate(180deg)}
+.origin-content{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.origin-block.open .origin-content{max-height:5000px}
+.origin-inner{padding:0 20px 20px;font-size:.85rem;color:rgba(249,240,229,.7);line-height:1.9}
+.origin-inner p{margin-bottom:12px}
+.origin-inner .oi-main{color:#f8dfa5;font-size:1.05rem;font-weight:700;display:block;margin:12px 0 10px;letter-spacing:.04em}.origin-inner .oi-era{color:#f0e8d8;font-size:1.02rem;font-weight:700;display:block;margin:20px 0 6px;letter-spacing:.04em}
+.origin-inner .oi-sec{color:#f8dfa5;font-size:1rem;font-weight:700;margin:24px 0 10px;padding:10px 0 6px;border-top:1px solid rgba(233,194,125,.18);display:flex;align-items:center;gap:6px;letter-spacing:.06em}
+.origin-inner .oi-note{font-size:.78rem;color:rgba(249,240,229,.45);margin-top:8px;padding-top:8px;border-top:1px solid rgba(233,194,125,.08);font-style:italic}
+
+
+.hero{position:relative;overflow:visible}
+.hero-deco{z-index:0}
+
+/* ── Mobile App Touch Feel ── */
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+button,a,select,input[type=submit],input[type=button],.calc-btn,.draw-card{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+button:active,input[type=submit]:active,.calc-btn:active{transform:scale(.97);transition:transform .08s}
+select,input[type=text],input[type=number],input[type=date],input[type=email],textarea{font-size:16px!important}
+@media(max-width:600px){
+  body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  button,input[type=submit],input[type=button],.calc-btn{min-height:48px}
+}
+</style>
+<!-- Facebook Pixel -->
+<script>!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1333106288588347');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" alt=""
+src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"></noscript>
+<!-- End Facebook Pixel -->
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://hourlightkey.com/hd-calculator.html"/>
+<meta property="og:title" content="人類圖計算器｜馥靈之鑰"/>
+<meta property="og:description" content="輸入出生時間地點，即時計算人類圖類型、策略、內在權威、通道與人生角色。馥靈之鑰。"/>
+<meta property="og:image" content="https://hourlightkey.com/og-image.jpg"/>
+<meta property="og:locale" content="zh_TW"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="人類圖計算器｜馥靈之鑰"/>
+<meta name="twitter:description" content="輸入出生時間地點，即時計算人類圖類型、策略、內在權威、通道與人生角色。馥靈之鑰。"/>
+<link rel="canonical" href="https://hourlightkey.com/hd-calculator.html"/>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "人類圖計算器",
+  "description": "輸入出生時間地點，即時計算人類圖類型、策略、內在權威、通道與人生角色。",
+  "url": "https://hourlightkey.com/hd-calculator.html",
+  "applicationCategory": "LifestyleApplication",
+  "operatingSystem": "All",
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "TWD"},
+  "provider": {
+    "@type": "Organization",
+    "name": "馥靈之鑰 Hour Light",
+    "url": "https://hourlightkey.com"
+  }
+}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"人類圖免費查詢怎麼用？","acceptedAnswer":{"@type":"Answer","text":"輸入出生日期、時間與地點，系統會即時計算你的人類圖，包含類型、策略、內在權威、人生角色、九大能量中心與通道定義，完全免費。"}},
+{"@type":"Question","name":"人類圖的內在權威是什麼？","acceptedAnswer":{"@type":"Answer","text":"內在權威是你做決定的最佳方式。常見的有情緒權威（等情緒波平靜再決定）、薦骨權威（聽身體的直覺回應）、脾中心權威（瞬間直覺）等，每個人不同。"}},
+{"@type":"Question","name":"人類圖有哪些類型？","acceptedAnswer":{"@type":"Answer","text":"人類圖有五種類型：生產者（等待回應）、顯示生產者（等待回應再行動）、投射者（等待邀請）、顯示者（主動告知）、反映者（等待月循環）。每種類型有對應的策略與非自己主題。"}}
+]}
+</script>
+</head>
+<body>
+<div class="hl-cosmos">
+  <div class="hl-stars-layer hl-stars-1"></div>
+  <div class="hl-stars-layer hl-stars-2"></div>
+  <div class="hl-stars-layer hl-stars-3"></div>
+  <div class="hl-meteors"><div class="hl-meteor"></div><div class="hl-meteor"></div><div class="hl-meteor"></div><div class="hl-meteor"></div><div class="hl-meteor"></div><div class="hl-meteor"></div></div>
+  <div class="hl-aura hl-aura-1"></div><div class="hl-aura hl-aura-2"></div>
+</div>
+
+<div class="wrap">
+<img src="images/page-banners-web/hd-calculator.webp" alt="" style="width:100%;max-width:600px;max-height:180px;object-fit:cover;margin:0 auto 20px;display:block;border-radius:12px" loading="lazy" onerror="this.style.display='none'">
+
+  <div class="hero">
+    <h1>🔑 人類圖計算器</h1>
+    <p>輸入出生時間與地點，即時呈現您的人類圖<br>包含 BodyGraph、通道、能量中心與人生角色完整解析</p>
+  </div>
+
+  <p style="font-size:.92rem;color:var(--sub);line-height:1.8;max-width:720px;margin:0 auto 24px;padding:0 8px;">馥靈之鑰人類圖計算器免費生成完整人體圖（BodyGraph），輸入出生日期、時間與地點，系統即時計算您的類型（生產者/投射者/顯示者/反映者）、策略、內在權威、人生角色與輪迴交叉。結果包含九大能量中心的啟動狀態、所有通道與閘門。計算完成後可一鍵複製 AI 深度解讀指令，貼到 ChatGPT 或 Claude 獲得個人化的人類圖分析。也可以前往三十三合一命盤引擎，同時計算八字、紫微、占星等 33 套命理系統。</p>
+
+  <div class="origin-block">
+<div class="origin-toggle">📜 人類圖 · 源頭脈絡 × 科學關聯 × 馥靈馥語 <span class="origin-arrow">▼</span></div>
+<div class="origin-content"><div class="origin-inner">
+
+<p><span class="oi-main">📜 源頭脈絡</span></p>
+
+<p>1987年1月3日晚上，地中海伊比薩島。</p>
+
+<p>一個加拿大人躺在沒有電的石屋裡，聽見了聲音。那個聲音連續講了八天八夜。他全部寫下來。寫完之後，他說他再也不是原來那個人了。</p>
+
+<p>他本名 Robert Allan Krakower，蒙特婁人，學心理學和統計出身，後來做廣告、做媒體、做雜誌。1983年，他丟下一切跑到伊比薩島，過了幾年幾乎是隱居的日子。然後那個夜晚發生了。</p>
+
+<p>他後來改名叫 Ra Uru Hu。他把那八天聽到的東西整理出來，變成一套系統。這套系統把四種古老的知識架構混在一起：易經的64卦、卡巴拉生命樹、印度脈輪系統、西洋占星。然後加入現代遺傳學的語言，用出生時間排出一張圖。</p>
+
+<p>他叫這張圖「人體圖」（BodyGraph）。這套系統叫「人類圖」（Human Design）。</p>
+
+<p><span class="oi-era">一套沒有祖師爺的系統</span></p>
+
+<p>和八字、紫微、西洋占星不一樣，人類圖沒有幾千年的傳承脈絡。它在1987年一次到位。沒有師傅教徒弟，沒有口訣傳了幾百年，沒有經典被後人註解了十幾輪。</p>
+
+<p>這讓它很特別，也讓它充滿爭議。</p>
+
+<p>信的人覺得它精準到不可思議。不信的人覺得一個人在島上聽了八天的聲音，怎麼可能就產出一套完整的知識系統。Ra 自己也知道這件事很難被接受。他常說的一句話是：「不要相信我說的任何話。自己去試。」</p>
+
+<p>不管起源故事信不信，這套系統本身的結構確實很完整。</p>
+
+<p><span class="oi-era">人類圖在講什麼</span></p>
+
+<p>核心概念是「能量類型」。根據出生時間排出的人體圖，每個人會被歸類為四種類型之一：</p>
+
+<p>顯示者（Manifestor）：天生的發起者，不需要等別人同意就能動。全人類大約8%。他們的策略是「告知」，不是請求許可，是讓周圍的人知道他要做什麼。</p>
+
+<p>生產者（Generator）和顯示生產者（Manifesting Generator）：人口最大宗，大約70%。能量最持久，但必須「等待回應」。不是被動，是讓對的事情來找他，而不是他去追。薦骨中心有定義，身體會用一種很原始的「嗯哼」或「嗯嗯」來回應。</p>
+
+<p>投射者（Projector）：大約20%。天生看得見別人的運作方式，適合引導和管理，但必須「等待邀請」。沒有被邀請就主動給建議，通常不會被聽見。</p>
+
+<p>反映者（Reflector）：最稀少，大約1%。所有中心都沒有定義，像一面鏡子，反映環境的狀態。重大決定建議等一個月相週期（約28天）。</p>
+
+<p>除了類型，還有「內在權威」。這是人類圖裡最實用的部分。它告訴您做決定的時候，應該聽哪裡的聲音。薦骨權威聽肚子，情緒權威等情緒的浪走完再決定，脾權威聽第一瞬間的直覺，自我投射權威聽自己說出口的話。</p>
+
+<p>還有人體圖上的九大能量中心（對應脈輪系統但重新定義）、64個閘門（對應易經64卦）、36條通道。有定義的部分是穩定的能量，空白的部分是容易被外界影響的地方。</p>
+
+<p><span class="oi-era">Ra 之後</span></p>
+
+<p>Ra Uru Hu 在2011年過世。在那之前的二十多年，他走遍世界教這套系統，建立了國際人類圖學院（IHDS），培訓了大量的分析師。他的學生 Richard Rudd 後來發展出「基因天命」（Gene Keys），把人類圖的64閘門用更詩意的方式重新詮釋。</p>
+
+<p>人類圖這幾年在全球爆發式成長。社群媒體上到處都是「我是顯示生產者」「投射者不要主動追人」。它從一個小眾系統變成了流行文化的一部分。流行代表被簡化，但也代表觸及到的人更多。</p>
+
+<div class="oi-sec">📡 科學錨點</div>
+
+<p>人類圖的「薦骨回應」，說的是身體比腦袋更早知道答案。這個說法在神經科學裡有一個非常接近的對應。</p>
+
+<p>葡萄牙裔美國神經科學家 Antonio Damasio 在1994年提出了「身體標記假說」（Somatic Marker Hypothesis）。他的研究發現，人在做決策的時候，身體會比意識更早產生反應。那些「直覺」「第六感」「gut feeling」，不是玄學，是身體根據過去的經驗，在意識還沒來得及分析之前就先給出的訊號。腹部有大量的神經元（腸神經系統，有時被稱為「第二大腦」），它們確實會對環境刺激產生獨立的反應。</p>
+
+<p>人類圖裡「薦骨權威」強調的「聽肚子的聲音」，和 Damasio 描述的身體標記機制，走的是同一條路。</p>
+
+<p>另一個對應是「空白中心」的概念。人類圖說空白中心容易吸收外界的能量，會放大那個領域的感受。美國心理學家 Elaine Aron 從1991年開始研究「高度敏感族群」（Highly Sensitive Person, HSP），發現約15-20%的人具有感覺處理敏感性（Sensory Processing Sensitivity），對環境刺激的反應強度顯著高於一般人。空白中心多的人類圖和高敏感族群的描述之間，存在很高的重疊性。</p>
+
+<p>人類圖不是科學。但它描述的某些現象，和神經科學、人格心理學觀察到的東西，在某些地方對得上。至少值得好奇。</p>
+
+<div class="oi-sec">🌿 馥靈馥語</div>
+
+<p>不同的內在權威，需要不同的氣味來幫忙。</p>
+
+<p>薦骨權威的人，決策靠肚子。甜茴香的溫暖感會沉到腹部，像在提醒那裡：「嘿，您有話要說。」幫薦骨把聲音放大，讓腦袋安靜一點。</p>
+
+<p>情緒權威的人，決策不能在情緒的浪頭上做。快樂鼠尾草的氣味像一隻手，不是壓住情緒，是陪著它走完。等浪退了，答案自然浮出水面。</p>
+
+<p>脾權威的人，靠的是瞬間的直覺。尤加利的穿透力幫他保持那個「第一秒」的清醒。脾權威最怕的是猶豫，一猶豫，直覺就被腦袋蓋掉了。</p>
+
+<p>空白中心多的人（特別是情緒中心空白），容易把別人的情緒當成自己的。乳香幫他畫一條線：這是我的，那是您的。不是隔絕，是分辨。</p>
+
+<p>人類圖告訴您怎麼做決定。精油幫您的身體記住那個方式。</p>
+
+<p class="oi-note">✦ 身體比腦袋更早知道答案。精油只是幫您聽見。</p>
+
+</div></div></div>
+<div class="input-card">
+    <span class="input-label">✦ 出生資訊（需要精確時間才能計算人類圖）</span>
+    <div class="field-row">
+      <input class="fw" type="number" id="by" placeholder="年 YYYY" min="1920" max="2030" maxlength="4" oninput="if(this.value.length>4)this.value=this.value.slice(0,4)">
+      <input class="fw" type="number" id="bm" placeholder="月 MM" min="1" max="12">
+      <input class="fw" type="number" id="bd" placeholder="日 DD" min="1" max="31">
+      <input class="fw" type="number" id="bh" placeholder="時 HH" min="0" max="23">
+      <input class="fw" type="number" id="bmin" placeholder="分 MM" min="0" max="59">
+    </div>
+    <div class="field-row">
+      <select class="fw-wide" id="bplace" onchange="var o=this.options[this.selectedIndex];document.getElementById('btz').value=o.getAttribute('data-tz')||'8';">
+        <optgroup label="台灣">
+          <option value="25.05,121.52" data-tz="8" selected>台北市</option>
+          <option value="25.01,121.47" data-tz="8">新北市</option>
+          <option value="25.13,121.74" data-tz="8">基隆市</option>
+          <option value="24.99,121.30" data-tz="8">桃園市</option>
+          <option value="24.80,120.97" data-tz="8">新竹市</option>
+          <option value="24.56,120.82" data-tz="8">苗栗縣</option>
+          <option value="24.26,120.54" data-tz="8">台中市</option>
+          <option value="23.96,120.97" data-tz="8">南投縣</option>
+          <option value="23.90,120.54" data-tz="8">彰化縣</option>
+          <option value="23.75,120.54" data-tz="8">雲林縣</option>
+          <option value="23.47,120.45" data-tz="8">嘉義市</option>
+          <option value="22.99,120.21" data-tz="8">台南市</option>
+          <option value="22.62,120.30" data-tz="8">高雄市</option>
+          <option value="22.36,120.55" data-tz="8">屏東縣</option>
+          <option value="23.97,121.60" data-tz="8">花蓮縣</option>
+          <option value="22.75,121.15" data-tz="8">台東縣</option>
+          <option value="24.85,121.55" data-tz="8">宜蘭縣</option>
+        </optgroup>
+        <optgroup label="中國大陸">
+          <option value="39.90,116.40" data-tz="8">北京</option>
+          <option value="31.23,121.47" data-tz="8">上海</option>
+          <option value="23.13,113.26" data-tz="8">廣州</option>
+          <option value="22.54,114.06" data-tz="8">深圳</option>
+          <option value="30.57,104.07" data-tz="8">成都</option>
+          <option value="29.56,106.55" data-tz="8">重慶</option>
+          <option value="22.20,113.55" data-tz="8">澳門</option>
+          <option value="22.28,114.16" data-tz="8">香港</option>
+        </optgroup>
+        <optgroup label="馬來西亞">
+          <option value="3.14,101.69" data-tz="8">吉隆坡</option>
+          <option value="3.07,101.51" data-tz="8">八打靈再也</option>
+          <option value="5.42,100.34" data-tz="8">檳城</option>
+          <option value="1.47,103.74" data-tz="8">新山</option>
+          <option value="3.17,101.71" data-tz="8">安邦</option>
+          <option value="1.56,110.35" data-tz="8">古晉</option>
+          <option value="5.98,116.07" data-tz="8">亞庇</option>
+        </optgroup>
+        <optgroup label="新加坡">
+          <option value="1.35,103.82" data-tz="8">新加坡</option>
+        </optgroup>
+        <optgroup label="日本 / 韓國">
+          <option value="35.68,139.69" data-tz="9">東京</option>
+          <option value="34.69,135.50" data-tz="9">大阪</option>
+          <option value="37.57,126.98" data-tz="9">首爾</option>
+        </optgroup>
+        <optgroup label="其他">
+          <option value="13.76,100.50" data-tz="7">曼谷</option>
+          <option value="21.03,105.85" data-tz="7">河內</option>
+          <option value="51.51,-0.13" data-tz="0">倫敦</option>
+          <option value="40.71,-74.01" data-tz="-5">紐約</option>
+          <option value="34.05,-118.24" data-tz="-8">洛杉磯</option>
+          <option value="-33.87,151.21" data-tz="10">雪梨</option>
+        </optgroup>
+      </select>
+    </div>
+    <input type="hidden" id="btz" value="8">
+    <div class="hint">※ 使用瑞士星曆表（Swiss Ephemeris）即時運算，精度達秒角等級。</div>
+    <div class="load-msg" id="loadMsg"></div>
+    <button class="calc-btn" onclick="doCalc()">✦ 計算我的人類圖</button>
+  </div>
+
+  <div class="result" id="result">
+    <!-- Type / Strategy / Authority -->
+    <div class="type-bar">
+      <div class="type-main">
+        <div class="type-label">類型 TYPE</div>
+        <div class="type-name" id="typeName">-</div>
+        <div class="type-tags" id="typeTags"></div>
+      </div>
+      <div class="type-side">
+        <div class="side-card"><div class="sc-label">人生角色 PROFILE</div><div class="sc-val" id="profileVal">-</div></div>
+        <div class="side-card"><div class="sc-label">定義 DEFINITION</div><div class="sc-val" id="defTypeVal">-</div></div>
+        <div class="side-card"><div class="sc-label">非自己主題 NOT-SELF</div><div class="sc-val" id="nstVal">-</div></div>
+        <div class="side-card" style="flex:2"><div class="sc-label">輪迴交叉 INCARNATION CROSS</div><div class="sc-val" id="crossVal" style="font-size:.85rem;line-height:1.5">-</div></div>
+      </div>
+    </div>
+
+    <!-- BodyGraph + side columns -->
+    <div class="bg-layout">
+      <div class="design-col">
+        <div class="col-header d">◀ 潛意識設計</div>
+        <div id="designGates"></div>
+      </div>
+      <div class="bg-svg-wrap">
+        <svg id="bgSvg" viewBox="0 0 280 480" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="person-col">
+        <div class="col-header p">意識人格 ▶</div>
+        <div id="personGates"></div>
+      </div>
+    </div>
+
+    <!-- Channels -->
+    <div class="channels-card">
+      <div class="ch-title">⚡ 已啟動通道（已定義電路）</div>
+      <div class="ch-list" id="channelList"></div>
+    </div>
+
+    <!-- Centers -->
+    <div class="ch-title" style="font-size:.92rem;color:var(--gold);margin-bottom:12px;padding-left:2px;">✦ 九大能量中心</div>
+    <div class="centers-grid" id="centersGrid"></div>
+
+    <!-- Profile -->
+    <div class="profile-card" id="profileCard"></div>
+
+    <!-- AI Prompt -->
+    <div class="ai-card">
+      <div class="ai-title">📜 AI深度解讀指令</div>
+      <pre class="ai-pre" id="aiPre"></pre>
+      <button class="copy-btn" onclick="copyData('aiPre',this)">📋 複製命盤資料</button><button class="copy-btn" style="margin-left:8px;background:rgba(160,124,220,.12);border-color:rgba(160,124,220,.3)" onclick="hlAICopy('aiPre','hd',this)">🔮 複製AI深度解讀指令</button>
+    </div>
+
+    <div class="cta-block">
+      <h3>看懂了人類圖，接下來呢？</h3>
+      <p>人類圖是您的「出廠設定書」，但怎麼活出來才是重點。馥靈之鑰牌卡系統，幫您把這份設計接回當下的日常選擇。</p>
+      <div class="cta-btns">
+        <a href="draw-hl.html" class="cta-btn p">抽一張牌問今天</a>
+        <a href="consulting.html" class="cta-btn s">預約深度解讀</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ 人類圖計算邏輯（完全同步 destiny-engine.html）═══
+var EPH=null,EPH_LOADING=false;
+// ═══ Swiss Ephemeris WASM 引擎 ═══
+var SWE=null,SWE_READY=false,SWE_TRIED=false;
+async function loadSwissEph(){
+  if(SWE_READY)return true;if(SWE_TRIED)return false;SWE_TRIED=true;
+  try{
+    var mod=await import('https://cdn.jsdelivr.net/gh/prolaxu/swisseph-wasm@main/src/swisseph.js');
+    SWE=new mod.default();await SWE.initSwissEph();SWE_READY=true;
+    if(window.HL_DEBUG) console.log('Swiss Ephemeris WASM loaded ✓');return true;
+  }catch(e){console.warn('WASM unavailable, using JSON fallback',e);return false;}
+}
+function sweCalcPlanets(Y,M,D,H,Min,tz){
+  var utcH=H-tz+(Min||0)/60;var jd=SWE.julday(Y,M,D,utcH);
+  var B=[[0,'sun'],[1,'moon'],[2,'mercury'],[3,'venus'],[4,'mars'],[5,'jupiter'],[6,'saturn'],[7,'uranus'],[8,'neptune'],[9,'pluto'],[11,'node']];
+  var r={};B.forEach(function(b){var p=SWE.calc_ut(jd,b[0],0);r[b[1]]={lon:p[0]};});
+  r.earth={lon:(r.sun.lon+180)%360};r.snode={lon:(r.node.lon+180)%360};
+  r.chiron={lon:0};// Moshier 不支援凱龍，後面用 JSON 補
+  return{planets:r,jd:jd};
+}
+function sweDesignDate(birthJd,birthSunLon){
+  var target=(birthSunLon-88+360)%360;
+  var lo=birthJd-95,hi=birthJd-80;
+  for(var i=0;i<80;i++){var mid=(lo+hi)/2;var p=SWE.calc_ut(mid,0,0);var df=target-p[0];if(df>180)df-=360;if(df<-180)df+=360;if(df>0)lo=mid;else hi=mid;}
+  var djd=(lo+hi)/2;
+  var B=[[0,'sun'],[1,'moon'],[2,'mercury'],[3,'venus'],[4,'mars'],[5,'jupiter'],[6,'saturn'],[7,'uranus'],[8,'neptune'],[9,'pluto'],[11,'node']];
+  var r={};B.forEach(function(b){var p=SWE.calc_ut(djd,b[0],0);r[b[1]]={lon:p[0]};});
+  r.earth={lon:(r.sun.lon+180)%360};r.snode={lon:(r.node.lon+180)%360};
+  r.chiron={lon:0};
+  return{dPlanets:r,designJd:djd};
+}
+var SIGNS=['牡羊','金牛','雙子','巨蟹','獅子','處女','天秤','天蠍','射手','摩羯','水瓶','雙魚'];
+var P_ORDER=['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','node','chiron'];
+var P_NAMES_ZH=['太陽☉','地球⊕','月亮☽','北交節☊','南交節☋','水星☿','金星♀','火星♂','木星♃','土星♄','天王星♅','海王星♆','冥王星♇'];
+var P_SYMS=['☉','⊕','☽','☊','☋','☿','♀','♂','♃','♄','♅','♆','♇'];
+
+var GATE_TABLE=[[358.25,25],[3.875,17],[9.5,21],[15.125,51],[20.75,42],[26.375,3],[32.0,27],[37.625,24],[43.25,2],[48.875,23],[54.5,8],[60.125,20],[65.75,16],[71.375,35],[77.0,45],[82.625,12],[88.25,15],[93.875,52],[99.5,39],[105.125,53],[110.75,62],[116.375,56],[122.0,31],[127.625,33],[133.25,7],[138.875,4],[144.5,29],[150.125,59],[155.75,40],[161.375,64],[167.0,47],[172.625,6],[178.25,46],[183.875,18],[189.5,48],[195.125,57],[200.75,32],[206.375,50],[212.0,28],[217.625,44],[223.25,1],[228.875,43],[234.5,14],[240.125,34],[245.75,9],[251.375,5],[257.0,26],[262.625,11],[268.25,10],[273.875,58],[279.5,38],[285.125,54],[290.75,61],[296.375,60],[302.0,41],[307.625,19],[313.25,13],[318.875,49],[324.5,30],[330.125,55],[335.75,37],[341.375,63],[347.0,22],[352.625,36]];
+
+function lonToGate(lon){lon=((lon%360)+360)%360;for(var i=GATE_TABLE.length-1;i>=0;i--){if(lon>=GATE_TABLE[i][0]){var gate=GATE_TABLE[i][1],dist=lon-GATE_TABLE[i][0];return{gate:gate,line:Math.min(Math.floor(dist/0.9375)+1,6)};}}var dist=lon-GATE_TABLE[63][0]+360;return{gate:GATE_TABLE[63][1],line:Math.min(Math.floor(dist/0.9375)+1,6)};}
+
+var HD_CHANNELS={'1-8':'靈感','2-14':'方向','3-60':'突變','4-63':'邏輯','5-15':'韻律','6-59':'親密','7-31':'Alpha','9-52':'專注','10-20':'覺醒','10-34':'探索','10-57':'完美','11-56':'好奇','12-22':'開放','13-33':'浪子','16-48':'才華','17-62':'接受','18-58':'批判','19-49':'綜合','20-34':'魅力','20-57':'腦波','21-45':'金錢','23-43':'架構','24-61':'覺察','25-51':'發起','26-44':'投降','27-50':'保存','28-38':'困頓掙扎','29-46':'發現','30-41':'夢想','32-54':'轉化','34-57':'力量','35-36':'無常','37-40':'社群','39-55':'情緒','42-53':'成熟','47-64':'抽象'};
+
+var HD_CENTERS={head:[61,63,64],ajna:[47,24,4,17,43,11],throat:[62,23,56,35,12,45,33,8,31,20,16],g:[46,2,15,10,25,7,1,13],sacral:[5,14,29,59,9,3,42,27,34],spleen:[48,57,44,50,32,28,18],solar:[6,37,22,36,49,55,30],ego:[21,40,26,51],root:[53,60,52,19,39,41,58,38,54]};
+var HD_CENTER_NAMES={head:'頭頂',ajna:'阿賈那',throat:'喉嚨',g:'G中心',sacral:'薦骨',spleen:'脾',solar:'情緒',ego:'意志力',root:'根部'};
+var HD_CENTER_DESC={head:'靈感與思維壓力的來源，推動思考',ajna:'思考、分析與組織概念的能量中心',throat:'實踐、行動與溝通的閥門',g:'身份、方向與愛的核心導航',sacral:'薦骨（肚臍以下）：生命能量、持久力與身體回應的根基。YES=下腹發熱往前傾、嗯哼！ NO=下腹發涼往後縮、嗯⋯',spleen:'直覺、健康與當下覺察的雷達',solar:'情緒波浪，等待清晰才能做決定',ego:'意志力、承諾與物質世界的力量',root:'腎上腺與生存壓力，驅動生命前進'};
+
+var PROFILE_DATA={
+  '1/3':{name:'研究者｜殉道者',desc:'你是天生的資料庫。要研究到安心才能前進，然後用不斷試錯的方式找到真正管用的路。你的「出包」不是失誤，是你給世界最真實的示範。'},
+  '1/4':{name:'研究者｜機會主義者',desc:'你靠知識建立安全感，靠人脈展開機會之門。研究夠了才能分享，而分享給對的人是你最大的天賦。'},
+  '2/4':{name:'隱士｜機會主義者',desc:'你需要獨處充電，但機會往往從人際關係中出現。你最好的狀態是：休息夠了，被對的人邀請，然後自然地展現才能。'},
+  '2/5':{name:'隱士｜異端者',desc:'別人眼中的你，比你自己想的更有力量。你可能還在獨處的小房間裡，外面已經有人在等待你的解方了。'},
+  '3/5':{name:'殉道者｜異端者',desc:'你是實驗者，也是眾人的希望。試錯的過程不是浪費，而是你對世界最珍貴的貢獻。你被期待能解決實際問題。'},
+  '3/6':{name:'殉道者｜角色模型',desc:'人生前半段是試錯期，後半段是智慧分享期。30歲前的「出包」，是在替後來的你準備素材。'},
+  '4/6':{name:'機會主義者｜角色模型',desc:'你靠關係改變世界，同時也是別人的活教材。隨著年齡增長，你的存在本身就是力量。'},
+  '4/1':{name:'機會主義者｜研究者',desc:'穩固的基礎和廣闊的人際網絡是你的兩大支柱。'},
+  '5/1':{name:'異端者｜研究者',desc:'你是人群眼中的救世主，但你也需要足夠的研究作為底氣。別讓外界的期待把你壓垮。'},
+  '5/2':{name:'異端者｜隱士',desc:'外界對你有很高的期待，但你的充電方式是獨處。在被召喚之前，先好好休息。'},
+  '6/2':{name:'角色模型｜隱士',desc:'你是活生生的典範，但你需要足夠的獨處來充電。前30年實驗，中間隱居觀察，最後展現智慧。'},
+  '6/3':{name:'角色模型｜殉道者',desc:'人生是一個漫長的實驗。每一次的挫折都在建造你的智慧庫。最後，你會成為那個人們仰望的活榜樣。'}
+};
+
+function loadEphemeris(){
+  return new Promise(function(resolve,reject){
+    if(EPH){resolve(EPH);return;}
+    if(EPH_LOADING){var iv=setInterval(function(){if(EPH){clearInterval(iv);resolve(EPH);}},200);return;}
+    EPH_LOADING=true;
+    document.getElementById('loadMsg').textContent='正在載入星曆資料（約4MB），請稍候...';
+    fetch('js/ephemeris-1920-2060.json').then(function(r){return r.json();}).then(function(d){EPH=d;EPH_LOADING=false;document.getElementById('loadMsg').textContent='星曆載入完成 ✓';setTimeout(function(){document.getElementById('loadMsg').textContent='';},2000);resolve(d);}).catch(function(e){EPH_LOADING=false;document.getElementById('loadMsg').textContent='星曆載入失敗，請重新整理頁面再試';reject(e);});
+  });
+}
+
+function ephLookup(Y,M,D,H,min,tzOff){
+  if(!EPH)return null;
+  var utcH=H-tzOff+(min||0)/60;
+  var uD=D,uM=M,uY=Y;
+  if(utcH<0){utcH+=24;uD--;}
+  if(utcH>=24){utcH-=24;uD++;}
+  if(uD<1){uM--;if(uM<1){uM=12;uY--;}uD=new Date(uY,uM,0).getDate();}
+  if(uD>28){var dm=new Date(uY,uM,0).getDate();if(uD>dm){uD=1;uM++;if(uM>12){uM=1;uY++;}}}
+  var key=String(uY).padStart(4,'0')+String(uM).padStart(2,'0')+String(uD).padStart(2,'0');
+  var row=EPH[key];if(!row)return null;
+  var nd=new Date(uY,uM-1,uD+1);
+  var nk=String(nd.getFullYear()).padStart(4,'0')+String(nd.getMonth()+1).padStart(2,'0')+String(nd.getDate()).padStart(2,'0');
+  var nr=EPH[nk];var frac=utcH/24;var result={};
+  for(var i=0;i<P_ORDER.length;i++){
+    var lon0=row[i],lon1=nr?nr[i]:lon0;
+    var diff=lon1-lon0;if(diff>180)diff-=360;if(diff<-180)diff+=360;
+    var lon=lon0+diff*frac;if(lon<0)lon+=360;if(lon>=360)lon-=360;
+    result[P_ORDER[i]]={lon:lon};
+  }
+  var nn=result.node;result.snode={lon:(nn.lon+180)%360};
+  result.earth={lon:(result.sun.lon+180)%360};
+  return result;
+}
+
+// ═══ Rave Mandala 閘門順序（64閘門，起點 Gate 41 ≈302°）═══
+var MANDALA_ORDER=[41,19,13,49,30,55,37,63,22,36,25,17,21,51,42,3,27,24,2,23,8,20,16,35,45,12,15,52,39,53,62,56,31,33,7,4,29,59,40,64,47,6,46,18,48,57,32,50,28,44,1,43,14,34,9,5,26,11,10,58,38,54,61,60];
+var _gpos={};MANDALA_ORDER.forEach(function(g,i){_gpos[g]=i;});
+function _oppGate(g){return MANDALA_ORDER[(_gpos[g]+32)%64];}
+
+// Quarter 結構
+var _Q1=[13,49,30,55,37,63,22,36,25,17,21,51,42,3,27,24];
+var _Q2=[2,23,8,20,16,35,45,12,15,52,39,53,62,56,31,33];
+var _Q3=[7,4,29,59,40,64,47,6,46,18,48,57,32,50,28,44];
+var _Q4=[1,43,14,34,9,5,26,11,10,58,38,54,61,60,41,19];
+var _QS=[_Q1,_Q2,_Q3,_Q4];
+// Design Sun 的 Quarter 對應：Q1→Q4, Q2→Q1, Q3→Q2, Q4→Q3
+var _DQ=[3,0,1,2];
+
+// 16 個右角度交叉名稱
+var RAC_NAMES=['人面獅身','解釋','感染','精神','計畫','意識','統治','伊甸園','愛之器皿','服務','張力','滲透','馬雅','律法','意外','四方之路'];
+
+// 64 個並列交叉名稱（按 gate number 索引）
+var JAX_NAMES={1:'自我表達',2:'引導',3:'突變',4:'公式化',5:'習慣',6:'命運',7:'互動',8:'貢獻',9:'馴服',10:'行為',11:'觀念',12:'表達',13:'傾聽',14:'力量技巧',15:'極端',16:'實驗',17:'意見',18:'修正',19:'需求',20:'當下',21:'掌控',22:'優雅',23:'同化',24:'合理化',25:'天真',26:'詭計師',27:'照顧',28:'冒險',29:'承諾',30:'命運之火',31:'影響',32:'保存',33:'退隱',34:'力量',35:'經驗',36:'危機',37:'交易',38:'對立',39:'挑釁',40:'否認',41:'幻想',42:'完成',43:'洞見',44:'警覺',45:'擁有',46:'緣分',47:'壓迫',48:'深度',49:'原則',50:'價值',51:'震驚',52:'靜止',53:'開始',54:'企圖心',55:'情緒',56:'刺激',57:'直覺',58:'活力',59:'親密',60:'限制',61:'思考',62:'細節',63:'懷疑',64:'困惑'};
+
+// 32 個左角度交叉名稱（按 cross group index，Q1+Q3共用名, Q2+Q4共用名）
+var LAC_NAMES_A=['面具','革命','對抗','二元性','遷移','循環','校準','飛行','預防','需求','奉獻','努力','限制','希望','分心','轉世'];
+var LAC_NAMES_B=['面具','告知','不確定','勤勉','遷移','分離','校準','教育','預防','需求','奉獻','努力','限制','闡明','意外','精煉'];
+
+function calcCross(pSunGate,dSunGate,profileLine){
+  // 找到 personality sun 在哪個 quarter 的哪個位置
+  var qi=-1,pos=-1;
+  for(var q=0;q<4;q++){var idx=_QS[q].indexOf(pSunGate);if(idx>=0){qi=q;pos=idx;break;}}
+  if(qi<0)return{angle:'',name:'',gates:'',full:pSunGate+'/'+_oppGate(pSunGate)+' | '+dSunGate+'/'+_oppGate(dSunGate)};
+  var pEarth=_oppGate(pSunGate),dEarth=_oppGate(dSunGate);
+  var gateStr=pSunGate+'/'+pEarth+' | '+dSunGate+'/'+dEarth;
+  var variant=qi+1;
+  // Angle from profile line
+  var line=parseInt(String(profileLine).split('/')[0])||0;
+  var angle,name;
+  if(line>=1&&line<=3){
+    angle='右角度交叉';name=RAC_NAMES[pos];
+    return{angle:angle,name:name+variant,gates:gateStr,full:angle+'之'+name+variant+' ('+gateStr+')'};
+  }else if(line===4){
+    angle='並列交叉';name=JAX_NAMES[pSunGate]||'';
+    return{angle:angle,name:name,gates:gateStr,full:angle+'之'+name+' ('+gateStr+')'};
+  }else{
+    angle='左角度交叉';
+    name=(qi===0||qi===2)?LAC_NAMES_A[pos]:LAC_NAMES_B[pos];
+    var lv=(qi<=1)?1:2;
+    return{angle:angle,name:name+lv,gates:gateStr,full:angle+'之'+name+lv+' ('+gateStr+')'};
+  }
+}
+
+function calcDefinition(defC,centerGraph){
+  if(defC.length===0)return'無定義';
+  var visited={},comps=0;
+  defC.forEach(function(c){
+    if(visited[c])return;
+    comps++;var q=[c];
+    while(q.length>0){var cur=q.shift();if(visited[cur])continue;visited[cur]=true;
+      (centerGraph[cur]||[]).forEach(function(nb){if(!visited[nb]&&defC.indexOf(nb)>=0)q.push(nb)});}
+  });
+  if(comps===1)return'單一定義';
+  if(comps===2)return'二分人';
+  if(comps===3)return'三分人';
+  return'四分人';
+}
+
+function calcHumanDesign(planets,dPlanets){
+  // Personality gates (red = design, blue = personality)
+  var pNames=['太陽','地球','月亮','北交節','南交節','水星','金星','火星','木星','土星','天王星','海王星','冥王星'];
+  var pKeys=['sun','earth','moon','node','snode','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto'];
+  var pGates={},dGates={};
+  pKeys.forEach(function(k,i){
+    var lon=planets[k]?planets[k].lon:0;
+    var g=lonToGate(lon);
+    pGates[pNames[i]]=g.gate+'.'+g.line;
+  });
+  pKeys.forEach(function(k,i){
+    if(!dPlanets)return;
+    var lon=dPlanets[k]?dPlanets[k].lon:0;
+    var g=lonToGate(lon);
+    dGates[pNames[i]]=g.gate+'.'+g.line;
+  });
+
+  // All gates set
+  var allGates=new Set();
+  var pGateNums=new Set(),dGateNums=new Set();
+  for(var k in pGates){var n=parseInt(pGates[k]);pGateNums.add(n);allGates.add(n);}
+  for(var k in dGates){var n=parseInt(dGates[k]);dGateNums.add(n);allGates.add(n);}
+
+  // Channels
+  var channels=[];
+  for(var ch in HD_CHANNELS){
+    var parts=ch.split('-').map(Number);
+    if(allGates.has(parts[0])&&allGates.has(parts[1])){
+      var src='';
+      var p0=(pGateNums.has(parts[0])||pGateNums.has(parts[1]));
+      var d0=(dGateNums.has(parts[0])||dGateNums.has(parts[1]));
+      if(p0&&d0)src='dp';else if(d0)src='d';else src='p';
+      channels.push({gates:ch,name:HD_CHANNELS[ch],src:src});
+    }
+  }
+
+  // Defined centers
+  var defC=[],undefC=[];
+  for(var c in HD_CENTERS){
+    var hasConn=false;
+    channels.forEach(function(ch){var ps=ch.gates.split('-').map(Number);ps.forEach(function(g){if(HD_CENTERS[c].indexOf(g)>=0)hasConn=true;});});
+    (hasConn?defC:undefC).push(c);
+  }
+  var defNames=defC.map(function(c){return HD_CENTER_NAMES[c];});
+  var undefNames=undefC.map(function(c){return HD_CENTER_NAMES[c];});
+
+  // Type（v2：BFS連通性檢查）
+  var centerGraph2={};
+  for(var cc in HD_CENTERS)centerGraph2[cc]=[];
+  channels.forEach(function(ch){
+    var ps=ch.gates.split('-').map(Number);
+    var inv=[];
+    for(var cc in HD_CENTERS){var found=false;ps.forEach(function(g){if(HD_CENTERS[cc].indexOf(g)>=0)found=true});if(found&&inv.indexOf(cc)<0)inv.push(cc)}
+    for(var ii=0;ii<inv.length;ii++)for(var jj=ii+1;jj<inv.length;jj++){
+      if(centerGraph2[inv[ii]].indexOf(inv[jj])<0)centerGraph2[inv[ii]].push(inv[jj]);
+      if(centerGraph2[inv[jj]].indexOf(inv[ii])<0)centerGraph2[inv[jj]].push(inv[ii]);
+    }
+  });
+  function m2t(){
+    var MM=['sacral','solar','ego','root'];
+    for(var mi=0;mi<MM.length;mi++){
+      if(defC.indexOf(MM[mi])<0)continue;
+      var vis={},q=[MM[mi]];vis[MM[mi]]=true;
+      while(q.length>0){var cur=q.shift();if(cur==='throat')return true;(centerGraph2[cur]||[]).forEach(function(nb){if(!vis[nb]){vis[nb]=true;q.push(nb)}})}
+    }
+    return false;
+  }
+  var hasSacral=defC.indexOf('sacral')>=0;
+  var hasM2T=m2t();
+  var type='投射者',strategy='等待邀請',nst='苦澀';
+  if(hasSacral&&hasM2T){type='顯示生產者';strategy='等待回應（等外界丟是非題給你，聽肚子的第一反應），然後告知後行動';nst='挫敗・憤怒';}
+  else if(hasSacral){type='生產者';strategy='等待回應（不要主動發起，等事情來找你，用肚子回答）';nst='挫敗';}
+  else if(!hasSacral&&hasM2T){type='顯示者';strategy='行動前告知';nst='憤怒';}
+  else if(defC.length<=1){type='反映者';strategy='等待月循環（28天）';nst='失望';}
+
+  // Authority
+  var authority='外在權威（環境）';
+  if(defC.indexOf('solar')>=0)authority='情緒權威（等待清晰）';
+  else if(defC.indexOf('sacral')>=0)authority='薦骨權威（聽肚子的聲音，不是腦袋的聲音。YES=嗯哼！NO=嗯⋯）';
+  else if(defC.indexOf('spleen')>=0)authority='脾權威（當下直覺）';
+  else if(defC.indexOf('ego')>=0)authority='意志力權威';
+  else if(defC.indexOf('g')>=0)authority='G中心權威（自我投射）';
+
+  // Profile from sun lines
+  var sunG=lonToGate(planets.sun.lon);
+  var dSunG=dPlanets?lonToGate(dPlanets.sun.lon):{gate:0,line:0};
+  var profile=sunG.line+'/'+dSunG.line;
+
+  // Definition type
+  var defType=calcDefinition(defC,centerGraph2);
+
+  // Incarnation cross
+  var cross=calcCross(sunG.gate,dSunG.gate,profile);
+
+  return{type:type,strategy:strategy,authority:authority,profile:profile,nst:nst,channels:channels,defC:defC,undefC:undefC,defNames:defNames,undefNames:undefNames,pGates:pGates,dGates:dGates,pGateNums:pGateNums,dGateNums:dGateNums,allGates:allGates,defType:defType,cross:cross};
+}
+
+function getDesignDate(Y,M,D,H,min,tzOff,planets){
+  // Design = 88 degrees before natal sun
+  var targetSun=(planets.sun.lon-88+360)%360;
+  var utcH=H-tzOff+(min||0)/60;
+  var bd=new Date(Y,M-1,D);
+  bd.setDate(bd.getDate()-89);
+  var bestDiff=999,bestKey=null,bestFrac=0;
+  for(var di=0;di<10;di++){
+    var cd=new Date(bd.getTime()+di*86400000);
+    var ck=String(cd.getFullYear()).padStart(4,'0')+String(cd.getMonth()+1).padStart(2,'0')+String(cd.getDate()).padStart(2,'0');
+    var nd2=new Date(cd.getTime()+86400000);
+    var nk=String(nd2.getFullYear()).padStart(4,'0')+String(nd2.getMonth()+1).padStart(2,'0')+String(nd2.getDate()).padStart(2,'0');
+    if(!EPH[ck]||!EPH[nk])continue;
+    for(var hi=0;hi<96;hi++){
+      var frac=hi/96;
+      var v1=EPH[ck][0],v2=EPH[nk][0];
+      var dd=v2-v1;if(dd>180)dd-=360;if(dd<-180)dd+=360;
+      var sun=(v1+dd*frac+360)%360;
+      var df=targetSun-sun;if(df>180)df-=360;if(df<-180)df+=360;
+      if(Math.abs(df)<Math.abs(bestDiff)){bestDiff=df;bestKey={ck:ck,nk:nk};bestFrac=frac;}
+    }
+  }
+  if(!bestKey)return null;
+  var dPlanets={};
+  P_ORDER.forEach(function(k,i){
+    if(!EPH[bestKey.ck]||!EPH[bestKey.nk])return;
+    var v1=EPH[bestKey.ck][i],v2=EPH[bestKey.nk][i];
+    if(v1===undefined)return;
+    var dd=v2-v1;if(dd>180)dd-=360;if(dd<-180)dd+=360;
+    var lon=(v1+dd*bestFrac+360)%360;
+    dPlanets[k]={lon:lon};
+  });
+  dPlanets.earth={lon:(dPlanets.sun?((dPlanets.sun.lon+180)%360):0)};
+  dPlanets.snode={lon:dPlanets.node?((dPlanets.node.lon+180)%360):0};
+  return dPlanets;
+}
+
+// ═══ BodyGraph SVG ═══
+// Center positions in 280×480 viewBox
+var CENTER_POS={
+  head:   {x:140,y:28,  w:58,h:40,shape:'tri'},
+  ajna:   {x:140,y:88,  w:58,h:40,shape:'tri'},
+  throat: {x:140,y:158, w:70,h:34,shape:'rect'},
+  g:      {x:140,y:230, w:50,h:50,shape:'diamond'},
+  sacral: {x:140,y:330, w:70,h:34,shape:'rect'},
+  spleen: {x:72, y:266, w:46,h:46,shape:'tri-l'},
+  solar:  {x:208,y:266, w:46,h:46,shape:'tri-r'},
+  ego:    {x:140,y:214, w:40,h:40,shape:'circ'},
+  root:   {x:140,y:406, w:70,h:34,shape:'rect'}
+};
+
+// Channel connector lines between centers (approximate)
+var CENTER_LINES=[
+  ['head','ajna'],['ajna','throat'],['throat','g'],['g','sacral'],
+  ['sacral','root'],['spleen','sacral'],['spleen','root'],['solar','sacral'],
+  ['throat','spleen'],['throat','solar'],['ego','g'],['ego','throat']
+];
+
+function drawBodyGraph(hd){
+  var svg=document.getElementById('bgSvg');
+  svg.innerHTML='';
+
+  var CP=CENTER_POS;
+  var defSet=new Set(hd.defC);
+
+  function addEl(tag,attrs,parent){
+    var el=document.createElementNS('http://www.w3.org/2000/svg',tag);
+    for(var k in attrs)el.setAttribute(k,attrs[k]);
+    (parent||svg).appendChild(el);return el;
+  }
+
+  // Background
+  addEl('rect',{x:0,y:0,width:280,height:480,fill:'rgba(8,5,15,0)',rx:12});
+
+  // Draw center connection channels
+  function getCenterPoint(cName){
+    var cp=CP[cName];
+    return{x:cp.x,y:cp.y};
+  }
+
+  // Draw channels as lines
+  hd.channels.forEach(function(ch){
+    var parts=ch.gates.split('-').map(Number);
+    // Find which centers these gates belong to
+    var c1=null,c2=null;
+    for(var cname in HD_CENTERS){
+      if(HD_CENTERS[cname].indexOf(parts[0])>=0)c1=cname;
+      if(HD_CENTERS[cname].indexOf(parts[1])>=0)c2=cname;
+    }
+    if(!c1||!c2)return;
+    var p1=getCenterPoint(c1),p2=getCenterPoint(c2);
+    var col=ch.src==='dp'?'#9966cc':ch.src==='d'?'#e05555':'#5588e0';
+    addEl('line',{x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,stroke:col,'stroke-width':'4','stroke-opacity':'0.75'});
+  });
+
+  // Draw inactive connections
+  CENTER_LINES.forEach(function(pair){
+    var p1=getCenterPoint(pair[0]),p2=getCenterPoint(pair[1]);
+    var hasChannel=false;
+    hd.channels.forEach(function(ch){
+      var parts=ch.gates.split('-').map(Number);
+      var ca=null,cb=null;
+      for(var cn in HD_CENTERS){if(HD_CENTERS[cn].indexOf(parts[0])>=0)ca=cn;if(HD_CENTERS[cn].indexOf(parts[1])>=0)cb=cn;}
+      if((ca===pair[0]&&cb===pair[1])||(ca===pair[1]&&cb===pair[0]))hasChannel=true;
+    });
+    if(!hasChannel){addEl('line',{x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,stroke:'rgba(233,194,125,0.08)','stroke-width':'2'});}
+  });
+
+  // Draw centers
+  for(var cname in CP){
+    var cp=CP[cname];
+    var isDef=defSet.has(cname);
+    var fill=isDef?'rgba(233,194,125,0.22)':'rgba(233,194,125,0.04)';
+    var stroke=isDef?'rgba(233,194,125,0.6)':'rgba(233,194,125,0.18)';
+    var sw=isDef?'2':'1';
+
+    if(cp.shape==='rect'){
+      addEl('rect',{x:cp.x-cp.w/2,y:cp.y-cp.h/2,width:cp.w,height:cp.h,rx:6,fill:fill,stroke:stroke,'stroke-width':sw});
+    } else if(cp.shape==='diamond'){
+      var hw=cp.w/2,hh=cp.h/2;
+      addEl('polygon',{points:(cp.x)+','+(cp.y-hh)+' '+(cp.x+hw)+','+(cp.y)+' '+(cp.x)+','+(cp.y+hh)+' '+(cp.x-hw)+','+(cp.y),fill:fill,stroke:stroke,'stroke-width':sw});
+    } else if(cp.shape==='circ'){
+      addEl('circle',{cx:cp.x,cy:cp.y,r:cp.w/2,fill:fill,stroke:stroke,'stroke-width':sw});
+    } else {
+      // triangles
+      var pts=cp.shape==='tri'?(cp.x-cp.w/2)+','+(cp.y+cp.h/2)+' '+(cp.x+cp.w/2)+','+(cp.y+cp.h/2)+' '+cp.x+','+(cp.y-cp.h/2)
+        :cp.shape==='tri-l'?cp.x+','+(cp.y-cp.h/2)+' '+(cp.x+cp.w)+','+(cp.y)+' '+cp.x+','+(cp.y+cp.h/2)
+        :cp.x+','+(cp.y-cp.h/2)+' '+(cp.x-cp.w)+','+(cp.y)+' '+cp.x+','+(cp.y+cp.h/2);
+      addEl('polygon',{points:pts,fill:fill,stroke:stroke,'stroke-width':sw});
+    }
+
+    // Center label
+    var lbl=HD_CENTER_NAMES[cname];
+    addEl('text',{x:cp.x,y:cp.y+1,'text-anchor':'middle','dominant-baseline':'middle',fill:isDef?'rgba(233,194,125,0.9)':'rgba(233,194,125,0.4)','font-size':'8.5','font-family':'Noto Sans TC,sans-serif','font-weight':isDef?'600':'400'}).textContent=lbl;
+  }
+}
+
+function renderResult(hd,pGatesAll,dGatesAll){
+  // Type
+  document.getElementById('typeName').textContent=hd.type;
+  document.getElementById('typeTags').innerHTML=
+    '<span class="tag strat">策略：'+hd.strategy+'</span>'
+    +'<span class="tag auth">權威：'+hd.authority+'</span>';
+  document.getElementById('profileVal').textContent=hd.profile;
+  document.getElementById('defTypeVal').textContent=hd.defType;
+  document.getElementById('nstVal').textContent=hd.nst;
+  document.getElementById('crossVal').textContent=hd.cross.full||'-';
+
+  // Design gates list
+  var pNames=['太陽','地球','月亮','北交節','南交節','水星','金星','火星','木星','土星','天王星','海王星','冥王星'];
+  var pSyms=['☉','⊕','☽','☊','☋','☿','♀','♂','♃','♄','♅','♆','♇'];
+  var dHTML='',pHTML='';
+  pNames.forEach(function(n,i){
+    var dv=hd.dGates[n]||'-',pv=hd.pGates[n]||'-';
+    var dg=parseInt(dv),pg=parseInt(pv);
+    var dboth=(!isNaN(dg)&&hd.pGateNums.has(dg)&&hd.dGateNums.has(dg));
+    var pboth=(!isNaN(pg)&&hd.pGateNums.has(pg)&&hd.dGateNums.has(pg));
+    dHTML+='<div class="gate-row dc '+(dboth?'both':'')+'"><span class="planet">'+pSyms[i]+'</span><span class="gnum">'+dv+'</span></div>';
+    pHTML+='<div class="gate-row pc '+(pboth?'both':'')+'"><span class="gnum">'+pv+'</span><span class="planet">'+pSyms[i]+'</span></div>';
+  });
+  document.getElementById('designGates').innerHTML=dHTML;
+  document.getElementById('personGates').innerHTML=pHTML;
+
+  // Draw SVG
+  drawBodyGraph(hd);
+
+  // Channels
+  var chHTML='';
+  if(hd.channels.length===0){chHTML='<div style="color:var(--sub);font-size:.9rem;grid-column:span 2;padding:8px">暫無已定義通道</div>';}
+  hd.channels.forEach(function(ch){
+    var col=ch.src==='dp'?'#9966cc':ch.src==='d'?'#e05555':'#5588e0';
+    chHTML+='<div class="ch-item"><span class="ch-gates" style="color:'+col+'">'+ch.gates+'</span><span class="ch-name">'+ch.name+'</span></div>';
+  });
+  document.getElementById('channelList').innerHTML=chHTML;
+
+  // Centers
+  var cgHTML='';
+  for(var cname in HD_CENTERS){
+    var isDef=hd.defC.indexOf(cname)>=0;
+    cgHTML+='<div class="center-item '+(isDef?'defined':'undefined')+'">'
+      +'<div class="ci-name">'+HD_CENTER_NAMES[cname]+'</div>'
+      +'<div class="ci-state '+(isDef?'d':'u')+'">'+(isDef?'✦ 已定義':'○ 未定義')+'</div>'
+      +'</div>';
+  }
+  document.getElementById('centersGrid').innerHTML=cgHTML;
+
+  // Profile
+  var pd=PROFILE_DATA[hd.profile]||{name:'角色 '+hd.profile,desc:'你的人生角色帶著獨特的學習路徑。'};
+  document.getElementById('profileCard').innerHTML=
+    '<div class="pf-title">✦ 人生角色 Profile '+hd.profile+'</div>'
+    +'<div class="pf-num">'+hd.profile+'</div>'
+    +'<div class="pf-name">'+pd.name+'</div>'
+    +'<div class="pf-desc">'+pd.desc+'</div>';
+
+  // AI Prompt
+  var ai=''
+    +'類型：'+hd.type+'\n策略：'+hd.strategy+'\n內在權威：'+hd.authority+'\n人生角色：'+hd.profile+'\n定義：'+hd.defType+'\n輪迴交叉：'+hd.cross.full+'\n人生主題（非自己主題）：'+hd.nst+'\n\n'
+    +'已定義能量中心：'+hd.defNames.join('、')+'\n未定義能量中心：'+hd.undefNames.join('、')+'\n\n'
+    +'通道（'+hd.channels.length+'條）：\n'
+    +hd.channels.map(function(c){return '  '+c.gates+'（'+c.name+'）'+(c.src==='dp'?'[雙方]':c.src==='d'?'[設計]':'[人格]');}).join('\n')
+    +'\n\n意識人格閘門：\n'
+    +Object.keys(hd.pGates).map(function(k){return '  '+k+'：閘門'+hd.pGates[k];}).join('\n')
+    +'\n\n潛意識設計閘門：\n'
+    +Object.keys(hd.dGates).map(function(k){return '  '+k+'：閘門'+hd.dGates[k];}).join('\n')
+    +'\n\n（完整命盤資料。直接貼到 AI 就能得到基礎解讀 ✦ 想要更精準的深度分析，試試旁邊的「🔮 AI深度解讀指令」）'
+    +'\n\n══════ 超重要：薦骨回應到底是什麼（必須用以下方式具體解釋）══════'
+    +'\n如果這個人是生產者或顯示生產者，你必須用以下方式具體說明薦骨回應。很多人覺得「感受不到」，不是遲鈍，是從小被教育「用腦子做決定」，薦骨被按了靜音。'
+    +'\n'
+    +'\n【薦骨回應不是什麼】'
+    +'\n✕ 不是「想法」。腦子分析出來的「應該」「可能」「也許」全部不算。'
+    +'\n✕ 不是「情緒」。興奮、害怕、期待是情緒中心的事。'
+    +'\n✕ 不是你「決定」要不要。薦骨不接受命令，它只接受「被問」。'
+    +'\n'
+    +'\n【三個身體記號教你辨認】'
+    +'\n'
+    +'\n記號一：聲音（最容易辨認）'
+    +'\n► YES：「嗯哼！」「唔！」，從肚子往上衝的、有力的、短促的音。'
+    +'\n  就像朋友問你「要不要吃火鍋？」你還沒想就先「嗯！」出來了。那個就是。'
+    +'\n► NO：「嗯⋯⋯」拖長、沒力、往下掉的音，或根本沒聲音，嘴巴打不開。'
+    +'\n  就像有人問「週末要去爬山嗎？」你嘴巴動了一下但什麼都說不出來。那就是 NO。'
+    +'\n'
+    +'\n記號二：身體感覺（薦骨住在肚臍以下、骨盆上方）'
+    +'\n► YES：下腹部微微發熱、往前傾、有「想靠近」的拉力。像聞到很香的食物，身體不自覺往前湊。'
+    +'\n► NO：下腹部發涼、往後縮、一種「算了」的洩氣感。像看到不想吃的菜，身體自動後退。'
+    +'\n► 沒反應：薦骨沒亮燈。不要硬選，等新的問題出現。'
+    +'\n'
+    +'\n記號三：能量漲落'
+    +'\n► YES = 做這件事越做越有精神，像手機接上充電器。'
+    +'\n► NO = 才剛開始就覺得被掏空，不是身體累，是「提不起勁」的空洞感。'
+    +'\n► 測試：回想人生中有沒有某件事「做起來就是不累」？那就是薦骨的 YES。'
+    +'\n'
+    +'\n【具體練習法（從今天開始）】'
+    +'\n1. 每天找人問你 10 個是非題（要不要喝水？要不要出去走？想不想看這部片？）'
+    +'\n2. 不准想。0.5 秒內注意嘴巴冒出什麼音、肚子有什麼感覺。'
+    +'\n3. 關鍵：問題必須是「是非題」。「你想吃什麼？」薦骨無法回應。「你想吃麵嗎？」它才能回答。'
+    +'\n4. 第一週可能什麼都感覺不到，正常。薦骨像很久沒用的肌肉，需要暖機。堅持兩週會分辨。'
+    +'\n'
+    +'\n【其他權威怎麼辦？】'
+    +'\n► 情緒權威：你也有薦骨回應（如果薦骨有定義），但不能馬上照做。等情緒波浪走完，在平靜的「零點」再確認。'
+    +'\n► 脾/直覺權威：你的 YES/NO 是瞬間的直覺，比薦骨更快更安靜，像耳邊很小聲的「不要去」。聽到就要馬上動，猶豫就錯過。'
+    +'\n► 投射者/反映者：你沒有持續穩定的薦骨能量。不要模仿生產者找薦骨回應，那不是你的設計。'
+    +'\n'
+    +'\n══════ 語氣與品牌設定 ══════'
+    +'\n品牌：馥靈之鑰 Hour Light（hourlightkey.com）'
+    +'\n語氣：像閨蜜說真話，溫暖但不軟弱。帶香氣意象。不使用「梳理」「內在」「節奏」，不用雙破折號。'
+    +'\n哲學：看懂人類圖，不是為了找捷徑。是讓你在繞遠路的時候，知道自己沒走錯。'
+    +'\n薦骨不會告訴你「正確答案」，它只告訴你「這個方向有沒有你的能量」。有能量的方向不一定最短，但一定走得最遠。'
+    +'\n'
+    +'\n【參考書目】'
+    +'\n· Ra Uru Hu《人類圖：區分之書》（喬宜思翻譯，官方授權定本）'
+    +'\n· Richard Rudd《基因天命 Gene Keys》'
+    +'\n· 喬宜思《人類圖去制約之旅》系列'
+    +'\n🔗 hourlightkey.com ｜ 🔗 hourlightkey.com/services.html\n\n▍馥靈座標哲學\n看懂人類圖，不是為了找到人生捷徑。\n是為了讓妳在繞遠路的時候，知道自己沒走錯。\n\n【延伸導航·從設計到此刻動態】\n► 易經覺察占卜（hourlightkey.com/yijing-oracle.html）→ 人類圖告訴你決策機制，易經覺察占卜幫你此刻的決定做即時驗證\n► 馥靈秘碼（hourlightkey.com/fuling-mima.html）→ 空白中心的制約議題 × 馥靈秘碼的缺數課題交叉比對\n► 130張牌卡（hourlightkey.com/draw-hl.html）→ 設計說你是什麼型，牌卡告訴你此刻的能量狀態\n\n人類圖是你的電路設計圖，易經覺察占卜是此刻的電壓表，牌卡是幫你選擇要啟動哪條電路的鑰匙。';
+  document.getElementById('aiPre').textContent=ai;
+  window._aiText=ai;
+}
+
+function copyAI(){
+  navigator.clipboard.writeText(window._aiText||'').then(function(){
+    var btn=event.target;btn.textContent='✅ 已複製！';
+    setTimeout(function(){btn.textContent='📋 複製 AI 指令';},2000);
+  });
+}
+
+async function doCalc(){
+  var Y=parseInt(document.getElementById('by').value);
+  var M=parseInt(document.getElementById('bm').value);
+  var D=parseInt(document.getElementById('bd').value);
+  var H=parseInt(document.getElementById('bh').value)||0;
+  var Min=parseInt(document.getElementById('bmin').value)||0;
+  var tz=parseFloat(document.getElementById('btz').value);
+  if(!Y||!M||!D){alert('請輸入出生年月日');return;}
+  var msg=document.getElementById('loadMsg');
+  try{
+    var planets,dPlanets,engineUsed='';
+    // ═══ 優先使用 JSON 星曆（已驗證精度正確）═══
+    msg.textContent='正在載入星曆資料...';
+    await loadEphemeris();
+    if(EPH){
+      planets=ephLookup(Y,M,D,H,Min,tz);
+      if(!planets){alert('找不到星曆資料，請確認年份在1920-2060之間');return;}
+      dPlanets=getDesignDate(Y,M,D,H,Min,tz,planets);
+      engineUsed='馥靈星曆';
+    }else{
+      // ═══ JSON 載入失敗時 Fallback 到 WASM ═══
+      if(!SWE_READY&&!SWE_TRIED){msg.textContent='正在載入瑞士星曆表...';await loadSwissEph();}
+      if(SWE_READY){
+        msg.textContent='瑞士星曆表計算中...';
+        var pRes=sweCalcPlanets(Y,M,D,H,Min,tz);
+        planets=pRes.planets;
+        var dRes=sweDesignDate(pRes.jd,planets.sun.lon);
+        dPlanets=dRes.dPlanets;
+        engineUsed='Swiss Ephemeris';
+      }else{
+        alert('星曆載入失敗，請重新整理頁面');return;
+      }
+    }
+    msg.textContent=engineUsed+' ✓';setTimeout(function(){msg.textContent='';},2500);
+    var hd=calcHumanDesign(planets,dPlanets);
+    renderResult(hd);
+    var r=document.getElementById('result');r.className='result show';
+    r.scrollIntoView({behavior:'smooth',block:'start'});
+    if(window.HL_track) HL_track('calculator_complete',{toolId:'hd-calculator',toolName:'人類圖計算器'});
+  }catch(e){
+    msg.textContent='計算失敗：'+e.message;
+    console.error(e);
+  }
+}
+
+// Auto-focus
+document.addEventListener('DOMContentLoaded',function(){
+  var by=document.getElementById('by'),bm=document.getElementById('bm'),bd=document.getElementById('bd'),bh=document.getElementById('bh'),bmin=document.getElementById('bmin');
+  by.addEventListener('input',function(){if(this.value.length===4)bm.focus();});
+  bm.addEventListener('input',function(){if(this.value.length===2)bd.focus();});
+  bd.addEventListener('input',function(){if(this.value.length===2)bh.focus();});
+  bh.addEventListener('input',function(){if(this.value.length===2)bmin.focus();});
+  // Pre-load: try Swiss Eph WASM first, then JSON as fallback
+  setTimeout(function(){loadSwissEph().then(function(ok){if(!ok)loadEphemeris().catch(function(){});});},800);
+});
+</script>
+
+<script src="assets/js/hourlight-global.js?v=20260309"></script>
+<script src="assets/js/hl-music.js?v=20260309"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-referral.js?v=20260323"></script>
+<script src="assets/js/hl-share.js"></script>
+<script src="assets/js/hl-tracker.js" data-tool="hd-calculator" data-tool-name="人類圖計算器" data-tool-type="calculator"></script>
+<details style="margin:24px 16px;padding:16px 20px;background:rgba(248,223,165,.04);border:1px solid rgba(248,223,165,.1);border-radius:14px">
+<summary style="cursor:pointer;font-size:.85rem;color:rgba(248,223,165,.6);letter-spacing:.08em">✦ 關於馥靈之鑰</summary>
+<div style="margin-top:12px;font-size:.82rem;color:rgba(255,255,255,.5);line-height:1.8">
+<p><strong style="color:rgba(248,223,165,.7)">什麼是馥靈之鑰？</strong><br>馥靈之鑰（Hour Light）是台灣原創的自我認知優化平台，整合33大命理系統、130張原創智慧牌卡、101+心理測驗。透過H.O.U.R.四階段覺察系統與認知芳療，幫助每個人讀懂自己、活對人生。所有工具免費線上使用。</p>
+<p style="margin-top:8px"><a href="ai-about.html" style="color:rgba(248,223,165,.5);font-size:.78rem">了解更多 →</a></p>
+</div>
+</details>
+<footer class="hl-footer"><div class="hl-footer-inner">
+  <div class="hl-footer-brand"><div class="hl-footer-logo"><img src="LOGO-1.png" alt="" class="hl-logo-icon" aria-hidden="true" loading="lazy">馥靈之鑰 Hour Light</div><div class="hl-footer-tagline">讀懂自己，活對人生｜創辦人 王逸君</div>
+    <div class="hl-footer-social" style="display:flex;gap:16px;justify-content:center;align-items:center;margin:16px 0;flex-wrap:wrap">
+      <a href="https://www.facebook.com/share/1QoZr7swk4/?mibextid=wwXIfr" target="_blank" rel="noopener" title="Facebook 馥靈之鑰" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)">f</a>
+      <a href="https://www.instagram.com/judyanee" target="_blank" rel="noopener" title="Instagram @judyanee" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)">📸</a>
+      <a href="https://www.youtube.com/@judyanee" target="_blank" rel="noopener" title="YouTube @judyanee" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)">▶</a>
+      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" title="LINE @hourlight" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)">💬</a>
+      <a href="podcast.html" title="Podcast" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)">🎙</a>
+    </div>
+    </div>
+      <div class="hl-footer-links">
+      <a href="app.html">🔑 我的內在城堡</a><a href="index.html">首頁</a>
+      <a href="fuling-mima.html">生命秘碼</a><a href="draw-hl.html">線上抽牌</a>
+      <a href="destiny-engine.html">命盤引擎</a><a href="services.html">服務項目</a>
+      <a href="courses.html">課程學苑</a><a href="book.html">著作</a>
+      <a href="founder.html">關於創辦人</a><a href="hourlight-sitemap.html">網站地圖</a>
+      <a href="privacy.html">隱私政策</a><a href="terms.html">服務條款</a>
+      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener">LINE 諮詢</a>
+    </div>
+      <div class="hl-footer-copyright">© 2026 馥靈之鑰國際有限公司 Hour Light International Co., Ltd.｜統編：60303284<br>All Rights Reserved.</div>
+</div></footer>
+<script src="assets/js/hl-topnav.js"></script>
+<script src="assets/js/hl-bottomnav.js"></script>
+<script src="assets/js/hl-ai-gate.js"></script>
+<script src="assets/js/hl-gate.js"></script>
+<script src="assets/js/hl-record.js"></script>
+<script src="assets/js/hl-announce.js?v=4"></script>
+<script src="assets/js/hl-email.js"></script>
+<script src="assets/js/hl-chat.js"></script>
+<script src="assets/js/hl-aroma-fx.js" defer></script>
+<script>document.querySelectorAll(".origin-toggle").forEach(function(t){t.addEventListener("click",function(){this.parentElement.classList.toggle("open")})})</script>
+<script src="assets/js/hl-ai-copy.js"></script><script>
+function copyData(id,btn){
+  var el=document.getElementById(id);if(!el)return;
+  navigator.clipboard.writeText(el.textContent).then(function(){
+    var orig=btn.textContent;btn.textContent='✅ 已複製命盤資料';
+    setTimeout(function(){btn.textContent=orig},2000);
+  });
+}
+</script>
+<script src="js/ai-frameworks.js"></script>
+</body></html>
