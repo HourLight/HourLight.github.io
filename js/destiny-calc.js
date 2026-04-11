@@ -312,9 +312,9 @@ function calcHumanDesign(planets,Y,M,D,H,min){
   var targetSun=(planets.sun.lon-88+360)%360;
   var utcH=H-8+(min||0)/60; // 台灣UTC+8
   var bd=new Date(Date.UTC(Y,M-1,D));
-  bd.setUTCDate(bd.getUTCDate()-89);
+  bd.setUTCDate(bd.getUTCDate()-100);
   var bestDiff=999,bestDate=null,bestFrac=0;
-  for(var di=0;di<10;di++){
+  for(var di=0;di<30;di++){
     var cd=new Date(bd.getTime()+di*86400000);
     var ck=String(cd.getUTCFullYear()).padStart(4,'0')+String(cd.getUTCMonth()+1).padStart(2,'0')+String(cd.getUTCDate()).padStart(2,'0');
     var nd2=new Date(cd.getTime()+86400000);
@@ -332,10 +332,10 @@ function calcHumanDesign(planets,Y,M,D,H,min){
   // 用精確設計日期查所有行星
   if(bestDate&&EPH[bestDate.ck]&&EPH[bestDate.nk]){
     pKeys.forEach(function(k,i){
-      var pidx={'sun':0,'moon':1,'mercury':2,'venus':3,'mars':4,'jupiter':5,'saturn':6,'uranus':7,'neptune':8,'pluto':9,'node':10,'earth':-1,'snode':-2}[k];
+      var pidx={'sun':0,'moon':1,'mercury':2,'venus':3,'mars':4,'jupiter':5,'saturn':6,'uranus':7,'neptune':8,'pluto':9,'node':11,'earth':-1,'snode':-2}[k];
       var lon;
       if(pidx==-1){var si=0;var v1=EPH[bestDate.ck][0],v2=EPH[bestDate.nk][0];var dd=v2-v1;if(dd>180)dd-=360;if(dd<-180)dd+=360;lon=((v1+dd*bestFrac+360)%360+180)%360}
-      else if(pidx==-2){var v1=EPH[bestDate.ck][10],v2=EPH[bestDate.nk][10];var dd=v2-v1;if(dd>180)dd-=360;if(dd<-180)dd+=360;lon=((v1+dd*bestFrac+360)%360+180)%360}
+      else if(pidx==-2){var v1=EPH[bestDate.ck][11],v2=EPH[bestDate.nk][11];var dd=v2-v1;if(dd>180)dd-=360;if(dd<-180)dd+=360;lon=((v1+dd*bestFrac+360)%360+180)%360}
       else{var v1=EPH[bestDate.ck][pidx],v2=EPH[bestDate.nk][pidx];var dd=v2-v1;if(dd>180)dd-=360;if(dd<-180)dd+=360;lon=(v1+dd*bestFrac+360)%360}
       var g=lonToGate(lon);
       dGates[pNames[i]]=g.gate+'.'+g.line;
