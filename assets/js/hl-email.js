@@ -51,7 +51,7 @@
   overlay.innerHTML =
     '<div class="hle-box">' +
     '<h3>📧 寄送測算資料</h3>' +
-    '<div class="hle-desc">將測算指令寄到您的信箱，方便貼到 AI 工具中解讀</div>' +
+    '<div class="hle-desc">把你的測算結果寄到信箱存起來，之後可以貼到 Claude AI 做深度解讀</div>' +
     '<input type="email" id="hleEmail" placeholder="請輸入您的電子信箱" autocomplete="email">' +
     '<div class="hle-btns">' +
     '<button class="hle-cancel" onclick="document.getElementById(\'hleOverlay\').classList.remove(\'show\')">取消</button>' +
@@ -99,7 +99,7 @@
           name: '',
           system: _sysName,
           content: _content,
-          subject: '您的' + _sysName + '測算資料 · 馥靈之鑰'
+          subject: '你的' + _sysName.replace(/[\u{1F000}-\u{1FFFF}|\u{2600}-\u{27BF}|\u{FE00}-\u{FEFF}|\u{1F900}-\u{1F9FF}|\u{200D}|\u{20E3}|\u{E0020}-\u{E007F}]/gu, '').trim() + ' 測算資料 · 馥靈之鑰'
         })
       });
       var data = await resp.json();
