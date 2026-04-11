@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-BXP7K53QG6');</script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>三角生命密码｜馥灵之钥</title>
+<meta name="description" content="透过出生日期解析您的三角生命密码，看见生命的完整蓝图。馥灵之钥独家计算工具。">
+<link rel="icon" href="../favicon.ico"/>
+<link rel="stylesheet" href="../assets/css/hourlight-global.css">
+<link rel="stylesheet" href="../assets/css/hl-design-tokens.css">
+<link rel="stylesheet" href="../assets/css/hl-music.css">
+<style>
+:root{
+  --gold:#f8dfa5;--gold2:#c9954a;--deep:#08050f;--panel:rgba(12,8,22,0.92);
+  --text:#f0e8d8;--sub:#ffffff;--border:rgba(233,194,125,0.18);
+  --red-node:#e05555;--blue-node:#5588e0;--green-node:#55b888;--purple-node:#9966cc;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;min-height:100dvh;font-family:'LXGW WenKai TC','Noto Serif TC',serif;color:var(--text);background:var(--deep);padding:20px 16px 120px;}
+.wrap{max-width:700px;margin:0 auto;}
+
+/* HERO */
+.hero{text-align:center;padding:40px 0 32px;}
+.hero-icon{width:64px;height:64px;margin:0 auto 16px;background:radial-gradient(circle,rgba(233,194,125,0.25) 0%,transparent 70%);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;}
+.hero h1{font-size:1.8rem;font-weight:500;color:var(--gold);letter-spacing:.08em;margin-bottom:8px;}
+.hero p{font-size:.9rem;color:var(--sub);line-height:1.7;}
+
+/* INPUT */
+.input-card{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:28px 24px;margin-bottom:24px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+.input-label{font-size:.9rem;color:var(--gold);letter-spacing:.06em;margin-bottom:10px;display:block;}
+.date-row{display:flex;gap:12px;align-items:center;}
+.date-row input{flex:1;background:rgba(233,194,125,0.06);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:inherit;font-size:1rem;text-align:center;outline:none;transition:.2s;}
+.date-row input:focus{border-color:var(--gold);background:rgba(233,194,125,0.1);}
+.date-row span{color:var(--sub);font-size:.9rem;}
+.calc-btn{width:100%;margin-top:18px;padding:14px;background:linear-gradient(135deg,var(--gold2),var(--gold));color: #ffffff;font-family:inherit;font-size:1rem;font-weight:600;border:none;border-radius:12px;cursor:pointer;letter-spacing:.06em;transition:.2s;}
+.calc-btn:hover{opacity:.9;transform:translateY(-1px);}
+
+/* RESULT */
+.result{display:none;}
+.result.show{display:block;}
+
+/* TRIANGLE SVG CONTAINER */
+.tri-container{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:32px 20px;margin-bottom:20px;text-align:center;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+.tri-title{font-size:.95rem;color:var(--gold);letter-spacing:.1em;margin-bottom:24px;}
+#triSvg{max-width:100%;overflow:visible;}
+
+/* MEANING CARDS */
+.meaning-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+@media(max-width:480px){.meaning-grid{grid-template-columns:1fr;}}
+.meaning-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px 16px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+.mc-num{font-size:2rem;font-weight:500;color:var(--gold);line-height:1;margin-bottom:6px;}
+.mc-label{font-size:.95rem;color:var(--sub);letter-spacing:.08em;margin-bottom:8px;}
+.mc-desc{font-size:.83rem;color:var(--text);line-height:1.6;}
+
+/* NUMBER MEANINGS */
+.full-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px 20px;margin-bottom:14px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+.full-title{font-size:.9rem;color:var(--gold);letter-spacing:.08em;margin-bottom:12px;}
+.full-row{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start;}
+.full-n{min-width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.92rem;font-weight:600;flex-shrink:0;}
+.full-text{font-size:.83rem;color:var(--sub);line-height:1.6;}
+
+.cta-block{background:linear-gradient(135deg,rgba(233,194,125,0.08),rgba(92,58,128,0.08));border:1px solid var(--border);border-radius:16px;padding:24px;text-align:center;margin-top:24px;}
+.cta-block h3{font-size:1rem;color:var(--gold);margin-bottom:8px;}
+.cta-block p{font-size:.83rem;color:var(--sub);margin-bottom:16px;line-height:1.6;}
+.cta-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.cta-btn{padding:10px 22px;border-radius:24px;font-family:inherit;font-size:.92rem;cursor:pointer;text-decoration:none;border:none;}
+.cta-btn.p{background:linear-gradient(135deg,var(--gold2),var(--gold));color: #ffffff;font-weight:600;}
+.cta-btn.s{background:transparent;border:1px solid var(--gold);color:var(--gold);}
+
+.origin-block{background:rgba(233,194,125,.03);border:1px solid rgba(233,194,125,.12);border-radius:16px;padding:0;margin:0 0 24px;overflow:hidden}
+.origin-toggle{padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:.92rem;color:var(--gd,var(--gold,var(--ff-gold,#f8dfa5)));letter-spacing:.06em;transition:.2s;user-select:none}
+.origin-toggle:hover{background:rgba(233,194,125,.05)}
+.origin-arrow{font-size:.7rem;transition:transform .3s}
+.origin-block.open .origin-arrow{transform:rotate(180deg)}
+.origin-content{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.origin-block.open .origin-content{max-height:5000px}
+.origin-inner{padding:0 20px 20px;font-size:.85rem;color:rgba(249,240,229,.7);line-height:1.9}
+.origin-inner p{margin-bottom:12px}
+.origin-inner .oi-main{color:#f8dfa5;font-size:1.05rem;font-weight:700;display:block;margin:12px 0 10px;letter-spacing:.04em}.origin-inner .oi-era{color:#f0e8d8;font-size:1.02rem;font-weight:700;display:block;margin:20px 0 6px;letter-spacing:.04em}
+.origin-inner .oi-sec{color:#f8dfa5;font-size:1rem;font-weight:700;margin:24px 0 10px;padding:10px 0 6px;border-top:1px solid rgba(233,194,125,.18);display:flex;align-items:center;gap:6px;letter-spacing:.06em}
+.origin-inner .oi-note{font-size:.78rem;color:rgba(249,240,229,.45);margin-top:8px;padding-top:8px;border-top:1px solid rgba(233,194,125,.08);font-style:italic}
+
+
+.hero{position:relative;overflow:visible}
+.hero-deco{z-index:0}
+
+/* ── Mobile App Touch Feel ── */
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+button,a,select,input[type=submit],input[type=button],.calc-btn,.draw-card{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+button:active,input[type=submit]:active,.calc-btn:active{transform:scale(.97);transition:transform .08s}
+select,input[type=text],input[type=number],input[type=date],input[type=email],textarea{font-size:16px!important}
+@media(max-width:600px){
+  body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  button,input[type=submit],input[type=button],.calc-btn{min-height:48px}
+}
+</style>
+<!-- Facebook Pixel -->
+<script>!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1333106288588347');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" alt=""
+src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"></noscript>
+<!-- End Facebook Pixel -->
+<meta property="og:image" content="https://hourlightkey.com/og-image.jpg"/>
+<link rel="canonical" href="https://hourlightkey.com/sc/triangle-calculator.html"/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://hourlightkey.com/sc/triangle-calculator.html"/>
+<meta property="og:title" content="三角生命密码｜馥灵之钥"/>
+<meta property="og:description" content="透过出生日期解析您的三角生命密码，看见生命的完整蓝图。馥灵之钥独家计算工具。"/>
+<meta property="og:image" content="https://hourlightkey.com/og-image.jpg"/>
+<meta name="twitter:card" content="summary_large_image"/>
+</head>
+<body>
+<div class="hl-cosmos">
+  <div class="hl-stars-layer hl-stars-1"></div>
+  <div class="hl-stars-layer hl-stars-2"></div>
+  <div class="hl-stars-layer hl-stars-3"></div>
+  <div class="hl-meteors">
+    <div class="hl-meteor"></div><div class="hl-meteor"></div><div class="hl-meteor"></div>
+    <div class="hl-meteor"></div><div class="hl-meteor"></div><div class="hl-meteor"></div>
+  </div>
+  <div class="hl-aura hl-aura-1"></div><div class="hl-aura hl-aura-2"></div>
+</div>
+
+<div class="wrap">
+<img src="images/page-banners-web/triangle-calculator.webp" alt="" style="width:100%;max-width:600px;max-height:180px;object-fit:cover;margin:0 auto 20px;display:block;border-radius:12px" loading="lazy" onerror="this.style.display='none'">
+
+  <div class="hero">
+    <div class="hero-icon">🔺</div>
+    <h1>三角生命密码</h1>
+    <p>以出生日期为座标，展开您的生命蓝图<br>看见每一个數字背後，藏著什麼讯息</p>
+  </div>
+
+  <div class="origin-block">
+<div class="origin-toggle">📜 三角生命密码 · 源头脈络 × 科学关联 × 馥灵馥语 <span class="origin-arrow">▼</span></div>
+<div class="origin-content"><div class="origin-inner">
+
+<p><span class="oi-main">📜 源头脈络</span></p>
+
+<p>三角生命密码在华人圈流传很广，但要追它的「祖师爺是谁」，会发現答案模糊得让人意外。</p>
+
+<p>网路上常见的说法是「結合畢达哥拉斯數字理论和中国易经」。畢达哥拉斯的數字哲学确實是西方生命灵數的源头，這部分的脈络在生命灵數那页已经写过。但「三角形」這个特殊的计算結构，把生日拆成日、月、年三组數字再层疊相加、分出內三角和外三角、对应七魄和五行，這套東西在西方的灵數学文献裡找不到对应物。</p>
+
+<p>它是在亞洲华人社群裡发展出來的体系。幾位关键推手：新加坡的 Dr. Oliver Tan 著作《Power of Numbers》，首创将畢达哥拉斯數字学与中国五行融合的倒三角金字塔计算法；希臘裔旅港医师蓝宁仕（Dimitrios Lenis）1997年出版《生命密码》，首次将這套系统引进繁体中文世界，並扩展出「黃金三數法」；台湾林满圓创立「數字易经」体系，融合易经64卦与五行；林嘉怡创办 Asia Training「天賦优势心理学」，建立 INCA 国际生命數字協会认证体系。</p>
+
+<p>老實说就是：根在西方的數字学裡，但長成現在這棵樹，是亞洲人的事。每个老师的版本略有不同，但三角形的核心计算邏輯是共通的。</p>
+
+<p><span class="oi-era">三角形在算什麼</span></p>
+
+<p>用阳曆出生日期，把年月日的每一位數字拆开，兩兩相加（大於9就持續加到个位數），从底部往上堆疊，最终在三角形顶端得到一个數字，叫「命數」（O數），代表這个人最核心的行为模式，据说主宰了将近60%的日常反应。</p>
+
+<p>三角形分成兩层：</p>
+
+<p>內三角是天生的。日期的數字从底部一层一层加上去，左边兩个數字（I、J→M）归为父亲基因的影响，右边兩个（K、L→N）归为母亲基因。最顶端的O是兩边匯合的結果，是「您」。</p>
+
+<p>外三角是後天养成的。从內三角的數字往外延伸再相加，左边对应21到40岁的工作和朋友圈，上方对应41到60岁的子女和下属，右边对应61岁以後的晚年和家庭。</p>
+
+<p>三个顶点（O、I、L）的位置叫「星位密码」，能量最集中。潜意识密码是 I+L+O 三个星位加起來的數字，据说主宰了大部分无意识的行为。</p>
+
+<p><span class="oi-era">七魄</span></p>
+
+<p>內三角的七个數字（I、J、K、L、M、N、O）对应妊娠期的七種情緒印记，叫做「七魄」：喜、怒、哀、懼、愛、欲、惡。這个概念明显带有東方色彩，和西方灵數学的框架很不一样。它隐含的意思是：您在母亲肚子裡的那段時间，每个月接收到的情緒环境，都刻在這些數字裡了。</p>
+
+<p><span class="oi-era">五行对照（三角形专用）</span></p>
+
+<p>三角生命密码有自己的一套五行对照法：1和6属金、2和7属水、3和8属火、4和9属木、5属土。這套对应和中医传统的河图數（1和6属水、2和7属火）不同，也和馥灵秘码的五行（1属木）完全不同。三套系统各有各的五行邏輯，绝对不能混用。</p>
+
+<p>记住這个就好：三角生命密码的五行是「密码圈自己的规矩」，不是中医的五行，也不是馥灵秘码的五行。</p>
+
+<p><span class="oi-era">缺數</span></p>
+
+<p>三角形画完之後，1到9裡面哪些數字完全没出現，就是「缺數」。缺的數字代表這輩子需要額外努力去发展的面向。比如缺4的人不太愛看书（但用影音学習效果很好），缺5的人容易不知道自己要什麼，缺8的人抗压性是练出來的不是天生的。</p>
+
+<p>內外三角都缺的數字，补起來最费力。但也不是补不了，只是需要有意识地去练。</p>
+
+<div class="oi-sec">📡 科学錨点</div>
+
+<p>三角生命密码的「层疊加法」，在數学上是一種降維运算。把八位數的生日压缩成一组个位數字，再用這组數字描述人格特质。這个邏輯和密码学裡的「杂湊函數」（Hash Function）有結构上的相似性：输入一组複杂的资料，输出一组固定格式的摘要。不可逆，但具有唯一性。</p>
+
+<p>「父亲基因」和「母亲基因」的说法，在表观遺传学裡有一个对应概念叫「基因印记」（Genomic Imprinting）。某些基因只从父方表达，某些只从母方表达，這不是隐喻，是真實的分子机制。三角生命密码把左半边归父、右半边归母，不是从科学推导出來的，但它描述的「父母各给一半，合起來才是完整的一个人」這件事，和基因印记的邏輯方向一致。</p>
+
+<p>七魄对应妊娠期的概念，和前面瑪雅曆科学錨点提到的表观遺传学研究相呼应：孕期的环境（包括母亲的情緒狀态）确實会在胎兒的基因表达上留下永久的印记。七魄不是科学术语，但它指向的那个问题是有科学基礎的。</p>
+
+<div class="oi-sec">🌿 馥灵馥语</div>
+
+<p>三角形裡的五行，每一行都有它的气味对照。</p>
+
+<p>內三角火（3和8）多的人，行动力強但容易过熱。薰衣草的沉降感帮忙把那股冲勁拉回身体裡，不是压住，是让火燒得稳一点。</p>
+
+<p>內三角水（2和7）多的人，感受力太強，別人的情緒很容易灌进來。肉桂的暖意像在肚子裡点一盞灯，让自己的中心稳住，不被外面的水沖散。</p>
+
+<p>缺4（木）的人，学東西容易半途而废，不是不聪明，是静不下來。雪松的木质沉稳感像在说：坐下來，再多待一会兒，答案就在下一页。</p>
+
+<p>缺5（土）的人，不知道自己要什麼。广藿香的泥土味很直接，聞下去脚底会有種「踩實了」的感觉。先站稳，方向感会自己長出來。</p>
+
+<p>看三角形的時候聞一支对应的精油。身体的反应比脑袋的分析更快。它会告诉您：這个數字在您身上是多了还是少了。</p>
+
+<p class="oi-note">✦ 三角形是设定，精油是读取介面。一个用眼睛看，一个用鼻子聞。看到的和聞到的对上了，那就是您。</p>
+
+</div></div></div>
+<div class="input-card">
+    <span class="input-label">✦ 输入您的出生日期（西曆）</span>
+    <div class="date-row">
+      <input type="number" id="by" placeholder="年 YYYY" min="1900" max="2030" maxlength="4" oninput="if(this.value.length>4)this.value=this.value.slice(0,4)">
+      <span>/</span>
+      <input type="number" id="bm" placeholder="月 MM" min="1" max="12">
+      <span>/</span>
+      <input type="number" id="bd" placeholder="日 DD" min="1" max="31">
+    </div>
+    <button class="calc-btn" onclick="doCalc()">✦ 展开我的三角密码</button>
+  </div>
+
+  <div class="result" id="result">
+    <!-- Triangle SVG -->
+    <div class="tri-container">
+      <div class="tri-title">✦ 您的三角生命密码图</div>
+      <svg id="triSvg" viewBox="0 0 560 540" style="width:100%;max-width:560px;"></svg>
+    </div>
+
+    <!-- Key numbers -->
+    <div class="meaning-grid" id="keyGrid"></div>
+
+    <!-- Full interpretation -->
+    <div class="full-card" id="fullCard"></div>
+
+    <div class="cta-block">
+      <h3>想把這些數字，接到您的真實人生？</h3>
+      <p>三角密码是座标，不是命运。馥灵之钥結合牌卡与自我导航，让每个數字都有地方落地。</p>
+      <div class="cta-btns">
+        <a href="draw-hl.html" class="cta-btn p">內在 GPS 定位</a>
+        <a href="numerology-calculator.html" class="cta-btn s">查西方生命灵數</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function rdP(n){n=Math.abs(n);while(n>9){var s=0;String(n).split('').forEach(function(d){s+=+d});n=s}return n}
+
+var NUM_MEANING={
+  1:{name:'領袖・開創',short:'獨立自主，勇於開拓',full:'你是先行者。不管走到哪裡，都會自然地站在最前面。功課是學會與人分享，而不是一人扛起所有。'},
+  2:{name:'橋樑・感受',short:'細膩感知，善於連結',full:'你是情感的感應器，能感受到別人說不出口的東西。功課是在照顧別人之前，先把自己接住。'},
+  3:{name:'表達・創造',short:'活潑創意，善於溝通',full:'你是表達者，世界需要你說出那些大家有感覺但說不出口的話。功課是允許自己表達「還沒完成」的想法。'},
+  4:{name:'秩序・穩固',short:'踏實建構，注重安全感',full:'你是建築師，把夢想建成一個住得進去的地方。功課是在系統之外，留一扇窗給靈感。'},
+  5:{name:'自由・體驗',short:'多元探索，打破框架',full:'你是探險家，一旦停下來就覺得窒息。功課是在所有的體驗中，學會在某個地方紮根。'},
+  6:{name:'責任・守護',short:'溫暖照顧，勇於承擔',full:'你是守護者，天生把別人排在自己前面。功課是理解：守護者也需要被守護。'},
+  7:{name:'真理・洞見',short:'深度思考，追尋本質',full:'你是觀察者，能看見別人沒注意到的事。功課是把洞見說出來，而不是留在心裡等別人猜到。'},
+  8:{name:'豐盛・承擔',short:'掌握資源，展現力量',full:'你是承重牆，被交付重任是因為大家知道你接得住。功課是學會說「我需要幫助」。'},
+  9:{name:'大愛・放下',short:'宏觀視野，服務眾人',full:'你是路標，把自己走過的路留給後來的人。功課是在給予之前，確認自己是滿的。'},
+  11:{name:'直覺・啟發（大師數）',short:'覺察力感應，啟發他人',full:'11是2的更高表達。你帶著更強的感知能力來到這裡，是來喚醒人的。功課是在天賦與接地之間找到平衡。'},
+  22:{name:'夢想建築師（大師數）',short:'把理想化為現實',full:'22是4的更高表達。你有能力讓宏大的夢想真正落地。功課是不要因為太有遠見，而在人際關係裡讓人追不上你。'},
+  33:{name:'無私奉獻（大師數）',short:'以愛引領，終極服務',full:'33是6的更高表達。你是最深層的照顧者。功課是記得：奉獻不需要犧牲自己。'}
+};
+
+function getMeaning(n){
+  if(NUM_MEANING[n])return NUM_MEANING[n];
+  var s=rdP(n);
+  return NUM_MEANING[s]||{name:'數字'+n,short:'',full:''};
+}
+
+// ── 輔助函式 ──
+function calcFlowYear(M,D,yr){var s=0;String(M).split('').forEach(function(d){s+=+d});String(D).split('').forEach(function(d){s+=+d});String(yr).split('').forEach(function(d){s+=+d});return rdP(s)}
+var WUXING={1:'金',2:'水',3:'火',4:'木',5:'土',6:'金',7:'水',8:'火',9:'木'};
+function getWuxing(n){return WUXING[rdP(n)]||''}
+var FLOW_KW={1:'播種開新局',2:'合作鞏固',3:'表達輸出',4:'打地基穩固',5:'變動冒險',6:'責任承擔',7:'內省深化',8:'收割擴張',9:'放手清理'};
+var SPECIAL_CODE={
+'112':'包辦碼','123':'演講碼','134':'衝動冒險碼','145':'等待碼','156':'驛馬創富碼','167':'花錢碼','178':'仗義生意碼','189':'完美壓力碼','191':'孤獨創業碼',
+'213':'溫和領袖碼','224':'被動服務碼','235':'洗腦專家碼','246':'結構銷售碼','257':'原則碼','268':'攀比碼','279':'桃花碼','281':'銷售冠軍碼','292':'軍師碼',
+'314':'感情碼','325':'先斬後奏碼','336':'火燒金碼','347':'萬人迷碼','358':'衝勁碼','369':'投資家碼','371':'疑心碼','382':'善事碼','393':'心靈手巧碼',
+'415':'策劃碼','426':'銷售高手碼','437':'帶隊碼','448':'教授碼','459':'企業家苗子','461':'苛刻碼','472':'精明碼','483':'專業碼','494':'策略碼',
+'516':'驛馬碼','527':'原則溝通碼','538':'磨難碼','549':'求穩碼','551':'自我碼','562':'小氣碼','573':'貴人義氣碼','584':'壓力碼','595':'大哥大碼',
+'617':'私房錢碼','628':'信口開河碼','639':'資本運作碼','643':'挑剔碼','652':'守財碼','663':'投資碼','674':'關係碼','685':'行善碼','696':'點石成金碼',
+'718':'擔保碼','729':'高級桃花碼','731':'急躁碼','742':'分析碼','753':'算計碼','764':'貴人財碼','775':'雙面碼','786':'承擔碼','797':'借刀碼',
+'819':'操勞碼','821':'銷售草根碼','832':'水火沖碼','843':'二把手碼','854':'不面對碼','865':'漂泊碼','876':'承壓碼','887':'泰山壓頂碼','898':'窮忙焦慮碼',
+'911':'孤行碼','922':'說多做少碼','933':'手巧碼','944':'學者碼','955':'自私碼','966':'點石成金碼','977':'高管碼','988':'壓力創富碼','999':'天堂地獄碼',
+'132':'演講碼','165':'驛馬碼','516':'驛馬碼'
+};
+function getSpecialLabel(a,b,c){return SPECIAL_CODE[''+a+b+c]||SPECIAL_CODE[''+a+c+b]||SPECIAL_CODE[''+b+a+c]||''}
+
+function calcTri(Y,M,D){
+  var dd=String(D).padStart(2,'0');
+  var mm=String(M).padStart(2,'0');
+  var yy=String(Y).padStart(4,'0');
+  var ds=dd+mm+yy;
+  var A=+ds[0],B=+ds[1],C=+ds[2],Dv=+ds[3],E=+ds[4],F=+ds[5],G=+ds[6],H=+ds[7];
+  var rr=rdP;
+  var I=rr(A+B),J=rr(C+Dv),K=rr(E+F),L=rr(G+H);
+  if(G===0&&H===0)L=5; // 世紀年(1900/2000/2100) 0+0=5
+  var M2=rr(I+J),N=rr(K+L),O=rr(M2+N);
+  var T=rr(I+M2),S=rr(J+M2),U=rr(T+S);
+  var V=rr(K+N),W=rr(L+N),X=rr(V+W);
+  var P=rr(M2+O),Q=rr(N+O),R=rr(P+Q);
+  return{A:A,B:B,C:C,D:Dv,E:E,F:F,G:G,H:H,
+    I:I,J:J,K:K,L:L,M:M2,N:N,O:O,
+    T:T,S:S,U:U,V:V,W:W,X:X,P:P,Q:Q,R:R,
+    ds:ds,inner:rdP(O+M2+N),sub:rdP(I+L+O),ext:rdP(U+R+X)};
+}
+
+function drawTriangle(t){
+  var svg=document.getElementById('triSvg');
+  svg.innerHTML='';
+
+  // Color palette for node levels
+  var C={
+    bot:'#4a6fa5',   // bottom row (digits)
+    l2:'#5a8a5a',    // level 2
+    l3:'#8a5a9a',    // level 3
+    top:'#c9954a',   // top (life number)
+    side:'#5a7a9a',  // side numbers
+    center:'#7a5a4a' // center column
+  };
+
+  var nodes=[];
+  // BOTTOM ROW: A B C D E F G H  (y=480)
+  var bY=480, bXs=[30,100,170,240,310,380,450,520];
+  var letters=['A','B','C','D','E','F','G','H'];
+  var vals=[t.A,t.B,t.C,t.D,t.E,t.F,t.G,t.H];
+  for(var i=0;i<8;i++) nodes.push({x:bXs[i],y:bY,v:vals[i],label:letters[i],c:C.bot,r:20});
+
+  // LEVEL 2: I J K L  (y=390)
+  var l2Y=390, l2Xs=[65,205,345,485];
+  var l2v=[t.I,t.J,t.K,t.L], l2l=['I','J','K','L'];
+  for(var i=0;i<4;i++) nodes.push({x:l2Xs[i],y:l2Y,v:l2v[i],label:l2l[i],c:C.l2,r:22});
+
+  // LEVEL 3: M N  (y=300)
+  var l3Y=300, l3Xs=[135,415];
+  var l3v=[t.M,t.N], l3l=['M','N'];
+  for(var i=0;i<2;i++) nodes.push({x:l3Xs[i],y:l3Y,v:l3v[i],label:l3l[i],c:C.l3,r:24});
+
+  // TOP: O  (y=200)
+  nodes.push({x:275,y:200,v:t.O,label:'O',c:C.top,r:30});
+
+  // SIDE LEFT: T S U  
+  nodes.push({x:80,y:300,v:t.T,label:'T',c:C.side,r:18});
+  nodes.push({x:80,y:210,v:t.S,label:'S',c:C.side,r:18});
+  nodes.push({x:45,y:150,v:t.U,label:'U',c:C.side,r:20});
+
+  // SIDE RIGHT: V W X
+  nodes.push({x:470,y:300,v:t.V,label:'V',c:C.side,r:18});
+  nodes.push({x:470,y:210,v:t.W,label:'W',c:C.side,r:18});
+  nodes.push({x:510,y:150,v:t.X,label:'X',c:C.side,r:20});
+
+  // CENTER: P Q R
+  nodes.push({x:205,y:125,v:t.P,label:'P',c:C.center,r:18});
+  nodes.push({x:345,y:125,v:t.Q,label:'Q',c:C.center,r:18});
+  nodes.push({x:275,y:65,v:t.R,label:'R',c:C.center,r:22});
+
+  // Draw edges first
+  var edges=[
+    // Bottom to L2
+    [0,8],[1,8],[2,9],[3,9],[4,10],[5,10],[6,11],[7,11],
+    // L2 to L3
+    [8,12],[9,12],[10,13],[11,13],
+    // L3 to Top
+    [12,14],[13,14],
+    // Side left
+    [8,15],[12,15],[15,16],[12,16],[16,17],
+    // Side right
+    [10,18],[13,18],[18,19],[13,19],[19,20],
+    // Center
+    [12,21],[14,21],[13,22],[14,22],[21,23],[22,23]
+  ];
+
+  edges.forEach(function(e){
+    var a=nodes[e[0]],b=nodes[e[1]];
+    var line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',a.x);line.setAttribute('y1',a.y);
+    line.setAttribute('x2',b.x);line.setAttribute('y2',b.y);
+    line.setAttribute('stroke','rgba(233,194,125,0.15)');
+    line.setAttribute('stroke-width','1.5');
+    svg.appendChild(line);
+  });
+
+  // Draw nodes
+  nodes.forEach(function(nd){
+    var g=document.createElementNS('http://www.w3.org/2000/svg','g');
+
+    // Glow
+    var glow=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    glow.setAttribute('cx',nd.x);glow.setAttribute('cy',nd.y);glow.setAttribute('r',nd.r+6);
+    glow.setAttribute('fill',nd.c);glow.setAttribute('opacity','0.15');
+    g.appendChild(glow);
+
+    // Circle
+    var circ=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circ.setAttribute('cx',nd.x);circ.setAttribute('cy',nd.y);circ.setAttribute('r',nd.r);
+    circ.setAttribute('fill',nd.c);circ.setAttribute('fill-opacity','0.85');
+    circ.setAttribute('stroke',nd.c);circ.setAttribute('stroke-width','1.5');
+    g.appendChild(circ);
+
+    // Number
+    var txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x',nd.x);txt.setAttribute('y',nd.y+1);
+    txt.setAttribute('text-anchor','middle');txt.setAttribute('dominant-baseline','middle');
+    txt.setAttribute('fill','#fff');txt.setAttribute('font-size', nd.r>=24?'14':'12');
+    txt.setAttribute('font-weight','600');txt.setAttribute('font-family','Noto Sans TC,sans-serif');
+    txt.textContent=nd.v;
+    g.appendChild(txt);
+
+    // Label (small)
+    var lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',nd.x);lbl.setAttribute('y',nd.y+nd.r+12);
+    lbl.setAttribute('text-anchor','middle');
+    lbl.setAttribute('fill','rgba(233,194,125,0.55)');lbl.setAttribute('font-size','9');
+    lbl.setAttribute('font-family','Noto Sans TC,sans-serif');
+    lbl.textContent=nd.label;
+    g.appendChild(lbl);
+
+    svg.appendChild(g);
+  });
+}
+
+function buildKeyGrid(t){
+  var grid=document.getElementById('keyGrid');
+  var items=[
+    {n:t.O,label:'O｜主性格（五行'+getWuxing(t.O)+'）',desc:'主宰近60%行為模式，最外顯的核心特質'},
+    {n:t.inner,label:'內心密碼（O+M+N）',desc:'棉被裡的真實渴望，主性格的矯正器'},
+    {n:t.sub,label:'潛意識密碼（I+L+O）',desc:'危機時自動切換的防禦機制模式'},
+    {n:t.ext,label:'外心密碼（U+R+X）',desc:'陌生人對你的第一印象，社交面具'}
+  ];
+  grid.innerHTML='';
+  items.forEach(function(it){
+    var m=getMeaning(it.n);
+    var card=document.createElement('div');
+    card.className='meaning-card';
+    card.innerHTML='<div class="mc-num">'+it.n+'</div>'
+      +'<div class="mc-label">'+it.label+'</div>'
+      +'<div class="mc-desc"><strong>'+m.name+'</strong><br>'+m.short+'</div>';
+    grid.appendChild(card);
+  });
+}
+
+function buildFullCard(t){
+  var card=document.getElementById('fullCard');
+  var rowHTML='';
+  var cF=''+t.I+t.J+t.M, cM2=''+t.K+t.L+t.N, cC=''+t.M+t.N+t.O;
+  var cA1=''+t.T+t.S+t.U, cA2=''+t.P+t.Q+t.R, cA3=''+t.V+t.W+t.X;
+  var spF=getSpecialLabel(t.I,t.J,t.M),spMo=getSpecialLabel(t.K,t.L,t.N);
+  var spA1=getSpecialLabel(t.T,t.S,t.U),spA2=getSpecialLabel(t.P,t.Q,t.R),spA3=getSpecialLabel(t.V,t.W,t.X);
+
+  var keyNums=[
+    {n:t.O,label:'O 主性格（'+getWuxing(t.O)+'）',c:'#c9954a'},
+    {n:t.inner,label:'內心密碼',c:'#9966cc'},
+    {n:t.sub,label:'潛意識密碼',c:'#5a7a9a'},
+    {n:t.ext,label:'外心密碼',c:'#5a8a5a'},
+    {n:cF,label:'父親基因 '+cF+(spF?' ★'+spF:''),c:'#4a6fa5',isCode:true},
+    {n:cM2,label:'母親基因 '+cM2+(spMo?' ★'+spMo:''),c:'#4a6fa5',isCode:true},
+    {n:cA1,label:'21-40歲 '+cA1+(spA1?' ★'+spA1:''),c:'#7a5a4a',isCode:true},
+    {n:cA2,label:'41-60歲 '+cA2+(spA2?' ★'+spA2:''),c:'#7a5a4a',isCode:true},
+    {n:cA3,label:'61歲後 '+cA3+(spA3?' ★'+spA3:''),c:'#7a5a4a',isCode:true}
+  ];
+
+  keyNums.forEach(function(it){
+    var m=it.isCode?{name:'聯合密碼',full:'三位數 = A(起因) → B(手段) → C(目標)'}:getMeaning(it.n);
+    rowHTML+='<div class="full-row">'
+      +'<div class="full-n" style="background:'+it.c+';color:#ffffff;">'+(it.isCode?'':it.n)+'</div>'
+      +'<div class="full-text"><strong style="color:rgba(233,194,125,0.85)">'+it.label+(it.isCode?'':'｜'+m.name)+'</strong><br>'+m.full+'</div>'
+      +'</div>';
+  });
+
+  card.innerHTML='<div class="full-title">✦ 各節點完整解讀</div>'+rowHTML;
+}
+
+function doCalc(){
+  var Y=parseInt(document.getElementById('by').value);
+  var M=parseInt(document.getElementById('bm').value);
+  var D=parseInt(document.getElementById('bd').value);
+  if(!Y||!M||!D||Y<1900||M<1||M>12||D<1||D>31){
+    alert('請輸入正確的出生日期');return;
+  }
+  var t=calcTri(Y,M,D);
+  drawTriangle(t);
+  buildKeyGrid(t);
+  buildFullCard(t);
+
+  // AI 指令區塊
+  var fy26=calcFlowYear(M,D,2026),fy25=calcFlowYear(M,D,2025);
+  var wxO=getWuxing(t.O);
+  var cF=''+t.I+t.J+t.M, cMo=''+t.K+t.L+t.N, cC=''+t.M+t.N+t.O;
+  var cA1=''+t.T+t.S+t.U, cA2=''+t.P+t.Q+t.R, cA3=''+t.V+t.W+t.X;
+  var spF=getSpecialLabel(t.I,t.J,t.M),spMo=getSpecialLabel(t.K,t.L,t.N),spC=getSpecialLabel(t.M,t.N,t.O);
+  var spA1=getSpecialLabel(t.T,t.S,t.U),spA2=getSpecialLabel(t.P,t.Q,t.R),spA3=getSpecialLabel(t.V,t.W,t.X);
+
+  var aiText = '【三角生命密碼】完整測算結果\n'
+    + '系統：三角生命密碼（亞洲華人數字命理體系）\n'
+    + '══════════════════════════\n\n'
+    + '▍主性格（O）= '+t.O+'（五行屬'+wxO+'）\n'
+    + '  主宰近60%行為模式，最外顯的行為基模。\n\n'
+    + '▍內心密碼 = '+t.inner+'（O+M+N = '+t.O+'+'+t.M+'+'+t.N+'）\n'
+    + '  主性格的矯正器。主'+t.O+'內'+t.inner+'的組合 = 核心人格衝突。\n\n'
+    + '▍潛意識密碼 = '+t.sub+'（I+L+O = '+t.I+'+'+t.L+'+'+t.O+'）\n'
+    + '  極端壓力或絕對放鬆時流露的真實心理底色。\n\n'
+    + '▍外心密碼 = '+t.ext+'（U+R+X = '+t.U+'+'+t.R+'+'+t.X+'）\n'
+    + '  陌生人對你的第一印象，職場社交面具。\n'
+    + '  內心('+t.inner+') vs 外心('+t.ext+') 落差越大，內心戲越多。\n\n'
+    + '══════════════════════════\n'
+    + '▍六組聯合密碼（三位數 = A起因 + B手段 + C目標）\n\n'
+    + '► 父親基因（動機）：'+cF+' → A='+t.I+' B='+t.J+' C='+t.M+(spF?' ★'+spF:'')+'\n'
+    + '  影響事業軸：對賺錢、權威、成就的潛意識態度。\n\n'
+    + '► 母親基因（能量）：'+cMo+' → A='+t.K+' B='+t.L+' C='+t.N+(spMo?' ★'+spMo:'')+'\n'
+    + '  影響情感軸：對安全感、親密關係的直覺反應。\n\n'
+    + '► 核心密碼：'+cC+' → A='+t.M+' B='+t.N+' C='+t.O+(spC?' ★'+spC:'')+'\n\n'
+    + '► 21-40歲（工作朋友）：'+cA1+' → A='+t.T+' B='+t.S+' C='+t.U+(spA1?' ★'+spA1:'')+'\n'
+    + '  父親基因延伸。職場武器＋人脈磁鐵。\n\n'
+    + '► 41-60歲（下屬兒女）：'+cA2+' → A='+t.P+' B='+t.Q+' C='+t.R+(spA2?' ★'+spA2:'')+'\n'
+    + '  掌舵傳承期。管理風格與教育方式。\n\n'
+    + '► 61歲後（晚年家庭）：'+cA3+' → A='+t.V+' B='+t.W+' C='+t.X+(spA3?' ★'+spA3:'')+'\n'
+    + '  母親基因延伸。終極成績單。\n\n'
+    + '══════════════════════════\n'
+    + '▍流年 2025='+fy25+'('+FLOW_KW[fy25]+') 2026='+fy26+'('+FLOW_KW[fy26]+')\n'
+    + '▍五行 O='+t.O+'('+wxO+') 內心='+t.inner+'('+getWuxing(t.inner)+') 潛意識='+t.sub+'('+getWuxing(t.sub)+') 外心='+t.ext+'('+getWuxing(t.ext)+')\n'
+    + '▍星位密碼 O='+t.O+' I='+t.I+' L='+t.L+'\n'
+    + '▍七魄 喜'+t.I+' 怒'+t.J+' 哀'+t.K+' 懼'+t.L+' 愛'+t.M+' 欲'+t.N+' 惡'+t.O+'\n\n'
+    + '══════════════════════════\n'
+    + '
+    + '壹、主性格 O='+t.O+' 深度剖析\n'
+    + '  建設性 vs 破壞性表現。對人、對事、對錢、對感情的行為模式。\n'
+    + '  五行屬'+wxO+'的能量特徵及其在日常決策中的表現。\n\n'
+    + '貳、內在人格矛盾分析\n'
+    + '  主性格'+t.O+' vs 內心密碼'+t.inner+'的衝突與互補。\n'
+    + '  外在盔甲 vs 內在軟肋。潛意識'+t.sub+'在危機時的防禦機制。\n'
+    + '  外心'+t.ext+' vs 內心'+t.inner+'的落差分析（落差越大，社交內耗越重）。\n\n'
+    + '叁、父母基因與家庭印記\n'
+    + '  父親基因 '+cF+'（左半三角）對事業軸、權威態度、賺錢方式的影響。\n'
+    + '  母親基因 '+cMo+'（右半三角）對情感軸、安全感需求、親密關係的影響。\n'
+    + '  核心密碼 '+cC+' = 兩條基因匯合後的「你」，最深沉的聯合密碼。\n\n'
+    + '肆、三段人生演化\n'
+    + '  21-40歲 '+cA1+'：職場武器、朋友圈磁場、這階段的主旋律。\n'
+    + '  41-60歲 '+cA2+'：管理風格、子女教育方式、事業轉型方向。\n'
+    + '  61歲後 '+cA3+'：晚年能量、家庭關係、人生終極成績單。\n'
+    + '  三段之間的能量蛻變邏輯與轉折點。\n\n'
+    + '伍、七魄情緒地圖\n'
+    + '  喜('+t.I+')怒('+t.J+')哀('+t.K+')懼('+t.L+')愛('+t.M+')欲('+t.N+')惡('+t.O+')\n'
+    + '  哪些情緒容易被觸發、哪些被壓抑、情緒管理的關鍵槓桿點。\n\n'
+    + '陸、缺數分析與能量補足\n'
+    + '  找出三角形中 1-9 完全未出現的數字。\n'
+    + '  每個缺數代表此生需要額外發展的面向。\n'
+    + '  建議補足方式（行為調整、環境選擇、職業匹配）。\n\n'
+    + '柒、聯合密碼深度解讀\n'
+    + '  對照 81 組聯合密碼速查表，解讀六組密碼各自的行為模式。\n'
+    + '  特別標注有★的特殊密碼，說明其在事業、財富、人際中的具體影響。\n'
+    + '  順序很重要：ABC 和 CBA 過程不同、結果不同。\n\n'
+    + '捌、流年運勢與行動建議\n'
+    + '  2025流年'+fy25+'('+FLOW_KW[fy25]+') → 2026流年'+fy26+'('+FLOW_KW[fy26]+') 轉換期分析。\n'
+    + '  今年的機會窗口與地雷區。本月可落地的第一步行動。\n\n'
+    + '玖、職業天賦與財富路徑\n'
+    + '  根據主性格、聯合密碼、五行屬性，判斷最適合的職業方向。\n'
+    + '  提款密碼：1,8,9→權威錢 2,6→情緒價值錢 3,5→體驗變現 4,7→專業變現。\n'
+    + '  哪條路徑是此人最省力的財富通道。\n\n'
+    + '拾、精油與覺察建議（馥靈馥語）\n'
+    + '  根據三角形的五行分布，建議對應的精油覺察方向。\n'
+    + '  火(3,8)多→薰衣草沉降 水(2,7)多→肉桂暖中心 缺木(4)→雪松沉穩 缺土(5)→廣藿香接地。\n'
+    + '  若想更深入探索，可至馥靈之鑰官網使用「馥靈馥語」牌卡抽牌：\n'
+    + '  https://hourlightkey.com/draw-hl.html\n'
+    + '  或前往「馥靈秘碼」查看您的農曆生日座標：\n'
+    + '  https://hourlightkey.com/fuling-mima.html\n\n'
+    + '══════════════════════════\n'
+    + '▍1-9 數字速查\n'
+    + '1↑獨立開創 1↓自我孤獨 | 2↑共情連結 2↓猶豫依附 | 3↑熱情表達 3↓衝動虎頭蛇尾\n'
+    + '4↑秩序理財 4↓僵化恐懼 | 5↑自由堅持 5↓固執鑽牛角尖 | 6↑完美忠誠 6↓吹毛求疵\n'
+    + '7↑深度真理 7↓多疑難信 | 8↑權力承擔 8↓壓力爆表 | 9↑遠見博愛 9↓過度善良被利用\n\n'
+    + '▍五行速查（三角密碼專用，不可混用其他系統）\n'
+    + '1,6=金 | 2,7=水 | 3,8=火 | 4,9=木 | 5=土\n\n'
+    + '══════════════════════════\n'
+    + '▍81 組聯合密碼速查表\n'
+    + '（三位數 = A起因 + B過程 + C結果。順序不同，過程不同。）\n\n'
+    + '► 1 開頭（開創系列）\n'
+    + '112 包辦碼：矛盾糾結，虎頭蛇尾，適合晚婚\n'
+    + '123 演講碼：感性察言觀色，反應快，適合講師\n'
+    + '134 衝動冒險碼：衝動又害怕，矛盾焦躁，愛抱怨\n'
+    + '145 等待碼：半途而廢，需人鼓勵，不適合單幹\n'
+    + '156 驛馬創富碼：適合外地發展，方向感強，能賺自己的錢\n'
+    + '167 花錢碼：有財富，花在朋友戀人身上，大手大腳\n'
+    + '178 仗義生意碼：仗義人緣好，領導氣質，能做大\n'
+    + '189 完美壓力碼：完美主義，親力親為，必須肯闖才能成功\n'
+    + '191 孤獨創業碼：成功後仍孤獨，適合個體經營，學會借力\n\n'
+    + '► 2 開頭（溝通系列）\n'
+    + '213 溫和領袖碼：很能說，善良圓滑，喜歡命令別人\n'
+    + '224 被動服務碼：會說不知怎麼說，被動，適合服務業\n'
+    + '235 洗腦專家碼：脾氣不好，直腸子，固執，執行力強\n'
+    + '246 結構銷售碼：靠嘴賺錢，業務能力強，天生銷售\n'
+    + '257 原則碼：原則性強，固執直率，人緣不錯\n'
+    + '268 攀比碼：喜歡談事業提錢，攀比，性情溫和\n'
+    + '279 桃花碼：嘴巴吸引貴人，隨和，多年輕桃花\n'
+    + '281 銷售冠軍碼：銷售高手，容易忙碌孤獨\n'
+    + '292 軍師碼：能說會道，光說不做，可做軍事策略\n\n'
+    + '► 3 開頭（行動系列）\n'
+    + '314 感情碼：衝動欠考慮，缺安全感，容易流淚\n'
+    + '325 先斬後奏碼：心直口快，沒後路，三思而後行\n'
+    + '336 火燒金碼：衝動脾氣差，不能賭博，謹慎投資\n'
+    + '347 萬人迷碼：個人魅力吸引貴人，心口不一，友誼短暫\n'
+    + '358 衝勁碼：衝動固執，脾氣不好，衝勁足\n'
+    + '369 投資家碼：聰明有行動力，燒錢買機會，能花能賺\n'
+    + '371 疑心碼：疑心重脾氣差，朋友易變動，貴人被趕走\n'
+    + '382 善事碼：阻礙多脾氣善變，需多做善事\n'
+    + '393 心靈手巧碼：愛鑽牛角尖，一技之長，行動力強\n\n'
+    + '► 4 開頭（策劃系列）\n'
+    + '415 策劃碼：實在直爽，原則性強，容易半途而廢\n'
+    + '426 銷售高手碼：先策劃再說，天生銷售專家\n'
+    + '437 帶隊碼：精打細算，吸引人脈，有帶隊潛質\n'
+    + '448 教授碼：適合做教授專家，創業易給自己壓力\n'
+    + '459 企業家苗子碼：做事不擇手段，喜歡養花種植\n'
+    + '461 苛刻碼：苛刻挑剔，朋友受不了，適合財務策劃\n'
+    + '472 精明碼：精明過頭，能力強，多疑猶豫不冒險\n'
+    + '483 專業碼：老闆糊塗白忙，員工是專業人士，適合公務員教師\n'
+    + '494 策略碼：想很多，需要人推一把，機會來了把握不住\n\n'
+    + '► 5 開頭（方向系列）\n'
+    + '516 驛馬碼：被迫離開或搬家，離開故土往外發展才旺\n'
+    + '527 原則溝通碼：說到做到，堅持原則容易得罪人\n'
+    + '538 磨難碼：磨難多，固執情緒化，需多做善事\n'
+    + '549 求穩碼：比較累，大賺大賠，凡事求穩\n'
+    + '551 自我碼：過於自我太固執，容易做大反派\n'
+    + '562 小氣碼：花錢猶豫，為小事挑剔，多行善大氣方能成事\n'
+    + '573 貴人義氣碼：固執，有機會接觸高層次人脈\n'
+    + '584 壓力碼：想得多壓力大，要面對現實腳踏實地\n'
+    + '595 大哥大碼：因固執古板阻力大，大哥大大姐大\n\n'
+    + '► 6 開頭（財富系列）\n'
+    + '617 私房錢碼：捨得花在自己身上，愛美買雙份\n'
+    + '628 信口開河碼：承諾做不到，能忽悠但不能騙\n'
+    + '639 資本運作碼：錢來了又沒了，先投出去再回收\n'
+    + '643 挑剔碼：斤斤計較失去朋友，喜歡知識投資\n'
+    + '652 守財碼：小氣固執嘮叨，守財奴\n'
+    + '663 投資碼：一有錢就投資，口袋錢不多進出快\n'
+    + '674 關係碼：花錢在貴人身上，花錢打通關係\n'
+    + '685 行善碼：賺錢很累，需做善事，賺正財別賺偏財\n'
+    + '696 點石成金碼：不能賭博，喜歡錢生錢，投資需謹慎\n\n'
+    + '► 7 開頭（貴人系列）\n'
+    + '718 擔保碼：容易被朋友利用，別做擔保\n'
+    + '729 高級桃花碼：吸引高級桃花，人緣好貴人多\n'
+    + '731 急躁碼：脾氣急躁，人緣易變動疏遠\n'
+    + '742 分析碼：善分析策劃解決問題，貴人運好但不冒險\n'
+    + '753 算計碼：喜歡利用算計別人，容易遇小人，人員易變動\n'
+    + '764 貴人財碼：貴人多幫你的人多，機會來了能賺很多\n'
+    + '775 雙面碼：心態決定貴人或小人，善於為朋友付出\n'
+    + '786 承擔碼：貴人多接受壓力，敢承擔就能好，風雨後有彩虹\n'
+    + '797 借刀碼：人脈貴人多，心術不正就借刀殺人必敗\n\n'
+    + '► 8 開頭（壓力系列）\n'
+    + '819 操勞碼：比較累事事操勞，凡事看開\n'
+    + '821 銷售草根碼：固執喜歡聽好話，內心空虛自卑\n'
+    + '832 水火沖碼：情緒化敏感脾氣差，易被激怒\n'
+    + '843 二把手碼：感情糊塗壓力多，適合當二把手，專業人士\n'
+    + '854 不面對碼：挫折磨難多，想太多不面對現實\n'
+    + '865 漂泊碼：漂泊磨難多，要行善才能突破\n'
+    + '876 承壓碼：貴人給壓力，敢承擔便能成大器\n'
+    + '887 泰山壓頂碼：離婚率高，情緒化愛發火疏遠朋友\n'
+    + '898 窮忙焦慮碼：壓力太多忙碌，男注意心臟女注意子宮\n\n'
+    + '► 9 開頭（機會系列）\n'
+    + '911 孤行碼：孤獨的行者，別貪心\n'
+    + '922 說多做少碼：適合出謀劃策，說得多做得少\n'
+    + '933 手巧碼：心靈手巧，缺少耐心，不要總是變動\n'
+    + '944 學者碼：做事想多來回改，適合學者，當老闆要想少點\n'
+    + '955 自私碼：自私固執，因自私失敗，不要踐踏法律\n'
+    + '966 點石成金碼：能力強運氣好，抓住機會別太貪心\n'
+    + '977 高管碼：容易招桃花貴人小人，別利用別人\n'
+    + '988 壓力創富碼：機會多貪心壓力大，忙碌奔波看似輝煌沒結果\n'
+    + '999 天堂地獄碼：太貪心不一定有好結果，容易眾叛親離\n\n'
+    + '══════════════════════════\n'
+    + '▍參考書目\n'
+    + '· Dr. Oliver Tan《Power of Numbers》（三角金字塔計算法原創者）\n'
+    + '· 藍寧仕（Dimitrios Lenis）《啟動天賦靈數：藍寧仕醫師的生命密碼全書》套書（2022，大塊文化）\n'
+    + '· 藍寧仕《生命密碼》（2008新版，商周出版）\n'
+    + '· 林嘉怡《天賦優勢心理學應用入門》（Asia Training / INCA 國際生命數字協會）\n'
+    + '· 蘇醒《生命密碼》\n\n'
+    + '▍馥靈座標哲學\n'
+    + '這張三角形是你人生這台車的線路圖。\n'
+    + '密碼告訴你門在哪裡，走過去的人還是你自己。\n'
+    + '命盤不是命定劇本，是你的人生藏寶圖。\n';
+
+  var oldBox = document.getElementById('triAiBox');
+  if(oldBox) oldBox.remove();
+  var aiBox = document.createElement('div');
+  aiBox.id = 'triAiBox';
+  aiBox.style.cssText = 'margin-top:28px;padding:22px 20px;border:1px solid rgba(212,168,83,.25);border-radius:12px;background:rgba(212,168,83,.04)';
+  aiBox.innerHTML = '<div style="font-size:.95rem;color:rgba(233,194,125,0.7);letter-spacing:2px;margin-bottom:10px;text-transform:uppercase">📋 AI 解讀指令｜含完整參考書目</div>'
+    + '<pre id="triAiPre" style="white-space:pre-wrap;font-size:.7rem;color:rgba(255,255,255,0.85);line-height:1.75;margin:0 0 14px;font-family:inherit;max-height:220px;overflow-y:auto;padding-right:4px;-webkit-overflow-scrolling:touch">' + aiText + '</pre>'
+    + '<button onclick="(function(b){navigator.clipboard.writeText(document.getElementById(\'triAiPre\').textContent).then(function(){b.textContent=\'✅ 已複製！\';setTimeout(function(){b.textContent=\'📋 複製命盤資料\'},2200)})})(this)" style="padding:9px 24px;border:1px solid rgba(212,168,83,.35);border-radius:999px;font-size:.95rem;color:rgba(233,194,125,0.85);background:transparent;cursor:pointer;letter-spacing:1.5px;font-family:inherit">📋 複製命盤資料</button> <button onclick="if(typeof hlAICopy===\'function\')hlAICopy(\'triAiPre\',\'triangle\',this);else{navigator.clipboard.writeText(document.getElementById(\'triAiPre\').textContent);this.textContent=\'✅ 已複製\';setTimeout(()=>this.textContent=\'🔮 複製AI深度解讀指令\',2200)}" style="padding:9px 24px;border:1px solid rgba(160,124,220,.35);border-radius:999px;font-size:.95rem;color:rgba(200,180,240,.9);background:rgba(160,124,220,.1);cursor:pointer;letter-spacing:1.5px;font-family:inherit">🔮 複製AI深度解讀指令</button>';
+  document.getElementById('result').appendChild(aiBox);
+
+  var r=document.getElementById('result');
+  r.className='result show';
+  r.scrollIntoView({behavior:'smooth',block:'start'});
+  if(window.HL_track) HL_track('calculator_complete',{toolId:'triangle-calculator',toolName:'三角生命密碼'});
+}
+
+// Auto-focus chaining
+document.addEventListener('DOMContentLoaded',function(){
+  var by=document.getElementById('by'),bm=document.getElementById('bm'),bd=document.getElementById('bd');
+  by.addEventListener('input',function(){if(this.value.length===4)bm.focus();});
+  bm.addEventListener('input',function(){if(this.value.length===2)bd.focus();});
+});
+</script>
+
+<script src="assets/js/hourlight-global.js?v=20260309"></script>
+<script src="assets/js/hl-music.js?v=20260309"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-referral.js?v=20260323"></script>
+<script src="assets/js/hl-share.js"></script>
+<script src="assets/js/hl-tracker.js" data-tool="triangle-calculator" data-tool-name="三角生命密碼" data-tool-type="calculator"></script>
+<div style="max-width:760px;margin:0 auto 32px;padding:20px 28px;border:1px solid rgba(212,168,83,.2);border-radius:12px;background:rgba(212,168,83,.04);font-size:.95rem;color:rgba(255,255,255,0.8);line-height:1.9;text-align:center;letter-spacing:.5px">
+  ✦ 三角生命密码计算工具｜整合畢达哥拉斯數字学与亞洲华人數字命理体系<br>
+  © 2026 馥灵之钥国际有限公司
+</div>
+<footer class="hl-footer">
+  <div class="hl-footer-inner">
+    <div class="hl-footer-brand">
+      <div class="hl-footer-logo"><img src="LOGO-1.png" alt="" class="hl-logo-icon" aria-hidden="true" loading="lazy">馥灵之钥 Hour Light</div>
+      <div class="hl-footer-tagline">读懂自己，活对人生｜创办人 王逸君</div>
+    </div>
+    <div class="hl-footer-social" style="display:flex;gap:16px;justify-content:center;align-items:center;margin:16px 0;flex-wrap:wrap">
+      <a href="https://www.facebook.com/share/1QoZr7swk4/?mibextid=wwXIfr" target="_blank" rel="noopener" title="Facebook 馥灵之钥" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">f</a>
+      <a href="https://www.instagram.com/judyanee" target="_blank" rel="noopener" title="Instagram @judyanee" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">📸</a>
+      <a href="https://www.youtube.com/@judyanee" target="_blank" rel="noopener" title="YouTube @judyanee" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">▶</a>
+      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" title="LINE @hourlight" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">💬</a>
+      <a href="podcast.html" title="Podcast" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">🎙</a>
+    </div>
+        <div class="hl-footer-links">
+      <a href="app.html">🔑 我的內在城堡</a><a href="index.html">首页</a>
+      <a href="fuling-mima.html">生命秘码</a><a href="draw-hl.html">线上抽牌</a>
+      <a href="destiny-engine.html">命盘引擎</a><a href="services.html">服務項目</a>
+      <a href="courses.html">课程学苑</a><a href="book.html">著作</a>
+      <a href="founder.html">关於创办人</a><a href="hourlight-sitemap.html">网站地图</a>
+      <a href="privacy.html">隐私政策</a><a href="terms.html">服務条款</a>
+      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener">LINE 咨询</a>
+    </div>
+        <div class="hl-footer-copyright">© 2026 馥灵之钥国际有限公司 Hour Light International Co., Ltd.｜统编：60303284<br>All Rights Reserved.</div>
+  </div>
+</footer>
+<script src="assets/js/hl-topnav.js"></script>
+<script src="assets/js/hl-bottomnav.js"></script>
+<script src="assets/js/hl-ai-gate.js"></script>
+<script src="assets/js/hl-gate.js"></script>
+<script src="assets/js/hl-record.js"></script>
+<script src="assets/js/hl-announce.js?v=4"></script>
+<script src="assets/js/hl-email.js"></script>
+<script src="assets/js/hl-chat.js"></script>
+<script src="assets/js/hl-aroma-fx.js" defer></script>
+<script>document.querySelectorAll(".origin-toggle").forEach(function(t){t.addEventListener("click",function(){this.parentElement.classList.toggle("open")})})</script>
+<script src="../js/ai-frameworks.js"></script>
+<script src="assets/js/hl-ai-copy.js"></script><script>
+function copyData(id,btn){
+  var el=document.getElementById(id);if(!el)return;
+  navigator.clipboard.writeText(el.textContent).then(function(){
+    var orig=btn.textContent;btn.textContent='✅ 已複製命盤資料';
+    setTimeout(function(){btn.textContent=orig},2000);
+  });
+}
+</script>
+</body>
+</html>

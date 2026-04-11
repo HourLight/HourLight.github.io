@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-BXP7K53QG6');
+</script>
+<!-- Facebook Pixel -->
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1333106288588347');
+  fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" alt=""
+  src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"></noscript>
+<!-- End Facebook Pixel -->
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>彩虹色彩计算器｜馥灵之钥</title>
+<meta name="description" content="找到您的生命色彩，解锁您的能量狀态。源自台湾，馥灵之钥。">
+<link rel="icon" href="../favicon.ico" />
+<link rel="stylesheet" href="../assets/css/hourlight-global.css">
+<style>
+  :root{
+    --font-main:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+
+    --bg-deep:var(--hl-bg);
+    --bg-soft:#f0ebe3;
+    --panel:#0f0a22;
+
+    --ink-main:#ffffff;
+    --ink-soft:#d9cbbf;
+    --ink-muted:#a8968a;
+
+    --gold:var(--hl-gold);
+    --gold-deep:var(--hl-gold-deep);
+
+    --line:rgba(255,255,255,.14);
+    --shadow-md:0 14px 36px rgba(0,0,0,.9);
+    --ease:.25s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+
+  body{
+    min-height:100vh;min-height:100dvh;
+    font-family:var(--font-main);
+    color:var(--ink-main);
+    padding:20px;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(233,194,125,0.22) 0, transparent 55%),
+      radial-gradient(circle at 85% 100%, rgba(94,72,183,0.32) 0, transparent 55%)
+      linear-gradient(180deg,var(--bg-deep) 0%,var(--bg-soft) 100%);
+    background-blend-mode:multiply,normal,soft-light,normal;
+  }
+
+  
+
+  .container{
+    max-width:700px;
+    margin:0 auto;
+    background:var(--panel);
+    -webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);
+    border-radius:20px;
+    padding:32px 24px 28px;
+    box-shadow:var(--shadow-md);
+    border:1px solid var(--line);
+    position:relative;
+    z-index:1;
+  }
+
+  h1{
+    text-align:center;
+    color:var(--gold);
+    font-size:clamp(1.8rem,4vw,2.2rem);
+    margin-bottom:6px;
+    font-weight:900;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+  }
+  .subtitle{
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:0.9rem;
+    margin-bottom:26px;
+  }
+
+  .input-section{
+    background:rgba(15,10,40,.9);
+    border-radius:16px;
+    padding:20px 18px;
+    margin-bottom:20px;
+    border:1px solid rgba(255,255,255,0.15);
+  }
+  .input-label{
+    font-size:0.92rem;
+    font-weight:700;
+    color:var(--ink-main);
+    margin-bottom:10px;
+    display:block;
+  }
+  .date-input{
+    width:100%;
+    padding:12px 14px;
+    border:1.8px solid rgba(255,255,255,0.2);
+    border-radius:10px;
+    font-size:1rem;
+    font-family:inherit;
+    transition:var(--ease);
+    background:rgba(5,3,18,0.95);
+    color:var(--ink-main);
+  }
+  .date-input:focus{
+    outline:none;
+    border-color:var(--gold);
+    box-shadow:0 0 0 2px rgba(233,194,125,.45);
+  }
+
+  .calc-btn{
+    display:block;
+    width:100%;
+    background:linear-gradient(135deg,var(--gold),var(--gold-deep));
+    color: #ffffff;
+    border:none;
+    padding:14px 20px;
+    border-radius:14px;
+    font-size:1.02rem;
+    font-weight:900;
+    cursor:pointer;
+    box-shadow:0 10px 28px rgba(0,0,0,.9);
+    transition:var(--ease);
+    margin-top:14px;
+    letter-spacing:.06em;
+  }
+  .calc-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 14px 34px rgba(0,0,0,1);
+  }
+
+  .result-section{
+    display:none;
+    margin-top:26px;
+  }
+  .result-section.show{
+    display:block;
+    animation:fadeIn 0.5s;
+  }
+  @keyframes fadeIn{
+    from{opacity:0;transform:translateY(14px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+
+  .rainbow-card{
+    background:rgba(10,7,30,0.96);
+    border-radius:16px;
+    padding:26px 20px;
+    margin-bottom:20px;
+    text-align:center;
+    box-shadow:0 10px 28px rgba(0,0,0,.9);
+    position:relative;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,0.14);
+  }
+  .rainbow-card::before{
+    content:'';
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    height:5px;
+    background:#05030a;
+  }
+  .color-circle{
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    margin:0 auto 18px;
+    box-shadow:0 10px 26px rgba(0,0,0,.85);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:3rem;
+    font-weight:900;
+    color:#ffffff;
+    
+  }
+  .color-name{
+    font-size:1.2rem;
+    font-weight:900;
+    color:var(--gold);
+    margin-bottom:6px;
+  }
+  .color-desc{
+    font-size:0.96rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin-bottom:12px;
+  }
+  .energy-tag{
+    display:inline-block;
+    padding:5px 12px;
+    background:rgba(233,194,125,.08);
+    border-radius:999px;
+    font-size:0.95rem;
+    font-weight:700;
+    color:var(--gold);
+    margin:3px;
+    border:1px solid rgba(233,194,125,0.4);
+  }
+
+  .info-section{
+    background:rgba(15,10,40,.9);
+    border-radius:12px;
+    padding:18px 16px;
+    margin-bottom:16px;
+    border:1px solid rgba(255,255,255,0.14);
+  }
+  .info-title{
+    font-size:0.96rem;
+    font-weight:800;
+    color:var(--gold);
+    margin-bottom:8px;
+  }
+  .info-text{
+    font-size:0.9rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+  }
+
+  .copy-btn{
+    display:block;
+    width:100%;
+    background:transparent;
+    border:2px solid rgba(233,194,125,0.7);
+    color:var(--ink-main);
+    padding:11px 18px;
+    border-radius:12px;
+    font-size:0.95rem;
+    font-weight:800;
+    cursor:pointer;
+    transition:var(--ease);
+    margin-top:4px;
+  }
+  .copy-btn:hover{
+    background:rgba(233,194,125,0.12);
+    transform:translateY(-2px);
+    box-shadow:0 8px 22px rgba(0,0,0,.85);
+  }
+  .copy-btn.copied{
+    background:#4caf50;
+    border-color:#4caf50;
+    color:#ffffff;
+    box-shadow:0 8px 22px rgba(0,0,0,.9);
+  }
+
+  .back-home{
+    display:block;
+    text-align:center;
+    margin-top:22px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    font-weight:700;
+    font-size:0.9rem;
+    transition:var(--ease);
+  }
+  .back-home:hover{
+    color:var(--gold);
+    text-decoration:underline;
+  }
+
+  @media(max-width:600px){
+    body{padding:14px}
+    .container{padding:26px 18px}
+    .color-circle{width:100px;height:100px;font-size:2.4rem}
+  }
+
+/* ── 馥灵之钥 LOGO 图标 ── */
+.hl-logo-icon {
+  height: 1.15em;
+  width: 1.15em;
+  border-radius: 50%;
+  object-fit: cover;
+  vertical-align: middle;
+  margin-right: 4px;
+  display: inline-block;
+  position: relative;
+  top: -0.08em;
+}
+.hl-logo-hero {
+  display: block;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 14px auto;
+  filter: drop-shadow(0 0 18px rgba(233,194,125,0.55));
+}
+
+/* light bg */
+.hl-bg-castle {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:#05030a;
+  opacity: 1;
+  filter: saturate(1.1) brightness(.72);
+  pointer-events: none;
+}
+
+/* ── Mobile App Touch Feel ── */
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+button,a,select,input[type=submit],input[type=button],.calc-btn,.draw-card{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+button:active,input[type=submit]:active,.calc-btn:active{transform:scale(.97);transition:transform .08s}
+select,input[type=text],input[type=number],input[type=date],input[type=email],textarea{font-size:16px!important}
+input[type="date"],input[type="datetime-local"]{color-scheme:dark;color:rgba(248,223,165,.85);background:rgba(233,194,125,.06);border:1px solid rgba(233,194,125,.15);border-radius:10px;padding:10px 14px}
+input[type="date"]::-webkit-datetime-edit,input[type="datetime-local"]::-webkit-datetime-edit{color:rgba(248,223,165,.85)}
+input[type="date"]::-webkit-calendar-picker-indicator,input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(.7)}
+@media(max-width:600px){
+  body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  button,input[type=submit],input[type=button],.calc-btn{min-height:48px}
+}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hourlightkey.com/sc/rainbow-calculator.html">
+    <meta property="og:title" content="彩虹色彩计算器｜馥灵之钥">
+    <meta property="og:description" content="彩虹色彩计算器｜透过色彩能量解析，了解您的能量狀态与调和建议。">
+    <meta property="og:image" content="https://hourlightkey.com/og-image.jpg">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:site_name" content="馥灵之钥 Hour Light">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="彩虹色彩计算器｜馥灵之钥">
+    <meta name="twitter:description" content="彩虹色彩计算器｜透过色彩能量解析，了解您的能量狀态与调和建议。">
+    <meta name="twitter:image" content="https://hourlightkey.com/og-image.jpg">
+
+    
+    <link rel="canonical" href="https://hourlightkey.com/sc/rainbow-calculator.html">
+    <meta name="keywords" content="彩虹色彩, 色彩能量, 颜色分析">
+    <!-- Schema.org 結构化资料 -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": "https://hourlightkey.com/#organization",
+  "name": "馥靈之鑰國際有限公司",
+  "alternateName": [
+    "Hour Light International Co., Ltd.",
+    "馥靈之鑰",
+    "Hour Light"
+  ],
+  "url": "https://hourlightkey.com",
+  "logo": {
+    "@type": "ImageObject",
+    "url": "https://hourlightkey.com/logo.svg",
+    "width": "200",
+    "height": "200"
+  },
+  "image": "https://hourlightkey.com/og-image.jpg",
+  "description": "馥靈之鑰 Hour Light｜讀懂自己，活對人生。結合感官科學與自我導航的自我認識系統，免費線上工具與一對一深度陪伴。",
+  "foundingDate": "2024",
+  "founder": {
+    "@type": "Person",
+    "@id": "https://hourlightkey.com/#founder",
+    "name": "王逸君",
+    "alternateName": "Ruby Wang"
+  },
+  "sameAs": [
+    "https://www.youtube.com/@judyanee",
+    "https://www.facebook.com/hourlight",
+    "https://www.instagram.com/hourlight",
+    "https://lin.ee/p5tBihbe"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer service",
+    "email": "info@hourlightkey.com",
+    "url": "https://lin.ee/p5tBihbe",
+    "availableLanguage": [
+      "zh-TW",
+      "zh-CN"
+    ]
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "Taiwan"
+  },
+  "knowsAbout": [
+    "芳香療法",
+    "能量覺察",
+    "情緒管理",
+    "美容美業",
+    "生命靈數",
+    "塔羅牌"
+  ]
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "url": "https://hourlightkey.com/rainbow-calculator.html",
+  "name": "彩虹色彩計算器",
+  "description": "透過色彩能量解析，了解你的能量狀態與調和建議",
+  "applicationCategory": "LifestyleApplication",
+  "operatingSystem": "Web Browser",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "TWD"
+  }
+}
+    </script>
+<link rel="stylesheet" href="../assets/css/hl-cosmos.css">
+<link rel="stylesheet" href="../assets/css/hl-music.css">
+<script src="assets/js/hl-analytics.js?v=20260401" defer></script>
+<!-- MailerLite Universal -->
+<script>
+    (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
+    .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
+    n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
+    (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
+    ml('account', '2060689');
+</script>
+<!-- End MailerLite Universal -->
+<style>
+/* ========== 浮动 LINE 按鈕（玻璃擬态）========== */
+
+@media(max-width:768px){}@media(min-width:769px) and (max-width:900px){}
+</style>
+<style>
+/* ========== 背景音樂控制按鈕 ========== */
+}
+</style>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0612">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="馥灵之钥">
+</head>
+<body>
+<img src="images/page-banners-web/rainbow-calculator.webp" alt="" style="width:100%;max-width:600px;max-height:180px;object-fit:cover;margin:0 auto 20px;display:block;border-radius:12px" loading="lazy" onerror="this.style.display='none'">
+
+
+
+<!-- ========== 背景音樂 ========== -->
+<!-- 星空背景 -->
+<div class="hl-bg-castle"></div>
+<div class="hl-cosmos">
+  <div class="hl-stars-layer hl-stars-1"></div>
+  <div class="hl-stars-layer hl-stars-2"></div>
+  <div class="hl-stars-layer hl-stars-3"></div>
+  <div class="hl-meteors">
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+  </div>
+  <div class="hl-aura hl-aura-1"></div>
+  <div class="hl-aura hl-aura-2"></div>
+  <div class="hl-aura hl-aura-3"></div>
+</div>
+
+  <div class="container">
+    <h1>🌈 彩虹數字计算器</h1>
+    <p class="subtitle">🇹🇼 源自台湾｜馥灵之钥｜以數字觉察读您的能量色彩</p>
+
+    <div class="input-section">
+      <label class="input-label">请输入您的出生日期</label>
+      <input type="date" class="date-input" id="birthDate" max="2025-12-31">
+      <button class="calc-btn" onclick="calculate()">🔮 找到我的生命色彩</button>
+    </div>
+
+    <div class="result-section" id="resultSection">
+      <div class="rainbow-card">
+        <div class="color-circle" id="colorCircle">-</div>
+        <div class="color-name" id="colorName">-</div>
+        <div class="color-desc" id="colorDesc">-</div>
+        <div id="energyTags"></div>
+      </div>
+
+      <div class="info-section">
+        <div class="info-title">✨ 您的能量特质</div>
+        <div class="info-text" id="energyText">-</div>
+      </div>
+
+      <div class="info-section">
+        <div class="info-title">💫 给您的日常建议</div>
+        <div class="info-text" id="adviceText">-</div>
+      </div>
+
+      <button class="copy-btn" onclick="copyResult(event)">📋 一键複製結果</button>
+      <button class="copy-btn" onclick="copyAI()" style="margin-top:10px;background:rgba(160,124,220,.15);border:1px solid rgba(160,124,220,.3);color:#c8b4ff">🤖 複製 AI 深度解读指令</button>
+    </div>
+
+    <a href="index.html" class="back-home">🏠 返回首页</a>
+  </div>
+
+<script>
+// 彩虹數字資料（已避開「舒緩」等敏感詞）
+const rainbowData = {
+  1: {
+    color: '#FF0000',
+    name: '紅色｜行動力',
+    desc: '你是熱情的開創者，充滿行動力和勇氣。紅色代表生命力、主動與突破。',
+    energy: '你擁有強大的行動力和帶頭能力，天生不怕挑戰。你的能量像火焰一樣熾熱，能點燃周圍的人。當你專注在目標上時，沒有什麼能擋得住你。',
+    advice: '學會在行動前先深呼吸三次，給自己一點思考空間。你的熱情是禮物，但也要記得安排充電時間，避免把自己用到沒電。',
+    tags: ['熱情','勇氣','行動力']
+  },
+  2: {
+    color: '#FF7F00',
+    name: '橙色｜創造力',
+    desc: '你是溫暖的創造者，充滿創意和玩心。橙色代表創造力、喜悅與分享。',
+    energy: '你擁有源源不絕的點子和表達慾，天生樂觀開朗。你的能量像陽光一樣溫暖，和你相處的人通常會覺得比較放鬆。當你自由創作時，你就是最亮眼的自己。',
+    advice: '相信你的怪點子，不要急著自我否定。你的獨特風格就是你的價值。試著為你的創意排一點正式的時間，而不是永遠擠在空檔裡。',
+    tags: ['創造力','玩心','表達']
+  },
+  3: {
+    color: '#FFFF00',
+    name: '黃色｜智慧',
+    desc: '你是明亮的思考者，充滿智慧和洞察力。黃色代表思考、清晰與分析。',
+    energy: '你擁有清楚的頭腦與敏銳的觀察力，天生善於學習與整理資訊。你的能量像燈塔一樣，能幫助大家看清方向。當你專心研究一件事時，常常能看得比別人更深。',
+    advice: '提醒自己：不是每件事都需要分析到完美。學習在「剛好夠用」的資訊下做決定，可以減少腦袋過勞，讓生活更輕鬆。',
+    tags: ['智慧','清晰','洞察']
+  },
+  4: {
+    color: '#00FF00',
+    name: '綠色｜穩定與照顧',
+    desc: '你是溫柔的照顧者，重視安全感與平衡。綠色代表穩定、成長與互相支持。',
+    energy: '你擁有安撫情緒與維持平衡的能力，天生願意照顧他人。你的存在像一片樹蔭，讓靠近你的人覺得比較安心。當環境混亂時，你很適合當那個幫大家慢下來的人。',
+    advice: '記得先照顧好自己，再照顧別人。你的溫柔很珍貴，但你的體力與情緒也需要補充。練習說「我現在需要休息一下」，不是自私，是長久陪伴的關鍵。',
+    tags: ['穩定','照顧','平衡']
+  },
+  5: {
+    color: '#0000FF',
+    name: '藍色｜溝通',
+    desc: '你是真誠的溝通者，重視對話與理解。藍色代表表達、真實與傾聽。',
+    energy: '你擁有清晰的表達能力與敏感的耳朵，天生適合做橋樑。你的能量像一條安靜的河，讓情緒有地方流動。當你願意說出真實感受時，你的話語很有影響力。',
+    advice: '學習在舒服的界線內說真話，不需要逞強、也不必壓抑。你可以選擇你要說多少，而不是逼自己全盤托出。你的真誠，比完美更重要。',
+    tags: ['溝通','真實','傾聽']
+  },
+  6: {
+    color: '#4B0082',
+    name: '靛色｜直覺與敏感度',
+    desc: '你是細膩的感受者，直覺敏銳、感受力強。靛色代表直覺、深度與感知力。',
+    energy: '你常常能提前感覺到氣氛的變化，也容易讀到別人的情緒。你的能量像深夜的天空，安靜卻承載很多訊息。當你願意相信自己內在的小聲音時，往往能避開不少繞路。',
+    advice: '練習分辨「擔心的腦補」和「真正的直覺」。給自己多一點安靜的時間，讓心慢慢沉澱，你會越來越清楚什麼才是真的需要在意的訊號。',
+    tags: ['直覺','感受力','細膩']
+  },
+  7: {
+    color: '#9400D3',
+    name: '紫色｜整合與洞見',
+    desc: '你是擅長看全局的人，喜歡思考人生的意義與方向。紫色代表整合、深度與轉化。',
+    energy: '你不滿足於表面答案，常常想理解「事情背後真正的原因」。你的能量像一座高處的觀景台，能同時看見很多層面。當你願意把想法說出來時，很容易給別人帶來新的視角。',
+    advice: '記得偶爾從「想很多」裡休息一下，讓身體做點簡單的事。你不需要一次想清楚所有問題，只要先處理眼前一小步就好。',
+    tags: ['洞見','整合','轉化']
+  },
+  8: {
+    color: '#FFD700',
+    name: '金色｜豐盛與影響力',
+    desc: '你是具備影響力的實幹派，注重成果與實際。金色代表豐盛、承擔與成就。',
+    energy: '你對責任與成果有很高的要求，願意付出時間做出看得見的成績。你的能量像金色的太陽，能帶動整個團隊的節奏。當你對自己的價值有信心時，很容易吸引合作機會與資源。',
+    advice: '學會欣賞自己已經完成的，而不是只看「還不夠」。適時肯定自己的努力，是讓豐盛繼續流動的重要關鍵。',
+    tags: ['豐盛','實幹','影響力']
+  },
+  9: {
+    color: '#FFFFFF',
+    name: '白色｜圓融與包容',
+    desc: '你是擅長包容與協調的人，能看見每個人的難處。白色代表圓融、完整與整體觀。',
+    energy: '你很容易站在別人的角度思考，因此常被當成調和者。你的能量像柔和的光，會默默照顧到很多細節。當你願意適度把注意力拉回自己，你會更有力氣去照顧重要的人。',
+    advice: '不要把全部的責任都扛在自己身上。有些事是你做得到，也有些事需要交還給對方。學會分清楚「我能負責的」和「不在我範圍內的」，會讓你輕鬆很多。',
+    tags: ['包容','協調','完整']
+  }
+};
+
+function reduceToSingle(num){
+  while(num>9){
+    num = String(num).split('').reduce((a,b)=>a+parseInt(b),0);
+  }
+  return num;
+}
+
+function calculate(){
+  const dateInput = document.getElementById('birthDate').value;
+  if(!dateInput){
+    alert('請先輸入你的出生日期！');
+    return;
+  }
+
+  const [year,month,day] = dateInput.split('-').map(Number);
+  const allDigits = String(year)+String(month)+String(day);
+  const sum = allDigits.split('').reduce((a,b)=>a+parseInt(b),0);
+  const rainbowNum = reduceToSingle(sum);
+
+  const data = rainbowData[rainbowNum];
+  
+  document.getElementById('colorCircle').style.background = data.color;
+  document.getElementById('colorCircle').textContent = rainbowNum;
+  document.getElementById('colorName').textContent = data.name;
+  document.getElementById('colorDesc').textContent = data.desc;
+  document.getElementById('energyText').textContent = data.energy;
+  document.getElementById('adviceText').textContent = data.advice;
+  
+  const tagsHtml = data.tags.map(tag=>`<span class="energy-tag">${tag}</span>`).join('');
+  document.getElementById('energyTags').innerHTML = tagsHtml;
+
+  document.getElementById('resultSection').classList.add('show');
+
+  window.currentResult = {
+    date: dateInput,
+    number: rainbowNum,
+    color: data.name,
+    desc: data.desc,
+    energy: data.energy,
+    advice: data.advice
+  };
+}
+
+function copyResult(evt){
+  if(!window.currentResult) return;
+  
+  const r = window.currentResult;
+  const text = `🌈 彩虹數字計算結果
+
+出生日期：${r.date}
+彩虹數字：${r.number}
+生命色彩：${r.color}
+
+核心特質：${r.desc}
+
+能量特質：${r.energy}
+
+給你的建議：${r.advice}
+
+🇹🇼 源自台灣｜馥靈之鑰`;
+
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = evt.target;
+    btn.textContent = '✅ 已複製！';
+    btn.classList.add('copied');
+    setTimeout(()=>{
+      btn.textContent = '📋 一鍵複製結果';
+      btn.classList.remove('copied');
+    },2000);
+  }).catch(()=>{
+    alert('複製失敗，請手動複製：\n\n'+text);
+  });
+}
+
+function copyAI(){
+  if(!window.currentResult) return;
+  var r = window.currentResult;
+  var txt = '【AI深度解讀指令｜彩虹色彩數字 × 馥靈座標哲學】\n\n';
+  txt += '═══ 提問者資料 ═══\n';
+  txt += '出生日期：' + r.date + '\n';
+  txt += '彩虹數字：' + r.number + '\n';
+  txt += '生命色彩：' + r.color + '\n';
+  txt += '核心特質：' + r.desc + '\n';
+  txt += '能量描述：' + r.energy + '\n';
+  txt += '日常建議：' + r.advice + '\n\n';
+
+  txt += '═══ 深度解讀框架（請完整執行）═══\n\n';
+
+  txt += '你收到的是一份彩虹數字色彩分析結果。不要給通用色彩介紹，直接分析這個人。\n';
+  txt += '你只有一次機會讓他覺得「怎麼這麼準」，把握它。\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【第一步：色彩能量的「三個核心密碼」】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += '▍密碼一：主色彩的天賦與暗面\n';
+  txt += '這個色彩數字的人，天生自動化的行為模式是什麼？\n';
+  txt += '→ 天賦面：在什麼場景下他「不用學就會」，而且做得比別人好？\n';
+  txt += '→ 暗面：這個天賦過度使用時，會變成什麼樣的自我消耗？\n';
+  txt += '→ 說出他在日常生活中最容易「卡住」的具體場景\n\n';
+
+  txt += '▍密碼二：色彩與身體的對應\n';
+  txt += '這個色彩對應身體哪個區域（脈輪/經絡/器官）？\n';
+  txt += '→ 當這個色彩能量順暢時，身體會有什麼感受？\n';
+  txt += '→ 當這個色彩能量卡住時，身體最先發出什麼訊號？\n';
+  txt += '→ 給出一個「身體就是最誠實的情緒日記」的具體觀察指引\n\n';
+
+  txt += '▍密碼三：色彩的人際磁場\n';
+  txt += '這個色彩的人在關係裡扮演什麼角色？\n';
+  txt += '→ 他最容易吸引什麼色彩的人？為什麼？\n';
+  txt += '→ 他最容易和什麼色彩的人產生摩擦？那個摩擦的根源是什麼？\n';
+  txt += '→ 他在愛裡最需要被看見的是什麼？\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【第二步：色彩心理學深度剖析】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += '► 這個色彩的人做決定時是靠直覺還是邏輯？速度快還是慢？\n';
+  txt += '► 他處理壓力的預設模式是什麼，戰鬥、逃跑、僵住、還是討好？\n';
+  txt += '► 他的內在小孩最渴望聽到的一句話是什麼？\n';
+  txt += '► 他最不像自己的時候（疲憊/壓力下）會變成什麼樣子？\n';
+  txt += '► 交叉 Lüscher 色彩心理學、Jung 原型理論、Big Five 人格特質分析\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【第三步：色彩與生命階段的共振】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += '► 童年期（0-12歲）：這個色彩的孩子最需要什麼樣的環境？他可能經歷了什麼？\n';
+  txt += '► 青年期（13-30歲）：這個色彩的人在社會化過程中，哪個部分最掙扎？\n';
+  txt += '► 壯年期（31-50歲）：他的核心人生課題會在哪個領域集中爆發？\n';
+  txt += '► 熟年期（50歲後）：這個色彩的人晚年最大的禮物和最大的遺憾會是什麼？\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【第四步：色彩與財富/事業座標】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += '► 這個色彩的人最適合什麼類型的工作環境和節奏？\n';
+  txt += '► 他的財富模式是「穩定累積型」還是「波動冒險型」？\n';
+  txt += '► 他和金錢的關係背後，藏著什麼樣的安全感議題？\n';
+  txt += '► 給出三個具體的事業方向建議（不是職業名稱，是工作特質）\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【第五步：跨系統交叉驗證】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += '► 如果他的生命靈數和彩虹數字相同或不同，分別代表什麼意義？\n';
+  txt += '► 這個色彩在中醫五行中對應什麼？在印度脈輪系統中對應哪個能量中心？\n';
+  txt += '► 如果他同時對照西洋占星，這個色彩最像哪個星座的能量？為什麼？\n';
+  txt += '► 彩虹數字×九型人格：這個數字的人最可能是哪幾型？有什麼獨特的內在動力？\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【第六步：認知芳療 · 色彩對應香氣】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += '► 這個色彩對應的精油是什麼？為什麼是這支精油？\n';
+  txt += '► 不需要真的有精油在手邊，光是想到這個氣味，大腦就已經啟動相應的神經迴路\n';
+  txt += '► 給出一個「閉上眼睛，想像這個香氣」的30秒覺察練習\n';
+  txt += '► 說明這支精油對應的情緒狀態：順暢時聞起來像什麼？卡住時聞起來像什麼？\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【第七步：H.O.U.R. 行動建議】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += 'H（身心校準）→ 根據這個色彩，現在最需要先安頓什麼？給出一個今天就能做的具體動作\n';
+  txt += 'O（智慧辨識）→ 這個色彩在提醒什麼「反覆出現的模式」？說出本人可能知道但不想正視的事\n';
+  txt += 'U（潛能解鎖）→ 今天就能踏出的第一步是什麼？要具體到「明天早上可以執行」\n';
+  txt += 'R（行動進化）→ 接下來一週的行動節奏，用三個關鍵字描述\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【此刻三問，給提問者的自我覺察】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += '請根據這個色彩的核心課題，設計三個「戳心但不傷人」的問題。\n';
+  txt += '格式：「你有沒有想過，___？」\n';
+  txt += '這三個問題要能讓人停下來，安靜地跟自己對話。\n\n';
+
+  txt += '╔══════ 語氣與風格要求 ══════╗\n';
+  txt += '► 像一個很懂人的閨蜜在說真話：溫暖，但不軟弱；直接，但不刺傷\n';
+  txt += '► 帶有香氣意象：每個段落至少一個精油或自然氣味的比喻\n';
+  txt += '► 禁用詞（絕對不出現）：梳理、療癒、調頻、靈魂、頻率、顯化、宇宙安排、命定、雙破折號，\n';
+  txt += '► 代用詞：用「校準」代替「梳理」，用「座標」代替「命運」，用「整合」代替「療癒」\n';
+  txt += '► 結尾用馥靈馥語風格收束：一段帶有香氣的文字，讓人讀完有「被接住了」的感覺\n';
+  txt += '► 深刻 > 冗長，每個段落說一件真正重要的事\n\n';
+
+  txt += '╔══════ 馥靈座標哲學 ══════╗\n';
+  txt += '色彩不是標籤，是你此刻的能量座標。\n';
+  txt += '知道自己是什麼顏色，不是為了被定義，是為了知道怎麼調配。\n';
+  txt += '讀懂自己，活對人生。馥靈之鑰 hourlightkey.com';
+
+  // iOS Safari 相容複製
+  var ta=document.createElement('textarea');ta.value=txt;ta.setAttribute('readonly','');
+  ta.style.cssText='position:fixed;top:50%;left:50%;width:2em;height:2em;padding:0;border:none;outline:none;background:transparent;font-size:16px;opacity:.01;transform:translate(-50%,-50%);z-index:99999';
+  document.body.appendChild(ta);
+  if(/ipad|iphone/i.test(navigator.userAgent)){ta.focus();var rng=document.createRange();rng.selectNodeContents(ta);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(rng);ta.setSelectionRange(0,999999)}else{ta.focus();ta.select()}
+  try{document.execCommand('copy');showToast('🤖 AI 深度解讀指令已複製！')}catch(e){alert('複製失敗')}
+  document.body.removeChild(ta);
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(txt).catch(function(){});}
+
+  if(typeof hlAIGateCheck==='function'){setTimeout(function(){hlAIGateCheck(function(){});},80);}
+}
+
+function showToast(msg){
+  var t=document.createElement('div');
+  t.textContent=msg;
+  t.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(26,16,48,0.95);color:#f8dfa5;padding:14px 28px;border-radius:12px;font-size:0.9rem;z-index:99999;border:1px solid rgba(248,223,165,0.3);box-shadow:0 0 20px rgba(248,223,165,0.2)';
+  document.body.appendChild(t);
+  setTimeout(function(){t.remove();},2000);
+}
+</script>
+
+
+<!-- ========== 馥灵之钥完整版权声明 Footer ========== -->
+
+<!-- ===== Email 订阅区塊 ===== -->
+<link rel="stylesheet" href="../assets/css/hl-subscribe.css">
+<section class="hl-subscribe-section">
+  <div class="hl-subscribe-inner">
+    <div class="hl-subscribe-icon">✨</div>
+    <h2 class="hl-subscribe-title">免费領取｜每週觉察週报</h2>
+    <p class="hl-subscribe-subtitle">
+      每週一封，陪您觉察、探索、活出自己。<br>
+      不推销、不洗脑，只给您剛剛好的陪伴。
+    </p>
+    <div class="hl-subscribe-benefits">
+      <span class="hl-subscribe-benefit">每週觉察提醒</span>
+      <span class="hl-subscribe-benefit">专属觉察建议</span>
+      <span class="hl-subscribe-benefit">新书/课程优先通知</span>
+    </div>
+    <div class="hl-subscribe-form">
+      <div class="ml-embedded" data-form="z9Z2mu"></div>
+    </div>
+    <p class="hl-subscribe-privacy">
+      放心，我們很討厭垃圾信。随時可以取消订阅。<br>
+      <a href="privacy.html">隐私政策</a>
+    </p>
+  </div>
+</section>
+<!-- ===== End Email 订阅区塊 ===== -->
+
+<!-- ========== Footer End ========== -->
+
+
+<script src="assets/js/hourlight-global.js?v=20260309"></script>
+
+
+  <script src="assets/js/hl-music.js?v=20260309"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-tracker.js" data-tool="rainbow-calculator" data-tool-name="彩虹數字計算" data-tool-type="calculator"></script>
+
+<!-- HL Auth Gate + Tracking -->
+<!-- ===== Footer ===== -->
+<footer class="hl-footer">
+  <div class="hl-footer-inner">
+    <div class="hl-footer-brand">
+      <div class="hl-footer-logo"><img src="LOGO-1.png" alt="" class="hl-logo-icon" aria-hidden="true" loading="lazy">馥灵之钥 Hour Light</div>
+      <div class="hl-footer-tagline">读懂自己，活对人生｜创办人 王逸君</div>
+    </div>
+    <div class="hl-footer-links">
+      <a href="app.html">🔑 我的內在城堡</a>
+      <a href="index.html">首页</a>
+      <a href="fuling-mima.html">生命秘码</a>
+      <a href="draw-hl.html">线上抽牌</a>
+      <a href="destiny-engine.html">命盘引擎</a>
+      <a href="services.html">服務項目</a>
+      <a href="courses.html">课程学苑</a>
+      <a href="book.html">著作</a>
+      <a href="founder.html">关於创办人</a>
+      <a href="hourlight-sitemap.html">网站地图</a>
+      <a href="privacy.html">隐私政策</a>
+      <a href="terms.html">服務条款</a>
+      <a href="https://lin.ee/p5tBihbe" target="_blank" rel="noopener">LINE 咨询</a>
+    </div>
+    <div class="hl-footer-legal-toggle" onclick="toggleLegalContent()">
+      <span>📜 法律声明与免責条款</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="hl-footer-legal-content" id="legalContent">
+      <div class="hl-legal-section">
+        <div class="hl-legal-title">🌿 服務性质说明</div>
+        <div class="hl-legal-text">本网站提供之服務（芳香能量觉察、牌卡解读、生命數字分析等）仅供<strong>个人压力管理、情緒紓解、自我探索</strong>參考。本服務<strong>不构成亦不取代</strong>医疗诊断、心理咨商、法律或财務建议。如有身心健康疑慮，请咨询合格医疗专业人员。</div>
+      </div>
+      <div class="hl-legal-section">
+        <div class="hl-legal-title">📄 智慧财产权声明</div>
+        <div class="hl-legal-text">本网站所有內容（文字、图片、程式码、方法论、课程架构、牌卡系统、H.O.U.R. 方法论）均受著作权法保护。未经书面授权，禁止複製、转载、改作或商业使用。</div>
+      </div>
+      <div class="hl-legal-section">
+        <div class="hl-legal-title">™ 商标声明</div>
+        <div class="hl-legal-text">「馥灵之钥」「Hour Light」「H.O.U.R.」「馥灵秘码」及相关标誌为馥灵之钥国际有限公司之商标（申请中）。未经授权不得使用或註冊近似商标。</div>
+      </div>
+    </div>
+    <div class="hl-footer-copyright">
+      © 2026 馥灵之钥国际有限公司 Hour Light International Co., Ltd.｜统编：60303284<br>All Rights Reserved.
+    </div>
+  </div>
+</footer>
+<script>
+function toggleLegalContent(){
+  var t=document.querySelector('.hl-footer-legal-toggle');
+  var c=document.getElementById('legalContent');
+  if(t&&c){t.classList.toggle('active');c.classList.toggle('active');}
+}
+</script>
+<script src="assets/js/hl-topnav.js"></script>
+<script src="assets/js/hl-bottomnav.js"></script>
+<script src="assets/js/hl-ai-gate.js"></script>
+<script src="assets/js/hl-ai-copy.js"></script>
+<script src="assets/js/hl-gate.js"></script>
+<script src="assets/js/hl-record.js"></script>
+<script src="assets/js/hl-announce.js?v=4"></script>
+<script src="assets/js/hl-email.js"></script>
+<script src="assets/js/hl-chat.js"></script>
+</body>
+</html>

@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-BXP7K53QG6');</script>
+<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1333106288588347');fbq('track','PageView');</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=5">
+<title>撲克牌觉察占卜｜夜深人静，抽一张牌｜馥灵之钥</title>
+<meta name="description" content="夜深人静，心裡有点賭賭的？抽一张撲克牌，看看現在的座标。54张牌，牌义＋科学解析＋香气落地。馥灵之钥原创占卜。">
+<link rel="icon" href="../favicon.ico">
+<link rel="stylesheet" href="../assets/css/hourlight-global.css">
+<link rel="stylesheet" href="../assets/css/hl-design-tokens.css">
+<link rel="stylesheet" href="../assets/css/hl-music.css">
+<link rel="canonical" href="https://hourlightkey.com/sc/poker-oracle.html"/>
+<style>
+:root{
+  --bg:#04020c;
+  --gold:#f8dfa5;
+  --serif:"Noto Serif TC","Georgia",serif;
+  --sans:"Noto Sans TC","PingFang TC",system-ui,sans-serif;
+  --spade:#c8b4ff;--heart:#ff9eb5;--diamond:#ffd966;--club:#72e0a0;--joker:#c0c0c8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh;min-height:100dvh}
+body{background:var(--bg);color:rgba(255,255,255,.9);font-family:var(--sans);overflow-x:hidden}
+
+#starCanvas{position:fixed;top:0;left:0;right:0;bottom:0;z-index:0;pointer-events:none}
+
+/* ──── 画面切換 ──── */
+.screen{position:relative;z-index:1;min-height:100vh;min-height:100dvh;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px 100px}
+.screen.active{display:flex}
+
+/* ══════════ INTRO ══════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+
+.intro-eye{font-size:.66rem;letter-spacing:.22em;color:rgba(248,223,165,.32);text-transform:uppercase;margin-bottom:20px;animation:fadeUp .7s .15s both}
+.intro-h1{font-family:var(--serif);font-size:clamp(2.4rem,6vw,3.6rem);font-weight:400;letter-spacing:.18em;color:var(--gold);line-height:1.2;margin-bottom:6px;text-align:center;animation:fadeUp .7s .28s both}
+.intro-sub{font-size:.72rem;letter-spacing:.16em;color:rgba(248,223,165,.28);margin-bottom:28px;animation:fadeUp .7s .38s both}
+.intro-desc{font-size:.9rem;color:rgba(249,240,229,.45);line-height:2;max-width:320px;text-align:center;margin-bottom:44px;animation:fadeUp .7s .48s both}
+
+/* 牌组 */
+.deck-wrap{position:relative;width:160px;height:224px;margin:0 auto 36px;cursor:pointer;animation:fadeUp .7s .58s both;perspective:600px}
+.dk{position:absolute;inset:0;border-radius:14px;transform-origin:50% 100%;transition:transform .45s cubic-bezier(.34,1.56,.64,1)}
+.dk:nth-child(3){transform:translateY(-8px) rotate(-5deg)}
+.dk:nth-child(2){transform:translateY(-4px) rotate(-2.5deg)}
+.dk:nth-child(1){transform:translateY(0) rotate(0)}
+.deck-wrap:hover .dk:nth-child(3){transform:translateY(-18px) rotate(-8deg)}
+.deck-wrap:hover .dk:nth-child(2){transform:translateY(-9px) rotate(-4deg)}
+.deck-wrap:hover .dk:nth-child(1){transform:translateY(-5px) rotate(0)}
+.dk-face{width:100%;height:100%;border-radius:14px;background:linear-gradient(145deg,#1c1240,#0c0820);border:1px solid rgba(248,223,165,.13);box-shadow:0 12px 40px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.dk-face::before{content:'';position:absolute;inset:8px;border:1px solid rgba(248,223,165,.07);border-radius:8px}
+.dk-face::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(55deg,transparent,transparent 10px,rgba(248,223,165,.02) 10px,rgba(248,223,165,.02) 11px),repeating-linear-gradient(-55deg,transparent,transparent 10px,rgba(248,223,165,.02) 10px,rgba(248,223,165,.02) 11px)}
+.dk-logo{position:relative;z-index:1;font-family:var(--serif);font-size:.58rem;letter-spacing:.18em;color:rgba(248,223,165,.18);text-align:center;line-height:2.2}
+
+.intro-btn{display:inline-flex;align-items:center;gap:9px;padding:15px 42px;border-radius:999px;border:none;background:linear-gradient(135deg,#b8922a,#d4a83a);color:#0c0820;font-size:.96rem;font-weight:700;letter-spacing:.1em;cursor:pointer;font-family:var(--sans);transition:all .35s;box-shadow:0 4px 24px rgba(184,146,42,.4);animation:fadeUp .7s .72s both}
+.intro-btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 10px 32px rgba(184,146,42,.5)}
+.intro-btn:active{transform:scale(.97)}
+
+.suits-bar{display:flex;gap:24px;justify-content:center;margin-top:30px;animation:fadeUp .7s .88s both}
+.suit-pip{display:flex;flex-direction:column;align-items:center;gap:5px}
+.suit-pip-s{font-size:1.15rem;opacity:.55;transition:opacity .3s}
+.suit-pip-n{font-size:.58rem;letter-spacing:.1em;opacity:.28;transition:opacity .3s}
+.suit-pip:hover .suit-pip-s,.suit-pip:hover .suit-pip-n{opacity:.85}
+
+/* ══════════ 抽牌动画 ══════════ */
+#drawScreen{text-align:center}
+.draw-card-wrap{position:relative;width:190px;height:266px;margin:0 auto;perspective:900px}
+.draw-card{width:100%;height:100%;transform-style:preserve-3d;position:relative}
+.draw-card.go{animation:flipCard 1s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes flipCard{
+  0%{transform:rotateY(0) scale(1) translateY(0)}
+  25%{transform:rotateY(90deg) scale(.88) translateY(-24px)}
+  55%{transform:rotateY(200deg) scale(.94) translateY(-12px)}
+  100%{transform:rotateY(360deg) scale(1) translateY(0)}
+}
+.draw-card-back{position:absolute;inset:0;border-radius:18px;background:linear-gradient(145deg,#1c1240,#0c0820);border:1px solid rgba(248,223,165,.13);box-shadow:0 20px 60px rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;font-size:2.8rem;color:rgba(248,223,165,.13)}
+.draw-card-back::before{content:'';position:absolute;inset:10px;border:1px solid rgba(248,223,165,.07);border-radius:10px}
+.ptcls{position:absolute;inset:-80px;pointer-events:none;overflow:visible}
+.draw-msg{margin-top:28px;font-family:var(--serif);font-size:.9rem;color:rgba(248,223,165,.45);letter-spacing:.1em;min-height:1.6em}
+
+/* ══════════ 結果 ══════════ */
+#resultScreen{
+  justify-content:flex-start;
+  padding-top:0;padding-bottom:120px;
+  align-items:stretch;
+}
+
+/* 英雄区 */
+.rh{
+  min-height:100vh;min-height:100dvh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:64px 28px 36px;
+  text-align:center;
+  position:relative;
+}
+.rh-glow{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;background:radial-gradient(ellipse 75% 55% at 50% 35%,var(--rc,rgba(200,180,255,.13)),transparent 65%)}
+
+/* 牌卡視觉 */
+.rcard{
+  width:min(210px,52vw);aspect-ratio:2/3;
+  border-radius:20px;
+  position:relative;overflow:hidden;
+  margin-bottom:32px;
+  box-shadow:0 28px 80px rgba(0,0,0,.75),0 0 80px var(--rs,rgba(200,180,255,.2));
+  animation:cardPop .7s cubic-bezier(.34,1.4,.64,1) both;
+  border:1px solid rgba(255,255,255,.1);
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  padding:20px 18px;
+}
+@keyframes cardPop{from{opacity:0;transform:scale(.55) rotateX(20deg) translateY(-40px)}to{opacity:1;transform:scale(1) rotateX(0) translateY(0)}}
+.rcard::before{content:'';position:absolute;inset:0;background:linear-gradient(145deg,rgba(255,255,255,.055) 0,transparent 50%,rgba(0,0,0,.12) 100%);pointer-events:none;border-radius:20px}
+.rcard-top,.rcard-bot{display:flex;justify-content:space-between;align-items:flex-start;width:100%;position:relative;z-index:1}
+.rcard-bot{transform:rotate(180deg)}
+.rcard-rank{font-family:var(--serif);font-size:1.5rem;font-weight:400;line-height:1;color:var(--rc,#c8b4ff)}
+.rcard-rsym{font-size:.85rem;color:var(--rc,#c8b4ff);opacity:.65}
+.rcard-corner{font-size:1.6rem;color:var(--rc,#c8b4ff);opacity:.4}
+.rcard-mid{text-align:center;position:relative;z-index:1}
+.rcard-sym{font-size:3.2rem;color:var(--rc,#c8b4ff);line-height:1;filter:drop-shadow(0 0 22px var(--rc,#c8b4ff));animation:glowPulse 3s ease-in-out infinite}
+@keyframes glowPulse{0%,100%{filter:drop-shadow(0 0 18px var(--rc,#c8b4ff))}50%{filter:drop-shadow(0 0 38px var(--rc,#c8b4ff)) brightness(1.25)}}
+.rcard-label{font-family:var(--serif);font-size:.88rem;letter-spacing:.1em;margin-top:9px;color:rgba(255,255,255,.7)}
+
+/* 文字区 */
+.r-suit-tag{font-size:.66rem;letter-spacing:.18em;margin-bottom:6px;animation:fadeUp .5s .25s both}
+.r-name{font-family:var(--serif);font-size:clamp(1.9rem,5.5vw,2.6rem);font-weight:400;letter-spacing:.14em;line-height:1.2;margin-bottom:24px;animation:fadeUp .5s .35s both}
+.r-body{max-width:460px;font-size:clamp(.9rem,2.4vw,1rem);color:rgba(249,240,229,.75);line-height:2.1;letter-spacing:.04em;animation:fadeUp .5s .45s both}
+.r-body p{margin-bottom:.55em}
+.r-body p:last-child{margin-bottom:0}
+.r-div{width:36px;height:1px;margin:28px auto;opacity:.25;animation:fadeUp .5s .55s both}
+
+/* 展开层 */
+.layers{width:100%;max-width:540px;padding:0 20px;animation:fadeUp .5s .6s both}
+.layer{border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.07);margin-bottom:9px;transition:border-color .3s}
+.layer:hover{border-color:rgba(255,255,255,.12)}
+.layer-hd{width:100%;display:flex;align-items:center;justify-content:space-between;padding:15px 18px;background:rgba(10,6,24,.85);border:none;cursor:pointer;font-family:var(--sans);font-size:.82rem;color:rgba(249,240,229,.48);letter-spacing:.06em;transition:all .3s;text-align:left;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.layer-hd:hover{background:rgba(18,10,36,.95);color:var(--rc,#c8b4ff)}
+.layer-hd-l{display:flex;align-items:center;gap:9px}
+.layer-arr{font-size:.85rem;color:var(--rc,#c8b4ff);opacity:.4;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.layer.open .layer-arr{transform:rotate(180deg)}
+.layer-bd{max-height:0;overflow:hidden;transition:max-height .48s cubic-bezier(.4,0,.2,1);background:rgba(6,3,14,.9)}
+.layer.open .layer-bd{max-height:420px}
+.layer-inner{padding:16px 18px 20px;font-size:.85rem;color:rgba(249,240,229,.58);line-height:1.95;letter-spacing:.03em}
+.layer-tag{font-size:.6rem;letter-spacing:.14em;margin-bottom:9px;text-transform:uppercase;border-bottom:1px solid;padding-bottom:3px;display:inline-block}
+
+/* 操作 */
+.r-acts{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;padding:22px 20px 0;animation:fadeUp .5s .72s both}
+.abtn{padding:10px 22px;border-radius:999px;font-size:.82rem;font-family:inherit;cursor:pointer;transition:all .3s;letter-spacing:.05em;display:flex;align-items:center;gap:6px}
+.abtn-g{background:linear-gradient(135deg,#b8922a,#d4a83a);color:#0c0820;border:none;font-weight:700;box-shadow:0 4px 16px rgba(184,146,42,.35)}
+.abtn-g:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(184,146,42,.45)}
+.abtn-o{background:rgba(255,255,255,.05);color:rgba(249,240,229,.6);border:1px solid rgba(255,255,255,.1)}
+.abtn-o:hover{background:rgba(255,255,255,.1);color:rgba(249,240,229,.9);transform:translateY(-1px)}
+
+.r-foot{text-align:center;padding:20px 20px 0;font-size:.72rem;color:rgba(249,240,229,.18);line-height:2;animation:fadeUp .5s .82s both}
+.r-foot a{color:rgba(248,223,165,.32);text-decoration:none}
+.r-foot a:hover{color:rgba(248,223,165,.65)}
+
+/* Toast & watermark */
+.pk-toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(12px);padding:9px 22px;border-radius:999px;background:rgba(248,223,165,.95);color:#1a0e00;font-size:.82rem;font-weight:600;z-index:9999;opacity:0;transition:all .32s;pointer-events:none;white-space:nowrap}
+.pk-toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.hl-wm{position:fixed;bottom:70px;right:12px;z-index:50;pointer-events:none;display:flex;align-items:center;gap:5px;background:rgba(4,2,12,.75);border:1px solid rgba(248,223,165,.13);border-radius:20px;padding:4px 11px 4px 8px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.hl-wm-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);opacity:.45;flex-shrink:0}
+.hl-wm-t{font-size:.58rem;color:rgba(248,223,165,.38);letter-spacing:.05em;white-space:nowrap}
+
+/* particle keyframe 动态注入 */
+
+/* ═══ 手机断点 ═══ */
+@media(max-width:480px){
+  .screen{padding:32px 16px 80px}
+  .rh{padding:48px 16px 28px}
+  .layers{padding:0 12px}
+  .layer-hd{padding:14px 14px;min-height:44px}
+  .layer-inner{padding:14px 14px 18px;font-size:.84rem}
+  .r-acts{gap:8px;padding:16px 12px 0}
+  .abtn{padding:12px 18px;min-height:44px;font-size:.82rem}
+  .rcard{width:min(180px,55vw)}
+  .deck-wrap{width:140px;height:196px}
+  .intro-btn{padding:14px 36px;min-height:44px}
+  .r-name{letter-spacing:.08em}
+}
+@media(max-width:360px){
+  .screen{padding:24px 12px 72px}
+  .rh{padding:40px 12px 24px}
+  .layers{padding:0 8px}
+  .layer-hd{padding:12px 12px;font-size:.78rem}
+  .layer-inner{padding:12px 12px 16px;font-size:.82rem}
+  .deck-wrap{width:120px;height:168px}
+  .intro-h1{letter-spacing:.1em}
+  .suits-bar{gap:16px}
+}
+@media(hover:hover){
+  .intro-btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 10px 32px rgba(184,146,42,.5)}
+  .abtn-g:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(184,146,42,.45)}
+  .abtn-o:hover{background:rgba(255,255,255,.1);color:rgba(249,240,229,.9);transform:translateY(-1px)}
+  .layer-hd:hover{background:rgba(18,10,36,.95);color:var(--rc,#c8b4ff)}
+}
+@media(hover:none){
+  .intro-btn:active{transform:scale(.96)}
+  .abtn-g:active{transform:scale(.96)}
+  .abtn-o:active{background:rgba(255,255,255,.1)}
+  .layer-hd:active{background:rgba(18,10,36,.95);color:var(--rc,#c8b4ff)}
+  .deck-wrap:hover .dk:nth-child(3),
+  .deck-wrap:hover .dk:nth-child(2),
+  .deck-wrap:hover .dk:nth-child(1){transform:none}
+}
+
+/* ── Mobile App Touch Feel ── */
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+button,a,select,input[type=submit],input[type=button]{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+button:active,input[type=submit]:active{transform:scale(.97);transition:transform .08s}
+select,input[type=text],input[type=number],input[type=date],input[type=email],textarea{font-size:16px!important}
+@media(max-width:600px){
+  body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  button,input[type=submit],input[type=button]{min-height:48px}
+}
+</style>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://hourlightkey.com/sc/poker-oracle.html"/>
+<meta property="og:title" content="撲克牌觉察占卜｜夜深人静，抽一张牌｜馥灵之钥"/>
+<meta property="og:description" content="夜深人静，心裡有点賭賭的？抽一张撲克牌，看看現在的座标。54张牌，牌义＋科学解析＋香气落地。馥灵之钥原创占卜。"/>
+<meta property="og:image" content="https://hourlightkey.com/og-image.jpg"/>
+<meta name="twitter:card" content="summary_large_image"/>
+</head>
+<body>
+<img src="images/page-banners-web/poker-oracle.webp" alt="" style="width:100%;max-width:600px;max-height:180px;object-fit:cover;margin:0 auto 20px;display:block;border-radius:12px" loading="lazy" onerror="this.style.display='none'">
+
+
+<canvas id="starCanvas"></canvas>
+
+<!-- ══ INTRO ══ -->
+<div class="screen active" id="introScreen">
+  <div class="intro-eye">馥灵之钥 · 觉察占卜系列</div>
+  <h1 class="intro-h1">撲克牌<br>觉察占卜</h1>
+  <div class="intro-sub">Poker Oracle · 54 Cards</div>
+  <p class="intro-desc">夜深人静，心裡有点賭賭的。<br>不用找人问，抽一张牌，<br>看看現在站在哪个座标。</p>
+
+  <div class="deck-wrap" data-no-gate onclick="startDraw()">
+    <div class="dk"><div class="dk-face"><div class="dk-logo">馥灵之钥<br>HOUR LIGHT</div></div></div>
+    <div class="dk"><div class="dk-face"></div></div>
+    <div class="dk"><div class="dk-face"></div></div>
+  </div>
+
+  <button class="intro-btn" data-no-gate onclick="startDraw()"><span>✦</span> 抽一张牌</button>
+
+  <div class="suits-bar">
+    <div class="suit-pip"><span class="suit-pip-s" style="color:var(--spade)">♠</span><span class="suit-pip-n" style="color:var(--spade)">蛻变</span></div>
+    <div class="suit-pip"><span class="suit-pip-s" style="color:var(--heart)">♥</span><span class="suit-pip-n" style="color:var(--heart)">感情</span></div>
+    <div class="suit-pip"><span class="suit-pip-s" style="color:var(--diamond)">♦</span><span class="suit-pip-n" style="color:var(--diamond)">资源</span></div>
+    <div class="suit-pip"><span class="suit-pip-s" style="color:var(--club)">♣</span><span class="suit-pip-n" style="color:var(--club)">行动</span></div>
+  </div>
+</div>
+
+<!-- ══ 抽牌动画 ══ -->
+<div class="screen" id="drawScreen">
+  <div class="draw-card-wrap">
+    <svg class="ptcls" id="ptcls" viewBox="-80 -80 460 426"></svg>
+    <div class="draw-card" id="drawCard">
+      <div class="draw-card-back">✦</div>
+    </div>
+  </div>
+  <div class="draw-msg" id="drawMsg">凝神静气⋯</div>
+</div>
+
+<!-- ══ 結果 ══ -->
+<div class="screen" id="resultScreen">
+  <!-- 英雄 -->
+  <div class="rh" id="rh">
+    <div class="rh-glow" id="rhGlow"></div>
+
+    <div class="rcard" id="rcard">
+      <div class="rcard-top">
+        <div><div class="rcard-rank" id="rc-rn"></div><div class="rcard-rsym" id="rc-rs"></div></div>
+        <div class="rcard-corner" id="rc-c1"></div>
+      </div>
+      <div class="rcard-mid">
+        <div class="rcard-sym" id="rc-sym"></div>
+        <div class="rcard-label" id="rc-lbl"></div>
+      </div>
+      <div class="rcard-bot">
+        <div><div class="rcard-rank" id="rc-rn2"></div><div class="rcard-rsym" id="rc-rs2"></div></div>
+        <div class="rcard-corner" id="rc-c2"></div>
+      </div>
+    </div>
+
+    <div class="r-suit-tag" id="r-stag"></div>
+    <div class="r-name" id="r-name"></div>
+    <div class="r-body" id="r-body"></div>
+    <div class="r-div" id="r-div"></div>
+  </div>
+
+  <!-- 展开层 -->
+  <div class="layers">
+    <div class="layer" id="L-sci">
+      <button class="layer-hd" onclick="toggleL('sci')">
+        <div class="layer-hd-l"><span>🧠</span><span>科学怎麼说</span></div>
+        <span class="layer-arr">↓</span>
+      </button>
+      <div class="layer-bd"><div class="layer-inner"><div class="layer-tag" id="sci-tag">神经科学解析</div><div id="sci-body"></div></div></div>
+    </div>
+    <div class="layer" id="L-aroma">
+      <button class="layer-hd" onclick="toggleL('aroma')">
+        <div class="layer-hd-l"><span>🌿</span><span>香气落地</span></div>
+        <span class="layer-arr">↓</span>
+      </button>
+      <div class="layer-bd"><div class="layer-inner"><div class="layer-tag" id="aroma-tag">精油觉察建议</div><div id="aroma-body"></div></div></div>
+    </div>
+  </div>
+
+  <div class="r-closing" style="max-width:440px;text-align:center;margin:28px auto 0;padding:20px 16px;font-family:var(--serif);font-size:clamp(.88rem,2.2vw,.95rem);color:rgba(249,240,229,.45);line-height:2;letter-spacing:.04em;animation:fadeUp .5s .7s both">
+    一张牌翻开的瞬间，你心裡是不是已经隐隐有了答案？那个答案不是牌给的，是你自己的。牌只是替你说出來而已。
+  </div>
+
+  <!-- 操作 -->
+  <div class="r-acts">
+    <button class="abtn abtn-g" data-no-gate onclick="startDraw()">↺ 再抽一张</button>
+    <button class="abtn abtn-o" data-no-gate onclick="copyCard()">📋 複製</button>
+    <button class="abtn abtn-o" data-no-gate onclick="copyAI()" style="background:rgba(160,124,220,.12);border-color:rgba(160,124,220,.3);color:#c8b4ff">🤖 AI 深度解读</button>
+    <button class="abtn abtn-o" data-no-gate onclick="goBack()">← 回首页</button>
+  </div>
+
+  <div class="r-foot">
+    <a href="yijing-oracle.html">易经觉察占卜</a> ·
+    <a href="draw-hl.html">130张智慧牌卡</a> ·
+    <a href="liuren-oracle.html">小六壬</a>
+  </div>
+</div>
+
+<div class="pk-toast" id="toast"></div>
+<div class="hl-wm"><div class="hl-wm-dot"></div><span class="hl-wm-t">馥灵之钥 · hourlightkey.com</span></div>
+
+<script src="../js/poker-cards.js"></script>
+<script>
+if(typeof POKER_CARDS==='undefined') window.POKER_CARDS=[];
+
+/* ── 花色設定 ── */
+const SC={
+  spade:  {s:'♠',l:'♠ 黑桃 · 蛻變之風',c:'#c8b4ff',g:'rgba(200,180,255,.14)',sh:'rgba(200,180,255,.28)',bg:'linear-gradient(160deg,#180c3a,#0c0820)'},
+  heart:  {s:'♥',l:'♥ 紅心 · 流動之水',c:'#ff9eb5',g:'rgba(255,158,181,.14)',sh:'rgba(255,158,181,.28)',bg:'linear-gradient(160deg,#2a0820,#160410)'},
+  diamond:{s:'♦',l:'♦ 方塊 · 落地之土',c:'#ffd966',g:'rgba(255,217,102,.14)',sh:'rgba(255,217,102,.28)',bg:'linear-gradient(160deg,#261808,#160e04)'},
+  club:   {s:'♣',l:'♣ 梅花 · 燃燒之火',c:'#72e0a0',g:'rgba(114,224,160,.14)',sh:'rgba(114,224,160,.28)',bg:'linear-gradient(160deg,#081e12,#04120a)'},
+  joker:  {s:'★',l:'★ 鬼牌 · 虛空之鏡',c:'#c0c0cc',g:'rgba(192,192,200,.1)',sh:'rgba(192,192,200,.18)',bg:'linear-gradient(160deg,#14101e,#0a0812)'},
+};
+const RL={'A':'A','2':'2','3':'3','4':'4','5':'5','6':'6','7':'7','8':'8','9':'9','10':'10','J':'J','Q':'Q','K':'K','大鬼':'☽','小鬼':'☀'};
+
+/* ── 星空 ── */
+(()=>{
+  const cv=document.getElementById('starCanvas');
+  const cx=cv.getContext('2d');
+  let W,H;
+  function rz(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
+  rz();addEventListener('resize',()=>{rz();});
+
+  // 星星顏色調色盤（帶彩色）
+  const STAR_COLORS=[
+    [255,245,220],  // 暖白
+    [220,210,255],  // 淡紫
+    [255,200,220],  // 淡粉
+    [180,220,255],  // 冰藍
+    [220,255,230],  // 薄荷
+    [255,235,180],  // 金黃
+    [200,180,255],  // 紫羅蘭
+  ];
+
+  // 靜態閃爍星（300顆，有彩色）
+  const stars=[];
+  for(let i=0;i<300;i++){
+    const col=STAR_COLORS[Math.floor(Math.random()*STAR_COLORS.length)];
+    stars.push({
+      x:Math.random()*1,  // 0-1 比例
+      y:Math.random()*1,
+      r:.12+Math.random()*(i<50?2.2:i<150?1.1:.55),
+      a:Math.random(),
+      da:(Math.random()-.5)*(i<30?.012:.005),
+      phase:Math.random()*Math.PI*2,
+      speed:.003+Math.random()*.008,
+      col:col,
+      twinkleSpeed:.02+Math.random()*.06,
+    });
+  }
+
+  // 流星
+  const meteors=[];
+  function spawnMeteor(){
+    const colors=[
+      [200,180,255],[255,180,200],[180,220,255],
+      [255,220,140],[180,255,210],[255,200,255],
+    ];
+    const col=colors[Math.floor(Math.random()*colors.length)];
+    // 從頂部或右側射入
+    const fromTop=Math.random()>.35;
+    meteors.push({
+      x:fromTop?Math.random():.95+Math.random()*.08,
+      y:fromTop?0:Math.random()*.4,
+      len:80+Math.random()*160,
+      speed:.004+Math.random()*.008,
+      angle:fromTop?(Math.PI*.3+Math.random()*.4):(Math.PI*.55+Math.random()*.3),
+      a:0, life:0, maxLife:1,
+      col:col,
+      width:.5+Math.random()*1.2,
+      fadeIn:.15, fadeOut:.7,
+    });
+  }
+
+  // 星雲光暈（3個大型漫射光）
+  const nebulas=[
+    {x:.2,y:.25,r:.32,col:[120,80,200],a:.08,drift:.0003},
+    {x:.78,y:.6,r:.28,col:[200,80,120],a:.06,drift:-.0002},
+    {x:.5,y:.15,r:.22,col:[80,140,220],a:.07,drift:.00015},
+  ];
+  let nebulaT=0;
+
+  let t=0;
+  function draw(){
+    cx.clearRect(0,0,W,H);
+
+    // ── 星雲 ──
+    nebulaT+=.0005;
+    nebulas.forEach((n,i)=>{
+      const ox=Math.sin(nebulaT*(i+1)*.7)*.015;
+      const oy=Math.cos(nebulaT*(i+1)*.5)*.01;
+      const grd=cx.createRadialGradient(
+        (n.x+ox)*W,(n.y+oy)*H,0,
+        (n.x+ox)*W,(n.y+oy)*H,n.r*Math.min(W,H)
+      );
+      const pulse=.06+Math.sin(nebulaT*(i+1)+i)*0.025;
+      grd.addColorStop(0,`rgba(${n.col[0]},${n.col[1]},${n.col[2]},${pulse})`);
+      grd.addColorStop(.5,`rgba(${n.col[0]},${n.col[1]},${n.col[2]},${pulse*.3})`);
+      grd.addColorStop(1,'rgba(0,0,0,0)');
+      cx.fillStyle=grd;
+      cx.fillRect(0,0,W,H);
+    });
+
+    // ── 星星 ──
+    t+=.016;
+    stars.forEach(s=>{
+      s.phase+=s.twinkleSpeed;
+      const twinkle=(.5+Math.sin(s.phase)*.5);
+      const alpha=Math.max(.02,Math.min(.95, twinkle*.7+.05 ));
+      const sx=s.x*W, sy=s.y*H;
+      const r=s.r;
+
+      // 光暈（大星才有）
+      if(r>1.2){
+        const grd=cx.createRadialGradient(sx,sy,0,sx,sy,r*4);
+        grd.addColorStop(0,`rgba(${s.col[0]},${s.col[1]},${s.col[2]},${alpha*.5})`);
+        grd.addColorStop(1,'rgba(0,0,0,0)');
+        cx.fillStyle=grd;
+        cx.beginPath();cx.arc(sx,sy,r*4,0,Math.PI*2);cx.fill();
+      }
+
+      // 星點
+      cx.beginPath();cx.arc(sx,sy,r,0,Math.PI*2);
+      cx.fillStyle=`rgba(${s.col[0]},${s.col[1]},${s.col[2]},${alpha})`;
+      cx.fill();
+
+      // 十字光芒（最亮的星）
+      if(r>1.5 && alpha>.6){
+        const len=r*5;
+        cx.save();
+        cx.globalAlpha=alpha*.25;
+        cx.strokeStyle=`rgb(${s.col[0]},${s.col[1]},${s.col[2]})`;
+        cx.lineWidth=.5;
+        cx.beginPath();cx.moveTo(sx-len,sy);cx.lineTo(sx+len,sy);cx.stroke();
+        cx.beginPath();cx.moveTo(sx,sy-len);cx.lineTo(sx,sy+len);cx.stroke();
+        cx.restore();
+      }
+    });
+
+    // ── 流星 ──
+    for(let i=meteors.length-1;i>=0;i--){
+      const m=meteors[i];
+      m.life+=.016/m.maxLife;
+      if(m.life>=1){meteors.splice(i,1);continue;}
+
+      // alpha：淡入淡出
+      let alpha;
+      if(m.life<m.fadeIn) alpha=m.life/m.fadeIn;
+      else if(m.life>m.fadeOut) alpha=1-(m.life-m.fadeOut)/(1-m.fadeOut);
+      else alpha=1;
+      alpha=Math.max(0,Math.min(1,alpha));
+
+      const dx=Math.cos(m.angle)*m.speed;
+      const dy=Math.sin(m.angle)*m.speed;
+      m.x+=dx; m.y+=dy;
+
+      const sx=m.x*W, sy=m.y*H;
+      const tailX=sx-Math.cos(m.angle)*m.len;
+      const tailY=sy-Math.sin(m.angle)*m.len;
+
+      const grd=cx.createLinearGradient(tailX,tailY,sx,sy);
+      grd.addColorStop(0,'rgba(0,0,0,0)');
+      grd.addColorStop(.6,`rgba(${m.col[0]},${m.col[1]},${m.col[2]},${alpha*.4})`);
+      grd.addColorStop(1,`rgba(${m.col[0]},${m.col[1]},${m.col[2]},${alpha})`);
+
+      cx.save();
+      cx.globalAlpha=alpha;
+      cx.strokeStyle=grd;
+      cx.lineWidth=m.width;
+      cx.lineCap='round';
+      cx.beginPath();cx.moveTo(tailX,tailY);cx.lineTo(sx,sy);cx.stroke();
+
+      // 流星頭部光點
+      const hdGrd=cx.createRadialGradient(sx,sy,0,sx,sy,m.width*3);
+      hdGrd.addColorStop(0,`rgba(${m.col[0]},${m.col[1]},${m.col[2]},${alpha})`);
+      hdGrd.addColorStop(1,'rgba(0,0,0,0)');
+      cx.fillStyle=hdGrd;
+      cx.beginPath();cx.arc(sx,sy,m.width*3,0,Math.PI*2);cx.fill();
+      cx.restore();
+
+      // 超出邊界就移除
+      if(m.x<-.1||m.x>1.1||m.y<-.1||m.y>1.1) meteors.splice(i,1);
+    }
+
+    // 流星觸發（隨機，平均每5秒一顆）
+    if(Math.random()<.003&&meteors.length<4) spawnMeteor();
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+  // 先觸發一顆流星
+  setTimeout(spawnMeteor,1200);
+  setTimeout(spawnMeteor,3000);
+})();
+
+/* ── 狀態 ── */
+let drawn=[],lastCard=null,busy=false;
+
+function getRandom(){
+  if(drawn.length>=POKER_CARDS.length) drawn=[];
+  let i,t=0;
+  do{i=Math.floor(Math.random()*POKER_CARDS.length);t++;}
+  while(drawn.includes(i)&&t<200);
+  drawn.push(i);return POKER_CARDS[i];
+}
+
+/* ── 畫面切換 ── */
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  scrollTo(0,0);
+}
+function goBack(){show('introScreen');lastCard=null;}
+
+/* ── 抽牌 ── */
+function startDraw(){
+  if(busy||!POKER_CARDS.length) return;
+  if(lastCard&&!confirm('確定要再抽一張嗎？目前的結果將會消失。')) return;
+  busy=true;
+  show('drawScreen');
+  const card=getRandom();lastCard=card;
+  const msgs=['凝神靜氣⋯','能量聚焦中⋯','牌象顯現⋯','座標校準中⋯'];
+  const dm=document.getElementById('drawMsg');
+  let mi=0;
+  const mt=setInterval(()=>{dm.textContent=msgs[mi++%msgs.length];},400);
+  const dc=document.getElementById('drawCard');
+  dc.classList.remove('go');void dc.offsetWidth;
+  dc.classList.add('go');
+  // 粒子
+  setTimeout(()=>burst(SC[card.suit]?.c||'#f8dfa5'),350);
+  setTimeout(()=>{clearInterval(mt);dm.textContent='';busy=false;render(card);},1550);
+}
+
+/* ── SVG 粒子爆炸 ── */
+function burst(color){
+  const svg=document.getElementById('ptcls');
+  svg.innerHTML='';
+  for(let i=0;i<28;i++){
+    const ang=Math.random()*Math.PI*2;
+    const dist=50+Math.random()*90;
+    const tx=Math.cos(ang)*dist+145;
+    const ty=Math.sin(ang)*dist+133;
+    const r=1.5+Math.random()*3.5;
+    const dur=(.5+Math.random()*.6).toFixed(2);
+    const del=(Math.random()*.18).toFixed(2);
+    const shape=Math.random()>.5?
+      `<circle cx="145" cy="133" r="${r}" fill="${color}" opacity="1"><animateMotion dur="${dur}s" begin="${del}s" fill="freeze" path="M 0 0 L ${tx-145} ${ty-133}"/><animate attributeName="opacity" dur="${dur}s" begin="${del}s" values="1;0" fill="freeze"/><animate attributeName="r" dur="${dur}s" begin="${del}s" values="${r};0" fill="freeze"/></circle>`:
+      `<rect x="${145-r}" y="${133-r}" width="${r*2}" height="${r*2}" fill="${color}" opacity="1"><animateMotion dur="${dur}s" begin="${del}s" fill="freeze" path="M 0 0 L ${tx-145} ${ty-133}"/><animate attributeName="opacity" dur="${dur}s" begin="${del}s" values="1;0" fill="freeze"/><animateTransform attributeName="transform" type="rotate" dur="${dur}s" begin="${del}s" values="0 ${145} ${133};${90+Math.random()*180} ${tx} ${ty}" fill="freeze"/></rect>`;
+    svg.insertAdjacentHTML('beforeend',shape);
+  }
+}
+
+/* ── 渲染結果 ── */
+function render(card){
+  const sc=SC[card.suit]||SC.joker;
+  const rn=RL[card.rank]||card.rank;
+
+  // 主色注入
+  const rh=document.getElementById('rh');
+  rh.style.background=sc.bg;
+  rh.style.setProperty('--rc',sc.c);
+  document.getElementById('rhGlow').style.background=`radial-gradient(ellipse 78% 58% at 50% 32%,${sc.g},transparent 65%)`;
+
+  const rc=document.getElementById('rcard');
+  rc.style.boxShadow=`0 28px 80px rgba(0,0,0,.75),0 0 80px ${sc.sh}`;
+  rc.style.setProperty('--rc',sc.c);
+
+  // 牌面
+  ['rc-rn','rc-rn2'].forEach(id=>{const e=document.getElementById(id);e.textContent=rn;e.style.color=sc.c;});
+  ['rc-rs','rc-rs2'].forEach(id=>{const e=document.getElementById(id);e.textContent=sc.s;e.style.color=sc.c;});
+  ['rc-c1','rc-c2'].forEach(id=>{const e=document.getElementById(id);e.textContent=sc.s;e.style.color=sc.c;});
+  const sym=document.getElementById('rc-sym');sym.textContent=sc.s;sym.style.color=sc.c;sym.style.setProperty('--rc',sc.c);
+  const lbl=document.getElementById('rc-lbl');lbl.textContent=card.name;lbl.style.color=`${sc.c}bb`;
+
+  // 文字
+  const st=document.getElementById('r-stag');st.textContent=sc.l;st.style.color=sc.c;
+  const nm=document.getElementById('r-name');nm.textContent=card.name;nm.style.color=sc.c;nm.style.textShadow=`0 0 40px ${sc.c}`;
+  document.getElementById('r-div').style.background=sc.c;
+  document.getElementById('r-body').innerHTML=card.body.split('\n').map(l=>l?`<p>${l}</p>`:'').join('');
+  document.getElementById('sci-body').textContent=card.science;
+  document.getElementById('aroma-body').textContent=card.aroma;
+  ['sci-tag','aroma-tag'].forEach(id=>{const e=document.getElementById(id);e.style.color=sc.c;e.style.borderColor=sc.c;});
+  document.querySelectorAll('.layer-arr').forEach(e=>e.style.color=sc.c);
+  document.querySelectorAll('.layer-hd').forEach(e=>e.style.setProperty('--rc',sc.c));
+
+  // 重置層
+  document.querySelectorAll('.layer').forEach(l=>l.classList.remove('open'));
+
+  show('resultScreen');
+  flash(sc.c);
+}
+
+/* 螢幕閃光 */
+function flash(c){
+  const d=document.createElement('div');
+  d.style.cssText=`position:fixed;inset:0;z-index:999;pointer-events:none;background:${c};opacity:.1;animation:po .55s ease-out forwards`;
+  const s=document.createElement('style');s.textContent='@keyframes po{to{opacity:0}}';
+  document.head.appendChild(s);document.body.appendChild(d);
+  setTimeout(()=>{d.remove();s.remove();},560);
+}
+
+/* ── 展開層 ── */
+function toggleL(id){document.getElementById('L-'+id).classList.toggle('open');}
+
+/* ── 複製 ── */
+function copyCard(){
+  if(!lastCard) return;
+  const sc=SC[lastCard.suit]||SC.joker;
+  const txt=`【撲克牌覺察占卜 · 馥靈之鑰】\n\n${sc.s} ${lastCard.rank} · ${lastCard.name}\n\n${lastCard.body}\n\n── 科學怎麼說 ──\n${lastCard.science}\n\n── 香氣落地 ──\n${lastCard.aroma}\n\n🔗 hourlightkey.com/poker-oracle.html`;
+  navigator.clipboard.writeText(txt).then(()=>toast('已複製！')).catch(()=>{const t=document.createElement('textarea');t.value=txt;t.style.cssText='position:fixed;opacity:0';document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);toast('已複製！');});
+}
+
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2000);}
+
+function copyAI(){
+  if(!lastCard) return;
+  var sc=SC[lastCard.suit]||SC.joker;
+  var txt = '【AI深度解讀指令｜撲克牌覺察占卜 × 馥靈座標哲學】\n\n';
+  txt += '═══ 提問者抽牌結果 ═══\n';
+  txt += '花色：' + sc.l + '\n';
+  txt += '牌面：' + lastCard.rank + '\n';
+  txt += '牌名：' + lastCard.name + '\n';
+  txt += '牌義：' + lastCard.body + '\n';
+  txt += '科學解析：' + lastCard.science + '\n';
+  txt += '香氣落地：' + lastCard.aroma + '\n\n';
+
+  txt += '═══ 深度解讀框架（請完整執行）═══\n\n';
+
+  txt += '你收到的是一張撲克牌占卜結果。這不是娛樂，是覺察。\n';
+  txt += '提問者在深夜翻開這張牌，心裡一定有個問題還沒問出口。\n';
+  txt += '你的任務是幫他把那個問題說出來，然後給他一面鏡子。\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【第一步：花色能量場，這個人此刻站在哪裡】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += '♠ 黑桃（蛻變之風）：正在經歷某種結束或轉化，內心有個東西在鬆動\n';
+  txt += '♥ 紅心（流動之水）：情感議題浮上來了，不一定是愛情，是所有「在乎」的事\n';
+  txt += '♦ 方塊（落地之土）：跟現實面有關，錢、工作、身體、生活結構\n';
+  txt += '♣ 梅花（燃燒之火）：有股能量想往外衝，是創造力、行動力或憤怒\n';
+  txt += '★ 鬼牌（虛空之鏡）：這張牌在說「你問錯問題了」，真正的答案不在你以為的方向\n\n';
+  txt += '→ 根據抽到的花色，分析提問者「此刻最核心的內在狀態」\n';
+  txt += '→ 不要說花色的通用含義，說「你現在正在經歷的是___」\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【第二步：數字密碼，牌面數字的心理深度】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += 'A = 起點/種子/獨立，你正站在某件事的開頭，問題是你敢不敢踏出去\n';
+  txt += '2-3 = 選擇/萌芽，你在兩個方向之間拉扯，或者某件事剛開始冒頭\n';
+  txt += '4-6 = 建構/穩定，你正在蓋某個東西（關係/事業/習慣），問題是地基穩不穩\n';
+  txt += '7-9 = 挑戰/深化，你遇到了瓶頸或考驗，這是在測試你到底要不要繼續\n';
+  txt += '10 = 完成/滿溢，某個週期到了盡頭，該放的放、該收的收\n';
+  txt += 'J = 信使/學徒，有個訊息正在來的路上，或者你需要用初學者的心態面對\n';
+  txt += 'Q = 內在力量/直覺，你知道答案，只是不確定自己有沒有資格相信它\n';
+  txt += 'K = 掌控/責任，這件事需要你站出來做決定，不能再等別人\n';
+  txt += '大鬼/小鬼 = 打破規則/超越二元，舊的框架已經裝不下你了\n\n';
+  txt += '→ 結合花色＋數字，給出「此刻核心訊息」的精準一句話\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【第三步：牌義的三層拆解】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += '第一層（表面）：這張牌字面上在說什麼？提問者最容易理解的訊息\n';
+  txt += '第二層（情緒）：這張牌觸碰到提問者內心的哪個柔軟處？他可能正在壓抑什麼？\n';
+  txt += '第三層（行動）：這張牌真正要他做的一件事是什麼？具體、可執行、明天就能開始\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【第四步：撲克牌 × 塔羅交叉對照】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += '► 這張撲克牌對應塔羅的哪張牌？（黑桃=寶劍、紅心=聖杯、方塊=錢幣、梅花=權杖）\n';
+  txt += '► 塔羅的解讀角度和撲克牌有什麼不同？哪個面向更深入？\n';
+  txt += '► 如果這張牌出現在「過去-現在-未來」的三張牌陣中間位置，它在時間軸上暗示什麼？\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【第五步：認知芳療 · 香氣覺察】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += '► 根據牌面的香氣建議，解釋為什麼是這支精油\n';
+  txt += '► 不需要真的有精油，光是想到這個氣味，大腦就已經啟動相應的神經迴路\n';
+  txt += '► 給出一個「閉上眼睛想像這個香氣」的20秒覺察練習\n';
+  txt += '► 鼻子在聞，但大腦在記憶。氣味是情緒的快捷鍵。\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【第六步：H.O.U.R. 行動建議】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += 'H（身心校準）→ 翻開這張牌的瞬間，身體哪個部位有感覺？那個感覺在說什麼？\n';
+  txt += 'O（智慧辨識）→ 這張牌映照出你最近一直在迴避的什麼模式？\n';
+  txt += 'U（潛能解鎖）→ 如果這張牌是一把鑰匙，它要你打開哪扇門？今晚就能做的一件事是什麼？\n';
+  txt += 'R（行動進化）→ 帶著這張牌的訊息，明天的你會做什麼不同的選擇？\n\n';
+
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  txt += '【此刻三問，深夜的自我對話】\n';
+  txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  txt += '根據這張牌的核心訊息，設計三個讓人在深夜安靜下來跟自己對話的問題。\n';
+  txt += '格式：「你有沒有想過，___？」\n';
+  txt += '這三個問題要能讓翻牌的那個瞬間，延伸成一場真正的覺察。\n\n';
+
+  txt += '╔══════ 語氣與風格要求 ══════╗\n';
+  txt += '► 深夜語氣：像凌晨兩點跟最信任的人講悄悄話，聲音輕但句句到位\n';
+  txt += '► 帶有香氣意象：每個段落至少一個精油或自然氣味的比喻\n';
+  txt += '► 禁用詞（絕對不出現）：梳理、療癒、調頻、靈魂、頻率、顯化、宇宙安排、命定、雙破折號，\n';
+  txt += '► 代用詞：用「校準」代替「梳理」，用「座標」代替「命運」，用「整合」代替「療癒」\n';
+  txt += '► 術語必須轉譯：不說占卜術語，說日常場景\n';
+  txt += '► 結尾用馥靈馥語風格收束：一段帶有香氣的文字，讓人讀完有「被接住了」的感覺\n\n';
+
+  txt += '╔══════ 馥靈座標哲學 ══════╗\n';
+  txt += '一張牌翻開的瞬間，你心裡是不是已經隱隱有了答案？\n';
+  txt += '那個答案不是牌給的，是你自己的。牌只是替你說出來而已。\n';
+  txt += '讀懂自己，活對人生。馥靈之鑰 hourlightkey.com';
+
+  // iOS Safari 相容複製
+  var ta=document.createElement('textarea');ta.value=txt;ta.setAttribute('readonly','');
+  ta.style.cssText='position:fixed;top:50%;left:50%;width:2em;height:2em;padding:0;border:none;outline:none;background:transparent;font-size:16px;opacity:.01;transform:translate(-50%,-50%);z-index:99999';
+  document.body.appendChild(ta);
+  if(/ipad|iphone/i.test(navigator.userAgent)){ta.focus();var rng=document.createRange();rng.selectNodeContents(ta);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(rng);ta.setSelectionRange(0,999999)}else{ta.focus();ta.select()}
+  try{document.execCommand('copy');toast('🤖 AI 深度解讀指令已複製！')}catch(e){alert('複製失敗')}
+  document.body.removeChild(ta);
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(txt).catch(function(){});}
+
+  if(typeof hlAIGateCheck==='function'){setTimeout(function(){hlAIGateCheck(function(){});},80);}
+}
+</script>
+
+<script src="assets/js/hl-music.js?v=20260309"></script>
+<script src="assets/js/hl-topnav.js"></script>
+<script src="assets/js/hl-bottomnav.js"></script>
+<script src="assets/js/hl-announce.js?v=4"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-referral.js?v=20260323"></script>
+<script src="assets/js/hl-ai-gate.js"></script>
+<script src="assets/js/hl-ai-copy.js"></script>
+<script src="assets/js/hl-gate.js"></script>
+<script src="assets/js/hl-email.js"></script>
+<script src="assets/js/hl-share.js"></script>
+<script src="assets/js/hl-tracker.js" data-tool="poker-oracle" data-tool-name="撲克牌覺察占卜" data-tool-type="oracle"></script>
+</body>
+</html>

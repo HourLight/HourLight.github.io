@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-BXP7K53QG6');
+</script>
+<!-- Facebook Pixel -->
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1333106288588347');
+  fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" alt=""
+  src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"></noscript>
+<!-- End Facebook Pixel -->
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>瑪雅曆计算器｜馥灵之钥</title>
+<meta name="description" content="找到您的瑪雅图騰，解锁您的宇宙印记。源自台湾，馥灵之钥。">
+<link rel="icon" href="../favicon.ico" />
+<link rel="stylesheet" href="../assets/css/hourlight-global.css">
+<link rel="stylesheet" href="../assets/css/hl-design-tokens.css">
+<style>
+  :root{
+    /* 黑金宇宙 × 柔和奶茶过渡 */
+    --bg-deep:var(--hl-bg);
+    --bg-soft:#0a0612;
+    --panel:#0f0a18;
+    --panel-soft:rgba(18,13,28,0.94);
+
+    --milk:#f9f5f0;
+    --cocoa:#d9c7b2;
+    --cocoa-deep:#b39a80;
+
+    --rose:var(--hl-gold);
+    --rose-dark:var(--hl-gold-deep);
+
+    --ink-main:#ffffff;
+    --ink-soft:rgba(255,255,255,.7);
+    --line:rgba(255,255,255,.12);
+
+    --font-main:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+    --font-display:"Noto Serif TC","Songti TC","PMingLiU",serif;
+
+    --ease:cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;}
+
+  body{
+    min-height:100vh;min-height:100dvh;
+    font-family:var(--font-main);
+    color:var(--ink-main);
+    padding:20px 16px 40px;
+    background:
+      radial-gradient(ellipse 120% 80% at 15% 0%,rgba(92,58,99,0.38) 0%,transparent 55%),
+      radial-gradient(ellipse 90% 70% at 85% 100%,rgba(233,194,125,0.22) 0%,transparent 55%),
+      linear-gradient(180deg,var(--bg-deep) 0%,var(--bg-soft) 100%);
+    
+  }
+
+  .container{
+    max-width:760px;
+    margin:0 auto;
+    background:var(--panel-soft);
+    -webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);
+    border-radius:22px;
+    padding:34px 26px 30px;
+    box-shadow:0 16px 40px rgba(0,0,0,.6);
+    border:1px solid var(--line);
+  }
+
+  h1{
+    text-align:center;
+    font-family:var(--font-display);
+    color:var(--ink-main);
+    font-size:clamp(1.8rem,4vw,2.3rem);
+    margin-bottom:8px;
+    font-weight:500;
+    letter-spacing:.25em;
+    text-indent:.25em;
+    background:linear-gradient(135deg,var(--rose),#fff9eb,var(--rose-dark));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+    text-shadow:0 4px 18px rgba(233,194,125,.25);
+  }
+  .subtitle{
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:0.9rem;
+    margin-bottom:30px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+  }
+
+  /* 输入区 */
+  .input-section{
+    background: rgba(12,8,22,0.93);
+    border-radius:18px;
+    padding:22px 20px 24px;
+    margin-bottom:24px;
+    border:1px solid var(--line);
+  }
+  .input-label{
+    font-size:0.95rem;
+    font-weight:700;
+    color:#f8dfa5;
+    margin-bottom:10px;
+    display:block;
+    letter-spacing:.08em;
+  }
+  .date-input{
+    width:100%;
+    padding:13px 16px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    font-size:1rem;
+    font-family:inherit;
+    transition:.25s var(--ease);
+    background:rgba(8,6,16,.9);
+    color:#ffffff;
+  }
+  .date-input::placeholder{color:rgba(255,255,255,.35);}
+  .date-input:focus{
+    outline:none;
+    border-color:var(--rose);
+    box-shadow:0 0 0 2px rgba(233,194,125,.25);
+  }
+
+  .calc-btn{
+    display:block;
+    width:100%;
+    background:linear-gradient(135deg,#f8dfa5,#c9954a);
+    color:#0a0612;
+    border:none;
+    padding:15px 22px;
+    border-radius:999px;
+    font-size:1rem;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 8px 22px rgba(233,194,125,.45);
+    transition:.25s var(--ease);
+    margin-top:14px;
+    letter-spacing:.12em;
+    text-indent:.12em;
+  }
+  .calc-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 26px rgba(233,194,125,.6);
+  }
+
+  .result-section{
+    display:none;
+    margin-top:26px;
+  }
+  .result-section.show{
+    display:block;
+    animation:fadeIn 0.55s var(--ease);
+  }
+  @keyframes fadeIn{
+    from{opacity:0;transform:translateY(18px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+
+  .maya-card{
+    background:radial-gradient(circle at 0% 0%,rgba(233,194,125,.15) 0%,transparent 55%),
+               radial-gradient(circle at 100% 100%,rgba(92,58,99,.25) 0%,transparent 60%),
+               linear-gradient(135deg,rgba(10,8,20,.96),rgba(20,14,32,.96));
+    border:1px solid rgba(233,194,125,.55);
+    border-radius:18px;
+    padding:26px 20px 24px;
+    margin-bottom:22px;
+    text-align:center;
+    box-shadow:0 12px 32px rgba(0,0,0,.7);
+  }
+  .kin-number{
+    font-size:0.9rem;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+    font-weight:600;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+  }
+  .totem-icon{
+    font-size:3.2rem;
+    margin:10px 0;
+  }
+  .totem-name{
+    font-size:1.6rem;
+    font-weight:600;
+    color:var(--milk);
+    margin-bottom:6px;
+    font-family:var(--font-display);
+    letter-spacing:.08em;
+  }
+  .tone-name{
+    font-size:1.1rem;
+    color:var(--rose);
+    font-weight:600;
+    margin-bottom:12px;
+    letter-spacing:.12em;
+  }
+  .totem-desc{
+    font-size:0.98rem;
+    color:var(--ink-soft);
+    line-height:1.8;
+  }
+
+  .info-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:14px;
+    margin-bottom:22px;
+  }
+  .info-card{
+    background:rgba(10,8,20,.92);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:18px 14px;
+    text-align:center;
+  }
+  .info-card-title{
+    font-size:0.9rem;
+    color:rgba(226,211,196,.85);
+    margin-bottom:6px;
+    font-weight:600;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+  }
+  .info-card-value{
+    font-size:1.05rem;
+    font-weight:700;
+    color:var(--milk);
+  }
+
+  .detail-section{
+    background: rgba(12,8,22,0.93);
+    border-radius:14px;
+    padding:18px 16px 18px;
+    margin-bottom:16px;
+    border:1px solid var(--line);
+  }
+  .detail-title{
+    font-size:0.96rem;
+    font-weight:700;
+    color:var(--rose);
+    margin-bottom:8px;
+    letter-spacing:.08em;
+  }
+  .detail-text{
+    font-size:0.9rem;
+    color:var(--ink-soft);
+    line-height:1.8;
+  }
+
+  .copy-btn{
+    display:block;
+    width:100%;
+    background:transparent;
+    border:1px solid var(--rose);
+    color:var(--rose);
+    padding:11px 18px;
+    border-radius:999px;
+    font-size:0.95rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:.25s var(--ease);
+    margin:4px 0 18px;
+    letter-spacing:.08em;
+  }
+  .copy-btn:hover{
+    background:var(--rose);
+    color:#0a0612;
+    transform:translateY(-1px);
+  }
+  .copy-btn.copied{
+    background:#4caf50;
+    border-color:#4caf50;
+    color:#ffffff;
+  }
+
+  /* CTA区塊 */
+  .cta-section{
+    background:radial-gradient(circle at 0% 0%,rgba(233,194,125,.25) 0%,transparent 55%),
+               linear-gradient(135deg,#251725,#1a111f);
+    border-radius:16px;
+    padding:24px 20px 26px;
+    text-align:center;
+    margin:22px 0 8px;
+    border:1px solid rgba(233,194,125,.5);
+    box-shadow:0 10px 30px rgba(0,0,0,.65);
+  }
+  .cta-section h3{
+    color:var(--milk);
+    font-size:1.2rem;
+    font-weight:600;
+    margin-bottom:10px;
+    font-family:var(--font-display);
+    letter-spacing:.12em;
+  }
+  .cta-section p{
+    color:var(--ink-soft);
+    font-size:0.9rem;
+    line-height:1.8;
+    margin-bottom:18px;
+  }
+  .cta-btns{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .cta-btn{
+    display:block;
+    text-decoration:none;
+    padding:12px 22px;
+    border-radius:999px;
+    font-weight:700;
+    font-size:0.95rem;
+    transition:.25s var(--ease);
+    text-align:center;
+    letter-spacing:.08em;
+  }
+  .cta-btn.primary{
+    background:linear-gradient(135deg,var(--rose),var(--rose-dark));
+    color:#1a1a1a;
+    border:1px solid rgba(255,255,255,.9);
+    box-shadow:0 8px 24px rgba(233,194,125,.55);
+  }
+  .cta-btn.primary:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 30px rgba(233,194,125,.7);
+  }
+  .cta-btn.secondary{
+    background:transparent;
+    color:var(--milk);
+    border:1px solid var(--cocoa);
+  }
+  .cta-btn.secondary:hover{
+    background:var(--rose);
+    color:#0a0612;
+    transform:translateY(-2px);
+  }
+
+  .back-home{
+    display:block;
+    text-align:center;
+    margin-top:22px;
+    color:var(--rose);
+    text-decoration:none;
+    font-weight:700;
+    font-size:0.95rem;
+    letter-spacing:.08em;
+    transition:.25s var(--ease);
+  }
+  .back-home:hover{
+    color:var(--rose-dark);
+    text-decoration:underline;
+  }
+
+  @media(max-width:600px){
+    .container{padding:26px 18px}
+    .totem-icon{font-size:2.6rem}
+    .totem-name{font-size:1.4rem}
+  }
+
+/* ── 馥灵之钥 LOGO 图标 ── */
+.hl-logo-icon {
+  height: 1.15em;
+  width: 1.15em;
+  border-radius: 50%;
+  object-fit: cover;
+  vertical-align: middle;
+  margin-right: 4px;
+  display: inline-block;
+  position: relative;
+  top: -0.08em;
+}
+.hl-logo-hero {
+  display: block;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 14px auto;
+  filter: drop-shadow(0 0 18px rgba(233,194,125,0.55));
+}
+
+/* light bg */
+.hl-bg-castle {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:#05030a;
+  opacity: 1;
+  filter: saturate(1.1) brightness(.72);
+  pointer-events: none;
+}
+/* ── 新版結果区塊样式 ── */
+.palace-wrap{background: rgba(12,8,22,0.93);border:1px solid rgba(233,194,125,0.2);border-radius:16px;padding:22px 22px 18px;margin-bottom:18px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.palace-title{font-family:'LXGW WenKai TC',serif;font-size:1rem;color:#f8dfa5;letter-spacing:.08em;margin-bottom:14px;font-weight:500}
+.palace-row{font-size:.95rem;color:rgba(249,240,229,.75);line-height:1.9;padding:2px 0;border-bottom:1px solid rgba(233,194,125,0.06)}
+.palace-row:last-child{border-bottom:none}
+.palace-row strong{color:#f8dfa5}
+.palace-row em{color:rgba(200,180,150,0.75);font-style:normal}
+.kin-number{font-family:'Cormorant Garamond',serif;font-size:2.2rem;color:#f8dfa5;letter-spacing:.12em;margin-bottom:8px;font-weight:500}
+.totem-name{font-family:'LXGW WenKai TC',serif;font-size:1.5rem;color:#f8dfa5;margin-bottom:6px;font-weight:500}
+.totem-sub{font-size:.9rem;color:rgba(200,185,165,.6);letter-spacing:.06em;margin-bottom:12px}
+.totem-tags{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.tag{font-size:.95rem;padding:3px 12px;border-radius:20px;background:rgba(233,194,125,0.1);border:1px solid rgba(233,194,125,0.25);color:#f8dfa5}
+
+.origin-block{background:rgba(233,194,125,.03);border:1px solid rgba(233,194,125,.12);border-radius:16px;padding:0;margin:0 0 24px;overflow:hidden}
+.origin-toggle{padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:.92rem;color:var(--gd,var(--gold,var(--ff-gold,#f8dfa5)));letter-spacing:.06em;transition:.2s;user-select:none}
+.origin-toggle:hover{background:rgba(233,194,125,.05)}
+.origin-arrow{font-size:.7rem;transition:transform .3s}
+.origin-block.open .origin-arrow{transform:rotate(180deg)}
+.origin-content{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.origin-block.open .origin-content{max-height:15000px}
+.origin-inner{padding:0 20px 20px;font-size:.85rem;color:rgba(249,240,229,.7);line-height:1.9}
+.origin-inner p{margin-bottom:12px}
+.origin-inner .oi-main{color:#f8dfa5;font-size:1.05rem;font-weight:700;display:block;margin:12px 0 10px;letter-spacing:.04em}.origin-inner .oi-era{color:#f0e8d8;font-size:1.02rem;font-weight:700;display:block;margin:20px 0 6px;letter-spacing:.04em}
+.origin-inner .oi-sec{color:#f8dfa5;font-size:1rem;font-weight:700;margin:24px 0 10px;padding:10px 0 6px;border-top:1px solid rgba(233,194,125,.18);display:flex;align-items:center;gap:6px;letter-spacing:.06em}
+.origin-inner .oi-note{font-size:.78rem;color:rgba(249,240,229,.45);margin-top:8px;padding-top:8px;border-top:1px solid rgba(233,194,125,.08);font-style:italic}
+
+
+/* ── Mobile App Touch Feel ── */
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+button,a,select,input[type=submit],input[type=button],.calc-btn,.draw-card{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+button:active,input[type=submit]:active,.calc-btn:active{transform:scale(.97);transition:transform .08s}
+select,input[type=text],input[type=number],input[type=date],input[type=email],textarea{font-size:16px!important}
+input[type="date"],input[type="datetime-local"]{color-scheme:dark;color:rgba(248,223,165,.85);background:rgba(233,194,125,.06);border:1px solid rgba(233,194,125,.15);border-radius:10px;padding:10px 14px}
+input[type="date"]::-webkit-datetime-edit,input[type="datetime-local"]::-webkit-datetime-edit{color:rgba(248,223,165,.85)}
+input[type="date"]::-webkit-calendar-picker-indicator,input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(.7)}
+@media(max-width:600px){
+  body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  button,input[type=submit],input[type=button],.calc-btn{min-height:48px}
+}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hourlightkey.com/sc/maya-calculator.html">
+    <meta property="og:title" content="瑪雅曆计算器｜馥灵之钥">
+    <meta property="og:description" content="瑪雅曆计算器｜免费查询您的瑪雅星系印记，探索宇宙能量与生命使命。">
+    <meta property="og:image" content="https://hourlightkey.com/og-image.jpg">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:site_name" content="馥灵之钥 Hour Light">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="瑪雅曆计算器｜馥灵之钥">
+    <meta name="twitter:description" content="瑪雅曆计算器｜免费查询您的瑪雅星系印记，探索宇宙能量与生命使命。">
+    <meta name="twitter:image" content="https://hourlightkey.com/og-image.jpg">
+
+    
+    <link rel="canonical" href="https://hourlightkey.com/sc/maya-calculator.html">
+    <meta name="keywords" content="瑪雅曆计算, 瑪雅星系印记, 瑪雅曆查询">
+    <!-- Schema.org 結构化资料 -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": "https://hourlightkey.com/#organization",
+  "name": "馥靈之鑰國際有限公司",
+  "alternateName": [
+    "Hour Light International Co., Ltd.",
+    "馥靈之鑰",
+    "Hour Light"
+  ],
+  "url": "https://hourlightkey.com",
+  "logo": {
+    "@type": "ImageObject",
+    "url": "https://hourlightkey.com/logo.svg",
+    "width": "200",
+    "height": "200"
+  },
+  "image": "https://hourlightkey.com/og-image.jpg",
+  "description": "馥靈之鑰 Hour Light｜讀懂自己，活對人生。結合感官科學與自我導航的自我認識系統，免費線上工具與一對一深度陪伴。",
+  "foundingDate": "2024",
+  "founder": {
+    "@type": "Person",
+    "@id": "https://hourlightkey.com/#founder",
+    "name": "王逸君",
+    "alternateName": "Ruby Wang"
+  },
+  "sameAs": [
+    "https://www.youtube.com/@judyanee",
+    "https://www.facebook.com/SUFUYASPA",
+    "https://www.instagram.com/hourlight",
+    "https://lin.ee/RdQBFAN"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer service",
+    "email": "info@hourlightkey.com",
+    "url": "https://lin.ee/RdQBFAN",
+    "availableLanguage": [
+      "zh-TW",
+      "zh-CN"
+    ]
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "Taiwan"
+  },
+  "knowsAbout": [
+    "芳香療法",
+    "能量覺察",
+    "情緒管理",
+    "美容美業",
+    "生命靈數",
+    "塔羅牌"
+  ]
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "url": "https://hourlightkey.com/maya-calculator.html",
+  "name": "瑪雅曆計算器",
+  "description": "免費查詢你的瑪雅星系印記，探索宇宙能量與生命使命",
+  "applicationCategory": "LifestyleApplication",
+  "operatingSystem": "Web Browser",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "TWD"
+  }
+}
+    </script>
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "如何查詢瑪雅星系印記",
+  "description": "瑪雅曆是古老的能量曆法，透過你的出生日期可以找到你的星系印記。",
+  "totalTime": "PT2M",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "position": 1,
+      "name": "輸入出生日期",
+      "text": "在日期選擇器中輸入你的西曆出生年月日。"
+    },
+    {
+      "@type": "HowToStep",
+      "position": 2,
+      "name": "計算星系印記",
+      "text": "點擊計算按鈕，系統會根據瑪雅曆法計算你的主印記、引導與支持能量。"
+    },
+    {
+      "@type": "HowToStep",
+      "position": 3,
+      "name": "探索你的印記",
+      "text": "閱讀你的瑪雅星系印記解讀，了解你的宇宙使命與能量特質。"
+    }
+  ]
+}
+    </script>
+<link rel="stylesheet" href="../assets/css/hl-cosmos.css">
+<link rel="stylesheet" href="../assets/css/hl-music.css">
+<script src="assets/js/hl-analytics.js?v=20260401" defer></script>
+<!-- MailerLite Universal -->
+<script>
+    (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
+    .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
+    n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
+    (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
+    ml('account', '2060689');
+</script>
+<!-- End MailerLite Universal -->
+<style>
+/* ========== 浮动 LINE 按鈕（玻璃擬态）========== */
+
+@media(max-width:768px){}@media(min-width:769px) and (max-width:900px){}
+</style>
+<style>
+/* ========== 背景音樂控制按鈕 ========== */
+</style>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0612">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="馥灵之钥">
+</head>
+<body>
+<img src="images/page-banners-web/maya-calculator.webp" alt="" style="width:100%;max-width:600px;max-height:180px;object-fit:cover;margin:0 auto 20px;display:block;border-radius:12px" loading="lazy" onerror="this.style.display='none'">
+
+
+
+<!-- ========== 背景音樂 ========== -->
+<!-- 星空背景 -->
+<div class="hl-bg-castle"></div>
+<div class="hl-cosmos">
+  <div class="hl-stars-layer hl-stars-1"></div>
+  <div class="hl-stars-layer hl-stars-2"></div>
+  <div class="hl-stars-layer hl-stars-3"></div>
+  <div class="hl-meteors">
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+    <div class="hl-meteor"></div>
+  </div>
+  <div class="hl-aura hl-aura-1"></div>
+  <div class="hl-aura hl-aura-2"></div>
+  <div class="hl-aura hl-aura-3"></div>
+</div>
+
+  <div class="container">
+    <svg style="position:absolute;top:-10px;right:0;width:100px;opacity:.1;pointer-events:none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<circle cx="50" cy="50" r="45" fill="none" stroke="#f8dfa5" stroke-width=".8"/><circle cx="50" cy="50" r="30" fill="none" stroke="#f8dfa5" stroke-width=".4"/>
+<circle cx="50" cy="50" r="15" fill="none" stroke="#f8dfa5" stroke-width=".3"/><circle cx="50" cy="50" r="3" fill="#f8dfa5" opacity=".4"/>
+<g><animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="60s" repeatCount="indefinite"/>
+<circle cx="50" cy="8" r="2" fill="#FFD54F" opacity=".5"/></g></svg>
+<div class="hero" style="text-align:center;padding:36px 0 24px">
+    <div style="display:inline-block;font-size:.95rem;color:var(--rose);border:1px solid rgba(233,194,125,.35);border-radius:20px;padding:3px 14px;margin-bottom:14px;letter-spacing:.1em">MAYA CALENDAR</div>
+    <h1 style="font-size:1.85rem;font-weight:500;color:var(--rose);letter-spacing:.1em;margin-bottom:8px;background:none;-webkit-text-fill-color:unset">🌀 瑪雅曆法</h1>
+    <p style="font-size:.95rem;color:var(--ink-soft);line-height:1.7">卓爾金曆・13月亮曆・五大神諭・波符・KIN印记<br>找到您的宇宙座标</p>
+    <a href="destiny-engine.html" style="display:inline-flex;align-items:center;gap:6px;font-size:.95rem;color:var(--ink-soft);border:1px solid var(--line);border-radius:20px;padding:5px 14px;text-decoration:none;margin-top:10px;transition:.2s">✦ 前往三十三合一命盘引擎</a>
+  </div>
+
+    <div class="origin-block">
+<div class="origin-toggle">📜 瑪雅曆法 · 源头脈络 × 科学关联 × 馥灵馥语 <span class="origin-arrow">▼</span></div>
+<div class="origin-content"><div class="origin-inner">
+
+<p><span class="oi-main">📜 源头脈络</span></p>
+
+<p>中美洲的叢林裡，有一群人在没有望远镜的年代，算出了金星的会合週期是584天。現代天文学的數字是583.92天。误差不到兩个小時。</p>
+
+<p>他們叫瑪雅人。</p>
+
+<p><span class="oi-era">兩套日曆，同時在跑</span></p>
+
+<p>瑪雅人不是只有一套曆法，他們同時用好幾套。最核心的兩套：卓爾金曆（Tzolk'in）和哈布曆（Haab）。</p>
+
+<p>哈布曆是太阳曆，365天。18个月，每月20天，加上最後5天的「危险日」（Wayeb），瑪雅人在那5天裡会特別謹慎，做祭祀、避凶。這个結构和我們的阳曆很接近。</p>
+
+<p>卓爾金曆才是瑪雅曆法真正的核心。260天。20个日符号（图騰）乘以13个數字，转出260種组合，每一種组合就是一天的名字。转完一轮，260天，再从头來。</p>
+
+<p>兩套曆法像兩个齿轮咬在一起转。同一个日期组合（卓爾金日+哈布日）要等18,980天才会再出現一次，大约52年。瑪雅人叫這个週期为「曆法轮」（Calendar Round），52年一轮，像一个巨大的時间齿轮。</p>
+
+<p><span class="oi-era">260天是什麼</span></p>
+
+<p>为什麼是260天？這个问题学者吵了很久，目前有三个最被接受的解释：</p>
+
+<p>第一个：人的妊娠期。从最後一次月经結束後第一次错过月经到分娩，平均大约260天。有学者认为卓爾金曆最初是助产士发展出來的，用來预测预产期。</p>
+
+<p>第二个：瓜地马拉高地的农业週期。从播種到收成，大约也是260天。天上的時间和地上的時间重疊了。</p>
+
+<p>第三个：天文週期的交会。260天剛好是月蝕季节间隔（173.5天）的3/2倍，也接近9个月亮週期（9 × 29.5 = 265.5天）。瑪雅人用卓爾金曆來预测金星位置和日月蝕，數学上确實对得上。</p>
+
+<p>也许答案不是三选一。也许260天同時是生命的週期、农作的週期、天象的週期。一个數字，三件事同時在裡面。天文学家 Anthony Aveni 说过一句话：「260這个數字，像是为瑪雅人量身订做的。」</p>
+
+<p><span class="oi-era">20个日符号</span></p>
+
+<p>卓爾金曆的20个日符号，每一个都是一種原型能量。红龍（Imix）是源头、滋养、母性。白风（Ik）是气息、溝通、讯息。蓝夜（Akbal）是夢境、潜意识、內在的丰盛。黃種子（Kan）是等待、紮根、潜力。红蛇（Chicchan）是本能、感官、生命力。白世界橋（Cimi）是连結、放下、跨越。</p>
+
+<p>這20个符号不是瑪雅人「发明」的。它們是中美洲共有的文化资产，阿茲特克也有对应的版本（叫Tonalpohualli），兩套系统在結构上幾乎一模一样。這代表260天的神圣曆法在中美洲的历史可能比瑪雅文明本身更古老。</p>
+
+<p><span class="oi-era">德勒斯登古抄本</span></p>
+
+<p>瑪雅天文学最驚人的证据，保存在一本书裡。德勒斯登古抄本（Dresden Codex），目前收藏在德国德勒斯登的薩克森邦立图书館。它是美洲現存最古老的书，後古典期的作品，用樹皮纸写成。</p>
+
+<p>裡面有金星週期表、月蝕预测表、火星和木星的运行纪录。金星的会合週期被记录为584天（5次会合 = 2,920天 = 8个太阳年），這个數字的精确度让現代天文学家都佩服。月蝕的预测用的是11,960天的週期，能推算出未來幾百年的蝕相。</p>
+
+<p>没有望远镜，没有计算机。只有肉眼、记录、和幾百年累积的观测數据。</p>
+
+<p><span class="oi-era">長纪曆与2012</span></p>
+
+<p>瑪雅人还有一套「長纪曆」（Long Count），用來记录超过52年的時间跨度。起点是西元前3114年8月11日（瑪雅神话中這一轮世界的创造日）。2012年12月21日，長纪曆走完了一个13个柏克敦（Baktun）的大週期，等於5,125年。</p>
+
+<p>這件事被炒成了「世界末日」。但瑪雅人自己从來没有说过世界会在那天結束。对他們來说，一个週期結束就是另一个週期开始。就像時鐘走到12点，不是時间停了，是从1再來。</p>
+
+<p>瑪雅曆法从來不是线性的。它是圓的。一切都在转，一切都会回來，但每一次回來的時候，您已经不是上一轮的那个人了。</p>
+
+<p><span class="oi-era">今天还在用</span></p>
+
+<p>瓜地马拉高地的马雅後裔社群，至今仍在使用卓爾金曆。他們的日曆祭司（Aj Q'ij）維持著超过五百年不间断的日计數。這不是博物館裡的文物。這是一套还活著的系统。</p>
+
+<div class="oi-sec">📡 科学錨点</div>
+
+<p>卓爾金曆的260天和人类妊娠期的对应，在現代表观遺传学（epigenetics）的框架下变得更有意思。</p>
+
+<p>表观遺传学的研究发現，胎兒在子宮裡的环境（母亲的营养、压力程度、季节、光照）会在不改变DNA序列的情況下，永久改变基因的表达方式。荷兰飢餓冬天研究（Dutch Hunger Winter Study）追蹤了1944-45年荷兰大饑荒期间受孕的胎兒，发現這些人在六十年後仍然带有当時飢餓环境造成的表观遺传标记，而且這些标记还传给了下一代。</p>
+
+<p>如果260天的孕期环境真的会在基因表达上留下永久的印记，那卓爾金曆用出生日期來定义一个人的特质，就不完全是神秘学了。它可能在描述的是：您在那260天裡，被什麼样的宇宙环境（季节、光照、母体狀态）设定了。</p>
+
+<p>瑪雅人的天文观测精度也值得从科学史的角度认真看待。他們计算金星会合週期的误差在千年尺度上只有幾个小時。德勒斯登古抄本裡的月蝕预测表，覆盖范圍超过三十年。這些都不是「碰巧猜对」，是系统性观测和數学建模的成果。</p>
+
+<div class="oi-sec">🌿 馥灵馥语</div>
+
+<p>瑪雅的20个日符号，每一个都有它的气味记忆。</p>
+
+<p>红龍（Imix）是没藥。没藥的气味沉、暖、带一点苦。像回到很深很深的地方，比记忆更早的地方。红龍的能量就是源头，是「一切从這裡开始」。</p>
+
+<p>白风（Ik）是尤加利。清冽、穿透、通透。白风是讯息和气息，尤加利做的事情一模一样：让堵住的地方通了，让悶在裡面的東西出來。</p>
+
+<p>蓝夜（Akbal）是檀香。檀香的木质沉香感，像走进一间光线很暗但很安全的房间。蓝夜是夢境和潜意识，檀香帮您在那个空间裡待得住，不害怕。</p>
+
+<p>黃種子（Kan）是雪松。雪松長得慢，但長得稳。黃種子的课题就是耐心，是「我已经種下了，但它还没发芽」的那段等待。雪松的稳重帮您撐过那段什麼都看不到的時间。</p>
+
+<p>每一个KIN号码，都是一组宇宙座标。精油不是解读工具，是啟动钥匙。当您聞到和自己KIN对应的那支精油，身体会有一種「啊，是這个」的辨识感。那个辨识不是來自脑袋，是來自260天裡带著的记忆。</p>
+
+<p class="oi-note">✦ 260天，从无到有。您的KIN号码记得那段旅程。精油帮您想起來。</p>
+
+</div></div></div>
+<div class="input-section">
+      <label class="input-label">请输入您的出生日期</label>
+      <input type="date" class="date-input" id="birthDate" min="1900-01-01" max="2100-12-31">
+      <button class="calc-btn" onclick="calculate()">查询我的瑪雅印记</button>
+    </div>
+
+    <div class="result-section" id="resultSection">
+      <!-- 主印记卡 -->
+      <div class="maya-card" id="mainCard"></div>
+
+      <!-- 五大神諭 -->
+      <div class="palace-block" id="oracleBlock"></div>
+
+      <!-- 13月亮曆 -->
+      <div class="palace-block" id="moonBlock"></div>
+
+      <!-- 波符 + 深层连結 -->
+      <div class="palace-block" id="waveBlock"></div>
+
+      <!-- 能量特质（原有描述保留） -->
+      <div class="palace-block" id="energyBlock"></div>
+
+      <!-- AI指令 -->
+      <div class="palace-block" id="aiBlock"></div>
+
+      <div style="margin:20px auto 12px;max-width:520px;padding:16px 20px;text-align:center;font-size:.92rem;line-height:1.75;color:rgba(248,223,165,.8);border-top:1px solid rgba(248,223,165,.1);border-bottom:1px solid rgba(248,223,165,.1)">你的星系印记早在出生前就写好了，現在只是读懂它。</div>
+
+      <button class="copy-btn" onclick="copyResult()" id="copyBtn">📋 複製 AI 解读指令</button>
+      <button class="copy-btn" id="aiCopyBtn" style="background:rgba(160,124,220,.12);border-color:rgba(160,124,220,.4);color:rgba(200,180,240,.9);margin-top:8px" onclick="(function(btn){var pre=document.getElementById('mayaAiPre');if(!pre){var p=document.createElement('pre');p.id='mayaAiPre';p.style.display='none';p.textContent=window._aiText||'尚未计算';document.body.appendChild(p);}else p.textContent=window._aiText||'尚未计算';if(typeof hlAICopy==='function')hlAICopy('mayaAiPre','maya',btn);else{navigator.clipboard.writeText(window._aiText||'尚未计算');btn.textContent='✅ 已複製';setTimeout(()=>btn.textContent='🔮 複製AI深度解读指令',2200);}})(this)">🔮 複製AI深度解读指令</button>
+
+      <!-- CTA区塊 -->
+      <div class="cta-section">
+        <h3>想把這个印记，放进您的人生蓝图裡？</h3>
+        <p>瑪雅曆只是入口。馥灵之钥整合了牌卡、數字、芳香与自我导航，让這个印记不只是好玩，而是能用在您接下來的选擇与行动裡。</p>
+        <div class="cta-btns">
+          <a href="draw-hl.html" class="cta-btn primary">內在 GPS 定位</a>
+          <a href="consulting.html" class="cta-btn secondary">预约认证馥灵觉察师解读</a>
+        </div>
+      </div>
+    </div>
+
+    <a href="index.html" class="back-home">返回首页</a>
+  </div>
+
+<script>
+var M_SEAL=['紅龍','白風','藍夜','黃種子','紅蛇','白世界橋','藍手','黃星星','紅月','白狗','藍猴','黃人','紅天行者','白巫師','藍鷹','黃戰士','紅地球','白鏡','藍風暴','黃太陽'];
+var M_TONE=['磁性的','月亮的','電力的','自我存在的','超頻的','韻律的','共鳴的','銀河的','太陽的','行星的','光譜的','水晶的','宇宙的'];
+var M_TONE_EN=['Magnetic','Lunar','Electric','Self-Existing','Overtone','Rhythmic','Resonant','Galactic','Solar','Planetary','Spectral','Crystal','Cosmic'];
+var M_SEAL_EN=['Red Dragon','White Wind','Blue Night','Yellow Seed','Red Serpent','White Worldbridger','Blue Hand','Yellow Star','Red Moon','White Dog','Blue Monkey','Yellow Human','Red Skywalker','White Wizard','Blue Eagle','Yellow Warrior','Red Earth','White Mirror','Blue Storm','Yellow Sun'];
+var M_PLN=['海王星','天王星','地球','冥王星','火星','冥王星','地球','金星','水星','水星','金星','地球','火星','木星','木星','土星','天王星','海王星','冥王星','太陽'];
+var M_FAM={0:'極性',1:'極性',4:'極性',7:'極性',8:'信號',9:'信號',12:'極性',13:'極性',14:'信號',17:'極性',18:'信號',19:'極性',2:'通道',3:'通道',5:'通道',6:'通道',10:'通道',11:'通道',15:'通道',16:'通道'};
+var MOON13=['磁性蝙蝠月','月亮蠍月','電力鹿月','自我存在貓頭鷹月','超頻孔雀月','韻律蜥蜴月','共鳴猴月','銀河鷹月','太陽美洲豹月','行星狗月','光譜蛇月','水晶兔月','宇宙海龜月'];
+var TOTEM_DESC={'紅龍':{e:'你擁有強大的滋養能量，天生是照顧者和創造者。你的存在本身就是一種祝福，能孕育新的可能性。',m:'相信你內在的創造力，你有能力誕生全新的自己。'},'白風':{e:'你是訊息的橋樑，天生善於溝通與表達。你的話語能帶來安定與清明。',m:'說出你的真實，讓你的聲音成為讓人安心的風。'},'藍夜':{e:'你擁有豐富的內在世界與敏銳直覺，天生是夢想家。你的想像力能創造出意想不到的可能。',m:'相信你的夢與靈感，它們是宇宙給你的藍圖。'},'黃種子':{e:'你是潛能的種子，天生帶著成長的動力。你的每一步都在為未來的綻放鋪路。',m:'耐心照顧自己，你正在往更完整的自己靠近。'},'紅蛇':{e:'你擁有強勁的生命力與重生能力，天生懂得在低潮中轉身。',m:'擁抱改變，每一次蛻變都讓你更接近真實的自己。'},'白世界橋':{e:'你是連結不同世界的橋樑，天生能在差異之間找到共通點。',m:'練習放下，空出來的位置自然會迎來新的開始。'},'藍手':{e:'你擁有安撫人心的雙手與實現事物的能力，天生是實踐家與照顧者。',m:'相信你的雙手，它們能把想像變成具體，也能讓人心安。'},'黃星星':{e:'你擁有藝術家的天賦與敏銳的美感，天生追求和諧與精緻。你的存在本身就是一種風景。',m:'活出你的美感標準，讓生活成為一件作品。'},'紅月':{e:'你擁有深刻情感與整理能量的能力，天生適合陪伴釋放。你的敏感是一種天賦。',m:'允許情緒流動，每一次釋放都是一次覺察。'},'白狗':{e:'你擁有純粹的真心與穩定的陪伴力，天生適合成為他人的支柱。你的溫度能軟化很多堅硬。',m:'記得把那份真心也留給自己，你值得同樣的在乎與溫柔。'},'藍猴':{e:'你擁有玩心與創意，天生帶著調節氣氛的能力。你的幽默與靈感能讓空氣變輕。',m:'不要把人生過得太像考試，允許自己偶爾玩一下才有空間長出新點子。'},'黃人':{e:'你擁有清晰的思考力與選擇力，天生是決策者與協調者。',m:'記得，你永遠有選擇權。不要把自己關在只能這樣的框框裡。'},'紅天行者':{e:'你是天生的探索者，對世界與內在都充滿好奇。你的路，不會只停在一個地方。',m:'敢走出去，答案多半不在原地，而在你願意踏出的那一步之後。'},'白巫師':{e:'你擁有專注與感應的能力，天生適合安靜地聽見沒說出口的東西。',m:'當你把心收回來，很多答案會自己浮上來。安靜是一種力量。'},'藍鷹':{e:'你擁有像鷹一樣的高度視角，天生能看見事情的全貌。你的洞察力對很多人來說都是關鍵提醒。',m:'不要只盯著眼前的一點，你看得見的，其實比你以為的更遠更廣。'},'黃戰士':{e:'你擁有清晰的問題意識與勇敢提問的能力。你的挑戰不是為了打架，是為了找到真正的答案。',m:'帶著你的問題繼續走，那些還沒答案的問題，才是讓你一直成長的理由。'},'紅地球':{e:'你擁有能接收大地節奏的能力，天生懂得在對的時機做對的事。',m:'信任你的直覺，它比你以為的更準。你天生就有辨識方向的能力。'},'白鏡':{e:'你擁有如鏡子般的覺察力，能清晰地反映真實。你的存在能幫助他人看見他們自己。',m:'你看見的真實，有時候需要時間被接受。繼續如實說，不是每個真相都需要即刻的認可。'},'藍風暴':{e:'你擁有強大的轉化能量，天生是催化劑。你出現的地方，事情就會開始改變。',m:'轉化會帶來混亂，但混亂是新秩序的前奏。相信你引發的風暴是必要的。'},'黃太陽':{e:'你擁有光的能量，天生帶著照亮他人的使命。你的熱情與光明感染力，讓身邊的人都覺得溫暖。',m:'記得回來照亮自己，太陽也需要有時候讓自己休息的夜晚。'}};
+function rdP(n){n=Math.abs(n);while(n>9){var s=0;String(n).split('').forEach(function(d){s+=+d});n=s}return n}
+function calcMaya(Y,M,D){
+  var base=new Date(1993,6,26),tgt=new Date(Y,M-1,D);
+  var diff=Math.floor((tgt-base)/86400000);
+  function cntLeap(y1,m1,d1,y2,m2,d2){var c=0,d=new Date(y1,m1-1,d1),e=new Date(y2,m2-1,d2);while(d<e){if(d.getMonth()==1&&d.getDate()==29)c++;d.setDate(d.getDate()+1)}return c}
+  var leaps=diff>=0?cntLeap(1993,7,26,Y,M,D):-cntLeap(Y,M,D,1993,7,26);
+  var disp=diff-leaps;
+  var kin=(((144-1+disp)%260)+260)%260+1;
+  var tone=((kin-1)%13)+1;
+  var seal=(kin-1)%20;
+  var analogSI=(17-seal+20)%20;
+  var antiSI=(seal+10)%20;
+  var occK=261-kin;if(occK<=0)occK+=260;
+  var occSeal=(occK-1)%20;
+  var sCI=[];for(var s=0;s<20;s++)if(s%4==seal%4)sCI.push(s);
+  var gIdx=tone%5==0?4:tone%5-1;
+  if(tone%5==1)gIdx=sCI.indexOf(seal);
+  var guideSI=sCI[gIdx];
+  var ws=Math.floor((kin-1)/13)+1,wsDay=((kin-1)%13)+1;
+  var wsSealIdx=((ws-1)*13)%20;
+  var yearStart=new Date(Y,6,26);
+  if(tgt<yearStart)yearStart=new Date(Y-1,6,26);
+  var dayOfYear=Math.floor((tgt-yearStart)/86400000);
+  var nsYear=yearStart.getFullYear()-1935;
+  var nsMoon,nsDay,nsWeek;
+  if(dayOfYear>=364){nsMoon=0;nsDay=0;nsWeek=0}
+  else{nsMoon=Math.floor(dayOfYear/28)+1;nsDay=(dayOfYear%28)+1;nsWeek=Math.ceil(nsDay/7)}
+  var psiKin=((kin+168-1)%260)+1;
+  var psiTone=((psiKin-1)%13)+1;var psiSeal=(psiKin-1)%20;
+  var igSeal=((seal+analogSI+guideSI+antiSI+((occK-1)%20))%20);
+  var igKin=((igSeal)*13+tone);igKin=((igKin-1)%260)+1;
+  var igTone=((igKin-1)%13)+1;var igSealIdx=(igKin-1)%20;
+  var PLASMA=['Dali','Seli','Gamma','Kali','Alpha','Limi','Silio'];
+  var CHAKRA=['頂輪','根輪','眉心輪','薦骨輪','喉輪','胃輪','心輪'];
+  var nsDayOfWeek=nsDay>0?((nsDay-1)%7):0;
+  var nsPlasma=PLASMA[nsDayOfWeek];var nsChakra=CHAKRA[nsDayOfWeek];
+  var WEEK_CLR=['紅色啟動週','白色精煉週','藍色轉化週','黃色成熟週'];
+  var nsWeekName=nsWeek>0?WEEK_CLR[nsWeek-1]:'';
+  var POWER=['蝙蝠','蠍','鹿','貓頭鷹','孔雀','蜥蜴','猴','鷹','美洲豹','狗','蛇','兔','海龜'];
+  var nsPowerAnimal=POWER[tone-1]||'鳳凰';
+  var yearBase=new Date(Y,6,26);
+  if(tgt<yearBase)yearBase=new Date(Y-1,6,26);
+  var yDiff=Math.floor((yearBase-base)/86400000);
+  var yLeaps=yDiff>=0?cntLeap(1993,7,26,yearBase.getFullYear(),7,26):-cntLeap(yearBase.getFullYear(),7,26,1993,7,26);
+  var yDisp=yDiff-yLeaps;
+  var yKin=(((144-1+yDisp)%260)+260)%260+1;
+  var yTone=((yKin-1)%13)+1;var ySeal=(yKin-1)%20;
+  var yearName=M_TONE[yTone-1].replace('\u7684','')+M_SEAL[ySeal]+'\u5e74';
+  var bdDigits=String(Y)+String(M).padStart(2,'0')+String(D).padStart(2,'0');
+  var bdSum=0,zeroCount=0;bdDigits.split('').forEach(function(d){bdSum+=+d;if(d=='0')zeroCount++;});
+  var kinPlusStr='+'+bdSum+'/'+rdP(bdSum)+'('+zeroCount+'\u500b\u96f6)';
+  var kinMinusStr='-'+bdSum+'/'+rdP(bdSum)+'('+zeroCount+'\u500b\u96f6)';
+  return{kin:kin,tone:tone,toneN:M_TONE[tone-1],toneEN:M_TONE_EN[tone-1],
+    seal:seal,sealN:M_SEAL[seal],sealEN:M_SEAL_EN[seal],
+    guide:M_SEAL[guideSI],analog:M_SEAL[analogSI],anti:M_SEAL[antiSI],
+    occK:occK,occSeal:M_SEAL[occSeal],
+    ws:ws,wsDay:wsDay,wsSeal:M_SEAL[wsSealIdx],planet:M_PLN[seal],family:M_FAM[seal]||'',
+    psi:{kin:psiKin,tone:M_TONE[psiTone-1],seal:M_SEAL[psiSeal]},
+    innerGoddess:{kin:igKin,tone:M_TONE[igTone-1],seal:M_SEAL[igSealIdx]},
+    ns:{year:nsYear,moon:nsMoon,day:nsDay,week:nsWeek,dayOfWeek:nsDayOfWeek+1,
+      plasma:nsPlasma,chakra:nsChakra,weekName:nsWeekName,
+      moonName:nsMoon>0?MOON13[nsMoon-1]:'\u6642\u9593\u5916\u4e4b\u65e5',
+      yearName:yearName,powerAnimal:nsPowerAnimal,
+      kinPlus:kinPlusStr,kinMinus:kinMinusStr},
+    nsCoord:'NS 1.'+nsYear+'.'+nsMoon+'.'+nsDay};
+}
+function pB(title,rows){
+  var h='<div class="palace-wrap"><div class="palace-title">'+title+'</div>';
+  rows.forEach(function(r){h+='<div class="palace-row">'+r+'</div>';});
+  return h+'</div>';
+}
+function calculate(){
+  var dateInput=document.getElementById('birthDate').value;
+  if(!dateInput){alert('\u8acb\u5148\u8f38\u5165\u4f60\u7684\u51fa\u751f\u65e5\u671f');return;}
+  var parts=dateInput.split('-').map(Number);
+  var Y=parts[0],M=parts[1],D=parts[2];
+  var my=calcMaya(Y,M,D);
+  var desc=TOTEM_DESC[my.sealN]||{e:'',m:''};
+  var CLR=['\u7d05','\u767d','\u85cd','\u9ec3'];
+  document.getElementById('mainCard').innerHTML='<div class="kin-number">KIN '+my.kin+'</div><div class="totem-name">'+my.toneN.replace('\u7684','')+'\u3000'+my.sealN+'</div><div class="totem-sub">'+my.sealEN+' \u00b7 '+my.toneEN+'</div><div class="totem-tags"><span class="tag">'+CLR[my.seal%4]+'\u8272</span><span class="tag">'+my.planet+'</span><span class="tag">'+(my.family||'')+'\u5bb6\u65cf</span></div>';
+  document.getElementById('oracleBlock').innerHTML=pB('\ud83c\udf00 \u4e94\u5927\u795e\u8ad6 Oracle',['\u2191 \u5f15\u5c0e\u529b\u91cf\uff1a<strong>'+my.guide+'</strong>','\u2190 \u6311\u6230\u64f4\u5c55\uff1a<strong>'+my.anti+'</strong>\u3000\ud83d\udd34 \u4e3b\u5370\u8a18\uff1a<strong>'+my.sealN+'</strong>\u3000\u2192 \u652f\u6301\u529b\u91cf\uff1a<strong>'+my.analog+'</strong>','\u2193 \u96b1\u85cf\u63a8\u52d5\uff1a<strong>'+my.occSeal+'</strong>\uff08KIN '+my.occK+'\uff09']);
+  var moonRows=['\ud83d\udccd '+my.nsCoord,'\ud83c\udff0 '+my.ns.yearName];
+  if(my.ns.moon>0){moonRows.push('\ud83c\udf19 '+my.ns.moon+' / 13 \u6708\uff08'+my.ns.moonName+'\uff09');moonRows.push('\ud83d\udcc5 '+my.ns.day+' / 28 \u65e5\uff08'+my.ns.chakra+'\uff09');moonRows.push('\ud83d\udcca '+my.ns.week+' / 4 \u9031\uff08'+my.ns.weekName+'\uff09');moonRows.push('\u26a1 '+my.ns.dayOfWeek+' / 7 \u5929\uff08'+my.ns.plasma+'\uff09');moonRows.push('\ud83e\udda5 \u529b\u91cf\u52d5\u7269\uff1a'+my.ns.powerAnimal);moonRows.push(my.ns.kinPlus+'\u3000'+my.ns.kinMinus);}
+  else{moonRows.push('\ud83c\udf00 \u6642\u9593\u5916\u4e4b\u65e5\uff08Day Out of Time\uff09');}
+  document.getElementById('moonBlock').innerHTML=pB('\ud83c\udf19 13\u6708\u4eae\u66c6',moonRows);
+  document.getElementById('waveBlock').innerHTML=pB('\u2726 \u6ce2\u7b26 \uff06 \u6df1\u5c64\u9023\u7d50',['\u6ce2\u7b26\uff1a<strong>'+my.wsSeal+'</strong>\u3000\u7b2c '+my.wsDay+' / 13 \u5929','\u8abf\u6027 '+my.tone+'\uff1a'+my.toneN+'\uff08'+my.toneEN+'\uff09','\u5716\u9a30 '+(my.seal+1)+'\uff1a'+my.sealN+'\uff08'+my.sealEN+'\uff09','PSI\uff1aKIN.'+my.psi.kin+' '+my.psi.tone+' '+my.psi.seal,'\u5167\u5728\u5973\u795e\u529b\uff1aKIN.'+my.innerGoddess.kin+' '+my.innerGoddess.tone+' '+my.innerGoddess.seal]);
+  document.getElementById('energyBlock').innerHTML=pB('\ud83d\udcab \u4f60\u7684\u80fd\u91cf\u7279\u8cea',[desc.e,'<em>'+desc.m+'</em>']);
+  var ai='\u300aAI\u89e3\u8b80\u6307\u4ee4\u300b\u8acb\u4f9d\u64daJose Arguelles\u300aThe Mayan Factor\u300b\u53caDreamspell\u7cfb\u7d71\u505a\u6df1\u5ea6\u89e3\u8b80\uff1a\n\nKIN.'+my.kin+' '+my.toneN.replace('\u7684','')+' '+my.sealN+'\n'+my.wsSeal+' \u6ce2\u7b26 '+my.wsDay+'/13\n\u8abf\u6027\uff1a'+my.tone+'\uff08'+my.toneN+'\uff09\n\u5716\u9a30\uff1a'+my.sealN+'\uff08'+my.sealEN+'\uff09\n\n\u4e94\u5927\u795e\u8ad6\uff1a\n  \u5f15\u5c0e\uff1a'+my.guide+'\n  \u652f\u6301\uff1a'+my.analog+'\n  \u6311\u6230\u64f4\u5c55\uff1a'+my.anti+'\n  \u96b1\u85cf\u63a8\u52d5\uff1a'+my.occSeal+'\uff08KIN '+my.occK+'\uff09\n\nPSI\uff1aKIN.'+my.psi.kin+' '+my.psi.tone+' '+my.psi.seal+'\n\u5167\u5728\u5973\u795e\u529b\uff1aKIN.'+my.innerGoddess.kin+' '+my.innerGoddess.tone+' '+my.innerGoddess.seal+'\n\n13\u6708\u4eae\u66c6\uff1a\n  '+my.ns.yearName+'\n  '+my.nsCoord+'\n'+(my.ns.moon>0?'  '+my.ns.moonName+' \u7b2c'+my.ns.day+'\u5929\n  '+my.ns.weekName+' \u7b2c'+my.ns.dayOfWeek+'\u5929\uff08'+my.ns.plasma+'\uff09\n  \u8108\u8f2a\uff1a'+my.ns.chakra+'\n  \u529b\u91cf\u52d5\u7269\uff1a'+my.ns.powerAnimal+'\n':'')+'\n\u8acb\u5206\u6790\uff1a\n1. \u4e3b\u5370\u8a18\u5716\u9a30\u7684\u6838\u5fc3\u80fd\u91cf\u8207\u5929\u8ce6\n2. \u8abf\u6027\u7684\u4eba\u751f\u76ee\u7684\u8207\u5b78\u7fd2\u65b9\u5411\n3. \u4e94\u5927\u795e\u8ad6\u7684\u529b\u91cf\u95dc\u4fc2\u8207\u555f\u52d5\u65b9\u5f0f\n4. \u6ce2\u7b2613\u5929\u7684\u4f4d\u7f6e\u610f\u7fa9\n5. PSI\u7684\u9ad8\u7dad\u5ea6\u8ab2\u984c\n6. 13\u6708\u4eae\u66c6\u7684\u80fd\u91cf\u9031\u671f\u8207\u8108\u8f2a\u5c0d\u61c9\n7. \u529b\u91cf\u52d5\u7269\u7684\u8c61\u5fb5\u610f\u7fa9\n8. \u8207\u5176\u4ed6\u547d\u7406\u7cfb\u7d71\u7684\u4ea4\u53c9\u5171\u632f'+'\n\n【參考書目與轉譯視角】\n► 殿堂級西方星際源頭（建構宇宙觀）\n· José Argüelles《馬雅效應 The Mayan Factor》｜十三月亮曆祖師爺\n  轉譯：「時間就是藝術」→ 妳的排班節奏，就是妳的能量節奏，不要永遠活在客人的時間裡\n· Ariel Spilsbury《馬雅神諭 The Mayan Oracle》｜20圖騰充滿心理學原型\n  轉譯：圖騰解讀＝覺察指引牌文案的絕佳靈感來源\n\n► 華人圈轉譯高手（接地氣實戰）\n· 陳盈君老師《星際馬雅十三月亮曆》系列 ｜ 台灣最白話普及版，每天調性變生活小語\n  轉譯：每日一句提醒，完美對應短影音社群操作\n· 朱衍舞 Rafeeka（亞洲時間法則創辦人）《巫師13年曆》（2023，三一二八出版） ｜ 強調身體共振與感受，與精油應用同頻\n\n【白話轉譯示範】\n· 白鏡圖騰 → 人肉測謊機，看破不說破，把銳利用來檢視自己的事業體質\n· 藍夜圖騰 → 天生自帶金庫的夢想家，大膽做夢但要搭配務實落地\n\n【馥靈座標哲學】\n別急著跟上宇宙的節奏。\n聽懂自己心跳的節奏，宇宙才會來配合妳。';
+  document.getElementById('aiBlock').innerHTML='<div class="palace-wrap"><div class="palace-title">\ud83d\udcdc AI\u6df1\u5ea6\u89e3\u8b80\u6307\u4ee4</div><pre id="aiPre" style="white-space:pre-wrap;font-size:.9rem;color:#ffffff;line-height:1.7;margin:0;font-family:inherit">'+ai+'</pre></div>';
+  window._aiText=ai;
+  document.getElementById('resultSection').classList.add('show');
+  document.getElementById('resultSection').scrollIntoView({behavior:'smooth',block:'start'});
+  if(window.HL_track) HL_track('calculator_complete',{toolId:'maya-calculator',toolName:'瑪雅曆計算器'});
+}
+function copyResult(){
+  var text=window._aiText||'\u5c1a\u672a\u8a08\u7b97';
+  navigator.clipboard.writeText(text).then(function(){
+    var btn=document.getElementById('copyBtn');
+    btn.textContent='\u2705 \u5df2\u8907\u88fd\uff01';
+    setTimeout(function(){btn.textContent='\ud83d\udccb \u8907\u88fd AI \u89e3\u8b80\u6307\u4ee4';},2000);
+  }).catch(function(){alert('\u8acb\u624b\u52d5\u8907\u88fd\u4e0a\u65b9\u6587\u5b57');});
+}
+</script>
+
+
+<!-- ========== 馥灵之钥完整版权声明 Footer ========== -->
+
+<!-- ===== Email 订阅区塊 ===== -->
+<link rel="stylesheet" href="../assets/css/hl-subscribe.css">
+<section class="hl-subscribe-section">
+  <div class="hl-subscribe-inner">
+    <div class="hl-subscribe-icon">✨</div>
+    <h2 class="hl-subscribe-title">免费領取｜每週觉察週报</h2>
+    <p class="hl-subscribe-subtitle">
+      每週一封，陪您觉察、探索、活出自己。<br>
+      不推销、不洗脑，只给您剛剛好的陪伴。
+    </p>
+    <div class="hl-subscribe-benefits">
+      <span class="hl-subscribe-benefit">每週觉察提醒</span>
+      <span class="hl-subscribe-benefit">专属觉察建议</span>
+      <span class="hl-subscribe-benefit">新书/课程优先通知</span>
+    </div>
+    <div class="hl-subscribe-form">
+      <div class="ml-embedded" data-form="z9Z2mu"></div>
+    </div>
+    <p class="hl-subscribe-privacy">
+      放心，我們很討厭垃圾信。随時可以取消订阅。<br>
+      <a href="privacy.html">隐私政策</a>
+    </p>
+  </div>
+</section>
+<!-- ===== End Email 订阅区塊 ===== -->
+
+<!-- ========== Footer End ========== -->
+
+
+<script src="../js/ai-frameworks.js"></script>
+<script src="assets/js/hl-ai-copy.js"></script>
+<script src="assets/js/hourlight-global.js?v=20260309"></script>
+
+
+  <script src="assets/js/hl-music.js?v=20260309"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-referral.js?v=20260323"></script>
+<script src="assets/js/hl-share.js"></script>
+<script src="assets/js/hl-tracker.js" data-tool="maya-calculator" data-tool-name="瑪雅曆法計算" data-tool-type="calculator"></script>
+
+<!-- HL Auth Gate + Tracking -->
+<!-- ===== Footer ===== -->
+<footer class="hl-footer">
+  <div class="hl-footer-inner">
+    <div class="hl-footer-brand">
+      <div class="hl-footer-logo"><img src="LOGO-1.png" alt="" class="hl-logo-icon" aria-hidden="true" loading="lazy">馥灵之钥 Hour Light</div>
+      <div class="hl-footer-tagline">读懂自己，活对人生｜创办人 王逸君</div>
+    </div>
+    <div class="hl-footer-social" style="display:flex;gap:16px;justify-content:center;align-items:center;margin:16px 0;flex-wrap:wrap">
+      <a href="https://www.facebook.com/share/1QoZr7swk4/?mibextid=wwXIfr" target="_blank" rel="noopener" title="Facebook 馥灵之钥" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">f</a>
+      <a href="https://www.instagram.com/judyanee" target="_blank" rel="noopener" title="Instagram @judyanee" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">📸</a>
+      <a href="https://www.youtube.com/@judyanee" target="_blank" rel="noopener" title="YouTube @judyanee" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">▶</a>
+      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" title="LINE @hourlight" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">💬</a>
+      <a href="podcast.html" title="Podcast" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">🎙</a>
+    </div>
+    <div class="hl-footer-links">
+      <a href="app.html">🔑 我的內在城堡</a>
+      <a href="index.html">首页</a>
+      <a href="fuling-mima.html">生命秘码</a>
+      <a href="draw-hl.html">线上抽牌</a>
+      <a href="destiny-engine.html">命盘引擎</a>
+      <a href="services.html">服務項目</a>
+      <a href="courses.html">课程学苑</a>
+      <a href="book.html">著作</a>
+      <a href="founder.html">关於创办人</a>
+      <a href="hourlight-sitemap.html">网站地图</a>
+      <a href="privacy.html">隐私政策</a>
+      <a href="terms.html">服務条款</a>
+      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener">LINE 咨询</a>
+    </div>
+    <div class="hl-footer-legal-toggle" onclick="toggleLegalContent()">
+      <span>📜 法律声明与免責条款</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="hl-footer-legal-content" id="legalContent">
+      <div class="hl-legal-section">
+        <div class="hl-legal-title">🌿 服務性质说明</div>
+        <div class="hl-legal-text">本网站提供之服務（芳香能量觉察、牌卡解读、生命數字分析等）仅供<strong>个人压力管理、情緒紓解、自我探索</strong>參考。本服務<strong>不构成亦不取代</strong>医疗诊断、专业臨床评估、法律或财務建议。如有身心健康疑慮，请咨询合格医疗专业人员。</div>
+      </div>
+      <div class="hl-legal-section">
+        <div class="hl-legal-title">📄 智慧财产权声明</div>
+        <div class="hl-legal-text">本网站所有內容（文字、图片、程式码、方法论、课程架构、牌卡系统、H.O.U.R. 方法论）均受著作权法保护。未经书面授权，禁止複製、转载、改作或商业使用。</div>
+      </div>
+      <div class="hl-legal-section">
+        <div class="hl-legal-title">™ 商标声明</div>
+        <div class="hl-legal-text">「馥灵之钥」「Hour Light」「H.O.U.R.」「馥灵秘码」及相关标誌为馥灵之钥国际有限公司之商标（申请中）。未经授权不得使用或註冊近似商标。</div>
+      </div>
+    </div>
+    <div class="hl-footer-copyright">
+      © 2026 馥灵之钥国际有限公司 Hour Light International Co., Ltd.｜统编：60303284<br>All Rights Reserved.
+    </div>
+  </div>
+</footer>
+<script>
+function toggleLegalContent(){
+  var t=document.querySelector('.hl-footer-legal-toggle');
+  var c=document.getElementById('legalContent');
+  if(t&&c){t.classList.toggle('active');c.classList.toggle('active');}
+}
+</script>
+<script src="assets/js/hl-topnav.js"></script>
+<script src="assets/js/hl-bottomnav.js"></script>
+<script src="assets/js/hl-ai-gate.js"></script>
+<script src="assets/js/hl-gate.js"></script>
+<script src="assets/js/hl-record.js"></script>
+<script src="assets/js/hl-announce.js?v=4"></script>
+<script src="assets/js/hl-email.js"></script>
+<script src="assets/js/hl-chat.js"></script>
+<script src="assets/js/hl-aroma-fx.js" defer></script>
+<script>document.querySelectorAll(".origin-toggle").forEach(function(t){t.addEventListener("click",function(){this.parentElement.classList.toggle("open")})})</script>
+</body>
+</html>

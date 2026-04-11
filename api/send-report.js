@@ -150,6 +150,7 @@ function buildReportHTML(name, system, content) {
     + '<a href="https://chatgpt.com" style="display:inline-block;padding:8px 20px;background:transparent;color:#c9985e;border:1px solid #e8d5a8;border-radius:8px;text-decoration:none;font-size:13px;margin:4px">ChatGPT</a>'
     + '<a href="https://chat.deepseek.com" style="display:inline-block;padding:8px 20px;background:transparent;color:#c9985e;border:1px solid #e8d5a8;border-radius:8px;text-decoration:none;font-size:13px;margin:4px">DeepSeek</a>'
     + '<a href="https://grok.com" style="display:inline-block;padding:8px 20px;background:transparent;color:#c9985e;border:1px solid #e8d5a8;border-radius:8px;text-decoration:none;font-size:13px;margin:4px">Grok</a>'
+    + '<a href="https://www.perplexity.ai" style="display:inline-block;padding:8px 20px;background:transparent;color:#c9985e;border:1px solid #e8d5a8;border-radius:8px;text-decoration:none;font-size:13px;margin:4px">Perplexity</a>'
     + '<a href="https://manus.im/invitation/ADFDJWHFVORWIO?utm_source=invitation&utm_medium=social&utm_campaign=copy_link" style="display:inline-block;padding:8px 20px;background:transparent;color:#c9985e;border:1px solid #e8d5a8;border-radius:8px;text-decoration:none;font-size:13px;margin:4px">Manus AI</a>'
     + '</div>'
     + '<div style="background:#faf6ee;border:1px solid #e8d5a8;border-radius:8px;padding:20px;margin:16px 0">'

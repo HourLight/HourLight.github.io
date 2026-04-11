@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-BXP7K53QG6');
+</script>
+<!-- Facebook Pixel -->
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1333106288588347');
+  fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" alt=""
+  src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"></noscript>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>馥灵之钥｜實体牌卡记录</title>
+  <meta name="description" content="馥灵之钥實体牌卡记录工具｜手动输入抽出的牌卡编号，自动产生完整抽牌結果，可複製貼上给觉察师进行深度解读。" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/hourlight-global.css">
+<link rel="stylesheet" href="../assets/css/hl-design-tokens.css">
+  <link rel="stylesheet" href="../assets/css/hl-cosmos.css">
+  <style>
+  :root {
+    --dm-bg: #05030a;
+    --dm-card: rgba(10,6,24,0.92);
+    --dm-border: rgba(233,194,125,0.35);
+    --dm-gold: #f8dfa5;
+    --dm-gold-deep: #ecd098;
+    --dm-ink: #ffffff;
+    --dm-ink-soft: #ffffff;
+    --dm-ink-muted: rgba(255,255,255,.7);
+    --dm-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    min-height: 100vh;min-height:100dvh;
+    font-family: "Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+    color: var(--dm-ink);
+    line-height: 1.8;
+    padding: 24px 16px 72px;
+    background:
+      radial-gradient(circle at 10% 0%, rgba(233,194,125,0.12) 0, transparent 55%),
+      radial-gradient(circle at 80% 100%, rgba(132,112,255,0.15) 0, transparent 55%),
+      var(--dm-bg);
+  }
+
+  .dm-wrap { max-width: 720px; margin: 0 auto; }
+
+  .dm-glass {
+    border-radius: 20px;
+    padding: 28px 24px;
+    margin-bottom: 20px;
+    -webkit-backdrop-filter:blur(18px) saturate(150%);backdrop-filter: blur(18px) saturate(150%);
+    background: radial-gradient(circle at top left, rgba(233,194,125,0.12), transparent 55%), var(--dm-card);
+    border: 1px solid var(--dm-border);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(233,194,125,0.1);
+  }
+
+  /* 标题区 */
+  .dm-hero { text-align: center; padding: 20px 0 10px; }
+  .dm-hero-title {
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    background: linear-gradient(135deg, #fbe6c2, #f8dfa5 40%, #ecd098 80%, #fff9ea);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .dm-hero-sub {
+    margin-top: 8px;
+    font-size: 0.92rem;
+    color: var(--dm-ink-soft);
+    letter-spacing: 0.04em;
+  }
+  .dm-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--dm-ink-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+    transition: color 0.2s;
+  }
+  .dm-back:hover { color: var(--dm-gold); }
+
+  /* 步驟标籤 */
+  .dm-step-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--dm-gold);
+    letter-spacing: 0.03em;
+  }
+  .dm-step-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--dm-gold), var(--dm-gold-deep));
+    color: #1a0e05;
+    font-size: 0.85rem;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* 问题输入 */
+  .dm-question {
+    width: 100%;
+    min-height: 80px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--dm-border);
+    background: rgba(8,5,18,0.82);
+    color: var(--dm-ink);
+    font-size: 1rem;
+    font-family: inherit;
+    line-height: 1.7;
+    resize: vertical;
+    transition: border-color 0.3s;
+  }
+  .dm-question::placeholder { color: rgba(255,255,255,0.75); }
+  .dm-question:focus { outline: none; border-color: var(--dm-gold); }
+
+  /* 牌阵选擇 */
+  .dm-spread-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+  }
+  .dm-spread-btn {
+    padding: 12px 6px;
+    border-radius: 12px;
+    border: 1px solid var(--dm-border);
+    background: rgba(8,5,18,0.82);
+    color: var(--dm-ink-soft);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.25s var(--dm-ease);
+    line-height: 1.4;
+  }
+  .dm-spread-btn:hover { border-color: var(--dm-gold); color: var(--dm-gold); }
+  .dm-spread-btn.active {
+    background: linear-gradient(135deg, rgba(233,194,125,0.25), rgba(205,168,110,0.15));
+    border-color: var(--dm-gold);
+    color: var(--dm-gold);
+    box-shadow: 0 0 16px rgba(233,194,125,0.2);
+  }
+  .dm-spread-btn .num { display: block; font-size: 1.5rem; font-weight: 900; }
+
+  /* 牌卡输入列 */
+  .dm-card-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .dm-card-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(233,194,125,0.15);
+    background: rgba(8,5,18,0.82);
+    transition: all 0.3s;
+    animation: fadeSlideIn 0.35s var(--dm-ease) both;
+  }
+  .dm-card-row:focus-within {
+    border-color: var(--dm-gold);
+    background: rgba(233,194,125,0.06);
+  }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .dm-card-pos {
+    flex-shrink: 0;
+    min-width: 120px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--dm-gold);
+    line-height: 1.4;
+  }
+  @media (max-width: 480px) {
+    .dm-card-pos { min-width: 80px; font-size: 0.75rem; }
+    .dm-card-row { flex-wrap: wrap; gap: 8px; }
+  }
+
+  .dm-card-input-wrap { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; }
+
+  .dm-card-input {
+    width: 80px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(0,0,0,0.3);
+    color: var(--dm-ink);
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: "SF Mono","Fira Code",monospace;
+    text-align: center;
+    letter-spacing: 0.1em;
+    transition: border-color 0.3s;
+  }
+  .dm-card-input::placeholder { color: rgba(255,255,255,0.82); font-weight: 500; font-size: 0.8rem; }
+  .dm-card-input:focus { outline: none; border-color: var(--dm-gold); }
+  .dm-card-input.valid { border-color: #4caf50; }
+  .dm-card-input.invalid { border-color: #f44336; }
+
+  .dm-card-name {
+    font-size: 0.88rem;
+    color: var(--dm-ink-soft);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    transition: opacity 0.3s;
+  }
+
+  .dm-card-thumb {
+    width: 42px;
+    height: 42px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid rgba(233,194,125,0.2);
+    display: none;
+  }
+  .dm-card-thumb.show { display: block; }
+
+  /* 結果区 */
+  .dm-result-area { margin-top: 8px; }
+  .dm-result-box {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(233,194,125,0.2);
+    border-radius: 14px;
+    padding: 20px;
+    font-size: 0.9rem;
+    line-height: 1.9;
+    color: var(--dm-ink-soft);
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 400px;
+    overflow-y: auto;-webkit-overflow-scrolling:touch}
+
+  /* 按鈕 */
+  .dm-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .dm-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.25s var(--dm-ease);
+    text-decoration: none;
+  }
+  .dm-btn-gold {
+    background: linear-gradient(135deg, var(--dm-gold), var(--dm-gold-deep));
+    color: #1a0e05;
+  }
+  .dm-btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(233,194,125,0.3); }
+  .dm-btn-gold:disabled { opacity: 1; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .dm-btn-ghost {
+    background: transparent;
+    color: var(--dm-ink-soft);
+    border: 1px solid var(--dm-border);
+  }
+  .dm-btn-ghost:hover { border-color: var(--dm-gold); color: var(--dm-gold); }
+
+  .dm-btn-line {
+    background: #06c755;
+    color: #fff;
+  }
+  .dm-btn-line:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(6,199,85,0.3); }
+
+  /* Toast */
+  .dm-toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(233,194,125,0.95);
+    color: #1a0e05;
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s var(--dm-ease);
+    z-index: 9999;
+  }
+  .dm-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* 提示 */
+  .dm-hint {
+    font-size: 0.82rem;
+    color: var(--dm-ink-muted);
+    line-height: 1.7;
+    margin-top: 8px;
+  }
+
+  .dm-divider {
+    border: none;
+    border-top: 1px solid rgba(233,194,125,0.12);
+    margin: 20px 0;
+  }
+
+  /* 完成统计 */
+  .dm-fill-status {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--dm-ink-muted);
+    margin-top: 12px;
+  }
+  .dm-fill-status .done { color: #4caf50; font-weight: 700; }
+  .dm-fill-status .total { color: var(--dm-gold); font-weight: 700; }
+
+  /* 提问范例小膠囊 */
+  .dm-tip {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(233,194,125,0.2);
+    background: rgba(233,194,125,0.06);
+    color: var(--dm-ink-soft);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .dm-tip:hover, .dm-tip:active {
+    border-color: var(--dm-gold);
+    color: var(--dm-gold);
+    background: rgba(233,194,125,0.12);
+  }
+
+  /* 牌阵场景小字 */
+  .dm-spread-scene {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--dm-ink-muted);
+    margin-top: 4px;
+    line-height: 1.3;
+  }
+
+/* ── 馥灵之钥 LOGO 图标 ── */
+.hl-logo-icon {
+  height: 1.15em;
+  width: 1.15em;
+  border-radius: 50%;
+  object-fit: cover;
+  vertical-align: middle;
+  margin-right: 4px;
+  display: inline-block;
+  position: relative;
+  top: -0.08em;
+}
+.hl-logo-hero {
+  display: block;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 14px auto;
+  filter: drop-shadow(0 0 18px rgba(233,194,125,0.55));
+}
+
+/* ── HOUR-LIGHT 城堡底图层 ── */
+.hl-bg-castle {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: url('HOUR-LIGHT.png?v=20260308') center 30% / cover no-repeat;
+  opacity: 1;
+  filter: saturate(1.1) brightness(.72);
+  pointer-events: none;
+}
+
+/* ── Mobile App Touch Feel ── */
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+button,a,select,input[type=submit],input[type=button],.calc-btn,.draw-card{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+button:active,input[type=submit]:active,.calc-btn:active{transform:scale(.97);transition:transform .08s}
+select,input[type=text],input[type=number],input[type=date],input[type=email],textarea{font-size:16px!important}
+@media(max-width:600px){
+  body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  button,input[type=submit],input[type=button],.calc-btn{min-height:48px}
+}
+</style>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0612">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="馥灵之钥">
+<link rel="stylesheet" href="../assets/css/hl-music.css">
+<link rel="canonical" href="https://hourlightkey.com/sc/draw-manual.html">
+<meta property="og:image" content="https://hourlightkey.com/og-image.jpg"/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://hourlightkey.com/sc/draw-manual.html"/>
+<meta property="og:title" content="馥灵之钥｜實体牌卡记录"/>
+<meta property="og:description" content="馥灵之钥實体牌卡记录工具｜手动输入抽出的牌卡编号，自动产生完整抽牌結果，可複製貼上给觉察师进行深度解读。"/>
+<meta property="og:image" content="https://hourlightkey.com/og-image.jpg"/>
+<meta name="twitter:card" content="summary_large_image"/>
+</head>
+
+<body>
+<img src="images/page-banners-web/draw-manual.webp" alt="" style="width:100%;max-width:600px;max-height:180px;object-fit:cover;margin:0 auto 20px;display:block;border-radius:12px" loading="lazy" onerror="this.style.display='none'">
+
+
+<!-- 星空背景 -->
+<div class="hl-bg-castle"></div>
+<div class="hl-cosmos">
+  <div class="hl-stars-layer hl-stars-1"></div>
+  <div class="hl-stars-layer hl-stars-2"></div>
+  <div class="hl-stars-layer hl-stars-3"></div>
+  <div class="hl-meteors"><div class="hl-meteor"></div><div class="hl-meteor"></div><div class="hl-meteor"></div></div>
+  <div class="hl-aura hl-aura-1"></div>
+  <div class="hl-aura hl-aura-2"></div>
+</div>
+
+<div class="dm-toast" id="toast"></div>
+
+<div class="dm-wrap">
+
+  <!-- 标题 -->
+  <div class="dm-glass dm-hero">
+    <a href="draw-hl.html" class="dm-back">← 回到线上抽牌</a>
+    <h1 class="dm-hero-title">實体牌卡记录</h1>
+    <p class="dm-hero-sub">手动输入抽出的牌卡编号<br>自动产生完整抽牌結果</p>
+  </div>
+
+  <!-- Step 1：写下问题 -->
+  <div class="dm-glass" id="step1">
+    <div class="dm-step-label"><span class="dm-step-num">1</span> 写下您的问题</div>
+    <textarea class="dm-question" id="questionInput" placeholder="例如：我現在最需要知道什麼？&#10;（选填，但写下來觉察师更好帮您解读）"></textarea>
+    <p class="dm-hint">💡 问题填写得越清楚越好，更能看到事情的全貌，也能得到更貼切的回覆</p>
+    <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;" id="questionTips">
+      <span class="dm-tip">我最近卡卡的，是哪裡出了问题？</span>
+      <span class="dm-tip">這段关係，我该繼續嗎？</span>
+      <span class="dm-tip">我的财務狀況，下一步怎麼走？</span>
+      <span class="dm-tip">我現在最需要知道什麼？</span>
+      <span class="dm-tip">工作要不要換？</span>
+    </div>
+  </div>
+
+  <!-- Step 2：选擇牌阵 -->
+  <div class="dm-glass" id="step2">
+    <div class="dm-step-label"><span class="dm-step-num">2</span> 选擇牌阵（牌阵）</div>
+    <div class="dm-spread-grid" id="spreadGrid">
+      <button class="dm-spread-btn" data-n="1"><span class="num">1</span>今日一语<span class="dm-spread-scene">试试看 / 快速决策</span></button>
+      <button class="dm-spread-btn" data-n="3"><span class="num">3</span>三层觉察<span class="dm-spread-scene">感情 / 选擇题</span></button>
+      <button class="dm-spread-btn" data-n="5"><span class="num">5</span>五力巡房<span class="dm-spread-scene">整体狀态快照</span></button>
+      <button class="dm-spread-btn" data-n="7"><span class="num">7</span>七层探索<span class="dm-spread-scene">深入单一议题</span></button>
+      <button class="dm-spread-btn" data-n="9"><span class="num">9</span>洛书九宮<span class="dm-spread-scene">全面看清一件事</span></button>
+      <button class="dm-spread-btn" data-n="12"><span class="num">12</span>十二宮<span class="dm-spread-scene">年度规劃 / 全观</span></button>
+      <button class="dm-spread-btn" data-n="15"><span class="num">15</span>天賦根源<span class="dm-spread-scene">天賦探索 / 深层</span></button>
+      <button class="dm-spread-btn" data-n="21"><span class="num">21</span>完整矩阵<span class="dm-spread-scene">人生全盘校准</span></button>
+    </div>
+    <p class="dm-hint">选好牌阵後，下方会出現对应的牌位输入欄</p>
+  </div>
+
+  <!-- Step 3：输入牌卡 -->
+  <div class="dm-glass" id="step3" style="display:none;">
+    <div class="dm-step-label"><span class="dm-step-num">3</span> 填入抽出的牌卡编号</div>
+    <p class="dm-hint" style="margin-bottom:14px;">
+      觉察指引牌（原型卡）：A00 ~ A21<br>
+      单方精油牌：001 ~ 090<br>
+      基底油牌：091 ~ 095<br>
+      複方精油牌：096 ~ 108
+    </p>
+    <div class="dm-card-list" id="cardList"></div>
+    <div class="dm-fill-status" id="fillStatus"></div>
+  </div>
+
+  <!-- Step 4：結果预览 + 複製 -->
+  <div class="dm-glass" id="step4" style="display:none;">
+    <div class="dm-step-label"><span class="dm-step-num">4</span> 抽牌結果</div>
+    <div class="dm-result-area">
+      <div class="dm-result-box" id="resultBox"></div>
+    </div>
+    <div class="dm-actions">
+      <button class="dm-btn dm-btn-gold" id="copyBtn">📋 複製結果</button>
+      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" class="dm-btn dm-btn-line">💬 LINE 传给觉察师</a>
+    </div>
+  </div>
+
+  <!-- 重新开始 -->
+  <div class="dm-actions" id="resetArea" style="display:none;">
+    <button class="dm-btn dm-btn-ghost" id="resetBtn">🔄 重新开始</button>
+    <a href="draw-hl.html" class="dm-btn dm-btn-ghost">🔮 改用线上抽牌</a>
+  </div>
+
+</div>
+
+<!-- 载入牌卡资料 -->
+<script src="../js/cardData-protected.js"></script>
+
+<script>
+// ========== 牌位名稱 ==========
+var layouts = {
+  1: ["✨ 今日一語"],
+  3: ["①浮出水面", "②水面之下", "③那把鑰匙"],
+  5: ["L｜自我疼惜狀態", "I｜內在智慧在說什麼", "G｜安全感根基", "H｜關係平衡狀態", "T｜正在經歷的突破"],
+  7: ["①全景掃描", "②表層故事", "③暗流湧動", "④視線之外", "⑤手中王牌", "⑥啟動指令", "⑦深處密語"],
+  9: ["H｜身體在說什麼", "O｜關係照妖鏡", "U｜跟錢的真實關係", "R｜來這一趟的目的", "L｜最深處的根源", "I｜不敢面對的信念", "G｜重複上演的模式", "H*｜假裝沒看見的", "T｜這一切的禮物"],
+  12: ["第1門｜你站在哪裡", "第2門｜什麼在召喚你", "第3門｜你在保護什麼", "第4門｜誰在撐著你", "第5門｜不敢跨的那一步", "第6門｜考驗在教你什麼", "第7門｜關係映照出的你", "第8門｜最深的那道坎", "第9門｜獎賞在哪裡等你", "第10門｜帶著什麼回來", "第11門｜脫胎換骨的契機", "第12門｜你拿到的寶物"],
+  15: ["A1｜天生就會的事", "A2｜天賦的證據", "A3｜天賦的邊界", "B1｜還沒啟動的潛能", "B2｜潛能的養分", "B3｜加速啟動的捷徑", "C1｜一切的起點", "C2｜根源歸因", "C3｜一直迴避的真相", "D1｜卡住你的信念", "D2｜不自覺的習慣", "D3｜正在付出的代價", "E1｜破局策略", "E2｜現在就能做的", "E3｜需要的支援力量"],
+  21: ["H×L｜身心根源", "H×I｜身心信念", "H×G｜身心行為", "H×H｜身心覺察", "H×T｜身心禮物", "O×L｜關係根源", "O×I｜關係信念", "O×G｜關係行為", "O×H｜關係覺察", "O×T｜關係禮物", "U×L｜財富根源", "U×I｜財富信念", "U×G｜財富行為", "U×H｜財富覺察", "U×T｜財富禮物", "R×L｜天命根源", "R×I｜天命信念", "R×G｜天命行為", "R×H｜天命覺察", "R×T｜天命禮物", "✦｜核心訊息"]
+};
+
+// ========== 有效卡號清單 ==========
+var validCodes = [];
+// A00-A21
+for (var i = 0; i <= 21; i++) validCodes.push('A' + String(i).padStart(2, '0'));
+// 001-108
+for (var i = 1; i <= 108; i++) validCodes.push(String(i).padStart(3, '0'));
+
+var currentN = 0;
+var cardInputs = [];
+
+// ========== DOM ==========
+var spreadGrid = document.getElementById('spreadGrid');
+var cardList = document.getElementById('cardList');
+var step3 = document.getElementById('step3');
+var step4 = document.getElementById('step4');
+var resetArea = document.getElementById('resetArea');
+var resultBox = document.getElementById('resultBox');
+var fillStatus = document.getElementById('fillStatus');
+var copyBtn = document.getElementById('copyBtn');
+var questionInput = document.getElementById('questionInput');
+
+// ========== 選擇牌陣 ==========
+spreadGrid.addEventListener('click', function(e) {
+  var btn = e.target.closest('.dm-spread-btn');
+  if (!btn) return;
+
+  // 切換 active
+  var allBtns = spreadGrid.querySelectorAll('.dm-spread-btn');
+  allBtns.forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+
+  currentN = parseInt(btn.dataset.n);
+  buildCardInputs(currentN);
+  step3.style.display = 'block';
+  step4.style.display = 'none';
+  resetArea.style.display = 'flex';
+
+  // 滾動到 Step 3
+  setTimeout(function() {
+    step3.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 200);
+});
+
+// ========== 建立輸入欄 ==========
+function buildCardInputs(n) {
+  cardList.innerHTML = '';
+  cardInputs = [];
+  var labels = layouts[n] || [];
+
+  for (var i = 0; i < n; i++) {
+    var row = document.createElement('div');
+    row.className = 'dm-card-row';
+    row.style.animationDelay = (i * 0.06) + 's';
+
+    var posLabel = labels[i] || ('第 ' + (i + 1) + ' 張');
+
+    row.innerHTML =
+      '<div class="dm-card-pos">' + posLabel + '</div>' +
+      '<div class="dm-card-input-wrap">' +
+        '<input class="dm-card-input" type="text" placeholder="卡號" maxlength="3" data-idx="' + i + '" autocomplete="off" inputmode="text">' +
+        '<img class="dm-card-thumb" src="" alt="" loading="lazy">' +
+        '<span class="dm-card-name"></span>' +
+      '</div>';
+
+    cardList.appendChild(row);
+
+    var input = row.querySelector('.dm-card-input');
+    cardInputs.push(input);
+
+    // 事件
+    input.addEventListener('input', handleCardInput);
+    input.addEventListener('blur', handleCardInput);
+  }
+
+  updateFillStatus();
+}
+
+// ========== 處理卡號輸入 ==========
+function handleCardInput(e) {
+  var input = e.target;
+  var val = input.value.trim().toUpperCase();
+  input.value = val;
+
+  var row = input.closest('.dm-card-row');
+  var nameEl = row.querySelector('.dm-card-name');
+  var thumbEl = row.querySelector('.dm-card-thumb');
+
+  if (!val) {
+    input.className = 'dm-card-input';
+    nameEl.textContent = '';
+    thumbEl.classList.remove('show');
+    updateFillStatus();
+    updateResult();
+    return;
+  }
+
+  // 驗證
+  if (validCodes.indexOf(val) !== -1) {
+    input.className = 'dm-card-input valid';
+
+    // 顯示牌卡名稱
+    var info = window.cardData ? window.cardData[val] : null;
+    if (info) {
+      nameEl.textContent = info.title || info.name || '';
+    } else {
+      nameEl.textContent = '';
+    }
+
+    // 顯示縮圖
+    thumbEl.src = 'cards/' + val + '.png';
+    thumbEl.classList.add('show');
+    thumbEl.onerror = function() { this.classList.remove('show'); };
+
+    // 自動跳到下一格
+    var idx = parseInt(input.dataset.idx);
+    if (idx < cardInputs.length - 1 && val.length >= 3) {
+      setTimeout(function() { cardInputs[idx + 1].focus(); }, 150);
+    }
+  } else {
+    input.className = 'dm-card-input invalid';
+    nameEl.textContent = '？';
+    thumbEl.classList.remove('show');
+  }
+
+  updateFillStatus();
+  updateResult();
+}
+
+// ========== 填入統計 ==========
+function updateFillStatus() {
+  var filled = 0;
+  cardInputs.forEach(function(inp) {
+    if (inp.classList.contains('valid')) filled++;
+  });
+  fillStatus.innerHTML = '已填入 <span class="done">' + filled + '</span> / <span class="total">' + currentN + '</span> 張';
+}
+
+// ========== 即時更新結果 ==========
+function updateResult() {
+  var filled = 0;
+  cardInputs.forEach(function(inp) {
+    if (inp.classList.contains('valid')) filled++;
+  });
+
+  if (filled === 0) {
+    step4.style.display = 'none';
+    return;
+  }
+
+  step4.style.display = 'block';
+  var txt = generateResultText();
+  resultBox.textContent = txt;
+}
+
+// ========== 產生結果文字 ==========
+function generateResultText() {
+  var labels = layouts[currentN] || [];
+  var question = questionInput.value.trim();
+
+  var txt = '【馥靈之鑰｜內在GPS 抽牌結果】\n';
+  txt += '牌陣：' + currentN + ' 張\n';
+  if (question) txt += '提問：' + question + '\n';
+  txt += '\n';
+
+  cardInputs.forEach(function(inp, i) {
+    var val = inp.value.trim().toUpperCase();
+    var posLabel = labels[i] || ('第 ' + (i + 1) + ' 張');
+
+    if (validCodes.indexOf(val) !== -1) {
+      var info = window.cardData ? window.cardData[val] : {};
+      txt += '▸ ' + posLabel + '：' + val + ' ' + (info.title || '') + '\n';
+
+      // 1張牌免費：直接附上覺察與行動指引
+      if (currentN === 1) {
+        var sense = info.sense || info['覺察'] || '';
+        var action = info.action || info['行動指引'] || '';
+        if (sense) txt += '\n💭 覺察：\n' + sense + '\n';
+        if (action) txt += '\n✨ 行動指引：\n' + action + '\n';
+      }
+    } else if (val) {
+      txt += '▸ ' + posLabel + '：' + val + '（未辨識）\n';
+    } else {
+      txt += '▸ ' + posLabel + '：（尚未填入）\n';
+    }
+  });
+
+  if (currentN === 1) {
+    txt += '\n💫 這張牌點出了你現在的狀態，但故事還沒說完...\n';
+    txt += '想看見更完整的脈絡？試試 3 張以上的牌陣\n';
+    txt += '預約馥靈覺察師深度解讀 👉 https://lin.ee/RdQBFAN';
+  } else {
+    txt += '\n💫 想了解牌卡的深層訊息？\n';
+    txt += '預約馥靈覺察師為你完整解讀 👉 https://lin.ee/RdQBFAN';
+  }
+
+  return txt;
+}
+
+// ========== 複製 ==========
+copyBtn.addEventListener('click', function() {
+  var txt = generateResultText();
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(txt).then(function() {
+      showToast('已複製！可直接貼到 LINE 給覺察師');
+    });
+  } else {
+    // fallback
+    var ta = document.createElement('textarea');
+    ta.value = txt;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('已複製！');
+  }
+});
+
+// ========== 重置 ==========
+document.getElementById('resetBtn').addEventListener('click', function() {
+  currentN = 0;
+  cardInputs = [];
+  cardList.innerHTML = '';
+  step3.style.display = 'none';
+  step4.style.display = 'none';
+  resetArea.style.display = 'none';
+  questionInput.value = '';
+  fillStatus.innerHTML = '';
+
+  var allBtns = spreadGrid.querySelectorAll('.dm-spread-btn');
+  allBtns.forEach(function(b) { b.classList.remove('active'); });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// ========== Toast ==========
+function showToast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(function() { el.classList.remove('show'); }, 2500);
+}
+
+// 問題輸入也即時更新結果
+questionInput.addEventListener('input', updateResult);
+
+// 提問範例點擊自動填入
+document.getElementById('questionTips').addEventListener('click', function(e) {
+  var tip = e.target.closest('.dm-tip');
+  if (!tip) return;
+  questionInput.value = tip.textContent;
+  questionInput.focus();
+  updateResult();
+});
+</script>
+
+<!-- Footer -->
+
+  <script src="assets/js/hl-music.js?v=20260309"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-referral.js?v=20260323"></script>
+<script src="assets/js/hl-castle-key.js"></script>
+<script src="assets/js/hl-castle-sync.js"></script>
+<script src="assets/js/hl-gate.js"></script>
+<script src="assets/js/hl-record.js"></script>
+  <script src="assets/js/hl-member.js?v=20260401"></script>
+<div class="next-step-cta" id="nextStepCTA" style="text-align:center;margin:2rem auto;padding:1.5rem;max-width:500px;">
+  <p style="color:rgba(248,223,165,.9);font-size:0.95rem;margin-bottom:1rem;">觉察到了什麼，就用行动回应它</p>
+  <div style="display:flex;gap:0.8rem;justify-content:center;flex-wrap:wrap;">
+    <a href="draw-hl.html" style="padding:0.6rem 1.2rem;background:#e9c27d;color:#1a1a2e;border-radius:8px;text-decoration:none;font-size:0.9rem;">抽一张牌</a>
+    <a href="quiz-hub.html" style="padding:0.6rem 1.2rem;border:1px solid rgba(248,223,165,.4);color:#f8dfa5;border-radius:8px;text-decoration:none;font-size:0.9rem;">做个测验</a>
+  </div>
+</div>
+
+<!-- ===== Footer ===== -->
+<footer class="hl-footer">
+  <div class="hl-footer-inner">
+    <div class="hl-footer-brand">
+      <div class="hl-footer-logo"><img src="LOGO-1.png" alt="" class="hl-logo-icon" aria-hidden="true" loading="lazy">馥灵之钥 Hour Light</div>
+      <div class="hl-footer-tagline">读懂自己，活对人生｜创办人 王逸君</div>
+    </div>
+    <div class="hl-footer-social" style="display:flex;gap:16px;justify-content:center;align-items:center;margin:16px 0;flex-wrap:wrap">
+      <a href="https://www.facebook.com/share/1QoZr7swk4/?mibextid=wwXIfr" target="_blank" rel="noopener" title="Facebook 馥灵之钥" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">f</a>
+      <a href="https://www.instagram.com/judyanee" target="_blank" rel="noopener" title="Instagram @judyanee" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">📸</a>
+      <a href="https://www.youtube.com/@judyanee" target="_blank" rel="noopener" title="YouTube @judyanee" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">▶</a>
+      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" title="LINE @hourlight" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">💬</a>
+      <a href="podcast.html" title="Podcast" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">🎙</a>
+    </div>
+    <div class="hl-footer-links">
+      <a href="app.html">🔑 我的內在城堡</a>
+      <a href="index.html">首页</a>
+      <a href="fuling-mima.html">生命秘码</a>
+      <a href="draw-hl.html">线上抽牌</a>
+      <a href="destiny-engine.html">命盘引擎</a>
+      <a href="services.html">服務項目</a>
+      <a href="courses.html">课程学苑</a>
+      <a href="book.html">著作</a>
+      <a href="founder.html">关於创办人</a>
+      <a href="hourlight-sitemap.html">网站地图</a>
+      <a href="privacy.html">隐私政策</a>
+      <a href="terms.html">服務条款</a>
+      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener">LINE 咨询</a>
+    </div>
+    <div class="hl-footer-legal-toggle" onclick="toggleLegalContent()">
+      <span>📜 法律声明与免責条款</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="hl-footer-legal-content" id="legalContent">
+      <div class="hl-legal-section">
+        <div class="hl-legal-title">🌿 服務性质说明</div>
+        <div class="hl-legal-text">本网站提供之服務（芳香能量觉察、牌卡解读、生命數字分析等）仅供<strong>个人压力管理、情緒紓解、自我探索</strong>參考。本服務<strong>不构成亦不取代</strong>医疗诊断、专业臨床评估、法律或财務建议。如有身心健康疑慮，请咨询合格医疗专业人员。</div>
+      </div>
+      <div class="hl-legal-section">
+        <div class="hl-legal-title">📄 智慧财产权声明</div>
+        <div class="hl-legal-text">本网站所有內容（文字、图片、程式码、方法论、课程架构、牌卡系统、H.O.U.R. 方法论）均受著作权法保护。未经书面授权，禁止複製、转载、改作或商业使用。</div>
+      </div>
+      <div class="hl-legal-section">
+        <div class="hl-legal-title">™ 商标声明</div>
+        <div class="hl-legal-text">「馥灵之钥」「Hour Light」「H.O.U.R.」「馥灵秘码」及相关标誌为馥灵之钥国际有限公司之商标（申请中）。未经授权不得使用或註冊近似商标。</div>
+      </div>
+    </div>
+    <div class="hl-footer-copyright">
+      © 2026 馥灵之钥国际有限公司 Hour Light International Co., Ltd.｜统编：60303284<br>All Rights Reserved.
+    </div>
+  </div>
+</footer>
+<script>
+function toggleLegalContent(){
+  var t=document.querySelector('.hl-footer-legal-toggle');
+  var c=document.getElementById('legalContent');
+  if(t&&c){t.classList.toggle('active');c.classList.toggle('active');}
+}
+</script>
+<script src="assets/js/hl-topnav.js"></script>
+<script src="assets/js/hl-bottomnav.js"></script>
+<script src="assets/js/hl-announce.js?v=4"></script>
+<script src="assets/js/hl-email.js"></script>
+<script src="assets/js/hl-chat.js"></script>
+<script src="assets/js/hl-aroma-fx.js" defer></script>
+<script src="assets/js/hl-share.js"></script>
+<script src="assets/js/hl-tracker.js" data-tool="draw-manual" data-tool-name="手動抽牌" data-tool-type="draw"></script>
+</body>
+</html>

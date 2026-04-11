@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-BXP7K53QG6');</script>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>西洋星盘计算｜Placidus宮位｜相位格局｜馥灵之钥</title>
+<meta name="description" content="馥灵之钥西洋占星计算器可以免费计算完整本命盘，输入出生時间与地点即時生成Placidus宮位制星盘，包含十大行星星座宮位、相位格局、元素与模式统计。支援一键複製AI深度解读指令。">
+<link rel="icon" href="../favicon.ico"/>
+<link rel="stylesheet" href="../assets/css/hourlight-global.css">
+<link rel="stylesheet" href="../assets/css/hl-design-tokens.css">
+<link rel="stylesheet" href="../assets/css/hl-music.css">
+<style>
+:root{--gold:#f8dfa5;--gold2:#c9954a;--deep:#08050f;--panel:rgba(12,8,22,0.93);--text:#f0e8d8;--sub:#ffffff;--border:rgba(233,194,125,0.18);}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;min-height:100dvh;font-family:'LXGW WenKai TC','Noto Serif TC',serif;color:var(--text);background:var(--deep);padding:20px 16px 120px;}
+.wrap{max-width:920px;margin:0 auto;}
+.hero{text-align:center;padding:36px 0 24px;}
+.hero h1{font-size:1.85rem;font-weight:500;color:var(--gold);letter-spacing:.1em;margin-bottom:8px;}
+.hero p{font-size:.95rem;color:var(--sub);line-height:1.7;}
+.hero-badge{display:inline-block;font-size:.95rem;color:var(--gold2);border:1px solid rgba(201,149,74,0.35);border-radius:20px;padding:3px 14px;margin-bottom:14px;letter-spacing:.1em;}
+.engine-link{display:inline-flex;align-items:center;gap:6px;font-size:.95rem;color:var(--sub);border:1px solid var(--border);border-radius:20px;padding:5px 14px;text-decoration:none;margin-top:10px;transition:.2s;}
+.engine-link:hover{border-color:var(--gold);color:var(--gold);}
+.input-card{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:28px 24px;margin-bottom:24px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+.input-label{font-size:.9rem;color:var(--gold);letter-spacing:.06em;margin-bottom:10px;display:block;}
+.field-row{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.fi{flex:1;min-width:70px;background:rgba(233,194,125,0.06);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-family:inherit;font-size:.9rem;outline:none;transition:.2s;text-align:center;}
+.fi:focus{border-color:var(--gold);}
+select.fi{text-align:left;}
+select.fi option{background:#1a1030;color:var(--text);}
+.load-msg{font-size:.95rem;color:var(--gold);text-align:center;min-height:18px;margin-bottom:6px;}
+.calc-btn{width:100%;margin-top:10px;padding:14px;background:linear-gradient(135deg,var(--gold2),var(--gold));color: #ffffff;font-family:inherit;font-size:1rem;font-weight:600;border:none;border-radius:12px;cursor:pointer;letter-spacing:.06em;transition:.2s;}
+.calc-btn:hover{opacity:.9;transform:translateY(-1px);}
+.result{display:none;}.result.show{display:block;}
+/* Chart layout */
+.chart-layout{display:grid;grid-template-columns:1fr 300px;gap:16px;margin-bottom:18px;align-items:start;}
+@media(max-width:700px){.chart-layout{grid-template-columns:1fr;}}
+.chart-wrap{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:16px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+.chart-title{font-size:.92rem;color:var(--gold);margin-bottom:12px;}
+#astroSvg{width:100%;max-width:460px;display:block;margin:0 auto;}
+/* Planet table */
+.planet-list{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:16px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+.p-row{display:flex;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid rgba(233,194,125,0.06);font-size:.9rem;}
+.p-row:last-child{border-bottom:none;}
+.p-sym{width:20px;text-align:center;font-size:1rem;}
+.p-name{width:52px;color:var(--sub);}
+.p-pos{flex:1;color:var(--text);}
+.p-house{width:30px;text-align:right;color:#5588e0;font-size:.95rem;}
+.p-retro{color:#e05555;font-size:.95rem;}
+/* Sections */
+.section{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+.sec-title{font-size:.92rem;color:var(--gold);margin-bottom:12px;}
+.house-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+@media(max-width:480px){.house-grid{grid-template-columns:1fr;}}
+.h-item{font-size:.79rem;color:var(--sub);padding:5px 8px;background:rgba(233,194,125,0.03);border-radius:8px;line-height:1.5;}
+.h-item strong{color:var(--text);}
+.asp-item{font-size:.9rem;color:var(--sub);padding:4px 0;border-bottom:1px solid rgba(233,194,125,0.05);}
+.stat-bars{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;}
+.stat-group{flex:1;min-width:120px;}
+.sg-title{font-size:.95rem;color:var(--gold);margin-bottom:6px;letter-spacing:.06em;}
+.sg-item{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.sg-bar-wrap{flex:1;background:rgba(233,194,125,0.08);border-radius:4px;height:6px;overflow:hidden;}
+.sg-bar{height:6px;border-radius:4px;background:var(--gold2);}
+.sg-label{font-size:.74rem;color:var(--sub);width:24px;}
+.ai-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+.ai-pre{white-space:pre-wrap;font-size:.74rem;color:var(--sub);line-height:1.6;font-family:inherit;max-height:280px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.cp-btn{margin-top:10px;padding:9px 20px;background:rgba(233,194,125,0.08);border:1px solid var(--border);border-radius:8px;color:var(--gold);font-family:inherit;font-size:.9rem;cursor:pointer;transition:.2s;}
+.cp-btn:hover{background:rgba(233,194,125,0.16);}
+.cta-block{background:linear-gradient(135deg,rgba(233,194,125,0.07),rgba(92,58,128,0.07));border:1px solid var(--border);border-radius:16px;padding:22px;text-align:center;margin-top:20px;}
+.cta-block h3{font-size:.95rem;color:var(--gold);margin-bottom:8px;}
+.cta-block p{font-size:.9rem;color:var(--sub);margin-bottom:14px;line-height:1.6;}
+.cta-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.cta-btn{padding:9px 20px;border-radius:24px;font-family:inherit;font-size:.83rem;cursor:pointer;text-decoration:none;border:none;}
+.cta-btn.p{background:linear-gradient(135deg,var(--gold2),var(--gold));color: #ffffff;font-weight:600;}
+.cta-btn.s{background:transparent;border:1px solid var(--gold);color:var(--gold);}
+
+.origin-block{background:rgba(233,194,125,.03);border:1px solid rgba(233,194,125,.12);border-radius:16px;padding:0;margin:0 0 24px;overflow:hidden}
+.origin-toggle{padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:.92rem;color:var(--gd,var(--gold,var(--ff-gold,#f8dfa5)));letter-spacing:.06em;transition:.2s;user-select:none}
+.origin-toggle:hover{background:rgba(233,194,125,.05)}
+.origin-arrow{font-size:.7rem;transition:transform .3s}
+.origin-block.open .origin-arrow{transform:rotate(180deg)}
+.origin-content{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.origin-block.open .origin-content{max-height:5000px}
+.origin-inner{padding:0 20px 20px;font-size:.85rem;color:rgba(249,240,229,.7);line-height:1.9}
+.origin-inner p{margin-bottom:12px}
+.origin-inner .oi-main{color:#f8dfa5;font-size:1.05rem;font-weight:700;display:block;margin:12px 0 10px;letter-spacing:.04em}.origin-inner .oi-era{color:#f0e8d8;font-size:1.02rem;font-weight:700;display:block;margin:20px 0 6px;letter-spacing:.04em}
+.origin-inner .oi-sec{color:#f8dfa5;font-size:1rem;font-weight:700;margin:24px 0 10px;padding:10px 0 6px;border-top:1px solid rgba(233,194,125,.18);display:flex;align-items:center;gap:6px;letter-spacing:.06em}
+.origin-inner .oi-note{font-size:.78rem;color:rgba(249,240,229,.45);margin-top:8px;padding-top:8px;border-top:1px solid rgba(233,194,125,.08);font-style:italic}
+
+
+.hero{position:relative;overflow:visible}
+.hero-deco{z-index:0}
+
+/* ── Mobile App Touch Feel ── */
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+button,a,select,input[type=submit],input[type=button],.calc-btn,.draw-card{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+button:active,input[type=submit]:active,.calc-btn:active{transform:scale(.97);transition:transform .08s}
+select,input[type=text],input[type=number],input[type=date],input[type=email],textarea{font-size:16px!important}
+@media(max-width:600px){
+  body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  button,input[type=submit],input[type=button],.calc-btn{min-height:48px}
+}
+</style>
+<!-- Facebook Pixel -->
+<script>!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1333106288588347');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" alt=""
+src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"></noscript>
+<!-- End Facebook Pixel -->
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://hourlightkey.com/sc/astro-calculator.html"/>
+<meta property="og:title" content="西洋星盘计算｜Placidus宮位｜相位格局｜馥灵之钥"/>
+<meta property="og:description" content="输入出生時间地点，即時生成西洋占星盘，包含行星星座宮位、Placidus宮位制、相位格局、元素模式统计。馥灵之钥。"/>
+<meta property="og:image" content="https://hourlightkey.com/og-image.jpg"/>
+<meta property="og:locale" content="zh_TW"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="西洋星盘计算｜Placidus宮位｜相位格局｜馥灵之钥"/>
+<meta name="twitter:description" content="输入出生時间地点，即時生成西洋占星盘，包含行星星座宮位、Placidus宮位制、相位格局、元素模式统计。馥灵之钥。"/>
+<link rel="canonical" href="https://hourlightkey.com/sc/astro-calculator.html"/>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "西洋星盤計算器",
+  "description": "輸入出生時間地點，即時生成西洋占星盤，包含行星星座宮位、Placidus宮位制、相位格局、元素模式統計。",
+  "url": "https://hourlightkey.com/astro-calculator.html",
+  "applicationCategory": "LifestyleApplication",
+  "operatingSystem": "All",
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "TWD"},
+  "provider": {
+    "@type": "Organization",
+    "name": "馥靈之鑰 Hour Light",
+    "url": "https://hourlightkey.com"
+  }
+}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"西洋占星免費星盤怎麼算？","acceptedAnswer":{"@type":"Answer","text":"輸入出生日期、時間與地點，系統即時生成 Placidus 宮位制本命盤，包含十大行星星座宮位、主要相位格局、元素與模式統計，完全免費。"}},
+{"@type":"Question","name":"上升星座怎麼算？","acceptedAnswer":{"@type":"Answer","text":"上升星座由出生時間與地點決定，代表你給人的第一印象與外在形象。本工具會根據精確星曆自動計算，需要提供準確的出生時間才能得到正確結果。"}},
+{"@type":"Question","name":"上升星座跟太陽星座有什麼不同？","acceptedAnswer":{"@type":"Answer","text":"太陽星座代表核心自我與生命力方向，上升星座代表外在表現與社交面具。太陽是你是誰，上升是別人看到的你。完整星盤還包含月亮（情緒）、水星（思維）等多顆行星。"}}
+]}
+</script>
+</head>
+<body>
+<div class="hl-cosmos">
+  <div class="hl-stars-layer hl-stars-1"></div><div class="hl-stars-layer hl-stars-2"></div><div class="hl-stars-layer hl-stars-3"></div>
+  <div class="hl-meteors"><div class="hl-meteor"></div><div class="hl-meteor"></div><div class="hl-meteor"></div><div class="hl-meteor"></div></div>
+  <div class="hl-aura hl-aura-1"></div><div class="hl-aura hl-aura-2"></div>
+</div>
+
+<div class="wrap">
+<img src="images/page-banners-web/astro-calculator.webp" alt="" style="width:100%;max-width:600px;max-height:180px;object-fit:cover;margin:0 auto 20px;display:block;border-radius:12px" loading="lazy" onerror="this.style.display='none'">
+
+  <div class="hero">
+    <div class="hero-badge">WESTERN ASTROLOGY</div>
+    <h1>🔭 西洋星盘</h1>
+    <p>Placidus 宮位制｜行星星座宮位｜相位格局｜元素模式统计<br>圓形星盘視觉化，完整呈現您的天宮图</p>
+    <a href="destiny-engine.html" class="engine-link">✦ 前往三十三合一命盘引擎</a>
+  </div>
+
+  <p style="font-size:.92rem;color:var(--sub);line-height:1.8;max-width:720px;margin:0 auto 24px;padding:0 8px;">馥灵之钥西洋占星计算器可以免费计算完整本命盘，输入出生日期、時间与地点，系统即時生成 Placidus 宮位制圓形星盘图。結果包含太阳、月亮等十大行星的星座与宮位、主要相位格局、元素与模式统计，以及上升点与天顶。计算完成後可一键複製 AI 深度解读指令，貼到 ChatGPT 或 Claude 获得个人化的星盘分析。也可以直接前往三十三合一命盘引擎，同時计算八字、紫微、人类图等 33 套命理系统。</p>
+
+  <div class="origin-block">
+<div class="origin-toggle">📜 西洋占星 · 源头脈络 × 科学关联 × 馥灵馥语 <span class="origin-arrow">▼</span></div>
+<div class="origin-content"><div class="origin-inner">
+
+<p><span class="oi-main">📜 源头脈络</span></p>
+
+<p>四千年前的美索不达米亞平原。夜裡没有电，没有屋顶擋住天空。巴比伦的祭司抬头，看见的不是浪漫，是讯号。</p>
+
+<p>哪顆星亮了，就種什麼。哪顆星移动了，就備战。天上的事和地上的事，在他們眼裡从來不是兩件事。</p>
+
+<p>最早的黃道带就在那裡成形。把太阳走过的路切成十二段，每一段对应一组星群。這十二段，後來变成了十二星座。</p>
+
+<p><span class="oi-era">西元前5世纪・黃道十二宮定型</span></p>
+
+<p>巴比伦人到了西元前五世纪左右，正式把黃道带切成等分的十二宮，每宮30度。這个切法传到希臘，希臘人加进了自己的神话故事。白羊座是金羊毛、双子座是卡斯托爾和波魯克斯、天蠍座是獵戶俄里翁的天敵。每个星座有了性格，有了故事，有了「那種人」的样子。</p>
+
+<p>但真正把占星变成一套完整系统的，是一个住在埃及亞历山大港的希臘人。</p>
+
+<p><span class="oi-era">西元2世纪・托勒密</span></p>
+
+<p>克勞狄烏斯・托勒密。天文学家、地理学家、數学家。大约西元150年前後，他写了一本书叫《占星四书》（Tetrabiblos）。這本书做了一件事：把之前散落各地的占星知识，用邏輯和系统整理成一套完整的理论架构。</p>
+
+<p>行星的力量怎麼分？宮位怎麼排？相位（行星之间的角度关係）怎麼看？哪些组合代表什麼意思？全在這本书裡。将近兩千年过去，現代占星师用的基本框架，骨架还是托勒密那一套。</p>
+
+<p>说他是西洋占星的「徐子平」也不为过。八字的教科书是《淵海子平》，西洋占星的教科书就是《占星四书》。東西方各一本，各撐了上千年。</p>
+
+<p><span class="oi-era">中世纪到文艺复興・沉浮</span></p>
+
+<p>占星在中世纪的歐洲过得不太好。教会不喜欢。但它没有消失，躲进了大学的医学系（当時的医生看病要先看星盘），也躲进了王室的顾问团。英国女王伊莉莎白一世的御用占星师乃约翰・迪伊，是当時歐洲最顶尖的学者之一。</p>
+
+<p>到了啟蒙运动，科学和占星正式分家。天文学走了一条路，占星走了另一条。但占星没有因此变少，只是換了一種方式活著。</p>
+
+<p><span class="oi-era">20世纪・心理占星的誕生</span></p>
+
+<p>真正让占星「复活」的转折点在20世纪。关键人物是Dane Rudhyar。他是法裔美国人，作曲家，也是占星师。1936年他出版了《人格的占星学》（The Astrology of Personality），把榮格的原型理论和占星結合在一起。从此占星不再只是「预测吉凶」的工具，变成了一面镜子，照的是人的內在。</p>
+
+<p>他之後，英国的Liz Greene在1983年创立了心理占星学中心（Centre for Psychological Astrology）。她本身是榮格学派的分析师，把占星咨询变成一種心理咨商的輔助工具。她的书《土星：嶄新观点》让无數人重新理解了占星裡的「凶星」。土星不是懲罰，是功课。</p>
+
+<p>从巴比伦祭司到心理占星师，四千年。工具从肉眼观星变成电脑排盘，问的问题还是那一个：我是谁？我現在在哪？我该往哪走？</p>
+
+<div class="oi-sec">📡 科学錨点</div>
+
+<p>占星学最常被质疑的一句话是：「行星离地球那麼远，怎麼可能影响人？」</p>
+
+<p>直接回答：没有任何主流科学研究证實行星引力会影响个人性格或命运。但有幾个有趣的研究，值得知道。</p>
+
+<p>1955年，法国心理学家暨统计学家Michel Gauquelin，在他的著作《星辰的影响》裡发表了一个发現：他分析了數千名顶尖运动员的出生時间，发現傑出运动员在火星剛升起或到达天顶時出生的比例，显著高於一般人（约22%，预期值约17%）。這个发現後來被称为「火星效应」（Mars Effect）。比利時超自然現象调查委员会在1967年用独立蒐集的资料做了覆验，得到了类似的結果。</p>
+
+<p>這个发現引发了長达數十年的科学论战。支持者认为數据稳健，反对者指出样本选擇可能有偏差。到今天为止，火星效应仍然是「占星学裡最接近科学验证、但始终没有定论」的一个案例。它没有证明占星是对的，但它让「行星位置和人类特质之间是否存在统计关联」這个问题，变得不那麼容易一笑置之。</p>
+
+<p>另一个方向是時间生物学。前面八字的科学錨点提到，出生季节会影响神经传导物质的濃度和生理時鐘偏好。占星的十二星座本质上也是一種「出生時间的分类系统」，只是分得更细（月份再加上度數）。兩套语言，底层指向的都是「出生時间对人的長期影响」這个命题。</p>
+
+<p>占星不是科学。但它和科学问的问题有交集。「出生的時间座标会不会在某種程度上影响一个人的底色？」這个问题，科学还在回答的路上。</p>
+
+<div class="oi-sec">🌿 馥灵馥语</div>
+
+<p>星盘裡有四種元素。火、土、风、水。每種元素的人，身体对气味的反应不一样。</p>
+
+<p>火象（白羊、獅子、射手）的人，能量往外冲。聞到岩兰草的時候会安静，因为泥土的重量把火拉回地面。他們不是需要被澆熄，是需要一个錨。</p>
+
+<p>土象（金牛、处女、摩羯）的人，稳，但容易僵。甜橙的明亮感像有人在他耳边说「欸，放松一下」。土象最怕的不是压力，是忘记享受。</p>
+
+<p>风象（双子、天秤、水瓶）的人，脑子一直转。檀香帮他們著陸。那个木质的沉，让思緒从天花板降到椅子上。</p>
+
+<p>水象（巨蟹、天蠍、双鱼）的人，吸收太多別人的情緒。雪松像在情緒的河流兩边筑堤，让水流过但不氾濫。</p>
+
+<p>太阳星座是底色，月亮星座是藏起來的需要。精油兩種都要顾。太阳獅子月亮巨蟹的人，白天需要乳香撐场面，晚上需要羅马洋甘菊让自己柔软下來。一个人不会只有一種气味，就像星盘不会只有太阳。</p>
+
+<p class="oi-note">✦ 星盘告诉您光从哪裡來。精油帮您把光接住。</p>
+
+</div></div></div>
+<div class="input-card">
+    <span class="input-label">✦ 出生资讯（需要時间与地点才能计算宮位）</span>
+    <div class="field-row">
+      <input class="fi" type="number" id="by" placeholder="年 YYYY" min="1920" max="2030" maxlength="4" oninput="if(this.value.length>4)this.value=this.value.slice(0,4)">
+      <input class="fi" type="number" id="bm" placeholder="月" min="1" max="12">
+      <input class="fi" type="number" id="bd" placeholder="日" min="1" max="31">
+      <input class="fi" type="number" id="bh" placeholder="時 HH" min="0" max="23">
+      <input class="fi" type="number" id="bmin" placeholder="分" min="0" max="59">
+    </div>
+    <div class="field-row">
+      <select class="fi" id="btz" style="flex:1;text-align:left;">
+        <option value="8">台湾／中国／马來西亞（UTC+8）</option>
+        <option value="9">日本／韓国（UTC+9）</option>
+        <option value="7">泰国／越南（UTC+7）</option>
+        <option value="0">英国（UTC+0）</option>
+        <option value="-5">美東（UTC-5）</option>
+        <option value="-8">美西（UTC-8）</option>
+      </select>
+    </div>
+    <div class="field-row" style="flex-direction:column">
+      <label style="font-size:.82rem;color:var(--gold);margin-bottom:4px">📍 出生地点（影响宮位计算）</label>
+      <select id="bplace" class="fi" style="width:100%;padding:10px 12px;font-size:.9rem;background:rgba(12,8,22,.9);color:var(--text);border:1px solid var(--border);border-radius:10px">
+          <optgroup label="🇹🇼 台湾">
+            <option value="25.05,121.52" selected>台北市</option>
+            <option value="25.01,121.47">新北市</option>
+            <option value="25.13,121.74">基隆市</option>
+            <option value="24.99,121.30">桃园市</option>
+            <option value="24.80,120.97">新竹市</option>
+            <option value="24.56,120.82">苗栗縣</option>
+            <option value="24.26,120.54">台中市</option>
+            <option value="23.96,120.97">南投縣</option>
+            <option value="23.90,120.54">彰化縣</option>
+            <option value="23.75,120.54">云林縣</option>
+            <option value="23.47,120.45">嘉义市</option>
+            <option value="22.99,120.21">台南市</option>
+            <option value="22.62,120.30">高雄市</option>
+            <option value="22.36,120.55">屏東縣</option>
+            <option value="23.97,121.60">花蓮縣</option>
+            <option value="22.75,121.15">台東縣</option>
+            <option value="24.45,118.38">金门縣</option>
+            <option value="26.16,119.95">连江縣</option>
+            <option value="23.55,119.58">澎湖縣</option>
+            <option value="24.85,121.55">宜兰縣</option>
+          </optgroup>
+          <optgroup label="🇲🇾 马來西亞 ｜ 雪隆 / 森美兰">
+            <option value="3.14,101.69">吉隆坡 Kuala Lumpur</option>
+            <option value="3.07,101.51">八打灵再也 Petaling Jaya</option>
+            <option value="3.05,101.57">莎亞南 Shah Alam</option>
+            <option value="3.17,101.65">蕉賴 Cheras（雪兰莪）</option>
+            <option value="2.99,101.78">加影 Kajang</option>
+            <option value="3.10,101.45">巴生 Klang</option>
+            <option value="3.07,101.52">士毛月 Semenyih</option>
+            <option value="3.19,101.53">武吉加里爾 Bukit Jalil</option>
+            <option value="3.33,101.53">烏魯雪兰莪 Ulu Selangor</option>
+            <option value="2.73,101.94">芙蓉 Seremban</option>
+            <option value="2.64,102.02">波德申 Port Dickson</option>
+          </optgroup>
+          <optgroup label="🇲🇾 马來西亞 ｜ 柔佛 / 马六甲">
+            <option value="1.47,103.74">新山 Johor Bahru</option>
+            <option value="1.55,103.76">士乃 Senai</option>
+            <option value="2.04,103.33">古來 Kulai</option>
+            <option value="1.86,103.33">麻坡 Muar</option>
+            <option value="1.96,102.94">居鑾 Kluang</option>
+            <option value="2.02,103.83">笨珍 Pontian</option>
+            <option value="1.86,103.45">峇株巴轄 Batu Pahat</option>
+            <option value="1.67,103.93">龜咯 Kukup</option>
+            <option value="2.19,102.24">马六甲市 Melaka Raya</option>
+            <option value="2.31,102.45">愛极樂 Ayer Keroh</option>
+          </optgroup>
+          <optgroup label="🇲🇾 马來西亞 ｜ 彭亨 / 登嘉樓 / 吉兰丹">
+            <option value="3.80,103.33">关丹 Kuantan</option>
+            <option value="3.81,103.33">淡马魯 Temerloh</option>
+            <option value="3.48,102.39">文冬 Bentong</option>
+            <option value="3.97,101.39">瓜拉庇勞 Kuala Lipis</option>
+            <option value="3.87,102.42">勞勿 Raub</option>
+            <option value="5.32,103.14">瓜拉登嘉樓 Kuala Terengganu</option>
+            <option value="4.84,103.35">甘马挽 Kemaman</option>
+            <option value="5.87,102.75">万撓 Rantau Panjang</option>
+            <option value="6.12,102.24">哥打巴魯 Kota Bharu</option>
+          </optgroup>
+          <optgroup label="🇲🇾 马來西亞 ｜ 霹靂 / 檳城 / 吉打 / 玻璃市">
+            <option value="4.77,100.73">怡保 Ipoh</option>
+            <option value="4.59,101.08">太平 Taiping</option>
+            <option value="3.99,101.37">金宝 Kampar</option>
+            <option value="3.46,101.38">安順 Teluk Intan</option>
+            <option value="4.00,101.07">江沙 Kuala Kangsar</option>
+            <option value="4.12,100.96">實兆远 Sitiawan</option>
+            <option value="3.82,100.63">班台 Pantai Remis</option>
+            <option value="5.41,100.33">檳城 Penang（喬治市）</option>
+            <option value="5.52,100.46">威省 Seberang Perai</option>
+            <option value="5.33,100.47">浮羅交怡 Langkawi</option>
+            <option value="6.05,100.35">双溪大年 Sungai Petani</option>
+            <option value="6.44,100.20">亞羅士打 Alor Setar</option>
+            <option value="6.72,100.53">瓜拉姆拉 Kuala Muda</option>
+            <option value="6.42,100.19">哥打士达 Kota Setar</option>
+            <option value="6.69,100.42">居林 Kulim</option>
+            <option value="6.72,100.16">玻璃市 Perlis（加央 Kangar）</option>
+          </optgroup>
+          <optgroup label="🇲🇾 马來西亞 ｜ 砂拉越">
+            <option value="1.55,110.34">古晉 Kuching</option>
+            <option value="1.55,111.02">斯里阿曼 Sri Aman</option>
+            <option value="1.83,110.32">三马拉漢 Samarahan</option>
+            <option value="2.30,111.82">詩巫 Sibu</option>
+            <option value="2.11,111.45">木中 Mukah</option>
+            <option value="3.33,113.05">美里 Miri</option>
+            <option value="4.20,114.05">马魯帝 Marudi</option>
+            <option value="4.39,114.00">林夢 Limbang</option>
+            <option value="2.30,113.04">民都魯 Bintulu</option>
+          </optgroup>
+          <optgroup label="🇲🇾 马來西亞 ｜ 沙巴">
+            <option value="5.98,116.07">亞庇 Kota Kinabalu</option>
+            <option value="5.85,116.13">保佛 Papar</option>
+            <option value="5.55,116.67">根地咬 Keningau</option>
+            <option value="5.32,115.97">斗亞兰 Tuaran</option>
+            <option value="5.82,117.98">拿篤 Lahad Datu</option>
+            <option value="6.92,116.84">山打根 Sandakan</option>
+            <option value="5.54,118.12">仙本那 Semporna</option>
+            <option value="4.27,117.89">斗湖 Tawau</option>
+          </optgroup>
+          <optgroup label="🇨🇳 中国大陸 ｜ 华東">
+            <option value="31.23,121.47">上海</option>
+            <option value="30.25,120.17">杭州</option>
+            <option value="32.06,118.78">南京</option>
+            <option value="31.30,120.58">蘇州</option>
+            <option value="31.86,117.28">合肥</option>
+            <option value="28.68,115.88">南昌</option>
+            <option value="36.67,117.00">濟南</option>
+            <option value="36.09,120.38">青島</option>
+            <option value="30.59,114.31">武漢</option>
+            <option value="28.23,112.94">長沙</option>
+            <option value="29.87,121.55">宁波</option>
+            <option value="28.00,120.67">温州</option>
+            <option value="30.28,120.16">紹興</option>
+            <option value="30.74,120.74">嘉興</option>
+            <option value="27.46,119.99">龍岩（福建）</option>
+            <option value="25.44,118.37">莆田（福建）</option>
+          </optgroup>
+          <optgroup label="🇨🇳 中国大陸 ｜ 华北 / 東北">
+            <option value="39.91,116.39">北京</option>
+            <option value="39.13,117.20">天津</option>
+            <option value="41.80,123.43">瀋阳</option>
+            <option value="43.89,125.32">長春</option>
+            <option value="45.75,126.63">哈爾濱</option>
+            <option value="37.87,112.55">太原</option>
+            <option value="38.05,114.52">石家莊</option>
+            <option value="38.91,121.63">大连</option>
+            <option value="34.76,113.67">鄭州</option>
+            <option value="36.06,114.39">安阳</option>
+            <option value="47.84,134.97">佳木斯</option>
+          </optgroup>
+          <optgroup label="🇨🇳 中国大陸 ｜ 福建 / 广東">
+            <option value="26.07,119.30">福州</option>
+            <option value="24.48,118.09">廈门</option>
+            <option value="24.91,118.59">泉州</option>
+            <option value="25.44,118.37">莆田</option>
+            <option value="26.64,117.96">三明</option>
+            <option value="26.89,118.32">南平</option>
+            <option value="27.33,117.37">邵武</option>
+            <option value="23.13,113.27">广州</option>
+            <option value="22.54,114.06">深圳</option>
+            <option value="22.27,113.57">珠海</option>
+            <option value="23.12,113.03">佛山</option>
+            <option value="23.02,113.75">東莞</option>
+            <option value="23.55,116.68">汕头</option>
+            <option value="24.35,115.37">梅州</option>
+            <option value="21.47,109.91">湛江</option>
+            <option value="22.30,113.54">中山</option>
+            <option value="21.87,110.90">茂名</option>
+            <option value="22.82,108.37">南宁</option>
+          </optgroup>
+          <optgroup label="🇨🇳 中国大陸 ｜ 西南 / 西北">
+            <option value="25.07,102.68">昆明</option>
+            <option value="22.01,100.80">西双版納</option>
+            <option value="25.60,100.25">大理</option>
+            <option value="26.87,100.23">丽江</option>
+            <option value="30.66,104.07">成都</option>
+            <option value="29.56,106.55">重慶</option>
+            <option value="26.58,106.71">貴阳</option>
+            <option value="29.65,91.13">拉薩</option>
+            <option value="34.27,108.95">西安</option>
+            <option value="36.06,103.79">兰州</option>
+            <option value="36.63,101.78">西宁</option>
+            <option value="43.79,87.60">烏魯木齐</option>
+          </optgroup>
+          <optgroup label="🇭🇰🇲🇴 港澳">
+            <option value="22.31,114.17">香港</option>
+            <option value="22.20,113.54">澳门</option>
+          </optgroup>
+          <optgroup label="🇸🇬 新加坡 / 汶萊">
+            <option value="1.35,103.82">新加坡</option>
+            <option value="1.28,103.81">新加坡南部 Tanjong Pagar</option>
+            <option value="1.44,103.82">兀兰 Woodlands</option>
+            <option value="4.94,114.95">斯里巴加湾 Bandar（汶萊）</option>
+          </optgroup>
+          <optgroup label="🇻🇳 越南">
+            <option value="21.03,105.83">河內 Hà Nội（北）</option>
+            <option value="20.86,106.68">海防 Hải Phòng（北）</option>
+            <option value="20.51,106.33">南定 Nam Định（北）</option>
+            <option value="21.38,105.84">太原 Thái Nguyên（北）</option>
+            <option value="22.67,106.81">諒山 Lạng Sơn（北）</option>
+            <option value="21.83,108.03">广宁 Quảng Ninh（北）</option>
+            <option value="16.47,107.59">峴港 Đà Nẵng（中）</option>
+            <option value="15.88,108.34">会安 Hội An（中）</option>
+            <option value="16.07,108.22">广南 Quảng Nam（中）</option>
+            <option value="13.10,109.30">归仁 Quy Nhơn（中）</option>
+            <option value="11.94,108.44">大叻 Đà Lạt（中）</option>
+            <option value="12.24,109.19">芽莊 Nha Trang（中）</option>
+            <option value="10.82,106.63">胡志明市（南）</option>
+            <option value="10.94,106.82">平阳 Bình Dương（南）</option>
+            <option value="10.96,106.87">同奈 Đồng Nai（南）</option>
+            <option value="10.59,107.24">巴地 Bà Rịa（南）</option>
+            <option value="10.37,105.44">芹苴 Cần Thơ（南）</option>
+            <option value="10.50,105.62">同塔 Đồng Tháp（南）</option>
+            <option value="10.70,106.41">隆安 Long An（南）</option>
+            <option value="10.37,106.36">前江 Tiền Giang（南）</option>
+            <option value="9.17,105.15">薄寮 Bạc Liêu（南）</option>
+            <option value="9.60,105.97">茶榮 Trà Vinh（南）</option>
+          </optgroup>
+          <optgroup label="🇹🇭 泰国">
+            <option value="13.75,100.52">曼谷 Bangkok</option>
+            <option value="13.70,100.48">吞武里 Thonburi</option>
+            <option value="13.83,100.62">暖武里 Nonthaburi</option>
+            <option value="14.00,100.53">巴吞他尼 Pathum Thani</option>
+            <option value="14.35,100.57">大城 Ayutthaya</option>
+            <option value="18.80,98.99">清邁 Chiang Mai</option>
+            <option value="19.90,99.83">清萊 Chiang Rai</option>
+            <option value="16.43,102.83">孔敬 Khon Kaen</option>
+            <option value="17.41,102.79">烏隆他尼 Udon Thani</option>
+            <option value="15.24,104.85">烏汶 Ubon Ratchathani</option>
+            <option value="14.99,102.09">呵叻 Nakhon Ratchasima</option>
+            <option value="16.42,103.00">加拉信 Kalasin</option>
+            <option value="7.89,98.40">普吉 Phuket</option>
+            <option value="9.14,99.34">蘇梅島 Koh Samui</option>
+            <option value="7.00,100.47">合艾 Hat Yai</option>
+            <option value="8.10,98.30">甲米 Krabi</option>
+          </optgroup>
+          <optgroup label="🌏 東南亞其他">
+            <option value="11.56,104.92">金边 Phnom Penh（柬埔寨）</option>
+            <option value="13.36,103.86">暹粒 Siem Reap（柬埔寨）</option>
+            <option value="17.97,102.60">永珍 Vientiane（寮国）</option>
+            <option value="19.89,102.13">琅勃拉邦 Luang Prabang（寮国）</option>
+            <option value="16.87,96.15">仰光 Yangon（緬甸）</option>
+            <option value="21.97,96.08">曼德勒 Mandalay（緬甸）</option>
+            <option value="14.62,120.98">马尼拉 Manila（菲律賓）</option>
+            <option value="10.32,123.90">宿霧 Cebu（菲律賓）</option>
+            <option value="7.07,125.61">达沃 Davao（菲律賓）</option>
+            <option value="-6.21,106.85">雅加达 Jakarta（印尼）</option>
+            <option value="-8.34,115.09">峇里島 Bali（印尼）</option>
+            <option value="3.59,98.67">棉兰 Medan（印尼）</option>
+            <option value="-7.25,112.75">泗水 Surabaya（印尼）</option>
+            <option value="-6.99,110.42">三宝瓏 Semarang（印尼）</option>
+            <option value="0.95,131.28">德那第 Ternate（印尼）</option>
+          </optgroup>
+          <optgroup label="🇯🇵🇰🇷 日本 / 韓国">
+            <option value="35.69,139.69">東京 Tokyo</option>
+            <option value="34.69,135.50">大阪 Osaka</option>
+            <option value="35.02,135.76">京都 Kyoto</option>
+            <option value="33.59,130.40">福岡 Fukuoka</option>
+            <option value="43.06,141.35">札幌 Sapporo</option>
+            <option value="26.21,127.68">那霸 Naha（沖繩）</option>
+            <option value="37.57,126.98">首爾 Seoul</option>
+            <option value="35.10,129.04">釜山 Busan</option>
+          </optgroup>
+          <optgroup label="🌍 歐洲">
+            <option value="51.51,-0.13">伦敦 London（英国）</option>
+            <option value="48.86,2.35">巴黎 Paris（法国）</option>
+            <option value="52.52,13.40">柏林 Berlin（德国）</option>
+            <option value="48.14,11.58">慕尼黑 Munich（德国）</option>
+            <option value="52.37,4.90">阿姆斯特丹 Amsterdam（荷兰）</option>
+            <option value="50.85,4.35">布魯塞爾 Brussels（比利時）</option>
+            <option value="47.37,8.54">蘇黎世 Zurich（瑞士）</option>
+            <option value="41.90,12.50">羅马 Rome（义大利）</option>
+            <option value="45.46,9.19">米兰 Milan（义大利）</option>
+            <option value="40.42,-3.70">马德里 Madrid（西班牙）</option>
+            <option value="41.38,2.17">巴塞隆納 Barcelona（西班牙）</option>
+            <option value="38.72,-9.14">里斯本 Lisbon（葡萄牙）</option>
+            <option value="55.75,37.62">莫斯科 Moscow（俄羅斯）</option>
+            <option value="59.33,18.07">斯德哥爾摩 Stockholm（瑞典）</option>
+            <option value="59.91,10.75">奧斯陸 Oslo（挪威）</option>
+            <option value="55.68,12.57">哥本哈根 Copenhagen（丹麥）</option>
+            <option value="60.17,24.94">赫爾辛基 Helsinki（芬兰）</option>
+            <option value="47.50,19.04">布达佩斯 Budapest（匈牙利）</option>
+            <option value="50.08,14.43">布拉格 Prague（捷克）</option>
+            <option value="52.23,21.01">华沙 Warsaw（波兰）</option>
+          </optgroup>
+          <optgroup label="🌎 北美洲">
+            <option value="40.71,-74.01">紐约 New York</option>
+            <option value="34.05,-118.25">洛杉磯 Los Angeles</option>
+            <option value="37.77,-122.42">旧金山 San Francisco</option>
+            <option value="47.61,-122.33">西雅图 Seattle</option>
+            <option value="45.52,-122.68">波特兰 Portland</option>
+            <option value="49.28,-123.12">温哥华 Vancouver（加拿大）</option>
+            <option value="43.65,-79.38">多伦多 Toronto（加拿大）</option>
+            <option value="45.51,-73.56">蒙特婁 Montreal（加拿大）</option>
+            <option value="41.88,-87.63">芝加哥 Chicago</option>
+            <option value="29.76,-95.37">休斯頓 Houston</option>
+            <option value="33.45,-112.07">鳳凰城 Phoenix</option>
+            <option value="32.78,-96.80">达拉斯 Dallas</option>
+            <option value="25.77,-80.19">邁阿密 Miami</option>
+            <option value="38.91,-77.04">华盛頓特区 Washington DC</option>
+            <option value="42.36,-71.06">波士頓 Boston</option>
+            <option value="19.43,-99.13">墨西哥城 Mexico City</option>
+          </optgroup>
+          <optgroup label="🌏 澳洲 / 紐西兰">
+            <option value="-33.87,151.21">雪梨 Sydney</option>
+            <option value="-37.81,144.96">墨爾本 Melbourne</option>
+            <option value="-27.47,153.03">布里斯本 Brisbane</option>
+            <option value="-31.95,115.86">柏斯 Perth</option>
+            <option value="-34.93,138.60">阿得雷德 Adelaide</option>
+            <option value="-36.87,174.77">奧克兰 Auckland（紐西兰）</option>
+            <option value="-41.29,174.78">惠灵頓 Wellington（紐西兰）</option>
+          </optgroup>
+          <optgroup label="🌍 中東 / 南亞">
+            <option value="25.20,55.27">杜拜 Dubai（阿联酋）</option>
+            <option value="24.47,54.37">阿布达比 Abu Dhabi（阿联酋）</option>
+            <option value="31.77,35.22">耶路撒冷 Jerusalem（以色列）</option>
+            <option value="28.61,77.21">新德里 New Delhi（印度）</option>
+            <option value="19.08,72.88">孟买 Mumbai（印度）</option>
+            <option value="12.97,77.59">班加羅爾 Bangalore（印度）</option>
+            <option value="23.72,90.41">达卡 Dhaka（孟加拉）</option>
+          </optgroup>
+          <optgroup label="🌎 南美洲 / 其他">
+            <option value="-23.55,-46.63">圣保羅 São Paulo（巴西）</option>
+            <option value="-22.91,-43.17">里约 Rio de Janeiro（巴西）</option>
+            <option value="-34.61,-58.44">布宜諾斯艾利斯 Buenos Aires（阿根廷）</option>
+            <option value="-33.46,-70.65">圣地牙哥 Santiago（智利）</option>
+            <option value="-4.32,15.32">金夏沙 Kinshasa（剛果）</option>
+            <option value="-26.30,31.14">姆巴巴內 Mbabane（斯威士兰）</option>
+          </optgroup>
+        </select>
+    </div>
+    <div class="load-msg" id="loadMsg"></div>
+    <button class="calc-btn" onclick="doCalc()">🔭 计算我的星盘</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="chart-layout">
+      <div class="chart-wrap">
+        <div class="chart-title">✦ 圓形星盘</div>
+        <svg id="astroSvg" viewBox="0 0 460 460" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="planet-list">
+        <div class="chart-title">✦ 行星位置</div>
+        <div id="planetList"></div>
+      </div>
+    </div>
+    <!-- Houses -->
+    <div class="section" id="housesSection" style="display:none">
+      <div class="sec-title">🏠 十二宮位（Placidus）</div>
+      <div class="house-grid" id="houseGrid"></div>
+    </div>
+    <!-- Aspects -->
+    <div class="section">
+      <div class="sec-title">⚡ 主要相位</div>
+      <div id="aspectList"></div>
+    </div>
+    <!-- Patterns -->
+    <div class="section" id="patternSection" style="display:none">
+      <div class="sec-title">✦ 格局</div>
+      <div id="patternList"></div>
+    </div>
+    <!-- Stats -->
+    <div class="section">
+      <div class="sec-title">📊 元素 ｜ 模式 ｜ 阴阳 统计</div>
+      <div class="stat-bars" id="statBars"></div>
+    </div>
+    <!-- AI -->
+    <div class="ai-card">
+      <div class="chart-title">📜 AI深度解读指令</div>
+      <pre class="ai-pre" id="aiPre"></pre>
+      <button class="cp-btn" onclick="copyData('aiPre',this)">📋 複製命盘资料</button><button class="cp-btn" style="margin-left:8px;background:rgba(160,124,220,.12);border-color:rgba(160,124,220,.3)" onclick="hlAICopy('aiPre','astro',this)">🔮 複製AI深度解读指令</button>
+    </div>
+    <div class="cta-block">
+      <h3>星盘照见您的天賦，牌卡帮您在当下选擇</h3>
+      <p>太阳是生命的方向，月亮是情緒的语言。馥灵之钥把星盘智慧转化成每天都用得上的觉察工具。</p>
+      <div class="cta-btns">
+        <a href="draw-hl.html" class="cta-btn p">抽牌问今天</a>
+        <a href="destiny-engine.html" class="cta-btn s">三十三合一完整命盘</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var EPH=null,EPH_LOADING=false;
+var SIGNS=['牡羊','金牛','雙子','巨蟹','獅子','處女','天秤','天蠍','射手','摩羯','水瓶','雙魚'];
+var SIGN_SYM=['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
+var P_ORDER=['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','node','chiron'];
+var P_NAMES=['太陽','月亮','水星','金星','火星','木星','土星','天王星','海王星','冥王星','北交點','凱龍'];
+var P_SYMS=['☉','☽','☿','♀','♂','♃','♄','♅','♆','♇','☊','⚷'];
+var P_COLS=['#FFD700','#C8C8D4','#A8D8A8','#FFB4C8','#FF8888','#B8A4F4','#A4B8D4','#88CCFF','#88AAFF','#D4A4D4','#AADDCC','#D4C8A4'];
+var SIGN_ELEMENT={牡羊:'火',金牛:'土',雙子:'風',巨蟹:'水',獅子:'火',處女:'土',天秤:'風',天蠍:'水',射手:'火',摩羯:'土',水瓶:'風',雙魚:'水'};
+var SIGN_MODE={牡羊:'開創',金牛:'固定',雙子:'變動',巨蟹:'開創',獅子:'固定',處女:'變動',天秤:'開創',天蠍:'固定',射手:'變動',摩羯:'開創',水瓶:'固定',雙魚:'變動'};
+var SIGN_POLAR={牡羊:'陽',金牛:'陰',雙子:'陽',巨蟹:'陰',獅子:'陽',處女:'陰',天秤:'陽',天蠍:'陰',射手:'陽',摩羯:'陰',水瓶:'陽',雙魚:'陰'};
+var SIGN_RULER={牡羊:'火星',金牛:'金星',雙子:'水星',巨蟹:'月亮',獅子:'太陽',處女:'水星',天秤:'金星',天蠍:'冥王星',射手:'木星',摩羯:'土星',水瓶:'天王星',雙魚:'海王星'};
+var HN=['自我完成宮','賺錢價值宮','學習運氣宮','原生家庭宮','才藝戀愛宮','職場菁英宮','婚姻合作宮','資源權勢宮','高遠目標宮','責任貴人宮','社群人氣宮','神祕心靈宮'];
+var ASP_TYPES=[{name:'合相',angle:0,orb:8,sym:'☌',col:'#FFD700'},{name:'對分相',angle:180,orb:8,sym:'☍',col:'#FF8888'},{name:'三分相',angle:120,orb:7,sym:'△',col:'#88FF88'},{name:'四分相',angle:90,orb:6,sym:'□',col:'#FF8888'},{name:'六分相',angle:60,orb:5,sym:'⚹',col:'#88CCFF'},{name:'五分相',angle:72,orb:2,sym:'Q',col:'#DDAAFF'},{name:'補十二分相',angle:150,orb:2,sym:'⚻',col:'#DDDD88'}];
+
+function loadEphemeris(){
+  return new Promise(function(res,rej){
+    if(EPH){res(EPH);return}
+    if(EPH_LOADING){var iv=setInterval(function(){if(EPH){clearInterval(iv);res(EPH)}},200);return}
+    EPH_LOADING=true;
+    document.getElementById('loadMsg').textContent='正在載入星曆資料（約4MB）...';
+    fetch('js/ephemeris-1920-2060.json').then(function(r){return r.json()}).then(function(d){EPH=d;EPH_LOADING=false;document.getElementById('loadMsg').textContent='星曆載入完成 ✓';setTimeout(function(){document.getElementById('loadMsg').textContent=''},2000);res(d)}).catch(function(e){EPH_LOADING=false;document.getElementById('loadMsg').textContent='星曆載入失敗';rej(e)});
+  });
+}
+
+function ephLookup(Y,M,D,H,min,tz){
+  if(!EPH)return null;
+  var utcH=(H||0)-(tz||8)+(min||0)/60;
+  var uD=D,uM=M,uY=Y;
+  if(utcH<0){utcH+=24;uD--}if(utcH>=24){utcH-=24;uD++}
+  if(uD<1){uM--;if(uM<1){uM=12;uY--}uD=new Date(uY,uM,0).getDate()}
+  if(uD>28){var dm=new Date(uY,uM,0).getDate();if(uD>dm){uD=1;uM++;if(uM>12){uM=1;uY++}}}
+  var key=String(uY).padStart(4,'0')+String(uM).padStart(2,'0')+String(uD).padStart(2,'0');
+  var row=EPH[key];if(!row)return null;
+  var nd=new Date(uY,uM-1,uD+1),nk=String(nd.getFullYear()).padStart(4,'0')+String(nd.getMonth()+1).padStart(2,'0')+String(nd.getDate()).padStart(2,'0');
+  var nr=EPH[nk];var frac=utcH/24,result={};
+  P_ORDER.forEach(function(k,i){
+    var v0=row[i],v1=nr?nr[i]:v0;var dd=v1-v0;if(dd>180)dd-=360;if(dd<-180)dd+=360;
+    var lon=(v0+dd*frac+360)%360;
+    var si=Math.floor(lon/30),deg=lon-si*30;
+    result[k]={lon:lon,sign:SIGNS[si],deg:Math.floor(deg),min:Math.round((deg%1)*60),retro:dd<0};
+  });
+  result.earth={lon:(result.sun.lon+180)%360,sign:SIGNS[Math.floor(((result.sun.lon+180)%360)/30)]};
+  result.snode={lon:(result.node.lon+180)%360,sign:SIGNS[Math.floor(((result.node.lon+180)%360)/30)]};
+  return result;
+}
+
+function calcPlacidus(lat,geo_lon,jd_val){
+  var T=(jd_val-2451545.0)/36525;
+  var GMST=(280.46061837+360.98564736629*(jd_val-2451545.0)+0.000387933*T*T)%360;
+  if(GMST<0)GMST+=360;
+  var RAMC=(GMST+geo_lon)%360;
+  var eps=23.4393-0.013*T,er=eps*Math.PI/180,lr=lat*Math.PI/180,ramc_r=RAMC*Math.PI/180;
+  var asc_val=(Math.atan2(-Math.cos(ramc_r),Math.sin(ramc_r)*Math.cos(er)+Math.tan(lr)*Math.sin(er))*180/Math.PI+180)%360;
+  var mc_val=(Math.atan2(Math.sin(ramc_r),Math.cos(ramc_r)*Math.cos(er))*180/Math.PI+360)%360;
+  function ecl_to_dec(lon_deg){return Math.asin(Math.sin(er)*Math.sin(lon_deg*Math.PI/180))*180/Math.PI}
+  function ra_dec_to_ecl(ra_d,dec_d){var ra=ra_d*Math.PI/180,dec=dec_d*Math.PI/180;return(Math.atan2(Math.sin(ra)*Math.cos(er)+Math.tan(dec)*Math.sin(er),Math.cos(ra))*180/Math.PI+360)%360}
+  function placCusp(frac,above){
+    var lam=above?(mc_val+frac*((asc_val-mc_val+360)%360))%360:((asc_val+frac*(((mc_val+180)%360-asc_val+360)%360))%360);
+    for(var it=0;it<80;it++){var dec=ecl_to_dec(lam),dec_r=dec*Math.PI/180;var arg=Math.max(-1,Math.min(1,-Math.tan(lr)*Math.tan(dec_r)));var DSA=Math.acos(arg)*180/Math.PI;var tra=above?(RAMC+frac*DSA)%360:(RAMC+DSA+frac*(180-DSA))%360;var nl=ra_dec_to_ecl(tra,dec);if(Math.abs(nl-lam)<0.0001)break;lam=nl;}
+    return lam;
+  }
+  var c11=placCusp(1/3,true),c12=placCusp(2/3,true),c2=placCusp(1/3,false),c3=placCusp(2/3,false);
+  var cusps=[asc_val,c2,c3,(mc_val+180)%360,(c11+180)%360,(c12+180)%360,(asc_val+180)%360,(c2+180)%360,(c3+180)%360,mc_val,c11,c12];
+  return{asc:asc_val,mc:mc_val,cusps:cusps};
+}
+function planetHouse(plon,cusps){
+  plon=((plon%360)+360)%360;
+  for(var i=0;i<12;i++){var c1=cusps[i],c2=cusps[(i+1)%12];if(c2<c1){if(plon>=c1||plon<c2)return i+1}else{if(plon>=c1&&plon<c2)return i+1}}
+  return 1;
+}
+function degToStr(lon){var si=Math.floor(((lon%360)+360)%360/30);var d=((lon%360)+360)%360-si*30;return SIGNS[si]+Math.floor(d)+'°'+Math.round((d%1)*60).toString().padStart(2,"0")+"'"}
+function calcAspects(pData){
+  var keys=Object.keys(pData),res=[];
+  for(var i=0;i<keys.length;i++)for(var j=i+1;j<keys.length;j++){
+    var p1=pData[keys[i]],p2=pData[keys[j]];if(!p1||!p2)continue;
+    var diff=Math.abs(p1.lon-p2.lon);if(diff>180)diff=360-diff;
+    ASP_TYPES.forEach(function(at){var orb=Math.abs(diff-at.angle);if(orb<=at.orb)res.push({p1:keys[i],p2:keys[j],type:at.name,sym:at.sym,orb:orb.toFixed(1),col:at.col,lon1:p1.lon,lon2:p2.lon})});
+  }
+  return res.sort(function(a,b){return a.orb-b.orb});
+}
+
+// ═══ SVG 星盤圖 ═══
+function drawAstroChart(planets,houses){
+  var svg=document.getElementById('astroSvg');
+  svg.innerHTML='';
+  var W=460,CX=230,CY=230,R=200,R2=170,R3=140,R4=120;
+  function add(tag,attrs,parent){var el=document.createElementNS('http://www.w3.org/2000/svg',tag);for(var k in attrs)el.setAttribute(k,attrs[k]);(parent||svg).appendChild(el);return el}
+  function lonToXY(lon,r){var a=(270-lon)*Math.PI/180;return{x:CX+r*Math.cos(a),y:CY+r*Math.sin(a)}}
+
+  // Background
+  add('circle',{cx:CX,cy:CY,r:R+18,fill:'rgba(8,5,15,0)',stroke:'rgba(233,194,125,0.15)','stroke-width':'1'});
+  // Sign ring
+  add('circle',{cx:CX,cy:CY,r:R,fill:'none',stroke:'rgba(233,194,125,0.1)','stroke-width':'1'});
+  add('circle',{cx:CX,cy:CY,r:R2,fill:'none',stroke:'rgba(233,194,125,0.08)','stroke-width':'1'});
+  add('circle',{cx:CX,cy:CY,r:R3,fill:'none',stroke:'rgba(233,194,125,0.06)','stroke-width':'1'});
+  add('circle',{cx:CX,cy:CY,r:R4,fill:'none',stroke:'rgba(233,194,125,0.05)','stroke-width':'1'});
+  add('circle',{cx:CX,cy:CY,r:26,fill:'rgba(233,194,125,0.05)',stroke:'rgba(233,194,125,0.12)','stroke-width':'1'});
+
+  // 12 sign divisions (every 30°)
+  var SIGN_COLS=['#FF8888','#CCAA88','#88CCDD','#88AACC','#FFAA44','#AACC88','#DDAACC','#8899CC','#FFCC66','#99AABB','#88BBDD','#AABBCC'];
+  var EL_COLS={火:'rgba(255,100,80,0.15)',土:'rgba(180,160,100,0.15)',風:'rgba(130,190,210,0.15)',水:'rgba(80,120,200,0.15)'};
+  var EL_MAP=['火','土','風','水','火','土','風','水','火','土','風','水'];
+  for(var s=0;s<12;s++){
+    var startLon=s*30,endLon=(s+1)*30;
+    var p1=lonToXY(startLon,R),p2=lonToXY(endLon,R),p3=lonToXY(endLon,R2),p4=lonToXY(startLon,R2);
+    add('path',{d:'M'+p1.x+','+p1.y+' A'+R+','+R+' 0 0,0 '+p2.x+','+p2.y+' L'+p3.x+','+p3.y+' A'+R2+','+R2+' 0 0,1 '+p4.x+','+p4.y+' Z',fill:EL_COLS[EL_MAP[s]]||'rgba(233,194,125,0.04)',stroke:'rgba(233,194,125,0.08)','stroke-width':'0.5'});
+    // Sign symbol
+    var midLon=s*30+15;
+    var mp=lonToXY(midLon,(R+R2)/2);
+    var txt=add('text',{x:mp.x,y:mp.y,'text-anchor':'middle','dominant-baseline':'middle','font-size':'11',fill:SIGN_COLS[s]||'rgba(233,194,125,0.6)','font-family':'serif'});
+    txt.textContent=SIGN_SYM[s];
+  }
+
+  // House cusps (if available)
+  if(houses){
+    for(var h=0;h<12;h++){
+      var cLon=houses.cusps[h];
+      var cp1=lonToXY(cLon,R2),cp2=lonToXY(cLon,R4);
+      var isAngle=(h===0||h===3||h===6||h===9);
+      add('line',{x1:cp1.x,y1:cp1.y,x2:cp2.x,y2:cp2.y,stroke:isAngle?'rgba(233,194,125,0.6)':'rgba(233,194,125,0.18)','stroke-width':isAngle?'1.5':'0.8','stroke-dasharray':isAngle?'':'3,3'});
+      // House number
+      var nextCusp=houses.cusps[(h+1)%12];
+      var midAngle=(cLon+nextCusp)/2;if(nextCusp<cLon)midAngle=(cLon+nextCusp+360)/2;
+      var hp=lonToXY(midAngle%360,(R3+R4)/2);
+      var htxt=add('text',{x:hp.x,y:hp.y,'text-anchor':'middle','dominant-baseline':'middle','font-size':'9',fill:'rgba(196,183,166,0.5)'});
+      htxt.textContent=h+1;
+    }
+  }
+
+  // Aspect lines (inner)
+  var pData={};
+  P_ORDER.slice(0,10).forEach(function(k,i){if(planets[k])pData[P_NAMES[i]]={lon:planets[k].lon}});
+  if(houses){pData['上升']={lon:houses.asc};pData['天頂']={lon:houses.mc}}
+  var asps=calcAspects(pData);
+  asps.slice(0,25).forEach(function(a){
+    var p1=lonToXY(a.lon1,R4-15),p2=lonToXY(a.lon2,R4-15);
+    add('line',{x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,stroke:a.col||'rgba(233,194,125,0.15)','stroke-width':'0.7','stroke-opacity':'0.4'});
+  });
+
+  // Planets
+  var placedAngles=[];
+  P_ORDER.forEach(function(k,i){
+    var p=planets[k];if(!p)return;
+    var lon=p.lon;
+    // Avoid overlap
+    var finalLon=lon;
+    for(var tries=0;tries<12;tries++){
+      var clash=placedAngles.some(function(a){var d=Math.abs(finalLon-a);return Math.min(d,360-d)<8});
+      if(!clash)break;finalLon=(finalLon+8)%360;
+    }
+    placedAngles.push(finalLon);
+    var pp=lonToXY(finalLon,R3-15);
+    // Planet circle
+    add('circle',{cx:pp.x,cy:pp.y,r:9,fill:'rgba(8,5,15,0.7)',stroke:P_COLS[i]||'rgba(233,194,125,0.5)','stroke-width':'1.2'});
+    var ptxt=add('text',{x:pp.x,y:pp.y,'text-anchor':'middle','dominant-baseline':'middle','font-size':'9',fill:P_COLS[i]||'rgba(233,194,125,0.9)'});
+    ptxt.textContent=P_SYMS[i];
+    if(p.retro){var rt=add('text',{x:pp.x+8,y:pp.y-6,'font-size':'7',fill:'#e05555'});rt.textContent='℞';}
+  });
+
+  // ASC line
+  if(houses){
+    var ap=lonToXY(houses.asc,R-5),ap2=lonToXY(houses.asc,R2+5);
+    add('line',{x1:ap.x,y1:ap.y,x2:ap2.x,y2:ap2.y,stroke:'rgba(233,194,125,0.9)','stroke-width':'2'});
+    var atxt=add('text',{x:ap.x+(ap.x>CX?8:-8),y:ap.y,'text-anchor':ap.x>CX?'start':'end','dominant-baseline':'middle','font-size':'10',fill:'rgba(233,194,125,0.9)'});
+    atxt.textContent='ASC';
+  }
+  // Center label
+  var ct=add('text',{x:CX,y:CY,'text-anchor':'middle','dominant-baseline':'middle','font-size':'9',fill:'rgba(233,194,125,0.3)','font-family':'serif'});
+  ct.textContent='♈';
+}
+
+async function doCalc(){
+  var Y=parseInt(document.getElementById('by').value);
+  var M=parseInt(document.getElementById('bm').value);
+  var D=parseInt(document.getElementById('bd').value);
+  var H=parseInt(document.getElementById('bh').value)||12;
+  var Min=parseInt(document.getElementById('bmin').value)||0;
+  var tz=parseFloat(document.getElementById('btz').value)||8;
+  var bplaceEl=document.getElementById('bplace');
+  var bplaceVal=bplaceEl?bplaceEl.value:'';
+  var lat=25.05,lon=121.52;
+  if(bplaceVal&&bplaceVal.indexOf(',')>-1){var ll=bplaceVal.split(',');lat=parseFloat(ll[0]);lon=parseFloat(ll[1]);}
+  if(!Y||!M||!D){alert('請輸入出生年月日');return;}
+  await loadEphemeris();
+  var planets=ephLookup(Y,M,D,H,Min,tz);
+  if(!planets){alert('找不到星曆，請確認年份在1920-2060之間');return;}
+
+  var houses=null;
+  if(!isNaN(lat)&&!isNaN(lon)){
+    var utcH=H-tz+Min/60;
+    var jd=367*Y-Math.floor(7*(Y+Math.floor((M+9)/12))/4)+Math.floor(275*M/9)+D+1721013.5+utcH/24;
+    houses=calcPlacidus(lat,lon,jd);
+  }
+
+  // Draw SVG
+  drawAstroChart(planets,houses);
+
+  // Planet list
+  var plHTML='';
+  P_ORDER.forEach(function(k,i){
+    var p=planets[k];if(!p)return;
+    var hNum=houses?planetHouse(p.lon,houses.cusps):'｜';
+    plHTML+='<div class="p-row">'
+      +'<span class="p-sym" style="color:'+P_COLS[i]+'">'+P_SYMS[i]+'</span>'
+      +'<span class="p-name">'+P_NAMES[i]+'</span>'
+      +'<span class="p-pos">'+p.sign+' '+p.deg+'°'+String(p.min).padStart(2,'0')+"'"+(p.retro?' <span class=\"p-retro\">℞</span>':'')+'</span>'
+      +'<span class="p-house">'+(houses?hNum+'宮':'')+'</span>'
+      +'</div>';
+  });
+  if(houses){
+    plHTML+='<div class="p-row"><span class="p-sym" style="color:#FFD700">↑</span><span class="p-name">上升ASC</span><span class="p-pos">'+degToStr(houses.asc)+'</span><span class="p-house">1宮</span></div>';
+    plHTML+='<div class="p-row"><span class="p-sym" style="color:#FFD700">↑</span><span class="p-name">天頂MC</span><span class="p-pos">'+degToStr(houses.mc)+'</span><span class="p-house">10宮</span></div>';
+  }
+  document.getElementById('planetList').innerHTML=plHTML;
+
+  // Houses
+  if(houses){
+    document.getElementById('housesSection').style.display='block';
+    var pShort={};P_NAMES.forEach(function(n,i){var p=planets[P_ORDER[i]];if(p)pShort[n]={sign:p.sign,house:houses?planetHouse(p.lon,houses.cusps):0}});
+    var hHTML='';
+    for(var hi=0;hi<12;hi++){
+      var cS=SIGNS[Math.floor(((houses.cusps[hi]%360)+360)%360/30)];
+      var rul=SIGN_RULER[cS]||'';var rH=pShort[rul]?'→飛入'+pShort[rul].sign+' '+pShort[rul].house+'宮':'';
+      hHTML+='<div class="h-item"><strong>'+(hi+1)+'宮</strong>（'+HN[hi]+'）'+cS+' '+SIGN_SYM[SIGNS.indexOf(cS)]+' 守護'+rul+' '+rH+'</div>';
+    }
+    document.getElementById('houseGrid').innerHTML=hHTML;
+  }
+
+  // Aspects
+  var allP={};P_NAMES.forEach(function(n,i){if(planets[P_ORDER[i]])allP[n]={lon:planets[P_ORDER[i]].lon}});
+  if(houses){allP['上升']={lon:houses.asc};allP['天頂']={lon:houses.mc}}
+  var asps=calcAspects(allP);
+  var aspHTML=asps.slice(0,20).map(function(a){return'<div class="asp-item" style="color:'+a.col+'">'+a.sym+' '+a.p1+' '+a.type+' '+a.p2+' （±'+a.orb+'°）</div>'}).join('');
+  document.getElementById('aspectList').innerHTML=aspHTML||'<div style="color:var(--sub);font-size:.9rem">無明顯相位資料</div>';
+
+  // Stats
+  var elCnt={火:0,土:0,風:0,水:0},modeCnt={開創:0,固定:0,變動:0},polCnt={陽:0,陰:0};
+  var total=0;
+  var statNames=['太陽','月亮','水星','金星','火星','木星','土星','天王星','海王星','冥王星'];
+  if(houses)statNames.push('上升','天頂');
+  statNames.forEach(function(n){
+    var p=allP[n];if(!p)return;
+    var s=SIGNS[Math.floor(((p.lon%360)+360)%360/30)];total++;
+    if(SIGN_ELEMENT[s])elCnt[SIGN_ELEMENT[s]]++;
+    if(SIGN_MODE[s])modeCnt[SIGN_MODE[s]]++;
+    if(SIGN_POLAR[s])polCnt[SIGN_POLAR[s]]++;
+  });
+  function barHTML(label,cnt,tot,col){return'<div class="sg-item"><span class="sg-label" style="font-size:.95rem;color:var(--sub);width:28px">'+label+'</span><div class="sg-bar-wrap"><div class="sg-bar" style="width:'+(tot?cnt/tot*100:0)+'%;background:'+col+'"></div></div><span style="font-size:.95rem;color:var(--sub)">'+cnt+'</span></div>'}
+  document.getElementById('statBars').innerHTML=
+    '<div class="stat-group"><div class="sg-title">元素</div>'+barHTML('火',elCnt.火,total,'#FF8888')+barHTML('土',elCnt.土,total,'#CCAA88')+barHTML('風',elCnt.風,total,'#88CCDD')+barHTML('水',elCnt.水,total,'#88AACC')+'</div>'
+    +'<div class="stat-group"><div class="sg-title">模式</div>'+barHTML('開創',modeCnt.開創,total,'#FFAA44')+barHTML('固定',modeCnt.固定,total,'#AACC88')+barHTML('變動',modeCnt.變動,total,'#DDAACC')+'</div>'
+    +'<div class="stat-group"><div class="sg-title">陰陽</div>'+barHTML('陽',polCnt.陽,total,'#FFCC66')+barHTML('陰',polCnt.陰,total,'#88AACC')+'</div>';
+
+  // AI
+  var ai='';
+  P_ORDER.forEach(function(k,i){var p=planets[k];if(!p)return;ai+=P_NAMES[i]+'：'+p.sign+' '+p.deg+'°'+(p.retro?' ℞':'')+(houses?' 第'+planetHouse(p.lon,houses.cusps)+'宮':'')+'\n'});
+  if(houses){ai+='上升：'+degToStr(houses.asc)+'\n天頂：'+degToStr(houses.mc)+'\n\n宮位守護：\n';for(var hi=0;hi<12;hi++){var cS=SIGNS[Math.floor(((houses.cusps[hi]%360)+360)%360/30)];ai+=(hi+1)+'宮 '+cS+' 守護'+SIGN_RULER[cS]+'\n'}}
+  ai+='\n元素分佈：火象'+elCnt.火+'顆 土象'+elCnt.土+'顆 風象'+elCnt.風+'顆 水象'+elCnt.水+'顆';
+  ai+='\n模式分佈：開創'+modeCnt.開創+'顆 固定'+modeCnt.固定+'顆 變動'+modeCnt.變動+'顆';
+  ai+='\n主要相位：\n'+asps.slice(0,15).map(function(a){return a.p1+' '+a.type+' '+a.p2+'（±'+a.orb+'°）'}).join('\n');
+  ai+='\n\n（完整命盤資料。直接貼到 AI 就能得到基礎解讀 ✦ 想要更精準的深度分析，試試旁邊的「🔮 AI深度解讀指令」）';
+  ai+='\n\n【參考書目】\n► 殿堂級西方大師（心理與演化占星派）\n· Stephen Arroyo《占星、心理學與四元素》｜占星學與榮格心理學的無縫接軌，聚焦能量與心理動機而非預測\n· Sue Tompkins《當代占星研究》《占星相位研究》｜全球占星師案頭字典，以生活化比喻拆解複雜相位\n· Steven Forrest《內在的天空》｜演化占星聖經，核心理念：出生圖不是牢籠，而是起點\n\n► 華人圈轉譯高手（接地氣與實戰派）\n· 韓良露《占星學院系列》｜台灣最具人文深度的占星著作，宮位與相位解析溫潤不生澀\n· 魯道夫《占星全書》《占星流年》《占星圖形相位全書》（AOA國際占星研究院創辦人）→ 華文占星經典系列\n· 天空為限占星書系 ｜ 文筆一針見血、破框犀利，適合拆解傳統認知\n\n▍馥靈座標哲學\n相位是還沒被你使用的超能力。\n知道困難相位，不是讓你害怕，是讓你多帶一套盔甲進場。\n\n【延伸導航·從星盤到此刻動態】\n► 易經覺察占卜（hourlightkey.com/yijing-oracle.html）→ 星盤看一輩子趨勢，易經覺察占卜看此刻這個選擇的即時方向\n► 馥靈秘碼（hourlightkey.com/fuling-mima.html）→ 月亮星座需求 × H數交叉，安全感議題是否一致\n► 130張牌卡（hourlightkey.com/draw-hl.html）→ 星盤說你天生帶什麼，牌卡告訴你此刻怎麼用\n\n星盤是天象設計圖，易經覺察占卜是今天的氣象預報，牌卡是出門前幫你決定穿什麼的鑰匙。';
+  document.getElementById('aiPre').textContent=ai;
+  window._ai=ai;
+  document.getElementById('result').className='result show';
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+  if(window.HL_track) HL_track('calculator_complete',{toolId:'astro-calculator',toolName:'西洋占星計算器'});
+}
+function copyAI(){navigator.clipboard.writeText(window._ai||'').then(function(){var b=event.target;b.textContent='✅ 已複製！';setTimeout(function(){b.textContent='📋 複製 AI 指令';},2000)});}
+setTimeout(function(){loadEphemeris().catch(function(){})},1000);
+</script>
+<script src="assets/js/hl-share.js"></script>
+<script src="assets/js/hl-tracker.js" data-tool="astro-calculator" data-tool-name="西洋星盤" data-tool-type="calculator"></script>
+<script src="assets/js/hourlight-global.js?v=20260309"></script>
+<script src="assets/js/hl-music.js?v=20260309"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/hl-referral.js?v=20260323"></script>
+<details style="margin:24px 16px;padding:16px 20px;background:rgba(248,223,165,.04);border:1px solid rgba(248,223,165,.1);border-radius:14px">
+<summary style="cursor:pointer;font-size:.85rem;color:rgba(248,223,165,.6);letter-spacing:.08em">✦ 关於馥灵之钥</summary>
+<div style="margin-top:12px;font-size:.82rem;color:rgba(255,255,255,.5);line-height:1.8">
+<p><strong style="color:rgba(248,223,165,.7)">什麼是馥灵之钥？</strong><br>馥灵之钥（Hour Light）是台湾原创的自我认知优化平台，整合33大命理系统、130张原创智慧牌卡、101+心理测验。透过H.O.U.R.四階段觉察系统与认知芳疗，帮助每个人读懂自己、活对人生。所有工具免费线上使用。</p>
+<p style="margin-top:8px"><a href="ai-about.html" style="color:rgba(248,223,165,.5);font-size:.78rem">了解更多 →</a></p>
+</div>
+</details>
+<footer class="hl-footer"><div class="hl-footer-inner">
+  <div class="hl-footer-brand"><div class="hl-footer-logo"><img src="LOGO-1.png" alt="" class="hl-logo-icon" aria-hidden="true" loading="lazy">馥灵之钥 Hour Light</div><div class="hl-footer-tagline">读懂自己，活对人生｜创办人 王逸君</div>
+    <div class="hl-footer-social" style="display:flex;gap:16px;justify-content:center;align-items:center;margin:16px 0;flex-wrap:wrap">
+      <a href="https://www.facebook.com/share/1QoZr7swk4/?mibextid=wwXIfr" target="_blank" rel="noopener" title="Facebook 馥灵之钥" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)">f</a>
+      <a href="https://www.instagram.com/judyanee" target="_blank" rel="noopener" title="Instagram @judyanee" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)">📸</a>
+      <a href="https://www.youtube.com/@judyanee" target="_blank" rel="noopener" title="YouTube @judyanee" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)">▶</a>
+      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" title="LINE @hourlight" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)">💬</a>
+      <a href="podcast.html" title="Podcast" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)">🎙</a>
+    </div>
+    </div>
+      <div class="hl-footer-links">
+      <a href="app.html">🔑 我的內在城堡</a><a href="index.html">首页</a>
+      <a href="fuling-mima.html">生命秘码</a><a href="draw-hl.html">线上抽牌</a>
+      <a href="destiny-engine.html">命盘引擎</a><a href="services.html">服務項目</a>
+      <a href="courses.html">课程学苑</a><a href="book.html">著作</a>
+      <a href="founder.html">关於创办人</a><a href="hourlight-sitemap.html">网站地图</a>
+      <a href="privacy.html">隐私政策</a><a href="terms.html">服務条款</a>
+      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener">LINE 咨询</a>
+    </div>
+      <div class="hl-footer-copyright">© 2026 馥灵之钥国际有限公司 Hour Light International Co., Ltd.｜统编：60303284<br>All Rights Reserved.</div>
+</div></footer>
+<script src="assets/js/hl-topnav.js"></script>
+<script src="assets/js/hl-bottomnav.js"></script>
+<script src="assets/js/hl-ai-gate.js"></script>
+<script src="assets/js/hl-gate.js"></script>
+<script src="assets/js/hl-record.js"></script>
+<script src="assets/js/hl-announce.js?v=4"></script>
+<script src="assets/js/hl-email.js"></script>
+<script src="assets/js/hl-chat.js"></script>
+<script src="assets/js/hl-aroma-fx.js" defer></script>
+<script>document.querySelectorAll(".origin-toggle").forEach(function(t){t.addEventListener("click",function(){this.parentElement.classList.toggle("open")})})</script>
+<script src="../js/ai-frameworks.js"></script>
+<script src="assets/js/hl-ai-copy.js"></script><script>
+function copyData(id,btn){
+  var el=document.getElementById(id);if(!el)return;
+  navigator.clipboard.writeText(el.textContent).then(function(){
+    var orig=btn.textContent;btn.textContent='✅ 已複製命盤資料';
+    setTimeout(function(){btn.textContent=orig},2000);
+  });
+}
+</script>
+</body></html>
