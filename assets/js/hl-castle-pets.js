@@ -130,7 +130,14 @@
       quote:'你知道嗎，你其實已經知道答案了。',
       unlockCond:'完成城堡全 12 個房間各至少一次',
       unlockKey:'all_rooms_once',
-      tier:'pro' }
+      tier:'pro' },
+    { id:'doudou',  name:'豆豆', color:'虎斑貓',  icon:'🐱', emoji:'⚡',
+      desc:'灰色虎斑，額頭有M字花紋。精力充沛，最愛在房間之間跑來跑去。',
+      room:'王座廳',
+      quote:'你今天做了什麼讓自己往前走了一步？',
+      unlockCond:'完成 H.O.U.R. 四個房間',
+      unlockKey:'hour_complete',
+      tier:'free' }
   ];
 
   // ═══ 工具函數 ═══
@@ -255,6 +262,10 @@
     // first_furniture
     var furniture = hlMaterial.getFurniture();
     if(furniture.length > 0) state.unlockedConditions['first_furniture'] = true;
+    // hour_complete（H.O.U.R. 四房各完成一次）
+    var hourRooms = ['mirror','treasure','key','throne'];
+    var hourDone = hourRooms.every(function(r){ return milestones[r]; });
+    if(hourDone) state.unlockedConditions['hour_complete'] = true;
     // light_complete（L.I.G.H.T. 五房各完成一次）
     var lightRooms = ['love','intuition','ground','harmony','transform'];
     var milestones = castleState.milestones || {};
