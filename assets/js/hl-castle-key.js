@@ -532,6 +532,8 @@
           window.hlMaterial.reportCastleEvent('achievement', {name:a.name, id:a.id});
         });
       }
+      // 觸發寵物解鎖重新檢查
+      if(window.hlPets && hlPets.recheckUnlock) hlPets.recheckUnlock();
       return{ok:true,ptsEarned:pts,isFirstEver:first,newlyUnlocked:newUnlocked,
              newAchievements:newAch,
              unlockMsg:newUnlocked.length?UNLOCK_MSGS[newUnlocked[newUnlocked.length-1]]:null};
