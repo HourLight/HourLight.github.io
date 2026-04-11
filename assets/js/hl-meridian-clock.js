@@ -270,7 +270,7 @@ function buildClockSVG(activeIdx, accentColor){
     var lx=cx+labelR*Math.cos(rad);
     var ly=cy+labelR*Math.sin(rad);
     var isActiveLabel=(j===activeIdx);
-    var lColor=isActiveLabel?(DATA[i].color||'#e9c27d'):'#b0a898';
+    var lColor=isActiveLabel?(DATA[j].color||'#e9c27d'):'#b0a898';
     var lWeight=isActiveLabel?'600':'400';
     var lSize=isActiveLabel?'.7rem':'.62rem';
     svgParts.push('<text x="'+lx.toFixed(1)+'" y="'+ly.toFixed(1)+'" text-anchor="middle" dominant-baseline="central" fill="'+lColor+'" font-size="'+lSize+'" font-weight="'+lWeight+'" font-family="inherit">'+HOUR_LABELS[j]+'</text>');
