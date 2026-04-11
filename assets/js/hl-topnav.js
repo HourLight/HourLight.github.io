@@ -69,6 +69,19 @@
       {label:'合盤配對', href:'destiny-match.html'},
       {label:'馥靈秘碼', href:'fuling-mima.html'},
       {label:'內在城堡', href:'app.html'},
+    ]},
+    {group:'知識學苑', items:[
+      {label:'知識學苑', href:'knowledge-hub.html'},
+      {label:'芳療園地', href:'aroma-garden.html'},
+      {label:'十四經絡', href:'meridian-guide.html'},
+      {label:'七脈輪', href:'chakra-guide.html'},
+      {label:'五行芳療', href:'five-elements-guide.html'},
+      {label:'水晶覺察', href:'crystal-guide.html'},
+      {label:'護膚科學', href:'skincare-science.html'},
+      {label:'靈氣入門', href:'reiki-guide.html'},
+      {label:'調香入門', href:'blending-guide.html'},
+      {label:'NAHA講義', href:'naha-study-guide.html'},
+      {label:'國際認證', href:'certification-guide.html'},
       {label:'網站地圖', href:'hourlight-sitemap.html'},
     ]}
   ];
