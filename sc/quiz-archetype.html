@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-BXP7K53QG6');
+</script>
+<!-- Facebook Pixel -->
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1333106288588347');
+  fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" alt=""
+  src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"></noscript>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>榮格12原型测验｜馥灵之钥 Hour Light</title>
+<meta name="description" content="免费榮格12原型人格测验｜24道题找出您的內在原型｜天真者、智者、探索者、英雄、魔术师、愛人⋯您的人生劇本，写在原型裡。馥灵之钥免费觉察工具。">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="../favicon.ico">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@400;600&family=LXGW+WenKai+TC:wght@300;400&family=Cormorant+Garamond:ital,wght@0,400;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/hl-quiz-premium.css">
+<link rel="stylesheet" href="../assets/css/hl-visual-fx.css">
+<link rel="stylesheet" href="../assets/css/hl-bridge.css">
+<style>
+.archetype-icon{font-size:3rem;margin-bottom:8px;animation:float 2.5s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* ── 答题页核心CSS（修复黑塊问题）── */
+body{background:#05030a;color:#ffffff;font-family:'Noto Sans TC',sans-serif;font-weight:500;margin:0;min-height:100vh;min-height:100dvh}
+.quiz-container{max-width:680px;margin:0 auto;padding:20px 16px 80px}
+.quiz-header{display:flex;justify-content:space-between;align-items:center;padding:12px 0;margin-bottom:8px}
+.quiz-logo{font-size:.95rem;letter-spacing:3px;color:rgba(233,194,125,0.70)}
+.quiz-back{font-size:.95rem;color:rgba(233,194,125,0.8);text-decoration:none}
+.quiz-badge{display:inline-block;padding:6px 16px;border-radius:999px;font-size:.95rem;
+  background:rgba(233,194,125,.08);border: 1px solid rgba(184,146,42,0.15);color:rgba(233,194,125,.7);margin-bottom:12px}
+.quiz-hero{text-align:center;padding:20px 0 30px}
+.quiz-title{font-family:'Noto Serif TC',serif;font-size:clamp(1.3rem,4vw,1.8rem);color:#f8dfa5;
+  font-weight:600;letter-spacing:1px;margin-bottom:12px}
+.quiz-subtitle{font-size:.95rem;color:rgba(249,240,229,0.8);margin-bottom:16px}
+.quiz-desc{font-family:'LXGW WenKai TC',serif;font-size:.95rem;color:rgba(249,240,229,0.8);
+  line-height:2;max-width:520px;margin:0 auto 20px;font-weight:500}
+.quiz-start-btn{display:inline-block;padding:14px 36px;border:none;border-radius:999px;
+  background:linear-gradient(135deg,#b8922a,#b8922a);color: #ffffff;font-size:.95rem;
+  font-weight:500;cursor:pointer;font-family:inherit;transition:.3s}
+.quiz-start-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(233,194,125,.25)}
+
+/* 进度条 */
+#progressWrap{display:none;margin-bottom:16px}
+.quiz-progress,.quiz-progress-bar{height:4px;background:rgba(249,240,229,.06);border-radius:99px;overflow:hidden;margin-bottom:8px}
+.quiz-progress-fill{height:100%;background:linear-gradient(90deg,#b8922a,#b8922a);border-radius:99px;transition:width .4s ease;width:0}
+.quiz-progress-text{font-size:.95rem;color:rgba(249,240,229,0.65);text-align:center}
+
+/* 题目卡片 */
+#questionsArea{display:none}
+.quiz-question-card{background:rgba(249,240,229,.04);border: 1px solid rgba(184,146,42,0.15);
+  border-radius:20px;padding:28px 24px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.quiz-q-number{font-size:.7rem;color:rgba(233,194,125,0.70);margin-bottom:10px;text-align:center}
+.quiz-q-text{font-family:'LXGW WenKai TC',serif;font-size:1rem;color:rgba(249,240,229,.85);
+  line-height:1.9;text-align:center;margin-bottom:20px;font-weight:500}
+.quiz-options{display:flex;flex-direction:column;gap:10px}
+.quiz-option{display:block;width:100%;padding:14px 20px;border: 1px solid rgba(184,146,42,0.15);
+  border-radius:14px;background:rgba(249,240,229,.04);color:rgba(249,240,229,.85);
+  font-size:.95rem;font-family:'LXGW WenKai TC','Noto Sans TC',serif;font-weight:500;
+  cursor:pointer;transition:all .3s;text-align:left;line-height:1.6}
+.quiz-option:hover{background:rgba(233,194,125,.1);border-color:rgba(233,194,125,.3);color:#f8dfa5;
+  transform:translateX(4px)}
+.quiz-option:active{transform:scale(.98)}
+
+/* 結果区 */
+.quiz-result{display:none;padding-top:20px}
+.quiz-result.active{display:block}
+.result-hero{text-align:center;padding:24px 0}
+.result-hero-icon{font-size:3.5rem;margin-bottom:8px}
+.result-type-label{font-size:.95rem;letter-spacing:2px;color:rgba(233,194,125,0.70)}
+.result-combo-name{font-family:'Noto Serif TC',serif;font-size:1.5rem;color:#f8dfa5;margin:8px 0;font-weight:600;letter-spacing:1px}
+.result-subtitle{font-family:'LXGW WenKai TC',serif;font-size:.9rem;color:rgba(249,240,229,.6);font-weight:500}
+.result-section{background:rgba(249,240,229,.04);border: 1px solid rgba(184,146,42,0.15);
+  border-radius:16px;padding:22px 20px;margin-bottom:16px}
+.result-section-title{font-family:'Noto Serif TC',serif;font-size:.95rem;color:#f8dfa5;
+  margin-bottom:12px;font-weight:600}
+.result-section-content{font-family:'LXGW WenKai TC',serif;font-size:.95rem;
+  color:rgba(249,240,229,.65);line-height:2.2;font-weight:500}
+.result-section-content strong{color:rgba(249,240,229,.85);font-weight:500}
+.result-hour-bridge{background:rgba(233,194,125,.04);border: 1px solid rgba(184,146,42,0.15);
+  border-radius:16px;padding:22px 20px;margin-bottom:16px;text-align:center}
+.hour-bridge-label{font-size:.95rem;letter-spacing:2px;color:rgba(233,194,125,0.70);margin-bottom:8px}
+.hour-bridge-text{font-family:'LXGW WenKai TC',serif;font-size:.95rem;
+  color:rgba(249,240,229,.6);line-height:2;font-weight:500;margin-bottom:14px}
+.hour-bridge-cta{display:inline-block;padding:12px 28px;border-radius:999px;
+  background:linear-gradient(135deg,#b8922a,#b8922a);color: #ffffff;font-size:.92rem;
+  font-weight:500;text-decoration:none;transition:.3s}
+.hour-bridge-cta:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(233,194,125,.2)}
+.quiz-dims{margin-bottom:16px}
+.quiz-footer{text-align:center;padding:30px 16px;font-size:.7rem;color:rgba(249,240,229,0.70)}
+.quiz-footer a{color:rgba(233,194,125,0.65);text-decoration:none}
+.quiz-actions{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
+.quiz-actions button{flex:1;min-width:100px;padding:10px;border:1px solid rgba(233,194,125,.2);
+  border-radius:12px;background:rgba(233,194,125,.06);color:#ffffff;font-size:.95rem;
+  cursor:pointer;font-family:inherit;transition:.3s}
+.quiz-actions button:hover{background:rgba(233,194,125,.12)}
+
+.card-mapping{margin-top:20px;padding:18px;border-radius:14px;background:rgba(233,194,125,.06);border: 1px solid rgba(184,146,42,0.15)}
+.card-mapping .cm-title{font-size:.95rem;color:rgba(233,194,125,.6);letter-spacing:2px;margin-bottom:8px}
+.card-mapping .cm-cards{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.card-mapping .cm-chip{padding:6px 14px;border-radius:999px;font-size:.95rem;
+  background:rgba(233,194,125,.08);border: 1px solid rgba(184,146,42,0.15);color:rgba(233,194,125,.8)}
+.aroma-landing{background:linear-gradient(135deg,rgba(193,123,63,.07),rgba(233,194,125,.05));border:1px solid rgba(193,123,63,.2);border-radius:20px;padding:24px 22px;margin-bottom:20px;position:relative;overflow:hidden}
+.aroma-landing .al-label{font-size:.95rem;letter-spacing:2px;color:rgba(193,123,63,.9);margin-bottom:10px}
+.aroma-landing .al-text{font-family:'LXGW WenKai TC',serif;font-size:.9rem;color:rgba(74,48,96,.85);line-height:2;font-weight:500}
+
+/* 分享按鈕 */
+.quiz-share-row{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0}
+.share-btn{flex:1;min-width:100px;padding:12px;border:1px solid rgba(233,194,125,.2);
+  border-radius:12px;background:rgba(233,194,125,.06);color:rgba(74,48,96,.85);
+  font-size:.9rem;cursor:pointer;font-family:inherit;transition:.3s;text-align:center}
+.share-btn:hover{background:rgba(233,194,125,.12);color:#f8dfa5}
+
+/* ── Mobile App Touch Feel ── */
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+button,a,.likert-opt,.quiz-option,.option-btn,.result-card{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+button:active,.likert-opt:active,.quiz-option:active,.option-btn:active{transform:scale(.97);transition:transform .08s}
+@media(max-width:600px){
+  body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  .likert-opt,.quiz-option,.option-btn{min-height:48px}
+  button[type=submit],button[onclick]{min-height:48px}
+}
+
+/* ── 修正自动滾动被 topnav 遮住 ── */
+.quiz-card,.quiz-result,[id^="qcard-"]{scroll-margin-top:70px}
+</style>
+<link rel="stylesheet" href="../assets/css/hl-footer.css">
+<link rel="stylesheet" href="../assets/css/hl-design-tokens.css">
+<meta property="og:image" content="https://hourlightkey.com/og-image.jpg"/>
+<link rel="canonical" href="https://hourlightkey.com/sc/quiz-archetype.html"/>
+<link rel="stylesheet" href="css/hl-quiz-light.css">
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://hourlightkey.com/sc/quiz-archetype.html"/>
+<meta property="og:title" content="榮格12原型测验｜馥灵之钥 Hour Light"/>
+<meta property="og:description" content="免费榮格12原型人格测验｜24道题找出您的內在原型｜天真者、智者、探索者、英雄、魔术师、愛人⋯您的人生劇本，写在原型裡。馥灵之钥免费觉察工具。"/>
+<meta property="og:image" content="https://hourlightkey.com/og-image.jpg"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"HowTo","name":"如何完成榮格12原型测验","description":"免费榮格12原型人格测验｜24道题找出您的內在原型｜天真者、智者、探索者、英雄、魔术师、愛人⋯您的人生劇本，写在原型裡。馥灵之钥免费觉察工具。","step":[{"@type":"HowToStep","position":1,"name":"开始测验","text":"点击开始按鈕，进入测验页面"},{"@type":"HowToStep","position":2,"name":"回答问题","text":"依照直觉选擇最符合你的答案，不需要想太久"},{"@type":"HowToStep","position":3,"name":"查看結果","text":"完成所有题目後，系统会分析你的回答並显示专属結果"},{"@type":"HowToStep","position":4,"name":"分享或儲存","text":"可以截图儲存、複製結果文字、或分享到社群"}],"totalTime":"PT10M","tool":{"@type":"HowToTool","name":"馥灵之钥线上测验平台"}}
+</script>
+</head>
+<body>
+<img src="images/page-banners-web/quiz-archetype.webp" alt="" style="width:100%;max-width:600px;max-height:180px;object-fit:cover;margin:0 auto 20px;display:block;border-radius:12px" loading="lazy" onerror="this.style.display='none'">
+
+<div class="quiz-container">
+  <div class="quiz-header">
+    <div class="quiz-logo">HOUR LIGHT</div>
+    <a href="quiz-hub.html" class="quiz-back">← 返回测验中心</a>
+  </div>
+
+  <div class="quiz-hero">
+    <div class="quiz-badge">🎭 榮格 12 原型</div>
+    <h1 class="quiz-title">您的內在原型是什麼？</h1>
+    <p class="quiz-subtitle">24 道题，找出您此生最深层的驅动力</p>
+    <p class="quiz-desc">
+      榮格（Carl Jung）说，每个人的潜意识裡都住著幾个「原型」｜它們是您做选擇的隐形劇本。<br>
+      不是您「想」成为什麼人，是您骨子裡「就是」什麼人。
+    </p>
+    <button class="quiz-start-btn" onclick="startQuiz()">✦ 开始探索您的原型</button>
+  </div>
+
+  <div class="quiz-progress-wrap" id="progressWrap" style="display:none">
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="progressFill"></div></div>
+    <div class="quiz-progress-text" id="progressText">1 / 24</div>
+  </div>
+
+  <div id="questionsArea" style="display:none"></div>
+
+  <div class="quiz-result" id="quizResult">
+    <div class="hl-title-reveal" id="hlTitleReveal"></div>
+    <div class="result-hero" id="resultHero"></div>
+    <div class="quiz-dims" id="dimsGrid"></div>
+    <div class="result-section" id="resultMain"></div>
+    <div class="result-section" id="resultShadow"></div>
+    <div id="cardMap"></div>
+    <div class="result-hour-bridge" id="resultHour"></div>
+    <div class="result-section" id="resultAroma"></div>
+    <div class="result-section" id="resultMed"></div>
+    <div id="bridgeArea"></div>
+
+    <div class="quiz-share-row">
+      
+      <button class="share-btn" onclick="saveResultImage()">📥 儲存图片</button>
+      <button class="share-btn" onclick="shareToThreads()">🧵 分享到 Threads</button>
+<button class="share-btn" onclick="copyResult()">📋 複製結果</button>
+      <button class="share-btn" onclick="shareToLine()">💬 分享到 LINE</button>
+      <button class="share-btn" onclick="copyAI()">🤖 AI 深度解读</button>
+      <button class="share-btn" onclick="restartQuiz()">🔄 重新测验</button>
+    </div>
+  </div>
+
+  <div class="quiz-footer">
+    © 2026 馥灵之钥国际有限公司 Hour Light International Co., Ltd.<br>
+    <a href="https://hourlightkey.com">hourlightkey.com</a>｜<a href="https://lin.ee/RdQBFAN">LINE 官方</a>
+  </div>
+</div>
+
+<script src="../assets/js/hl-visual-fx.js"></script>
+<script src="../assets/js/hl-bridge.js"></script>
+<script>
+/* ═══════════════════════════════════════
+   榮格 12 原型测验
+   馥灵之钥 Hour Light © 2026
+   ═══════════════════════════════════════ */
+
+// 12 原型
+var ARCHETYPES = ['innocent','sage','explorer','ruler','creator','caregiver','magician','hero','rebel','lover','jester','everyman'];
+
+// 24 题（每原型 2 题）
+var QUESTIONS = [
+  {q:'面对複杂的人际关係，你內心最渴望的是：',
+   opts:[{t:'一切回到最单纯的狀态',a:'innocent'},{t:'看透所有人的动机',a:'sage'},{t:'离开這裡去一个新的地方',a:'explorer'},{t:'让所有人按照你的方式來',a:'ruler'}]},
+  {q:'你最害怕的事情是：',
+   opts:[{t:'被懲罰或犯错',a:'innocent'},{t:'被欺騙或蒙在鼓裡',a:'sage'},{t:'被困住、动弹不得',a:'explorer'},{t:'失去控制或被架空',a:'ruler'}]},
+  {q:'如果有一天你突然多了一大筆钱，第一反应是：',
+   opts:[{t:'做一个从未嘗试过的作品',a:'creator'},{t:'拿去照顾身边需要的人',a:'caregiver'},{t:'研究怎麼把這筆钱变成改变世界的力量',a:'magician'},{t:'立刻去挑战一件一直不敢做的事',a:'hero'}]},
+  {q:'在团队中，你最自然的角色是：',
+   opts:[{t:'那个默默照顾所有人情緒的人',a:'caregiver'},{t:'那个总是有瘋狂新点子的人',a:'creator'},{t:'那个站出來说「我來」的人',a:'hero'},{t:'那个质疑「为什麼要這样做」的人',a:'rebel'}]},
+  {q:'你认为人生最大的遺憾会是：',
+   opts:[{t:'从來没有真正深愛过一个人',a:'lover'},{t:'太嚴肅，忘记好好享受生命',a:'jester'},{t:'一直在假装，没有做真正的自己',a:'rebel'},{t:'没有好好融入一个温暖的群体',a:'everyman'}]},
+  {q:'选一个最让你有感觉的场景：',
+   opts:[{t:'在月光下跟一个人对視',a:'lover'},{t:'在人群中大笑到肚子痛',a:'jester'},{t:'推翻一个不公平的制度',a:'rebel'},{t:'跟一群朋友圍坐在篝火旁',a:'everyman'}]},
+  {q:'你做一件事最大的动力是：',
+   opts:[{t:'找到真理和答案',a:'sage'},{t:'把不可能变成可能',a:'magician'},{t:'保护重要的人',a:'hero'},{t:'创造出独一无二的東西',a:'creator'}]},
+  {q:'你最受不了的人是：',
+   opts:[{t:'虛偽做作的人',a:'innocent'},{t:'自以为是不愿学習的人',a:'sage'},{t:'墨守成规的人',a:'explorer'},{t:'欺負弱者的人',a:'hero'}]},
+  {q:'如果你是一本书的主角，這本书的类型会是：',
+   opts:[{t:'童话或寓言',a:'innocent'},{t:'公路冒险',a:'explorer'},{t:'权謀宮鬥',a:'ruler'},{t:'愛情小说',a:'lover'}]},
+  {q:'你最享受的時刻是：',
+   opts:[{t:'完全沉浸在创作中',a:'creator'},{t:'看到你帮助的人变好了',a:'caregiver'},{t:'见证一个奇蹟发生',a:'magician'},{t:'打破一个別人说不可能的纪录',a:'hero'}]},
+  {q:'你最不想被人说的一句话是：',
+   opts:[{t:'「你太天真了」',a:'innocent'},{t:'「你太无聊了」',a:'jester'},{t:'「你太普通了」',a:'creator'},{t:'「你太自私了」',a:'caregiver'}]},
+  {q:'选一个你最想拥有的超能力：',
+   opts:[{t:'让所有人都说真话',a:'sage'},{t:'瞬间移动到任何地方',a:'explorer'},{t:'改变現實的规則',a:'magician'},{t:'让每个人都感到被愛',a:'lover'}]},
+  {q:'你在压力最大的時候会：',
+   opts:[{t:'找一个没人的地方独处',a:'explorer'},{t:'列清单把所有事情排好',a:'ruler'},{t:'打电话给你最信任的人',a:'everyman'},{t:'用幽默化解紧张',a:'jester'}]},
+  {q:'你最希望別人记住你的是：',
+   opts:[{t:'你的善良和纯真',a:'innocent'},{t:'你的智慧和洞见',a:'sage'},{t:'你的勇气和担当',a:'hero'},{t:'你带给人的欢笑',a:'jester'}]},
+  {q:'你对「成功」的定义最接近：',
+   opts:[{t:'建立一个你说了算的王国',a:'ruler'},{t:'留下一个独特的作品',a:'creator'},{t:'让你愛的人都过得好',a:'caregiver'},{t:'改变一个不合理的系统',a:'rebel'}]},
+  {q:'你跟朋友吵架之後最可能：',
+   opts:[{t:'先道歉，不想有冲突',a:'innocent'},{t:'分析到底谁对谁错',a:'sage'},{t:'直接消失一阵子',a:'explorer'},{t:'主动修复关係',a:'caregiver'}]},
+  {q:'你最嚮往的生活方式是：',
+   opts:[{t:'在不同国家之间自由移动',a:'explorer'},{t:'在一个温暖的社区裡过简单的日子',a:'everyman'},{t:'站在聚光灯下，被所有人看见',a:'ruler'},{t:'跟一个人过兩人世界',a:'lover'}]},
+  {q:'你最害怕的結果是：',
+   opts:[{t:'变得平庸，跟所有人一样',a:'creator'},{t:'被拋棄或不被需要',a:'caregiver'},{t:'失去自由和独立',a:'rebel'},{t:'被人遺忘',a:'magician'}]},
+  {q:'你做决定的方式最接近：',
+   opts:[{t:'直觉告诉我该怎麼做',a:'magician'},{t:'冲了再说',a:'hero'},{t:'先问问身边的人怎麼想',a:'everyman'},{t:'反骨｜別人建议的反方向',a:'rebel'}]},
+  {q:'你认为愛情裡最重要的是：',
+   opts:[{t:'深度的內在连結',a:'lover'},{t:'彼此都能做自己',a:'rebel'},{t:'一起笑、一起玩',a:'jester'},{t:'稳定和归属感',a:'everyman'}]},
+  {q:'如果世界末日只剩你一个人，你最先做的事是：',
+   opts:[{t:'观察這个新世界的运作规則',a:'sage'},{t:'建立秩序和生存系统',a:'ruler'},{t:'出发去探索',a:'explorer'},{t:'想办法变出奇蹟',a:'magician'}]},
+  {q:'你小時候最常被大人说的是：',
+   opts:[{t:'「你太敏感了」',a:'lover'},{t:'「你太调皮了」',a:'jester'},{t:'「你太倔了」',a:'rebel'},{t:'「你太老實了」',a:'everyman'}]},
+  {q:'你选伴侶最看重的特质是：',
+   opts:[{t:'有深度、看得通透',a:'sage'},{t:'有力量、能保护你',a:'hero'},{t:'有创意、永远有驚喜',a:'creator'},{t:'有温度、让你安心',a:'caregiver'}]},
+  {q:'最後一题｜你希望你的人生像：',
+   opts:[{t:'一首纯淨的歌',a:'innocent'},{t:'一场精彩的冒险',a:'explorer'},{t:'一部感动所有人的电影',a:'hero'},{t:'一幅別人看不懂但你自己看得见的画',a:'magician'}]}
+];
+
+// 原型资料
+var DATA = {
+  innocent:{icon:'🕊️',name:'天真者',en:'The Innocent',
+    sub:'你的心裡住著一个永远相信世界是美好的孩子。',
+    main:'你明明知道世界有黑暗｜你是知道了之後，依然选擇相信光。這是一種很多人做不到的勇气。你的存在让身边的人感觉安心，因为你让他們相信：至少有一个人是真的。<br><br>你的核心驅动力是<strong>对纯粹和安全的渴望</strong>。你討厭複杂、討厭算计、討厭说一套做一套。你希望世界是可以信任的，关係是可以简单的，人是可以善良的。',
+    shadow:'你的盲点是逃避。当現實太殘酷的時候，你可能会选擇不看｜假装它不存在。但问题是，不看不代表它消失了。你需要学会的是：带著天真去面对真相，而不是用天真逃避真相。',
+    cards:['A00 愚者','A17 星星'],oil:'洋甘菊 · 橙花',
+    aroma:'洋甘菊的甘甜像你的纯真｜不设防、不算计、不複杂。但它也有隐藏的力量：消炎、安撫、修复。就像你的善良｜看起來柔软，但它能穿透所有的防備。',
+    aroma_full:'🌿 洋甘菊 2 滴＋橙花 2 滴，稀释在基底油後，早晨塗在手腕和心口。当你感觉世界太重、纯真快要撐不住的時候，在手腕深吸一口洋甘菊，让那股甘甜先在你心裡住一秒鐘。橙花在你觉得「我是不是太傻了」的時刻使用，它不是让你变不聪明，是让你的聪明繼續选擇善良。\n\n认知芳疗解读：天真者的核心焦慮來自一个深层信念，世界应该是安全的，但現實一再打破這个期待。洋甘菊的母菊天蓝烴透过嗅觉神经直接作用於杏仁核，降低边缘系统对威脅讯号的敏感度，让你在看见真相的同時，不会立刻啟动防禦模式。不是让你变得不敏感，是让敏感有个緩冲空间。橙花的沉香醇和乙酸沉香酯同時促进多巴胺和血清素的分泌，在神经科学上就是「即使不确定，我也还好」的感觉基礎。你的纯真不是天真，是一種每次都要重新选擇的勇气。橙花帮你在每次选擇之前，先感觉到那份勇气还在。',
+    med:'手边没有精油？试试這个：\n\n「纯真之錨练習」\n在你感到世界让你失望、快要放棄相信的時候使用。\n\n1. 坐下來，双手放在膝盖上。閉眼，做三次自然的呼吸。不用刻意深呼吸，就让气自己进出。\n\n2. 想起一件最近让你真心微笑过的小事。可以很小，阳光的角度、一句话、一个味道。停在那个记忆裡五秒。\n\n3. 问自己：「這件事是真的嗎？」是的，它是真的。這个微笑、這份温暖，是你真實感受过的。\n\n4. 再想起一件让你对世界失望的事。让這兩件事同時存在，那个让你微笑的和這个让你失望的。它們可以並存。\n\n5. 深吸一口气，对自己说：「我知道世界有黑暗。我选擇繼續相信光。這是我的选擇，不是我的天真。」\n\n你的纯真是一種主动的勇气，不是被动的不知道。每次选擇繼續相信，你都在练習這種勇气。',
+    hour:'H',castle:'静心殿（H 区）'},
+  sage:{icon:'🦉',name:'智者',en:'The Sage',
+    sub:'你活著的目的就是搞清楚：为什麼。',
+    main:'你的脑袋永远在运转一个別人看不见的问题。你想的从來不是明天吃什麼｜你在想「为什麼人会害怕孤独」「這个世界的底层邏輯是什麼」。<br><br>你的核心驅动力是<strong>对真理的追尋</strong>。你受不了膚淺、受不了不精确、受不了「大家都這麼说所以一定是对的」。你需要自己验证过的才算數。',
+    shadow:'你的盲点是知道太多反而动不了。分析到极致就是癱瘓。你需要学会的是：有些事情不需要完全搞清楚才能行动。80% 的理解 + 100% 的行动 > 100% 的理解 + 0% 的行动。',
+    cards:['A09 隐者','A02 女祭司'],oil:'迷迭香 · 乳香',
+    aroma:'迷迭香的清冽像你思維的速度｜一秒打通，什麼都看得清楚。乳香的深沉則是你思考的深度｜不急不躁，一层一层往下挖，直到触碰到那个最深的答案。',
+    aroma_full:'🌿 迷迭香 2 滴＋乳香 2 滴，稀释後塗在太阳穴和後颈。思考卡住的時候，一滴迷迭香放在掌心，深吸兩口，让那股清冽先穿透大脑的霧。乳香在你陷入无止境分析迴圈的時候使用，它不是让你停止思考，是让思考有个落地的地方。\n\n认知芳疗解读：智者的常见困境是知道太多但做不了。迷迭香含有高濃度的 1,8-桉油醇，已在多項研究中确认能提升工作记忆和讯息处理速度，让前額葉从过熱的分析狀态切換到清晰的執行模式。乙酸龍脑酯則有降低皮质醇的效果，帮神经系统从「繃紧思考」切換到「放松洞见」。乳香的倍半萜烯是精油中罕见能穿越血脑屏障的分子，它在边缘系统和前額葉之间建立一个更安静的对话频道，让直觉和邏輯不再互相干擾，而是可以合作。与其说想太多，不如说你的工具太好了，好到有時候过熱。乳香帮你散熱。',
+    med:'手边没有精油？试试這个：\n\n「80 分行动练習」\n在你分析到动弹不得的時候使用。\n\n1. 把你正在思考的问题写下來，一句话就好。\n\n2. 给自己三分鐘，写出你目前知道的三个最有力的论点。三个。不是三十个。\n\n3. 计時器响了，停筆。看著這三个论点，问自己：「如果這是我現在知道的 80%，剩下的 20% 要靠做才知道，那我現在可以往前跨一步嗎？」\n\n4. 如果可以，把這一步写成一个句子：「谁、做什麼、什麼時候。」具体到這个程度。\n\n5. 把纸折起來，放进口袋或抽屜。告诉自己：「100% 的理解需要行动來完成。我先动。」\n\n知道是为了行动服務的，不是行动的替代品。你已经想得够清楚了。',
+    hour:'O',castle:'觉察厅（O 区）'},
+  explorer:{icon:'🧭',name:'探索者',en:'The Explorer',
+    sub:'你的心有一双不肯停下來的脚。',
+    main:'你內在有一股不安分的力量｜你是对「还有更多」這件事有一種本能的确信。你知道這个世界比大多數人看到的要大得多，你不甘心只活在一个角落裡。<br><br>你的核心驅动力是<strong>自由和发現</strong>。你害怕的不是危险，是无聊。被困住比受傷更让你痛苦。',
+    shadow:'你的盲点是停不下來。你一直在「找」，但有没有可能，你要找的東西其實不在外面？有時候最大的探索，是往內走。',
+    cards:['A00 愚者','A18 月亮'],oil:'尤加利 · 佛手柑',
+    aroma:'尤加利的清涼像你走进一片从没人去过的森林時，第一口深呼吸的味道。佛手柑的微苦阳光則是你每次出发前，心裡那句没说出口的话：「我不知道前面有什麼，但我想去看看。」',
+    aroma_full:'🌿 尤加利 2 滴＋佛手柑 2 滴，稀释後塗在手腕和胸口。当你感到被困住、喘不过气、那双脚想跑的時候，一滴尤加利在手腕，让清涼感从手腕传到肺，告诉身体：你現在有空间。佛手柑在你不得不停下來的時候使用，它让「静止」感觉像另一種自由，而不是被困住。\n\n认知芳疗解读：探索者的焦慮核心是空间感消失。当环境让你觉得被限制、被框住的時候，交感神经会啟动一種「逃离」的冲动。尤加利的 1,8-桉油醇有扩张呼吸道的生理效果，這个效果在嗅觉层面转化成一種「空间打开了」的身体感知，不是幻觉，是神经系统接收到了真實的「空间在這裡」讯号。佛手柑的乙酸沉香酯和檸檬烯的组合，让你在静止中感受到一種柔软的自由，而不是強迫你停下來。你对自由的渴望是真實的，但有時候，自由不在外面，在你有没有办法在任何地方都感觉到它。',
+    med:'手边没有精油？试试這个：\n\n「心理旅游练習」\n在你被困住、走不了的時候使用。\n\n1. 閉上眼睛，做三次深呼吸（吸四秒，吐六秒）。\n\n2. 在脑海裡选一个你真正去过、让你感到自由的地方。一个很具体的地方，你知道那裡的空气、声音、脚下的感觉。\n\n3. 花三分鐘，用感官一个一个还原那个地方：先是气味，再是光线，再是声音，最後是空气接触皮膚的温度。\n\n4. 在這个地方待一下。你的身体在這裡，你的心在那裡，兩个地方都是真的。\n\n5. 緩緩睜开眼睛，告诉自己：「我去过那裡，我知道那種感觉是真的。我可以繼續眼前的事，因为我记得那裡还在。」\n\n自由不只存在於你移动的那个地方，也存在於你知道「那个地方还在那裡」這件事。',
+    hour:'U',castle:'解锁密室（U 区）'},
+  ruler:{icon:'👑',name:'统治者',en:'The Ruler',
+    sub:'你走进任何房间，三分鐘內就知道谁说了算。',
+    main:'你天生就有一種让事情井然有序的能力。不是因为你愛管人｜是因为混亂让你焦慮，你相信好的秩序能让所有人过得更好。<br><br>你的核心驅动力是<strong>掌控和建构</strong>。你想要的不是权力本身，是权力带來的效率和稳定。',
+    shadow:'你的盲点是控制欲。不是所有事情都需要你來安排。有些人需要的不是你的方向，是你的信任。学会放手，让別人也有机会成長。',
+    cards:['A04 皇帝','A11 正义'],oil:'雪松 · 黑胡椒',
+    aroma:'雪松的沉稳像你坐鎮全局的气场｜不需要大声说话，在场的人都知道谁是核心。黑胡椒的辛辣則是你做决定的速度：快、准、不留退路。',
+    aroma_full:'🌿 雪松 3 滴＋黑胡椒 1 滴，稀释後在重要决策前塗在後颈和手腕。当你感到失控、或者太想控制的時候，深吸一口雪松，让那份沉稳先进來。黑胡椒在你需要快速拍板但思維打結的時候使用，那股辛辣会让你的决策系统重新发火。\n\n认知芳疗解读：统治者的压力多半來自掌控感的消失或过度維持。雪松的倍半萜烯，特別是雪松烯，作用在杏仁核的皮质醇感受器上，降低失控感触发時的压力反应強度，让你在面对不确定的時候，那个「一定要安排好」的冲动先稍微緩一口气。這不是让你不在乎，是让你的判断不被压力污染。黑胡椒的胡椒鹼刺激正腎上腺素分泌，這个神经传导素和執行功能与快速决策直接相关。兩个组合起來，雪松先把压力调低，黑胡椒再让執行力回來，你的决策会更清醒而不是更冲。',
+    med:'手边没有精油？试试這个：\n\n「放手一件事练習」\n在你感到需要控制一切、或者累到无法掌控一切的時候使用。\n\n1. 拿出一张纸，把你這週在管的所有事情列出來。快速列，不用整齐，兩分鐘內把脑袋裡的全倒出來。\n\n2. 看著這个清单，圈出三件「只有你能做的事」。\n\n3. 其他的，在旁边写上一个名字：谁可以做這件事？可以是任何人，包括「未來的你」或「先放著不管它」。\n\n4. 把那三件事以外的，在心裡跟自己说：「這件事不是我的。」不是放棄，是放下。\n\n5. 把那三件圈起來，告诉自己：「今天，我只需要管這三件事。其他的，我信任。」\n\n真正有能力的人，不是把所有事都攬在身上，是知道哪些事值得你的精力。',
+    hour:'R',castle:'啟程塔（R 区）'},
+  creator:{icon:'🎨',name:'创造者',en:'The Creator',
+    sub:'你的脑袋裡永远有一个还没做出來的東西在等你。',
+    main:'你追求的不只是美｜你是在追求「把內在看见的東西变成外在的真實」。你有一種把虛无变成具体的魔力，而這个过程本身就是你活著的理由。<br><br>你的核心驅动力是<strong>创造和表达</strong>。你受不了重複、受不了制式、受不了「所有人都這样做所以你也要這样做」。',
+    shadow:'你的盲点是完美主义。你脑袋裡的版本永远比你手上的版本好｜所以你常常不愿意让作品「完成」。记住：不完美但完成的作品，比完美但永远在你脑袋裡的作品有价值一万倍。',
+    cards:['A03 皇后','A01 魔术师'],oil:'佛手柑 · 依兰',
+    aroma:'佛手柑的阳光是你灵感爆发時的气味｜明亮、温暖、充满可能性。依兰的甜潤則是你创作時需要的那份沉浸感｜让世界安静下來，只剩下你和你正在做的東西。',
+    aroma_full:'🌿 佛手柑 2 滴＋依兰 2 滴，稀释後在开始创作前塗在手腕內側。当你盯著空白感到窒息的時候，一滴佛手柑在掌心，让那道光先照进來。依兰在你的作品「不够好」的声音出現的時候使用，它不是让你降低标准，是让你先让作品存在，再慢慢调整。\n\n认知芳疗解读：创造者最常面对的心理障礙是「內在理想版本」和「手上實际版本」之间的落差。這个落差直接压制多巴胺的分泌，让创作过程变得痛苦而不是愉快。佛手柑的乙酸沉香酯和 D-檸檬烯组合，在嗅觉系统研究中被反覆确认能提升多巴胺基准值，让你在「还没做好」的狀态下仍然感觉到创作的愉悅，而不是只有完成後才能放松。依兰的苄基乙酸酯有降低前額葉过度批判活动的效果，让那个批判的声音稍微等一下，先让你把東西做出來再说。灵感是第一稿，完美是後來的事。',
+    med:'手边没有精油？试试這个：\n\n「不完美产出练習」\n在你被完美主义卡住、什麼都做不出來的時候使用。\n\n1. 设一个十五分鐘的计時器。\n\n2. 在這十五分鐘裡产出任何東西。不管是文字、草图、音符片段、半成品，越亂越好。這十五分鐘只有一个规則：不能刪掉，只能往前加。\n\n3. 如果批判声音出現了，把它说的话写在旁边的便条纸上，告诉它：「我知道，等等再说。」然後繼續。\n\n4. 计時器响了，停下來，看著你做出來的東西。它存在了。它剛才不存在，現在它在這裡。\n\n5. 问自己：「這裡面有一个值得繼續的東西嗎？哪怕只有一句、一个形狀、一个方向。」通常都有。\n\n完美主义想要的是「不要失败」，但创造想要的是「先存在」。存在了才有改的机会。',
+    hour:'U',castle:'解锁密室（U 区）'},
+  caregiver:{icon:'🤲',name:'照顾者',en:'The Caregiver',
+    sub:'你照顾了所有人，但谁在照顾你？',
+    main:'你的雷达永远对准別人的需求｜谁不开心了、谁需要帮忙了、谁被冷落了｜你第一个看见。你用温暖和行动让身边的人感觉被承接住。<br><br>你的核心驅动力是<strong>保护和滋养</strong>。你相信愛是动词，不是名词。你用做的，不是用说的。',
+    shadow:'你的盲点是犧牲感。你给太多了，给到自己见底了还在给。然後你会委屈、会累、会觉得「为什麼没有人像我对他們那样对我」。答案是：你从來没有教过別人怎麼愛你。',
+    cards:['A03 皇后','A05 教皇'],oil:'玫瑰 · 天竺葵',
+    aroma:'玫瑰的馨香是你给出去的那份温暖｜飽满、无条件、不计較。但這次，這朵玫瑰是给你自己的。天竺葵能帮你在永远对外输出的疲憊裡，找到一个「回到自己」的呼吸空间。',
+    aroma_full:'🌿 天竺葵 3 滴＋玫瑰原精 1 滴，稀释後每天早上塗在心口。這不是给別人的，是给你自己的。当你感到耗尽、给空了、什麼都不想说的時候，一滴天竺葵在手腕，让它先把你的「给」暫停一下，带你回到自己這裡。\n\n认知芳疗解读：照顾者的耗竭不是愛消失了，而是给出去的始终多於进來的，時间久了，神经系统进入一種慢性低度应激狀态，皮质醇持續偏高但不明显，表現出來就是「好累但说不出哪裡累」。天竺葵的香葉醇和沉香醇直接作用在自律神经系统，促进副交感神经的活化，让身体从「输出待机」切換回「充电模式」。這不是让你变得自私，是让你的杯子有机会再装满，你才有東西可以繼續给。玫瑰的苯乙醇对血清素有温和的促进作用，配合天竺葵，它告诉你的神经系统：接受照顾是安全的。你可以让人來的。',
+    med:'手边没有精油？试试這个：\n\n「充电给自己练習」\n在你感觉「空了」、给不出去了的時候使用。只给自己十分鐘。\n\n1. 找一个没人打擾的地方，把手机翻面。\n\n2. 把双手放在心口，感觉手掌的温度和心跳的节奏。停在這裡三十秒，什麼都不用做。\n\n3. 问自己：「我現在最需要的是什麼？」第一个浮現的答案，就是了。不用评估它是否合理，就是那个。\n\n4. 如果那个需求今天可以被满足，哪怕小小地：去做。一杯你喜欢的茶、五分鐘什麼都不想、一个让你笑的影片。就這样。\n\n5. 做完之後，把手再放回心口，告诉自己：「我剛剛照顾了自己。這让我繼續有能力照顾別人。」\n\n你教別人怎麼对你，从你怎麼对自己开始。',
+    hour:'H',castle:'静心殿（H 区）'},
+  magician:{icon:'✨',name:'魔术师',en:'The Magician',
+    sub:'你相信：规則是可以被改写的。',
+    main:'你不接受「事情就是這样」。你看见的世界比大多數人看见的更有弹性｜你知道只要找到对的槓桿，什麼都可以改变。<br><br>你的核心驅动力是<strong>转化和實現</strong>。你活在可能性裡面。当別人说「不可能」的時候，你已经在想第三種做法了。',
+    shadow:'你的盲点是自大。你太相信自己能控制結果，有時候会忽略「有些事情就是不是你能改变的」。不是所有的魔法都有用｜有些時候，最大的魔法是接受。',
+    cards:['A01 魔术师','A10 命运之轮'],oil:'乳香 · 薄荷',
+    aroma:'乳香的古老气息像你的直觉｜不知道从哪裡來，但你知道它是对的。薄荷的清涼是你把直觉转化成行动的那一瞬间｜清醒、果断、不猶豫。',
+    aroma_full:'🌿 乳香 2 滴＋薄荷 1 滴，稀释後在需要清醒判断的時候塗在後颈和太阳穴。当你的直觉在说一件事但邏輯在说另一件事的時候，先吸一口乳香，让這兩个声音有个地方坐下來对话。薄荷在你需要把想法转化成行动的瞬间使用，那道清涼帮你切換到執行模式。\n\n认知芳疗解读：魔术师的核心能力是看见別人看不见的连結，但這个能力也带來挑战，直觉型思維和语言型邏輯之间常常打架。乳香的倍半萜烯，尤其是 β-波旁烯和石竹烯，在研究中显示能增进前額葉和边缘系统的溝通效率，让直觉讯号更容易被理性系统接收和处理，而不是被否决。薄荷的薄荷脑刺激三叉神经，提供一个清醒的感官讯号，帮助你在洞见時刻之後迅速切換到執行狀态，让想法落地而不是飄走。你的直觉是对的，你只需要一个出口让它真的走出去。',
+    med:'手边没有精油？试试這个：\n\n「直觉翻译练習」\n在你有強烈直觉但说不清楚的時候使用。\n\n1. 把你的直觉写下來，就算语言不精确也没关係。可以是「感觉這件事不对」「有个什麼在说不要」或任何不完整的句子。\n\n2. 看著這句话，问：「如果我把這个直觉翻成一个具体的担憂或期待，它是什麼？」写下來。\n\n3. 再问：「如果這个担憂是真的，我需要知道什麼才能确认？有没有一个行动可以给我這个资讯？」\n\n4. 把那个行动写成一个句子：「我可以＿＿，來确认＿＿。」\n\n5. 做這个行动，不是为了否定你的直觉，是为了让你的直觉有机会成为真正可以用的洞见。\n\n直觉是地图，行动是导航。兩个都需要。',
+    hour:'U',castle:'解锁密室（U 区）'},
+  hero:{icon:'⚔️',name:'英雄',en:'The Hero',
+    sub:'你這輩子就是來证明「我可以」的。',
+    main:'你知道害怕，但知道之後，依然选擇往前走。你相信每一个困难都是一次考验，而你就是那个通过考验的人。<br><br>你的核心驅动力是<strong>勇气和突破</strong>。你活在「挑战→征服→成長」的循环裡。没有挑战的人生让你窒息。',
+    shadow:'你的盲点是不允许自己脆弱。你太習慣当那个「没问题」的人了。但英雄也需要休息，也需要被照顾。承认「我今天撐不住了」不是失败｜是人。',
+    cards:['A07 战車','A08 力量'],oil:'黑胡椒 · 雪松',
+    aroma:'黑胡椒的辛辣像你面对挑战時的腎上腺素｜熱、直接、全力以赴。雪松的沉稳則是你在冲鋒之後需要的那个停靠点｜让身体记起來：战士也需要回营休息。',
+    aroma_full:'🌿 黑胡椒 2 滴＋雪松 2 滴，稀释後在大战之前塗在腹部和手腕。当你需要冲上去的時候，一滴黑胡椒在掌心搓熱，让火先点起來。雪松在你冲完了、撐到力气快见底的時候使用，让那份稳重先把你接住，再让你决定下一步。\n\n认知芳疗解读：英雄的核心挑战是永远要撐著。战鬥反应長期維持会让交感神经过度活化，皮质醇和腎上腺素消耗过快，最後导致的不是失败，而是精疲力竭後的意外失控。黑胡椒的胡椒鹼刺激正腎上腺素的分泌，让行动力和专注力在需要的時候快速上线，走的是「有方向的冲刺」而不是「无节制的燃燒」。雪松的雪松烯和大西洋酮作用在杏仁核，降低战後的应激殘留，让神经系统在「任務完成」之後真的能切換到休息，而不是繼續在備战狀态待著。黑胡椒让你打得进去，雪松让你走得出來。英雄需要的不只是勇气，是会保养的勇气。',
+    med:'手边没有精油？试试這个：\n\n「战士归营练習」\n在大量输出之後，帮自己做一个切換仪式。\n\n1. 找一个可以坐下來的地方。如果今天特別消耗，可以是地板，让背靠著墙。\n\n2. 双脚踩地，感觉脚底和地面的接触。做五次慢呼吸（吸四秒，吐八秒）。吐气的時候让嘴脣微微打开，像在叹气。\n\n3. 心裡數今天「我做到了」的事，三件就够。不用大事，可以是「今天准時出门」「撐过了那个场合」。\n\n4. 把双手攤在膝盖上，掌心朝上。感觉這个姿势，你没有在抓任何東西，你允许自己的手空著。\n\n5. 告诉自己：「今天的仗打完了。我可以放下了。明天再说明天的事。」\n\n你的耐力很好，但耐力是可以补充的。补充不是懦弱，是让你繼續有得打。',
+    hour:'R',castle:'啟程塔（R 区）'},
+  rebel:{icon:'🔥',name:'叛逆者',en:'The Rebel',
+    sub:'你來這个世界不是來守规矩的。',
+    main:'你看见规則的第一反应不是遵守｜是问「为什麼」。如果答案是「因为一直都是這样」，那你就更想打破它。你真心觉得世界值得更好的版本。<br><br>你的核心驅动力是<strong>自由和革新</strong>。你无法忍受不公平、无法忍受虛偽、无法忍受「大家都不说但都知道是错的」。',
+    shadow:'你的盲点是为了反叛而反叛。有時候你打破了旧的，但没有建立新的。破坏是容易的，建设才难。真正的叛逆者不只会推倒墙，还会盖一座更好的房子。',
+    cards:['A16 塔','A13 死神'],oil:'黑胡椒 · 薑',
+    aroma:'黑胡椒的火辣像你的性格｜直接、不修饰、不怕得罪人。薑的暖意从深处升起，像你推翻旧世界的真正原因｜不是憤怒，是愛。你愛這个世界，所以你不允许它爛下去。',
+    aroma_full:'🌿 薑 2 滴＋黑胡椒 1 滴，稀释後在你需要往前冲、或需要稳住不被激怒的時候塗在腹部。当系统让你憤怒的時候，一滴薑在手腕，让那股熱先在你這裡找到根，再往外走。黑胡椒在你需要说那句话、做那件事的時候使用，让你的行动有准头。\n\n认知芳疗解读：叛逆者的憤怒是愛的另一面，但纯粹的憤怒燃燒的是自己。薑的薑烯和薑辣素作用在神经系统的方式很有意思，它不是安撫憤怒，而是把憤怒的能量「下引」到身体核心，从冲动转化成有根的力量。這在生理上对应的是薑对核心循环和消化系统的促进作用，让那股火从没有依托的爆炸变成有依托的推进力。黑胡椒的胡椒鹼帮你的前額葉在情緒最激烈的時候維持一定程度的執行功能，让行动有方向而不是纯粹发洩。你的憤怒是对的，但对的憤怒要打到对的地方才有用。',
+    med:'手边没有精油？试试這个：\n\n「火转力量练習」\n在你憤怒到快要失去方向、或者憤怒卡住了动不了的時候使用。\n\n1. 站起來，双脚与肩同寬，踩稳。感觉脚跟和地面之间的接触，用力踩三下。\n\n2. 做三次有力的呼吸：用鼻子快速吸气，用嘴巴有力地呼出，像在吹一根蠟燭，但是有节奏地把气推出去，不是轻轻吹。\n\n3. 把双手握拳，然後慢慢松开。重複五次，每一次松开的時候感觉手掌的熱。\n\n4. 问自己：「我要打破這个，是为了什麼？」让那个「为了什麼」说清楚一点。不是「因为它不对」，而是「为了让它变成什麼样」。\n\n5. 把那个「为了什麼」写下來，一句话。這就是你的方向。有方向的憤怒是推进力，没方向的憤怒是自燃。\n\n你不只是在反对，你是在要求更好。让這个更好的样子变得清楚。',
+    hour:'R',castle:'啟程塔（R 区）'},
+  lover:{icon:'💗',name:'愛人',en:'The Lover',
+    sub:'你活著就是为了感受｜深深地、完整地、毫不保留地感受。',
+    main:'你的世界比大多數人的世界更飽满。同样一首歌、同样一个眼神、同样一场雨｜你感受到的是別人的好幾倍。這让你活得很美，也活得很累。<br><br>你的核心驅动力是<strong>连結和感受</strong>。你追求的不是膚淺的喜欢，是那種「我的心认得你的心」的深度。',
+    shadow:'你的盲点是太容易失去自己。你在愛裡面会把自己的边界溶解掉，变成对方想要的样子。你需要记住：真正的愛不需要你放棄自己。能在愛裡保持完整的人，才愛得最久。',
+    cards:['A06 恋人','A03 皇后'],oil:'玫瑰 · 依兰',
+    aroma:'玫瑰的气味不是甜的｜是那種让你心口突然柔软了一下的感觉。依兰在深夜綻放的濃郁像你的感受力｜在安静的時候最強烈，在没人看到的地方最飽满。',
+    aroma_full:'🌿 依兰 2 滴＋玫瑰原精 1 滴，稀释後塗在心口和手腕。在你需要感受愛、或感受太多想关掉的時候都可以用。当感受淹没了你的時候，玫瑰先把你接住。依兰在你感到乾涸、感受不到任何東西的時候使用，它轻轻把你叫醒，但不是突然叫醒。\n\n认知芳疗解读：愛人的感受系统是全开的，這让你能接收到別人接收不到的美，也让你容易被淹没。玫瑰的苯乙醇和香葉醇在神经科学研究中被确认对边缘系统有双向调节的效果，可以在过度感受的時候降低杏仁核的反应強度，也可以在麻木的時候让感受系统重新啟动。這就是玫瑰被称为「心的精油」的神经科学解释，它让心的弹性区间变大，不是让你感受更多或更少，而是让你在感受裡保持住自己。依兰的苄基乙酸酯在感受被压制或关閉的時候，透过嗅觉系统直接触发情緒记忆区，让沉积的感受有个出口，慢慢流动起來。不是強迫你感受，是让感受有流动的空间。',
+    med:'手边没有精油？试试這个：\n\n「感受边界练習」\n在你被情緒淹没、感觉找不到自己的時候使用。\n\n1. 找一个可以坐著的地方。双脚踩地，感觉你的身体在椅子上的重量。這个重量就是你，是你在這裡。\n\n2. 把兩隻手放在大腿上，感觉手掌的温度和大腿的触感。你感觉到的，是你的感觉，不是別人的。停留三十秒。\n\n3. 问自己：「這个感受，是我的，还是我从別人那裡接过來的？」不需要马上答得清楚，就让问题在那裡。\n\n4. 深吸一口气，吐气的時候在心裡说：「我感受到了。這个感受是真實的。而且它不会淹没我，因为我还在這裡。」\n\n5. 动一动你的脚趾，再动一动你的手指。這个小动作让神经系统确认：你的身体的边界还在，你没有消失在感受裡。\n\n你的感受力是礼物，前提是你记得你和你的感受不是同一个東西。你可以充分感受，又同時保持住自己。',
+    hour:'H',castle:'静心殿（H 区）'},
+  jester:{icon:'🃏',name:'弄臣',en:'The Jester',
+    sub:'你让人觉得活著是一件好玩的事。',
+    main:'你太懂得人间的苦，所以选擇用笑來对抗。你的幽默不是逃避｜是一種对抗荒謬的武器。你让嚴肅的人放松、让压抑的人呼吸、让哭泣的人笑出來。<br><br>你的核心驅动力是<strong>喜悅和自在</strong>。你相信人生不需要那麼嚴肅，规則不需要那麼死板，笑可以解决 90% 的问题。',
+    shadow:'你的盲点是用笑迴避真正的痛。你太擅長搞笑了，擅長到有時候连你自己都忘了你其實在哭。你需要学会的是：允许自己不好笑的時候，也是安全的。',
+    cards:['A00 愚者','A19 太阳'],oil:'甜橙 · 佛手柑',
+    aroma:'甜橙的爆裂像你的笑声｜阳光、直接、让整个房间都亮了。佛手柑微苦的尾韻則是你没给人看到的那一面｜那个在笑容背後，其實很需要被拥抱的你。',
+    aroma_full:'🌿 甜橙 3 滴＋佛手柑 2 滴，稀释後随時可以塗，或者直接在空间裡扩香。当你的幽默感消失了、笑不出來、一切都索然无味的時候，深吸一口甜橙，让那个简单的快樂先进來。佛手柑在那些你用笑掩盖但其實需要被照顾的時刻使用，它允许你不必那麼好笑。\n\n认知芳疗解读：弄臣的心理矛盾在於，他們最擅長製造快樂，卻往往最难为自己找到快樂。甜橙的 D-檸檬烯是目前嗅觉研究中对多巴胺系统最直接的促进劑之一，它不需要你先有理由才能开心，繞过「需要理由」這个认知步驟，直接触发多巴胺分泌。這就是为什麼聞到甜橙你会自动想微笑，這不是心理作用，是神经化学。佛手柑的乙酸沉香酯和芳樟醇在研究中反覆被确认能降低「情緒遮蔽」的程度，就是那種其實很难过但表面上完全看不出來的狀态，让被压在笑容下面的感受有机会浮上來，被你自己看见。你不需要一直好笑，你的难过也值得被好好感受。',
+    med:'手边没有精油？试试這个：\n\n「让自己被照顾练習」\n在你又要扮演「那个让大家笑」的角色、但其實自己今天不太好的時候使用。\n\n1. 在這个练習开始之前，先说一件今天让你觉得「有点难」的事。说给自己聽，不需要说给任何人，默念就好。说真實的，不是开玩笑的版本。\n\n2. 让這件事在你心裡待五秒鐘，不要马上把它变成一个梗，就让它在那裡。\n\n3. 问自己：「如果有一个很懂我的朋友知道了，他会说什麼？」在心裡让那个朋友说那句话。\n\n4. 接住那句话。让它进來。不用说谢谢，不用回应，就接住。\n\n5. 最後，告诉自己：「我也需要被照顾。好笑的我是真的，不好笑的我也是真的。兩个都是我。」\n\n你是那个让房间亮起來的人。但房间亮的時候，你有没有给自己一点光？',
+    hour:'O',castle:'觉察厅（O 区）'},
+  everyman:{icon:'🤝',name:'凡人',en:'The Everyman',
+    sub:'你不需要成为最特別的那个｜你就是让世界正常运转的那个人。',
+    main:'你的力量不在於出眾，在於可靠。你是那个记得每个人生日、默默把事情做完、让团队有归属感的人。你不需要聚光灯，你就是那盞让所有人安心的常夜灯。<br><br>你的核心驅动力是<strong>归属和连結</strong>。你想要的很简单：一群你在乎的人，在一个安心的地方，过著踏實的日子。',
+    shadow:'你的盲点是太害怕「不一样」。你为了融入群体，有時候会压抑自己真正的想法。你的普通是你的超能力｜但前提是，這个普通是你自己选的，不是你被迫的。',
+    cards:['A05 教皇','A20 审判'],oil:'岩兰草 · 广藿香',
+    aroma:'岩兰草的泥土气息就是你｜稳、實、不张揚，但少了你整个地基都会松。广藿香带著大地的厚重提醒你：你不需要变成別人，你就是別人在亂世裡最想靠近的安稳。',
+    aroma_full:'🌿 岩兰草 2 滴＋广藿香 2 滴，稀释後每天晚上塗在脚底和後颈。当你感到自己「太普通了」、怀疑自己的位置和价值的時候，深吸一口岩兰草，让那份沉稳的泥土气息告诉你：紮根本身就是一種力量。广藿香在你被人比較、或者你自己开始比較的時候使用，它把你带回你自己的节奏。\n\n认知芳疗解读：凡人原型常面对的心理挑战是归属感和个人性的拉鋸，想融入但又怕失去自己，想做自己但又怕被排除在外。岩兰草的岩兰草醇和 β-岩兰烯作用在杏仁核的社会威脅感知系统，降低「被排除」這个情境触发的恐懼強度，让你在群体中可以选擇融入，而不是被迫融入。主动的融入和被迫的融入，杏仁核的活化模式是不同的，這个差距在神经科学上是真實的。广藿香的广藿香醇提供一種「我在我自己這裡」的內在感，让你不需要在群体的认可裡才能感受到自己的存在。你是地基，不是装饰。地基不需要特別显眼，但少了你一切都搖。',
+    med:'手边没有精油？试试這个：\n\n「我的独特之处练習」\n在你感觉自己太普通、怀疑自己的价值的時候使用。\n\n1. 拿一张纸，写下一件「別人曾经因为你的存在而感到轻松或被照顾到」的事。不需要是大事，可以是你默默做了什麼、说了什麼、在场了什麼。\n\n2. 看著這件事，问：「做這件事的人是随便谁都可以嗎？还是需要是我？」大多數時候，它需要是你，因为只有你有那个眼光、那个心、那个位置。\n\n3. 在心裡对那个因你而感到轻松的人说一句话。默念就好，说什麼都可以。\n\n4. 現在问自己：「如果我不在，這件小事会有人做嗎？」让问题让你意识到，你的位置是真實的。\n\n5. 告诉自己：「我不需要特別，我只需要是我。世界需要的不只是英雄，也需要让英雄回家有飯吃的那个人。」\n\n普通不是输，是让世界正常运转的那份力量。你不需要发光，你已经在给温度了。',
+    hour:'H',castle:'静心殿（H 区）'}
+};
+
+var HOUR_MAP = {
+  H:{label:'H · Heal · 身心校准',text:'你的原型最需要的是好好照顾自己。不是「变更好」｜是让自己先休息够。'},
+  O:{label:'O · Own · 智慧辨识',text:'你的原型最需要的是看见自己的盲点。看见了，你就自由了。'},
+  U:{label:'U · Unlock · 潜能解锁',text:'你的原型最需要的是推开那扇你一直看著但不敢推的门。'},
+  R:{label:'R · Rise · 行动进化',text:'你的原型最需要的是把你知道的变成你做到的。行动。'}
+};
+
+// ══════ 测验邏輯 ══════
+
+var answers={}, currentQ=0;
+
+function startQuiz(){
+  answers={};currentQ=0;
+  document.querySelector('.quiz-hero').style.display='none';
+  document.getElementById('progressWrap').style.display='block';
+  document.getElementById('questionsArea').style.display='block';
+  document.getElementById('quizResult').classList.remove('active');
+  renderQ();
+}
+
+function renderQ(){
+  var q=QUESTIONS[currentQ];
+  var opts=q.opts.sort(function(){return Math.random()-0.5});
+  var html='<div class="quiz-question-card"><div class="quiz-q-number">'+(currentQ+1)+' / '+QUESTIONS.length+'</div>'
+    +'<div class="quiz-q-text">'+q.q+'</div><div class="quiz-options">';
+  opts.forEach(function(o,i){
+    html+='<button class="quiz-option" onclick="answer(\''+o.a+'\',this)">'+o.t+'</button>';
+  });
+  html+='</div></div>';
+  document.getElementById('questionsArea').innerHTML=html;
+  document.getElementById('progressFill').style.width=((currentQ/QUESTIONS.length)*100)+'%';
+  document.getElementById('progressText').textContent=(currentQ+1)+' / '+QUESTIONS.length;
+}
+
+function answer(a,btn){
+  answers[currentQ]=a;
+  btn.classList.add('selected');
+  setTimeout(function(){
+    currentQ++;
+    if(currentQ>=QUESTIONS.length) showResult();
+    else renderQ();
+  },300);
+}
+
+function showResult(){
+  // 计分
+  var scores={};
+  ARCHETYPES.forEach(function(a){scores[a]=0});
+  Object.values(answers).forEach(function(a){scores[a]=(scores[a]||0)+1});
+
+  // 排序
+  var sorted=ARCHETYPES.slice().sort(function(a,b){return scores[b]-scores[a]});
+  var top=sorted[0];
+  var second=sorted[1];
+  var r=DATA[top];
+
+  document.getElementById('questionsArea').style.display='none';
+  document.getElementById('progressWrap').style.display='none';
+
+  // 称号
+  document.getElementById('hlTitleReveal').innerHTML='<div class="screenshot-card" id="screenshotCard">'
+    +'<div class="ss-brand">HOUR LIGHT ✦ 馥灵之钥</div>'
+    +'<div class="ss-icon">'+r.icon+'</div>'
+    +'<div class="ss-title">'+r.name+'</div>'
+    +'<div class="ss-sub">'+r.sub+'</div>'
+    +'<div class="ss-tags"><span class="ss-tag">'+r.en+'</span><span class="ss-tag">'+r.castle+'</span></div>'
+    +'<div class="ss-quote">'+r.aroma.split('。')[0]+'。</div>'
+    +'<div class="ss-footer">hourlightkey.com ✦ 你的城堡，你的钥匙</div></div>';
+
+  // Hero
+  document.getElementById('resultHero').innerHTML='<div class="archetype-icon">'+r.icon+'</div>'
+    +'<div class="result-type-label">榮格原型测验結果</div>'
+    +'<div class="result-type-code" style="font-size:2rem;letter-spacing:4px">'+r.name+'</div>'
+    +'<div class="result-subtitle" style="font-size:.92rem;opacity:.7">'+r.en+'</div>'
+    +'<div class="result-subtitle">'+r.sub+'</div>';
+
+  // 分數条
+  var dh='';
+  sorted.slice(0,6).forEach(function(a){
+    var pct=Math.round(scores[a]/QUESTIONS.length*100);
+    var d=DATA[a];
+    dh+='<div class="dim-item"><div class="dim-label">'+d.icon+' '+d.name+' '+pct+'%</div>'
+      +'<div class="dim-bar-wrap"><div class="dim-bar-fill" style="width:'+pct+'%"></div></div></div>';
+  });
+  document.getElementById('dimsGrid').innerHTML=dh;
+
+  document.getElementById('resultMain').innerHTML='<div class="result-section-title">✦ 你是谁</div><div class="result-section-content">'+r.main+'</div>';
+  document.getElementById('resultShadow').innerHTML='<div class="result-section-title">🌑 你的阴影</div><div class="result-section-content">'+r.shadow+'</div>';
+
+  // 牌卡映射（核心转化橋！）
+  document.getElementById('cardMap').innerHTML='<div class="card-mapping">'
+    +'<div class="cm-title">✦ 你的原型 × 馥灵 22 张原型卡</div>'
+    +'<div style="font-size:.9rem;color:rgba(249,240,229,.6);margin-bottom:10px;line-height:1.8">'
+    +'你的內在原型「'+r.name+'」对应以下馥灵原型卡。<br>這不是巧合｜130 张牌卡的前 22 张，就是根据榮格原型设计的。</div>'
+    +'<div class="cm-cards">'+r.cards.map(function(c){return '<span class="cm-chip">'+c+'</span>'}).join('')+'</div>'
+    +'<div style="margin-top:14px"><a href="draw-hl.html" style="color:rgba(233,194,125,.8);font-size:.9rem">→ 去抽你的原型卡，聽聽它現在想对你说什麼</a></div>'
+    +'</div>';
+
+  // H.O.U.R.
+  var h=HOUR_MAP[r.hour];
+  document.getElementById('resultHour').innerHTML='<div class="hour-bridge-label">✦ H.O.U.R. 座标</div>'
+    +'<div style="font-size:.9rem;color:rgba(233,194,125,.7);margin:6px 0">'+h.label+'</div>'
+    +'<div class="hour-bridge-text">'+h.text+'</div>'
+    +'<a href="draw-hl.html" class="hour-bridge-cta">抽一张原型卡，聽聽自己的声音 ✨</a>';
+
+  // 认知芳疗 + 觉察冒想
+  if(r.aroma_full){
+    document.getElementById('resultAroma').innerHTML='<div class="result-section-title">🌿 认知芳疗指引</div><div class="result-section-content">'+r.aroma_full.replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>')+'</div>';
+    document.getElementById('resultMed').innerHTML=r.med?'<div class="result-section-title">🧘 随時可做的觉察冒想</div><div class="result-section-content">'+r.med.replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>')+'</div>':'';
+  }else{
+    document.getElementById('resultAroma').innerHTML='<div class="aroma-landing"><div class="al-label">🌿 馥灵香气著陸 · '+r.oil+'</div><div class="al-text">'+r.aroma+'</div></div>';
+    document.getElementById('resultMed').innerHTML='';
+  }
+
+  // 转化橋
+  if(window.HLBridge) HLBridge.inject('bridgeArea','quiz','medium');
+
+  document.getElementById('quizResult').classList.add('active');
+  if(window.HL_track) HL_track('quiz_complete',{toolId:'quiz',toolName:'觉察测验'});
+  document.getElementById('quizResult').scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(function(){if(typeof HLPOINTS!=='undefined')HLPOINTS.triggerQuizEgg('archetype');},2000);
+  if(window.HLFX) HLFX.particles({color:'rgba(233,194,125,0.4)',count:35,spread:'radial',duration:3000});
+
+  window._archetype=top;
+  window._resultText='【馥灵之钥 榮格原型测验】\n我是 '+r.icon+' '+r.name+' '+r.en+'\n「'+r.sub+'」\n\n测测你的內在原型 👉 hourlightkey.com/sc/quiz-archetype.html';
+}
+
+function restartQuiz(){
+  answers={};currentQ=0;
+  document.getElementById('quizResult').classList.remove('active');
+  document.querySelector('.quiz-hero').style.display='';
+  document.getElementById('progressWrap').style.display='none';
+  document.getElementById('questionsArea').style.display='none';
+}
+</script>
+<script src="../assets/js/hl-announce.js?v=4"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="../assets/js/firebase-config.js"></script>
+<script src="../assets/js/hl-referral.js?v=20260323"></script>
+<script src="../assets/js/hl-castle-key.js"></script>
+<script src="../assets/js/hl-castle-sync.js"></script>
+<script src="../assets/js/hl-ai-gate.js"></script>
+<script src="../assets/js/hl-gate.js"></script>
+<script src="../assets/js/hl-record.js"></script>
+<script src="../assets/js/hl-email.js"></script>
+<script src="../assets/js/hl-chat.js"></script>
+<script src="../assets/js/hl-aroma-fx.js" defer></script>
+
+<footer class="hl-footer">
+  <div class="hl-footer-inner">
+    <div class="hl-footer-brand">
+      <div class="hl-footer-logo"><img src="LOGO-1.png" alt="" class="hl-logo-icon" aria-hidden="true" loading="lazy">馥灵之钥 Hour Light</div>
+      <div class="hl-footer-tagline">读懂自己，活对人生｜创办人 王逸君</div>
+    </div>
+    <div class="hl-footer-social" style="display:flex;gap:16px;justify-content:center;align-items:center;margin:16px 0;flex-wrap:wrap">
+      <a href="https://www.facebook.com/share/1QoZr7swk4/?mibextid=wwXIfr" target="_blank" rel="noopener" title="Facebook 馥灵之钥" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">f</a>
+      <a href="https://www.instagram.com/judyanee" target="_blank" rel="noopener" title="Instagram @judyanee" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">📸</a>
+      <a href="https://www.youtube.com/@judyanee" target="_blank" rel="noopener" title="YouTube @judyanee" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">▶</a>
+      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" title="LINE @hourlight" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">💬</a>
+      <a href="podcast.html" title="Podcast" style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(248,223,165,0.2);color:#f8dfa5;text-decoration:none;font-size:1.1rem;transition:all .3s;background:rgba(248,223,165,0.05)" onmouseover="this.style.borderColor='rgba(248,223,165,0.5)';this.style.boxShadow='0 0 12px rgba(248,223,165,0.2)'" onmouseout="this.style.borderColor='rgba(248,223,165,0.2)';this.style.boxShadow='none'">🎙</a>
+    </div>
+    <div class="hl-footer-links">
+      <a href="app.html">🔑 我的內在城堡</a><a href="index.html">首页</a>
+      <a href="fuling-mima.html">生命秘码</a><a href="draw-hl.html">线上抽牌</a>
+      <a href="destiny-engine.html">命盘引擎</a><a href="services.html">服務項目</a>
+      <a href="courses.html">课程学苑</a><a href="book.html">著作</a>
+      <a href="founder.html">关於创办人</a><a href="hourlight-sitemap.html">网站地图</a>
+      <a href="privacy.html">隐私政策</a><a href="terms.html">服務条款</a>
+      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener">LINE 咨询</a>
+    </div>
+    <div class="hl-footer-copyright">© 2026 馥灵之钥国际有限公司 Hour Light International Co., Ltd.｜统编：60303284<br>All Rights Reserved.</div>
+  </div>
+</footer>
+<script src="../assets/js/hl-topnav.js"></script>
+<script src="../assets/js/hl-bottomnav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="../assets/js/hl-share.js"></script>
+<script src="../assets/js/hl-tracker.js" data-tool="quiz-archetype" data-tool-name="觉察原型测验" data-tool-type="quiz"></script>
+<script src="../assets/js/hl-points.js"></script>
+<script src="../assets/js/hl-quiz-save.js"></script>
+</body>
+</html>
