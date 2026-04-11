@@ -963,32 +963,27 @@ async function doCalc(){
   var msg=document.getElementById('loadMsg');
   try{
     var planets,dPlanets,engineUsed='';
-    // ═══ 優先嘗試 Swiss Ephemeris WASM ═══
-    if(!SWE_READY&&!SWE_TRIED){msg.textContent='正在載入瑞士星曆表...';await loadSwissEph();}
-    if(SWE_READY){
-      msg.textContent='瑞士星曆表計算中...';
-      var pRes=sweCalcPlanets(Y,M,D,H,Min,tz);
-      planets=pRes.planets;
-      var dRes=sweDesignDate(pRes.jd,planets.sun.lon);
-      dPlanets=dRes.dPlanets;
-      engineUsed='Swiss Ephemeris';
-      // 凱龍星：用 JSON 補（Moshier 不支援小行星）
-      try{
-        await loadEphemeris();
-        var jp=ephLookup(Y,M,D,H,Min,tz);
-        if(jp&&jp.chiron)planets.chiron=jp.chiron;
-        // 設計凱龍也從 JSON 取
-        var jdp=getDesignDate(Y,M,D,H,Min,tz,jp);
-        if(jdp&&jdp.chiron)dPlanets.chiron=jdp.chiron;
-      }catch(e){}
-    }else{
-      // ═══ JSON 星曆 Fallback ═══
-      msg.textContent='正在載入星曆資料...';
-      await loadEphemeris();
+    // ═══ 優先使用 JSON 星曆（已驗證精度正確）═══
+    msg.textContent='正在載入星曆資料...';
+    await loadEphemeris();
+    if(EPH){
       planets=ephLookup(Y,M,D,H,Min,tz);
       if(!planets){alert('找不到星曆資料，請確認年份在1920-2060之間');return;}
       dPlanets=getDesignDate(Y,M,D,H,Min,tz,planets);
-      engineUsed='JSON 星曆';
+      engineUsed='馥靈星曆';
+    }else{
+      // ═══ JSON 載入失敗時 Fallback 到 WASM ═══
+      if(!SWE_READY&&!SWE_TRIED){msg.textContent='正在載入瑞士星曆表...';await loadSwissEph();}
+      if(SWE_READY){
+        msg.textContent='瑞士星曆表計算中...';
+        var pRes=sweCalcPlanets(Y,M,D,H,Min,tz);
+        planets=pRes.planets;
+        var dRes=sweDesignDate(pRes.jd,planets.sun.lon);
+        dPlanets=dRes.dPlanets;
+        engineUsed='Swiss Ephemeris';
+      }else{
+        alert('星曆載入失敗，請重新整理頁面');return;
+      }
     }
     msg.textContent=engineUsed+' ✓';setTimeout(function(){msg.textContent='';},2500);
     var hd=calcHumanDesign(planets,dPlanets);
