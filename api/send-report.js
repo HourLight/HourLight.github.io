@@ -143,7 +143,7 @@ function buildReportHTML(name, system, content) {
     + '<p style="font-size:15px;color:#333;line-height:1.8;margin-bottom:16px">' + esc(greeting) + '</p>'
     + '<p style="font-size:14px;color:#666;line-height:1.8;margin-bottom:20px">'
     + '這是你剛才在馥靈之鑰「' + esc(system) + '」算出來的結果，幫你存起來了。<br><br>'
-    + '你可以慢慢看，也可以把下面這段資料複製起來，貼到我們官網的「AI 深度解讀」功能，就能得到更完整的分析。</p>'
+    + '你可以慢慢看，也可以把下面這段資料複製起來，貼到 <a href="https://claude.ai" style="color:#c9985e;text-decoration:underline">Claude AI</a> 就能得到更完整的深度解讀。（我們最推薦用 Claude，解讀品質最好。）</p>'
     + '<div style="background:#faf6ee;border:1px solid #e8d5a8;border-radius:8px;padding:20px;margin:16px 0">'
     + '<div style="font-size:13px;color:#555;line-height:1.85;font-family:monospace,serif;white-space:pre-wrap;word-break:break-word">'
     + formatted
