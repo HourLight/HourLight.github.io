@@ -143,6 +143,19 @@ var courseData = null;
 var userProgress = null;
 var currentChapter = 0;
 
+// 付款返回偵測
+(function(){
+  var params = new URLSearchParams(location.search);
+  if (params.get('payment') === 'success') {
+    var banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:9999;padding:14px 24px;border-radius:10px;background:rgba(18,13,28,.96);color:#f8dfa5;font-size:.9rem;border:1px solid rgba(248,223,165,.3);box-shadow:0 4px 20px rgba(0,0,0,.4);max-width:90vw;text-align:center;line-height:1.6';
+    banner.textContent = '✓ 付款已完成，課程開通處理中，請稍候重新整理頁面';
+    document.body.appendChild(banner);
+    setTimeout(function(){ banner.style.opacity='0'; banner.style.transition='opacity .5s'; }, 8000);
+    if (history.replaceState) history.replaceState(null, '', location.pathname + '?id=' + courseId);
+  }
+})();
+
 auth.onAuthStateChanged(function(user){
   if (!user) {
     document.getElementById('guardArea').style.display = 'flex';
@@ -183,9 +196,33 @@ function loadCourse(user){
     if (!progressDoc.exists || !progressDoc.data().paid) {
       document.getElementById('guardArea').style.display = 'flex';
       document.getElementById('guardTitle').textContent = courseData.name || '課程';
-      document.getElementById('guardDesc').innerHTML = (courseData.desc || '') + '<br><br>NT$ ' + (courseData.price||0).toLocaleString();
-      document.getElementById('guardBtn').href = 'courses.html';
-      document.getElementById('guardBtn').textContent = '前往購買';
+      var coursePrice = courseData.price || 0;
+      document.getElementById('guardDesc').innerHTML = (courseData.desc || '') + '<br><br>NT$ ' + coursePrice.toLocaleString();
+      // PAYUni 線上付款按鈕
+      var btn = document.getElementById('guardBtn');
+      btn.href = 'javascript:void(0)';
+      btn.textContent = '線上付款 NT$' + coursePrice.toLocaleString();
+      btn.onclick = function(){
+        btn.textContent = '處理中⋯⋯';
+        btn.style.pointerEvents = 'none';
+        // lazy-load hl-payment.js
+        function doPay(){
+          window.HLPayment.pay({
+            productId: 'course-' + courseId,
+            productName: courseData.name || '覺察師課程',
+            amount: coursePrice,
+            userId: user.uid,
+            userEmail: user.email || '',
+            returnUrl: location.href.split('?')[0] + '?id=' + courseId + '&payment=success'
+          });
+        }
+        if (window.HLPayment && window.HLPayment.pay) { doPay(); return; }
+        var s = document.createElement('script');
+        s.src = 'assets/js/hl-payment.js';
+        s.onload = doPay;
+        s.onerror = function(){ alert('付款模組載入失敗，請稍後再試。'); btn.textContent = '線上付款 NT$' + coursePrice.toLocaleString(); btn.style.pointerEvents = ''; };
+        document.head.appendChild(s);
+      };
       return;
     }
 
