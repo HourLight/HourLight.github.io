@@ -242,7 +242,7 @@ async function handleAkashic(req, res, apiKey) {
       'anthropic-version': '2023-06-01'
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 10000,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }]
@@ -419,7 +419,7 @@ async function handleYuanChen(req, res, apiKey) {
       'anthropic-version': '2023-06-01'
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 10000,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }]
@@ -551,7 +551,7 @@ async function handlePastLife(req, res, apiKey) {
       'anthropic-version': '2023-06-01'
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 6000,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }]
@@ -705,7 +705,7 @@ async function handleName(req, res, apiKey) {
       'anthropic-version': '2023-06-01'
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 4000,
       system: systemPrompt,
       messages: [{ role: 'user', content: userMsg }]
@@ -1250,7 +1250,7 @@ async function handleWallpaper(req, res, apiKey) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 1200,
         system: claudeSystemPrompt,
         messages: [{ role: 'user', content: claudeUserPrompt }]

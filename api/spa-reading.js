@@ -1614,7 +1614,7 @@ SPA 覺察處方箋 AI 解牌指令系統 v2.0
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: spread >= 9 ? 16000 : spread >= 5 ? 7000 : 5000,
         system: systemPrompt,
         messages: [
