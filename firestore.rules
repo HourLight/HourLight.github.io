@@ -14,11 +14,17 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ═══ 管理員白名單函數 ═══
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email in ['judyanee@gmail.com', 'info@hourlightkey.com', 'judyanee@hotmail.com'];
+    }
+
     // ═══ 用戶主文件 ═══
     // users/{uid} → 用戶資料（plan, email, displayName 等）
     match /users/{userId} {
-      // 本人讀寫 + admin 讀
-      allow read: if request.auth != null && request.auth.uid == userId;
+      // 本人讀寫 + admin 可讀所有用戶（管理後台統計用）
+      allow read: if (request.auth != null && request.auth.uid == userId) || isAdmin();
       allow write: if request.auth != null && request.auth.uid == userId;
 
       // ═══ AI 每週計次 ═══
