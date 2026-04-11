@@ -384,9 +384,10 @@ function render(container){
 /* ── 初始化 ── */
 function init(){
   var container=document.getElementById('meridianClockContainer');
-  if(!container) return;
+  if(!container) return -1;
 
   var currentIdx=render(container);
+  renderPersonalBlock(container, currentIdx);
   var endMs=getEndMs(currentIdx);
 
   setInterval(function(){
@@ -395,6 +396,7 @@ function init(){
     if(el) el.textContent='距離下個時辰 '+formatCountdown(remain);
     if(remain<=0){
       currentIdx=render(container);
+      renderPersonalBlock(container, currentIdx);
       endMs=getEndMs(currentIdx);
     }
   },1000);
@@ -416,6 +418,111 @@ function init(){
   },8000);
 }
 
+/* ── 個人化建議（H數 × 時辰）── */
+var PERSONAL_ADVICE = {
+  safe: {   // H數 1-3：需要安全感
+    0:'膽經管決斷力。此刻放下手機，讓自己安靜躺著就好。安全感從好好休息開始。',
+    1:'肝經在排解壓抑。如果醒了，告訴自己：不需要馬上解決什麼，先讓身體完成它的工作。',
+    2:'肺經在分配一天的氣。如果睡得好，繼續睡。你比自己想像的更需要這份安穩。',
+    3:'大腸經在幫你放下。喝一杯溫水，讓身體帶著你練習「不用抓那麼緊」。',
+    4:'胃經吸收力最強。安安靜靜吃一頓早餐，不滑手機、不趕時間。這是一天安全感的基底。',
+    5:'脾主運化，也管思慮。把擔心的事寫下來，寫完就放著。脾消化食物，也消化焦慮。',
+    6:'心經管神志。閉眼休息十五分鐘。不用睡著，光是閉眼就能讓心安靜下來。',
+    7:'小腸幫你分清楚什麼重要、什麼不重要。列一個「今天只做這三件事」的清單。',
+    8:'膀胱經管恐懼。站起來走一走，喝杯水。身體動了，不安感會跟著鬆開。',
+    9:'腎藏精，管元氣。傍晚了，慢下來。泡腳、散步都好，別再硬撐。',
+    10:'心包經管距離感。找一個讓你安心的人，聊幾句就好。不需要說什麼深刻的。',
+    11:'三焦通調全身。準備休息了。洗個澡、關手機，讓今天好好收尾。'
+  },
+  connect: { // H數 4-6：需要連結感
+    0:'膽經管決斷。睡前想一個明天想見的人，帶著這個念頭入睡。',
+    1:'肝經在修復情緒。如果醒了，不必找人聊，先跟自己的身體待一會兒。',
+    2:'肺經在調氣。深呼吸三次，感受自己跟這個空間的連結。不需要別人，你跟自己也能在一起。',
+    3:'大腸經時段。起床後傳一則訊息給在乎的人，不用太長，一句問候就夠了。',
+    4:'胃經最旺。找人一起吃早餐，或者打個電話。吃飯這件事，一起吃比吃什麼重要。',
+    5:'脾主思。把今天想跟誰說的話先在心裡想一遍。好的連結從好的準備開始。',
+    6:'心經管親密感。午休時跟同事聊幾句無關工作的事。人跟人的關係是在瑣碎裡累積的。',
+    7:'小腸分清泌濁。想想最近有沒有哪段關係讓你不舒服，允許自己調整距離。',
+    8:'膀胱經走全背。找人互相按按肩膀，身體的接觸比語言更直接。',
+    9:'腎經時段。跟家人安靜待在一起。不用特別做什麼，在就好。',
+    10:'心包經管人際距離。這個時間最適合好好說話。想修復的關係，現在開口。',
+    11:'三焦管全身水道。睡前跟自己說一句：今天有好好跟人在一起，這樣就夠了。'
+  },
+  action: { // H數 7-9：需要方向感
+    0:'膽經管決斷力。如果腦子還在轉，把明天最重要的一件事寫下來，然後關燈。',
+    1:'肝經在規劃。凌晨的靈感很珍貴，用手機備忘錄記下來，明天再行動。',
+    2:'肺經分配一天的氣。身體在自動校準你的方向。繼續睡，醒來會更清楚。',
+    3:'大腸經排舊納新。起床第一件事：昨天沒做完的，今天要不要繼續？不要就放掉。',
+    4:'胃經吸收力最強。一邊吃早餐一邊想：今天做完哪一件事，晚上會覺得值得？',
+    5:'脾主思考力。這是做決策、讀書、寫計畫的黃金時段。把最難的事放在現在處理。',
+    6:'心經管方向感。停下來十五分鐘，問自己：忙了一上午，有沒有在正確的軌道上？',
+    7:'小腸分清重要的事。下午精神最好的時候，處理需要判斷力的工作。',
+    8:'膀胱經走全身。下午三點到五點記憶力第二高峰，適合學新東西。',
+    9:'腎經時段。傍晚了，停止輸出，開始回收。今天做的事裡，哪些明天還值得做？',
+    10:'心包經時段。把今天的成果跟重要的人分享。方向感不只是自己知道，也要讓別人看到。',
+    11:'三焦收官。回顧今天的行動，給自己一個評分。不用一百分，有進展就好。'
+  }
+};
+
+function getPersonalAdvice(hNum, meridianIdx) {
+  var group;
+  if (hNum >= 1 && hNum <= 3) group = 'safe';
+  else if (hNum >= 4 && hNum <= 6) group = 'connect';
+  else group = 'action';
+  return PERSONAL_ADVICE[group][meridianIdx] || '';
+}
+
+function getUserHNum() {
+  // 嘗試從 localStorage 讀取馥靈秘碼結果
+  try {
+    var raw = localStorage.getItem('fuling_mima_result');
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      // H數可能存在 hNum / H / heal 等欄位
+      var h = parsed.hNum || parsed.H || parsed.heal || parsed.h_num;
+      if (h && h >= 1 && h <= 9) return h;
+    }
+  } catch(e) { /* ignore */ }
+  return null;
+}
+
+/* 個人化區塊 CSS（追加） */
+var pcss = '\
+.mc2-personal{margin-top:14px;padding:14px 16px;background:#fdf8f2;border-radius:10px;border-left:3px solid #c9a060;animation:mc-fade-in .4s ease}\
+.mc2-personal-label{font-size:.76rem;color:#9a8a74;margin-bottom:6px}\
+.mc2-personal-advice{font-size:.9rem;color:#2d2418;line-height:1.8}\
+.mc2-personal-cta{font-size:.82rem;color:#9a8a74;margin-top:8px}\
+.mc2-personal-cta a{color:#c9a060;text-decoration:none;border-bottom:1px solid rgba(201,160,96,.3)}\
+.mc2-personal-cta a:hover{color:#2d2418;border-bottom-color:#2d2418}\
+';
+var psty = document.createElement('style');
+psty.textContent = pcss;
+document.head.appendChild(psty);
+
+function renderPersonalBlock(container, meridianIdx) {
+  // 移除舊的個人化區塊（避免重複）
+  var old = container.querySelector('.mc2-personal');
+  if (old) old.remove();
+
+  var hNum = getUserHNum();
+  var infoDiv = container.querySelector('.mc2-info');
+  if (!infoDiv) return;
+
+  var block = document.createElement('div');
+  block.className = 'mc2-personal';
+
+  if (hNum) {
+    var advice = getPersonalAdvice(hNum, meridianIdx);
+    block.innerHTML = '<div class="mc2-personal-label">此刻你最該做的一件事（H數 ' + hNum + '）</div>'
+      + '<div class="mc2-personal-advice">' + advice + '</div>';
+  } else {
+    block.innerHTML = '<div class="mc2-personal-label">此刻的個人化建議</div>'
+      + '<div class="mc2-personal-cta">算出你的馥靈秘碼，解鎖個人化建議 <a href="fuling-mima.html">\u2192</a></div>';
+  }
+
+  infoDiv.appendChild(block);
+}
+
 /* ── DOM Ready ── */
 if(document.readyState==='loading'){
   document.addEventListener('DOMContentLoaded',init);
@@ -424,4 +531,4 @@ if(document.readyState==='loading'){
 }
 
 })();
-// v2 1775899767
+// v3 personal-block
