@@ -484,13 +484,14 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"></n
           這份禮物只在您的生日月開放，錯過就等明年
         </div>
         <div class="bg">
-          <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" class="btn-m" onclick="markPurchaseIntent()">
-            💳 LINE 聯絡 Ruby 加購
-          </a>
-          <button class="btn-g" onclick="toggleTip()">📸 截圖收藏這張禮券</button>
+          <button id="bdayPayuniBtn" class="btn-m" onclick="bdayPayuniPay()" style="border:none;cursor:pointer;font-family:inherit">
+            線上付款 NT$3,600
+          </button>
+          <button class="btn-g" onclick="toggleTip()">截圖收藏這張禮券</button>
         </div>
+        <div style="font-size:.72rem;color:rgba(233,194,125,.45);text-align:center;margin-top:6px">信用卡 / ATM / 超商｜付款後自動確認</div>
         <div class="sctip" id="scTip">
-          💡 截圖小提示：向上滑到兌換券卡片，用手機截圖留下這張生日禮券。傳給 Ruby 確認後，她會告訴您付款方式 ✨
+          截圖小提示：向上滑到兌換券卡片，用手機截圖留下這張生日禮券
         </div>
       </div>
       <div id="rDone" style="display:none">
@@ -510,13 +511,13 @@ src="https://www.facebook.com/tr?id=1333106288588347&ev=PageView&noscript=1"></n
   <div class="trio">
     <div class="ic"><div class="ici">📅</div><div class="ict">生日月限定</div><div class="icd">國曆生日當月<br>限時限量開放</div></div>
     <div class="ic"><div class="ici">📦</div><div class="ict">實體郵寄</div><div class="icd">神祕禮物寄到家<br>收到才知道</div></div>
-    <div class="ic"><div class="ici">💌</div><div class="ict">LINE 加購</div><div class="icd">截圖傳給 Ruby<br>她來確認資格</div></div>
+    <div class="ic"><div class="ici">💳</div><div class="ict">線上付款</div><div class="icd">信用卡 / ATM / 超商<br>付款後自動確認</div></div>
   </div>
 
   <div class="ft">
     馥靈之鑰國際有限公司 · hourlightkey.com<br>
     <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener">LINE 聯絡 Ruby</a> ·
-    NT$3,600 · 生日月限定 · 每年一次 · 限本人使用
+    NT$3,600 · 線上付款 · 生日月限定 · 每年一次 · 限本人使用
   </div>
 
 </div>
@@ -652,6 +653,24 @@ function burst(){
     }
   });
 })();
+
+function bdayPayuniPay(){
+  var btn=document.getElementById('bdayPayuniBtn');
+  var u=(typeof firebase!=='undefined'&&firebase.auth)?firebase.auth().currentUser:null;
+  if(!u){alert('請先登入會員才能線上付款。');location.href='app.html?redirect='+encodeURIComponent(location.href.split('?')[0]);return;}
+  btn.disabled=true;btn.textContent='處理中⋯⋯';
+  function go(){
+    window.HLPayment.pay({
+      productId:'birthday-gift-1',productName:'生日月限定禮（21張全盤解析+流年座標+神祕禮物）',amount:3600,
+      userId:u.uid,userEmail:u.email||'',returnUrl:location.href.split('?')[0]
+    });
+    markPurchaseIntent();
+  }
+  if(window.HLPayment&&window.HLPayment.pay){go();return;}
+  var s=document.createElement('script');s.src='assets/js/hl-payment.js';
+  s.onload=go;s.onerror=function(){alert('付款模組載入失敗，請稍後再試或 LINE 聯絡 Ruby。');btn.disabled=false;btn.textContent='線上付款 NT$3,600';};
+  document.head.appendChild(s);
+}
 </script>
 <script src="js/lunar.min.js" onerror="void(0)"></script>
 <script src="assets/js/hl-music.js?v=20260309"></script>
