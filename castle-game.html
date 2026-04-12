@@ -1129,9 +1129,25 @@ function startGame(){
   document.getElementById('heroSec').style.display='none';
   document.getElementById('gameArea').classList.add('active');
   document.getElementById('topbar').classList.add('show');
+  try{ localStorage.setItem('hl_castle_entered','1'); }catch(e){}
   upd();
   window.scrollTo({top:0,behavior:'smooth'});
 }
+
+// ── 用戶曾經進過遊戲，之後回來自動跳過 hero 直接進 gameArea ──
+(function autoSkipHero(){
+  try{
+    if(localStorage.getItem('hl_castle_entered')==='1'){
+      document.addEventListener('DOMContentLoaded', function(){
+        var tryStart=function(){
+          if(window.hlCastle && window.ROOMS){ startGame(); }
+          else setTimeout(tryStart, 200);
+        };
+        tryStart();
+      });
+    }
+  }catch(e){}
+})();
 
 function renderZones(){
   var st = hlCastle.getState();
