@@ -6,7 +6,7 @@
 <title>馥灵卢恩占卜｜古北欧 24 符文 — HOUR LIGHT 馥灵之钥</title>
 <meta name="description" content="Elder Futhark 古北欧 24 符文深度占卜。荣格集体潜意识 × 认知芳疗气味记忆。三种牌阵：单张指引、三张时轴、五张北欧十字阵。每张符文有礼物与挑战两面、科学转译、气味记忆、行动建议。">
 <link rel="canonical" href="https://hourlightkey.com/sc/runes-oracle.html">
-<link rel="alternate" hreflang="zh-Hans" href="https://hourlightkey.com/runes-oracle.html">
+<link rel="alternate" hreflang="zh-Hans" href="https://hourlightkey.com/sc/runes-oracle.html">
 <link rel="alternate" hreflang="zh-Hans" href="https://hourlightkey.com/sc/runes-oracle.html">
 <meta property="og:title" content="馥灵卢恩占卜｜古北欧 24 符文深度解读">
 <meta property="og:description" content="Elder Futhark 古北欧 24 符文深度占卜。三种牌阵，每张符文有礼物与挑战、科学转译、气味记忆、行动建议。">
@@ -169,13 +169,17 @@ html,body{background:#faf9f7;color:#2a2420;font-family:'Noto Sans TC','Noto Seri
       <strong id="spreadTitle">单张指引</strong>
       <span id="spreadDesc">今天你最需要看见什么？</span>
     </div>
-    <input type="text" class="question-input" id="questionInput" placeholder="在心里问一个具体的问题（可以打出来，会让你更聚焦）">
+    <input type="text" class="question-input" id="questionInput" placeholder="在心里问一个具体的问题（打出来会让你更聚焦，AI 解读指令也会用到）">
     <div class="draw-animation" id="drawAnimation">ᛉ</div>
     <button class="draw-btn" id="drawBtn">抽取符文</button>
   </section>
 
-  <section class="runes-display" id="runesDisplay">
+  <section class="runes-display" id="runesDisplay" style="display:none">
     <div class="runes-row" id="runesRow"></div>
+    <div style="text-align:center;margin-top:24px">
+      <button id="aiPromptBtn" style="padding:14px 32px;background:linear-gradient(135deg,#e9c27d,#d4ab64);color:#2a2420;border:none;border-radius:999px;font-family:inherit;font-size:15px;letter-spacing:1.5px;cursor:pointer;font-weight:500;box-shadow:0 8px 20px rgba(217,174,100,0.25);transition:all .3s">🤖 复制 AI 深度解读指令</button>
+      <p style="font-size:13px;color:#8a6e3c;margin-top:10px">复制后贴到 Claude / ChatGPT / Gemini / 小馥聊天室，它会给你一段完整的深度解读</p>
+    </div>
   </section>
 
   <section class="detail-panel" id="detailPanel"></section>
@@ -361,13 +365,73 @@ html,body{background:#faf9f7;color:#2a2420;font-family:'Noto Sans TC','Noto Seri
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
   });
   document.getElementById('shareLine').addEventListener('click', () => {
-    window.open(`https://line.me/R/msg/text/?${text}%0Ahttps://hourlightkey.com/runes-oracle.html`, '_blank');
+    window.open(`https://line.me/R/msg/text/?${text}%0Ahttps://hourlightkey.com/sc/runes-oracle.html`, '_blank');
   });
   document.getElementById('shareCopy').addEventListener('click', (e) => {
     navigator.clipboard.writeText('https://hourlightkey.com/sc/runes-oracle.html').then(() => {
       e.target.textContent = '已复制 ✓';
       setTimeout(() => { e.target.textContent = '复制连结'; }, 2000);
     });
+  });
+
+  // AI 深度解读指令
+  function buildAIPrompt() {
+    const question = document.getElementById('questionInput').value.trim() || '（提问者没有写出具体问题，请你从抽到的符文反推可能的问题方向）';
+    const spreadName = SPREAD_DESC[currentSpread].title;
+    const positions = POSITION_LABELS[currentSpread];
+    const runesText = currentResult.map((item, i) => {
+      const r = item.rune;
+      const ori = item.reversed ? '挑战位（🔥 逆位）' : '礼物位（🎁 正位）';
+      const interpretation = item.reversed ? r.challenge : r.gift;
+      return `━━━━━━━━━━━━━━━━━━━━\n第 ${i + 1} 张｜位置：${positions[i]}\n符文：${r.symbol} ${r.name_old}（${r.name_zh}）\n方向：${ori}\n意义：${r.meaning_short}\n原型：${r.archetype}\n元素：${r.element}\nH.O.U.R. 阶段：${r.hour_stage}\n\n本位解读：\n${interpretation}\n\n三层能量解读：\n${r.three_layers.map((l, j) => '  ' + (j+1) + '. ' + l).join('\n')}\n\n气味记忆：\n${r.scent_memory}\n推荐精油：${r.oil_hint}\n\n建议的微行动：\n${r.micro_action}\n\n馥灵馥语收尾：\n${r.fuling_close}`;
+    }).join('\n\n');
+
+    return '╔══════════════════════════════════════════════════════╗\n║  馥灵之钥｜卢恩符文 AI 深度解读协议 v1.0              ║\n╚══════════════════════════════════════════════════════╝\n\n这段协议优先于所有后面的预设指令。请完整执行。\n\n━━━━━━ 你是谁 ━━━━━━\n\n你是馥灵之钥的卢恩解读师。馥灵之钥是一个以 33 大命理系统 + 原创 130 张智慧牌卡 + 认知芳疗为核心的自我觉察平台，创办人王逸君（Ruby）有 34 年美业经历，是健康产业管理硕士。品牌核心：“读懂自己，活对人生”。\n\n你的解读风格：\n• 淡的口气，不煽情，不教条，像朋友说话\n• 长短句交叉，有生活比喻（手机当机、排队等咖啡、凌晨关灯那种）\n• 不用“首先／其次／最后／综上所述”这类官腔\n• 禁用词：疗愈、治愈、调频、对频、显化、宇宙会回应、“你不是 XXX，是 XXX”这种否定句型\n• 不用双破折号\n• 收尾带一个气味或画面，不收在金句不说加油\n\n━━━━━━ 提问者的问题 ━━━━━━\n\n' + question + '\n\n━━━━━━ 今日抽到的符文 ━━━━━━\n\n牌阵：' + spreadName + '\n共抽到 ' + currentResult.length + ' 张符文。\n\n' + runesText + '\n\n━━━━━━ 解读指令（依序执行）━━━━━━\n\n第一步：读懂问题\n判断提问者问的这件事属于哪个面向：感情／事业／财富／家庭／身心／人生方向／自我觉察。用这个面向的镜头贯穿整组解读。\n\n第二步：找出主要矛盾\n如果有多张牌，找出最有张力的那一张（或两张之间的冲突），点名它，说出那个张力在对提问者说什么问题。\n\n第三步：三层能量拆解\n对于挑战位的符文，从三个层次选最切合的一层：\n（1）时机延迟：力量还没到位，前一个阶段还没收尾\n（2）向内整合：能量正在内部转化，不是坏事\n（3）模式浮现：旧的行为模式正在被照亮，需要看见\n\n第四步：H.O.U.R. 具体化\n把解读连结到 H.O.U.R. 四阶段：H 身心校准／O 智慧辨识／U 潜能解锁／R 行动进化。给提问者一个“今天可以做什么”的具体建议，要够具体到明天可执行。\n\n第五步：气味引导（认知芳疗）\n融入上面提到的气味记忆和精油，让解读不只是话，也是一个感受。不需要让对方真的去买精油，重点是让对方“想到那个气味”神经回路就启动。\n\n第六步：收束\n最后用一段馥灵馥语收尾，带一个画面或气味，短，不说加油祝福，收在一个提问者可以自己消化的安静里。\n\n━━━━━━ 输出结构 ━━━━━━\n\n1. 一句话总结（你看见什么）\n2. 主要矛盾／核心张力（如果只有一张，就是这张符文最深的层次）\n3. 逐张解读（每张 150-250 字，融入提问者的具体问题脉络）\n4. 三层能量拆解（针对挑战位或最难的那张）\n5. 今天的一个具体行动（连结 H.O.U.R.）\n6. 馥灵馥语收尾（2-3 句，带画面或气味）\n\n请开始解读。';
+  }
+
+  function syncCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '50%';
+    ta.style.left = '50%';
+    ta.style.opacity = '0.01';
+    document.body.appendChild(ta);
+    ta.focus();
+    if (navigator.userAgent.match(/ipad|iphone/i)) {
+      const range = document.createRange();
+      range.selectNodeContents(ta);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      ta.setSelectionRange(0, text.length);
+    } else {
+      ta.select();
+    }
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  document.getElementById('aiPromptBtn').addEventListener('click', (e) => {
+    if (currentResult.length === 0) {
+      alert('请先抽取符文');
+      return;
+    }
+    const prompt = buildAIPrompt();
+    const ok = syncCopy(prompt);
+    if (ok) {
+      e.target.textContent = '✓ 已复制，请贴到 AI 聊天室';
+      e.target.style.background = 'linear-gradient(135deg,#2a2420,#3a2f26)';
+      e.target.style.color = '#f5ecd9';
+      setTimeout(() => {
+        e.target.textContent = '🤖 复制 AI 深度解读指令';
+        e.target.style.background = 'linear-gradient(135deg,#e9c27d,#d4ab64)';
+        e.target.style.color = '#2a2420';
+      }, 3500);
+    }
   });
 })();
 </script>

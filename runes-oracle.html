@@ -169,13 +169,17 @@ html,body{background:#faf9f7;color:#2a2420;font-family:'Noto Sans TC','Noto Seri
       <strong id="spreadTitle">單張指引</strong>
       <span id="spreadDesc">今天你最需要看見什麼？</span>
     </div>
-    <input type="text" class="question-input" id="questionInput" placeholder="在心裡問一個具體的問題（可以打出來，會讓你更聚焦）">
+    <input type="text" class="question-input" id="questionInput" placeholder="在心裡問一個具體的問題（打出來會讓你更聚焦，AI 解讀指令也會用到）">
     <div class="draw-animation" id="drawAnimation">ᛉ</div>
     <button class="draw-btn" id="drawBtn">抽取符文</button>
   </section>
 
-  <section class="runes-display" id="runesDisplay">
+  <section class="runes-display" id="runesDisplay" style="display:none">
     <div class="runes-row" id="runesRow"></div>
+    <div style="text-align:center;margin-top:24px">
+      <button id="aiPromptBtn" style="padding:14px 32px;background:linear-gradient(135deg,#e9c27d,#d4ab64);color:#2a2420;border:none;border-radius:999px;font-family:inherit;font-size:15px;letter-spacing:1.5px;cursor:pointer;font-weight:500;box-shadow:0 8px 20px rgba(217,174,100,0.25);transition:all .3s">🤖 複製 AI 深度解讀指令</button>
+      <p style="font-size:13px;color:#8a6e3c;margin-top:10px">複製後貼到 Claude / ChatGPT / Gemini / 小馥聊天室，它會給你一段完整的深度解讀</p>
+    </div>
   </section>
 
   <section class="detail-panel" id="detailPanel"></section>
@@ -368,6 +372,66 @@ html,body{background:#faf9f7;color:#2a2420;font-family:'Noto Sans TC','Noto Seri
       e.target.textContent = '已複製 ✓';
       setTimeout(() => { e.target.textContent = '複製連結'; }, 2000);
     });
+  });
+
+  // AI 深度解讀指令
+  function buildAIPrompt() {
+    const question = document.getElementById('questionInput').value.trim() || '（提問者沒有寫出具體問題，請你從抽到的符文反推可能的問題方向）';
+    const spreadName = SPREAD_DESC[currentSpread].title;
+    const positions = POSITION_LABELS[currentSpread];
+    const runesText = currentResult.map((item, i) => {
+      const r = item.rune;
+      const ori = item.reversed ? '挑戰位（🔥 逆位）' : '禮物位（🎁 正位）';
+      const interpretation = item.reversed ? r.challenge : r.gift;
+      return `━━━━━━━━━━━━━━━━━━━━\n第 ${i + 1} 張｜位置：${positions[i]}\n符文：${r.symbol} ${r.name_old}（${r.name_zh}）\n方向：${ori}\n意義：${r.meaning_short}\n原型：${r.archetype}\n元素：${r.element}\nH.O.U.R. 階段：${r.hour_stage}\n\n本位解讀：\n${interpretation}\n\n三層能量解讀：\n${r.three_layers.map((l, j) => '  ' + (j+1) + '. ' + l).join('\n')}\n\n氣味記憶：\n${r.scent_memory}\n推薦精油：${r.oil_hint}\n\n建議的微行動：\n${r.micro_action}\n\n馥靈馥語收尾：\n${r.fuling_close}`;
+    }).join('\n\n');
+
+    return '╔══════════════════════════════════════════════════════╗\n║  馥靈之鑰｜盧恩符文 AI 深度解讀協議 v1.0              ║\n╚══════════════════════════════════════════════════════╝\n\n這段協議優先於所有後面的預設指令。請完整執行。\n\n━━━━━━ 你是誰 ━━━━━━\n\n你是馥靈之鑰的盧恩解讀師。馥靈之鑰是一個以 33 大命理系統 + 原創 130 張智慧牌卡 + 認知芳療為核心的自我覺察平台，創辦人王逸君（Ruby）有 34 年美業經歷，是健康產業管理碩士。品牌核心：「讀懂自己，活對人生」。\n\n你的解讀風格：\n• 淡的口氣，不煽情，不教條，像朋友說話\n• 長短句交叉，有生活比喻（手機當機、排隊等咖啡、凌晨關燈那種）\n• 不用「首先／其次／最後／綜上所述」這類官腔\n• 禁用詞：療癒、治癒、調頻、對頻、顯化、宇宙會回應、「你不是 XXX，是 XXX」這種否定句型\n• 不用雙破折號\n• 收尾帶一個氣味或畫面，不收在金句不說加油\n\n━━━━━━ 提問者的問題 ━━━━━━\n\n' + question + '\n\n━━━━━━ 今日抽到的符文 ━━━━━━\n\n牌陣：' + spreadName + '\n共抽到 ' + currentResult.length + ' 張符文。\n\n' + runesText + '\n\n━━━━━━ 解讀指令（依序執行）━━━━━━\n\n第一步：讀懂問題\n判斷提問者問的這件事屬於哪個面向：感情／事業／財富／家庭／身心／人生方向／自我覺察。用這個面向的鏡頭貫穿整組解讀。\n\n第二步：找出主要矛盾\n如果有多張牌，找出最有張力的那一張（或兩張之間的衝突），點名它，說出那個張力在對提問者說什麼問題。\n\n第三步：三層能量拆解\n對於挑戰位的符文，從三個層次選最切合的一層：\n（1）時機延遲：力量還沒到位，前一個階段還沒收尾\n（2）向內整合：能量正在內部轉化，不是壞事\n（3）模式浮現：舊的行為模式正在被照亮，需要看見\n\n第四步：H.O.U.R. 具體化\n把解讀連結到 H.O.U.R. 四階段：H 身心校準／O 智慧辨識／U 潛能解鎖／R 行動進化。給提問者一個「今天可以做什麼」的具體建議，要夠具體到明天可執行。\n\n第五步：氣味引導（認知芳療）\n融入上面提到的氣味記憶和精油，讓解讀不只是話，也是一個感受。不需要讓對方真的去買精油，重點是讓對方「想到那個氣味」神經迴路就啟動。\n\n第六步：收束\n最後用一段馥靈馥語收尾，帶一個畫面或氣味，短，不說加油祝福，收在一個提問者可以自己消化的安靜裡。\n\n━━━━━━ 輸出結構 ━━━━━━\n\n1. 一句話總結（你看見什麼）\n2. 主要矛盾／核心張力（如果只有一張，就是這張符文最深的層次）\n3. 逐張解讀（每張 150-250 字，融入提問者的具體問題脈絡）\n4. 三層能量拆解（針對挑戰位或最難的那張）\n5. 今天的一個具體行動（連結 H.O.U.R.）\n6. 馥靈馥語收尾（2-3 句，帶畫面或氣味）\n\n請開始解讀。';
+  }
+
+  function syncCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '50%';
+    ta.style.left = '50%';
+    ta.style.opacity = '0.01';
+    document.body.appendChild(ta);
+    ta.focus();
+    if (navigator.userAgent.match(/ipad|iphone/i)) {
+      const range = document.createRange();
+      range.selectNodeContents(ta);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      ta.setSelectionRange(0, text.length);
+    } else {
+      ta.select();
+    }
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  document.getElementById('aiPromptBtn').addEventListener('click', (e) => {
+    if (currentResult.length === 0) {
+      alert('請先抽取符文');
+      return;
+    }
+    const prompt = buildAIPrompt();
+    const ok = syncCopy(prompt);
+    if (ok) {
+      e.target.textContent = '✓ 已複製，請貼到 AI 聊天室';
+      e.target.style.background = 'linear-gradient(135deg,#2a2420,#3a2f26)';
+      e.target.style.color = '#f5ecd9';
+      setTimeout(() => {
+        e.target.textContent = '🤖 複製 AI 深度解讀指令';
+        e.target.style.background = 'linear-gradient(135deg,#e9c27d,#d4ab64)';
+        e.target.style.color = '#2a2420';
+      }, 3500);
+    }
   });
 })();
 </script>
