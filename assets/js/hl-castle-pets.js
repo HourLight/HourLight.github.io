@@ -81,7 +81,8 @@
       quote:'你有沒有試過，什麼都不做，只是坐著？我每天都在做。',
       unlockCond:'完成 200 道測驗 + 連續 100 天活躍 + 城堡大師',
       unlockKey:'legendary_master',
-      tier:'legendary' },
+      tier:'legendary',
+      stickerImg:'cat-ragdoll-fufu.png' },
     { id:'keke',    name:'可可', color:'暹羅貓',  icon:'🐈', emoji:'🐾',
       desc:'奶油底，耳鼻四肢深棕。話最多，但每句都有意思。',
       room:'瞭望塔',
@@ -306,7 +307,9 @@
       '<div class="cat-unlock-backdrop"></div>' +
       '<div class="cat-unlock-modal">' +
         '<div class="cat-unlock-header">' +
-          '<div class="cat-unlock-icon">' + cat.icon + '</div>' +
+          '<div class="cat-unlock-icon">' +
+            (cat.stickerImg ? '<img src="' + cat.stickerImg + '" alt="' + cat.name + '" class="cat-sticker">' : cat.icon) +
+          '</div>' +
           '<div class="cat-unlock-title">🎉 新貓咪加入城堡！</div>' +
         '</div>' +
         '<div class="cat-unlock-content">' +
@@ -328,6 +331,7 @@
       .cat-unlock-modal { position:relative; max-width:400px; width:90%; background:linear-gradient(160deg,#1a0f2e,#2d1b3d); border:2px solid #f8dfa5; border-radius:20px; overflow:hidden; }
       .cat-unlock-header { text-align:center; padding:20px; background:linear-gradient(135deg,#f8dfa5,#ecd098); color:#1a1008; }
       .cat-unlock-icon { font-size:3rem; margin-bottom:8px; }
+      .cat-sticker { width:80px; height:80px; object-fit:contain; }
       .cat-unlock-title { font-size:1.1rem; font-weight:600; }
       .cat-unlock-content { padding:20px; text-align:center; color:#f9f0e5; }
       .cat-unlock-name { font-size:1.2rem; color:#f8dfa5; font-weight:600; margin-bottom:12px; }

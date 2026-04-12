@@ -83,6 +83,7 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:linear-gradie
 .cat-card.locked-cat{opacity:.45;cursor:default}
 .cat-card.locked-cat:hover{transform:none}
 .cat-big-icon{font-size:36px;margin-bottom:6px;line-height:1}
+.cat-sticker{width:40px;height:40px;object-fit:contain;margin-bottom:6px}
 .cat-name{font-size:.9rem;font-weight:700;color:var(--warm);margin-bottom:2px}
 .cat-color{font-size:.68rem;color:var(--muted);margin-bottom:6px}
 .cat-mood-bar{height:4px;background:rgba(0,0,0,.06);border-radius:2px;overflow:hidden;margin-bottom:6px}
@@ -97,6 +98,7 @@ body{font-family:'Noto Serif TC',serif;color:var(--txt);background:linear-gradie
 .cat-modal{background:var(--cream);border-radius:24px 24px 0 0;padding:28px 20px 40px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .cat-modal-top{display:flex;gap:14px;align-items:flex-start;margin-bottom:16px}
 .cat-modal-icon{font-size:48px;line-height:1}
+.cat-modal-sticker{width:50px;height:50px;object-fit:contain}
 .cat-modal-meta{flex:1}
 .cat-modal-name{font-size:1.2rem;font-weight:800;color:var(--warm);margin-bottom:2px}
 .cat-modal-color{font-size:.75rem;color:var(--muted);margin-bottom:6px}
@@ -413,7 +415,9 @@ function renderCats(){
   cats.forEach(function(cat){
     if(cat.unlocked){
       html += '<div class="cat-card" onclick="openCatModal(\'' + cat.id + '\')">' +
-        '<div class="cat-big-icon">' + cat.emoji + '</div>' +
+        '<div class="cat-big-icon">' +
+          (cat.stickerImg ? '<img src="' + cat.stickerImg + '" class="cat-sticker" alt="' + cat.name + '">' : cat.emoji) +
+        '</div>' +
         '<div class="cat-name">' + cat.name + '</div>' +
         '<div class="cat-color">' + cat.color + '</div>' +
         '<div class="cat-mood-bar"><div class="cat-mood-fill" style="width:' + cat.mood + '%"></div></div>' +
@@ -421,7 +425,9 @@ function renderCats(){
         '</div>';
     } else {
       html += '<div class="cat-card locked-cat">' +
-        '<div class="cat-big-icon" style="filter:grayscale(1)">' + cat.emoji + '</div>' +
+        '<div class="cat-big-icon" style="filter:grayscale(1)">' +
+          (cat.stickerImg ? '<img src="' + cat.stickerImg + '" class="cat-sticker" alt="' + cat.name + '">' : cat.emoji) +
+        '</div>' +
         '<div class="cat-name" style="color:var(--muted)">' + cat.color + '</div>' +
         '<div class="cat-color">未解鎖</div>' +
         '<div class="cat-lock-msg">' + cat.unlockCond + '</div>' +
@@ -438,7 +444,12 @@ function openCatModal(catId){
   if(!cat || !cat.unlocked) return;
   _currentCatId = catId;
 
-  document.getElementById('m-icon').textContent = cat.emoji || '🐱';
+  var iconEl = document.getElementById('m-icon');
+  if(cat.stickerImg) {
+    iconEl.innerHTML = '<img src="' + cat.stickerImg + '" class="cat-modal-sticker" alt="' + cat.name + '">';
+  } else {
+    iconEl.textContent = cat.emoji || '🐱';
+  }
   document.getElementById('m-name').textContent = cat.name;
   document.getElementById('m-color').textContent = cat.color;
   document.getElementById('m-desc').textContent = cat.desc;
