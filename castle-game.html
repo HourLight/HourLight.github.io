@@ -1719,6 +1719,12 @@ function doRedeem(itemId){
   if(result.newAchievements&&result.newAchievements.length)
     result.newAchievements.forEach(function(ach,i){setTimeout(function(){showAchToast(ach);},i*800);});
   updateRedeemUI();upd();
+
+  // 緊急修復：兌換後強制立即雲端同步，確保點數扣除永久保存
+  if(window.hlCastleSync) {
+    console.log('[急救] 兌換完成，強制雲端同步...');
+    hlCastleSync.syncNow();
+  }
 }
 
 // (duplicate showCompleteToast removed — correct version is above)
