@@ -76,6 +76,7 @@
       {label:'十四經絡', href:'meridian-guide.html'},
       {label:'七脈輪', href:'chakra-guide.html'},
       {label:'五行芳療', href:'five-elements-guide.html'},
+      {label:'九紫離火運', href:'nine-purple-fire-guide.html'},
       {label:'水晶覺察', href:'crystal-guide.html'},
       {label:'護膚科學', href:'skincare-science.html'},
       {label:'靈氣入門', href:'reiki-guide.html'},

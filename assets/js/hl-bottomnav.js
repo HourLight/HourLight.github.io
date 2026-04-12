@@ -26,18 +26,18 @@
   var SVG_MUSIC_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3" fill="currentColor" opacity="0.4"/><circle cx="18" cy="16" r="3" fill="currentColor" opacity="0.4"/><path d="M19 8c1 .5 1.5 1.5 1 2.5" opacity="0.6"/></svg>';
 
   var SVG_MATCH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="5"/><circle cx="15" cy="15" r="5"/></svg>';
-  var SVG_DIVINATION='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/><circle cx="12" cy="12" r="2.5" opacity="0.4"/></svg>';
+  var SVG_KNOWLEDGE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/></svg>';
   var SVG_MEMBER='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
   var SVG_CASTLE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="1"/><path d="M3 11V7h3V4h2v3h2V4h2v3h2V4h2v3h3v4"/><path d="M9 22v-5a3 3 0 0 1 6 0v5" opacity="0.5"/></svg>';
   var NAV_ITEMS = [
-    { icon: SVG_HOME,       label: '首頁',  tip: '回到首頁',          href: 'index.html' },
-    { icon: SVG_CARD,       label: '抽牌',  tip: '抽牌中心',           href: 'draw-hub.html' },
-    { icon: SVG_DESTINY,    label: '命盤',  tip: '命盤中心・33大系統',  href: 'destiny-hub.html' },
-    { icon: SVG_QUIZ,       label: '測驗',  tip: '覺察測驗中心',        href: 'quiz-hub.html' },
-    { icon: SVG_DIVINATION, label: '神祕學', tip: '神祕學工具',           href: 'divination-hub.html' },
-    { icon: SVG_CASTLE,     label: '城堡',  tip: '內在城堡探索',        href: 'castle-game.html' },
-    { icon: SVG_MEMBER,     label: '會員',  tip: '會員中心',            href: 'app.html' },
-    { icon: SVG_MUSIC,      label: '音樂',  tip: '背景音樂開關',        href: '#', id: 'hl-bn-music' }
+    { icon: SVG_HOME,       label: '首頁',   tip: '回到首頁',              href: 'index.html' },
+    { icon: SVG_CARD,       label: '抽牌占卜', tip: '抽牌 × 占卜中心',       href: 'draw-hub.html' },
+    { icon: SVG_DESTINY,    label: '命盤',   tip: '命盤中心・33 大系統',    href: 'destiny-hub.html' },
+    { icon: SVG_QUIZ,       label: '測驗',   tip: '覺察測驗中心',          href: 'quiz-hub.html' },
+    { icon: SVG_KNOWLEDGE,  label: '知識',   tip: '知識學苑',              href: 'knowledge-hub.html' },
+    { icon: SVG_CASTLE,     label: '城堡',   tip: '內在城堡探索',          href: 'castle-game.html' },
+    { icon: SVG_MEMBER,     label: '會員',   tip: '會員中心',              href: 'app.html' },
+    { icon: SVG_MUSIC,      label: '音樂',   tip: '背景音樂開關',          href: '#', id: 'hl-bn-music' }
   ];
 
   // 取得目前頁面檔名
@@ -66,14 +66,35 @@
     'tieban.html':'destiny-hub.html','taiyi.html':'destiny-hub.html',
     'wuyun-liuqi.html':'destiny-hub.html','helo-lishu.html':'destiny-hub.html',
     'korean-saju.html':'destiny-hub.html','meihua-yishu.html':'destiny-hub.html',
-    // 占卜 hub
-    'yijing-oracle.html':'divination-hub.html','liuren-oracle.html':'divination-hub.html',
-    'qimen-dunjia.html':'divination-hub.html',
-    'liuren.html':'divination-hub.html','phone-oracle.html':'divination-hub.html',
-    'poker-oracle.html':'divination-hub.html','akashic-records.html':'divination-hub.html',
-    'yuan-chen-gong.html':'divination-hub.html','abundance-prayer.html':'divination-hub.html',
-    'moon-calendar.html':'divination-hub.html',
-    'scent-navigator.html':'divination-hub.html',
+    // 占卜類（已併入抽牌占卜 hub）
+    'yijing-oracle.html':'draw-hub.html','liuren-oracle.html':'draw-hub.html',
+    'qimen-dunjia.html':'draw-hub.html',
+    'liuren.html':'draw-hub.html','phone-oracle.html':'draw-hub.html',
+    'poker-oracle.html':'draw-hub.html','akashic-records.html':'draw-hub.html',
+    'yuan-chen-gong.html':'draw-hub.html','abundance-prayer.html':'draw-hub.html',
+    'moon-calendar.html':'draw-hub.html',
+    'scent-navigator.html':'draw-hub.html',
+    'divination-hub.html':'draw-hub.html',
+    'time-space-oracle.html':'draw-hub.html','temporal-threads.html':'draw-hub.html',
+    'dream-decoder.html':'draw-hub.html','number-oracle.html':'draw-hub.html',
+    'body-map-oracle.html':'draw-hub.html','color-oracle.html':'draw-hub.html',
+    'word-oracle.html':'draw-hub.html','season-oracle.html':'draw-hub.html',
+    'mirror-oracle.html':'draw-hub.html','runes-oracle.html':'draw-hub.html',
+    'name-oracle.html':'draw-hub.html','poe-blocks.html':'draw-hub.html',
+    'meihua-yishu.html':'draw-hub.html','magic-morning.html':'draw-hub.html',
+    'cognitive-aroma.html':'draw-hub.html','angel-stories.html':'draw-hub.html',
+    // 知識學苑
+    'knowledge-hub.html':'knowledge-hub.html',
+    'aromatherapy-science.html':'knowledge-hub.html','certification-guide.html':'knowledge-hub.html',
+    'blending-guide.html':'knowledge-hub.html','yuan-chen-guide.html':'knowledge-hub.html',
+    'kids-aromatherapy.html':'knowledge-hub.html','reiki-guide.html':'knowledge-hub.html',
+    'skincare-science.html':'knowledge-hub.html','massage-guide.html':'knowledge-hub.html',
+    'aroma-garden.html':'knowledge-hub.html','cognitive-aromatherapy-theory.html':'knowledge-hub.html',
+    'meridian-guide.html':'knowledge-hub.html','chakra-guide.html':'knowledge-hub.html',
+    'crystal-guide.html':'knowledge-hub.html','five-elements-guide.html':'knowledge-hub.html',
+    'nine-purple-fire-guide.html':'knowledge-hub.html','hour-methodology.html':'knowledge-hub.html',
+    'nail-energy-guide.html':'knowledge-hub.html','naha-study-guide.html':'knowledge-hub.html',
+    'blog-hub.html':'knowledge-hub.html',
   };
   var activeHref = hubMap[currentPage] || currentPage;
 
