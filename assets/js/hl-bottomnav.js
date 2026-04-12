@@ -262,6 +262,7 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
     contactLine.innerHTML =
       '客服 LINE <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" style="color:#f8dfa5;text-decoration:underline">@hourlight</a>' +
       '　|　服務信箱 <a href="mailto:info@hourlightkey.com" style="color:#f8dfa5;text-decoration:underline">info@hourlightkey.com</a>' +
+      '　|　追蹤 Facebook <a href="https://www.facebook.com/SUFUYASPA" target="_blank" rel="noopener" style="color:#f8dfa5;text-decoration:underline">HOUR LIGHT 粉絲團</a>' +
       '　|　服務時間 週一至週五 10:00–18:00';
     copyEl.parentNode.insertBefore(contactLine, copyEl);
   }

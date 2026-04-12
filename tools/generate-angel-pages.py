@@ -35,9 +35,12 @@ def first_sentences(text, n=3):
     sentences = []
     current = ''
     for ch in text:
+        if ch == '\n':
+            continue
         current += ch
         if ch in '。！？':
             sentences.append(current)
+            current = ''
             if len(sentences) >= n:
                 break
     return ''.join(sentences).strip()
@@ -106,6 +109,9 @@ html,body{background:#faf9f7;color:#2a2420;font-family:'Noto Sans TC','Noto Seri
 .cta-btn:hover{background:#d4ab64;transform:translateY(-2px)}
 .cta-btn.secondary{background:transparent;border:1.5px solid #b39b6f;color:#6b5d52}
 .cta-btn.secondary:hover{background:#b39b6f;color:#fff;border-color:#b39b6f}
+.fb-follow{text-align:center;margin-top:36px;padding:36px 30px;background:#fff;border:1px solid #ece5d6;border-radius:16px}
+.fb-follow h3{font-family:'Noto Serif TC',serif;font-size:22px;color:#2a2420;margin:0 0 12px;font-weight:500}
+.fb-follow p{color:#6b5d52;line-height:1.8;margin:0 0 22px;max-width:520px;margin-left:auto;margin-right:auto;font-size:15px}
 @media(max-width:640px){
   .hero h1{font-size:32px}
   .stories-wrap{padding:60px 16px 40px}
@@ -134,11 +140,12 @@ hub = f"""<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>每日覺察故事｜130 則心靈電影 — HOUR LIGHT 馥靈之鑰</title>
-<meta name="description" content="來自馥靈 130 張牌卡的 130 則真實故事。每一則都是你我身邊會發生的瞬間 — 關於看見自己、允許自己、重新開始。每天一則，慢慢讀。">
+<meta name="description" content="來自馥靈 130 張牌卡的真實故事。每一則都是你我身邊會發生的瞬間，關於看見自己、允許自己、重新開始。每天一則，慢慢讀。">
 <link rel="canonical" href="https://hourlightkey.com/angel-stories.html">
-<meta property="og:title" content="每日覺察故事｜130 則心靈電影">
-<meta property="og:description" content="來自馥靈 130 張牌卡的 130 則真實故事。每一則都是你我身邊會發生的瞬間。">
+<meta property="og:title" content="每日覺察故事｜馥靈之鑰 130 張牌卡系列">
+<meta property="og:description" content="來自馥靈 130 張牌卡的真實故事。每一則都是你我身邊會發生的瞬間。">
 <meta property="og:url" content="https://hourlightkey.com/angel-stories.html">
+<meta property="og:image" content="https://hourlightkey.com/og-image.jpg">
 <meta property="og:type" content="website">
 <link rel="stylesheet" href="assets/css/hourlight-global.css">
 <style>{css}</style>
@@ -148,7 +155,7 @@ hub = f"""<!DOCTYPE html>
 <main class="stories-wrap">
   <section class="hero">
     <h1>每日覺察故事</h1>
-    <p class="subtitle">來自馥靈 130 張牌卡的 130 則真實故事。<br>每一則都是你我身邊會發生的瞬間 —— 關於看見自己、允許自己、重新開始。<br>每天一則，慢慢讀。</p>
+    <p class="subtitle">來自馥靈 130 張牌卡的真實故事。<br>每一則都是你我身邊會發生的瞬間，關於看見自己、允許自己、重新開始。<br>每天一則，慢慢讀。</p>
     <div class="count">目前共 {len(merged)} 則｜每日更新</div>
   </section>
   <nav class="filter-bar">
@@ -167,6 +174,11 @@ hub = f"""<!DOCTYPE html>
       <a class="cta-btn secondary" href="quiz-hub.html">做一個測驗</a>
       <a class="cta-btn secondary" href="knowledge-hub.html">逛知識學苑</a>
     </div>
+  </section>
+  <section class="fb-follow">
+    <h3>每天早上 07:30，粉絲團一則新故事</h3>
+    <p>追蹤 HOUR LIGHT Facebook 粉絲團，每天早上收到一則新故事通知。中午讀一篇知識學苑，晚上用一個小工具覺察自己。</p>
+    <a class="cta-btn" href="https://www.facebook.com/SUFUYASPA" target="_blank" rel="noopener">前往追蹤粉絲團</a>
   </section>
 </main>
 <script src="assets/js/hl-bottomnav.js?v=4"></script>
@@ -238,13 +250,14 @@ hub_sc = f"""<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>每日觉察故事｜130 则心灵电影 — HOUR LIGHT 馥灵之钥</title>
-<meta name="description" content="来自馥灵 130 张牌卡的 130 则真实故事。每一则都是你我身边会发生的瞬间 — 关于看见自己、允许自己、重新开始。每天一则，慢慢读。">
+<meta name="description" content="来自馥灵 130 张牌卡的真实故事。每一则都是你我身边会发生的瞬间，关于看见自己、允许自己、重新开始。每天一则，慢慢读。">
 <link rel="canonical" href="https://hourlightkey.com/sc/angel-stories.html">
 <link rel="alternate" hreflang="zh-Hant" href="https://hourlightkey.com/angel-stories.html">
 <link rel="alternate" hreflang="zh-Hans" href="https://hourlightkey.com/sc/angel-stories.html">
-<meta property="og:title" content="每日觉察故事｜130 则心灵电影">
-<meta property="og:description" content="来自馥灵 130 张牌卡的 130 则真实故事。每一则都是你我身边会发生的瞬间。">
+<meta property="og:title" content="每日觉察故事｜馥灵之钥 130 张牌卡系列">
+<meta property="og:description" content="来自馥灵 130 张牌卡的真实故事。每一则都是你我身边会发生的瞬间。">
 <meta property="og:url" content="https://hourlightkey.com/sc/angel-stories.html">
+<meta property="og:image" content="https://hourlightkey.com/og-image.jpg">
 <meta property="og:type" content="website">
 <link rel="stylesheet" href="../assets/css/hourlight-global.css">
 <style>{css}</style>
@@ -254,7 +267,7 @@ hub_sc = f"""<!DOCTYPE html>
 <main class="stories-wrap">
   <section class="hero">
     <h1>每日觉察故事</h1>
-    <p class="subtitle">来自馥灵 130 张牌卡的 130 则真实故事。<br>每一则都是你我身边会发生的瞬间 —— 关于看见自己、允许自己、重新开始。<br>每天一则，慢慢读。</p>
+    <p class="subtitle">来自馥灵 130 张牌卡的真实故事。<br>每一则都是你我身边会发生的瞬间，关于看见自己、允许自己、重新开始。<br>每天一则，慢慢读。</p>
     <div class="count">目前共 {len(merged)} 则｜每日更新</div>
   </section>
   <nav class="filter-bar">
@@ -273,6 +286,11 @@ hub_sc = f"""<!DOCTYPE html>
       <a class="cta-btn secondary" href="quiz-hub.html">做一个测验</a>
       <a class="cta-btn secondary" href="index.html">回首页</a>
     </div>
+  </section>
+  <section class="fb-follow">
+    <h3>每天早上 07:30，粉丝团一则新故事</h3>
+    <p>追踪 HOUR LIGHT Facebook 粉丝团，每天早上收到一则新故事通知。中午读一篇知识学苑，晚上用一个小工具觉察自己。</p>
+    <a class="cta-btn" href="https://www.facebook.com/SUFUYASPA" target="_blank" rel="noopener">前往追踪粉丝团</a>
   </section>
 </main>
 <script src="../assets/js/hl-bottomnav.js?v=4"></script>
