@@ -331,8 +331,8 @@
       merged[bools[j]] = !!(local[bools[j]] || cloud[bools[j]]);
     }
 
-    // cats：聯集
-    merged.cats = mergeArrayById(local.cats, cloud.cats);
+    // ownedCats：聯集
+    merged.ownedCats = mergeArrayById(local.ownedCats, cloud.ownedCats);
 
     // petMoods：KV 合併
     merged.petMoods = mergeKVMax(local.petMoods, cloud.petMoods);
