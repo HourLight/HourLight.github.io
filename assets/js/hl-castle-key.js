@@ -715,7 +715,7 @@
 
   function loadState(){
     var def={points:0,streak:1,totalRooms:0,daily:{},lastDate:'',
-             unlockedRooms:['mirror'],achievements:[],shareCount:0,
+             unlockedRooms:ROOM_IDS.slice(),achievements:[],shareCount:0,
              redeemCount:0,redeemHistory:[],milestones:{},castleBonus:{}};
     try{
       var raw=localStorage.getItem(STORAGE_KEY);
