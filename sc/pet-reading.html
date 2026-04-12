@@ -559,27 +559,42 @@ function initDraw(){
     var petMsg=petDNA?petDNA.core:'';
     var isCat=detectCat();
     var petStatus=document.getElementById('petStatus').value;
-    // 依狀態選擇靜態解讀來源：sick 用 healing，其他用 daily
-    function getShortText(full){
+    function getShortText(full,maxSent){
       if(!full)return '';
+      maxSent=maxSent||2;
       var sentEnd=/[。！？…]/g;var match;var ends=[];
       while((match=sentEnd.exec(full))!==null){ends.push(match.index);}
-      var cut=ends.length>=2?ends[1]+1:(ends.length>=1?ends[0]+1:Math.min(full.length,70));
+      var cut=ends.length>=maxSent?ends[maxSent-1]+1:(ends.length>=1?ends[0]+1:Math.min(full.length,70));
       return full.slice(0,cut);
     }
-    var staticFull=(petStatus==='sick'&&petDNA&&petDNA.healing)?petDNA.healing:(petDNA&&petDNA.daily?petDNA.daily:'');
-    var staticShort=getShortText(staticFull);
-    var sickLabel=(petStatus==='sick'&&petDNA&&petDNA.healing)?'<span style="font-size:.64rem;color:rgba(240,160,60,.7);letter-spacing:.5px">🌿 舒緩情境</span><br>':'';
+    var staticFull,sickLabel='',extraHint='';
+    if(petStatus==='sick'&&petDNA&&petDNA.healing){
+      staticFull=petDNA.healing;
+      sickLabel='<span style="font-size:.64rem;color:rgba(240,160,60,.7);letter-spacing:.5px">🌿 舒緩情境</span><br>';
+      if(petDNA.behavior){
+        var bFirst=getShortText(petDNA.behavior,1);
+        if(bFirst)extraHint='<div style="font-size:.72rem;color:rgba(248,200,130,.65);line-height:1.7;margin-top:6px;padding-top:6px;border-top:1px solid rgba(240,181,179,.05)">🔍 '+bFirst+'</div>';
+      }
+    }else if(petStatus==='rainbow'&&petDNA&&petDNA.spiritual){
+      staticFull=petDNA.spiritual;
+    }else{
+      staticFull=petDNA&&petDNA.daily?petDNA.daily:'';
+      if(petDNA&&petDNA.action){
+        var firstAct=(petDNA.action.split('／')[0]||'').trim();
+        if(firstAct)extraHint='<div style="font-size:.7rem;color:rgba(248,223,165,.45);line-height:1.7;margin-top:6px;padding-top:6px;border-top:1px solid rgba(240,181,179,.05)">► '+firstAct+'</div>';
+      }
+    }
+    var staticShort=getShortText(staticFull,2);
     // 精油安全摘要（貓咪優先，顯示完整 catAlt）
     var oilSafety='';
     if(petDNA){
       if(isCat&&petDNA.catSafe){
         var hasBan=petDNA.catSafe.indexOf('禁用')>=0||petDNA.catSafe.indexOf('不適合')>=0||petDNA.catSafe.indexOf('絕對')>=0;
         if(hasBan){
-          oilSafety='⚠️ 此牌精油對貓有毒性風險，請勿使用。';
+          oilSafety='⚠️ 此牌精油对猫有毒性风险，请勿使用。';
           if(petDNA.catAlt)oilSafety+='<br>✅ 替代：'+petDNA.catAlt;
         }else{
-          oilSafety='✅ 貓咪友善：'+petDNA.catSafe;
+          oilSafety='✅ 猫咪友善：'+petDNA.catSafe;
         }
       }
     }
@@ -598,6 +613,7 @@ function initDraw(){
         '<div class="pet-msg" style="display:none;margin-top:10px;padding:14px 16px;background:rgba(240,181,179,.04);border:1px solid rgba(240,181,179,.1);border-radius:12px;font-family:var(--kai)">'+
           '<div style="font-size:.82rem;color:var(--paw);font-style:italic;line-height:1.8;text-align:center;margin-bottom:8px">「'+petMsg+'」</div>'+
           (staticShort?'<div style="font-size:.78rem;color:rgba(255,255,255,.58);line-height:1.8;padding-top:8px;border-top:1px solid rgba(240,181,179,.07)">'+sickLabel+staticShort+'</div>':'')+
+          extraHint+
           (oilSafety?'<div style="font-size:.72rem;line-height:1.7;margin-top:8px;padding-top:8px;border-top:1px solid rgba(240,181,179,.07);color:rgba(240,160,60,.8)">'+oilSafety+'</div>':'')+
         '</div>'
       :'');
@@ -659,12 +675,14 @@ function requestAIReading(){
   if(typeof hlPaywall!=='undefined'){
     var petPriceMap={3:199,5:399,7:599};
     if(petPriceMap[currentSpread]){
+      var _returnCode=window._petPaymentReturnCode||(function(){try{return sessionStorage.getItem('hl_pet_payment_code');}catch(e){return null;}}());
       hlPaywall.show({
         n:currentSpread,
         priceMap:petPriceMap,
         serviceName:'寵物溝通智慧解讀',
         onProceed:function(){
-          // 代碼驗證成功後直接呼叫 AI
+          window._petPaymentReturnCode=null;
+          try{sessionStorage.removeItem('hl_pet_payment_code');}catch(e){}
           if(typeof hlAIGateCheck==='function'){
             hlAIGateCheck(function(){ _requestAIReadingOriginal(); });
           }else{
@@ -672,6 +690,15 @@ function requestAIReading(){
           }
         }
       });
+      if(_returnCode){
+        setTimeout(function(){
+          var inp=document.getElementById('hlPaywallCodeInput');
+          if(inp&&typeof window._hlPaywallRedeemCode==='function'){
+            inp.value=_returnCode;
+            window._hlPaywallRedeemCode();
+          }
+        },250);
+      }
       return;
     }
   }
@@ -883,6 +910,43 @@ function renderSessionKeyHTML(key){
     '<div style="font-size:.82rem;color:rgba(255,255,255,.5);line-height:1.7">請將此編號提供給覺察師，<br>讓覺察師可以調取您的完整紀錄。</div>'+
   '</div>';
 }
+
+// ══════ PAYUNi 付款回調處理 ══════
+(function handlePetPaymentReturn(){
+  var params=new URLSearchParams(location.search);
+  if(params.get('payment')!=='success')return;
+  var codeFromUrl=params.get('code')||'';
+  if(codeFromUrl){
+    window._petPaymentReturnCode=codeFromUrl;
+    try{sessionStorage.setItem('hl_pet_payment_code',codeFromUrl);}catch(e){}
+    var m=codeFromUrl.match(/^HL(\d+)-/i);
+    if(m)window._petPaymentReturnN=parseInt(m[1],10);
+  }
+  if(history.replaceState)history.replaceState(null,'',location.pathname);
+  setTimeout(function(){
+    var banner=document.createElement('div');
+    banner.id='petPaymentBanner';
+    banner.style.cssText='position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:9999;padding:14px 20px;border-radius:14px;background:rgba(14,10,24,.96);border:1px solid rgba(240,181,179,.32);box-shadow:0 4px 24px rgba(0,0,0,.5);max-width:92vw;width:360px;text-align:center;line-height:1.7;font-family:var(--kai,serif)';
+    if(codeFromUrl){
+      var nHint=window._petPaymentReturnN?'（'+window._petPaymentReturnN+' 张牌阵）':'';
+      banner.innerHTML=
+        '<div style="color:#f0b8b0;font-size:.88rem;font-weight:500;margin-bottom:6px">付款完成'+nHint+'</div>'+
+        '<div style="color:rgba(255,255,255,.6);font-size:.78rem;margin-bottom:10px">请填好毛孩资料并抽牌，<br>系统将自动套用您的解读代码。</div>'+
+        '<div style="color:var(--paw,#f8dfa5);font-size:.95rem;font-family:monospace;letter-spacing:2px;padding:6px 14px;background:rgba(240,181,179,.07);border-radius:8px;display:inline-block;user-select:all">'+codeFromUrl+'</div>';
+    }else{
+      banner.innerHTML=
+        '<div style="color:#f0b8b0;font-size:.88rem;font-weight:500;margin-bottom:6px">已收到付款申请</div>'+
+        '<div style="color:rgba(255,255,255,.6);font-size:.78rem">缴费完成后系统将自动发送解读代码至您的邮箱。</div>';
+    }
+    var closeBtn=document.createElement('button');
+    closeBtn.textContent='×';
+    closeBtn.style.cssText='position:absolute;top:6px;right:10px;background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;font-size:1.1rem;padding:2px 6px;line-height:1';
+    closeBtn.onclick=function(){banner.remove();};
+    banner.appendChild(closeBtn);
+    document.body.appendChild(banner);
+    setTimeout(function(){if(banner.parentNode)banner.remove();},15000);
+  },900);
+})();
 </script>
 
 <script src="../assets/js/hourlight-global.js?v=20260313"></script>

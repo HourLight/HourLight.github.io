@@ -559,17 +559,36 @@ function initDraw(){
     var petMsg=petDNA?petDNA.core:'';
     var isCat=detectCat();
     var petStatus=document.getElementById('petStatus').value;
-    // 依狀態選擇靜態解讀來源：sick 用 healing，其他用 daily
-    function getShortText(full){
+    // 取前 N 句
+    function getShortText(full,maxSent){
       if(!full)return '';
+      maxSent=maxSent||2;
       var sentEnd=/[。！？…]/g;var match;var ends=[];
       while((match=sentEnd.exec(full))!==null){ends.push(match.index);}
-      var cut=ends.length>=2?ends[1]+1:(ends.length>=1?ends[0]+1:Math.min(full.length,70));
+      var cut=ends.length>=maxSent?ends[maxSent-1]+1:(ends.length>=1?ends[0]+1:Math.min(full.length,70));
       return full.slice(0,cut);
     }
-    var staticFull=(petStatus==='sick'&&petDNA&&petDNA.healing)?petDNA.healing:(petDNA&&petDNA.daily?petDNA.daily:'');
-    var staticShort=getShortText(staticFull);
-    var sickLabel=(petStatus==='sick'&&petDNA&&petDNA.healing)?'<span style="font-size:.64rem;color:rgba(240,160,60,.7);letter-spacing:.5px">🌿 舒緩情境</span><br>':'';
+    // 依狀態選擇靜態解讀來源
+    var staticFull,sickLabel='',extraHint='';
+    if(petStatus==='sick'&&petDNA&&petDNA.healing){
+      staticFull=petDNA.healing;
+      sickLabel='<span style="font-size:.64rem;color:rgba(240,160,60,.7);letter-spacing:.5px">🌿 舒緩情境</span><br>';
+      // 行為引導第一句（sick 包含行為問題）
+      if(petDNA.behavior){
+        var bFirst=getShortText(petDNA.behavior,1);
+        if(bFirst)extraHint='<div style="font-size:.72rem;color:rgba(248,200,130,.65);line-height:1.7;margin-top:6px;padding-top:6px;border-top:1px solid rgba(240,181,179,.05)">🔍 '+bFirst+'</div>';
+      }
+    }else if(petStatus==='rainbow'&&petDNA&&petDNA.spiritual){
+      staticFull=petDNA.spiritual; // 彩虹橋：靈性連結更貼切
+    }else{
+      staticFull=petDNA&&petDNA.daily?petDNA.daily:'';
+      // 健康毛孩：顯示第一條行動建議
+      if(petDNA&&petDNA.action){
+        var firstAct=(petDNA.action.split('／')[0]||'').trim();
+        if(firstAct)extraHint='<div style="font-size:.7rem;color:rgba(248,223,165,.45);line-height:1.7;margin-top:6px;padding-top:6px;border-top:1px solid rgba(240,181,179,.05)">► '+firstAct+'</div>';
+      }
+    }
+    var staticShort=getShortText(staticFull,2);
     // 精油安全摘要（貓咪優先，顯示完整 catAlt）
     var oilSafety='';
     if(petDNA){
@@ -598,6 +617,7 @@ function initDraw(){
         '<div class="pet-msg" style="display:none;margin-top:10px;padding:14px 16px;background:rgba(240,181,179,.04);border:1px solid rgba(240,181,179,.1);border-radius:12px;font-family:var(--kai)">'+
           '<div style="font-size:.82rem;color:var(--paw);font-style:italic;line-height:1.8;text-align:center;margin-bottom:8px">「'+petMsg+'」</div>'+
           (staticShort?'<div style="font-size:.78rem;color:rgba(255,255,255,.58);line-height:1.8;padding-top:8px;border-top:1px solid rgba(240,181,179,.07)">'+sickLabel+staticShort+'</div>':'')+
+          extraHint+
           (oilSafety?'<div style="font-size:.72rem;line-height:1.7;margin-top:8px;padding-top:8px;border-top:1px solid rgba(240,181,179,.07);color:rgba(240,160,60,.8)">'+oilSafety+'</div>':'')+
         '</div>'
       :'');
