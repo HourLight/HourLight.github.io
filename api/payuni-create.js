@@ -112,11 +112,11 @@ module.exports = async function handler(req, res) {
 
     const siteUrl = 'https://app.hourlightkey.com';
 
-    // ── 若是 draw-N 抽牌商品，先產生 unlock code ──
+    // ── 若是抽牌／寵物／家族／SPA／美甲等解讀商品，先產生 unlock code ──
     let preGeneratedCode = null;
-    const drawMatch = (productId || '').match(/^draw-(\d+)$/i);
+    const drawMatch = (productId || '').match(/^(draw|pet|family|spa|nail|light)-(\d+)$/i);
     if (drawMatch) {
-      const drawN = parseInt(drawMatch[1], 10);
+      const drawN = parseInt(drawMatch[2], 10);
       const codeRand = Math.random().toString(36).substring(2, 8).toUpperCase().replace(/[^A-Z0-9]/g, 'X');
       preGeneratedCode = `HL${drawN}-${codeRand}`;
     }

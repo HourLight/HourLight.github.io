@@ -659,12 +659,15 @@ function requestAIReading(){
   if(typeof hlPaywall!=='undefined'){
     var petPriceMap={3:199,5:399,7:599};
     if(petPriceMap[currentSpread]){
+      var _returnCode=window._petPaymentReturnCode||(function(){try{return sessionStorage.getItem('hl_pet_payment_code');}catch(e){return null;}}());
       hlPaywall.show({
         n:currentSpread,
         priceMap:petPriceMap,
         serviceName:'寵物溝通智慧解讀',
         onProceed:function(){
-          // 代碼驗證成功後直接呼叫 AI
+          // 代碼驗證成功後清除回調 code，呼叫 AI
+          window._petPaymentReturnCode=null;
+          try{sessionStorage.removeItem('hl_pet_payment_code');}catch(e){}
           if(typeof hlAIGateCheck==='function'){
             hlAIGateCheck(function(){ _requestAIReadingOriginal(); });
           }else{
@@ -672,6 +675,16 @@ function requestAIReading(){
           }
         }
       });
+      // 若有付款回調 code，自動填入並觸發兌換
+      if(_returnCode){
+        setTimeout(function(){
+          var inp=document.getElementById('hlPaywallCodeInput');
+          if(inp&&typeof window._hlPaywallRedeemCode==='function'){
+            inp.value=_returnCode;
+            window._hlPaywallRedeemCode();
+          }
+        },250);
+      }
       return;
     }
   }
@@ -883,6 +896,47 @@ function renderSessionKeyHTML(key){
     '<div style="font-size:.82rem;color:rgba(255,255,255,.5);line-height:1.7">請將此編號提供給覺察師，<br>讓覺察師可以調取您的完整紀錄。</div>'+
   '</div>';
 }
+
+// ══════ PAYUNi 付款回調處理 ══════
+(function handlePetPaymentReturn(){
+  var params=new URLSearchParams(location.search);
+  if(params.get('payment')!=='success')return;
+  var codeFromUrl=params.get('code')||'';
+  // 儲存 code 供 requestAIReading 自動填入
+  if(codeFromUrl){
+    window._petPaymentReturnCode=codeFromUrl;
+    try{sessionStorage.setItem('hl_pet_payment_code',codeFromUrl);}catch(e){}
+    // 從代碼前綴推算牌陣張數（HL3-XXXXX → 3 張）
+    var m=codeFromUrl.match(/^HL(\d+)-/i);
+    if(m)window._petPaymentReturnN=parseInt(m[1],10);
+  }
+  // 清除 query string
+  if(history.replaceState)history.replaceState(null,'',location.pathname);
+  // 顯示付款完成橫幅
+  setTimeout(function(){
+    var banner=document.createElement('div');
+    banner.id='petPaymentBanner';
+    banner.style.cssText='position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:9999;padding:14px 20px 14px 20px;border-radius:14px;background:rgba(14,10,24,.96);border:1px solid rgba(240,181,179,.32);box-shadow:0 4px 24px rgba(0,0,0,.5);max-width:92vw;width:360px;text-align:center;line-height:1.7;font-family:var(--kai,serif)';
+    if(codeFromUrl){
+      var nHint=window._petPaymentReturnN?'（'+window._petPaymentReturnN+' 張牌陣）':'';
+      banner.innerHTML=
+        '<div style="color:#f0b8b0;font-size:.88rem;font-weight:500;margin-bottom:6px">付款完成'+nHint+'</div>'+
+        '<div style="color:rgba(255,255,255,.6);font-size:.78rem;margin-bottom:10px">請填好毛孩資料並抽牌，<br>系統將自動套用您的解讀代碼。</div>'+
+        '<div style="color:var(--paw,#f8dfa5);font-size:.95rem;font-family:monospace;letter-spacing:2px;padding:6px 14px;background:rgba(240,181,179,.07);border-radius:8px;display:inline-block;user-select:all">'+codeFromUrl+'</div>';
+    }else{
+      banner.innerHTML=
+        '<div style="color:#f0b8b0;font-size:.88rem;font-weight:500;margin-bottom:6px">已收到付款申請</div>'+
+        '<div style="color:rgba(255,255,255,.6);font-size:.78rem">繳費完成後系統將自動發送解讀代碼至您的信箱。<br>收到代碼後請回到此頁兌換。</div>';
+    }
+    var closeBtn=document.createElement('button');
+    closeBtn.textContent='×';
+    closeBtn.style.cssText='position:absolute;top:6px;right:10px;background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;font-size:1.1rem;padding:2px 6px;line-height:1';
+    closeBtn.onclick=function(){banner.remove();};
+    banner.appendChild(closeBtn);
+    document.body.appendChild(banner);
+    setTimeout(function(){if(banner.parentNode)banner.remove();},15000);
+  },900);
+})();
 </script>
 
 <script src="assets/js/hourlight-global.js?v=20260313"></script>
