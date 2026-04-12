@@ -2799,6 +2799,81 @@ function installPWA(){
   };
 })();
 
+// ═══════════════════════════════════════════════════════════════
+//  🐾 寵物恢復系統 v1.0 - 修復同步 bug 影響的客戶
+//  使用方式：castle-game.html?restore=pets
+// ═══════════════════════════════════════════════════════════════
+(function(){
+  'use strict';
+
+  // 檢查 URL 參數
+  var urlParams = new URLSearchParams(window.location.search);
+  if(urlParams.get('restore') === 'pets'){
+
+    // 確保必要模組已載入
+    function waitForModules(callback){
+      var attempts = 0;
+      function check(){
+        attempts++;
+        if(window.hlCastlePets && window.hlCastleSync){
+          callback();
+        } else if(attempts < 50){
+          setTimeout(check, 200);
+        } else {
+          console.error('寵物恢復：模組載入逾時');
+        }
+      }
+      check();
+    }
+
+    // 執行寵物恢復
+    function restorePets(){
+      try {
+        console.log('🐾 開始寵物恢復程序...');
+
+        // 基礎補償貓咪（保持遊戲挑戰性）
+        var basicCats = ['fuyun', 'keke', 'yuanyuan']; // 浮雲、可可、圓圓
+        var restored = 0;
+
+        basicCats.forEach(function(catId){
+          try {
+            hlCastlePets.unlockCat(catId);
+            restored++;
+            console.log('✅ 恢復貓咪：' + catId);
+          } catch(e){
+            console.warn('❌ 恢復失敗：' + catId, e);
+          }
+        });
+
+        // 強制同步到雲端
+        if(window.hlCastleSync && typeof hlCastleSync.syncNow === 'function'){
+          hlCastleSync.syncNow();
+          console.log('☁️ 已同步到雲端');
+        }
+
+        // 顯示成功訊息
+        var message = '🎉 寵物恢復完成！\n已恢復 ' + restored + ' 隻貓咪\n請重新整理頁面確認';
+        alert(message);
+        console.log(message);
+
+        // 移除 URL 參數，避免重複執行
+        var newUrl = window.location.pathname + window.location.hash;
+        window.history.replaceState({}, document.title, newUrl);
+
+      } catch(error){
+        console.error('❌ 寵物恢復錯誤：', error);
+        alert('恢復過程發生錯誤，請聯繫客服：' + error.message);
+      }
+    }
+
+    // 等待模組載入後執行
+    waitForModules(function(){
+      console.log('🔄 寵物模組已載入，開始恢復...');
+      setTimeout(restorePets, 1000); // 稍微延遲確保完全初始化
+    });
+  }
+})();
+
 // ── Sound Integration: Hook into existing game actions ──
 (function(){
   // Hook into button clicks
