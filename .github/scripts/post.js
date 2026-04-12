@@ -164,30 +164,62 @@ async function main() {
   }
 
   const hashtags = (post.hashtags || []).join(' ');
-  const fullText = hashtags ? `${post.text}\n\n${hashtags}` : post.text;
-  const replyText = post.reply || '';
 
-  console.log(`\n--- Post content ---`);
-  console.log(fullText);
-  if (replyText) {
-    console.log(`\n--- Reply content ---`);
-    console.log(replyText);
-  }
+  // ── 分離策略 ──
+  // Threads 對外部連結有隱性降觸及，所以：
+  //   - 主貼文 = 純鉤子文字（無連結）
+  //   - 連結放在 reply（第一則回覆）
+  // Facebook 對 link preview 友善，所以：
+  //   - 主貼文 = 鉤子 + 連結（FB 會自動渲染 og:image 預覽）
+  //   - 不需要 reply
+
+  // 從 post.text 裡把連結提取出來
+  const urlRegex = /https:\/\/hourlightkey\.com\/[^\s]+/g;
+  const urls = post.text.match(urlRegex) || [];
+  const primaryUrl = urls[0] || '';
+
+  // Threads 主貼文：移除連結那一行（通常是「完整閱讀 → URL」）
+  const threadsMainText = post.text
+    .split('\n')
+    .filter(line => !urlRegex.test(line))
+    .join('\n')
+    .trim();
+  const threadsFullText = hashtags
+    ? `${threadsMainText}\n\n${hashtags}`
+    : threadsMainText;
+
+  // Threads reply：把連結放進去
+  const threadsReplyText = primaryUrl
+    ? `完整閱讀 → ${primaryUrl}${post.reply ? '\n\n' + post.reply : ''}`
+    : (post.reply || '');
+
+  // Facebook 主貼文：保持原本含連結的格式（FB 對 link preview 友善）
+  const fbText = hashtags ? `${post.text}\n\n${hashtags}` : post.text;
+  const fbReplyAppended = post.reply
+    ? `${fbText}\n\n${post.reply}`
+    : fbText;
+
+  console.log(`\n--- Threads main post (no link) ---`);
+  console.log(threadsFullText);
+  console.log(`\n--- Threads reply (with link) ---`);
+  console.log(threadsReplyText);
+  console.log(`\n--- Facebook post (with link) ---`);
+  console.log(fbReplyAppended);
 
   if (DRY_RUN) {
     console.log('\n[DRY RUN] Skipping actual posting.');
     return;
   }
 
-  // Post to Threads
+  // Post to Threads (main without link, reply with link)
   const threadsToken = process.env.THREADS_ACCESS_TOKEN;
   if (threadsToken) {
     try {
-      const threadId = await postToThreads(fullText, threadsToken);
-      if (replyText) {
+      const threadId = await postToThreads(threadsFullText, threadsToken);
+      if (threadsReplyText) {
         console.log(`\nWaiting 30 seconds before posting reply...`);
         await sleep(30000);
-        await replyToThread(threadId, replyText, threadsToken);
+        await replyToThread(threadId, threadsReplyText, threadsToken);
       }
     } catch (err) {
       console.error(`Threads posting failed: ${err.message}`);
@@ -196,14 +228,12 @@ async function main() {
     console.log('THREADS_ACCESS_TOKEN not set, skipping Threads.');
   }
 
-  // Post to Facebook
+  // Post to Facebook (link in main body = FB renders nice preview card)
   const fbToken = process.env.FB_PAGE_ACCESS_TOKEN;
   const fbPageId = process.env.FB_PAGE_ID;
   if (fbToken && fbPageId) {
     try {
-      // FB: combine main + reply into one post (links need to be in main body for preview)
-      const fbText = replyText ? `${fullText}\n\n${replyText}` : fullText;
-      await postToFacebook(fbText, fbToken, fbPageId);
+      await postToFacebook(fbReplyAppended, fbToken, fbPageId);
     } catch (err) {
       console.error(`Facebook posting failed: ${err.message}`);
     }
