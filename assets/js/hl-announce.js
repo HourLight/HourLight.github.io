@@ -5,7 +5,7 @@
 (function(){
 'use strict';
 
-var ANNOUNCE_VER = '2026-04-06-welcome-v4';
+var ANNOUNCE_VER = '2026-04-12-system-upgrade-v5';
 var DISMISS_KEY = 'hl_announce_' + ANNOUNCE_VER;
 
 try { if(sessionStorage.getItem(DISMISS_KEY)) return; } catch(e){}
@@ -20,35 +20,35 @@ overlay.innerHTML = `
   <div class="hla-close" onclick="document.getElementById('hlAnnounce').remove();try{sessionStorage.setItem('${DISMISS_KEY}','1')}catch(e){}" title="關閉">✕</div>
 
   <div class="hla-header">
-    <div class="hla-brand">HOUR LIGHT ✦ 馥靈之鑰</div>
-    <div class="hla-title">讀懂自己，活對人生</div>
+    <div class="hla-brand">🏰 系統升級公告</div>
+    <div class="hla-title">內在城堡同步機制升級完成</div>
   </div>
 
   <div class="hla-body">
     <div class="hla-welcome">
-      這裡有 33 套命理系統、101 個心理測驗、130 張原創牌卡，全部線上免費用。<br>
-      不用下載，不用預約，打開就能開始認識自己。
+      為了提供更穩定的雲端同步體驗，我們在 4/12 進行了重要的系統升級。<br>
+      部分朋友可能發現內在城堡的進度出現異常，包含靈感點數或房間狀態與之前不一致。
     </div>
 
     <div class="hla-popular">
-      <div class="hla-popular-title">大家都在玩 ↓</div>
-      <a href="destiny-engine.html" class="hla-link">🔮 33合1命盤引擎 — 一次算完所有命理</a>
-      <a href="draw-hl.html" class="hla-link">🃏 130張牌卡抽牌 — 抽一張問問自己</a>
-      <a href="quiz-hub.html" class="hla-link">🧠 101款心理測驗 — 從性格到潛意識都有</a>
+      <div class="hla-popular-title">升級後保障 ↓</div>
+      <div class="hla-link">✅ 雲端同步機制完全穩定</div>
+      <div class="hla-link">✅ 跨裝置進度完美同步</div>
+      <div class="hla-link">✅ 未來不會再發生類似問題</div>
     </div>
 
     <div class="hla-gift">
-      🎁 註冊就送 48 小時大師體驗，AI 深度解讀隨你用。<br>
-      分享給朋友？每多一位註冊，你再多一天。<br>
-      <a href="member-dashboard.html" style="color:#f8dfa5;font-size:.78rem">查看我的推薦碼 →</a>
+      🎁 <strong>補償方案</strong><br>
+      凡是在 4/12 前有分享城堡進度截圖的朋友，可獲得 <strong>NT$399 抵用券序號一組</strong>（可用於 5 張牌 AI 深度解讀）<br>
+      <a href="https://lin.ee/RdQBFAN" style="color:#f8dfa5;font-size:.82rem">點此申請補償 LINE 客服 →</a>
     </div>
   </div>
 
   <div class="hla-footer">
     <button class="hla-btn" onclick="document.getElementById('hlAnnounce').remove();try{sessionStorage.setItem('${DISMISS_KEY}','1')}catch(e){}">
-      好，我先逛逛
+      我知道了
     </button>
-    <a href="member-login.html" class="hla-sub-link">免費註冊，領 48 小時體驗 →</a>
+    <a href="castle-game.html" class="hla-sub-link">前往內在城堡 →</a>
   </div>
 </div>
 `;
