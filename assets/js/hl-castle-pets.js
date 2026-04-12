@@ -188,6 +188,7 @@
       streakDays: 0,          // 連續天數（從 hlCastle 同步）
       totalExplore: 0,        // 總探索次數
       unlockedConditions: {}, // 記錄已達成的解鎖條件 { key: true }
+      unlockHistory: [],      // 解鎖歷史 [{ catId, timestamp, reason, source }]
       firstFurnitureDone: false
     };
     try{
@@ -294,6 +295,63 @@
     return pet.quotes[seed % pet.quotes.length];
   }
 
+  // ═══ 貓咪解鎖通知系統 ═══
+  function showCatUnlockNotification(cat, unlockRecord){
+    if(!cat) return;
+
+    // 創建通知元素
+    var notification = document.createElement('div');
+    notification.className = 'cat-unlock-notification';
+    notification.innerHTML =
+      '<div class="cat-unlock-backdrop"></div>' +
+      '<div class="cat-unlock-modal">' +
+        '<div class="cat-unlock-header">' +
+          '<div class="cat-unlock-icon">' + cat.icon + '</div>' +
+          '<div class="cat-unlock-title">🎉 新貓咪加入城堡！</div>' +
+        '</div>' +
+        '<div class="cat-unlock-content">' +
+          '<div class="cat-unlock-name">' + cat.name + '（' + cat.color + '）</div>' +
+          '<div class="cat-unlock-reason">✅ ' + unlockRecord.reason + '</div>' +
+          '<div class="cat-unlock-time">📅 ' + new Date(unlockRecord.timestamp).toLocaleString('zh-TW') + '</div>' +
+          '<div class="cat-unlock-quote">"' + cat.quote + '"</div>' +
+        '</div>' +
+        '<div class="cat-unlock-footer">' +
+          '<button class="cat-unlock-btn" onclick="this.closest(\'.cat-unlock-notification\').remove()">太好了！</button>' +
+        '</div>' +
+      '</div>';
+
+    // 添加樣式
+    var style = document.createElement('style');
+    style.textContent = `
+      .cat-unlock-notification { position:fixed; inset:0; z-index:99999; display:flex; align-items:center; justify-content:center; animation:fadeIn .3s ease; }
+      .cat-unlock-backdrop { position:absolute; inset:0; background:rgba(0,0,0,.7); }
+      .cat-unlock-modal { position:relative; max-width:400px; width:90%; background:linear-gradient(160deg,#1a0f2e,#2d1b3d); border:2px solid #f8dfa5; border-radius:20px; overflow:hidden; }
+      .cat-unlock-header { text-align:center; padding:20px; background:linear-gradient(135deg,#f8dfa5,#ecd098); color:#1a1008; }
+      .cat-unlock-icon { font-size:3rem; margin-bottom:8px; }
+      .cat-unlock-title { font-size:1.1rem; font-weight:600; }
+      .cat-unlock-content { padding:20px; text-align:center; color:#f9f0e5; }
+      .cat-unlock-name { font-size:1.2rem; color:#f8dfa5; font-weight:600; margin-bottom:12px; }
+      .cat-unlock-reason { margin-bottom:8px; color:rgba(249,240,229,.8); }
+      .cat-unlock-time { margin-bottom:16px; font-size:.85rem; color:rgba(249,240,229,.6); }
+      .cat-unlock-quote { font-style:italic; color:rgba(249,240,229,.7); font-size:.9rem; margin-top:16px; padding-top:16px; border-top:1px solid rgba(248,223,165,.2); }
+      .cat-unlock-footer { padding:16px 20px 20px; text-align:center; }
+      .cat-unlock-btn { width:100%; padding:12px; border:none; border-radius:999px; background:linear-gradient(135deg,#f8dfa5,#ecd098); color:#1a1008; font-size:.95rem; font-weight:500; cursor:pointer; transition:.2s; font-family:inherit; }
+      .cat-unlock-btn:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(248,223,165,.3); }
+      @keyframes fadeIn { from{opacity:0;transform:scale(.9)} to{opacity:1;transform:scale(1)} }
+    `;
+
+    // 添加到頁面
+    document.head.appendChild(style);
+    document.body.appendChild(notification);
+
+    // 3秒後自動移除（如果用戶沒點擊）
+    setTimeout(function(){
+      if(notification.parentNode){
+        notification.remove();
+      }
+    }, 8000);
+  }
+
   // ═══ 餵食（用材料給情緒值）═══
   function feedPet(petId, materialId){
     var state = loadPets();
@@ -375,12 +433,42 @@
       });
     },
 
-    // 解鎖貓咪（管理員手動解鎖用）
-    unlockCat: function(catId){
+    // 解鎖貓咪（支援通知和歷史記錄）
+    unlockCat: function(catId, reason, source){
       var state = loadPets();
-      if(state.ownedCats.indexOf(catId) === -1) state.ownedCats.push(catId);
-      if(!state.petMoods[catId]) state.petMoods[catId] = { mood:70, lastFed:'' };
-      savePets(state);
+
+      // 檢查是否已擁有（避免重複通知）
+      var alreadyOwned = state.ownedCats.indexOf(catId) !== -1;
+
+      if(!alreadyOwned){
+        // 添加到擁有列表
+        state.ownedCats.push(catId);
+
+        // 初始化心情
+        if(!state.petMoods[catId]) state.petMoods[catId] = { mood:70, lastFed:'' };
+
+        // 記錄解鎖歷史
+        var cat = CATS.find(function(c){ return c.id === catId; });
+        var unlockRecord = {
+          catId: catId,
+          timestamp: new Date().toISOString(),
+          reason: reason || (cat ? cat.unlockCond : '系統解鎖'),
+          source: source || 'achievement'
+        };
+
+        if(!state.unlockHistory) state.unlockHistory = [];
+        state.unlockHistory.push(unlockRecord);
+
+        // 保存狀態
+        savePets(state);
+
+        // 顯示解鎖通知
+        showCatUnlockNotification(cat, unlockRecord);
+
+        return { success: true, isNew: true };
+      }
+
+      return { success: true, isNew: false };
     },
 
     // 餵食
