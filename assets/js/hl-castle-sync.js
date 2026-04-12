@@ -179,11 +179,35 @@
 
     var merged = {};
 
-    // 數值型：取較大
-    var numKeys = ['points','streak','totalRooms','shareCount','redeemCount','totalDays'];
-    for(var i = 0; i < numKeys.length; i++){
-      var nk = numKeys[i];
+    // 數值型：智慧合併（修復兌換點數被還原的 Bug）
+    var alwaysIncreaseKeys = ['streak','totalRooms','shareCount','redeemCount','totalDays'];
+    for(var i = 0; i < alwaysIncreaseKeys.length; i++){
+      var nk = alwaysIncreaseKeys[i];
       merged[nk] = Math.max(local[nk] || 0, cloud[nk] || 0);
+    }
+
+    // 點數特殊處理：比較兌換歷史，有較新兌換記錄的優先
+    var localPoints = local.points || 0;
+    var cloudPoints = cloud.points || 0;
+    var localRedeemHistory = local.redeemHistory || [];
+    var cloudRedeemHistory = cloud.redeemHistory || [];
+
+    // 比較最後兌換時間，有較新兌換的那邊優先（表示更新狀態）
+    var localLastRedeem = localRedeemHistory[0] ? localRedeemHistory[0].date : '';
+    var cloudLastRedeem = cloudRedeemHistory[0] ? cloudRedeemHistory[0].date : '';
+
+    if(localLastRedeem && cloudLastRedeem){
+      // 兩邊都有兌換記錄，以較新的為準
+      merged.points = localLastRedeem > cloudLastRedeem ? localPoints : cloudPoints;
+    } else if(localLastRedeem && !cloudLastRedeem){
+      // 只有本地有兌換記錄，以本地為準
+      merged.points = localPoints;
+    } else if(!localLastRedeem && cloudLastRedeem){
+      // 只有雲端有兌換記錄，以雲端為準
+      merged.points = cloudPoints;
+    } else {
+      // 兩邊都沒有兌換記錄，取較大值
+      merged.points = Math.max(localPoints, cloudPoints);
     }
 
     // 日期型：取較新
