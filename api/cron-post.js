@@ -21,6 +21,9 @@
 
 const EPOCH = '2026-04-12';
 
+// 緊急開關：如果 Threads 持續出問題可以暫時關閉
+const THREADS_ENABLED = process.env.THREADS_ENABLED !== 'false';
+
 // Pool URLs (fetch from GitHub Pages)
 const POOL_BASE = 'https://hourlightkey.com/docs/';
 const POOL_FILES = {
@@ -75,33 +78,61 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// --- Threads API ---
+// --- Threads API (Enhanced with Retry Logic) ---
 
-async function postToThreads(text, accessToken) {
-  const createUrl = `https://graph.threads.net/v1.0/me/threads`;
-  const container = await httpPost(createUrl + `?access_token=${accessToken}`, {
-    media_type: 'TEXT',
-    text: text,
-  });
-  const publishUrl = `https://graph.threads.net/v1.0/me/threads_publish`;
-  const published = await httpPost(publishUrl + `?access_token=${accessToken}`, {
-    creation_id: container.id,
-  });
-  return published.id;
+async function postToThreads(text, accessToken, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const createUrl = `https://graph.threads.net/v1.0/me/threads`;
+      const container = await httpPost(createUrl + `?access_token=${accessToken}`, {
+        media_type: 'TEXT',
+        text: text,
+      });
+
+      // 增加等待時間，確保容器準備完成
+      await sleep(5000 + (attempt * 1000)); // 5-8秒遞增等待
+
+      const publishUrl = `https://graph.threads.net/v1.0/me/threads_publish`;
+      const published = await httpPost(publishUrl + `?access_token=${accessToken}`, {
+        creation_id: container.id,
+      });
+
+      return published.id;
+    } catch (error) {
+      if (attempt === maxRetries) {
+        throw new Error(`Threads post failed after ${maxRetries} attempts: ${error.message}`);
+      }
+      await sleep(2000 * attempt); // 遞增等待時間：2s, 4s, 6s
+    }
+  }
 }
 
-async function replyToThread(parentId, text, accessToken) {
-  const createUrl = `https://graph.threads.net/v1.0/me/threads`;
-  const container = await httpPost(createUrl + `?access_token=${accessToken}`, {
-    media_type: 'TEXT',
-    text: text,
-    reply_to_id: parentId,
-  });
-  const publishUrl = `https://graph.threads.net/v1.0/me/threads_publish`;
-  const published = await httpPost(publishUrl + `?access_token=${accessToken}`, {
-    creation_id: container.id,
-  });
-  return published.id;
+async function replyToThread(parentId, text, accessToken, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const createUrl = `https://graph.threads.net/v1.0/me/threads`;
+      const container = await httpPost(createUrl + `?access_token=${accessToken}`, {
+        media_type: 'TEXT',
+        text: text,
+        reply_to_id: parentId,
+      });
+
+      // 增加等待時間
+      await sleep(5000 + (attempt * 1000));
+
+      const publishUrl = `https://graph.threads.net/v1.0/me/threads_publish`;
+      const published = await httpPost(publishUrl + `?access_token=${accessToken}`, {
+        creation_id: container.id,
+      });
+
+      return published.id;
+    } catch (error) {
+      if (attempt === maxRetries) {
+        throw new Error(`Threads reply failed after ${maxRetries} attempts: ${error.message}`);
+      }
+      await sleep(2000 * attempt);
+    }
+  }
 }
 
 // --- Facebook API ---
@@ -221,7 +252,7 @@ export default async function handler(req, res) {
 
   // Post to Threads
   const threadsToken = process.env.THREADS_ACCESS_TOKEN;
-  if (threadsToken) {
+  if (THREADS_ENABLED && threadsToken) {
     try {
       const threadId = await postToThreads(threadsFullText, threadsToken);
       log.push(`Threads post id: ${threadId}`);
