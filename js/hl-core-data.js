@@ -267,7 +267,7 @@
         _token = _v;
         return true;
       }
-      console.warn('HLCore: 無效的存取金鑰');
+      // HLCore: 無效的存取金鑰，靜默處理
       return false;
     },
     

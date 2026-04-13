@@ -319,7 +319,7 @@
         _initialized = true;
         return true;
       }
-      console.warn('HLCalc: 無效的存取金鑰');
+      // HLCalc: 無效的存取金鑰，靜默處理
       return false;
     },
     

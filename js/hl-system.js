@@ -42,20 +42,20 @@
       if (typeof HLCore !== 'undefined') {
         _status.core = HLCore.init(_KEYS.core);
         if (_status.core) {
-          if(window.HL_DEBUG) console.log('✓ HLCore 初始化成功');
+          // HLCore 初始化成功
         }
       } else {
-        console.warn('HLCore 模組未載入');
+        // HLCore 模組未載入，靜默處理
       }
-      
+
       // 初始化計算引擎
       if (typeof HLCalc !== 'undefined') {
         _status.calc = HLCalc.init(_KEYS.calc);
         if (_status.calc) {
-          if(window.HL_DEBUG) console.log('✓ HLCalc 初始化成功');
+          // HLCalc 初始化成功
         }
       } else {
-        console.warn('HLCalc 模組未載入');
+        // HLCalc 模組未載入，靜默處理
       }
       
       // 初始化牌卡系統
@@ -63,7 +63,7 @@
         HLCards.init(_KEYS.card, function(success) {
           _status.card = success;
           if (success) {
-            if(window.HL_DEBUG) console.log('✓ HLCards 初始化成功');
+            // HLCards 初始化成功
           }
           if (callback) callback(HLSystem.getStatus());
         });
@@ -99,7 +99,7 @@
      */
     calculateChart: function(birthData) {
       if (!this.isReady()) {
-        console.error('系統尚未初始化');
+        // 系統尚未初始化，靜默處理
         return null;
       }
       
@@ -169,7 +169,7 @@
      */
     drawCard: function(options) {
       if (!_status.card) {
-        console.error('牌卡系統尚未初始化');
+        // 牌卡系統尚未初始化，靜默處理
         return null;
       }
       
