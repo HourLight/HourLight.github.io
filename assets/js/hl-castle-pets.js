@@ -75,7 +75,7 @@
 
   // ═══ 貓咪定義（8種花色）═══
   var CATS = [
-    { id:'fuyun',   name:'浮雲', color:'布偶貓',  icon:'🐱', emoji:'🫧',
+    { id:'fuyun',   name:'小咪', color:'布偶貓',  icon:'🐱', emoji:'🫧',
       desc:'白底灰斑，深藍眼。最冷靜，坐在哪裡就成為那裡的主人。',
       room:'鏡之廳',
       quote:'你有沒有試過，什麼都不做，只是坐著？我每天都在做。',
@@ -116,14 +116,14 @@
         happy: 'cat-orange-fold.png',
         clingy: 'cat-orange-fold.png'
       } },
-    { id:'xiaoma',  name:'小馬', color:'賓士貓',  icon:'🐈‍⬛', emoji:'🖤',
+    { id:'xiaoma',  name:'阿BO', color:'賓士貓',  icon:'🐈‍⬛', emoji:'🖤',
       desc:'黑白花色，白色鬍鬚。有自己的規矩，但對你破例。',
       room:'解鎖密室',
       quote:'你說要改變的那件事，你是說真的嗎？我想看你做到。',
       unlockCond:'分享城堡卡 2 次',
       unlockKey:'share_count_2',
       tier:'common' },
-    { id:'panghu',  name:'胖虎', color:'橘貓',    icon:'🧡', emoji:'🧡',
+    { id:'panghu',  name:'糖果', color:'橘貓',    icon:'🧡', emoji:'🧡',
       desc:'橘色虎斑，肚子白白的。食慾驚人，對生活充滿熱情。',
       room:'記憶花園',
       quote:'今天有沒有好好吃一餐？',
