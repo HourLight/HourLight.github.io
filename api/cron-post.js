@@ -176,6 +176,48 @@ export default async function handler(req, res) {
   log.push(`Day index since ${EPOCH}: ${dayIndex}`);
   log.push(`Time slot: ${timeSlot}`);
 
+  // 防重複發文檢查（除非是手動 ?force=1）
+  const dateStr = getDateStringUTC8(nowUTC8);
+  const isForced = req.query && req.query.force === '1';
+
+  if (!isForced) {
+    try {
+      // 檢查今天這個時段是否已發文
+      const admin = require('firebase-admin');
+      if (!admin.apps.length) {
+        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
+        admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount),
+          projectId: serviceAccount.project_id
+        });
+      }
+
+      const db = admin.firestore();
+      const postLogRef = db.collection('cron_posts').doc(`${dateStr}_${timeSlot}`);
+      const postLog = await postLogRef.get();
+
+      if (postLog.exists) {
+        const logData = postLog.data();
+        log.push(`防重複：今天 ${dateStr} ${timeSlot} 已發文，跳過`);
+        log.push(`前次發文：${logData.timestamp}，成功：${JSON.stringify(logData.results)}`);
+
+        return res.status(200).json({
+          ok: true,
+          skipped: true,
+          reason: '今天此時段已發文',
+          tier: tierLabel,
+          dayIndex,
+          previousPost: logData,
+          log
+        });
+      }
+    } catch (err) {
+      log.push(`防重複檢查失敗：${err.message}，繼續發文`);
+    }
+  } else {
+    log.push(`強制發文模式：?force=1 忽略重複檢查`);
+  }
+
   // Pick pool by time slot
   let poolKey;
   let tierLabel;
@@ -286,6 +328,37 @@ export default async function handler(req, res) {
   } else {
     log.push('FB_PAGE_ACCESS_TOKEN or FB_PAGE_ID not set, skipping FB');
     results.facebook = { skipped: true };
+  }
+
+  // 記錄本次發文到 Firestore（防重複用）
+  try {
+    const admin = require('firebase-admin');
+    if (!admin.apps.length) {
+      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+        projectId: serviceAccount.project_id
+      });
+    }
+
+    const db = admin.firestore();
+    const postLogRef = db.collection('cron_posts').doc(`${dateStr}_${timeSlot}`);
+
+    await postLogRef.set({
+      date: dateStr,
+      timeSlot,
+      tierLabel,
+      dayIndex,
+      timestamp: nowUTC8.toISOString(),
+      results,
+      postTitle: post.title || '未知',
+      postId: post.id || null,
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+
+    log.push(`已記錄發文日誌：${dateStr}_${timeSlot}`);
+  } catch (err) {
+    log.push(`記錄發文日誌失敗：${err.message}`);
   }
 
   log.push(`=== Done ===`);
