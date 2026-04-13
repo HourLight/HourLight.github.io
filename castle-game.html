@@ -1690,8 +1690,15 @@ function updateRedeemUI(){
 }
 
 async function doRedeem(itemId){
-  // 🔧 修復：等待異步兌換完成
-  var result=await hlCastle.redeem(itemId);
+  // 🔧 修復：防止重複點擊
+  var btn = event.target;
+  if(btn.disabled) return;
+  btn.disabled = true;
+  btn.textContent = '兌換中...';
+
+  try {
+    // 🔧 修復：等待異步兌換完成
+    var result=await hlCastle.redeem(itemId);
   if(!result.ok){
     // 🔧 修復：處理各種錯誤情況
     if(result.reason==='not_enough'){
@@ -1705,6 +1712,9 @@ async function doRedeem(itemId){
     }else{
       alert('兌換失敗：'+(result.message||'未知錯誤'));
     }
+    // 錯誤時恢復按鈕狀態
+    btn.disabled = false;
+    btn.textContent = result.item ? result.item.cost + 'pt' : '兌換';
     return;
   }
   var item=result.item;
@@ -1736,6 +1746,15 @@ async function doRedeem(itemId){
   if(window.hlCastleSync) {
     console.log('[急救] 兌換完成，強制雲端同步...');
     hlCastleSync.syncNow();
+  }
+
+  } catch(err) {
+    // 🔧 修復：處理未預期的錯誤
+    console.error('[城堡] 兌換過程發生錯誤：', err);
+    alert('❗ 兌換失敗\n\n系統錯誤，請重新整理頁面後再試');
+    // 恢復按鈕狀態
+    btn.disabled = false;
+    btn.textContent = '兌換';
   }
 }
 
