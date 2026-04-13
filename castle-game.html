@@ -346,12 +346,6 @@ button:active{transform:scale(.97);transition:transform .08s}
 .room-complete-toast.show{transform:translate(-50%,-50%) scale(1);opacity:1}
 .room-complete-toast .pts-earned{font-size:2rem;display:block;color:var(--amber-l);filter:drop-shadow(0 2px 4px rgba(0,0,0,.2))}
 
-/* ── 兌換指南彈窗 ── */
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
-}
-
 /* ── 彩帶升級 ── */
 .confetti i{border-radius:50% 0 50% 0!important}
 .confetti i:nth-child(3n){border-radius:50%!important;width:8px!important;height:8px!important}
@@ -654,7 +648,7 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
 </div>
 
 <div class="castle-wrap">
-<img src="images/castle-web/castle-map.webp" alt="內在城堡" class="castle-bg" loading="eager" onerror="this.src='castle-main.webp'; this.onerror=function(){this.src='castle-main.png';}">
+<img src="images/castle-web/castle-map.webp" alt="內在城堡" class="castle-bg" loading="eager" onerror="this.src='castle-main.png'">
 <!-- SVG castle removed: using castle-map.webp image with percentage-positioned hotspots -->
 <!-- Old furniture SVGs (svg-lamp-left-tower etc.) hidden — not compatible with new image layout -->
 <div id="roomHotspots-legacy" style="display:none">
@@ -840,102 +834,6 @@ function todayRiddle(room){
   var hash = seed * 2654435761 + room.id.charCodeAt(0) * 31;
   var idx = Math.abs(hash) % room.riddles.length;
   return room.riddles[idx];
-}
-
-// ═══ 🎨 兌換成功指南彈窗 ═══
-function showRedemptionGuide(code, cardCount, copied, remainingPoints) {
-  var modal = document.createElement('div');
-  modal.style.cssText = `
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
-    z-index: 10000; display: flex; align-items: center; justify-content: center;
-    animation: fadeIn 0.3s ease;
-  `;
-
-  modal.innerHTML = \`
-    <div style="
-      background: linear-gradient(135deg, #fff 0%, #fff8f4 100%);
-      border-radius: 24px; padding: 32px; max-width: 480px; margin: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      text-align: center; position: relative;
-    ">
-      <div style="font-size: 3rem; margin-bottom: 16px;">🎉</div>
-      <h2 style="color: #1D3557; margin-bottom: 8px; font-size: 1.8rem;">兌換成功！</h2>
-
-      <div style="
-        background: linear-gradient(135deg, #F0D48A, #E9C27D);
-        color: #1a1520; padding: 16px; border-radius: 16px; margin: 20px 0;
-        font-family: monospace; font-size: 1.1rem; font-weight: bold;
-        letter-spacing: 0.1em; position: relative;
-      ">
-        \${code}
-        \${copied ? '<div style="color: #2E8B57; font-size: 0.85rem; margin-top: 8px;">✅ 已複製到剪貼簿</div>' : ''}
-      </div>
-
-      <div style="color: #E63946; font-weight: 600; margin-bottom: 24px;">
-        適用於 \${cardCount} 張牌卡解讀
-      </div>
-
-      <div style="text-align: left; background: #f8f9fa; padding: 20px; border-radius: 16px; margin: 20px 0;">
-        <h3 style="color: #1D3557; margin-bottom: 16px; text-align: center;">🌟 可使用的頁面</h3>
-
-        <div style="display: grid; gap: 12px;">
-          <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 12px; cursor: pointer; transition: all 0.2s;"
-               onclick="window.open('draw-hl.html', '_blank')">
-            <div style="font-size: 1.5rem;">🃏</div>
-            <div>
-              <div style="font-weight: 600; color: #1D3557;">馥靈智慧牌卡</div>
-              <div style="font-size: 0.85rem; color: #666;">主要抽牌頁面，選擇 \${cardCount} 張牌陣</div>
-            </div>
-            <div style="margin-left: auto; color: #E63946;">→</div>
-          </div>
-
-          \${cardCount === 3 ? \`
-          <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 12px; cursor: pointer; transition: all 0.2s;"
-               onclick="window.open('family-reading.html', '_blank')">
-            <div style="font-size: 1.5rem;">👨‍👩‍👧‍👦</div>
-            <div>
-              <div style="font-weight: 600; color: #1D3557;">家族關係解讀</div>
-              <div style="font-size: 0.85rem; color: #666;">探索家族動力與關係模式</div>
-            </div>
-            <div style="margin-left: auto; color: #E63946;">→</div>
-          </div>
-
-          <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 12px; cursor: pointer; transition: all 0.2s;"
-               onclick="window.open('pet-reading.html', '_blank')">
-            <div style="font-size: 1.5rem;">🐱</div>
-            <div>
-              <div style="font-weight: 600; color: #1D3557;">寵物深度溝通</div>
-              <div style="font-size: 0.85rem; color: #666;">理解毛孩的內心世界</div>
-            </div>
-            <div style="margin-left: auto; color: #E63946;">→</div>
-          </div>
-          \` : ''}
-        </div>
-
-        <div style="margin-top: 16px; padding: 12px; background: rgba(240,212,138,0.1); border-radius: 12px; font-size: 0.9rem; color: #666;">
-          💡 <strong>使用方式：</strong>選擇牌陣後，在付費頁面輸入您的代碼即可免費解讀
-        </div>
-      </div>
-
-      <div style="color: #666; font-size: 0.9rem; margin-bottom: 20px;">
-        剩餘點數：<span style="color: #E63946; font-weight: bold;">\${remainingPoints}</span> 點
-      </div>
-
-      <button onclick="this.parentElement.parentElement.remove()" style="
-        background: linear-gradient(135deg, #2E8B57, #228B22);
-        color: white; border: none; padding: 12px 32px; border-radius: 12px;
-        font-weight: 600; cursor: pointer; font-size: 1rem;
-        box-shadow: 0 4px 16px rgba(46,139,87,0.3);
-        transition: all 0.2s;
-      " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-        開始使用 ✨
-      </button>
-    </div>
-  \`;
-
-  document.body.appendChild(modal);
-  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
 }
 ;
 
@@ -1132,7 +1030,7 @@ function renderPetFurnitureTooltip(){
   // 讀取已解鎖的寵物
   var pets = [];
   var cats = hlPets.getCats();
-  cats.forEach(function(c){ if(c.unlocked) pets.push({ icon:c.emoji || c.icon || '🐱', name:c.name }); });
+  cats.forEach(function(c){ if(c.unlocked) pets.push({ icon:c.icon || '🐱', name:c.name }); });
   var zodiacPet = hlPets.getZodiacPet();
   if(zodiacPet) pets.push({ icon:zodiacPet.icon, name:zodiacPet.name });
   if(pets.length === 0) return;
@@ -1291,7 +1189,7 @@ function renderZones(){
       g.onclick = function(rid){ return function(){ openDoneRoom(rid); }; }(rid);
     } else {
       g.style.cursor = 'pointer';
-      g.onclick = function(rid){ return function(){ handleHotspot(rid); }; }(rid);
+      g.onclick = function(rid){ return function(){ handleRoomClick(rid); }; }(rid);
     }
   });
 }
@@ -1791,32 +1689,10 @@ function updateRedeemUI(){
   panel.innerHTML=html;
 }
 
-async function doRedeem(itemId){
-  // 🔧 修復：防止重複點擊
-  var btn = event.target;
-  if(btn.disabled) return;
-  btn.disabled = true;
-  btn.textContent = '兌換中...';
-
-  try {
-    // 🔧 修復：等待異步兌換完成
-    var result=await hlCastle.redeem(itemId);
+function doRedeem(itemId){
+  var result=hlCastle.redeem(itemId);
   if(!result.ok){
-    // 🔧 修復：處理各種錯誤情況
-    if(result.reason==='not_enough'){
-      alert('靈感點數不足！還需要 '+result.need+' 點。');
-    }else if(result.reason==='not_logged_in'){
-      alert('❗ 請先登入會員\n\n兌換折價券需要登入帳戶。請點選右上角登入後再試。');
-    }else if(result.reason==='firebase_unavailable'){
-      alert('❗ 系統暫時無法連線\n\n請檢查網路連線並稍後再試。');
-    }else if(result.reason==='firestore_error'){
-      alert('❗ 兌換失敗\n\n'+result.message+'\n\n您的點數未被扣除，請稍後再試或聯絡客服。');
-    }else{
-      alert('兌換失敗：'+(result.message||'未知錯誤'));
-    }
-    // 錯誤時恢復按鈕狀態
-    btn.disabled = false;
-    btn.textContent = result.item ? result.item.cost + 'pt' : '兌換';
+    if(result.reason==='not_enough')alert('靈感點數不足！還需要 '+result.need+' 點。');
     return;
   }
   var item=result.item;
@@ -1829,8 +1705,11 @@ async function doRedeem(itemId){
         copied = true;
       }
     } catch(e){}
-    // 🎨 改用更吸引人的彈窗替代 alert
-    setTimeout(() => showRedemptionGuide(result.couponCode, item.couponN, copied, hlCastle.getState().points), 100);
+    var msg = '🎉 兌換成功！\n\n您的折價券碼：\n' + result.couponCode + '\n\n'
+      + (copied ? '✅ 已自動複製到剪貼簿\n\n' : '')
+      + '請到馥靈抽牌頁面，選擇 ' + item.couponN + ' 張牌陣，在付費時輸入此碼即可折抵。\n\n'
+      + '剩餘點數：' + hlCastle.getState().points + ' 點';
+    alert(msg);
   }else{
     alert('🎉 兌換成功！\n「'+item.name+'」已加入您的帳戶。\n剩餘點數：'+hlCastle.getState().points+' 點');
   }
@@ -1840,21 +1719,6 @@ async function doRedeem(itemId){
   if(result.newAchievements&&result.newAchievements.length)
     result.newAchievements.forEach(function(ach,i){setTimeout(function(){showAchToast(ach);},i*800);});
   updateRedeemUI();upd();
-
-  // 緊急修復：兌換後強制立即雲端同步，確保點數扣除永久保存
-  if(window.hlCastleSync) {
-    console.log('[急救] 兌換完成，強制雲端同步...');
-    hlCastleSync.syncNow();
-  }
-
-  } catch(err) {
-    // 🔧 修復：處理未預期的錯誤
-    console.error('[城堡] 兌換過程發生錯誤：', err);
-    alert('❗ 兌換失敗\n\n系統錯誤，請重新整理頁面後再試');
-    // 恢復按鈕狀態
-    btn.disabled = false;
-    btn.textContent = '兌換';
-  }
 }
 
 // (duplicate showCompleteToast removed — correct version is above)
@@ -2863,7 +2727,7 @@ function installPWA(){
         var target = diff < 0 ? unlocked[0] : unlocked[unlocked.length - 1];
         if(target){
           if(window.HLSound) HLSound.click();
-          handleHotspot(target);
+          handleRoomClick(target);
         }
       }
     }, {passive:true});
@@ -2929,81 +2793,6 @@ function installPWA(){
   };
 })();
 
-// ═══════════════════════════════════════════════════════════════
-//  🐾 寵物恢復系統 v1.0 - 修復同步 bug 影響的客戶
-//  使用方式：castle-game.html?restore=pets
-// ═══════════════════════════════════════════════════════════════
-(function(){
-  'use strict';
-
-  // 檢查 URL 參數
-  var urlParams = new URLSearchParams(window.location.search);
-  if(urlParams.get('restore') === 'pets'){
-
-    // 確保必要模組已載入
-    function waitForModules(callback){
-      var attempts = 0;
-      function check(){
-        attempts++;
-        if(window.hlPets && window.hlCastleSync){
-          callback();
-        } else if(attempts < 50){
-          setTimeout(check, 200);
-        } else {
-          console.error('寵物恢復：模組載入逾時');
-        }
-      }
-      check();
-    }
-
-    // 執行寵物恢復
-    function restorePets(){
-      try {
-        console.log('🐾 開始寵物恢復程序...');
-
-        // 基礎補償貓咪（保持遊戲挑戰性）
-        var basicCats = ['fuyun', 'keke', 'yuanyuan']; // 浮雲、可可、圓圓
-        var restored = 0;
-
-        basicCats.forEach(function(catId){
-          try {
-            hlPets.unlockCat(catId, '系統升級補償', 'restore');
-            restored++;
-            console.log('✅ 恢復貓咪：' + catId);
-          } catch(e){
-            console.warn('❌ 恢復失敗：' + catId, e);
-          }
-        });
-
-        // 強制同步到雲端
-        if(window.hlCastleSync && typeof hlCastleSync.syncNow === 'function'){
-          hlCastleSync.syncNow();
-          console.log('☁️ 已同步到雲端');
-        }
-
-        // 顯示成功訊息
-        var message = '🎉 寵物恢復完成！\n已恢復 ' + restored + ' 隻貓咪\n請重新整理頁面確認';
-        alert(message);
-        console.log(message);
-
-        // 移除 URL 參數，避免重複執行
-        var newUrl = window.location.pathname + window.location.hash;
-        window.history.replaceState({}, document.title, newUrl);
-
-      } catch(error){
-        console.error('❌ 寵物恢復錯誤：', error);
-        alert('恢復過程發生錯誤，請聯繫客服：' + error.message);
-      }
-    }
-
-    // 等待模組載入後執行
-    waitForModules(function(){
-      console.log('🔄 寵物模組已載入，開始恢復...');
-      setTimeout(restorePets, 1000); // 稍微延遲確保完全初始化
-    });
-  }
-})();
-
 // ── Sound Integration: Hook into existing game actions ──
 (function(){
   // Hook into button clicks
@@ -3043,14 +2832,5 @@ function installPWA(){
   }
 })();
 </script>
-<!-- 🏰 城堡完整JS模組載入 -->
-<script src="castle-riddles.js?v=20260407"></script>
-<script src="assets/js/hl-castle-key.js?v=20260407" defer></script>
-<script src="assets/js/hl-castle-material.js?v=20260407" defer></script>
-<script src="assets/js/hl-castle-decor-v2.js?v=20260407" defer></script>
-<script src="assets/js/hl-castle-pets.js?v=20260407" defer></script>
-<script src="assets/js/hl-castle-sync.js?v=20260407" defer></script>
-<script src="assets/js/hl-points.js" defer></script>
-
 </body>
 </html>
