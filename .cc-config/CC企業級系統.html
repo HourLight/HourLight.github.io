@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CC企業級智能管理系統 - 馥靈之鑰</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #16213e 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(119, 255, 198, 0.06) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .logo-title {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #e2e8f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+            font-weight: 400;
+            letter-spacing: 2px;
+        }
+
+        .status-bar {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        .status-text {
+            font-size: 13px;
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .main-content {
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 60px 40px;
+            width: 100%;
+        }
+
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .welcome-title {
+            font-size: 48px;
+            font-weight: 300;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffffff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .welcome-subtitle {
+            font-size: 20px;
+            color: #94a3b8;
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+
+        .system-stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin-bottom: 60px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 42px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .departments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+
+        .department-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 32px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .department-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .department-card:hover::before {
+            opacity: 1;
+        }
+
+        .department-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: var(--accent-color);
+            color: white;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .card-subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .card-description {
+            font-size: 15px;
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .card-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .feature-tag {
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            font-size: 12px;
+            color: #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .action-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .action-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 16px;
+        }
+
+        .action-description {
+            font-size: 16px;
+            color: #94a3b8;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            min-width: 180px;
+            justify-content: center;
+        }
+
+        .primary-button {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .primary-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
+        }
+
+        .secondary-button {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .secondary-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* 定義各部門的顏色主題 */
+        .department-card:nth-child(1) { --accent-color: linear-gradient(135deg, #6366f1, #8b5cf6); }
+        .department-card:nth-child(2) { --accent-color: linear-gradient(135deg, #f59e0b, #f97316); }
+        .department-card:nth-child(3) { --accent-color: linear-gradient(135deg, #10b981, #059669); }
+        .department-card:nth-child(4) { --accent-color: linear-gradient(135deg, #ef4444, #dc2626); }
+        .department-card:nth-child(5) { --accent-color: linear-gradient(135deg, #8b5cf6, #a855f7); }
+        .department-card:nth-child(6) { --accent-color: linear-gradient(135deg, #06b6d4, #0891b2); }
+
+        /* 聊天介面 */
+        .chat-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .chat-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .chat-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 90vw;
+            max-width: 800px;
+            height: 80vh;
+            background: rgba(10, 10, 10, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .chat-overlay.active .chat-container {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .chat-header {
+            padding: 24px 32px;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .close-button {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.3s ease;
+        }
+
+        .close-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-content {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .chat-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .chat-option {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .chat-option:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(99, 102, 241, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .option-icon {
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .option-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .option-description {
+            font-size: 14px;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 20px;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .status-bar {
+                gap: 15px;
+            }
+
+            .main-content {
+                padding: 40px 20px;
+            }
+
+            .welcome-title {
+                font-size: 36px;
+            }
+
+            .departments-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .system-stats {
+                gap: 30px;
+            }
+
+            .chat-container {
+                width: 95vw;
+                height: 85vh;
+            }
+
+            .chat-content {
+                padding: 20px;
+            }
+        }
+
+        /* 動畫效果 */
+        .department-card {
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .department-card:nth-child(1) { animation-delay: 0.1s; }
+        .department-card:nth-child(2) { animation-delay: 0.2s; }
+        .department-card:nth-child(3) { animation-delay: 0.3s; }
+        .department-card:nth-child(4) { animation-delay: 0.4s; }
+        .department-card:nth-child(5) { animation-delay: 0.5s; }
+        .department-card:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            from {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            to {
+                transform: translateY(-10vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* 監控儀表板樣式 */
+        .monitoring-dashboard {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 40px;
+            backdrop-filter: blur(20px);
+        }
+
+        .metrics-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .metric-category {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .category-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .metric-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .metric-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .metric-trend {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .metric-trend.positive {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .metric-trend.negative {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .metric-trend.neutral {
+            background: rgba(156, 163, 175, 0.2);
+            color: #9ca3af;
+            border: 1px solid rgba(156, 163, 175, 0.3);
+        }
+
+        .alert-section {
+            margin-top: 32px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .alert-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid;
+            backdrop-filter: blur(5px);
+        }
+
+        .alert-item.success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .alert-item.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        .alert-item.info {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        .alert-item.error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .alert-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .alert-time {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        /* 實時數據更新動畫 */
+        @keyframes dataUpdate {
+            0% { background: rgba(99, 102, 241, 0.2); }
+            50% { background: rgba(99, 102, 241, 0.4); }
+            100% { background: rgba(99, 102, 241, 0.2); }
+        }
+
+        .metric-item.updating {
+            animation: dataUpdate 1s ease-in-out;
+        }
+
+        /* 響應式調整 */
+        @media (max-width: 768px) {
+            .monitoring-dashboard {
+                padding: 20px;
+            }
+
+            .metrics-row {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 12px;
+            }
+
+            .metric-item {
+                padding: 16px;
+            }
+
+            .metric-value {
+                font-size: 20px;
+            }
+
+            .category-title {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-particles" id="particles"></div>
+
+    <div class="main-container">
+        <!-- 頭部區域 -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo-icon">CC</div>
+                    <div class="logo-text">
+                        <div class="logo-title">Claude Code Enterprise</div>
+                        <div class="logo-subtitle">馥靈之鑰智能管理系統</div>
+                    </div>
+                </div>
+
+                <div class="status-bar">
+                    <div class="status-item">
+                        <div class="status-dot"></div>
+                        <span class="status-text">AI引擎運行中</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-dot" style="background: #3b82f6;"></div>
+                        <span class="status-text">18部門就緒</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-dot" style="background: #f59e0b;"></div>
+                        <span class="status-text">私人秘書在線</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主要內容 -->
+        <main class="main-content">
+            <!-- 歡迎區域 -->
+            <section class="welcome-section">
+                <h1 class="welcome-title">企業級 AI 智能管理中心</h1>
+                <p class="welcome-subtitle">
+                    整合18個專業部門的AI顧問團，為您提供全方位的企業智能決策支援
+                </p>
+
+                <div class="system-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">18</span>
+                        <span class="stat-label">AI 部門</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">24/7</span>
+                        <span class="stat-label">全天候服務</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">∞</span>
+                        <span class="stat-label">處理能力</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">99.9%</span>
+                        <span class="stat-label">在線率</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 核心部門區域 -->
+            <section class="departments-grid">
+                <div class="department-card" onclick="openChat('CEO與戰略規劃部')">
+                    <div class="card-header">
+                        <div class="card-icon">👑</div>
+                        <div>
+                            <div class="card-title">CEO與戰略規劃部</div>
+                            <div class="card-subtitle">策略決策 • 願景規劃</div>
+                        </div>
+                    </div>
+                    <div class="card-description">
+                        提供高層戰略決策支援、市場分析、商業模式設計，以及企業發展藍圖規劃
+                    </div>
+                    <div class="card-features">
+                        <span class="feature-tag">戰略規劃</span>
+                        <span class="feature-tag">市場分析</span>
+                        <span class="feature-tag">商業模式</span>
+                        <span class="feature-tag">競爭情報</span>
+                    </div>
+                </div>
+
+                <div class="department-card" onclick="openChat('CFO與財務管理部')">
+                    <div class="card-header">
+                        <div class="card-icon">💰</div>
+                        <div>
+                            <div class="card-title">CFO與財務管理部</div>
+                            <div class="card-subtitle">財務規劃 • 風險控制</div>
+                        </div>
+                    </div>
+                    <div class="card-description">
+                        財務分析、預算規劃、投資決策、風險管控，確保企業財務健康運營
+                    </div>
+                    <div class="card-features">
+                        <span class="feature-tag">財務分析</span>
+                        <span class="feature-tag">預算控制</span>
+                        <span class="feature-tag">投資評估</span>
+                        <span class="feature-tag">風險管控</span>
+                    </div>
+                </div>
+
+                <div class="department-card" onclick="openChat('CTO與技術創新部')">
+                    <div class="card-header">
+                        <div class="card-icon">⚡</div>
+                        <div>
+                            <div class="card-title">CTO與技術創新部</div>
+                            <div class="card-subtitle">技術架構 • 創新驅動</div>
+                        </div>
+                    </div>
+                    <div class="card-description">
+                        技術架構設計、系統優化、創新技術評估，引領企業數位轉型
+                    </div>
+                    <div class="card-features">
+                        <span class="feature-tag">系統架構</span>
+                        <span class="feature-tag">技術創新</span>
+                        <span class="feature-tag">數位轉型</span>
+                        <span class="feature-tag">效能優化</span>
+                    </div>
+                </div>
+
+                <div class="department-card" onclick="openChat('品牌與行銷部')">
+                    <div class="card-header">
+                        <div class="card-icon">🎨</div>
+                        <div>
+                            <div class="card-title">品牌與行銷部</div>
+                            <div class="card-subtitle">品牌策略 • 市場推廣</div>
+                        </div>
+                    </div>
+                    <div class="card-description">
+                        品牌定位、行銷策略、創意企劃、社群經營，提升品牌影響力與市場佔有率
+                    </div>
+                    <div class="card-features">
+                        <span class="feature-tag">品牌策略</span>
+                        <span class="feature-tag">創意企劃</span>
+                        <span class="feature-tag">社群行銷</span>
+                        <span class="feature-tag">市場推廣</span>
+                    </div>
+                </div>
+
+                <div class="department-card" onclick="openChat('人資與組織發展部')">
+                    <div class="card-header">
+                        <div class="card-icon">👥</div>
+                        <div>
+                            <div class="card-title">人資與組織發展部</div>
+                            <div class="card-subtitle">人才管理 • 組織效能</div>
+                        </div>
+                    </div>
+                    <div class="card-description">
+                        人才招募、績效管理、培訓發展、組織優化，打造高效團隊
+                    </div>
+                    <div class="card-features">
+                        <span class="feature-tag">人才招募</span>
+                        <span class="feature-tag">績效管理</span>
+                        <span class="feature-tag">培訓發展</span>
+                        <span class="feature-tag">組織設計</span>
+                    </div>
+                </div>
+
+                <div class="department-card" onclick="openChat('AI私人秘書')">
+                    <div class="card-header">
+                        <div class="card-icon">🤖</div>
+                        <div>
+                            <div class="card-title">AI私人秘書</div>
+                            <div class="card-subtitle">24/7全天候 • 智能助理</div>
+                        </div>
+                    </div>
+                    <div class="card-description">
+                        個人行程管理、會議安排、資訊整理、提醒服務，您的專屬智能助理
+                    </div>
+                    <div class="card-features">
+                        <span class="feature-tag">行程管理</span>
+                        <span class="feature-tag">會議安排</span>
+                        <span class="feature-tag">智能提醒</span>
+                        <span class="feature-tag">資訊整理</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 實時監控儀表板 -->
+            <section class="monitoring-dashboard" style="margin-bottom: 60px;">
+                <h2 style="text-align: center; font-size: 32px; font-weight: 600; color: #ffffff; margin-bottom: 40px;">
+                    實時監控儀表板
+                </h2>
+
+                <!-- 關鍵指標概覽 -->
+                <div class="metrics-grid">
+                    <!-- 系統運行狀態 -->
+                    <div class="metric-category">
+                        <h3 class="category-title">🖥️ 系統運行狀態</h3>
+                        <div class="metrics-row">
+                            <div class="metric-item">
+                                <div class="metric-value" id="systemUptime">99.97%</div>
+                                <div class="metric-label">系統正常運行時間</div>
+                                <div class="metric-trend positive">+0.02%</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="cpuUsage">23.4%</div>
+                                <div class="metric-label">CPU使用率</div>
+                                <div class="metric-trend positive">-2.1%</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="memoryUsage">67.8%</div>
+                                <div class="metric-label">記憶體使用率</div>
+                                <div class="metric-trend neutral">+0.3%</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="responseTime">0.89s</div>
+                                <div class="metric-label">平均響應時間</div>
+                                <div class="metric-trend positive">-0.15s</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI部門運行指標 -->
+                    <div class="metric-category">
+                        <h3 class="category-title">🤖 AI部門運行指標</h3>
+                        <div class="metrics-row">
+                            <div class="metric-item">
+                                <div class="metric-value" id="aiActiveServices">18/18</div>
+                                <div class="metric-label">在線AI服務</div>
+                                <div class="metric-trend positive">100%</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="aiRequests">1,247</div>
+                                <div class="metric-label">今日AI請求數</div>
+                                <div class="metric-trend positive">+18.3%</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="aiAccuracy">97.2%</div>
+                                <div class="metric-label">AI回應準確率</div>
+                                <div class="metric-trend positive">+1.1%</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="aiAvgTime">2.3s</div>
+                                <div class="metric-label">平均處理時間</div>
+                                <div class="metric-trend positive">-0.4s</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 業務關鍵指標 -->
+                    <div class="metric-category">
+                        <h3 class="category-title">📊 業務關鍵指標</h3>
+                        <div class="metrics-row">
+                            <div class="metric-item">
+                                <div class="metric-value" id="dailyUsers">892</div>
+                                <div class="metric-label">今日活躍用戶</div>
+                                <div class="metric-trend positive">+23.1%</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="conversionRate">12.8%</div>
+                                <div class="metric-label">轉換率</div>
+                                <div class="metric-trend positive">+2.3%</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="satisfaction">4.8/5</div>
+                                <div class="metric-label">用戶滿意度</div>
+                                <div class="metric-trend positive">+0.2</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="seoRanking">95</div>
+                                <div class="metric-label">SEO優化頁面</div>
+                                <div class="metric-trend positive">+12</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 財務營運指標 -->
+                    <div class="metric-category">
+                        <h3 class="category-title">💰 財務營運指標</h3>
+                        <div class="metrics-row">
+                            <div class="metric-item">
+                                <div class="metric-value" id="monthlyRevenue">NT$127,340</div>
+                                <div class="metric-label">本月營收</div>
+                                <div class="metric-trend positive">+34.7%</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="subscribers">1,089</div>
+                                <div class="metric-label">付費訂閱用戶</div>
+                                <div class="metric-trend positive">+156</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="arpu">NT$399</div>
+                                <div class="metric-label">平均用戶價值</div>
+                                <div class="metric-trend positive">+NT$23</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="cashFlow">NT$89,560</div>
+                                <div class="metric-label">現金流</div>
+                                <div class="metric-trend positive">+15.2%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 網站技術指標 -->
+                    <div class="metric-category">
+                        <h3 class="category-title">🌐 網站技術指標</h3>
+                        <div class="metrics-row">
+                            <div class="metric-item">
+                                <div class="metric-value" id="pageSpeed">94/100</div>
+                                <div class="metric-label">頁面速度分數</div>
+                                <div class="metric-trend positive">+3</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="seoScore">97/100</div>
+                                <div class="metric-label">SEO優化分數</div>
+                                <div class="metric-trend positive">+8</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="mobileScore">96/100</div>
+                                <div class="metric-label">手機版性能</div>
+                                <div class="metric-trend positive">+4</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="errorRate">0.03%</div>
+                                <div class="metric-label">錯誤率</div>
+                                <div class="metric-trend positive">-0.02%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 安全與合規 -->
+                    <div class="metric-category">
+                        <h3 class="category-title">🔒 安全與合規</h3>
+                        <div class="metrics-row">
+                            <div class="metric-item">
+                                <div class="metric-value" id="securityScore">A+</div>
+                                <div class="metric-label">安全等級</div>
+                                <div class="metric-trend positive">已更新</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="sslStatus">有效</div>
+                                <div class="metric-label">SSL憑證狀態</div>
+                                <div class="metric-trend positive">已續約</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="backupStatus">✓</div>
+                                <div class="metric-label">備份狀態</div>
+                                <div class="metric-trend positive">已完成</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="complianceStatus">100%</div>
+                                <div class="metric-label">合規檢查</div>
+                                <div class="metric-trend positive">全部通過</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 即時警報區域 -->
+                <div class="alert-section">
+                    <h3 style="color: #ffffff; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                        <span>🚨</span> 即時警報與通知
+                    </h3>
+                    <div class="alert-list" id="alertList">
+                        <div class="alert-item success">
+                            <div class="alert-icon">✅</div>
+                            <div class="alert-content">
+                                <div class="alert-title">系統升級完成</div>
+                                <div class="alert-time">3分鐘前</div>
+                            </div>
+                        </div>
+                        <div class="alert-item info">
+                            <div class="alert-icon">ℹ️</div>
+                            <div class="alert-content">
+                                <div class="alert-title">新用戶註冊達到今日目標</div>
+                                <div class="alert-time">15分鐘前</div>
+                            </div>
+                        </div>
+                        <div class="alert-item warning">
+                            <div class="alert-icon">⚠️</div>
+                            <div class="alert-content">
+                                <div class="alert-title">伺服器記憶體使用率接近70%</div>
+                                <div class="alert-time">1小時前</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 行動面板 -->
+            <section class="action-panel">
+                <h2 class="action-title">開始您的企業智能化之旅</h2>
+                <p class="action-description">
+                    選擇您需要的服務，我們的AI專家團隊將為您提供專業的諮詢與支援
+                </p>
+
+                <div class="action-buttons">
+                    <button class="action-button primary-button" onclick="openChat('綜合諮詢')">
+                        <span>💬</span>
+                        開始諮詢
+                    </button>
+                    <button class="action-button secondary-button" onclick="openChat('系統設定')">
+                        <span>⚙️</span>
+                        系統設定
+                    </button>
+                    <button class="action-button secondary-button" onclick="openChat('幫助中心')">
+                        <span>❓</span>
+                        幫助中心
+                    </button>
+                    <button class="action-button secondary-button" onclick="refreshMetrics()">
+                        <span>🔄</span>
+                        刷新數據
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 聊天界面覆蓋層 -->
+    <div class="chat-overlay" id="chatOverlay">
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-title" id="chatTitle">AI顧問對話</div>
+                <button class="close-button" onclick="closeChat()">×</button>
+            </div>
+            <div class="chat-content" id="chatContent">
+                <!-- 動態內容將在這裡載入 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 創建浮動粒子效果
+        function createParticles() {
+            const particleContainer = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particleContainer.appendChild(particle);
+            }
+        }
+
+        // 開啟聊天界面
+        function openChat(department) {
+            const chatOverlay = document.getElementById('chatOverlay');
+            const chatTitle = document.getElementById('chatTitle');
+            const chatContent = document.getElementById('chatContent');
+
+            chatTitle.textContent = department + ' - AI顧問對話';
+
+            // 載入對應部門的聊天選項
+            const chatOptions = getChatOptions(department);
+            chatContent.innerHTML = `
+                <div class="chat-options">
+                    ${chatOptions.map(option => `
+                        <div class="chat-option" onclick="handleChatOption('${department}', '${option.id}')">
+                            <div class="option-icon">${option.icon}</div>
+                            <div class="option-text">${option.title}</div>
+                            <div class="option-description">${option.description}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            chatOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 關閉聊天界面
+        function closeChat() {
+            const chatOverlay = document.getElementById('chatOverlay');
+            chatOverlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // 獲取聊天選項
+        function getChatOptions(department) {
+            const options = {
+                'CEO與戰略規劃部': [
+                    { id: 'strategy', icon: '📊', title: '制定戰略規劃', description: '市場分析與競爭策略制定' },
+                    { id: 'business', icon: '💼', title: '商業模式設計', description: '創新商業模式與營收策略' },
+                    { id: 'market', icon: '🎯', title: '市場機會評估', description: '新市場進入與機會分析' },
+                    { id: 'vision', icon: '🔮', title: '願景與目標設定', description: '企業願景與長期目標規劃' }
+                ],
+                'CFO與財務管理部': [
+                    { id: 'budget', icon: '📈', title: '預算規劃分析', description: '年度預算與財務規劃' },
+                    { id: 'investment', icon: '💎', title: '投資評估決策', description: '項目投資與ROI分析' },
+                    { id: 'risk', icon: '🛡️', title: '風險管控策略', description: '財務風險識別與控制' },
+                    { id: 'cashflow', icon: '💰', title: '現金流管理', description: '現金流預測與優化' }
+                ],
+                'CTO與技術創新部': [
+                    { id: 'architecture', icon: '🏗️', title: '系統架構設計', description: '技術架構規劃與優化' },
+                    { id: 'innovation', icon: '⚡', title: '技術創新評估', description: '新技術評估與應用' },
+                    { id: 'digital', icon: '🔄', title: '數位轉型方案', description: '企業數位化轉型策略' },
+                    { id: 'performance', icon: '🚀', title: '效能優化建議', description: '系統效能分析與提升' }
+                ],
+                '品牌與行銷部': [
+                    { id: 'branding', icon: '🎨', title: '品牌策略規劃', description: '品牌定位與形象設計' },
+                    { id: 'marketing', icon: '📢', title: '行銷活動企劃', description: '創意行銷與推廣策略' },
+                    { id: 'social', icon: '📱', title: '社群媒體策略', description: '社群經營與內容規劃' },
+                    { id: 'campaign', icon: '🎪', title: '廣告投放優化', description: '廣告效果分析與優化' }
+                ],
+                '人資與組織發展部': [
+                    { id: 'recruit', icon: '🔍', title: '人才招募策略', description: '人才需求分析與招募' },
+                    { id: 'performance', icon: '📋', title: '績效管理制度', description: '績效考核與激勵機制' },
+                    { id: 'training', icon: '📚', title: '培訓發展計劃', description: '員工培訓與職涯發展' },
+                    { id: 'culture', icon: '🌟', title: '企業文化建設', description: '組織文化與團隊建設' }
+                ],
+                'AI私人秘書': [
+                    { id: 'schedule', icon: '📅', title: '行程安排管理', description: '會議安排與行程優化' },
+                    { id: 'reminder', icon: '⏰', title: '智能提醒服務', description: '重要事項提醒與追蹤' },
+                    { id: 'info', icon: '📊', title: '資訊整理分析', description: '資料收集與分析報告' },
+                    { id: 'task', icon: '✅', title: '任務進度追蹤', description: '項目進度監控與報告' }
+                ],
+                '綜合諮詢': [
+                    { id: 'general', icon: '💭', title: '一般諮詢', description: '各類問題諮詢與建議' },
+                    { id: 'urgent', icon: '🚨', title: '緊急支援', description: '緊急問題處理與支援' },
+                    { id: 'advice', icon: '💡', title: '專業建議', description: '專業意見與解決方案' },
+                    { id: 'analysis', icon: '🔍', title: '問題分析', description: '深度問題分析與診斷' }
+                ],
+                '系統設定': [
+                    { id: 'config', icon: '⚙️', title: '系統配置', description: '個人化設定與偏好' },
+                    { id: 'permissions', icon: '🔐', title: '權限管理', description: '訪問權限與安全設定' },
+                    { id: 'notifications', icon: '🔔', title: '通知設定', description: '提醒與通知偏好設定' },
+                    { id: 'backup', icon: '💾', title: '資料備份', description: '資料備份與恢復設定' }
+                ],
+                '幫助中心': [
+                    { id: 'guide', icon: '📖', title: '使用指南', description: '系統使用教學與指導' },
+                    { id: 'faq', icon: '❓', title: '常見問題', description: '常見問題解答與說明' },
+                    { id: 'support', icon: '🆘', title: '技術支援', description: '技術問題支援與協助' },
+                    { id: 'feedback', icon: '📝', title: '意見反饋', description: '功能建議與意見反饋' }
+                ]
+            };
+
+            return options[department] || [];
+        }
+
+        // 處理聊天選項
+        function handleChatOption(department, optionId) {
+            const chatContent = document.getElementById('chatContent');
+
+            // 顯示載入動畫
+            chatContent.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">🤖</div>
+                    <div style="font-size: 18px; color: #ffffff; margin-bottom: 10px;">AI顧問正在為您準備回應...</div>
+                    <div style="font-size: 14px; color: #94a3b8;">請稍候，正在分析您的需求</div>
+                </div>
+            `;
+
+            // 模擬AI回應（實際應用中可以接入真實的AI服務）
+            setTimeout(() => {
+                const response = generateAIResponse(department, optionId);
+                chatContent.innerHTML = `
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 24px; margin-bottom: 20px;">
+                        <h3 style="color: #ffffff; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+                            <span style="font-size: 24px;">🤖</span>
+                            ${department} AI顧問
+                        </h3>
+                        <div style="color: #cbd5e1; line-height: 1.6; font-size: 15px;">
+                            ${response}
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <button class="action-button secondary-button" onclick="handleChatOption('${department}', 'follow-up')" style="padding: 12px 24px; font-size: 14px;">
+                            <span>💭</span>
+                            追問更多
+                        </button>
+                        <button class="action-button secondary-button" onclick="openChat('${department}')" style="padding: 12px 24px; font-size: 14px;">
+                            <span>🔄</span>
+                            重新選擇
+                        </button>
+                        <button class="action-button secondary-button" onclick="closeChat()" style="padding: 12px 24px; font-size: 14px;">
+                            <span>✅</span>
+                            結束對話
+                        </button>
+                    </div>
+                `;
+            }, 2000);
+        }
+
+        // 生成AI回應
+        function generateAIResponse(department, optionId) {
+            const responses = {
+                'CEO與戰略規劃部': {
+                    'strategy': '基於目前市場環境分析，建議採用「藍海策略」與「數位轉型」雙軌並進的策略方針。首先，透過市場細分找出尚未被充分滿足的客群需求，建立差異化競爭優勢。同時，加速數位化轉型腳步，提升營運效率並創造新的營收來源。具體建議包括：投資AI技術、建立數據驅動決策機制、強化客戶體驗管理。',
+                    'business': '針對新商業模式設計，建議採用「平台生態圈」模式，結合訂閱制與按需服務。核心架構包括：1) 建立多邊平台連接供需雙方 2) 導入SaaS服務模式提供穩定現金流 3) 開發API生態系統擴大服務範圍 4) 實施數據變現策略。預估此模式可在18個月內產生正向現金流。',
+                    'market': '市場機會評估結果顯示，東南亞與AI相關的B2B服務市場具有巨大潛力。關鍵因素包括：數位化程度快速提升、政府政策支持、人才成本相對較低。建議優先進入新加坡與越南市場，採用「先服務再平台」的進入策略，預計3年內可建立區域領導地位。'
+                },
+                'CFO與財務管理部': {
+                    'budget': '根據財務模型分析，建議調整預算分配：營運支出維持65%、研發投資提升至20%、市場推廣15%。重點投資項目包括AI技術升級、人才培育、市場拓展。預計此配置可在下一財年提升整體ROI至25%，同時保持健康的現金流狀態。',
+                    'investment': '投資組合建議採用「核心-衛星」策略：80%資金投入核心業務穩健發展，20%投入創新項目探索。具體配置：技術升級40%、市場擴張30%、新產品開發20%、風險準備金10%。預期3年期IRR可達30%以上。',
+                    'risk': '財務風險控制建議採用多層防護機制：1) 建立動態現金流預測模型 2) 設置風險預警指標系統 3) 多元化融資來源 4) 建立應急資金池。特別注意匯率風險與信用風險管控，建議購買相應保險產品。'
+                }
+                // 可以繼續添加其他部門的回應...
+            };
+
+            if (responses[department] && responses[department][optionId]) {
+                return responses[department][optionId];
+            }
+
+            return `感謝您選擇 ${department} 的專業諮詢服務。我們的AI顧問已經接收到您的需求，正在基於最新的行業數據和最佳實務經驗為您制定專業建議。我們會從多個角度分析您的情況，包括市場趨勢、風險評估、實施策略等，確保為您提供最具價值的解決方案。如需更詳細的分析報告，請告知具體需求，我們將為您客製化專業建議。`;
+        }
+
+        // 點擊外部關閉聊天
+        document.getElementById('chatOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeChat();
+            }
+        });
+
+        // ESC鍵關閉聊天
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeChat();
+            }
+        });
+
+        // 頁面載入完成後初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+
+            // 添加平滑滾動效果
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+
+        // 顯示今天日期
+        function updateDate() {
+            const today = new Date();
+            const options = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            };
+            const dateStr = today.toLocaleDateString('zh-TW', options);
+
+            // 如果有日期顯示元素，更新它
+            const dateElement = document.getElementById('currentDate');
+            if (dateElement) {
+                dateElement.textContent = dateStr;
+            }
+        }
+
+        // 初始化日期
+        updateDate();
+
+        // 實時監控數據更新
+        function refreshMetrics() {
+            const metrics = [
+                'systemUptime', 'cpuUsage', 'memoryUsage', 'responseTime',
+                'aiActiveServices', 'aiRequests', 'aiAccuracy', 'aiAvgTime',
+                'dailyUsers', 'conversionRate', 'satisfaction', 'seoRanking',
+                'monthlyRevenue', 'subscribers', 'arpu', 'cashFlow',
+                'pageSpeed', 'seoScore', 'mobileScore', 'errorRate'
+            ];
+
+            // 模擬數據更新
+            metrics.forEach(metricId => {
+                const element = document.getElementById(metricId);
+                if (element) {
+                    const metricItem = element.closest('.metric-item');
+                    metricItem.classList.add('updating');
+
+                    setTimeout(() => {
+                        updateMetricValue(metricId);
+                        metricItem.classList.remove('updating');
+                    }, 500 + Math.random() * 1000);
+                }
+            });
+
+            // 更新警報
+            updateAlerts();
+        }
+
+        function updateMetricValue(metricId) {
+            const element = document.getElementById(metricId);
+            if (!element) return;
+
+            const updates = {
+                'systemUptime': () => (99.95 + Math.random() * 0.05).toFixed(2) + '%',
+                'cpuUsage': () => (20 + Math.random() * 20).toFixed(1) + '%',
+                'memoryUsage': () => (60 + Math.random() * 15).toFixed(1) + '%',
+                'responseTime': () => (0.5 + Math.random() * 0.8).toFixed(2) + 's',
+                'aiActiveServices': () => '18/18',
+                'aiRequests': () => Math.floor(1200 + Math.random() * 200).toLocaleString(),
+                'aiAccuracy': () => (96 + Math.random() * 2).toFixed(1) + '%',
+                'aiAvgTime': () => (1.8 + Math.random() * 1).toFixed(1) + 's',
+                'dailyUsers': () => Math.floor(800 + Math.random() * 200).toLocaleString(),
+                'conversionRate': () => (10 + Math.random() * 5).toFixed(1) + '%',
+                'satisfaction': () => (4.6 + Math.random() * 0.4).toFixed(1) + '/5',
+                'seoRanking': () => Math.floor(90 + Math.random() * 10).toString(),
+                'monthlyRevenue': () => 'NT$' + Math.floor(120000 + Math.random() * 20000).toLocaleString(),
+                'subscribers': () => Math.floor(1000 + Math.random() * 200).toLocaleString(),
+                'arpu': () => 'NT$' + Math.floor(350 + Math.random() * 100),
+                'cashFlow': () => 'NT$' + Math.floor(80000 + Math.random() * 20000).toLocaleString(),
+                'pageSpeed': () => Math.floor(90 + Math.random() * 10) + '/100',
+                'seoScore': () => Math.floor(95 + Math.random() * 5) + '/100',
+                'mobileScore': () => Math.floor(94 + Math.random() * 6) + '/100',
+                'errorRate': () => (Math.random() * 0.1).toFixed(3) + '%'
+            };
+
+            if (updates[metricId]) {
+                element.textContent = updates[metricId]();
+            }
+        }
+
+        function updateAlerts() {
+            const alertList = document.getElementById('alertList');
+            const currentTime = new Date();
+
+            const alerts = [
+                {
+                    type: 'success',
+                    icon: '✅',
+                    title: '系統運行正常',
+                    time: '剛剛'
+                },
+                {
+                    type: 'info',
+                    icon: 'ℹ️',
+                    title: 'SEO優化完成95個頁面',
+                    time: '5分鐘前'
+                },
+                {
+                    type: 'success',
+                    icon: '🎉',
+                    title: '本月營收目標已達成',
+                    time: '30分鐘前'
+                },
+                {
+                    type: 'warning',
+                    icon: '⚠️',
+                    title: '需要檢查伺服器記憶體使用情況',
+                    time: '1小時前'
+                }
+            ];
+
+            // 隨機選擇3-4個警報顯示
+            const selectedAlerts = alerts.sort(() => 0.5 - Math.random()).slice(0, 3 + Math.floor(Math.random() * 2));
+
+            alertList.innerHTML = selectedAlerts.map(alert => `
+                <div class="alert-item ${alert.type}">
+                    <div class="alert-icon">${alert.icon}</div>
+                    <div class="alert-content">
+                        <div class="alert-title">${alert.title}</div>
+                        <div class="alert-time">${alert.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 自動更新數據（每30秒）
+        setInterval(() => {
+            refreshMetrics();
+        }, 30000);
+
+        // 模擬實時數據變化（每5秒更新一些關鍵指標）
+        setInterval(() => {
+            const keyMetrics = ['dailyUsers', 'aiRequests', 'cpuUsage', 'memoryUsage'];
+            const randomMetric = keyMetrics[Math.floor(Math.random() * keyMetrics.length)];
+            updateMetricValue(randomMetric);
+        }, 5000);
+
+        // 頁面可見性API - 當頁面重新獲得焦點時更新數據
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                refreshMetrics();
+            }
+        });
+
+        // 監控儀表板實時數據顯示功能
+        function startRealtimeMonitoring() {
+            // 模擬實時數據流
+            const realtimeMetrics = ['cpuUsage', 'memoryUsage', 'responseTime', 'aiRequests'];
+
+            realtimeMetrics.forEach(metricId => {
+                setInterval(() => {
+                    updateMetricValue(metricId);
+                }, 3000 + Math.random() * 2000); // 每3-5秒更新一次
+            });
+        }
+
+        // 啟動實時監控
+        startRealtimeMonitoring();
+    </script>
+</body>
+</html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>彩色CC系統 - 馥靈之鑰</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(45deg,
+                #ff9a9e 0%, #fecfef 25%, #fecfef 50%,
+                #a8e6cf 75%, #dcedc8 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.95);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 2px solid rgba(255,182,193,0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            color: white;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .chat-section {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 2px solid #ffb347;
+        }
+        .chat-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #d2691e;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .chat-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .chat-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255,107,107,0.3);
+        }
+        .chat-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255,107,107,0.4);
+        }
+        .conversation-area {
+            background: rgba(255,255,255,0.8);
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 200px;
+            border: 2px solid #ffd700;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 15px;
+            animation: fadeIn 0.5s ease;
+        }
+        .ai-message {
+            background: linear-gradient(135deg, #a8e6cf 0%, #88d8a3 100%);
+            border-left: 4px solid #4caf50;
+            color: #2e7d32;
+        }
+        .function-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+        .function-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(102,126,234,0.3);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        .function-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102,126,234,0.4);
+        }
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: block;
+            text-align: center;
+        }
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .card-desc {
+            opacity: 0.9;
+            text-align: center;
+            line-height: 1.4;
+        }
+        .status-bar {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 600;
+            color: #0d47a1;
+            border: 2px solid #81c784;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .highlight {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #f57f17;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border: 2px solid #ff9800;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌈 彩色CC系統</h1>
+            <div class="subtitle">馥靈之鑰 - 眼睛舒服的多彩介面</div>
+        </div>
+
+        <div class="status-bar">
+            ✅ 系統在線 | 📅 今天：<span id="today"></span> | 👩‍💼 AI私人秘書：隨時為您服務
+        </div>
+
+        <div class="highlight">
+            💡 不需要輸入框！直接點擊下面按鈕就能和AI對話！
+        </div>
+
+        <div class="chat-section">
+            <div class="chat-title">💬 點擊按鈕和AI私人秘書對話</div>
+            <div class="chat-buttons">
+                <button class="chat-btn" onclick="quickChat('週四規劃')">📋 週四規劃怎麼安排？</button>
+                <button class="chat-btn" onclick="quickChat('Notion待辦')">📝 Notion有什麼待辦？</button>
+                <button class="chat-btn" onclick="quickChat('提醒設定')">⏰ 幫我設定提醒</button>
+                <button class="chat-btn" onclick="quickChat('權限管理')">🛡️ 權限可以自動嗎？</button>
+                <button class="chat-btn" onclick="quickChat('法務協助')">⚖️ 需要法務文件協助</button>
+                <button class="chat-btn" onclick="quickChat('資金申請')">💰 想申請貸款補助</button>
+                <button class="chat-btn" onclick="quickChat('聊天陪伴')">💝 我想聊聊天</button>
+                <button class="chat-btn" onclick="quickChat('系統狀態')">📊 系統運行如何？</button>
+            </div>
+
+            <div class="conversation-area" id="conversation">
+                <div class="ai-message">
+                    <strong>👩‍💼 AI私人秘書：</strong><br>
+                    您好！我是您的專屬AI私人秘書！<br><br>
+                    🎯 關於您的週四規劃，我已經準備好了：<br>
+                    ✅ 提醒時間：週四 13:30<br>
+                    ✅ Notion待辦盤點進行中<br>
+                    ✅ 優先順序分析準備中<br><br>
+                    💡 直接點擊上方彩色按鈕就能和我對話，不需要輸入框！
+                </div>
+            </div>
+        </div>
+
+        <div class="function-grid">
+            <div class="function-card" onclick="showDepartments()">
+                <span class="card-icon">🏢</span>
+                <div class="card-title">18部門AI顧問團</div>
+                <div class="card-desc">CEO、CFO、創意總監、技術工程等專業諮詢</div>
+            </div>
+
+            <div class="function-card" onclick="showAwareness()">
+                <span class="card-icon">🧘‍♀️</span>
+                <div class="card-title">覺察師導師</div>
+                <div class="card-desc">心理覺察、情緒療癒、靈性成長指引</div>
+            </div>
+
+            <div class="function-card" onclick="showEducation()">
+                <span class="card-icon">📖</span>
+                <div class="card-title">教材創作長</div>
+                <div class="card-desc">專業教材設計、課程架構規劃</div>
+            </div>
+
+            <div class="function-card" onclick="showServices()">
+                <span class="card-icon">🎯</span>
+                <div class="card-title">全部服務</div>
+                <div class="card-desc">查看所有可用的AI服務和功能</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 顯示今天日期
+        document.getElementById('today').textContent = new Date().toLocaleDateString('zh-TW');
+
+        function quickChat(topic) {
+            const conversation = document.getElementById('conversation');
+
+            // 添加用戶訊息
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message';
+            userMessage.style.background = 'linear-gradient(135deg, #ffb3ba 0%, #ffdfba 100%)';
+            userMessage.style.borderLeft = '4px solid #ff6b6b';
+            userMessage.style.color = '#d32f2f';
+            userMessage.innerHTML = `<strong>👤 您：</strong><br>${getTopicText(topic)}`;
+            conversation.appendChild(userMessage);
+
+            // 模擬AI回應
+            setTimeout(() => {
+                const aiMessage = document.createElement('div');
+                aiMessage.className = 'message ai-message';
+                aiMessage.innerHTML = `<strong>👩‍💼 AI私人秘書：</strong><br>${getAIResponse(topic)}`;
+                conversation.appendChild(aiMessage);
+                conversation.scrollTop = conversation.scrollHeight;
+            }, 1000);
+
+            conversation.scrollTop = conversation.scrollHeight;
+        }
+
+        function getTopicText(topic) {
+            const topics = {
+                '週四規劃': '週四規劃怎麼安排？',
+                'Notion待辦': 'Notion有什麼待辦事項？',
+                '提醒設定': '幫我設定提醒',
+                '權限管理': '權限可以自動管理嗎？',
+                '法務協助': '需要法務文件協助',
+                '資金申請': '想申請貸款補助',
+                '聊天陪伴': '我想聊聊天',
+                '系統狀態': '系統運行如何？'
+            };
+            return topics[topic] || topic;
+        }
+
+        function getAIResponse(topic) {
+            const responses = {
+                '週四規劃': '關於週四規劃，我已經為您準備好了！<br><br>📅 <strong>週四 13:30</strong> 我會準時提醒您開始執行規劃<br>📋 目前正在盤點您的Notion待辦清單<br>🎯 會為您整理優先順序和時間分配<br><br>有什麼特別想優先處理的項目嗎？',
+
+                'Notion待辦': '我正在為您盤點Notion待辦事項！<br><br>目前發現的重要項目：<br>🔄 CC系統功能完善 (90%完成)<br>✅ 18部門AI顧問團 (已完成)<br>📝 用戶體驗優化 (規劃中)<br>✍️ 內容創作規劃 (待開始)<br><br>需要我幫您設定這些項目的優先順序嗎？',
+
+                '提醒設定': '提醒功能我來幫您設定！<br><br>目前已設定：<br>⏰ 週四 13:30 - 開始執行規劃<br><br>您還需要設定什麼提醒嗎？比如：<br>📅 重要會議提醒<br>📋 任務截止日期<br>💊 日常習慣提醒<br>🎯 目標檢視提醒<br><br>告訴我需要什麼提醒，我立即設定！',
+
+                '權限管理': '智能權限管理已經啟用了！<br><br>🛡️ <strong>我會自動處理：</strong><br>✅ 記住您的操作偏好<br>✅ 安全操作直接執行<br>✅ 減少90%確認步驟<br><br>🔐 <strong>只有這些會詢問：</strong><br>⚠️ 重要資料刪除<br>⚠️ 系統設定變更<br>⚠️ 對外發送訊息<br><br>這樣您用起來會更順暢！',
+
+                '法務協助': '法務服務我來協助您！<br><br>📋 <strong>可以幫您處理：</strong><br>⚖️ 合約範本生成和審查<br>📝 隱私政策與使用條款<br>🏢 公司設立相關文件<br>🛡️ 智慧財產權保護<br>💼 商業合作協議<br><br>您現在需要什麼類型的法務協助？我可以立即為您準備專業建議！',
+
+                '資金申請': '資金申請我來幫您搞定！<br><br>💰 <strong>目前可申請項目：</strong><br>🏦 鳳凰微型創業貸款 (已在追蹤)<br>🎯 青年創業及啟動金貸款<br>🎁 經濟部中小企業補助<br>🔬 科技部SBIR創新計畫<br><br>📊 <strong>我會協助您：</strong><br>✅ 分析最適合的申請項目<br>✅ 準備申請所需資料<br>✅ 追蹤申請進度<br><br>想從哪個項目開始？',
+
+                '聊天陪伴': '我隨時都在這裡陪伴您！💝<br><br>無論您想聊什麼都可以：<br>💬 工作上的壓力和挑戰<br>💡 創意靈感和想法分享<br>😊 生活中的開心事<br>😔 需要傾訴的心情<br>🎯 未來的夢想和計畫<br><br>我會認真傾聽，給您最溫暖的回應。今天您心情怎麼樣？有什麼想和我分享的嗎？',
+
+                '系統狀態': '系統運行狀況完美！<br><br>✅ <strong>核心狀態：</strong><br>🔧 CC主程式：正常運行<br>🎨 彩色GUI：已載入<br>🏢 18部門顧問：全部在線<br>👩‍💼 AI私人秘書：24小時待命<br><br>📊 <strong>服務狀態：</strong><br>⏰ 週四提醒：已設定<br>📝 Notion整合：連線中<br>💬 即時回應：< 2秒<br>🛡️ 權限管理：智能模式<br><br>一切都準備就緒，隨時為您服務！'
+            };
+            return responses[topic] || '我是您的專屬AI私人秘書，隨時為您服務！請告訴我您需要什麼協助？';
+        }
+
+        function showDepartments() {
+            quickChat('我想了解18部門AI顧問團');
+        }
+
+        function showAwareness() {
+            quickChat('我想諮詢覺察師導師');
+        }
+
+        function showEducation() {
+            quickChat('我需要教材創作協助');
+        }
+
+        function showServices() {
+            quickChat('請介紹所有可用服務');
+        }
+
+        // 初始化動畫
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.function-card, .chat-btn');
+            cards.forEach((card, index) => {
+                card.style.animation = `fadeIn 0.8s ease ${index * 0.1}s both`;
+            });
+        });
+    </script>
+</body>
+</html>
