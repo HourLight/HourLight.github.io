@@ -346,6 +346,12 @@ button:active{transform:scale(.97);transition:transform .08s}
 .room-complete-toast.show{transform:translate(-50%,-50%) scale(1);opacity:1}
 .room-complete-toast .pts-earned{font-size:2rem;display:block;color:var(--amber-l);filter:drop-shadow(0 2px 4px rgba(0,0,0,.2))}
 
+/* ── 兌換指南彈窗 ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 /* ── 彩帶升級 ── */
 .confetti i{border-radius:50% 0 50% 0!important}
 .confetti i:nth-child(3n){border-radius:50%!important;width:8px!important;height:8px!important}
@@ -834,6 +840,102 @@ function todayRiddle(room){
   var hash = seed * 2654435761 + room.id.charCodeAt(0) * 31;
   var idx = Math.abs(hash) % room.riddles.length;
   return room.riddles[idx];
+}
+
+// ═══ 🎨 兌換成功指南彈窗 ═══
+function showRedemptionGuide(code, cardCount, copied, remainingPoints) {
+  var modal = document.createElement('div');
+  modal.style.cssText = `
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+    z-index: 10000; display: flex; align-items: center; justify-content: center;
+    animation: fadeIn 0.3s ease;
+  `;
+
+  modal.innerHTML = \`
+    <div style="
+      background: linear-gradient(135deg, #fff 0%, #fff8f4 100%);
+      border-radius: 24px; padding: 32px; max-width: 480px; margin: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      text-align: center; position: relative;
+    ">
+      <div style="font-size: 3rem; margin-bottom: 16px;">🎉</div>
+      <h2 style="color: #1D3557; margin-bottom: 8px; font-size: 1.8rem;">兌換成功！</h2>
+
+      <div style="
+        background: linear-gradient(135deg, #F0D48A, #E9C27D);
+        color: #1a1520; padding: 16px; border-radius: 16px; margin: 20px 0;
+        font-family: monospace; font-size: 1.1rem; font-weight: bold;
+        letter-spacing: 0.1em; position: relative;
+      ">
+        \${code}
+        \${copied ? '<div style="color: #2E8B57; font-size: 0.85rem; margin-top: 8px;">✅ 已複製到剪貼簿</div>' : ''}
+      </div>
+
+      <div style="color: #E63946; font-weight: 600; margin-bottom: 24px;">
+        適用於 \${cardCount} 張牌卡解讀
+      </div>
+
+      <div style="text-align: left; background: #f8f9fa; padding: 20px; border-radius: 16px; margin: 20px 0;">
+        <h3 style="color: #1D3557; margin-bottom: 16px; text-align: center;">🌟 可使用的頁面</h3>
+
+        <div style="display: grid; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 12px; cursor: pointer; transition: all 0.2s;"
+               onclick="window.open('draw-hl.html', '_blank')">
+            <div style="font-size: 1.5rem;">🃏</div>
+            <div>
+              <div style="font-weight: 600; color: #1D3557;">馥靈智慧牌卡</div>
+              <div style="font-size: 0.85rem; color: #666;">主要抽牌頁面，選擇 \${cardCount} 張牌陣</div>
+            </div>
+            <div style="margin-left: auto; color: #E63946;">→</div>
+          </div>
+
+          \${cardCount === 3 ? \`
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 12px; cursor: pointer; transition: all 0.2s;"
+               onclick="window.open('family-reading.html', '_blank')">
+            <div style="font-size: 1.5rem;">👨‍👩‍👧‍👦</div>
+            <div>
+              <div style="font-weight: 600; color: #1D3557;">家族關係解讀</div>
+              <div style="font-size: 0.85rem; color: #666;">探索家族動力與關係模式</div>
+            </div>
+            <div style="margin-left: auto; color: #E63946;">→</div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 12px; cursor: pointer; transition: all 0.2s;"
+               onclick="window.open('pet-reading.html', '_blank')">
+            <div style="font-size: 1.5rem;">🐱</div>
+            <div>
+              <div style="font-weight: 600; color: #1D3557;">寵物深度溝通</div>
+              <div style="font-size: 0.85rem; color: #666;">理解毛孩的內心世界</div>
+            </div>
+            <div style="margin-left: auto; color: #E63946;">→</div>
+          </div>
+          \` : ''}
+        </div>
+
+        <div style="margin-top: 16px; padding: 12px; background: rgba(240,212,138,0.1); border-radius: 12px; font-size: 0.9rem; color: #666;">
+          💡 <strong>使用方式：</strong>選擇牌陣後，在付費頁面輸入您的代碼即可免費解讀
+        </div>
+      </div>
+
+      <div style="color: #666; font-size: 0.9rem; margin-bottom: 20px;">
+        剩餘點數：<span style="color: #E63946; font-weight: bold;">\${remainingPoints}</span> 點
+      </div>
+
+      <button onclick="this.parentElement.parentElement.remove()" style="
+        background: linear-gradient(135deg, #2E8B57, #228B22);
+        color: white; border: none; padding: 12px 32px; border-radius: 12px;
+        font-weight: 600; cursor: pointer; font-size: 1rem;
+        box-shadow: 0 4px 16px rgba(46,139,87,0.3);
+        transition: all 0.2s;
+      " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        開始使用 ✨
+      </button>
+    </div>
+  \`;
+
+  document.body.appendChild(modal);
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
 }
 ;
 
@@ -1727,11 +1829,8 @@ async function doRedeem(itemId){
         copied = true;
       }
     } catch(e){}
-    var msg = '🎉 兌換成功！\n\n您的折價券碼：\n' + result.couponCode + '\n\n'
-      + (copied ? '✅ 已自動複製到剪貼簿\n\n' : '')
-      + '請到馥靈抽牌頁面，選擇 ' + item.couponN + ' 張牌陣，在付費時輸入此碼即可折抵。\n\n'
-      + '剩餘點數：' + hlCastle.getState().points + ' 點';
-    alert(msg);
+    // 🎨 改用更吸引人的彈窗替代 alert
+    setTimeout(() => showRedemptionGuide(result.couponCode, item.couponN, copied, hlCastle.getState().points), 100);
   }else{
     alert('🎉 兌換成功！\n「'+item.name+'」已加入您的帳戶。\n剩餘點數：'+hlCastle.getState().points+' 點');
   }
