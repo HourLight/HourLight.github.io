@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>城堡緊急修復版 | 馥靈之鑰</title>
+<style>
+body { background: #06040e; color: #f8dfa5; font-family: serif; padding: 20px; }
+.castle-container { max-width: 600px; margin: 0 auto; text-align: center; }
+.emergency-note { background: #d32f2f; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+.room-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 30px 0; }
+.room-btn {
+  background: linear-gradient(135deg, #f8dfa5, #e9c27d);
+  color: #1a1520; border: none; padding: 20px; border-radius: 12px;
+  font-size: 16px; cursor: pointer; transition: all 0.3s;
+  min-height: 80px; display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.room-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(248,223,165,0.4); }
+.room-btn:active { transform: translateY(0); }
+.room-icon { font-size: 24px; }
+.room-name { font-weight: bold; font-size: 14px; }
+.test-result { margin: 10px 0; padding: 10px; border-radius: 6px; }
+.success { background: #2e7d32; color: white; }
+.error { background: #d32f2f; color: white; }
+.status { background: #1976d2; color: white; padding: 10px; border-radius: 6px; margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<div class="castle-container">
+  <div class="emergency-note">
+    🚨 緊急修復版：直接JavaScript房間觸發
+  </div>
+
+  <h1>🏰 內在城堡</h1>
+  <p>這個版本繞過所有複雜邏輯，直接測試房間點擊</p>
+
+  <div id="testResults"></div>
+
+  <div class="room-grid">
+    <button class="room-btn" onclick="testRoomClick('mirror')">
+      <span class="room-icon">🪞</span>
+      <span class="room-name">鏡之廳</span>
+    </button>
+    <button class="room-btn" onclick="testRoomClick('treasure')">
+      <span class="room-icon">💎</span>
+      <span class="room-name">價值寶庫</span>
+    </button>
+    <button class="room-btn" onclick="testRoomClick('throne')">
+      <span class="room-icon">👑</span>
+      <span class="room-name">啟程塔</span>
+    </button>
+    <button class="room-btn" onclick="testRoomClick('key')">
+      <span class="room-icon">🔑</span>
+      <span class="room-name">解鎖密室</span>
+    </button>
+    <button class="room-btn" onclick="testRoomClick('tower')">
+      <span class="room-icon">🔭</span>
+      <span class="room-name">瞭望塔</span>
+    </button>
+    <button class="room-btn" onclick="testRoomClick('love')">
+      <span class="room-icon">💕</span>
+      <span class="room-name">愛之殿</span>
+    </button>
+  </div>
+
+  <div class="status">
+    <strong>測試狀態：</strong>點擊任何房間按鈕測試功能
+  </div>
+</div>
+
+<script>
+let testCount = 0;
+
+function addResult(success, message) {
+  testCount++;
+  const div = document.createElement('div');
+  div.className = `test-result ${success ? 'success' : 'error'}`;
+  div.innerHTML = `${testCount}. ${success ? '✅' : '❌'} ${message}`;
+  document.getElementById('testResults').appendChild(div);
+}
+
+function testRoomClick(roomId) {
+  console.log('🎯 房間點擊測試:', roomId);
+  addResult(true, `成功觸發房間點擊: ${roomId}`);
+
+  // 顯示簡單的房間內容
+  showRoomContent(roomId);
+}
+
+function showRoomContent(roomId) {
+  const roomNames = {
+    mirror: '鏡之廳',
+    treasure: '價值寶庫',
+    throne: '啟程塔',
+    key: '解鎖密室',
+    tower: '瞭望塔',
+    love: '愛之殿'
+  };
+
+  const roomName = roomNames[roomId] || roomId;
+
+  alert(`🎉 成功進入 ${roomName}！\n\n這證明基本點擊功能正常。\n\n如果您看到這個訊息，表示問題出在原始城堡頁面的JavaScript載入或事件綁定。`);
+
+  addResult(true, `${roomName} 房間互動成功！`);
+}
+
+// 頁面載入完成測試
+window.onload = function() {
+  addResult(true, '頁面載入完成');
+  addResult(true, '所有房間按鈕已準備好');
+  console.log('🏰 緊急修復版本載入完成');
+};
+
+// 點擊測試
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.room-btn')) {
+    addResult(true, '點擊事件正常觸發');
+  }
+});
+</script>
+
+</body>
+</html>
