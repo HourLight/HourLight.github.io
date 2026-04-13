@@ -943,12 +943,14 @@ function showRedemptionGuide(code, cardCount, copied, remainingPoints) {
 var CUR_ROOM = null;
 
 function upd(){
+  console.log('🔄 upd 函數被呼叫');
   try {
     if(!window.hlCastle){
       console.log('等待 hlCastle 模組...');
       setTimeout(upd,200);
       return;
     }
+    console.log('✅ hlCastle 模組已載入，更新UI');
 
     var st = hlCastle.getState();
     var ptsEl = document.getElementById('dPts');
@@ -1290,13 +1292,19 @@ function startGame(){
 })();
 
 function renderZones(){
+  console.log('🎯 renderZones 被呼叫');
   var st = hlCastle.getState();
+  var roomElements = document.querySelectorAll('.room-zone');
+  console.log('🎯 找到房間元素數量:', roomElements.length);
+
   document.querySelectorAll('.room-zone').forEach(function(g){
     var rid = g.dataset.room;
     var isDone = hlCastle.isDone(rid);
     var hasKey = hlCastle.hasKey(rid);
     var canOpenMore = hlCastle.canOpen();
     var isUnlocked = hlCastle.isUnlocked(rid);
+
+    console.log('🎯 房間', rid, {isDone, hasKey, canOpenMore, isUnlocked});
 
     // 尚未敘事解鎖的房間顯示為「神秘」狀態
     if(!isUnlocked){
@@ -1326,10 +1334,18 @@ function renderZones(){
 
     if(isDone){
       g.style.cursor = 'pointer';
-      g.onclick = function(rid){ return function(){ openDoneRoom(rid); }; }(rid);
+      g.onclick = function(rid){ return function(){
+        console.log('🏰 點擊已完成房間:', rid);
+        openDoneRoom(rid);
+      }; }(rid);
+      console.log('🎯 已為房間', rid, '設定完成房間點擊處理器');
     } else {
       g.style.cursor = 'pointer';
-      g.onclick = function(rid){ return function(){ handleHotspot(rid); }; }(rid);
+      g.onclick = function(rid){ return function(){
+        console.log('🏰 點擊房間:', rid);
+        handleHotspot(rid);
+      }; }(rid);
+      console.log('🎯 已為房間', rid, '設定普通點擊處理器');
     }
   });
 }
