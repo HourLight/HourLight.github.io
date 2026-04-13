@@ -272,6 +272,11 @@
     var castleState = hlCastle.getState();
     var diary = hlCastle.getDiary(999);
 
+    // first_login：首次進入城堡自動解鎖基礎寵物
+    if(!state.unlockedConditions['first_login']) {
+      state.unlockedConditions['first_login'] = true;
+    }
+
     // streak_7
     if(castleState.streak >= 7) state.unlockedConditions['streak_7'] = true;
     // share_count_5
