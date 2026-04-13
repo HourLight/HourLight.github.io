@@ -1,7 +1,6 @@
 /**
- * 馥靈之鑰 問題回報中心 v2.0
- * 原為 AI 客服「小馥」，改為問題回報表單
- * 用戶回報的問題會存入 Firestore feedback 集合
+ * 馥靈之鑰 AI 聊天助手 v1.0
+ * 小馥（公開版）& 馥寶（逸君專屬）
  */
 (function(){
   'use strict';
@@ -11,129 +10,259 @@
   if (SKIP.indexOf(page) > -1) return;
 
   var isOpen = false;
-  var bubble, panel;
+  var bubble, panel, chatHistory = [], isTyping = false;
+  var isRubyBrain = false;
 
   function createUI(){
     var s = document.createElement('style');
     s.textContent = `
-.hlc-bubble{position:fixed;bottom:78px;right:20px;z-index:9997;width:52px;height:52px;border-radius:50%;
-  background:linear-gradient(135deg,rgba(248,223,165,.15),rgba(155,124,182,.15));cursor:pointer;display:flex;align-items:center;justify-content:center;
-  box-shadow:0 4px 20px rgba(0,0,0,.2);transition:all .35s;border:1.5px solid rgba(248,223,165,.2);font-size:1.4rem}
-.hlc-bubble:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(248,223,165,.25);border-color:rgba(248,223,165,.4)}
+.hlai-bubble{position:fixed;bottom:78px;right:20px;z-index:9997;width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,rgba(248,223,165,.9),rgba(155,124,182,.7));cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 24px rgba(248,223,165,.4);transition:all .35s;border:2px solid rgba(248,223,165,.6);font-size:1.5rem}
+.hlai-bubble:hover{transform:scale(1.1);box-shadow:0 8px 32px rgba(248,223,165,.5)}
+.hlai-bubble.ruby{background:linear-gradient(135deg,#ff6b6b,#ee5a24);border-color:#ff6b6b}
 
-.hlc-panel{position:fixed;bottom:140px;right:16px;z-index:9997;width:340px;max-width:calc(100vw - 32px);
-  background:rgba(12,8,22,.97);border:1px solid rgba(248,223,165,.2);border-radius:20px;
-  box-shadow:0 12px 48px rgba(0,0,0,.5);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  padding:24px 20px;display:none;animation:hlcFadeIn .25s ease}
-.hlc-panel.open{display:block}
-@keyframes hlcFadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.hlai-panel{position:fixed;bottom:145px;right:16px;z-index:9997;width:380px;max-width:calc(100vw - 32px);height:500px;max-height:70vh;
+  background:rgba(6,4,14,.98);border:1px solid rgba(248,223,165,.3);border-radius:20px;
+  box-shadow:0 16px 64px rgba(0,0,0,.6);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);
+  display:none;flex-direction:column;animation:hlaiSlideIn .3s ease}
+.hlai-panel.open{display:flex}
+@keyframes hlaiSlideIn{from{opacity:0;transform:translateY(20px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
 
-.hlc-title{color:#f8dfa5;font-size:1rem;font-weight:600;letter-spacing:1px;margin-bottom:4px}
-.hlc-sub{color:rgba(255,255,255,.45);font-size:.78rem;margin-bottom:16px;line-height:1.6}
-.hlc-label{color:rgba(255,255,255,.6);font-size:.78rem;margin-bottom:6px;display:block}
-.hlc-select{width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(248,223,165,.2);background:rgba(255,255,255,.04);color:#fff;font-size:.88rem;margin-bottom:12px;outline:none;font-family:inherit}
-.hlc-select option{background:#1a1428;color:#fff}
-.hlc-textarea{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(248,223,165,.15);background:rgba(255,255,255,.03);color:#fff;font-size:.88rem;min-height:80px;resize:vertical;outline:none;font-family:inherit;line-height:1.6}
-.hlc-textarea::placeholder{color:rgba(255,255,255,.3)}
-.hlc-textarea:focus,.hlc-select:focus{border-color:rgba(248,223,165,.4)}
-.hlc-send{width:100%;padding:12px;border-radius:12px;background:linear-gradient(135deg,#f8dfa5,#e9c27d);color:#1a1520;font-weight:700;font-size:.9rem;border:none;cursor:pointer;margin-top:12px;font-family:inherit;letter-spacing:.5px;transition:all .2s}
-.hlc-send:hover{box-shadow:0 4px 16px rgba(248,223,165,.3)}
-.hlc-send:disabled{opacity:.5;cursor:not-allowed}
-.hlc-ok{text-align:center;padding:20px 0;color:rgba(255,255,255,.7);font-size:.9rem;line-height:1.8}
-.hlc-ok .ok-icon{font-size:2rem;margin-bottom:8px}
-.hlc-close{position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(255,255,255,.3);font-size:1.2rem;cursor:pointer;padding:4px}
-@media(max-width:400px){.hlc-panel{right:8px;width:calc(100vw - 16px);bottom:130px}}
-`;
+.hlai-header{padding:16px 20px;border-bottom:1px solid rgba(248,223,165,.15);display:flex;align-items:center;justify-content:space-between}
+.hlai-title{color:#f8dfa5;font-size:1.1rem;font-weight:600;display:flex;align-items:center;gap:8px}
+.hlai-mode-switch{font-size:.7rem;color:rgba(255,255,255,.4);cursor:pointer;padding:4px 8px;border-radius:6px;transition:.2s}
+.hlai-mode-switch:hover{background:rgba(248,223,165,.1);color:rgba(255,255,255,.7)}
+.hlai-close{background:none;border:none;color:rgba(255,255,255,.4);font-size:1.3rem;cursor:pointer;padding:4px;border-radius:4px;transition:.2s}
+.hlai-close:hover{color:rgba(255,255,255,.8);background:rgba(248,223,165,.1)}
+
+.hlai-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.hlai-msg{max-width:85%;word-wrap:break-word;line-height:1.6}
+.hlai-msg.user{align-self:flex-end;background:linear-gradient(135deg,#f8dfa5,#e9c27d);color:#1a1520;padding:10px 14px;border-radius:18px 18px 6px 18px;font-weight:500}
+.hlai-msg.ai{align-self:flex-start;background:rgba(248,223,165,.08);color:#f9f0e5;padding:12px 16px;border-radius:18px 18px 18px 6px;border:1px solid rgba(248,223,165,.12)}
+.hlai-msg.ai.ruby{background:rgba(255,107,107,.08);border-color:rgba(255,107,107,.15)}
+
+.hlai-typing{align-self:flex-start;padding:12px 16px;background:rgba(248,223,165,.05);border-radius:18px 18px 18px 6px;color:rgba(255,255,255,.4);font-style:italic}
+.hlai-typing .dots{display:inline-block}
+.hlai-typing .dots::after{content:'●●●';animation:hlaiDots 1.5s infinite;font-size:.6em;vertical-align:middle}
+@keyframes hlaiDots{0%,20%{color:rgba(255,255,255,.2)}50%{color:rgba(248,223,165,.6)}80%,100%{color:rgba(255,255,255,.2)}}
+
+.hlai-input-area{padding:16px;border-top:1px solid rgba(248,223,165,.1);display:flex;gap:10px;align-items:flex-end}
+.hlai-input{flex:1;border:1px solid rgba(248,223,165,.2);background:rgba(255,255,255,.04);color:#fff;padding:12px 16px;border-radius:20px;font-size:.9rem;resize:none;outline:none;font-family:inherit;min-height:20px;max-height:100px;transition:.2s}
+.hlai-input:focus{border-color:rgba(248,223,165,.4);background:rgba(255,255,255,.06)}
+.hlai-input::placeholder{color:rgba(255,255,255,.3)}
+.hlai-send{background:linear-gradient(135deg,#f8dfa5,#e9c27d);color:#1a1520;border:none;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;transition:.2s;font-weight:600}
+.hlai-send:hover{transform:scale(1.05);box-shadow:0 4px 16px rgba(248,223,165,.3)}
+.hlai-send:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+.hlai-welcome{text-align:center;color:rgba(255,255,255,.6);font-size:.85rem;line-height:1.6;margin:20px 0}
+.hlai-welcome .icon{font-size:2rem;margin-bottom:8px}
+
+@media(max-width:440px){
+  .hlai-panel{right:8px;width:calc(100vw - 16px);height:450px}
+}
+    `;
     document.head.appendChild(s);
 
     // Bubble
     bubble = document.createElement('div');
-    bubble.className = 'hlc-bubble';
-    bubble.innerHTML = '💬';
-    bubble.title = '問題回報';
+    bubble.className = 'hlai-bubble';
+    bubble.innerHTML = '🤖';
+    bubble.title = 'AI 助手';
     bubble.onclick = togglePanel;
     document.body.appendChild(bubble);
 
     // Panel
     panel = document.createElement('div');
-    panel.className = 'hlc-panel';
+    panel.className = 'hlai-panel';
     panel.innerHTML =
-      '<button class="hlc-close" onclick="document.querySelector(\'.hlc-panel\').classList.remove(\'open\')">&times;</button>' +
-      '<div class="hlc-title">問題回報中心</div>' +
-      '<div class="hlc-sub">遇到問題？讓我們知道，會盡快處理。</div>' +
-      '<label class="hlc-label">問題類型</label>' +
-      '<select class="hlc-select" id="hlcType">' +
-        '<option value="bug">功能異常 / 頁面壞掉</option>' +
-        '<option value="payment">付款 / 解鎖碼問題</option>' +
-        '<option value="display">顯示 / 排版問題</option>' +
-        '<option value="suggestion">建議 / 想要的功能</option>' +
-        '<option value="other">其他</option>' +
-      '</select>' +
-      '<label class="hlc-label">問題描述</label>' +
-      '<textarea class="hlc-textarea" id="hlcMsg" placeholder="請描述您遇到的問題，越具體越好⋯"></textarea>' +
-      '<button class="hlc-send" id="hlcSend" onclick="window._hlcSubmit()">送出回報</button>';
+      '<div class="hlai-header">' +
+        '<div class="hlai-title"><span class="title-text">🌸 小馥</span></div>' +
+        '<div class="hlai-mode-switch" onclick="window._hlaiSwitchMode()">切換模式</div>' +
+        '<button class="hlai-close" onclick="window._hlaiToggle()">&times;</button>' +
+      '</div>' +
+      '<div class="hlai-messages" id="hlaiMessages">' +
+        '<div class="hlai-welcome">' +
+          '<div class="icon">🌸</div>' +
+          '我是小馥，馥靈之鑰的 AI 助理<br>有什麼想聊的嗎？' +
+        '</div>' +
+      '</div>' +
+      '<div class="hlai-input-area">' +
+        '<textarea class="hlai-input" id="hlaiInput" placeholder="輸入訊息..." rows="1"></textarea>' +
+        '<button class="hlai-send" id="hlaiSend" onclick="window._hlaiSend()">→</button>' +
+      '</div>';
     document.body.appendChild(panel);
+
+    // Input auto-resize
+    var input = document.getElementById('hlaiInput');
+    input.addEventListener('input', function(){
+      this.style.height = '20px';
+      this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+    });
+    input.addEventListener('keypress', function(e){
+      if(e.key === 'Enter' && !e.shiftKey){
+        e.preventDefault();
+        window._hlaiSend();
+      }
+    });
+
+    checkRubyMode();
   }
 
   function togglePanel(){
     isOpen = !isOpen;
     panel.classList.toggle('open', isOpen);
+    if(isOpen && !chatHistory.length){
+      showWelcome();
+    }
   }
 
-  window._hlcSubmit = function(){
-    var type = document.getElementById('hlcType').value;
-    var msg = document.getElementById('hlcMsg').value.trim();
-    if (!msg) { document.getElementById('hlcMsg').style.borderColor = 'rgba(220,80,80,.5)'; return; }
+  function checkRubyMode(){
+    // Check if admin user
+    if(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser){
+      var email = firebase.auth().currentUser.email;
+      var adminEmails = ['info@hourlightkey.com', 'judyanee@gmail.com', 'judyanee@hotmail.com'];
+      if(email && adminEmails.indexOf(email) > -1){
+        isRubyBrain = true;
+        updateUI();
+      }
+    }
+  }
 
-    var btn = document.getElementById('hlcSend');
-    btn.disabled = true;
-    btn.textContent = '送出中⋯';
+  function updateUI(){
+    if(isRubyBrain){
+      bubble.className = 'hlai-bubble ruby';
+      bubble.innerHTML = '👑';
+      bubble.title = '馥寶 - 逸君專屬AI';
+      var title = panel.querySelector('.title-text');
+      if(title) title.textContent = '👑 馥寶';
+      var welcome = panel.querySelector('.hlai-welcome');
+      if(welcome) welcome.innerHTML = '<div class="icon">👑</div>馥寶為您服務<br>逸君，今天要處理什麼？';
+    } else {
+      bubble.className = 'hlai-bubble';
+      bubble.innerHTML = '🌸';
+      bubble.title = 'AI 助手 - 小馥';
+      var title = panel.querySelector('.title-text');
+      if(title) title.textContent = '🌸 小馥';
+    }
+  }
 
-    var data = {
-      type: type,
-      message: msg,
-      page: location.href,
-      userAgent: navigator.userAgent,
-      screenSize: screen.width + 'x' + screen.height,
-      timestamp: new Date().toISOString()
-    };
+  function showWelcome(){
+    if(isRubyBrain){
+      addMessage('ai', '馥寶為您服務，逸君。\n\n今天要處理什麼工作嗎？\n• 網站技術問題\n• 內容創作\n• 數據分析\n• 商業策略');
+    } else {
+      addMessage('ai', '您好！我是小馥 🌸\n\n我可以幫您：\n• 推薦適合的測驗或工具\n• 回答馥靈之鑰的問題\n• 聊聊您想探索的話題');
+    }
+  }
 
-    // Try to get user info
-    if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-      var u = firebase.auth().currentUser;
-      data.uid = u.uid;
-      data.email = u.email || '';
+  function addMessage(type, text){
+    var messagesDiv = document.getElementById('hlaiMessages');
+    var msgDiv = document.createElement('div');
+    msgDiv.className = 'hlai-msg ' + type + (isRubyBrain && type === 'ai' ? ' ruby' : '');
+    msgDiv.textContent = text;
+    messagesDiv.appendChild(msgDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  function showTyping(){
+    var messagesDiv = document.getElementById('hlaiMessages');
+    var typingDiv = document.createElement('div');
+    typingDiv.className = 'hlai-typing';
+    typingDiv.id = 'hlaiTyping';
+    typingDiv.innerHTML = '<span class="dots"></span>';
+    messagesDiv.appendChild(typingDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  function hideTyping(){
+    var typing = document.getElementById('hlaiTyping');
+    if(typing) typing.remove();
+  }
+
+  async function sendMessage(message){
+    if(isTyping) return;
+    isTyping = true;
+
+    var input = document.getElementById('hlaiInput');
+    var sendBtn = document.getElementById('hlaiSend');
+
+    input.disabled = true;
+    sendBtn.disabled = true;
+
+    // Add user message
+    addMessage('user', message);
+    chatHistory.push({ role: 'user', content: message });
+
+    // Show typing
+    showTyping();
+
+    try {
+      var headers = { 'Content-Type': 'application/json' };
+
+      // Add Ruby token if in Ruby mode
+      if(isRubyBrain && typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser){
+        var token = await firebase.auth().currentUser.getIdToken();
+        headers['x-ruby-token'] = token;
+      }
+
+      var response = await fetch('https://app.hourlightkey.com/api/chat', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+          messages: chatHistory.slice(-10), // Last 10 messages
+          page: location.href
+        })
+      });
+
+      if(!response.ok) throw new Error('API Error');
+
+      var data = await response.json();
+      var reply = data.reply || '抱歉，我現在無法回應。請稍後再試。';
+
+      hideTyping();
+      addMessage('ai', reply);
+      chatHistory.push({ role: 'assistant', content: reply });
+
+    } catch(err) {
+      hideTyping();
+      addMessage('ai', '抱歉，連接出了點問題。請稍後再試或直接聯繫我們 LINE：@hourlight');
     }
 
-    // Save to Firestore
-    var saved = false;
-    if (typeof firebase !== 'undefined' && firebase.firestore) {
-      try {
-        firebase.firestore().collection('feedback').add(data).then(function(){
-          showSuccess();
-        }).catch(function(){
-          showSuccess(); // Still show success to user
-        });
-        saved = true;
-      } catch(e) {}
-    }
-    if (!saved) showSuccess();
+    input.disabled = false;
+    sendBtn.disabled = false;
+    input.focus();
+    isTyping = false;
+  }
 
-    function showSuccess(){
-      panel.querySelector('.hlc-title').textContent = '';
-      panel.querySelector('.hlc-sub').textContent = '';
-      var content = panel.querySelectorAll('.hlc-label,.hlc-select,.hlc-textarea,.hlc-send');
-      for (var i = 0; i < content.length; i++) content[i].style.display = 'none';
-      var ok = document.createElement('div');
-      ok.className = 'hlc-ok';
-      ok.innerHTML = '<div class="ok-icon">✅</div>收到了！我們會盡快處理。<br><br>如果是緊急問題，請直接<br><a href="https://lin.ee/RdQBFAN" target="_blank" style="color:#f8dfa5;text-decoration:underline">LINE 聯繫我們</a>';
-      panel.appendChild(ok);
-    }
+  // Global functions
+  window._hlaiToggle = togglePanel;
+  window._hlaiSwitchMode = function(){
+    if(!isRubyBrain) return;
+    // Future: switch between different modes
+    alert('模式切換功能開發中...');
+  };
+  window._hlaiSend = function(){
+    var input = document.getElementById('hlaiInput');
+    var message = input.value.trim();
+    if(!message || isTyping) return;
+
+    input.value = '';
+    input.style.height = '20px';
+    sendMessage(message);
   };
 
-  if (document.readyState === 'loading') {
+  // Initialize
+  if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', createUI);
   } else {
     createUI();
   }
+
+  // Check auth state
+  if(typeof firebase !== 'undefined' && firebase.auth){
+    firebase.auth().onAuthStateChanged(function(user){
+      if(user) checkRubyMode();
+    });
+  }
+
 })();
