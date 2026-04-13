@@ -89,14 +89,24 @@
       quote:'你今天說了很多，但有沒有說到你真正想說的？',
       unlockCond:'完成 50 道測驗 + 分享城堡卡 50 次',
       unlockKey:'rare_achiever',
-      tier:'rare' },
+      tier:'rare',
+      expressions: {
+        normal: 'cat-siamese-1.png',
+        happy: 'cat-siamese-2.png',
+        sleepy: 'cat-siamese-1.png'
+      } },
     { id:'yuanyuan',name:'圓圓', color:'摺耳貓',  icon:'😺', emoji:'🌀',
       desc:'灰藍色，耳朵往前折。最黏人，你不在時最難過。',
       room:'愛之殿',
       quote:'你回來了。我等了你一整天。',
       unlockCond:'總探索 100 次 + 解鎖所有房間(包含HOUR) + 連續活躍 90 天',
       unlockKey:'legendary_explorer',
-      tier:'legendary' },
+      tier:'legendary',
+      expressions: {
+        normal: 'cat-orange-fold.png',
+        happy: 'cat-orange-fold.png',
+        clingy: 'cat-orange-fold.png'
+      } },
     { id:'xiaoma',  name:'小馬', color:'賓士貓',  icon:'🐈‍⬛', emoji:'🖤',
       desc:'黑白花色，白色鬍鬚。有自己的規矩，但對你破例。',
       room:'解鎖密室',
@@ -110,7 +120,12 @@
       quote:'今天有沒有好好吃一餐？',
       unlockCond:'完成 3 道心理測驗',
       unlockKey:'quiz_count_3',
-      tier:'common' },
+      tier:'common',
+      expressions: {
+        normal: 'cat-orange.png',
+        happy: 'cat-orange.png',
+        hungry: 'cat-orange.png'
+      } },
     { id:'qiqi',    name:'七七', color:'花貓',    icon:'🎀', emoji:'🌈',
       desc:'黑白橘三色，每個用戶的花紋隨機。最隨性，每天狀態不一樣。',
       room:'不固定',
@@ -308,7 +323,10 @@
       '<div class="cat-unlock-modal">' +
         '<div class="cat-unlock-header">' +
           '<div class="cat-unlock-icon">' +
-            (cat.stickerImg ? '<img src="' + cat.stickerImg + '" alt="' + cat.name + '" class="cat-sticker">' : cat.icon) +
+            (function(){
+              var expr = getCatExpression(cat, 80); // 解鎖時顯示開心表情
+              return expr ? '<img src="' + expr + '" alt="' + cat.name + '" class="cat-sticker">' : cat.icon;
+            })() +
           '</div>' +
           '<div class="cat-unlock-title">🎉 新貓咪加入城堡！</div>' +
         '</div>' +
@@ -429,10 +447,14 @@
       return CATS.map(function(cat){
         var unlocked = state.unlockedConditions[cat.unlockKey] || state.ownedCats.indexOf(cat.id) > -1;
         var mood = state.petMoods[cat.id] || { mood:60 };
+        var moodLevel = unlocked ? mood.mood : 0;
+        var currentExpression = unlocked ? getCatExpression(cat, moodLevel) : null;
+
         return Object.assign({}, cat, {
           unlocked: unlocked,
-          mood: unlocked ? mood.mood : 0,
-          quote: unlocked ? getTodayQuote(cat.id) : null
+          mood: moodLevel,
+          quote: unlocked ? getTodayQuote(cat.id) : null,
+          currentSticker: currentExpression
         });
       });
     },
@@ -510,6 +532,20 @@
     if(state.streakDays >= 30) return 2;    // 成年
     if((state.totalRooms||0) >= 20) return 1; // 少年
     return 0;                                  // 幼年
+  }
+
+  // ── 貓咪表情判斷 ──
+  function getCatExpression(cat, mood) {
+    if(!cat.expressions) {
+      return cat.stickerImg || null; // 使用舊版單一貼圖
+    }
+
+    // 根據心情判斷表情
+    if(mood >= 80) return cat.expressions.happy || cat.expressions.normal;
+    if(mood <= 30) return cat.expressions.hungry || cat.expressions.normal;
+    if(mood >= 40 && mood <= 60) return cat.expressions.sleepy || cat.expressions.normal;
+
+    return cat.expressions.normal;
   }
 
   // 頁面載入時執行每日更新

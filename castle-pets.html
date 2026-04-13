@@ -416,7 +416,7 @@ function renderCats(){
     if(cat.unlocked){
       html += '<div class="cat-card" onclick="openCatModal(\'' + cat.id + '\')">' +
         '<div class="cat-big-icon">' +
-          (cat.stickerImg ? '<img src="' + cat.stickerImg + '" class="cat-sticker" alt="' + cat.name + '">' : cat.emoji) +
+          (cat.currentSticker ? '<img src="' + cat.currentSticker + '" class="cat-sticker" alt="' + cat.name + '">' : cat.emoji) +
         '</div>' +
         '<div class="cat-name">' + cat.name + '</div>' +
         '<div class="cat-color">' + cat.color + '</div>' +
@@ -426,7 +426,7 @@ function renderCats(){
     } else {
       html += '<div class="cat-card locked-cat">' +
         '<div class="cat-big-icon" style="filter:grayscale(1)">' +
-          (cat.stickerImg ? '<img src="' + cat.stickerImg + '" class="cat-sticker" alt="' + cat.name + '">' : cat.emoji) +
+          (cat.expressions ? '<img src="' + (cat.expressions.normal || cat.stickerImg) + '" class="cat-sticker" alt="' + cat.name + '">' : cat.emoji) +
         '</div>' +
         '<div class="cat-name" style="color:var(--muted)">' + cat.color + '</div>' +
         '<div class="cat-color">未解鎖</div>' +
@@ -445,7 +445,9 @@ function openCatModal(catId){
   _currentCatId = catId;
 
   var iconEl = document.getElementById('m-icon');
-  if(cat.stickerImg) {
+  if(cat.currentSticker) {
+    iconEl.innerHTML = '<img src="' + cat.currentSticker + '" class="cat-modal-sticker" alt="' + cat.name + '">';
+  } else if(cat.stickerImg) {
     iconEl.innerHTML = '<img src="' + cat.stickerImg + '" class="cat-modal-sticker" alt="' + cat.name + '">';
   } else {
     iconEl.textContent = cat.emoji || '🐱';
