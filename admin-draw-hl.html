@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>管理員測試 - 馥靈抽牌系統 | 馥靈之鑰</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="assets/css/hourlight-global.css">
+  <style>
+    body {
+      background: #faf9f7; color: #333; min-height: 100vh;
+      font-family: "Noto Sans TC", system-ui, sans-serif;
+      padding: 20px;
+    }
+    .admin-container {
+      max-width: 1000px; margin: 0 auto;
+      background: #fff; border-radius: 12px; padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .admin-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px; padding-bottom: 16px;
+      border-bottom: 2px solid #e9c27d;
+    }
+    .admin-title {
+      font-size: 1.5rem; font-weight: 700; color: #8b4513;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .admin-badge {
+      background: linear-gradient(135deg, #e9c27d, #deb887);
+      color: #8b4513; padding: 4px 8px; border-radius: 8px;
+      font-size: 0.75rem; font-weight: 600;
+    }
+    .test-controls {
+      background: #f8f6f0; border-radius: 8px; padding: 16px;
+      margin-bottom: 20px; border-left: 4px solid #e9c27d;
+    }
+    .test-row {
+      display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .test-row:last-child { margin-bottom: 0; }
+    .test-label {
+      min-width: 80px; font-weight: 600; color: #8b4513;
+      font-size: 0.9rem;
+    }
+    .test-toggle {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .test-checkbox {
+      width: 18px; height: 18px; accent-color: #e9c27d;
+    }
+    .test-text {
+      font-size: 0.85rem; color: #666;
+    }
+    .draw-controls {
+      text-align: center; margin: 24px 0;
+    }
+    .card-count-selector {
+      display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .count-btn {
+      padding: 10px 16px; border: 2px solid #e9c27d;
+      background: #fff; color: #8b4513; border-radius: 8px;
+      cursor: pointer; transition: all 0.2s;
+      font-weight: 600; font-size: 0.9rem;
+    }
+    .count-btn:hover, .count-btn.active {
+      background: #e9c27d; color: #8b4513;
+    }
+    .draw-btn {
+      background: linear-gradient(135deg, #e9c27d, #deb887);
+      color: #8b4513; border: none; padding: 14px 32px;
+      border-radius: 10px; font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(233, 194, 125, 0.3);
+    }
+    .draw-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(233, 194, 125, 0.4);
+    }
+    .draw-btn:disabled {
+      opacity: 0.6; cursor: not-allowed; transform: none;
+    }
+    .cards-container {
+      display: grid; gap: 16px; margin-top: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .card-item {
+      background: #fff; border-radius: 10px; padding: 16px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+      border: 2px solid #f0f0f0; transition: all 0.3s;
+    }
+    .card-item.gift-mode {
+      border-color: #ff6b9d; background: #fff5f8;
+    }
+    .card-item.challenge-mode {
+      border-color: #9b59b6; background: #f8f5ff;
+    }
+    .card-name {
+      font-size: 1.1rem; font-weight: 700; color: #8b4513;
+      margin-bottom: 8px;
+    }
+    .card-content {
+      color: #555; font-size: 0.9rem; line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    .reading-content {
+      background: #f8f6f0; border-radius: 8px; padding: 14px;
+      margin-top: 12px; border-left: 3px solid #e9c27d;
+    }
+    .reading-content h4 {
+      color: #8b4513; margin-bottom: 8px; font-size: 0.95rem;
+    }
+    .reading-content p {
+      color: #666; font-size: 0.85rem; line-height: 1.5;
+    }
+    .admin-footer {
+      margin-top: 32px; text-align: center; padding-top: 16px;
+      border-top: 1px solid #e0e0e0; color: #888; font-size: 0.8rem;
+    }
+    .loading {
+      text-align: center; color: #888; font-size: 0.9rem;
+      padding: 20px; font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <div class="admin-header">
+      <div class="admin-title">
+        🃏 馥靈抽牌管理員測試系統
+        <span class="admin-badge">ADMIN</span>
+      </div>
+      <a href="app.html" style="color: #888; text-decoration: none; font-size: 0.9rem;">← 返回管理後台</a>
+    </div>
+
+    <div class="test-controls">
+      <div class="test-row">
+        <div class="test-label">測試模式:</div>
+        <label class="test-toggle">
+          <input type="checkbox" id="giftMode" class="test-checkbox">
+          <span class="test-text">🎁 禮物模式 (正位牌面)</span>
+        </label>
+        <label class="test-toggle">
+          <input type="checkbox" id="challengeMode" class="test-checkbox">
+          <span class="test-text">⚔️ 挑戰模式 (逆位牌面)</span>
+        </label>
+      </div>
+      <div class="test-row">
+        <div class="test-label">管理功能:</div>
+        <span class="test-text">✅ 付費門控已移除 | ✅ 無限制抽牌 | ✅ 完整牌義顯示</span>
+      </div>
+    </div>
+
+    <div class="draw-controls">
+      <div style="margin-bottom: 16px; color: #8b4513; font-weight: 600;">選擇抽牌張數：</div>
+      <div class="card-count-selector">
+        <button class="count-btn active" data-count="1">1張 快閃</button>
+        <button class="count-btn" data-count="3">3張 城堡三塔</button>
+        <button class="count-btn" data-count="5">5張 L.I.G.H.T.</button>
+        <button class="count-btn" data-count="7">7張 H.O.U.R.</button>
+        <button class="count-btn" data-count="9">9張 洛書九宮</button>
+        <button class="count-btn" data-count="12">12張 十二宮</button>
+        <button class="count-btn" data-count="15">15張 五門三鑰</button>
+        <button class="count-btn" data-count="21">21張 完整矩陣</button>
+        <button class="count-btn" data-count="28">28張 校準牌陣</button>
+      </div>
+      <button id="drawBtn" class="draw-btn" onclick="drawCards()">🎴 開始抽牌</button>
+    </div>
+
+    <div id="cardsResult" class="cards-container" style="display:none;"></div>
+    <div id="loadingMsg" class="loading" style="display:none;">正在載入牌卡系統...</div>
+
+    <div class="admin-footer">
+      🔧 管理員專用測試環境 | 馥靈之鑰 Hour Light © 2026
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore-compat.js"></script>
+  <script>
+    // Firebase 配置
+    if (typeof firebase !== 'undefined') {
+      const firebaseConfig = {
+        apiKey: "AIzaSyBhnQKaV6LI6E5jVPg8GTCMN8lhzOb7N9c",
+        authDomain: "hourlight-key.firebaseapp.com",
+        projectId: "hourlight-key",
+        storageBucket: "hourlight-key.appspot.com",
+        messagingSenderId: "325872757613",
+        appId: "1:325872757613:web:7d4b57a8f1234567890abc"
+      };
+
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+    }
+
+    let selectedCardCount = 1;
+    let cardDatabase = null;
+
+    // 載入牌卡資料
+    async function loadCardDatabase() {
+      try {
+        const response = await fetch('js/cardData-protected.js');
+        const text = await response.text();
+
+        // 解析 Base64 編碼的牌卡資料
+        const base64Match = text.match(/const\s+cardData\s*=\s*atob\s*\(\s*["`']([^"`']+)["`']\s*\)/);
+        if (base64Match) {
+          const decodedData = atob(base64Match[1]);
+          cardDatabase = JSON.parse(decodedData);
+          console.log('✅ 牌卡資料載入成功:', cardDatabase.length + ' 張牌');
+          return true;
+        }
+        throw new Error('無法解析牌卡資料');
+      } catch (error) {
+        console.error('❌ 牌卡資料載入失敗:', error);
+        return false;
+      }
+    }
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', async function() {
+      document.getElementById('loadingMsg').style.display = 'block';
+      const loaded = await loadCardDatabase();
+      document.getElementById('loadingMsg').style.display = 'none';
+
+      if (!loaded) {
+        alert('牌卡資料載入失敗，請重新整理頁面');
+      }
+
+      // 綁定張數選擇
+      document.querySelectorAll('.count-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          selectedCardCount = parseInt(this.dataset.count);
+        });
+      });
+    });
+
+    // 抽牌主函數
+    async function drawCards() {
+      if (!cardDatabase) {
+        alert('牌卡資料尚未載入完成');
+        return;
+      }
+
+      const drawBtn = document.getElementById('drawBtn');
+      const cardsResult = document.getElementById('cardsResult');
+
+      drawBtn.disabled = true;
+      drawBtn.textContent = '抽牌中...';
+      cardsResult.style.display = 'none';
+
+      try {
+        // 隨機抽取牌卡
+        const drawnCards = [];
+        const usedIndices = new Set();
+
+        while (drawnCards.length < selectedCardCount) {
+          const randomIndex = Math.floor(Math.random() * cardDatabase.length);
+          if (!usedIndices.has(randomIndex)) {
+            usedIndices.add(randomIndex);
+            drawnCards.push({
+              ...cardDatabase[randomIndex],
+              index: randomIndex,
+              isReversed: document.getElementById('challengeMode').checked
+            });
+          }
+        }
+
+        // 顯示結果
+        displayCards(drawnCards);
+
+        // 記錄到 Firebase (如果可用)
+        if (typeof firebase !== 'undefined' && firebase.auth && firebase.firestore) {
+          try {
+            const user = firebase.auth().currentUser;
+            if (user) {
+              await firebase.firestore().collection('admin_test_draws').add({
+                uid: user.uid,
+                cardCount: selectedCardCount,
+                cardCodes: drawnCards.map(c => c.code || c.id),
+                giftMode: document.getElementById('giftMode').checked,
+                challengeMode: document.getElementById('challengeMode').checked,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                source: 'admin-draw-hl'
+              });
+            }
+          } catch (e) {
+            console.log('Firebase 記錄失敗 (非關鍵錯誤):', e);
+          }
+        }
+
+      } catch (error) {
+        console.error('抽牌錯誤:', error);
+        alert('抽牌過程中發生錯誤，請重試');
+      } finally {
+        drawBtn.disabled = false;
+        drawBtn.textContent = '🎴 重新抽牌';
+      }
+    }
+
+    // 顯示牌卡結果
+    function displayCards(cards) {
+      const container = document.getElementById('cardsResult');
+      const isGiftMode = document.getElementById('giftMode').checked;
+      const isChallengeMode = document.getElementById('challengeMode').checked;
+
+      let html = '';
+
+      cards.forEach((card, index) => {
+        const cardClass = isGiftMode ? 'gift-mode' : (isChallengeMode ? 'challenge-mode' : '');
+        const positionName = getPositionName(index, cards.length);
+
+        html += `
+          <div class="card-item ${cardClass}">
+            <div class="card-name">
+              ${positionName} | ${card.name || card.title || '未命名牌卡'}
+              ${card.isReversed ? ' (逆位)' : ''}
+            </div>
+            <div class="card-content">
+              <strong>編碼:</strong> ${card.code || card.id}<br>
+              <strong>關鍵字:</strong> ${card.keywords || card.tags || '無'}<br>
+              <strong>精油:</strong> ${card.oil || card.aromatherapy || '無'}
+            </div>
+
+            <div class="reading-content">
+              <h4>💫 牌義解讀</h4>
+              <p>${card.meaning || card.description || '此牌卡蘊含深層智慧，請靜心感受其帶來的指引。'}</p>
+
+              ${card.reversed_meaning && card.isReversed ? `
+                <h4 style="margin-top: 12px;">🔄 逆位含義</h4>
+                <p>${card.reversed_meaning}</p>
+              ` : ''}
+
+              ${card.guidance ? `
+                <h4 style="margin-top: 12px;">🧭 行動指引</h4>
+                <p>${card.guidance}</p>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+      container.style.display = 'grid';
+      container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // 取得牌位名稱
+    function getPositionName(index, total) {
+      const positions = {
+        1: ['當下狀態'],
+        3: ['過去', '現在', '未來'],
+        5: ['愛L', '直覺I', '磐石G', '和諧H', '蛻變T'],
+        7: ['身心H', '智慧O', '潛能U', '行動R', '挑戰', '機會', '結果'],
+        9: ['根源', '情緒', '思維', '關係', '核心', '資源', '障礙', '環境', '結果'],
+        12: ['第1宮', '第2宮', '第3宮', '第4宮', '第5宮', '第6宮',
+             '第7宮', '第8宮', '第9宮', '第10宮', '第11宮', '第12宮'],
+        15: ['L根源', 'L信念', 'L行為', 'I根源', 'I信念', 'I行為',
+             'G根源', 'G信念', 'G行為', 'H根源', 'H信念', 'H行為',
+             'T根源', 'T信念', 'T行為'],
+        21: ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7',
+             'O1', 'O2', 'O3', 'O4', 'O5', 'O6', 'O7',
+             'U1', 'U2', 'U3', 'U4', 'U5', 'U6', 'U7'],
+        28: ['前程1', '前程2', '前程3', '前程4', '前程5', '前程6', '前程7',
+             '根源1', '根源2', '根源3', '根源4', '根源5', '根源6', '根源7',
+             '轉化1', '轉化2', '轉化3', '轉化4', '轉化5', '轉化6', '轉化7',
+             '整合1', '整合2', '整合3', '整合4', '整合5', '整合6', '整合7']
+      };
+
+      return positions[total] ? positions[total][index] : `第${index + 1}張`;
+    }
+  </script>
+</body>
+</html>
