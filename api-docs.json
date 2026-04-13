@@ -1,0 +1,514 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "馥靈之鑰 API",
+    "version": "1.0.0",
+    "description": "馥靈之鑰官方API，提供AI解讀、命理計算、支付處理等服務",
+    "contact": {
+      "name": "馥靈之鑰技術支援",
+      "email": "info@hourlightkey.com",
+      "url": "https://hourlightkey.com"
+    },
+    "license": {
+      "name": "馥靈之鑰專有授權",
+      "url": "https://hourlightkey.com/terms.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://app.hourlightkey.com/api",
+      "description": "正式環境"
+    }
+  ],
+  "paths": {
+    "/ai-draw-reading": {
+      "post": {
+        "summary": "130張牌卡AI即時解讀",
+        "description": "提供3/5/7張牌卡的AI即時解讀服務，支援9種牌陣",
+        "tags": ["AI解讀"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["cardCodes", "spreadType", "uid"],
+                "properties": {
+                  "cardCodes": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "抽中的牌卡代碼陣列",
+                    "example": ["HL001", "HL025", "HL089"]
+                  },
+                  "spreadType": {
+                    "type": "string",
+                    "enum": ["castle-3", "light-5", "hour-7"],
+                    "description": "牌陣類型"
+                  },
+                  "uid": {
+                    "type": "string",
+                    "description": "用戶ID"
+                  },
+                  "question": {
+                    "type": "string",
+                    "description": "占卜問題（可選）"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "解讀成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {"type": "boolean"},
+                    "reading": {"type": "string", "description": "AI解讀內容"},
+                    "readingId": {"type": "string", "description": "解讀記錄ID"},
+                    "tokens": {"type": "integer", "description": "使用的Token數量"}
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "需要付費",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {"type": "string"},
+                    "price": {"type": "number"},
+                    "unlockUrl": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ai-framework-gate": {
+      "post": {
+        "summary": "命理工具AI解讀門控",
+        "description": "驗證用戶權限並提供命理工具的AI解讀指令",
+        "tags": ["AI解讀"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["uid", "toolId"],
+                "properties": {
+                  "uid": {"type": "string", "description": "用戶ID"},
+                  "toolId": {"type": "string", "description": "工具ID", "example": "destiny-engine"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "權限驗證成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "allowed": {"type": "boolean"},
+                    "remaining": {"type": "integer", "description": "剩餘次數"},
+                    "plan": {"type": "string", "enum": ["free", "plus", "pro"]}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/nail-reading": {
+      "post": {
+        "summary": "美甲AI解讀服務",
+        "description": "專為美甲師設計的牌卡解讀服務",
+        "tags": ["專業服務"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["cardCodes", "n"],
+                "properties": {
+                  "cardCodes": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "抽中的牌卡"
+                  },
+                  "n": {
+                    "type": "integer",
+                    "enum": [3, 5, 9],
+                    "description": "牌卡張數"
+                  },
+                  "businessCode": {
+                    "type": "string",
+                    "description": "合作商代碼"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "解讀成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {"type": "boolean"},
+                    "reading": {"type": "string"},
+                    "price": {"type": "number"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/spa-reading": {
+      "post": {
+        "summary": "SPA AI解讀服務",
+        "description": "專為SPA業者設計的牌卡解讀服務",
+        "tags": ["專業服務"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpaReadingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "解讀成功"
+          }
+        }
+      }
+    },
+    "/family-reading": {
+      "post": {
+        "summary": "家族AI解讀服務",
+        "description": "家族關係與親子教養的牌卡解讀",
+        "tags": ["家族服務"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["cardCodes", "n"],
+                "properties": {
+                  "cardCodes": {"type": "array", "items": {"type": "string"}},
+                  "n": {"type": "integer", "enum": [3, 5, 7]}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "解讀成功"}
+        }
+      }
+    },
+    "/pet-reading": {
+      "post": {
+        "summary": "寵物AI解讀服務",
+        "description": "寵物情緒與行為的牌卡解讀",
+        "tags": ["寵物服務"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PetReadingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "解讀成功"}
+        }
+      }
+    },
+    "/reading-services": {
+      "post": {
+        "summary": "特殊主題解讀服務",
+        "description": "元辰宮、阿卡西記錄、前世故事、姓名分析等特殊解讀",
+        "tags": ["特殊解讀"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["serviceType", "inputData"],
+                "properties": {
+                  "serviceType": {
+                    "type": "string",
+                    "enum": ["yuan-chen", "akashic", "past-life", "name-analysis"],
+                    "description": "服務類型"
+                  },
+                  "inputData": {
+                    "type": "object",
+                    "description": "輸入資料（依服務類型而異）"
+                  },
+                  "uid": {"type": "string", "description": "用戶ID"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "解讀成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {"type": "boolean"},
+                    "reading": {"type": "string"},
+                    "price": {"type": "number"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chat": {
+      "post": {
+        "summary": "馥靈即時對話",
+        "description": "與AI馥靈的即時對話功能",
+        "tags": ["對話服務"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["message", "uid"],
+                "properties": {
+                  "message": {"type": "string", "description": "用戶訊息"},
+                  "uid": {"type": "string", "description": "用戶ID"},
+                  "sessionId": {"type": "string", "description": "對話會話ID"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "對話成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reply": {"type": "string", "description": "AI回覆"},
+                    "sessionId": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payuni-create": {
+      "post": {
+        "summary": "PAYUNi建立訂單",
+        "description": "建立PAYUNi統一金流訂單",
+        "tags": ["付款服務"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["amount", "uid", "productName"],
+                "properties": {
+                  "amount": {"type": "number", "description": "金額"},
+                  "uid": {"type": "string", "description": "用戶ID"},
+                  "productName": {"type": "string", "description": "商品名稱"},
+                  "planType": {"type": "string", "enum": ["plus", "pro"], "description": "會員方案類型"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "訂單建立成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {"type": "boolean"},
+                    "paymentUrl": {"type": "string", "description": "付款頁面URL"},
+                    "orderId": {"type": "string", "description": "訂單ID"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payuni-notify": {
+      "post": {
+        "summary": "PAYUNi付款通知",
+        "description": "接收PAYUNi付款結果通知並自動升級會員",
+        "tags": ["付款服務"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Status": {"type": "string"},
+                  "MerTradeNo": {"type": "string"},
+                  "TradeNo": {"type": "string"},
+                  "TradeAmt": {"type": "number"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "處理成功"}
+        }
+      }
+    },
+    "/send-report": {
+      "post": {
+        "summary": "自動寄送解讀報告",
+        "description": "將解讀報告通過Email發送給用戶",
+        "tags": ["通知服務"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["uid", "readingId", "email"],
+                "properties": {
+                  "uid": {"type": "string"},
+                  "readingId": {"type": "string"},
+                  "email": {"type": "string", "format": "email"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "寄送成功"}
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SpaReadingRequest": {
+        "type": "object",
+        "required": ["cardCodes", "n"],
+        "properties": {
+          "cardCodes": {"type": "array", "items": {"type": "string"}},
+          "n": {"type": "integer", "enum": [3, 5, 9]},
+          "businessCode": {"type": "string"}
+        }
+      },
+      "PetReadingRequest": {
+        "type": "object",
+        "required": ["cardCodes", "n", "petInfo"],
+        "properties": {
+          "cardCodes": {"type": "array", "items": {"type": "string"}},
+          "n": {"type": "integer", "enum": [3, 5, 7]},
+          "petInfo": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "species": {"type": "string"},
+              "age": {"type": "number"},
+              "personality": {"type": "string"}
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {"type": "string", "description": "錯誤訊息"},
+          "code": {"type": "string", "description": "錯誤代碼"}
+        }
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "AI解讀",
+      "description": "AI驅動的各種解讀服務"
+    },
+    {
+      "name": "專業服務",
+      "description": "美業專業解讀服務"
+    },
+    {
+      "name": "家族服務",
+      "description": "家族與親子相關服務"
+    },
+    {
+      "name": "寵物服務",
+      "description": "寵物相關解讀服務"
+    },
+    {
+      "name": "特殊解讀",
+      "description": "元辰宮、阿卡西等特殊解讀"
+    },
+    {
+      "name": "對話服務",
+      "description": "AI對話與互動"
+    },
+    {
+      "name": "付款服務",
+      "description": "支付與訂單處理"
+    },
+    {
+      "name": "通知服務",
+      "description": "Email與通知服務"
+    }
+  ],
+  "externalDocs": {
+    "description": "馥靈之鑰官方網站",
+    "url": "https://hourlightkey.com"
+  }
+}
