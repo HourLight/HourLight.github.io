@@ -1692,7 +1692,18 @@ function updateRedeemUI(){
 function doRedeem(itemId){
   var result=hlCastle.redeem(itemId);
   if(!result.ok){
-    if(result.reason==='not_enough')alert('靈感點數不足！還需要 '+result.need+' 點。');
+    // 🔧 修復：處理各種錯誤情況
+    if(result.reason==='not_enough'){
+      alert('靈感點數不足！還需要 '+result.need+' 點。');
+    }else if(result.reason==='not_logged_in'){
+      alert('❗ 請先登入會員\n\n兌換折價券需要登入帳戶。請點選右上角登入後再試。');
+    }else if(result.reason==='firebase_unavailable'){
+      alert('❗ 系統暫時無法連線\n\n請檢查網路連線並稍後再試。');
+    }else if(result.reason==='firestore_error'){
+      alert('❗ 兌換失敗\n\n'+result.message+'\n\n您的點數未被扣除，請稍後再試或聯絡客服。');
+    }else{
+      alert('兌換失敗：'+(result.message||'未知錯誤'));
+    }
     return;
   }
   var item=result.item;
