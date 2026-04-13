@@ -82,16 +82,16 @@
       unlockCond:'完成 200 道測驗 + 連續 100 天活躍 + 城堡大師',
       unlockKey:'legendary_master',
       tier:'legendary',
-      stickerImg: 'cat-fuyun-new.webp',
+      stickerImg: 'cat-fuyun-new.png',
       expressions: {
-        normal: 'cat-fuyun-new.webp',
-        happy: 'cat-fuyun-new.webp',
-        sleepy: 'cat-fuyun-new.webp',
-        angry: 'cat-fuyun-new.webp',
-        hungry: 'cat-fuyun-new.webp',
-        shy: 'cat-fuyun-new.webp',
-        grateful: 'cat-fuyun-new.webp',
-        excited: 'cat-fuyun-new.webp'
+        normal: 'cat-fuyun-new.png',
+        happy: 'cat-fuyun-new.png',
+        sleepy: 'cat-fuyun-new.png',
+        angry: 'cat-fuyun-new.png',
+        hungry: 'cat-fuyun-new.png',
+        shy: 'cat-fuyun-new.png',
+        grateful: 'cat-fuyun-new.png',
+        excited: 'cat-fuyun-new.png'
       } },
     { id:'keke',    name:'可可', color:'暹羅貓',  icon:'🐈', emoji:'🐾',
       desc:'奶油底，耳鼻四肢深棕。話最多，但每句都有意思。',
@@ -100,7 +100,7 @@
       unlockCond:'完成 50 道測驗 + 分享城堡卡 50 次',
       unlockKey:'rare_achiever',
       tier:'rare',
-      stickerImg: 'cat-keke-new.webp' },
+      stickerImg: 'cat-keke-new.png' },
     { id:'yuanyuan',name:'圓圓', color:'摺耳貓',  icon:'😺', emoji:'🌀',
       desc:'灰藍色，耳朵往前折。最黏人，你不在時最難過。',
       room:'愛之殿',
@@ -108,7 +108,7 @@
       unlockCond:'總探索 100 次 + 解鎖所有房間(包含HOUR) + 連續活躍 90 天',
       unlockKey:'legendary_explorer',
       tier:'legendary',
-      stickerImg: 'cat-yuanyuan-new.webp' },
+      stickerImg: 'cat-yuanyuan-new.png' },
     { id:'xiaoma',  name:'阿BO', color:'賓士貓',  icon:'🐈‍⬛', emoji:'🖤',
       desc:'黑白花色，白色鬍鬚。有自己的規矩，但對你破例。',
       room:'解鎖密室',
@@ -116,7 +116,7 @@
       unlockCond:'分享城堡卡 2 次',
       unlockKey:'share_count_2',
       tier:'common',
-      stickerImg: 'cat-xiaoma-new.webp' },
+      stickerImg: 'cat-xiaoma-new.png' },
     { id:'panghu',  name:'糖果', color:'橘貓',    icon:'🧡', emoji:'🧡',
       desc:'橘色虎斑，肚子白白的。食慾驚人，對生活充滿熱情。',
       room:'記憶花園',
@@ -124,7 +124,7 @@
       unlockCond:'完成 3 道心理測驗',
       unlockKey:'quiz_count_3',
       tier:'common',
-      stickerImg: 'cat-panghu-new.webp' },
+      stickerImg: 'cat-panghu-new.png' },
     { id:'qiqi',    name:'七七', color:'花貓',    icon:'🎀', emoji:'🌈',
       desc:'黑白橘三色，每個用戶的花紋隨機。最隨性，每天狀態不一樣。',
       room:'不固定',
@@ -132,7 +132,7 @@
       unlockCond:'餵食任意寵物 1 次',
       unlockKey:'pet_feed_1',
       tier:'common',
-      stickerImg: 'cat-qiqi-new.webp' },
+      stickerImg: 'cat-qiqi-new.png' },
     { id:'hupo',    name:'琥珀', color:'玳瑁貓',  icon:'🐾', emoji:'🍂',
       desc:'黑橘棕三色混合。溫柔但有主見，不喜歡被打擾。',
       room:'和諧苑',
@@ -140,7 +140,7 @@
       unlockCond:'首次登入城堡（最容易獲得）',
       unlockKey:'first_login',
       tier:'common',
-      stickerImg: 'cat-hupo-new.webp' },
+      stickerImg: 'cat-hupo-new.png' },
     { id:'xuegao',  name:'雪糕', color:'白貓',    icon:'🤍', emoji:'❄️',
       desc:'純白，異瞳（一藍一金）。最安靜，眼神最深。',
       room:'夢境走廊',
@@ -148,7 +148,7 @@
       unlockCond:'城堡探索 5 次',
       unlockKey:'explore_count_5',
       tier:'common',
-      stickerImg: 'cat-xuegao-new.webp' },
+      stickerImg: 'cat-xuegao-new.png' },
     { id:'doudou',  name:'豆豆', color:'虎斑貓',  icon:'🐱', emoji:'⚡',
       desc:'灰色虎斑，額頭有M字花紋。精力充沛，最愛在房間之間跑來跑去。',
       room:'王座廳',
@@ -156,7 +156,7 @@
       unlockCond:'連續 3 天登入城堡',
       unlockKey:'daily_login_3',
       tier:'free',
-      stickerImg: 'cat-doudou-new.webp' }
+      stickerImg: 'cat-doudou-new.png' }
   ];
 
   // ═══ 工具函數 ═══
@@ -328,7 +328,7 @@
           '<div class="cat-unlock-icon">' +
             (function(){
               var expr = getCatExpression(cat, 80); // 解鎖時顯示開心表情
-              return expr ? '<img src="' + expr + '" alt="' + cat.name + '" class="cat-sticker">' : cat.icon;
+              return expr ? '<img src="images/pets/' + expr + '" alt="' + cat.name + '" class="cat-sticker">' : cat.icon;
             })() +
           '</div>' +
           '<div class="cat-unlock-title">🎉 新貓咪加入城堡！</div>' +
