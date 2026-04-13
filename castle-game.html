@@ -2609,10 +2609,14 @@ function renderShopRecipes(){
     document.getElementById('dailyOverlay').classList.remove('show');
   };
 
-  // Hook into startGame
+  // Hook into startGame (with safety check)
   var _origStartGame = window.startGame;
   window.startGame = function(){
-    _origStartGame();
+    if(_origStartGame && typeof _origStartGame === 'function'){
+      _origStartGame();
+    } else {
+      console.warn('_origStartGame is not available, calling original startGame logic');
+    }
     setTimeout(checkDailyLogin, 1200);
   };
 })();
@@ -2840,10 +2844,14 @@ function installPWA(){
     if(!HLSound.muted) HLSound.click();
   };
   document.body.appendChild(btn);
-  // Show after game starts
+  // Show after game starts (with safety check)
   var _origStart = window.startGame;
   window.startGame = function(){
-    _origStart();
+    if(_origStart && typeof _origStart === 'function'){
+      _origStart();
+    } else {
+      console.warn('_origStart is not available in second hook');
+    }
     btn.classList.add('show');
   };
 })();
