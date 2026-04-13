@@ -831,7 +831,7 @@
       state.daily._bonusDoors=(state.daily._bonusDoors||0)+1;
       var na=checkAch(state);saveState(state);return{newAchievements:na};
     },
-    redeem:function(itemId){
+    redeem:async function(itemId){
       var item=REDEEM_ITEMS.filter(function(i){return i.id===itemId;})[0];
       if(!item)return{ok:false,reason:'not_found'};
       if(state.points<item.cost)return{ok:false,reason:'not_enough',need:item.cost-state.points};
@@ -852,23 +852,23 @@
         var chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
         var rand='';for(var ci=0;ci<6;ci++)rand+=chars[Math.floor(Math.random()*chars.length)];
         couponCode='HL'+item.couponN+'-'+rand;
-        // 🔧 修復：先寫入 Firestore，成功後才扣點數
+        // 🔧 修復：等待 Firestore 寫入完成，確保成功後才扣點數
         try{
           var u=firebase.auth().currentUser;
-          firebase.firestore().collection('reading_codes').doc(couponCode).set({
+          await firebase.firestore().collection('reading_codes').doc(couponCode).set({
             n:item.couponN,spreads:item.couponN,price:0,used:false,
             memo:'城堡靈感點數兌換（'+item.cost+'pt）',source:'castle_redeem',
             createdBy:'system',createdFor:u?u.email:'',
             createdAt:firebase.firestore.FieldValue.serverTimestamp()
           });
-          console.log('[城堡] 折價券已生成：'+couponCode);
+          console.log('[城堡] 折價券已確認生成：'+couponCode);
         }catch(e){
           console.error('[城堡] Firestore 寫入失敗：',e);
-          return{ok:false,reason:'firestore_error',message:'系統錯誤，請稍後再試或聯絡客服'};
+          return{ok:false,reason:'firestore_error',message:'系統錯誤：'+e.message+'，請稍後再試或聯絡客服'};
         }
       }
 
-      // 🔧 修復：只有在成功生成折價券後才扣除點數
+      // 🔧 修復：只有在 Firestore 確認成功後才扣除點數
       state.points-=item.cost;
       state.redeemCount=(state.redeemCount||0)+1;
       state.redeemHistory=(state.redeemHistory||[]);
