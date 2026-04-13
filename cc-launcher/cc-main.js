@@ -183,6 +183,22 @@ class ClaudeCodeLauncher {
             execute: () => this.showStatus()
         });
 
+        // cc seo scan - noindex 掃描
+        this.commands.set('cc seo scan', {
+            description: '全站 noindex 封鎖問題掃描',
+            aliases: ['cc scan', 'cc noindex'],
+            category: 'seo',
+            execute: () => this.executeNoindexScan()
+        });
+
+        // cc auto-learn - 自動學習
+        this.commands.set('cc auto-learn', {
+            description: '自動學習專案內容，智能理解不用重教',
+            aliases: ['cc learn', 'cc ai'],
+            category: 'ai',
+            execute: () => this.executeAutoLearn()
+        });
+
         console.log(`📚 已註冊 ${this.commands.size} 個核心指令`);
     }
 
@@ -340,6 +356,68 @@ class ClaudeCodeLauncher {
         console.log(`🔄 最後同步: ${this.deviceConfig.lastSync}`);
         console.log(`📚 可用指令: ${this.commands.size} 個`);
         console.log('');
+    }
+
+    /**
+     * 執行 noindex 掃描
+     */
+    async executeNoindexScan() {
+        console.log('🔍 啟動全站 noindex 掃描...');
+
+        try {
+            // 載入並執行 noindex 掃描模組
+            const noindexScanPath = path.join(__dirname, 'commands', 'seo', 'noindex-scan.js');
+
+            if (fs.existsSync(noindexScanPath)) {
+                const noindexModule = require(noindexScanPath);
+                const result = await noindexModule.execute();
+
+                if (result) {
+                    console.log('✅ noindex 掃描完成！');
+                } else {
+                    console.log('❌ noindex 掃描失敗');
+                }
+            } else {
+                console.log('❌ 找不到 noindex 掃描模組');
+            }
+
+        } catch (error) {
+            console.error('❌ 執行 noindex 掃描時發生錯誤:', error.message);
+        }
+    }
+
+    /**
+     * 執行自動學習
+     */
+    async executeAutoLearn() {
+        console.log('🧠 啟動自動學習系統...');
+
+        try {
+            // 載入並執行自動學習模組
+            const autoLearnPath = path.join(__dirname, 'commands', 'auto-learn.js');
+
+            if (fs.existsSync(autoLearnPath)) {
+                const AutoLearner = require(autoLearnPath);
+                const learner = new AutoLearner();
+                await learner.autoLearnProject();
+
+                console.log('✅ 自動學習完成！現在我理解您的專案了');
+                console.log('💡 之後使用指令會更智能，不需重複說明');
+
+                // 生成智能建議
+                const suggestions = learner.getContextualSuggestions();
+                if (suggestions.length > 0) {
+                    console.log('\n💭 智能建議:');
+                    suggestions.forEach(suggestion => console.log(`   ${suggestion}`));
+                }
+
+            } else {
+                console.log('❌ 找不到自動學習模組');
+            }
+
+        } catch (error) {
+            console.error('❌ 執行自動學習時發生錯誤:', error.message);
+        }
     }
 }
 
