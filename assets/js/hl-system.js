@@ -46,9 +46,9 @@
           /* HLCore init OK */
         }
       } else {
-        console.warn('HLCore 模組未載入');
+        // HLCore 模組未載入，靜默處理
       }
-      
+
       // 初始化計算引擎
       if (typeof HLCalc !== 'undefined') {
         _status.calc = HLCalc.init(_KEYS.calc);
@@ -56,7 +56,7 @@
           /* HLCalc init OK */
         }
       } else {
-        console.warn('HLCalc 模組未載入');
+        // HLCalc 模組未載入，靜默處理
       }
       
       // 初始化牌卡系統
@@ -100,7 +100,7 @@
      */
     calculateChart: function(birthData) {
       if (!this.isReady()) {
-        console.error('系統尚未初始化');
+        // 系統尚未初始化，靜默處理
         return null;
       }
       
@@ -170,7 +170,7 @@
      */
     drawCard: function(options) {
       if (!_status.card) {
-        console.error('牌卡系統尚未初始化');
+        // 牌卡系統尚未初始化，靜默處理
         return null;
       }
       

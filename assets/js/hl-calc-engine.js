@@ -134,7 +134,7 @@
       var _f = new Function(_b);
       _engine = _f();
     } catch(e) {
-      console.error('Engine initialization failed');
+      // Engine initialization failed, handled silently
     }
   }
   
@@ -147,7 +147,7 @@
         _ready = !!_engine;
         return _ready;
       }
-      console.warn('HLCalc: Invalid access key');
+      // HLCalc: Invalid access key, handled silently
       return false;
     },
     

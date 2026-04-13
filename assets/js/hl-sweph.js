@@ -47,7 +47,7 @@
       return true;
     }catch(e){
       loading = false;
-      console.warn('[hlSweph] WASM unavailable:', e.message);
+      // WASM unavailable, handled silently
       return false;
     }
   }
@@ -60,7 +60,7 @@
       var r = swe.calc_ut(jd, body, 256); // SEFLG_SPEED=256
       return {lon:((r[0]%360)+360)%360, lat:r[1], dist:r[2], lonSpd:r[3], precision:'swiss-ephemeris'};
     }catch(e){
-      console.warn('[hlSweph] calc error body='+body+':', e.message);
+      // calc error handled silently
       return null;
     }
   }
@@ -75,7 +75,7 @@
       var r = swe.calc_ut(jd, body, flags);
       return {lon:((r[0]%360)+360)%360, lat:r[1], dist:r[2], lonSpd:r[3], precision:'swiss-ephemeris-sidereal'};
     }catch(e){
-      console.warn('[hlSweph] sidereal calc error:', e.message);
+      // sidereal calc error handled silently
       return null;
     }
   }

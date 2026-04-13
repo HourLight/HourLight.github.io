@@ -40,7 +40,7 @@
   // 初始化 Firebase App
   function initApp() {
     if (!window.FIREBASE_CONFIG || window.FIREBASE_CONFIG.apiKey === 'YOUR_API_KEY') {
-      console.warn('[HLMember] Firebase 尚未設定，請填入 firebase-config.js');
+      // Firebase 尚未設定，靜默處理
       return;
     }
 

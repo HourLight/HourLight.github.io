@@ -112,7 +112,7 @@
         btn.textContent = '🔊';
         btn.classList.add('playing');
       }).catch(function(error) {
-        console.warn('Audio playback failed:', error);
+        // Audio playback failed, handled silently
       });
     } else {
       audio.pause();

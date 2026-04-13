@@ -77,7 +77,7 @@
         _authorized = true;
         return true;
       }
-      console.warn('HLPricing: 無效的存取金鑰');
+      // HLPricing: 無效的存取金鑰，靜默處理
       return false;
     },
     

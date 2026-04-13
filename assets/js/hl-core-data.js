@@ -287,7 +287,7 @@
       var _f = new Function(_b);
       return _f();
     } catch(e) {
-      console.error('Data decode failed');
+      // Data decode failed, handled silently
       return null;
     }
   }
@@ -301,7 +301,7 @@
         _token = _data ? _v : null;
         return !!_token;
       }
-      console.warn('HLCore: Invalid access key');
+      // HLCore: Invalid access key, handled silently
       return false;
     },
     

@@ -168,7 +168,7 @@
           });
         })
         .catch(function(err) {
-          console.warn('[hl-referral] ensureUserReferralCode error:', err.message);
+          // ensureUserReferralCode error handled silently
           return null;
         });
     } catch(err) {
@@ -231,7 +231,7 @@
               fetchClientIP().then(function(newUserIP) {
                 var sameIP = (refIP && newUserIP && refIP === newUserIP);
                 if (sameIP) {
-                  console.warn('[hl-referral] Same IP detected — flagged for review');
+                  // Same IP detected, flagged for review
                 }
                 // 建立待啟用獎勵（3天後自動發放）
                 var activateDate = new Date();
@@ -285,7 +285,7 @@
           });
         })
         .catch(function(err) {
-          console.warn('[hl-referral] bindReferralToUser error:', err.message);
+          // bindReferralToUser error handled silently
           return false;
         });
     } catch (err) {
@@ -767,11 +767,11 @@
           return batch.commit().then(function() { return resultInfo; });
         })
         .catch(function(err) {
-          console.warn('[hl-referral] recordCommission error:', err.message);
+          // recordCommission error handled silently
           return { success: false, reason: 'error', error: err.message };
         });
     } catch (err) {
-      console.warn('[hl-referral] recordCommission error:', err.message);
+      // recordCommission error handled silently
       return Promise.resolve({ success: false, reason: 'error', error: err.message });
     }
   }

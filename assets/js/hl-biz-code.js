@@ -246,7 +246,7 @@ window.hlBizCode = (function(){
       }, 1500);
 
     }catch(e){
-      console.error('biz code verify error:', e);
+      // biz code verify error handled with user message
       msg.style.color = '#d93025';
       msg.textContent = '驗證過程出錯，請重試或選擇付款方式。';
       btn.disabled = false; btn.textContent = '驗證';

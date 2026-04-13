@@ -143,7 +143,7 @@
     init: function(key) {
       if (key === _k) {
         _ready = true;
-        if(window.HL_DEBUG) console.log('\u2713 HLTriangle \u521d\u59cb\u5316\u6210\u529f');
+        // HLTriangle 初始化成功 (debug removed)
         return true;
       }
       return false;
@@ -250,7 +250,7 @@
 
   // \u9632\u8907\u88fd\u8b66\u544a
   Object.defineProperty(HLTriangle, '_src', {
-    get: function() { console.warn('\u26a0 \u99a5\u9748\u4e4b\u9470\u5546\u696d\u6a5f\u5bc6\uff1a\u672a\u6388\u6b0a\u5b58\u53d6'); return null; }
+    get: function() { /* anti-theft warning removed */ return null; }
   });
 
   global.HLTriangle = HLTriangle;

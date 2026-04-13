@@ -490,7 +490,7 @@
     ref.get().then(function(doc){
       callback(doc.exists ? doc.data() : null);
     }).catch(function(err){
-      console.warn('[castle-sync] cloud load error:', err);
+      // cloud load error handled silently
       callback(null);
     });
   }
@@ -511,7 +511,7 @@
 
     // 大小檢查
     if(totalSyncSize(localData) > MAX_BYTES){
-      console.warn('[castle-sync] data too large, skipping sync');
+      // data too large, skipping sync
       _syncing = false;
       return;
     }
@@ -529,7 +529,7 @@
       showSyncToast();
       if(_dirty) scheduleSyncToCloud();
     }).catch(function(err){
-      console.warn('[castle-sync] cloud write error:', err);
+      // cloud write error handled silently
       _syncing = false;
       if(_dirty) scheduleSyncToCloud();
     });

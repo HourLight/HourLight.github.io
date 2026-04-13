@@ -7726,7 +7726,7 @@
       _c = JSON.parse(decoded);
       return _c;
     } catch(e) {
-      console.error('資料載入失敗', e);
+      // 資料載入失敗，靜默處理
       return {};
     }
   }
@@ -7739,14 +7739,14 @@
         _a = true;
         return true;
       }
-      console.warn('金鑰驗證失敗');
+      // 金鑰驗證失敗，靜默處理
       return false;
     },
-    
+
     // 取得所有牌卡資料
     getData: function() {
       if (!_a) {
-        console.warn('請先初始化模組');
+        // 請先初始化模組，靜默處理
         return null;
       }
       return _decode();
@@ -7755,7 +7755,7 @@
     // 取得單張牌卡資料
     getCard: function(code) {
       if (!_a) {
-        console.warn('請先初始化模組');
+        // 請先初始化模組，靜默處理
         return null;
       }
       const data = _decode();

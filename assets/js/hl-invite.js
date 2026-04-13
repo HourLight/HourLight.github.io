@@ -129,7 +129,7 @@
         markDeviceCounted(inviterUid);
         localStorage.removeItem(STORAGE_INVITER);
       }).catch(function(e){
-        console.warn('hl-invite: transaction failed', e);
+        // hl-invite: transaction failed, handled silently
       });
     }catch(e){}
   }

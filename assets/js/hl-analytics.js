@@ -15,7 +15,6 @@
   const hasFB = typeof fbq === 'function';
   
   if (!hasGA && !hasFB) {
-    console.warn('追蹤工具未載入');
     return;
   }
 

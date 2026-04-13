@@ -78,7 +78,7 @@
         form.submit();
 
       } catch (err) {
-        console.error('HLPayment error:', err);
+        // HLPayment error handled with user alert
         alert('付款發生錯誤：' + (err.message || '請稍後再試'));
         // 還原按鈕
         if (btn && originalText) {
