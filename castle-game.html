@@ -1419,14 +1419,14 @@ var ROOM_PAGES = {
   dream:'castle-room-dream.html', tower:'castle-room-star.html',
   kitchen:'castle-room-kitchen.html', secret:'castle-room-secret.html'
 };
-// ═══ 房間點擊處理 - 採用簡化邏輯 + 房間映射 ═══
+// ═══ 房間點擊處理 - 恢復鑰匙系統 + 修復房間映射 ═══
 function handleHotspot(rid){
   console.log('🎯 房間點擊:', rid);
 
   // 保留觸覺反饋
   if(window.haptic) haptic('light');
 
-  // 檢查ROOM_PAGES映射，如果有特定映射就使用，否則用預設格式
+  // 檢查ROOM_PAGES映射，優先使用特定映射
   var ROOM_PAGES = {
     mirror:'castle-room-mirror.html', treasure:'castle-room-treasure.html',
     key:'castle-room-key.html', throne:'castle-room-throne.html',
@@ -1437,29 +1437,45 @@ function handleHotspot(rid){
     kitchen:'castle-room-kitchen.html', secret:'castle-room-secret.html'
   };
 
-  var roomUrl = ROOM_PAGES[rid] || ('castle-room-' + rid + '.html');
-  window.location.href = roomUrl;
+  // 如果有直接房間映射，直接導航（繞過鑰匙系統的特殊房間）
+  if(ROOM_PAGES[rid]){
+    window.location.href = ROOM_PAGES[rid];
+    return;
+  }
+
+  // 否則使用完整的鑰匙系統邏輯
+  handleRoomClick(rid);
 }
 
-// 保留原有複雜邏輯作為備用（但不被調用）
-function handleRoomClick_backup(rid){
-  haptic('light');
+function handleRoomClick(rid){
+  if(window.haptic) haptic('light');
+
+  // 檢查城堡系統是否可用
+  if(!window.hlCastle) {
+    console.warn('hlCastle未載入，直接導航到房間');
+    var roomUrl = 'castle-room-' + rid + '.html';
+    window.location.href = roomUrl;
+    return;
+  }
+
   if(hlCastle.isDone(rid)) return;
 
   if(hlCastle.hasKey(rid)){
     // 有鑰匙 → 直接進房間做謎語
     if(!hlCastle.canOpen()){
-      haptic('medium');
+      if(window.haptic) haptic('medium');
       showGameToast('今天的 3 扇門都探索完畢 ✨', '分享一次可以多開 1 扇，或者明天再來繼續探索！');
       return;
     }
-    haptic('medium');
+    if(window.haptic) haptic('medium');
     openRoom(rid);
   } else {
-    // 沒鑰匙 → 顯示今天的任務提示
+    // 沒鑰匙 → 顯示今天的任務提示（全站整合）
     showKeyTask(rid);
   }
 }
+
+// 鑰匙系統已恢復到主要的handleRoomClick函數中
 
 function showKeyTask(rid){
   var task = hlCastle.getTodayTask(rid);
