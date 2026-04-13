@@ -82,7 +82,16 @@
       unlockCond:'完成 200 道測驗 + 連續 100 天活躍 + 城堡大師',
       unlockKey:'legendary_master',
       tier:'legendary',
-      stickerImg:'cat-ragdoll-fufu.webp' },
+      expressions: {
+        normal: 'fufu-good.webp',
+        happy: 'fufu-cute.webp',
+        sleepy: 'fufu-sleep.webp',
+        angry: 'fufu-angry.webp',
+        hungry: 'fufu-hungry.webp',
+        shy: 'fufu-ignore.webp',
+        grateful: 'fufu-thanks.webp',
+        excited: 'fufu-roar.webp'
+      } },
     { id:'keke',    name:'可可', color:'暹羅貓',  icon:'🐈', emoji:'🐾',
       desc:'奶油底，耳鼻四肢深棕。話最多，但每句都有意思。',
       room:'瞭望塔',
