@@ -344,3 +344,32 @@ var MEMBER_PLANS = {
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(checkExpiry,2000);});
   else setTimeout(checkExpiry,2000);
 })();
+
+// ═══════════════════════════════════════════════════════════
+//  Firestore 集合存取函數 (修復 castle-game.html 錯誤)
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * 取得 Firestore 集合的便利函數
+ * 修復 castle-game.html 中 "getFirestoreCollections is not defined" 錯誤
+ */
+function getFirestoreCollections() {
+  try {
+    if (typeof firebase === 'undefined' || !firebase.apps || !firebase.apps.length) {
+      console.warn('Firebase 尚未初始化');
+      return null;
+    }
+
+    var db = firebase.firestore();
+    return {
+      users: db.collection('users'),
+      castleData: db.collection('castleData'),
+      rooms: db.collection('rooms'),
+      events: db.collection('events'),
+      readings: db.collection('readings')
+    };
+  } catch (error) {
+    console.error('getFirestoreCollections 錯誤:', error);
+    return null;
+  }
+}
