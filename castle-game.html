@@ -2679,16 +2679,28 @@ function renderShopRecipes(){
     document.getElementById('dailyOverlay').classList.remove('show');
   };
 
-  // Hook into startGame (with safety check)
-  var _origStartGame = window.startGame;
-  window.startGame = function(){
-    if(_origStartGame && typeof _origStartGame === 'function'){
-      _origStartGame();
-    } else {
-      console.warn('_origStartGame is not available, calling original startGame logic');
-    }
-    setTimeout(checkDailyLogin, 1200);
-  };
+  // Hook into startGame (with safety check and proper function preservation)
+  if(typeof window.startGame === 'function'){
+    var _origStartGame = window.startGame;
+    window.startGame = function(){
+      console.log('🎣 Hook: 呼叫原始 startGame 函數');
+      if(typeof _origStartGame === 'function'){
+        _origStartGame();
+      } else {
+        console.warn('⚠️ _origStartGame 不可用，使用備用邏輯');
+        // 直接調用主要的遊戲啟動邏輯
+        var heroSec = document.getElementById('heroSec');
+        var gameArea = document.getElementById('gameArea');
+        var topbar = document.getElementById('topbar');
+        if(heroSec) heroSec.style.display='none';
+        if(gameArea) gameArea.classList.add('active');
+        if(topbar) topbar.classList.add('show');
+      }
+      setTimeout(checkDailyLogin, 1200);
+    };
+  } else {
+    console.warn('⚠️ startGame 函數尚未定義，跳過 hook');
+  }
 })();
 
 // ═══ 分享我的城堡（截圖功能）═══
