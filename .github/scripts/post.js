@@ -134,112 +134,135 @@ async function main() {
   console.log(`Time slot: ${timeSlot}`);
   console.log(`Dry run: ${DRY_RUN}`);
 
-  // Route by time slot to content pool
-  let poolFile;
+  // Route by time slot and platform to content pools
+  let threadsPoolFile, fbPoolFile;
   let tierLabel;
   if (timeSlot === '07:30') {
-    poolFile = 'docs/auto-post-angel.json';
-    tierLabel = 'A (天使故事)';
+    threadsPoolFile = 'docs/threads-angel.json';
+    fbPoolFile = 'docs/auto-post-knowledge.json';  // FB 統一用深度知識
+    tierLabel = 'A (Threads:天使故事 / FB:深度知識)';
   } else if (timeSlot === '12:15') {
-    poolFile = 'docs/auto-post-knowledge.json';
-    tierLabel = 'B (知識學苑)';
+    threadsPoolFile = 'docs/threads-knowledge.json';
+    fbPoolFile = 'docs/auto-post-knowledge.json';  // FB 統一用深度知識
+    tierLabel = 'B (Threads:知識學苑 / FB:深度知識)';
   } else {
-    poolFile = 'docs/auto-post-tools.json';
-    tierLabel = 'C (工具導流)';
+    threadsPoolFile = 'docs/threads-tools.json';
+    fbPoolFile = 'docs/auto-post-knowledge.json';  // FB 統一用深度知識
+    tierLabel = 'C (Threads:工具導流 / FB:深度知識)';
   }
 
   console.log(`Tier: ${tierLabel}`);
-  console.log(`Pool file: ${poolFile}`);
+  console.log(`Threads pool: ${threadsPoolFile}`);
+  console.log(`Facebook pool: ${fbPoolFile}`);
 
-  const pool = loadJson(poolFile);
-  if (!pool || pool.length === 0) {
-    console.log(`Pool is empty or missing, skipping.`);
+  // Load platform-specific content
+  const threadsPool = loadJson(threadsPoolFile);
+  const fbPool = loadJson(fbPoolFile);
+
+  if ((!threadsPool || threadsPool.length === 0) && (!fbPool || fbPool.length === 0)) {
+    console.log(`Both pools are empty or missing, skipping.`);
     return;
   }
 
-  const post = pickFromPool(pool, dayIndex);
-  if (!post) {
-    console.log(`No post picked, skipping.`);
-    return;
+  // Pick content for each platform
+  const threadsPost = threadsPool && threadsPool.length > 0 ? pickFromPool(threadsPool, dayIndex) : null;
+  const fbPost = fbPool && fbPool.length > 0 ? pickFromPool(fbPool, dayIndex) : null;
+
+  // ── 完全分離策略 ──
+  // 每個平台使用完全不同的內容池和格式
+  // Threads: 高互動漲粉內容 + 連結在回覆
+  // Facebook: 深度知識內容 + 連結在主文
+
+  let threadsFullText = '', threadsReplyText = '', fbText = '';
+
+  // 處理 Threads 內容
+  if (threadsPost) {
+    const threadsHashtags = (threadsPost.hashtags || []).join(' ');
+
+    // 從 Threads 內容中提取連結
+    const urlRegex = /https:\/\/hourlightkey\.com\/[^\s]+/g;
+    const threadsUrls = threadsPost.text.match(urlRegex) || [];
+    const threadsPrimaryUrl = threadsUrls[0] || '';
+
+    // Threads 主貼文：移除連結行
+    const threadsMainText = threadsPost.text
+      .split('\n')
+      .filter(line => !urlRegex.test(line))
+      .join('\n')
+      .trim();
+
+    threadsFullText = threadsHashtags
+      ? `${threadsMainText}\n\n${threadsHashtags}`
+      : threadsMainText;
+
+    // Threads 回覆：放連結
+    threadsReplyText = threadsPrimaryUrl
+      ? `${threadsPost.reply || threadsPrimaryUrl}`
+      : (threadsPost.reply || '');
   }
 
-  const hashtags = (post.hashtags || []).join(' ');
+  // 處理 Facebook 內容
+  if (fbPost) {
+    const fbHashtags = (fbPost.hashtags || []).join(' ');
+    fbText = fbHashtags ? `${fbPost.text}\n\n${fbHashtags}` : fbPost.text;
+    if (fbPost.reply) {
+      fbText = `${fbText}\n\n${fbPost.reply}`;
+    }
+  }
 
-  // ── 分離策略 ──
-  // Threads 對外部連結有隱性降觸及，所以：
-  //   - 主貼文 = 純鉤子文字（無連結）
-  //   - 連結放在 reply（第一則回覆）
-  // Facebook 對 link preview 友善，所以：
-  //   - 主貼文 = 鉤子 + 連結（FB 會自動渲染 og:image 預覽）
-  //   - 不需要 reply
-
-  // 從 post.text 裡把連結提取出來
-  const urlRegex = /https:\/\/hourlightkey\.com\/[^\s]+/g;
-  const urls = post.text.match(urlRegex) || [];
-  const primaryUrl = urls[0] || '';
-
-  // Threads 主貼文：移除連結那一行（通常是「完整閱讀 → URL」）
-  const threadsMainText = post.text
-    .split('\n')
-    .filter(line => !urlRegex.test(line))
-    .join('\n')
-    .trim();
-  const threadsFullText = hashtags
-    ? `${threadsMainText}\n\n${hashtags}`
-    : threadsMainText;
-
-  // Threads reply：把連結放進去
-  const threadsReplyText = primaryUrl
-    ? `完整閱讀 → ${primaryUrl}${post.reply ? '\n\n' + post.reply : ''}`
-    : (post.reply || '');
-
-  // Facebook 主貼文：保持原本含連結的格式（FB 對 link preview 友善）
-  const fbText = hashtags ? `${post.text}\n\n${hashtags}` : post.text;
-  const fbReplyAppended = post.reply
-    ? `${fbText}\n\n${post.reply}`
-    : fbText;
-
-  console.log(`\n--- Threads main post (no link) ---`);
-  console.log(threadsFullText);
-  console.log(`\n--- Threads reply (with link) ---`);
-  console.log(threadsReplyText);
-  console.log(`\n--- Facebook post (with link) ---`);
-  console.log(fbReplyAppended);
+  console.log(`\n--- Threads content ---`);
+  console.log(`Main: ${threadsFullText}`);
+  console.log(`Reply: ${threadsReplyText}`);
+  console.log(`\n--- Facebook content ---`);
+  console.log(fbText);
 
   if (DRY_RUN) {
     console.log('\n[DRY RUN] Skipping actual posting.');
     return;
   }
 
-  // Post to Threads (main without link, reply with link)
+  let results = { threads: null, facebook: null };
+
+  // Post to Threads
   const threadsToken = process.env.THREADS_ACCESS_TOKEN;
-  if (threadsToken) {
+  if (threadsToken && threadsPost && threadsFullText) {
     try {
+      console.log('\n=== Posting to Threads ===');
       const threadId = await postToThreads(threadsFullText, threadsToken);
+      results.threads = { ok: true, postId: threadId };
+
       if (threadsReplyText) {
-        console.log(`\nWaiting 30 seconds before posting reply...`);
+        console.log(`Waiting 30 seconds before posting reply...`);
         await sleep(30000);
-        await replyToThread(threadId, threadsReplyText, threadsToken);
+        const replyId = await replyToThread(threadId, threadsReplyText, threadsToken);
+        results.threads.replyId = replyId;
       }
     } catch (err) {
       console.error(`Threads posting failed: ${err.message}`);
+      results.threads = { ok: false, error: err.message };
     }
   } else {
-    console.log('THREADS_ACCESS_TOKEN not set, skipping Threads.');
+    console.log('Skipping Threads: missing token or content');
   }
 
-  // Post to Facebook (link in main body = FB renders nice preview card)
+  // Post to Facebook
   const fbToken = process.env.FB_PAGE_ACCESS_TOKEN;
   const fbPageId = process.env.FB_PAGE_ID;
-  if (fbToken && fbPageId) {
+  if (fbToken && fbPageId && fbPost && fbText) {
     try {
-      await postToFacebook(fbReplyAppended, fbToken, fbPageId);
+      console.log('\n=== Posting to Facebook ===');
+      const fbPostId = await postToFacebook(fbText, fbToken, fbPageId);
+      results.facebook = { ok: true, postId: fbPostId };
     } catch (err) {
       console.error(`Facebook posting failed: ${err.message}`);
+      results.facebook = { ok: false, error: err.message };
     }
   } else {
-    console.log('FB_PAGE_ACCESS_TOKEN or FB_PAGE_ID not set, skipping Facebook.');
+    console.log('Skipping Facebook: missing token/pageId or content');
   }
+
+  console.log('\n=== Results ===');
+  console.log(JSON.stringify(results, null, 2));
 
   console.log('\n=== Done ===');
 }
