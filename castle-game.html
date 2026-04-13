@@ -943,9 +943,20 @@ function showRedemptionGuide(code, cardCount, copied, remainingPoints) {
 var CUR_ROOM = null;
 
 function upd(){
-  if(!window.hlCastle){ setTimeout(upd,200); return; }
-  var st = hlCastle.getState();
-  document.getElementById('dPts').textContent = st.points;
+  try {
+    if(!window.hlCastle){
+      console.log('等待 hlCastle 模組...');
+      setTimeout(upd,200);
+      return;
+    }
+
+    var st = hlCastle.getState();
+    var ptsEl = document.getElementById('dPts');
+    if(ptsEl && st && typeof st.points !== 'undefined'){
+      ptsEl.textContent = st.points;
+    } else {
+      console.warn('無法更新積分顯示', {ptsEl: !!ptsEl, st: st});
+    }
   var maxDoors = 3 + (window._bonusDoors||0);
   document.getElementById('dRms').textContent = st.todayOpened + '/' + maxDoors;
   document.getElementById('dStr').textContent = st.streak;
@@ -1222,18 +1233,45 @@ function renderCompleteness(){
 
 
 function startGame(){
-  if(!window.hlCastle || !window.ROOMS){
-    var btn = document.querySelector('.btn-enter');
-    if(btn){ btn.textContent = '載入中...'; btn.disabled = true; }
-    setTimeout(startGame, 300);
-    return;
+  try {
+    console.log('🎮 startGame 被呼叫');
+
+    // 檢查必要模組
+    if(!window.hlCastle || !window.ROOMS){
+      console.log('等待模組載入...', {hlCastle: typeof window.hlCastle, ROOMS: typeof window.ROOMS});
+      var btn = document.querySelector('.btn-enter');
+      if(btn){ btn.textContent = '載入中...'; btn.disabled = true; }
+      setTimeout(startGame, 300);
+      return;
+    }
+
+    console.log('✅ 模組已載入，開始遊戲');
+
+    // 安全的 DOM 操作
+    var heroSec = document.getElementById('heroSec');
+    var gameArea = document.getElementById('gameArea');
+    var topbar = document.getElementById('topbar');
+
+    if(heroSec) heroSec.style.display='none';
+    if(gameArea) gameArea.classList.add('active');
+    if(topbar) topbar.classList.add('show');
+
+    try{ localStorage.setItem('hl_castle_entered','1'); }catch(e){console.warn('localStorage error:', e);}
+
+    // 安全呼叫 upd
+    if(typeof upd === 'function'){
+      upd();
+    } else {
+      console.warn('upd function not available');
+    }
+
+    window.scrollTo({top:0,behavior:'smooth'});
+    console.log('🏰 遊戲啟動完成');
+
+  } catch(error) {
+    console.error('❌ startGame 錯誤:', error);
+    alert('城堡啟動失敗: ' + error.message);
   }
-  document.getElementById('heroSec').style.display='none';
-  document.getElementById('gameArea').classList.add('active');
-  document.getElementById('topbar').classList.add('show');
-  try{ localStorage.setItem('hl_castle_entered','1'); }catch(e){}
-  upd();
-  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 // ── 用戶曾經進過遊戲，之後回來自動跳過 hero 直接進 gameArea ──
@@ -2036,16 +2074,32 @@ function shareCastleToThreads(){
 <script src="assets/js/hl-sound.js"></script>
 <script>
 // ═══ 城堡模組載入檢查 ═══
-console.log('🏰 Castle-game.html 腳本開始執行');
-setTimeout(function(){
-  console.log('模組載入狀態檢查 (修正變數名稱):');
-  console.log('hlCastle:', typeof window.hlCastle);
-  console.log('hlMaterial:', typeof window.hlMaterial);
-  console.log('hlPets:', typeof window.hlPets);
-  console.log('hlCastleSync:', typeof window.hlCastleSync);
-  console.log('HLDecor:', typeof window.HLDecor);
-  console.log('room-decor 模組功能:', typeof document.querySelector ? '已載入' : '未載入');
-}, 2000);
+try {
+  console.log('🏰 Castle-game.html 腳本開始執行');
+  setTimeout(function(){
+    try {
+      console.log('模組載入狀態檢查 (修正變數名稱):');
+      console.log('hlCastle:', typeof window.hlCastle);
+      console.log('hlMaterial:', typeof window.hlMaterial);
+      console.log('hlPets:', typeof window.hlPets);
+      console.log('hlCastleSync:', typeof window.hlCastleSync);
+      console.log('HLDecor:', typeof window.HLDecor);
+      console.log('room-decor 模組功能:', typeof document.querySelector ? '已載入' : '未載入');
+
+      // 驗證關鍵函數
+      if(window.hlCastle && typeof window.hlCastle.getState === 'function'){
+        console.log('✅ hlCastle.getState 可用');
+      } else {
+        console.warn('❌ hlCastle.getState 不可用');
+      }
+
+    } catch(e) {
+      console.error('模組檢查失敗:', e);
+    }
+  }, 2000);
+} catch(e) {
+  console.error('初始化失敗:', e);
+}
 
 // ═══ 手遊快捷列導航 ═══
 function cqNav(target){
