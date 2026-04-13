@@ -851,7 +851,8 @@
       if(item.action==='generate_coupon'){
         var chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
         var rand='';for(var ci=0;ci<6;ci++)rand+=chars[Math.floor(Math.random()*chars.length)];
-        couponCode='HL'+item.couponN+'-'+rand;
+        // 🔧 修復：使用獨特前綴避免與其他系統衝突
+        couponCode='HLC'+item.couponN+'-'+rand;
         // 🔧 修復：等待 Firestore 寫入完成，確保成功後才扣點數
         try{
           var u=firebase.auth().currentUser;
