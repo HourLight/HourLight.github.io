@@ -831,7 +831,7 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
 </div>
 
 <script src="castle-riddles.js?v=20260407"></script>
-<script src="assets/js/hl-castle-key.js?v=20260407"></script>
+<!-- Castle key module moved to bottom with other castle modules -->
 <script>
 // ═══ 每日抽題邏輯：同一天同一房間看到同一道 ═══
 function todayRiddle(room){
@@ -2026,10 +2026,13 @@ function shareCastleToThreads(){
 <script src="assets/js/hl-email.js"></script>
 <script src="assets/js/hl-share.js"></script>
 <script src="assets/js/hl-points.js"></script>
-<script src="assets/js/hl-castle-material.js?v=20260407"></script>
-<script src="assets/js/hl-castle-decor-v2.js?v=20260407"></script>
-<script src="assets/js/hl-castle-pets.js?v=20260407"></script>
-<script src="assets/js/hl-castle-sync.js?v=20260407"></script>
+<!-- 內在城堡遊戲系統 JS 模組 -->
+<script src="assets/js/hl-castle-key.js" defer></script>
+<script src="assets/js/hl-castle-decor-v2.js" defer></script>
+<script src="assets/js/hl-castle-material.js" defer></script>
+<script src="assets/js/hl-castle-pets.js" defer></script>
+<script src="assets/js/hl-castle-room-decor.js" defer></script>
+<script src="assets/js/hl-castle-sync.js" defer></script>
 <script src="assets/js/hl-sound.js"></script>
 <script>
 // ═══ 手遊快捷列導航 ═══
@@ -2945,12 +2948,20 @@ function installPWA(){
       var attempts = 0;
       function check(){
         attempts++;
-        if(window.hlPets && window.hlCastleSync){
+        console.log('等待模組載入... 嘗試 ' + attempts + '/50');
+        console.log('hlPets:', typeof window.hlPets, 'hlCastleSync:', typeof window.hlCastleSync);
+
+        if(window.hlPets && window.hlCastleSync &&
+           typeof window.hlPets.unlockCat === 'function'){
+          console.log('✅ 模組載入完成，執行回調');
           callback();
         } else if(attempts < 50){
           setTimeout(check, 200);
         } else {
-          console.error('寵物恢復：模組載入逾時');
+          console.error('❌ 寵物恢復：模組載入逾時');
+          console.error('hlPets 狀態:', window.hlPets);
+          console.error('hlCastleSync 狀態:', window.hlCastleSync);
+          alert('城堡模組載入失敗，請重新整理頁面重試');
         }
       }
       check();
