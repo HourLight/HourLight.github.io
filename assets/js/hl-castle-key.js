@@ -85,7 +85,23 @@
     {type:'quiz',   label:'內在聲音',       hint:'腦子裡那個聲音在幫您還是罵您？',     url:'quiz-inner-voice.html?castle=1'},
     {type:'quiz',   label:'能量體質',       hint:'您怎麼充電最有效？',                 url:'quiz-energy-type.html?castle=1'},
     {type:'quiz',   label:'影子人格',       hint:'您最不想承認的那個自己',             url:'quiz-shadow-self.html?castle=1'},
-    {type:'quiz',   label:'依附深度版',     hint:'您的依附模式背後的故事',             url:'quiz-attachment-style-deep.html?castle=1'}
+    {type:'quiz',   label:'依附深度版',     hint:'您的依附模式背後的故事',             url:'quiz-attachment-style-deep.html?castle=1'},
+    // ═══ 讀文章領鑰匙（知識學苑 15 頁）═══
+    {type:'read',   label:'讀一段芳療科學', hint:'芳療的科學根據，5 分鐘懂。',         url:'aromatherapy-science.html?castle=1'},
+    {type:'read',   label:'讀一段經絡知識', hint:'身體有一張能量地圖，走一遍。',       url:'meridian-guide.html?castle=1'},
+    {type:'read',   label:'讀一段脈輪知識', hint:'七個身體中心，哪個正在堵？',         url:'chakra-guide.html?castle=1'},
+    {type:'read',   label:'讀一段水晶知識', hint:'礦物的能量不是玄，是結構。',         url:'crystal-guide.html?castle=1'},
+    {type:'read',   label:'讀一段護膚科學', hint:'皮膚三層的故事，精油怎麼上去。',     url:'skincare-science.html?castle=1'},
+    {type:'read',   label:'讀一段靈氣入門', hint:'手位、經絡、臼井的故事。',           url:'reiki-guide.html?castle=1'},
+    {type:'read',   label:'讀一段調香入門', hint:'前中後調的分子量故事。',             url:'blending-guide.html?castle=1'},
+    {type:'read',   label:'讀一段按摩手法', hint:'五大基本手法的筋膜機制。',           url:'massage-guide.html?castle=1'},
+    {type:'read',   label:'讀一段兒童芳療', hint:'孩子用精油的安全邊界。',             url:'kids-aromatherapy.html?castle=1'},
+    {type:'read',   label:'讀一段元辰宮',   hint:'榮格主動想像遇上中國道家。',         url:'yuan-chen-guide.html?castle=1'},
+    {type:'read',   label:'讀一段五行芳療', hint:'木火土金水配精油，怎麼配。',         url:'five-elements-guide.html?castle=1'},
+    {type:'read',   label:'讀一段認證導覽', hint:'IFA/NAHA/CIBTAC 怎麼選。',           url:'certification-guide.html?castle=1'},
+    {type:'read',   label:'讀一段美甲能量', hint:'指甲油成分 × 手型人格。',            url:'nail-energy-guide.html?castle=1'},
+    {type:'read',   label:'讀一段耳穴壓豆', hint:'耳朵上的身體地圖。',                 url:'ear-acupoint-guide.html?castle=1'},
+    {type:'read',   label:'讀一段認知芳療', hint:'為何線上也能做覺察的科學。',         url:'cognitive-aromatherapy-theory.html?castle=1'}
   ];
 
   var ROOM_IDS = ['mirror','treasure','key','throne','love','intuition','ground','harmony','transform','dream','garden','tower'];
@@ -637,7 +653,7 @@
   function getServantGreeting(roomId){
     var s = SERVANTS[roomId];
     if(!s) return null;
-    // 支援多僕人陣列：用日期當種子，每天固定一位
+    // 支援多管家陣列：用日期當種子，每天固定一位
     if(Array.isArray(s)){
       var dk0 = todayKey();
       var seed0 = 0;

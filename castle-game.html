@@ -639,7 +639,7 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
 <div id="wkPts" style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--amber)">0</div>
 </div>
 <div style="background:rgba(29,53,87,.04);border-radius:12px;padding:14px;text-align:center">
-<div style="font-size:.65rem;color:var(--txt-d);letter-spacing:.1em;margin-bottom:4px">僕人週末寄語</div>
+<div style="font-size:.65rem;color:var(--txt-d);letter-spacing:.1em;margin-bottom:4px">管家週末寄語</div>
 <div id="wkServant" style="font-size:.85rem;color:var(--navy);line-height:1.6">-</div>
 </div>
 </div>
@@ -1419,14 +1419,15 @@ var ROOM_PAGES = {
   dream:'castle-room-dream.html', tower:'castle-room-star.html',
   kitchen:'castle-room-kitchen.html', secret:'castle-room-secret.html'
 };
-// ═══ 房間點擊處理 - 恢復鑰匙系統 + 修復房間映射 ═══
+// ═══ 房間點擊處理 — 鑰匙系統 + 房間映射（2026/04/14 馥寶修復）═══
+// 之前 Sonnet 4 為了修 tower 404 把整個鑰匙檢查 bypass 掉，這裡恢復：
+// 沒鑰匙 → showKeyTask（跳任務面板，去做測驗/占卜/讀文章拿鑰匙）
+// 有鑰匙 → 導到 castle-room-*.html 深度房間頁（tower → castle-room-star.html）
 function handleHotspot(rid){
   console.log('🎯 房間點擊:', rid);
-
-  // 保留觸覺反饋
   if(window.haptic) haptic('light');
 
-  // 檢查ROOM_PAGES映射，優先使用特定映射
+  // 房間 slug → 實際檔名映射（大部分同名，少數例外）
   var ROOM_PAGES = {
     mirror:'castle-room-mirror.html', treasure:'castle-room-treasure.html',
     key:'castle-room-key.html', throne:'castle-room-throne.html',
@@ -1437,14 +1438,36 @@ function handleHotspot(rid){
     kitchen:'castle-room-kitchen.html', secret:'castle-room-secret.html'
   };
 
-  // 如果有直接房間映射，直接導航（繞過鑰匙系統的特殊房間）
-  if(ROOM_PAGES[rid]){
-    window.location.href = ROOM_PAGES[rid];
+  // 城堡核心沒載入 → fallback 直接導航（不檢查鑰匙）
+  if(!window.hlCastle){
+    console.warn('hlCastle 未載入，fallback 直接導航');
+    if(ROOM_PAGES[rid]) window.location.href = ROOM_PAGES[rid];
     return;
   }
 
-  // 否則使用完整的鑰匙系統邏輯
-  handleRoomClick(rid);
+  // 已完成 → 不重複開
+  if(hlCastle.isDone(rid)){
+    showGameToast('今天已經探索過 '+rid+' 了', '明天再來繼續探索，或者看看其他房間 ✨', 3000);
+    return;
+  }
+
+  // 沒鑰匙 → 跳任務面板（全站整合入口）
+  if(!hlCastle.hasKey(rid)){
+    showKeyTask(rid);
+    return;
+  }
+
+  // 有鑰匙但今日配額已滿 → 提示
+  if(!hlCastle.canOpen()){
+    if(window.haptic) haptic('medium');
+    showGameToast('今天的 3 扇門都探索完畢 ✨', '分享一次可以多開 1 扇，或者明天再來繼續探索！', 4000);
+    return;
+  }
+
+  // 有鑰匙 + 有配額 → 進入深度房間頁
+  if(window.haptic) haptic('medium');
+  var target = ROOM_PAGES[rid] || ('castle-room-' + rid + '.html');
+  window.location.href = target;
 }
 
 function handleRoomClick(rid){

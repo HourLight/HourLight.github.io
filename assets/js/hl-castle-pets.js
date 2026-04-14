@@ -101,7 +101,7 @@
       unlockKey:'rare_achiever',
       tier:'rare',
       stickerImg: 'cat-keke-new.png' },
-    { id:'yuanyuan',name:'圓圓', color:'摺耳貓',  icon:'😺', emoji:'🌀',
+    { id:'yuanyuan',name:'皮皮', color:'摺耳貓',  icon:'😺', emoji:'🌀',
       desc:'灰藍色，耳朵往前折。最黏人，你不在時最難過。',
       room:'愛之殿',
       quote:'你回來了。我等了你一整天。',
