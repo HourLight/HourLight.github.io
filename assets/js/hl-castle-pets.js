@@ -287,13 +287,14 @@
     // first_furniture
     var furniture = hlMaterial.getFurniture();
     if(furniture.length > 0) state.unlockedConditions['first_furniture'] = true;
+    // 共用 milestones 來源（castleState.milestones 可能為 undefined → 給空物件防呆）
+    var milestones = castleState.milestones || {};
     // hour_complete（H.O.U.R. 四房各完成一次）
     var hourRooms = ['mirror','treasure','key','throne'];
     var hourDone = hourRooms.every(function(r){ return milestones[r]; });
     if(hourDone) state.unlockedConditions['hour_complete'] = true;
     // light_complete（L.I.G.H.T. 五房各完成一次）
     var lightRooms = ['love','intuition','ground','harmony','transform'];
-    var milestones = castleState.milestones || {};
     var lightDone = lightRooms.every(function(r){ return milestones[r]; });
     if(lightDone) state.unlockedConditions['light_complete'] = true;
     // all_rooms_once（12房各至少一次）
