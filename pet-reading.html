@@ -637,8 +637,12 @@ function initDraw(){
           document.getElementById('drawHint').innerHTML='<span style="color:var(--paw)">這是'+pn+'想對您說的。</span><br>點下方按鈕，聽聽牠的話。';
           var btnRow=document.getElementById('drawBtnRow');
           btnRow.style.display='';
-          // 手機：自動滾到按鈕
-          setTimeout(function(){btnRow.scrollIntoView({behavior:'smooth',block:'center'});},300);
+          // 手機：貓咪飼主先滾到安全提示，其他直接到按鈕
+          setTimeout(function(){
+            var alertEl=document.getElementById('catSafetyAlert');
+            var scrollTarget=(alertEl&&alertEl.style.display!=='none')?alertEl:btnRow;
+            scrollTarget.scrollIntoView({behavior:'smooth',block:'start'});
+          },300);
           // Save session to Firestore after all cards flipped
           saveSessionToFirestore();
         },600);
@@ -733,6 +737,13 @@ async function _requestAIReadingOriginal(retryCount){
     if(!text)text='連結過程出了一點狀況。請稍後重試，或直接聯繫 LINE 客服。';
     var sessionKeyHTML=_petSessionKey?renderSessionKeyHTML(_petSessionKey):'';
     document.getElementById('readingBox').innerHTML='<div style="white-space:pre-wrap">'+text.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>'+sessionKeyHTML;
+    // 貓咪飼主：在解讀結果下方加持續安全提醒
+    if(detectCat()){
+      var catNote=document.createElement('div');
+      catNote.style.cssText='margin-top:20px;padding:14px 18px;background:rgba(240,160,60,.05);border:1px solid rgba(240,160,60,.18);border-radius:12px;font-size:.82rem;color:rgba(240,160,60,.85);line-height:1.85;font-family:var(--kai)';
+      catNote.innerHTML='🐱 精油安全提醒：以上解讀若提及精油，僅限環境擴香且須保持通風，讓貓咪可自行離開。茶樹、薄荷、桉樹、柑橘類等精油即使擴香也對貓有毒性風險，請以解讀中的替代方案為準。如有健康疑慮請先諮詢獸醫師。';
+      document.getElementById('readingBox').appendChild(catNote);
+    }
     document.getElementById('resultBtns').style.display='';
     if(typeof window.HL_track==='function')window.HL_track('pet_reading_complete',{spread:currentSpread,petName:document.getElementById('petName').value,petStatus:document.getElementById('petStatus').value});
   }catch(e){
