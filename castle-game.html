@@ -1446,13 +1446,42 @@ function handleHotspot(rid){
     return;
   }
 
-  // 已完成 → 不重複開
-  if(hlCastle.isDone(rid)){
-    showGameToast('今天已經探索過 '+rid+' 了', '明天再來繼續探索，或者看看其他房間 ✨', 3000);
+  // ⭐ 複習模式：曾經解鎖過的房間可直接進入
+  // 鐵則註解：這不是繞過鑰匙系統，而是補 UX 漏洞——
+  //          老用戶以前已經開過這房間（unlockedRooms 裡有紀錄），
+  //          今天該有權利進去「複習」而不用再拿一次鑰匙。
+  //          新開房間（沒在 unlockedRooms 裡的）還是需要鑰匙。
+  if(hlCastle.isUnlocked && hlCastle.isUnlocked(rid)){
+    console.log('✦ 已解鎖過的房間，直接進入複習模式:', rid);
+    if(window.haptic) haptic('medium');
+    var target = ROOM_PAGES[rid] || ('castle-room-' + rid + '.html');
+    window.location.href = target;
     return;
   }
 
-  // 沒鑰匙 → 跳任務面板（全站整合入口）
+  // 已完成（今日已探索）→ 直接進入複習（不擋）
+  if(hlCastle.isDone(rid)){
+    console.log('✦ 今日已探索過，進入複習:', rid);
+    if(window.haptic) haptic('medium');
+    var target2 = ROOM_PAGES[rid] || ('castle-room-' + rid + '.html');
+    window.location.href = target2;
+    return;
+  }
+
+  // 老用戶後門：streak > 0 或 totalRooms > 0 代表用過城堡，
+  // 如果 unlockedRooms 因為 localStorage 損壞而為空，也視為老用戶直接進入
+  var _st = hlCastle.getState();
+  var _isOldUser = (_st.streak > 0) || (_st.totalRooms > 0);
+  var _noUnlockedData = !_st.unlockedRooms || _st.unlockedRooms.length === 0;
+  if(_isOldUser && _noUnlockedData){
+    console.log('✦ 老用戶但 unlockedRooms 為空（可能 localStorage 損壞），補進房權限:', rid);
+    if(window.haptic) haptic('medium');
+    var target3 = ROOM_PAGES[rid] || ('castle-room-' + rid + '.html');
+    window.location.href = target3;
+    return;
+  }
+
+  // 新用戶 + 沒鑰匙 → 跳任務面板（全站整合入口）
   if(!hlCastle.hasKey(rid)){
     showKeyTask(rid);
     return;
@@ -1467,8 +1496,8 @@ function handleHotspot(rid){
 
   // 有鑰匙 + 有配額 → 進入深度房間頁
   if(window.haptic) haptic('medium');
-  var target = ROOM_PAGES[rid] || ('castle-room-' + rid + '.html');
-  window.location.href = target;
+  var target4 = ROOM_PAGES[rid] || ('castle-room-' + rid + '.html');
+  window.location.href = target4;
 }
 
 function handleRoomClick(rid){
@@ -1505,7 +1534,25 @@ function showKeyTask(rid){
   var task = hlCastle.getTodayTask(rid);
   var hint = hlCastle.getRoomHint(rid);
   var room = ROOMS.find(function(r){return r.id===rid});
-  if(!room || !task) return;
+  // 防呆：如果 room 或 task 為空，不要沈默 return（會讓用戶以為點擊沒反應）
+  if(!room || !task){
+    console.warn('showKeyTask: 缺資料 room=', room, 'task=', task);
+    // 直接進入房間當 fallback，避免「點了沒反應」的 UX 災難
+    var fallbackPages = {
+      mirror:'castle-room-mirror.html', treasure:'castle-room-treasure.html',
+      key:'castle-room-key.html', throne:'castle-room-throne.html',
+      love:'castle-room-love.html', intuition:'castle-room-intuition.html',
+      ground:'castle-room-ground.html', harmony:'castle-room-harmony.html',
+      transform:'castle-room-transform.html', garden:'castle-room-garden.html',
+      dream:'castle-room-dream.html', tower:'castle-room-star.html'
+    };
+    if(fallbackPages[rid]){
+      window.location.href = fallbackPages[rid];
+    } else {
+      alert('房間資料載入中，請重新整理頁面再試。');
+    }
+    return;
+  }
 
   var p = document.getElementById('panel');
   var h = buildRoomBannerHtml(rid);
