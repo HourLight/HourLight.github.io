@@ -1018,6 +1018,110 @@
   // 公開節氣檢查（方便測試）
   window.HL_checkSeasonal = checkSeasonalDrop;
 
+  // ═══ Sonnet 4 災後補償機制 ═══
+  // 2026-04-14 因 Sonnet 4 誤改 localStorage 導致部分用戶材料損失
+  // 這個函數偵測「曾經使用過城堡（streak/totalRooms > 0）但 inventory 空」的用戶
+  // 一次性補償 8 個普通材料 + 2 個稀有材料（足夠做 2 次煉金交換）
+  // 用 localStorage flag 確保只執行一次
+  function sonnet4CompensationCheck(){
+    try{
+      var FLAG_KEY = 'hl_sonnet4_compensated';
+      // 已補過就不再執行
+      if(localStorage.getItem(FLAG_KEY) === 'true') return;
+
+      // 讀城堡狀態，判斷是否曾經使用過
+      var castleRaw = localStorage.getItem('hl_castle_v1');
+      if(!castleRaw) return; // 沒城堡 state 代表新用戶，跳過
+      var castleState;
+      try { castleState = JSON.parse(castleRaw); } catch(e){ return; }
+      var hasHistory = (castleState.streak > 0) ||
+                       (castleState.totalRooms > 0) ||
+                       (castleState.totalPoints > 0) ||
+                       (castleState.diary && castleState.diary.length > 0);
+      if(!hasHistory) return; // 沒用過城堡，不補
+
+      // 檢查 inventory 狀態
+      var matState = loadMaterials();
+      var commonCount = 0;
+      Object.keys(matState.inventory).forEach(function(id){
+        // 找材料定義
+        Object.values(MATERIAL_DEFS).forEach(function(pool){
+          pool.forEach(function(m){
+            if(m.id === id && m.rarity === 'common'){
+              commonCount += matState.inventory[id] || 0;
+            }
+          });
+        });
+      });
+
+      // 如果有充足材料，不補
+      if(commonCount >= 5) {
+        localStorage.setItem(FLAG_KEY, 'true'); // 也記為已處理，避免每次都掃
+        return;
+      }
+
+      // ── 開始補償：選 8 個不同的普通材料 + 2 個稀有 ──
+      var commonPool = [];
+      var rarePool = [];
+      Object.keys(MATERIAL_DEFS).forEach(function(zone){
+        MATERIAL_DEFS[zone].forEach(function(m){
+          if(m.rarity === 'common') commonPool.push(m);
+          else if(m.rarity === 'rare') rarePool.push(m);
+        });
+      });
+
+      var compensated = [];
+      // 補 8 個普通材料（隨機抽取）
+      for(var i = 0; i < 8 && commonPool.length > 0; i++){
+        var pick = commonPool[Math.floor(Math.random() * commonPool.length)];
+        matState.inventory[pick.id] = (matState.inventory[pick.id] || 0) + 1;
+        compensated.push(pick);
+      }
+      // 補 2 個稀有材料（作為額外補償）
+      for(var j = 0; j < 2 && rarePool.length > 0; j++){
+        var rpick = rarePool[Math.floor(Math.random() * rarePool.length)];
+        matState.inventory[rpick.id] = (matState.inventory[rpick.id] || 0) + 1;
+        compensated.push(rpick);
+      }
+
+      saveMaterials(matState);
+      localStorage.setItem(FLAG_KEY, 'true');
+
+      // 顯示補償通知 toast（3 秒後）
+      setTimeout(function(){
+        var div = document.createElement('div');
+        div.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);'+
+          'background:linear-gradient(135deg,#2a1a3e,#1a0f2e);color:#f8dfa5;'+
+          'padding:16px 24px;border:1.5px solid #f8dfa5;border-radius:16px;'+
+          'box-shadow:0 8px 32px rgba(0,0,0,.6);z-index:9999;max-width:320px;'+
+          'font-size:.85rem;line-height:1.7;text-align:center';
+        div.innerHTML = '✦ 城堡整修完成 ✦<br>' +
+          '<span style="font-size:.8rem;color:rgba(248,223,165,.85)">系統送你 10 個材料作為補償<br>可以直接拿去煉金交換</span>' +
+          '<div style="margin-top:10px;font-size:1.2rem">📦 × 8 &nbsp; ✨ × 2</div>';
+        document.body.appendChild(div);
+        setTimeout(function(){ div.style.transition='opacity .5s'; div.style.opacity='0'; setTimeout(function(){div.remove();}, 500); }, 6000);
+      }, 3000);
+
+      // Log to console for debugging
+      console.log('[Sonnet4Compensation] 已補發 10 個材料:', compensated.map(function(m){return m.name;}).join('、'));
+
+    } catch(e) {
+      console.error('[Sonnet4Compensation] 補償失敗:', e);
+    }
+  }
+
+  // 頁面載入時執行災後補償檢查（延後 2 秒，等其他 state 載入完畢）
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){
+      setTimeout(sonnet4CompensationCheck, 2000);
+    });
+  } else {
+    setTimeout(sonnet4CompensationCheck, 2000);
+  }
+
+  // 公開補償檢查（方便測試或手動觸發）
+  window.HL_sonnet4Compensate = sonnet4CompensationCheck;
+
   // ═══ 會員等級偵測 ═══
   // 優先讀 Firebase（透過 hl-ai-gate.js 同邏輯），fallback localStorage
   function getMemberPlan(cb){

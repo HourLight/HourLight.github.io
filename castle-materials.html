@@ -960,7 +960,13 @@ function updateAlchemyBtn(){
     if(m.rarity === 'common' && m.count >= 1) commonCount += m.count;
   });
   var btn = document.getElementById('alchemy-btn');
-  btn.disabled = commonCount < 3;
+  // 永遠可點擊（即使不足也讓用戶點進去看說明），在文字上顯示目前材料數
+  btn.disabled = false;
+  if(commonCount >= 3){
+    btn.innerHTML = '<span class="alchemy-icon">&#9883;</span> 煉金交換：3 個普通材料 → 1 個隨機稀有材料（目前 ' + commonCount + ' 個）';
+  } else {
+    btn.innerHTML = '<span class="alchemy-icon">&#9883;</span> 煉金交換（目前 ' + commonCount + '/3 個普通材料，點我查看怎麼拿）';
+  }
 }
 
 function renderRecipes(){
@@ -1238,9 +1244,11 @@ function renderAlchemyGrid(){
   var inv = hlMaterial ? hlMaterial.getInventory() : {};
   var grid = document.getElementById('alchemy-grid');
   var html = '';
+  var totalCommon = 0;
   Object.keys(inv).forEach(function(id){
     var m = inv[id];
     if(m.rarity !== 'common' || m.count < 1) return;
+    totalCommon += m.count;
     for(var i=0; i<m.count; i++){
       var selIdx = _alchemySelected.findIndex(function(s){return s._uid === id+'_'+i;});
       var selected = selIdx > -1;
@@ -1250,8 +1258,25 @@ function renderAlchemyGrid(){
         '</div>';
     }
   });
-  if(!html) html = '<div style="color:var(--muted);font-size:.75rem;padding:16px">沒有普通材料可以交換。</div>';
-  grid.innerHTML = html;
+  if(!html || totalCommon < 3) {
+    // 材料不足：顯示導引頁面清單
+    var guide = '<div style="padding:16px;text-align:left;font-size:.78rem;line-height:1.9;color:var(--txt-l)">' +
+      '<div style="color:#f8dfa5;font-weight:600;margin-bottom:12px;font-size:.85rem">' +
+        '✦ 你目前有 ' + totalCommon + ' 個普通材料（需要 3 個）' +
+      '</div>' +
+      '<div style="color:var(--txt-l);margin-bottom:10px">材料怎麼拿？去這些頁面探索就會掉：</div>' +
+      '<div style="display:flex;flex-direction:column;gap:6px">' +
+        '<a href="draw-hl.html" style="color:#c8a8f0;text-decoration:none;padding:8px 12px;background:rgba(156,100,220,.1);border-radius:8px">🎴 抽牌系統（每次抽牌都會掉材料）</a>' +
+        '<a href="destiny-engine.html" style="color:#c8a8f0;text-decoration:none;padding:8px 12px;background:rgba(156,100,220,.1);border-radius:8px">🌌 命盤引擎（完成命理計算會掉）</a>' +
+        '<a href="quiz-hub.html" style="color:#c8a8f0;text-decoration:none;padding:8px 12px;background:rgba(156,100,220,.1);border-radius:8px">🧠 心理測驗（做完會掉）</a>' +
+        '<a href="castle-game.html" style="color:#c8a8f0;text-decoration:none;padding:8px 12px;background:rgba(156,100,220,.1);border-radius:8px">🏰 城堡房間（每次探索會掉）</a>' +
+      '</div>' +
+      '<div style="margin-top:12px;color:var(--muted);font-size:.72rem;line-height:1.6">小提醒：每天 3 次探索上限，超過後請明天再來，或分享城堡卡可以多開 1 扇。</div>' +
+      '</div>';
+    grid.innerHTML = guide;
+  } else {
+    grid.innerHTML = html;
+  }
 }
 
 function toggleAlchemySelect(id, idx, icon, name){
