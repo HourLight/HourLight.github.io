@@ -544,16 +544,20 @@
 
   // ── 貓咪表情判斷 ──
   function getCatExpression(cat, mood) {
+    var imageName;
+
     if(!cat.expressions) {
-      return cat.stickerImg || null; // 使用舊版單一貼圖
+      imageName = cat.stickerImg || null; // 使用舊版單一貼圖
+    } else {
+      // 根據心情判斷表情
+      if(mood >= 80) imageName = cat.expressions.happy || cat.expressions.normal;
+      else if(mood <= 30) imageName = cat.expressions.hungry || cat.expressions.normal;
+      else if(mood >= 40 && mood <= 60) imageName = cat.expressions.sleepy || cat.expressions.normal;
+      else imageName = cat.expressions.normal;
     }
 
-    // 根據心情判斷表情
-    if(mood >= 80) return cat.expressions.happy || cat.expressions.normal;
-    if(mood <= 30) return cat.expressions.hungry || cat.expressions.normal;
-    if(mood >= 40 && mood <= 60) return cat.expressions.sleepy || cat.expressions.normal;
-
-    return cat.expressions.normal;
+    // 🔧 修復：補充完整圖片路徑
+    return imageName ? 'images/pets/' + imageName : null;
   }
 
   // 頁面載入時執行每日更新
