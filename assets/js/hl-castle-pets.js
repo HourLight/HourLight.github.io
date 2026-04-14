@@ -277,16 +277,45 @@
       state.unlockedConditions['first_login'] = true;
     }
 
-    // streak_7
-    if(castleState.streak >= 7) state.unlockedConditions['streak_7'] = true;
-    // share_count_5
-    if((castleState.shareCount||0) >= 5) state.unlockedConditions['share_count_5'] = true;
-    // quiz_count_10：從日記統計
+    // ── 每日登入與連續天數 ──
+    var streak = castleState.streak || 0;
+    if(streak >= 3) state.unlockedConditions['daily_login_3'] = true;  // 豆豆（虎斑）
+    if(streak >= 7) state.unlockedConditions['streak_7'] = true;
+
+    // ── 分享 ──
+    var shareCount = castleState.shareCount || 0;
+    if(shareCount >= 2) state.unlockedConditions['share_count_2'] = true;  // 阿BO（賓士）
+    if(shareCount >= 5) state.unlockedConditions['share_count_5'] = true;
+
+    // ── 探索次數（totalExplore 從 pets state 或 castleState.totalRooms 推算）──
+    var totalExplore = state.totalExplore || castleState.totalRooms || 0;
+    if(totalExplore >= 5) state.unlockedConditions['explore_count_5'] = true;  // 雪糕（白貓）
+    if(totalExplore >= 100) state.unlockedConditions['legendary_explorer'] = true;  // 皮皮（摺耳）要配合 90 天活躍 + 所有房間
+
+    // ── 測驗次數（從日記 + 城堡 totalRooms 反推）──
     var quizCount = diary.filter(function(d){ return d.roomId === 'mirror'||d.roomId === 'treasure'; }).length;
+    // quiz_count_3：橘貓糖果（panghu）— 完成 3 道測驗
+    // 反推邏輯：如果 totalRooms >= 3 或 quizCount >= 3 或 diary 長度 >= 3，代表用戶做過至少 3 次互動
+    if(castleState.totalRooms >= 3 || quizCount >= 3 || diary.length >= 3) {
+      state.unlockedConditions['quiz_count_3'] = true;
+    }
+    // quiz_count_10
     if(castleState.totalRooms >= 10 || quizCount >= 10) state.unlockedConditions['quiz_count_10'] = true;
-    // first_furniture
+    // 如果 quiz_count_10 已解鎖，quiz_count_3 必定也達成（向上相容）
+    if(state.unlockedConditions['quiz_count_10']) state.unlockedConditions['quiz_count_3'] = true;
+
+    // ── 餵食寵物 ──
+    // pet_feed_1：七七（花貓）— 任意餵食一次
+    // 檢查 petMoods 是否有任何 lastFed 非空
+    var hasFed = Object.keys(state.petMoods).some(function(pid){
+      return state.petMoods[pid] && state.petMoods[pid].lastFed;
+    });
+    if(hasFed) state.unlockedConditions['pet_feed_1'] = true;
+
+    // ── 材料與家具 ──
     var furniture = hlMaterial.getFurniture();
     if(furniture.length > 0) state.unlockedConditions['first_furniture'] = true;
+
     // 共用 milestones 來源（castleState.milestones 可能為 undefined → 給空物件防呆）
     var milestones = castleState.milestones || {};
     // hour_complete（H.O.U.R. 四房各完成一次）
@@ -307,6 +336,18 @@
     // selfcompassion_done：從材料推算（完成相關測驗會有材料）
     var inv = hlMaterial.getInventory();
     if(inv['insight_feather'] && inv['insight_feather'].count >= 5) state.unlockedConditions['selfcompassion_done'] = true;
+
+    // ── 安全網：同步 unlockedConditions → ownedCats ──
+    // Sonnet 4 災後復原：如果條件已達成但 ownedCats 缺少該貓，補進去
+    // 這樣即使 localStorage 部分損壞，checkUnlockConditions 跑完之後貓會重新出現
+    if(!Array.isArray(state.ownedCats)) state.ownedCats = [];
+    CATS.forEach(function(cat){
+      if(state.unlockedConditions[cat.unlockKey] && state.ownedCats.indexOf(cat.id) === -1){
+        state.ownedCats.push(cat.id);
+        // 初始化心情值（讓貓咪立刻有情緒顯示）
+        if(!state.petMoods[cat.id]) state.petMoods[cat.id] = { mood:70, lastFed:'' };
+      }
+    });
   }
 
   // ═══ 今日語錄（每日固定一句，用日期當種子）═══
