@@ -57,7 +57,19 @@
 | 10 | `d11e9bef` | 🔮 微魔法實驗室 4 子頁完整上線 |
 | 11 | `4a77c4fb` | 🌿 SEO 淨化完整指南 + sitemap 補齊 |
 
-**總計：307 + 28 + 10 + 4 + 10 + 4 + 4 + 1 + 4 + 5 + 2 = 379 個檔案變動**
+**初步總計：307 + 28 + 10 + 4 + 10 + 4 + 4 + 1 + 4 + 5 + 2 = 379 個檔案變動**
+
+**最終累計（含 6-10 項新增）**：
+12. `530dae7d` 📋 Session 交接文
+13. `195b9fb6` 📊 Article/AboutPage/Course/CollectionPage schema 18 個
+14. `93fab03d` 🎯 Quiz/HowTo schema 176 個（102 繁 quiz + 102 簡 quiz + 6 微魔法）
+15. `e75a6007` ✍️ Definition-first 首句 36 個（18 知識頁 × 繁簡）
+16. `661cf32f` 🧵 Reddit 4 篇草稿 drafts/2026-04-14-reddit-posts-drafts.md
+17. `630673ef` 📚 Wikipedia / WikiData 草稿 drafts/2026-04-14-wikipedia-wikidata-drafts.md
+18. `906441e8` 🎓 research.html 學術背書頁（Person + ScholarlyArticle + ResearchProject schema）
+19. 本 commit：品牌聖經 v8.1 更新補丁 drafts/2026-04-14-brand-bible-v8.1-updates.md
+
+**最終累計**：**18+ 個 commit，超過 700 個檔案操作**
 
 ~~
 
