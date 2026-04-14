@@ -797,13 +797,19 @@ function buildPrompt(){
       if(petDNA){
         p+='\n  🐾 寵物核心訊息：「'+petDNA.core+'」';
         if(petDNA.oils)p+='\n  牌卡精油：'+petDNA.oils;
-        p+='\n  日常解讀：'+petDNA.daily;
-        if(ps==='sick'&&petDNA.healing)p+='\n  舒緩情境：'+petDNA.healing;
-        if(petDNA.behavior)p+='\n  行為引導：'+petDNA.behavior;
-        if(petDNA.spiritual)p+='\n  靈性連結：'+petDNA.spiritual;
+        if(ps==='rainbow'){
+          // 彩虹橋：靈性連結優先，日常作為記憶背景，行為引導不適用略過
+          if(petDNA.spiritual)p+='\n  靈性連結：'+petDNA.spiritual;
+          p+='\n  日常記憶：'+petDNA.daily;
+        }else{
+          p+='\n  日常解讀：'+petDNA.daily;
+          if(ps==='sick'&&petDNA.healing)p+='\n  舒緩情境：'+petDNA.healing;
+          if(petDNA.behavior)p+='\n  行為引導：'+petDNA.behavior;
+          if(petDNA.spiritual)p+='\n  靈性連結：'+petDNA.spiritual;
+        }
         p+='\n  精油安全：貓咪→'+petDNA.catSafe+'／狗狗→'+petDNA.dogSafe;
         if(detectCat()&&petDNA.catAlt)p+='\n  貓咪替代精油：'+petDNA.catAlt;
-        p+='\n  行動建議：'+petDNA.action;
+        if(ps!=='rainbow')p+='\n  行動建議：'+petDNA.action;
       }
       p+='\n';
     }
