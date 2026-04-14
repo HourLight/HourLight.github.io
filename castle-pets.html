@@ -426,9 +426,12 @@ function renderCats(){
         '<div class="cat-quote">' + (cat.quote||'') + '</div>' +
         '</div>';
     } else {
+      // 鎖定貓咪：用檔名組出完整路徑（加 images/pets/ 前綴，避免 404）
+      var _lockImg = cat.expressions ? (cat.expressions.normal || cat.stickerImg) : null;
+      var _lockSrc = _lockImg ? ('images/pets/' + _lockImg) : null;
       html += '<div class="cat-card locked-cat">' +
         '<div class="cat-big-icon" style="filter:grayscale(1)">' +
-          (cat.expressions ? '<img src="' + (cat.expressions.normal || cat.stickerImg) + '" class="cat-sticker" alt="' + cat.name + '">' : cat.emoji) +
+          (_lockSrc ? '<img src="' + _lockSrc + '" class="cat-sticker" alt="' + cat.name + '">' : cat.emoji) +
         '</div>' +
         '<div class="cat-name" style="color:var(--muted)">' + cat.color + '</div>' +
         '<div class="cat-color">未解鎖</div>' +
@@ -448,9 +451,11 @@ function openCatModal(catId){
 
   var iconEl = document.getElementById('m-icon');
   if(cat.currentSticker) {
+    // currentSticker 已含完整路徑（getCatExpression 補過 images/pets/ 前綴）
     iconEl.innerHTML = '<img src="' + cat.currentSticker + '" class="cat-modal-sticker" alt="' + cat.name + '">';
   } else if(cat.stickerImg) {
-    iconEl.innerHTML = '<img src="' + cat.stickerImg + '" class="cat-modal-sticker" alt="' + cat.name + '">';
+    // stickerImg 是只有檔名的 fallback，要補前綴
+    iconEl.innerHTML = '<img src="images/pets/' + cat.stickerImg + '" class="cat-modal-sticker" alt="' + cat.name + '">';
   } else {
     iconEl.textContent = cat.emoji || '🐱';
   }

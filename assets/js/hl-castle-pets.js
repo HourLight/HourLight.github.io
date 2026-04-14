@@ -375,7 +375,8 @@
           '<div class="cat-unlock-icon">' +
             (function(){
               var expr = getCatExpression(cat, 80); // 解鎖時顯示開心表情
-              return expr ? '<img src="images/pets/' + expr + '" alt="' + cat.name + '" class="cat-sticker">' : cat.icon;
+              // expr 已含完整路徑（getCatExpression 會補 images/pets/），不要重複加前綴
+              return expr ? '<img src="' + expr + '" alt="' + cat.name + '" class="cat-sticker">' : cat.icon;
             })() +
           '</div>' +
           '<div class="cat-unlock-title">🎉 新貓咪加入城堡！</div>' +
