@@ -997,6 +997,29 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
             </div>
             <div id="giftOnlyResult" style="display:none;margin-top:14px;padding:12px 16px;border-radius:10px;font-size:.86rem;line-height:1.8"></div>
           </details>
+
+          <!-- 💎 加購 AI 解讀次數（aiBonus）-->
+          <details style="margin-top:18px;padding-top:14px;border-top:1px dashed var(--adm-border)" open>
+            <summary style="cursor:pointer;font-size:.86rem;color:var(--adm-text2);padding:8px 0;font-weight:500">💎 補加購次數（aiBonus）</summary>
+            <div style="font-size:.78rem;color:var(--adm-text3);line-height:1.7;margin:8px 0 12px">
+              客人付款加購 10 次 $199 但系統沒入帳時用這個補償。<br>
+              直接 FieldValue.increment 加到 users/{uid}/aiBonus，每日配額用完才扣。
+            </div>
+            <div class="adm-form-row" style="gap:10px;align-items:flex-end">
+              <div class="adm-form-group" style="flex:2">
+                <label class="adm-label">補次數</label>
+                <select class="adm-select" id="bonusCount" style="width:100%">
+                  <option value="10" selected>10 次（$199 加購）</option>
+                  <option value="30">30 次（$499 加購）</option>
+                  <option value="100">100 次（$1,499 加購）</option>
+                  <option value="5">5 次（客訴補償）</option>
+                  <option value="20">20 次（客訴補償）</option>
+                </select>
+              </div>
+              <button class="adm-btn adm-btn-gold" style="flex:1;min-height:44px;font-size:.88rem" onclick="addAiBonus()" id="bonusBtn">✨ 補次數到會員 Email</button>
+            </div>
+            <div id="bonusResult" style="display:none;margin-top:14px;padding:12px 16px;border-radius:10px;font-size:.86rem;line-height:1.8"></div>
+          </details>
         </div>
       </div>
 
@@ -2698,6 +2721,94 @@ async function activateMember() {
   btn.disabled = false; btn.textContent = '開通會員';
 }
 window.activateMember = activateMember;
+
+// ═══ 補加購次數 aiBonus（客訴補償 / 付款未入帳）═══
+async function addAiBonus() {
+  var email = document.getElementById('actEmail').value.trim().toLowerCase();
+  var count = parseInt(document.getElementById('bonusCount').value, 10);
+  var btn = document.getElementById('bonusBtn');
+  var resultEl = document.getElementById('bonusResult');
+
+  function showMsg(msg, isError) {
+    resultEl.style.display = 'block';
+    resultEl.style.background = isError ? 'rgba(217,48,37,.08)' : 'rgba(52,168,83,.08)';
+    resultEl.style.color = isError ? '#d93025' : '#34a853';
+    resultEl.innerHTML = msg;
+  }
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showMsg('請在上方「會員 Email」欄輸入正確的 Email', true);
+    return;
+  }
+  if (!count || count <= 0) {
+    showMsg('請選擇要補的次數', true);
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '處理中⋯';
+  try {
+    var snap = await db.collection('users').where('email', '==', email).limit(1).get();
+    if (snap.empty) {
+      showMsg('找不到此 Email 的會員', true);
+      btn.disabled = false;
+      btn.textContent = '✨ 補次數到會員 Email';
+      return;
+    }
+    var userDoc = snap.docs[0];
+    var uid = userDoc.id;
+    var userData = userDoc.data();
+
+    // FieldValue.increment 直接加到現有 aiBonus
+    await db.collection('users').doc(uid).set({
+      aiBonus: firebase.firestore.FieldValue.increment(count),
+      lastBonusAddedAt: new Date().toISOString(),
+      lastBonusAddedBy: currentUser.email,
+      lastBonusCount: count
+    }, { merge: true });
+
+    // 寫入 admin log
+    await db.collection('admin').doc('bonus_log').set({
+      logs: firebase.firestore.FieldValue.arrayUnion({
+        email: email,
+        count: count,
+        addedAt: new Date().toISOString(),
+        addedBy: currentUser.email,
+        reason: '管理員補次數'
+      })
+    }, { merge: true });
+
+    // 寄通知信
+    try {
+      var newTotal = (userData.aiBonus || 0) + count;
+      var mailBody = '您好：\n\n已為您補上 AI 解讀加購次數 ' + count + ' 次。\n\n' +
+                     '► 新增次數：' + count + ' 次\n' +
+                     '► 目前加購次數：' + newTotal + ' 次\n' +
+                     '► 加購次數永久有效，每日配額用完才會扣用。\n\n' +
+                     '如有任何問題請回覆此信或聯絡 LINE 官方帳號：https://lin.ee/RdQBFAN\n\n' +
+                     '馥靈之鑰 Hour Light';
+      await fetch('https://app.hourlightkey.com/api/send-report', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          email: email,
+          name: userData.displayName || '',
+          subject: '馥靈之鑰｜已為您補上 AI 加購次數 ' + count + ' 次',
+          type: 'notification',
+          content: mailBody
+        })
+      });
+    } catch (mailErr) { console.warn('Bonus email failed', mailErr); }
+
+    showMsg('✅ 已補 <strong>' + count + ' 次</strong> 到 ' + email +
+            '（累計 ' + ((userData.aiBonus || 0) + count) + ' 次）<br>📧 通知信已寄出');
+  } catch (e) {
+    showMsg('補次數失敗：' + e.message, true);
+  }
+  btn.disabled = false;
+  btn.textContent = '✨ 補次數到會員 Email';
+}
+window.addAiBonus = addAiBonus;
 
 // ═══ 補贈月禮（不修改方案）═══
 async function giftOnly(plan) {

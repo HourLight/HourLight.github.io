@@ -9,7 +9,9 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read: if (request.auth != null && request.auth.uid == userId) || isAdmin();
-      allow write: if request.auth != null && request.auth.uid == userId;
+      // 2026/04/15 修正：admin 需要能寫別人的 users doc（快速開通會員 + 客服補償）
+      // 原本只有 request.auth.uid == userId，admin 寫其他用戶會 Missing or insufficient permissions
+      allow write: if (request.auth != null && request.auth.uid == userId) || isAdmin();
 
       match /ai_weekly/{weekKey} {
         allow read: if request.auth != null && request.auth.uid == userId;
