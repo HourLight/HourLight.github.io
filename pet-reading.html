@@ -582,7 +582,8 @@ function initDraw(){
         if(bFirst)extraHint='<div style="font-size:.72rem;color:rgba(248,200,130,.65);line-height:1.7;margin-top:6px;padding-top:6px;border-top:1px solid rgba(240,181,179,.05)">🔍 '+bFirst+'</div>';
       }
     }else if(petStatus==='rainbow'&&petDNA&&petDNA.spiritual){
-      staticFull=petDNA.spiritual; // 彩虹橋：靈性連結更貼切
+      staticFull=petDNA.spiritual;
+      sickLabel='<span style="font-size:.64rem;color:rgba(160,124,220,.7);letter-spacing:.5px">🌈 緣分的禮物</span><br>';
     }else{
       staticFull=petDNA&&petDNA.daily?petDNA.daily:'';
       // 健康毛孩：顯示第一條行動建議
@@ -592,17 +593,20 @@ function initDraw(){
       }
     }
     var staticShort=getShortText(staticFull,2);
-    // 精油安全摘要（貓咪優先，顯示完整 catAlt）
+    // 精油安全摘要（貓咪：顯示危險警告+替代；非貓：顯示精油名稱）
     var oilSafety='';
     if(petDNA){
       if(isCat&&petDNA.catSafe){
         var hasBan=petDNA.catSafe.indexOf('禁用')>=0||petDNA.catSafe.indexOf('不適合')>=0||petDNA.catSafe.indexOf('絕對')>=0;
         if(hasBan){
-          oilSafety='⚠️ 此牌精油對貓有毒性風險，請勿使用。';
-          if(petDNA.catAlt)oilSafety+='<br>✅ 替代：'+petDNA.catAlt;
+          oilSafety='⚠️ '+(petDNA.oils?petDNA.oils+'：':'')+'對貓有毒性風險，請勿使用。';
+          if(petDNA.catAlt)oilSafety+='<br>替代：'+petDNA.catAlt;
         }else{
-          oilSafety='✅ 貓咪友善：'+petDNA.catSafe;
+          oilSafety='🐱 '+petDNA.catSafe;
         }
+      }else if(!isCat&&petDNA.oils){
+        // 非貓：顯示精油名稱供空間氛圍參考
+        oilSafety='🌿 精油氛圍：'+petDNA.oils;
       }
     }
     slot.innerHTML=
