@@ -251,11 +251,18 @@
     }
     state.lightLevel = Math.min(100, state.lightLevel + 20);
 
-    // 寵物情緒：每天未餵 -5，在城堡互動自動 +10
+    // 寵物情緒：每天未餵 -10（2026/04/15 加重：-5→-10，讓飢餓更有感）
+    // 超過 3 天沒餵 → 掉更多（每多一天額外 -5）
     Object.keys(state.petMoods).forEach(function(pid){
       var m = state.petMoods[pid];
       if(m.lastFed !== today){
-        m.mood = Math.max(20, (m.mood || 60) - 5);
+        var decay = 10;
+        // 超過 3 天沒餵增加懲罰
+        if(m.lastFed){
+          var daysSinceFed = Math.round((new Date(today) - new Date(m.lastFed)) / 86400000);
+          if(daysSinceFed > 3) decay += (daysSinceFed - 3) * 5;
+        }
+        m.mood = Math.max(10, (m.mood || 60) - decay);
       }
     });
 
