@@ -577,14 +577,30 @@ function requestAIReading(){
     document.getElementById('readingActions').style.display='none';
     return;
   }
-  // 付款牆攔截（支援代碼兌換 onProceed）
+  // 付款牆攔截（支援代碼兌換 onProceed + PAYUNi 線上付款）
   if(typeof hlPaywall!=='undefined'){
     var famPriceMap={3:199,5:399,7:599};
     if(famPriceMap[currentSpread]){
+      // 付款前：存頁面狀態到 localStorage（付款返回時復原用）
+      try{
+        localStorage.setItem('hl_pending_family-'+currentSpread,JSON.stringify({
+          state:{
+            currentSpread:currentSpread,
+            selectedCards:selectedCards,
+            quizAnswers:quizAnswers,
+            selectedTags:selectedTags,
+            solarBday:(document.getElementById('solarBday')||{}).value||'',
+            birthHour:(document.getElementById('birthHour')||{}).value||''
+          },
+          savedAt:Date.now()
+        }));
+      }catch(e){}
       hlPaywall.show({
         n:currentSpread,
         priceMap:famPriceMap,
         serviceName:'家族覺察智慧解讀',
+        productCategory:'family',
+        pageType:'family',
         onProceed:function(){
           // 代碼驗證成功後直接呼叫 AI
           if(typeof hlAIGateCheck==='function'){
@@ -614,8 +630,11 @@ async function runReading(){
   document.getElementById('readingBox').style.display='none';
   document.getElementById('readingActions').style.display='none';
   var prompt=buildPrompt();
+  // 取得當前登入用戶 email（API 會自動寄信，消費糾紛保護）
+  var _famUid='',_famEmail='';
+  try{if(typeof firebase!=='undefined'&&firebase.auth){var _u=firebase.auth().currentUser;if(_u){_famUid=_u.uid||'';_famEmail=_u.email||'';}}}catch(e){}
   try{
-    var res=await fetch('https://app.hourlightkey.com/api/family-reading',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt,spread:currentSpread})});
+    var res=await fetch('https://app.hourlightkey.com/api/family-reading',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt,spread:currentSpread,uid:_famUid,email:_famEmail})});
     var data=await res.json();
     var text=data.reading||'報告生成中遇到狀況，請直接聯繫逸君 → LINE：lin.ee/RdQBFAN';
     document.getElementById('readingLoading').style.display='none';
@@ -752,6 +771,49 @@ function renderSessionKeyHTML(key){
 <script src="assets/js/hl-bottomnav.js"></script>
 <script src="assets/js/hl-email.js"></script>
 <script src="assets/js/hl-paywall.js"></script>
+<script>
+// ── 付款返回自動觸發解讀（PAYUNi credit card return path）──
+(function checkFamilyReturn(){
+  function tryCheck(){
+    var params=new URLSearchParams(location.search);
+    if(params.get('payment')!=='success'||!params.get('code'))return;
+    var code=params.get('code');
+    var savedState=null,productId=null;
+    [3,5,7].forEach(function(n){
+      if(savedState)return;
+      var saved=localStorage.getItem('hl_pending_family-'+n);
+      if(saved){try{savedState=JSON.parse(saved).state;productId='family-'+n;}catch(e){}}
+    });
+    if(!savedState){console.warn('付款返回但找不到 localStorage 狀態');return;}
+    currentSpread=savedState.currentSpread;
+    selectedCards=savedState.selectedCards||[];
+    quizAnswers=savedState.quizAnswers||{};
+    selectedTags=savedState.selectedTags||[];
+    var solar=document.getElementById('solarBday');if(solar)solar.value=savedState.solarBday||'';
+    var hour=document.getElementById('birthHour');if(hour)hour.value=savedState.birthHour||'';
+    localStorage.removeItem('hl_pending_'+productId);
+    try{
+      params.delete('payment');params.delete('order');params.delete('code');
+      history.replaceState(null,'',location.pathname+(params.toString()?'?'+params:'')+location.hash);
+    }catch(e){}
+    window._hlBizVerified=true;
+    window._lastUsedUnlockCode=code;
+    try{
+      var db=(typeof firebase!=='undefined'&&firebase.firestore)?firebase.firestore():null;
+      var u=(typeof firebase!=='undefined'&&firebase.auth)?firebase.auth().currentUser:null;
+      if(db&&u){
+        db.collection('reading_codes').doc(code).update({
+          used:true,usedAt:firebase.firestore.FieldValue.serverTimestamp(),
+          usedBy:u.uid,usedByEmail:u.email||''
+        }).catch(function(){});
+      }
+    }catch(e){}
+    // 觸發解讀：走 runReading 而非 _requestAIReadingOriginal（後者只切 scene，不實際 fetch）
+    if(typeof runReading==='function'){goScene(6);runReading();}
+  }
+  if(document.readyState==='complete'){tryCheck();}else{window.addEventListener('load',tryCheck);}
+})();
+</script>
 <script src="assets/js/hl-chat.js"></script>
 <script src="assets/js/hl-aroma-fx.js" defer></script>
 <script src="assets/js/hl-breathe.js"></script>

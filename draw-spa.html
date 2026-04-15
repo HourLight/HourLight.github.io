@@ -411,10 +411,25 @@ function goScene(n){
   if(n===6 && !window._hlBizVerified){
     var spaPriceMap={3:600,5:900,9:1200};
     if(spaPriceMap[currentSpread]){
+      // 付款前：存頁面狀態到 localStorage（付款返回時復原用）
+      try{
+        localStorage.setItem('hl_pending_spa-'+currentSpread,JSON.stringify({
+          state:{
+            currentSpread:currentSpread,
+            selectedCards:selectedCards,
+            quizAnswers:quizAnswers,
+            selectedParts:selectedParts,
+            solarBday:(document.getElementById('solarBday')||{}).value||'',
+            birthHour:(document.getElementById('birthHour')||{}).value||''
+          },
+          savedAt:Date.now()
+        }));
+      }catch(e){}
+      var _onPaid=function(){window._hlBizVerified=true;goScene(6);};
       if(typeof hlBizCode!=='undefined'){
-        hlBizCode.show({n:currentSpread,priceMap:spaPriceMap,serviceName:'SPA 覺察處方箋智慧解讀',pageType:'spa',onSuccess:function(){window._hlBizVerified=true;goScene(6);}});
+        hlBizCode.show({n:currentSpread,priceMap:spaPriceMap,serviceName:'SPA 覺察處方箋智慧解讀',pageType:'spa',onSuccess:_onPaid});
       }else if(typeof hlPaywall!=='undefined'){
-        hlPaywall.show({n:currentSpread,priceMap:spaPriceMap,serviceName:'SPA 覺察處方箋智慧解讀'});
+        hlPaywall.show({n:currentSpread,priceMap:spaPriceMap,serviceName:'SPA 覺察處方箋智慧解讀',productCategory:'spa',pageType:'spa',onProceed:_onPaid});
       }
       return;
     }
@@ -664,11 +679,14 @@ async function _runReadingOriginal(){
   document.getElementById('readingActions').style.display='none';
 
   var prompt=buildPrompt();
+  // 取得當前登入用戶 email（API 會自動寄信，消費糾紛保護）
+  var _spaUid='',_spaEmail='';
+  try{if(typeof firebase!=='undefined'&&firebase.auth){var _u=firebase.auth().currentUser;if(_u){_spaUid=_u.uid||'';_spaEmail=_u.email||'';}}}catch(e){}
   try{
     var res=await fetch('https://app.hourlightkey.com/api/spa-reading',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({prompt:prompt,spread:currentSpread})
+      body:JSON.stringify({prompt:prompt,spread:currentSpread,uid:_spaUid,email:_spaEmail})
     });
     var data=await res.json();
     var text=data.reading||'處方箋生成中遇到了一點狀況 🌿 請直接加 LINE 找覺察師聊 → lin.ee/RdQBFAN';
@@ -831,6 +849,48 @@ function toggleLegalContent(){
 <script src="assets/js/hl-bottomnav.js"></script>
 <script src="assets/js/hl-email.js"></script>
 <script src="assets/js/hl-paywall.js"></script>
+<script>
+// ── 付款返回自動觸發解讀（PAYUNi credit card return path）──
+(function checkSpaReturn(){
+  function tryCheck(){
+    var params=new URLSearchParams(location.search);
+    if(params.get('payment')!=='success'||!params.get('code'))return;
+    var code=params.get('code');
+    var savedState=null,productId=null;
+    [3,5,9].forEach(function(n){
+      if(savedState)return;
+      var saved=localStorage.getItem('hl_pending_spa-'+n);
+      if(saved){try{savedState=JSON.parse(saved).state;productId='spa-'+n;}catch(e){}}
+    });
+    if(!savedState){console.warn('付款返回但找不到 localStorage 狀態');return;}
+    currentSpread=savedState.currentSpread;
+    selectedCards=savedState.selectedCards||[];
+    quizAnswers=savedState.quizAnswers||{};
+    selectedParts=savedState.selectedParts||[];
+    var solar=document.getElementById('solarBday');if(solar)solar.value=savedState.solarBday||'';
+    var hour=document.getElementById('birthHour');if(hour)hour.value=savedState.birthHour||'';
+    localStorage.removeItem('hl_pending_'+productId);
+    try{
+      params.delete('payment');params.delete('order');params.delete('code');
+      history.replaceState(null,'',location.pathname+(params.toString()?'?'+params:'')+location.hash);
+    }catch(e){}
+    window._hlBizVerified=true;
+    window._lastUsedUnlockCode=code;
+    try{
+      var db=(typeof firebase!=='undefined'&&firebase.firestore)?firebase.firestore():null;
+      var u=(typeof firebase!=='undefined'&&firebase.auth)?firebase.auth().currentUser:null;
+      if(db&&u){
+        db.collection('reading_codes').doc(code).update({
+          used:true,usedAt:firebase.firestore.FieldValue.serverTimestamp(),
+          usedBy:u.uid,usedByEmail:u.email||''
+        }).catch(function(){});
+      }
+    }catch(e){}
+    if(typeof goScene==='function')goScene(6);
+  }
+  if(document.readyState==='complete'){tryCheck();}else{window.addEventListener('load',tryCheck);}
+})();
+</script>
 <script src="assets/js/hl-biz-code.js"></script>
 <script src="assets/js/hl-chat.js"></script>
 <script src="assets/js/hl-aroma-fx.js" defer></script>

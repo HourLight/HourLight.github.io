@@ -1675,11 +1675,35 @@ function plPayuniPay(){
   var btn=document.getElementById('plPayuniBtn');
   var u=(typeof firebase!=='undefined'&&firebase.auth)?firebase.auth().currentUser:null;
   if(!u){alert('請先登入會員才能線上付款。');location.href='app.html?redirect='+encodeURIComponent(location.href.split('?')[0]);return;}
+  // 必須先完成六鑰計算
+  var d=window._plData;
+  if(!d||!d.keys){alert('請先完成六鑰計算再進行付款。');btn.disabled=false;return;}
   btn.disabled=true;btn.textContent='處理中⋯⋯';
+
+  // 組 readingBody（後端 payuni-notify 背景觸發用）
+  var k=d.keys;
+  var keysPayload={
+    southNode:k[0].title||'',southNodeText:k[0].text||'',
+    nayin:k[1].title||'',nayinText:k[1].text||'',
+    karma:k[2].title||'',karmaText:k[2].text||'',
+    huaji:k[3].title||'',huajiText:k[3].text||'',
+    chiron:k[4].title||'',chironWound:k[4].text||'',chironGift:k[4].detail||'',
+    maya:k[5].title||'',mayaGift:k[5].text||'',
+    persona:d.persona||'',oil:d.oilName||''
+  };
+  var readingBody={keys:keysPayload};
+
   function go(){
     window.HLPayment.pay({
-      productId:'pastlife-1',productName:'前世今生故事 AI 深度解讀',amount:399,
-      userId:u.uid,userEmail:u.email||'',returnUrl:location.href.split('?')[0]
+      productId:'past-life-1',  // 修正：原本 'pastlife-1' 不符合後端 regex
+      productName:'前世今生故事 AI 深度解讀',
+      amount:399,
+      userId:u.uid,
+      userEmail:u.email||'',
+      returnUrl:location.href.split('?')[0],
+      readingEndpoint:'https://app.hourlightkey.com/api/reading-services?type=past-life',
+      readingBody:readingBody,
+      localState:{plData:d}
     });
   }
   if(window.HLPayment&&window.HLPayment.pay){go();return;}
@@ -1687,6 +1711,25 @@ function plPayuniPay(){
   s.onload=go;s.onerror=function(){alert('付款模組載入失敗，請改用代碼兌換。');btn.disabled=false;btn.textContent='線上付款 NT$ 399';};
   document.head.appendChild(s);
 }
+
+// ── 付款返回自動觸發解讀 ──
+(function waitForPlPayment(){
+  function tryCheck(){
+    if(!window.HLPayment||!window.HLPayment.checkReturn){setTimeout(tryCheck,200);return;}
+    var ret=window.HLPayment.checkReturn('past-life-1');
+    if(!ret||!ret.success)return;
+
+    // 復原 window._plData
+    if(ret.localState&&ret.localState.plData){
+      window._plData=ret.localState.plData;
+      if(typeof updateStoryTeasers==='function')updateStoryTeasers();
+    }
+
+    // 自動觸發解讀
+    if(typeof startStoryGeneration==='function')startStoryGeneration(ret.code);
+  }
+  tryCheck();
+})();
 </script>
 
 <!-- 星空粒子 -->

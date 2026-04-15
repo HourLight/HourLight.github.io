@@ -448,10 +448,26 @@ function goScene(n){
   if(n===6 && !window._hlBizVerified){
     var nailPriceMap={3:600,5:900,9:1200};
     if(nailPriceMap[currentSpread]){
+      // 付款前：存頁面狀態到 localStorage（付款返回時復原用）
+      try{
+        localStorage.setItem('hl_pending_nail-'+currentSpread,JSON.stringify({
+          state:{
+            currentSpread:currentSpread,
+            selectedCards:selectedCards,
+            quizAnswers:quizAnswers,
+            selectedHandItems:selectedHandItems,
+            selectedIntents:selectedIntents,
+            solarBday:document.getElementById('solarBday').value,
+            birthHour:document.getElementById('birthHour').value
+          },
+          savedAt:Date.now()
+        }));
+      }catch(e){}
+      var _onPaid=function(){window._hlBizVerified=true;goScene(6);};
       if(typeof hlBizCode!=='undefined'){
-        hlBizCode.show({n:currentSpread,priceMap:nailPriceMap,serviceName:'指尖能量覺察智慧解讀',pageType:'nail',onSuccess:function(){window._hlBizVerified=true;goScene(6);}});
+        hlBizCode.show({n:currentSpread,priceMap:nailPriceMap,serviceName:'指尖能量覺察智慧解讀',pageType:'nail',onSuccess:_onPaid});
       }else if(typeof hlPaywall!=='undefined'){
-        hlPaywall.show({n:currentSpread,priceMap:nailPriceMap,serviceName:'指尖能量覺察智慧解讀'});
+        hlPaywall.show({n:currentSpread,priceMap:nailPriceMap,serviceName:'指尖能量覺察智慧解讀',productCategory:'nail',pageType:'nail',onProceed:_onPaid});
       }
       return;
     }
@@ -915,6 +931,60 @@ function toggleLegalContent(){
 <script src="assets/js/hl-bottomnav.js"></script>
 <script src="assets/js/hl-email.js"></script>
 <script src="assets/js/hl-paywall.js"></script>
+<script>
+// ── 付款返回自動觸發解讀（PAYUNi credit card return path）──
+(function checkNailReturn(){
+  function tryCheck(){
+    var params=new URLSearchParams(location.search);
+    if(params.get('payment')!=='success'||!params.get('code'))return;
+    var code=params.get('code');
+    // 從 localStorage 復原狀態
+    var savedState=null,productId=null;
+    [3,5,9].forEach(function(n){
+      if(savedState)return;
+      var saved=localStorage.getItem('hl_pending_nail-'+n);
+      if(saved){
+        try{savedState=JSON.parse(saved).state;productId='nail-'+n;}catch(e){}
+      }
+    });
+    if(!savedState){
+      console.warn('付款返回但找不到 localStorage 狀態');
+      return;
+    }
+    // 復原全域變數
+    currentSpread=savedState.currentSpread;
+    selectedCards=savedState.selectedCards||[];
+    quizAnswers=savedState.quizAnswers||{};
+    selectedHandItems=savedState.selectedHandItems||[];
+    selectedIntents=savedState.selectedIntents||[];
+    var solar=document.getElementById('solarBday');if(solar)solar.value=savedState.solarBday||'';
+    var hour=document.getElementById('birthHour');if(hour)hour.value=savedState.birthHour||'';
+    // 清 localStorage + URL 參數
+    localStorage.removeItem('hl_pending_'+productId);
+    try{
+      params.delete('payment');params.delete('order');params.delete('code');
+      history.replaceState(null,'',location.pathname+(params.toString()?'?'+params:'')+location.hash);
+    }catch(e){}
+    // 標記已付款 + 記錄解鎖碼 + 跳到解讀
+    window._hlBizVerified=true;
+    window._lastUsedUnlockCode=code;
+    // Best-effort 標記 reading_codes used
+    try{
+      var db=(typeof firebase!=='undefined'&&firebase.firestore)?firebase.firestore():null;
+      var u=(typeof firebase!=='undefined'&&firebase.auth)?firebase.auth().currentUser:null;
+      if(db&&u){
+        db.collection('reading_codes').doc(code).update({
+          used:true,usedAt:firebase.firestore.FieldValue.serverTimestamp(),
+          usedBy:u.uid,usedByEmail:u.email||''
+        }).catch(function(){});
+      }
+    }catch(e){}
+    // 觸發解讀
+    if(typeof goScene==='function')goScene(6);
+  }
+  if(document.readyState==='complete'){tryCheck();}else{window.addEventListener('load',tryCheck);}
+})();
+</script>
 <script src="assets/js/hl-biz-code.js"></script>
 <script src="assets/js/hl-chat.js"></script>
 <script src="assets/js/hl-aroma-fx.js" defer></script>
