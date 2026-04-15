@@ -15,8 +15,13 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   var ML_KEY = process.env.MAILERLITE_API_KEY;
-  var GMAIL_USER = process.env.GMAIL_USER;
-  var GMAIL_APP_PW = process.env.GMAIL_APP_PASSWORD;
+  var GMAIL_USER = process.env.GMAIL_USER;              // SMTP 認證帳號（通常是 judyanee@gmail.com）
+  var GMAIL_APP_PW = process.env.GMAIL_APP_PASSWORD;    // Gmail 應用程式密碼
+  // 2026/04/15：寄件顯示地址（預設 info@hourlightkey.com）
+  // 注意：這個 email 必須先在 GMAIL_USER 帳號設定「以其他地址寄件」並驗證
+  // 路徑：Gmail 設定 → 帳戶和匯入 → 寄件者 → 新增「其他電子郵件地址」
+  // 驗證後 nodemailer from 欄位可以用別名地址，Google 會以此身分寄出
+  var MAIL_FROM_EMAIL = process.env.MAIL_FROM_EMAIL || 'info@hourlightkey.com';
 
   if (!ML_KEY) return res.status(500).json({ error: 'MailerLite not configured' });
 
@@ -83,7 +88,10 @@ module.exports = async function handler(req, res) {
           : buildReportHTML(name, system, content);
 
         var mailOpts = {
-          from: '"馥靈之鑰 Hour Light" <' + GMAIL_USER + '>',
+          // 2026/04/15：寄件顯示地址改為 info@hourlightkey.com（或 env var 指定）
+          // 若 MAIL_FROM_EMAIL !== GMAIL_USER，GMAIL_USER 帳號必須先在 Gmail 設定「以其他地址寄件」
+          from: '"馥靈之鑰 Hour Light" <' + MAIL_FROM_EMAIL + '>',
+          replyTo: MAIL_FROM_EMAIL,
           to: email,
           subject: subject,
           text: content,
