@@ -62,6 +62,12 @@ module.exports = async function handler(req, res) {
     }
 
     // ── 2. 寄送 Email（Gmail SMTP via Nodemailer）──
+    // 2026/04/15 新增：BCC 所有外寄信件到 info@hourlightkey.com 做寄件備份
+    // 用途：客服存檔、消費糾紛保護、自動金流對帳
+    // 可透過 env SEND_REPORT_BCC 覆蓋（空值代表關閉）
+    var BCC_ADDR = (typeof process !== 'undefined' && process.env.SEND_REPORT_BCC !== undefined)
+      ? process.env.SEND_REPORT_BCC
+      : 'info@hourlightkey.com';
     var emailSent = false;
     if (GMAIL_USER && GMAIL_APP_PW) {
       try {
@@ -76,13 +82,19 @@ module.exports = async function handler(req, res) {
           ? buildNotificationHTML(content)
           : buildReportHTML(name, system, content);
 
-        await transporter.sendMail({
+        var mailOpts = {
           from: '"馥靈之鑰 Hour Light" <' + GMAIL_USER + '>',
           to: email,
           subject: subject,
           text: content,
           html: htmlContent
-        });
+        };
+        // 不 bcc 自己寄給自己的信（避免無限回圈 + 雜訊）
+        if (BCC_ADDR && BCC_ADDR !== email) {
+          mailOpts.bcc = BCC_ADDR;
+        }
+
+        await transporter.sendMail(mailOpts);
         emailSent = true;
       } catch(mailErr) {
         console.error('Email send error:', mailErr);

@@ -1370,9 +1370,40 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
           <span class="adm-card-badge badge badge-purple">readings</span>
         </div>
         <div class="adm-card-body">
+          <!-- 搜尋列（email + 重新載入）-->
+          <div class="adm-form-row" style="margin-bottom:14px;gap:10px;align-items:flex-end">
+            <div class="adm-form-group" style="flex:2">
+              <label class="adm-label">依 Email 搜尋（留空顯示最近 100 筆）</label>
+              <input type="email" class="adm-input" id="readingSearchEmail" placeholder="例：liw444127@gmail.com" onkeydown="if(event.key==='Enter')loadReadingRecords()">
+            </div>
+            <button class="adm-btn adm-btn-gold" style="min-height:44px" onclick="loadReadingRecords()">🔍 搜尋</button>
+            <button class="adm-btn adm-btn-outline" style="min-height:44px" onclick="document.getElementById('readingSearchEmail').value='';loadReadingRecords()">清除</button>
+          </div>
+          <div style="font-size:.78rem;color:var(--adm-text3);margin-bottom:10px;line-height:1.7">
+            📜 點每列的「查看」可看到完整解讀內容、可複製、可寄回給客訴補資料。
+          </div>
           <div class="adm-table-wrap" id="readingRecords">
             <div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 解讀全文彈窗 Modal ═══ -->
+    <div id="readingModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.65);z-index:10000;align-items:center;justify-content:center;padding:20px;overflow-y:auto">
+      <div style="background:#fff;max-width:720px;width:100%;max-height:90vh;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+        <div style="padding:20px 24px;border-bottom:1px solid #e8d5a8;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#faf8f3">
+          <div>
+            <div id="modalReadingTitle" style="font-size:1rem;font-weight:700;color:#1a1520;margin-bottom:4px">解讀詳情</div>
+            <div id="modalReadingMeta" style="font-size:.78rem;color:#8b6f4e;line-height:1.6"></div>
+          </div>
+          <button onclick="closeReadingModal()" style="background:transparent;border:none;font-size:1.5rem;cursor:pointer;color:#8b6f4e;line-height:1">✕</button>
+        </div>
+        <div id="modalReadingBody" style="padding:20px 24px;overflow-y:auto;flex:1;font-size:.88rem;line-height:1.85;color:#2c2218;white-space:pre-wrap;font-family:'Noto Serif TC',serif"></div>
+        <div style="padding:14px 24px;border-top:1px solid #e8d5a8;display:flex;gap:10px;flex-wrap:wrap;background:#faf8f3">
+          <button class="adm-btn adm-btn-gold" onclick="copyReadingFromModal()" id="modalCopyBtn">📋 複製全文</button>
+          <button class="adm-btn adm-btn-outline" onclick="resendReadingFromModal()" id="modalResendBtn">📧 重寄給客人</button>
+          <button class="adm-btn adm-btn-outline" onclick="closeReadingModal()">關閉</button>
         </div>
       </div>
     </div>
@@ -4256,36 +4287,175 @@ function loadDestinyRecords() {
 //  READING RECORDS (Tab 8)
 // ═══════════════════════════════════════════════════════════════
 
+// 2026/04/15 重寫：加 email 搜尋 + 查看完整 reading modal + 重寄功能
+// 逸君需求：「我要看到完整解讀 確認真的有給內容 客訴也可以補資料給客人」
+window._readingCache = {};  // 儲存 reading 資料供 modal 查看用
+
 function loadReadingRecords() {
   var container = document.getElementById('readingRecords');
+  var searchEmail = (document.getElementById('readingSearchEmail') || {}).value || '';
+  searchEmail = searchEmail.trim().toLowerCase();
+
   container.innerHTML = '<div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>';
 
-  // Try readings collection first
-  db.collection('readings').orderBy('createdAt', 'desc').limit(100).get().then(function(snap) {
+  // 建 query：有 email 就 where filter，否則最近 100 筆
+  var q;
+  if (searchEmail) {
+    q = db.collection('readings').where('email', '==', searchEmail).orderBy('createdAt', 'desc').limit(200);
+  } else {
+    q = db.collection('readings').orderBy('createdAt', 'desc').limit(100);
+  }
+
+  q.get().then(function(snap) {
     if (snap.empty) {
-      // Fallback: events with draw_complete
+      if (searchEmail) {
+        container.innerHTML = '<div class="adm-empty"><div class="adm-empty-icon">🔍</div>找不到 ' + esc(searchEmail) + ' 的解讀紀錄<br><small>可能客人還沒付費解讀，或 API 當時未存檔</small></div>';
+        return;
+      }
       return loadReadingRecordsFromEvents(container);
     }
 
-    var html = '<table class="adm-table"><thead><tr><th>時間</th><th>用戶</th><th>張數</th><th>牌卡</th><th>付費</th><th>價格</th></tr></thead><tbody>';
+    // 清空快取
+    window._readingCache = {};
+
+    var html = '<div style="font-size:.82rem;color:var(--adm-text2);margin-bottom:10px">共 ' + snap.size + ' 筆' + (searchEmail ? '（' + esc(searchEmail) + '）' : '（最近 100 筆）') + '</div>';
+    html += '<table class="adm-table"><thead><tr><th>時間</th><th>用戶</th><th>服務</th><th>張數</th><th>付費</th><th>價格</th><th>操作</th></tr></thead><tbody>';
     snap.forEach(function(doc) {
       var d = doc.data();
-      var cards = d.cardCodes ? (Array.isArray(d.cardCodes) ? d.cardCodes.join(', ') : d.cardCodes) : '-';
+      var id = doc.id;
+      // 存 cache 供 modal 讀取
+      window._readingCache[id] = {
+        email: d.email || '',
+        name: d.name || '',
+        service: d.service || d.source || '',
+        n: d.n || '',
+        spread: d.spread || '',
+        question: d.question || '',
+        reading: d.reading || d.story || d.text || '',  // 兼容不同欄位名
+        cardCodes: d.cardCodes || [],
+        cardTitles: d.cardTitles || [],
+        price: d.price || 0,
+        isPaid: !!d.isPaid,
+        createdAt: d.createdAt
+      };
+      var hasContent = !!(d.reading || d.story || d.text);
+      var svcLabel = d.source || d.service || (d.n ? 'draw' : '-');
       html += '<tr>' +
         '<td>' + formatTs(d.createdAt) + '</td>' +
-        '<td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(d.email || d.uid || '-') + '</td>' +
+        '<td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + esc(d.email||'') + '">' + esc(d.email || d.uid || '-') + '</td>' +
+        '<td><span class="badge badge-purple">' + esc(svcLabel) + '</span></td>' +
         '<td>' + esc(d.n || '-') + '</td>' +
-        '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(truncate(cards, 40)) + '</td>' +
         '<td>' + (d.isPaid ? '<span class="badge badge-green">付費</span>' : '<span class="badge badge-gray">免費</span>') + '</td>' +
         '<td>' + (d.price ? 'NT$' + d.price : '-') + '</td>' +
+        '<td>' + (hasContent
+          ? '<button class="adm-btn adm-btn-sm adm-btn-gold" onclick="openReadingModal(\'' + id + '\')">查看</button>'
+          : '<span style="color:var(--adm-text3);font-size:.75rem">無內容</span>') + '</td>' +
         '</tr>';
     });
     html += '</tbody></table>';
     container.innerHTML = html;
-  }).catch(function() {
-    loadReadingRecordsFromEvents(container);
+  }).catch(function(e) {
+    console.error('loadReadingRecords error:', e);
+    if (searchEmail) {
+      container.innerHTML = '<div class="adm-empty">載入失敗：' + esc(e.message) + '</div>';
+    } else {
+      loadReadingRecordsFromEvents(container);
+    }
   });
 }
+
+// ═══ 解讀全文彈窗 ═══
+function openReadingModal(readingId) {
+  var d = window._readingCache[readingId];
+  if (!d) { alert('找不到解讀資料'); return; }
+  var titleEl = document.getElementById('modalReadingTitle');
+  var metaEl = document.getElementById('modalReadingMeta');
+  var bodyEl = document.getElementById('modalReadingBody');
+  var svc = d.service || 'draw';
+  titleEl.textContent = '【' + svc + '】' + (d.n ? d.n + ' 張解讀' : '解讀詳情');
+  var ts = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate() : new Date(d.createdAt || Date.now());
+  var tsStr = ts.toLocaleString('zh-TW');
+  var metaParts = [
+    '👤 ' + (d.email || 'guest'),
+    '📅 ' + tsStr,
+    (d.isPaid ? '💰 NT$' + d.price : '🎁 免費'),
+    (d.question ? '❓ ' + d.question : '')
+  ].filter(Boolean);
+  metaEl.textContent = metaParts.join(' · ');
+  // Reading 全文
+  var reading = d.reading || '（無內容）';
+  // 前面加上牌卡資訊
+  var prefix = '';
+  if (d.cardTitles && d.cardTitles.length) {
+    prefix = '━━━ 抽到的牌 ━━━\n' + d.cardTitles.map(function(t, i){ return (i+1) + '. ' + t; }).join('\n') + '\n\n━━━ 解讀內容 ━━━\n\n';
+  }
+  bodyEl.textContent = prefix + reading;
+  document.getElementById('readingModal').style.display = 'flex';
+  window._currentModalReading = d;
+}
+window.openReadingModal = openReadingModal;
+
+function closeReadingModal() {
+  document.getElementById('readingModal').style.display = 'none';
+  window._currentModalReading = null;
+}
+window.closeReadingModal = closeReadingModal;
+
+function copyReadingFromModal() {
+  var text = document.getElementById('modalReadingBody').textContent;
+  var btn = document.getElementById('modalCopyBtn');
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = '✅ 已複製';
+    setTimeout(function(){ btn.textContent = '📋 複製全文'; }, 2000);
+  }).catch(function() {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); btn.textContent = '✅ 已複製'; } catch(_){}
+    document.body.removeChild(ta);
+    setTimeout(function(){ btn.textContent = '📋 複製全文'; }, 2000);
+  });
+}
+window.copyReadingFromModal = copyReadingFromModal;
+
+async function resendReadingFromModal() {
+  var d = window._currentModalReading;
+  if (!d) return;
+  if (!d.email) { alert('這筆紀錄沒有 email，無法重寄'); return; }
+  var btn = document.getElementById('modalResendBtn');
+  if (!confirm('確定要把這份解讀重寄給 ' + d.email + ' 嗎？')) return;
+  btn.disabled = true;
+  btn.textContent = '寄送中⋯';
+  try {
+    var svcName = d.service || '馥靈智慧牌';
+    var subject = '馥靈之鑰｜您的 ' + svcName + ' 解讀報告（補寄）';
+    var reading = d.reading || '';
+    // 前面加牌卡資訊
+    if (d.cardTitles && d.cardTitles.length) {
+      reading = '抽到的牌：\n' + d.cardTitles.map(function(t, i){ return (i+1) + '. ' + t; }).join('\n') + '\n\n' + reading;
+    }
+    await fetch('https://app.hourlightkey.com/api/send-report', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        email: d.email,
+        name: d.name || '',
+        subject: subject,
+        system: svcName + (d.n ? ' ' + d.n + ' 張' : ''),
+        type: 'report',
+        content: reading
+      })
+    });
+    btn.textContent = '✅ 已寄出';
+    setTimeout(function(){ btn.disabled = false; btn.textContent = '📧 重寄給客人'; }, 3000);
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = '📧 重寄給客人';
+    alert('寄送失敗：' + e.message);
+  }
+}
+window.resendReadingFromModal = resendReadingFromModal;
 
 function loadReadingRecordsFromEvents(container) {
   db.collection('events').orderBy('ts', 'desc').limit(500).get().then(function(snap) {
