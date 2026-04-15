@@ -815,10 +815,13 @@
       if(!this.hasKey(roomId))return{ok:false,reason:'no_key'};
       if(!this.canOpen())return{ok:false,reason:'daily_full'};
       state.daily[roomId]='done';
-      var pts=2;
-      if(state.streak>1)pts+=2;
+      // 2026/04/15 點數下修（真金白銀兌換，不能過量）
+      // 基礎 2→1，streak bonus +2→+1，首次進房 +5→+3
+      // 最高 9 點/房 → 5 點/房；每天 3 房最高從 27→15 點
+      var pts=1;
+      if(state.streak>1)pts+=1;
       var first=!state.milestones[roomId];
-      if(first){pts+=5;state.milestones[roomId]=true;}
+      if(first){pts+=3;state.milestones[roomId]=true;}
       state.points+=pts;
       state.totalRooms=(state.totalRooms||0)+1;
       if(question&&answer)appendDiary(roomId,question,answer,insight||'');
@@ -843,7 +846,8 @@
     },
     addPoints:function(n){state.points+=(n||0);saveState(state);},
     shareBonus:function(){
-      state.points+=2;state.shareCount=(state.shareCount||0)+1;
+      // 2026/04/15 分享獎勵下修 2→1
+      state.points+=1;state.shareCount=(state.shareCount||0)+1;
       state.daily._bonusDoors=(state.daily._bonusDoors||0)+1;
       var na=checkAch(state);saveState(state);return{newAchievements:na};
     },

@@ -226,10 +226,29 @@
     merged.redeemHistory = dedupeByKey(local.redeemHistory, cloud.redeemHistory, 'code');
     merged.coupons       = dedupeByKey(local.coupons, cloud.coupons, 'code');
 
-    // daily：取完成房間較多的那邊
+    // daily：以 lastDate === today 的那邊為準
+    // 2026/04/15 BUG FIX：原本只看「完成數量」取較大，導致跨日時
+    // 雲端的昨天 daily（例如 3 房全完成）會蓋掉本地今天剛歸零的 daily
+    // → 用戶看到「任務不會歸零」的錯覺
+    // 正確邏輯：檢查 lastDate 是不是今天，只有今天的 daily 才算數
+    var _twNow = new Date(new Date().getTime() + 8*3600000);
+    var _today = _twNow.getUTCFullYear() + '-' +
+                 String(_twNow.getUTCMonth()+1).padStart(2,'0') + '-' +
+                 String(_twNow.getUTCDate()).padStart(2,'0');
     var ld = local.daily || {}, cd = cloud.daily || {};
-    var ldCount = countDone(ld), cdCount = countDone(cd);
-    merged.daily = ldCount >= cdCount ? ld : cd;
+    var localIsToday = local.lastDate === _today;
+    var cloudIsToday = cloud.lastDate === _today;
+    if(localIsToday && cloudIsToday){
+      // 兩邊都是今天 → 取完成較多的（正常跨裝置合併）
+      merged.daily = countDone(ld) >= countDone(cd) ? ld : cd;
+    } else if(localIsToday){
+      merged.daily = ld;
+    } else if(cloudIsToday){
+      merged.daily = cd;
+    } else {
+      // 兩邊都不是今天 → 新的一天，任務全部歸零
+      merged.daily = {};
+    }
 
     // KV 型：合併取較大值
     merged.milestones  = mergeKVMax(local.milestones, cloud.milestones);

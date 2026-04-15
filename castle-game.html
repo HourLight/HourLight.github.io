@@ -2435,9 +2435,10 @@ function renderShopRecipes(){
     var btn = document.getElementById('dailyClaimBtn');
     var subtitle = document.getElementById('dailySubtitle');
     var footer = document.getElementById('dailyFooter');
-    var currentDay = state.streak;
+    var currentDay = state.streak;        // 1-7 輪迴用，決定材料獎勵
+    var realStreak = state.hlStreak || state.streak;  // 實際連續天數（顯示用）
 
-    subtitle.textContent = '連續第 ' + currentDay + ' 天來到城堡';
+    subtitle.textContent = '連續第 ' + realStreak + ' 天來到城堡';
 
     var html = '';
     for(var d=1; d<=7; d++){
@@ -2472,19 +2473,33 @@ function renderShopRecipes(){
     var today = getTodayStr();
     var state = loadDailyState();
 
-    if(state.lastDate === today) return; // already claimed today
+    if(state.lastDate === today) return; // 今天已處理過（已領或已顯示過面板）
 
-    var yesterday = getYesterday();
-    var newStreak;
-    if(state.lastDate === yesterday){
-      newStreak = (state.streak % 7) + 1;
+    // 2026/04/15 修正：改用 hlCastle.streak 當作連續天數來源
+    // 原本的 DAILY_KEY 用自己的 streak，跨裝置不同步，且有 mod 7 bug
+    // hlCastle 已透過 hl-castle-sync.js 同步到 Firestore，天數跨裝置一致
+    var hlStreak = 0;
+    try{ if(window.hlCastle) hlStreak = hlCastle.getState().streak || 0; }catch(e){}
+
+    if(hlStreak > 0){
+      // 用統一 streak 驅動材料面板：1-7 輪迴（普通 → 稀有 → 傳說）
+      state.streak = ((hlStreak - 1) % 7) + 1;
+      state.hlStreak = hlStreak;  // 記錄實際連續天數（顯示用）
     } else {
-      newStreak = 1;
+      // 沒有 hlCastle 狀態就 fallback 到舊邏輯
+      var yesterday = getYesterday();
+      if(state.lastDate === yesterday){
+        state.streak = ((state.streak || 0) % 7) + 1;
+      } else if(state.lastDate && state.lastDate !== today){
+        // 跨天但不是昨天 → 不歸零，保留天數（避免跨裝置誤判）
+        state.streak = state.streak || 1;
+      } else {
+        state.streak = 1;
+      }
     }
 
-    state.streak = newStreak;
     state.claimed = false;
-    state.today = today;
+    state.lastDate = today;  // ← BUG FIX：checkDailyLogin 也要更新 lastDate，不能只在 claimDailyReward 更新
     saveDailyState(state);
 
     setTimeout(function(){
