@@ -478,6 +478,27 @@ ${GENERAL_PRINCIPLES}`;
       }
     }
 
+    // ── 自動寄信（若前端帶 email 就寄一份，避免消費糾紛）──
+    if (req.body.email && text) {
+      try {
+        await fetch('https://app.hourlightkey.com/api/send-report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: req.body.email,
+            name: req.body.name || '',
+            subject: '你的馥靈之鑰・' + n + ' 張牌深度解讀',
+            content: text,
+            system: '馥靈智慧牌 ' + n + ' 張解讀',
+            type: 'report'
+          })
+        });
+        console.log('📧 draw-hl 解讀已寄送：' + req.body.email);
+      } catch (mailErr) {
+        console.error('draw-hl 解讀寄信失敗:', mailErr.message);
+      }
+    }
+
     return res.status(200).json({
       reading: text,
       spread: spread.title,

@@ -1637,6 +1637,27 @@ SPA 覺察處方箋 AI 解牌指令系統 v2.0
       ? data.content.map(block => block.text || '').join('')
       : '';
 
+    // ── 自動寄信（若前端帶 email 就寄一份，避免消費糾紛）──
+    if (req.body.email && text) {
+      try {
+        await fetch('https://app.hourlightkey.com/api/send-report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: req.body.email,
+            name: req.body.name || '',
+            subject: '你的馥靈之鑰・SPA 處方箋深度解讀',
+            content: text,
+            system: 'SPA 身心覺察',
+            type: 'report'
+          })
+        });
+        console.log('📧 SPA 解讀已寄送：' + req.body.email);
+      } catch (mailErr) {
+        console.error('SPA 解讀寄信失敗:', mailErr.message);
+      }
+    }
+
     return res.status(200).json({
       reading: text,
       spread: spread || 0,

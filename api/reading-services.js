@@ -284,6 +284,27 @@ async function handleAkashic(req, res, apiKey) {
     console.error('Firestore log error:', logErr.message);
   }
 
+  // ── 自動寄信（若有 email 就寄一份，避免消費糾紛）──
+  if (userEmail && reading) {
+    try {
+      await fetch('https://app.hourlightkey.com/api/send-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: userEmail,
+          name: '',
+          subject: '你的馥靈之鑰・阿卡西紀錄深度解讀',
+          content: reading,
+          system: '阿卡西紀錄翻閱',
+          type: 'report'
+        })
+      });
+      console.log('📧 阿卡西解讀已寄送：' + userEmail);
+    } catch (mailErr) {
+      console.error('阿卡西解讀寄信失敗:', mailErr.message);
+    }
+  }
+
   return res.status(200).json({ reading: reading });
 }
 
@@ -462,6 +483,27 @@ async function handleYuanChen(req, res, apiKey) {
     console.error('Firestore log error:', logErr.message);
   }
 
+  // ── 自動寄信（若有 email 就寄一份，避免消費糾紛）──
+  if (userEmail && story) {
+    try {
+      await fetch('https://app.hourlightkey.com/api/send-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: userEmail,
+          name: '',
+          subject: '你的馥靈之鑰・元辰宮導覽故事',
+          content: story,
+          system: '元辰宮導覽',
+          type: 'report'
+        })
+      });
+      console.log('📧 元辰宮解讀已寄送：' + userEmail);
+    } catch (mailErr) {
+      console.error('元辰宮解讀寄信失敗:', mailErr.message);
+    }
+  }
+
   return res.status(200).json({ story: story });
 }
 
@@ -589,6 +631,27 @@ async function handlePastLife(req, res, apiKey) {
     }
   } catch (logErr) {
     console.error('Firestore log error:', logErr.message);
+  }
+
+  // ── 自動寄信（若有 email 就寄一份，避免消費糾紛）──
+  if (userEmail && story) {
+    try {
+      await fetch('https://app.hourlightkey.com/api/send-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: userEmail,
+          name: '',
+          subject: '你的馥靈之鑰・前世故事解讀',
+          content: story,
+          system: '前世故事',
+          type: 'report'
+        })
+      });
+      console.log('📧 前世故事已寄送：' + userEmail);
+    } catch (mailErr) {
+      console.error('前世故事寄信失敗:', mailErr.message);
+    }
   }
 
   return res.status(200).json({ story: story });
@@ -722,6 +785,28 @@ async function handleName(req, res, apiKey) {
   var result = '';
   if (data.content && data.content.length > 0) {
     result = data.content.map(function(b) { return b.text || ''; }).join('');
+  }
+
+  // ── 自動寄信（若有 email 就寄一份，避免消費糾紛）──
+  var nameEmail = (req.body && req.body.email || '').trim();
+  if (nameEmail && result) {
+    try {
+      await fetch('https://app.hourlightkey.com/api/send-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: nameEmail,
+          name: name || '',
+          subject: '你的馥靈之鑰・姓名覺察分析',
+          content: result,
+          system: '姓名覺察分析',
+          type: 'report'
+        })
+      });
+      console.log('📧 姓名分析已寄送：' + nameEmail);
+    } catch (mailErr) {
+      console.error('姓名分析寄信失敗:', mailErr.message);
+    }
   }
 
   return res.status(200).json({

@@ -356,6 +356,27 @@ module.exports = async function handler(req, res) {
       console.error('Nail reading save error:', saveErr.message);
     }
 
+    // ── 自動寄信（若前端帶 email 就寄一份，避免消費糾紛）──
+    if (req.body.email && text) {
+      try {
+        await fetch('https://app.hourlightkey.com/api/send-report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: req.body.email,
+            name: req.body.name || '',
+            subject: '你的馥靈之鑰・美甲指尖深度解讀',
+            content: text,
+            system: '美甲指尖覺察',
+            type: 'report'
+          })
+        });
+        console.log('📧 美甲解讀已寄送：' + req.body.email);
+      } catch (mailErr) {
+        console.error('美甲解讀寄信失敗:', mailErr.message);
+      }
+    }
+
     return res.status(200).json({
       reading: text,
       spread: spread.title,
