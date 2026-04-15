@@ -257,6 +257,21 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
 
   document.body.appendChild(nav);
 
+  // ── 若頁面無 .hl-footer，自動建立最小版（確保頁尾連結可注入）──
+  if (!document.querySelector('.hl-footer')) {
+    var autoFooter = document.createElement('footer');
+    autoFooter.className = 'hl-footer';
+    autoFooter.innerHTML =
+      '<div class="hl-footer-inner">' +
+        '<div class="hl-footer-links"></div>' +
+        '<div class="hl-footer-copyright">' +
+          '<span class="hl-footer-copyright-brand">© 2026 馥靈之鑰® Hour Light®</span>' +
+        '</div>' +
+      '</div>';
+    // 插在 bottom nav 之前，確保視覺順序正確
+    document.body.insertBefore(autoFooter, nav);
+  }
+
   // ── 在 footer-links 注入全站共用連結 ──
   var footerLinks = document.querySelector('.hl-footer-links');
   if (footerLinks) {
