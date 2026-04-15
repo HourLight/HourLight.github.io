@@ -90,6 +90,20 @@ function parseDrawProduct(productId) {
   return { category, n };
 }
 
+// ── 服務類商品解析（阿卡西 / 元辰宮 / 前世 / 姓名分析 / 桌布）──
+// productId 命名規則：
+//   akashic-1  → 阿卡西紀錄翻閱
+//   yuan-chen-1 → 元辰宮導覽
+//   past-life-1 → 前世故事
+//   name-1 → 姓名覺察分析
+//   wallpaper-1 → 馥靈蘊福桌布
+function parseServiceProduct(productId) {
+  if (!productId || typeof productId !== 'string') return null;
+  const m = productId.match(/^(akashic|yuan-chen|past-life|name|wallpaper)-(\d+)$/i);
+  if (!m) return null;
+  return { category: m[1].toLowerCase(), n: parseInt(m[2], 10) || 1 };
+}
+
 // ── Firebase Admin 初始化（懶載入）──
 let adminDb = null;
 
@@ -224,19 +238,22 @@ module.exports = async function handler(req, res) {
 
           console.log(`✅ 訂單完成：userId=${userId} productId=${productId} orderId=${MerTradeNo}`);
 
-          // ── 5z. 若是抽牌商品（draw-N / pet-N / family-N / spa-N / nail-N），啟用 reading_codes ──
+          // ── 5z. 若是抽牌商品或服務類商品，啟用 reading_codes ──
           // pendingOrders 在 create 時已先產生 unlockCode，這邊把它正式寫入 reading_codes 集合
           // （reading_codes 是官網現役 collection，draw-hl/pet-reading 等讀這個；unlock_codes 是 legacy）
           const draw = parseDrawProduct(productId);
-          if (draw && pendingDoc.exists) {
+          const service = !draw ? parseServiceProduct(productId) : null;
+          const readingKind = draw || service;
+
+          if (readingKind && pendingDoc.exists) {
             const unlockCode = pendingDoc.data().unlockCode;
             if (unlockCode) {
               try {
                 // 寫入格式對齊 admin-unlock.html 第 241 行（service / n / spreads / price / used）
                 await db.collection('reading_codes').doc(unlockCode).set({
-                  service:   draw.category,         // draw / pet / family / spa / nail
-                  n:         draw.n,                // 3 / 5 / 7 / 9 等
-                  spreads:   draw.n,                // 與既有欄位相容
+                  service:   readingKind.category,   // draw / pet / family / spa / nail / akashic / yuan-chen / past-life
+                  n:         readingKind.n,
+                  spreads:   readingKind.n,
                   price:     Number(TradeAmt),
                   used:      false,
                   source:    'payuni',
@@ -247,14 +264,38 @@ module.exports = async function handler(req, res) {
                   createdAt: now,
                   memo:      `PAYUNi 線上付款 ${MerTradeNo}`,
                 });
-                console.log(`✅ reading_codes 啟用：${unlockCode} (${draw.category}-${draw.n}張) userId=${userId} orderId=${MerTradeNo}`);
+                console.log(`✅ reading_codes 啟用：${unlockCode} (${readingKind.category}-${readingKind.n}) userId=${userId} orderId=${MerTradeNo}`);
 
                 // ── 超商/ATM 延遲付款：自動觸發 AI 解讀 + 寄信 ──
+                // 兩條路徑（擇一）：
+                //  A. pendingOrders 有 readingEndpoint + readingBody → 泛用觸發（pet/family/spa/nail/akashic/yuan-chen/past-life 都走這條）
+                //  B. 舊路徑 - pendingOrders 有 cards + draw.category === 'draw' → 呼叫 ai-draw-reading
                 const pendingData = pendingDoc.data();
-                if (pendingData.cards && pendingData.cards.length > 0 && draw.category === 'draw') {
+
+                if (pendingData.readingEndpoint && pendingData.readingBody && userEmail) {
+                  // 路徑 A：泛用 endpoint 觸發
                   try {
-                    console.log(`📮 自動觸發 AI 解讀：${draw.n}張 for ${userEmail}`);
-                    const readingResp = await fetch(`https://app.hourlightkey.com/api/ai-draw-reading`, {
+                    console.log(`📮 自動觸發解讀（通用）：${pendingData.readingEndpoint} for ${userEmail}`);
+                    const readingBody = Object.assign({}, pendingData.readingBody, {
+                      email: userEmail,         // 讓 API 內部自動寄信
+                      unlockCode: unlockCode,
+                      uid: userId,
+                    });
+                    await fetch(pendingData.readingEndpoint, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(readingBody)
+                    });
+                    // API 內部會自動 call send-report 寄信給 userEmail
+                    console.log(`✅ 通用解讀觸發完成：${pendingData.readingEndpoint}`);
+                  } catch (readErr) {
+                    console.error('通用解讀觸發失敗:', readErr.message);
+                  }
+                } else if (draw && draw.category === 'draw' && pendingData.cards && pendingData.cards.length > 0) {
+                  // 路徑 B：舊 draw-hl 相容路徑
+                  try {
+                    console.log(`📮 自動觸發 draw-hl 解讀：${draw.n}張 for ${userEmail}`);
+                    await fetch(`https://app.hourlightkey.com/api/ai-draw-reading`, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({
@@ -263,32 +304,12 @@ module.exports = async function handler(req, res) {
                         question: pendingData.question || '',
                         unlockCode: unlockCode,
                         uid: userId,
-                        email: userEmail || ''
+                        email: userEmail || ''     // API 內部會自動寄信（本 PR 新加）
                       })
                     });
-                    const readingResult = await readingResp.json();
-                    if (readingResult.reading && userEmail) {
-                      // 寄信給用戶
-                      try {
-                        await fetch(`https://app.hourlightkey.com/api/send-report`, {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            email: userEmail,
-                            name: '',
-                            subject: '你的馥靈智慧牌 AI 解讀報告',
-                            content: readingResult.reading,
-                            system: `${draw.n}張牌卡深度解讀`,
-                            type: 'report'
-                          })
-                        });
-                        console.log(`📧 解讀報告已寄送：${userEmail}`);
-                      } catch (mailErr) {
-                        console.error('寄信失敗:', mailErr.message);
-                      }
-                    }
+                    console.log(`✅ draw-hl 解讀觸發完成`);
                   } catch (readErr) {
-                    console.error('自動解讀觸發失敗:', readErr.message);
+                    console.error('draw-hl 自動解讀觸發失敗:', readErr.message);
                   }
                 }
 
@@ -296,7 +317,7 @@ module.exports = async function handler(req, res) {
                 console.error('PAYUNi notify: reading_codes 寫入失敗', drawErr.message);
               }
             } else {
-              console.warn(`⚠️  draw 商品 ${productId} 但 pendingOrders 沒有 unlockCode，無法啟用`);
+              console.warn(`⚠️  解讀類商品 ${productId} 但 pendingOrders 沒有 unlockCode，無法啟用`);
             }
           }
 
@@ -373,6 +394,108 @@ module.exports = async function handler(req, res) {
 
               await userRef.update(planUpdate);
               console.log(`✅ 會員方案升級：userId=${userId} → ${membership.plan} (${newExpiryLabel})`);
+
+              // ── 產生贈送序號並寄送 email ──
+              // plus（馥靈鑰友）：每月贈 3 次 3 張牌 AI 解析
+              // pro（馥靈大師）：每月贈 10 次 AI 解讀（aiBonus）+ 2 張 $500 抵用券
+              try {
+                const bonusCodes = [];
+                const coupons = [];
+                const randCode = () => Math.random().toString(36).substring(2, 10).toUpperCase().replace(/[^A-Z0-9]/g, 'X');
+
+                if (membership.plan === 'plus') {
+                  // 產生 3 組 draw-3 解讀代碼
+                  for (let i = 0; i < 3; i++) {
+                    const code = `BONUS3-${randCode()}`;
+                    await db.collection('reading_codes').doc(code).set({
+                      service: 'draw',
+                      n: 3,
+                      spreads: 3,
+                      price: 0,
+                      used: false,
+                      source: 'membership-bonus',
+                      orderId: MerTradeNo,
+                      userId: userId,
+                      userEmail: userEmail || null,
+                      paidAt: now,
+                      createdAt: now,
+                      memo: `馥靈鑰友月禮（升級贈送）`,
+                    });
+                    bonusCodes.push(code);
+                  }
+                } else if (membership.plan === 'pro') {
+                  // 增加 aiBonus +10
+                  await userRef.set({
+                    aiBonus: require('firebase-admin').firestore.FieldValue.increment(10),
+                  }, { merge: true });
+                  // 產生 2 張 NT$500 抵用券
+                  for (let i = 0; i < 2; i++) {
+                    const code = `VIP500-${randCode()}`;
+                    await db.collection('coupons').doc(code).set({
+                      amount: 500,
+                      used: false,
+                      source: 'membership-bonus',
+                      orderId: MerTradeNo,
+                      userId: userId,
+                      userEmail: userEmail || null,
+                      createdAt: now,
+                      expiresAt: new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000), // 1 年
+                      memo: `馥靈大師月禮（升級贈送）`,
+                    });
+                    coupons.push(code);
+                  }
+                }
+
+                // 寄送會員方案升級通知信
+                if (userEmail) {
+                  let body = '';
+                  const planName = membership.plan === 'plus' ? '馥靈鑰友' : '馥靈大師';
+                  const planBenefits = membership.plan === 'plus'
+                    ? '► 每天 10 次 AI 深度解讀\n► 每月贈 3 次 3 張牌 AI 解析\n► 完整馥靈牌卡資料庫存取'
+                    : '► 無限次 AI 深度解讀\n► 每月贈 10 次 AI 解讀\n► 每月 2 張 NT$500 抵用券\n► 完整功能全開通';
+
+                  body = `您好：\n\n謝謝您成為「${planName}」會員！\n\n`;
+                  body += `方案到期日：${newExpiryLabel}\n`;
+                  body += `訂單編號：${MerTradeNo}\n\n`;
+                  body += `══ 會員權益 ══\n${planBenefits}\n\n`;
+
+                  if (bonusCodes.length > 0) {
+                    body += `══ 月禮解讀代碼（3 組，每組可兌換一次 3 張牌 AI 解讀）══\n`;
+                    bonusCodes.forEach((c, i) => { body += `${i + 1}. ${c}\n`; });
+                    body += `\n使用方式：到 draw-hl 抽完 3 張牌後，在付款區輸入代碼即可自動解讀。\n\n`;
+                  }
+
+                  if (coupons.length > 0) {
+                    body += `══ NT$500 抵用券（2 張，一年內有效）══\n`;
+                    coupons.forEach((c, i) => { body += `${i + 1}. ${c}\n`; });
+                    body += `\n使用方式：結帳時輸入代碼折抵。\n\n`;
+                  }
+
+                  body += `══ 會員中心 ══\nhttps://hourlightkey.com/member-dashboard.html\n\n`;
+                  body += `有任何問題請回覆此信或聯絡 LINE 官方帳號：https://lin.ee/RdQBFAN\n\n`;
+                  body += `馥靈之鑰 Hour Light\n`;
+
+                  try {
+                    await fetch('https://app.hourlightkey.com/api/send-report', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        email: userEmail,
+                        name: '',
+                        subject: `歡迎成為「${planName}」會員 ｜ 您的月禮序號已發送`,
+                        content: body,
+                        system: `${planName} 方案升級`,
+                        type: 'notification'
+                      })
+                    });
+                    console.log(`📧 會員升級通知信已寄送：${userEmail}`);
+                  } catch (mailErr) {
+                    console.error('會員升級寄信失敗:', mailErr.message);
+                  }
+                }
+              } catch (bonusErr) {
+                console.error('會員方案贈送序號失敗:', bonusErr.message);
+              }
             } catch (planErr) {
               console.error('PAYUNi notify: 會員方案升級失敗', planErr.message);
               // 不阻斷主流程，付款仍視為成功

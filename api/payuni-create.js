@@ -112,13 +112,29 @@ module.exports = async function handler(req, res) {
 
     const siteUrl = 'https://app.hourlightkey.com';
 
-    // ── 若是抽牌／寵物／家族／SPA／美甲等解讀商品，先產生 unlock code ──
+    // ── 若是解讀類商品，先產生 unlock code（含所有解讀類 productId）──
+    // 支援的 productId 格式：
+    //   draw-N / pet-N / family-N / spa-N / nail-N / light-N（N 張牌）
+    //   akashic-N / yuan-chen-N / past-life-N / name-1 / wallpaper-N（特殊服務）
     let preGeneratedCode = null;
-    const drawMatch = (productId || '').match(/^(draw|pet|family|spa|nail|light)-(\d+)$/i);
+    const drawMatch = (productId || '').match(/^(draw|pet|family|spa|nail|light|akashic|yuan-chen|past-life|name|wallpaper)[-]?(\d+)?$/i);
     if (drawMatch) {
-      const drawN = parseInt(drawMatch[2], 10);
+      const category = drawMatch[1].toLowerCase();
+      const drawN = drawMatch[2] ? parseInt(drawMatch[2], 10) : 1;
       const codeRand = Math.random().toString(36).substring(2, 8).toUpperCase().replace(/[^A-Z0-9]/g, 'X');
-      preGeneratedCode = `HL${drawN}-${codeRand}`;
+      // 代碼格式化：抽牌類用 HL{N}-{RAND}，服務類用 {CATEGORY}-{RAND}
+      if (['draw','pet','family','spa','nail','light'].indexOf(category) > -1) {
+        preGeneratedCode = `HL${drawN}-${codeRand}`;
+      } else {
+        // 服務類代碼：AK-XXXXXX（阿卡西）/ YC-XXXXXX（元辰宮）/ PL-XXXXXX（前世）
+        const prefix = category === 'akashic' ? 'AK'
+                     : category === 'yuan-chen' ? 'YC'
+                     : category === 'past-life' ? 'PL'
+                     : category === 'name' ? 'NM'
+                     : category === 'wallpaper' ? 'WP'
+                     : 'HL';
+        preGeneratedCode = `${prefix}-${codeRand}`;
+      }
     }
 
     // ── 決定 ReturnURL ──
@@ -194,6 +210,12 @@ module.exports = async function handler(req, res) {
         // 延遲付款時需要的牌卡資料（超商/ATM 繳費完成後自動解讀用）
         if (body.cards) pendingPayload.cards = body.cards;
         if (body.question) pendingPayload.question = body.question;
+        // ── 泛用觸發機制：前端可以傳整個 reading 請求 body + 目標 endpoint ──
+        // payuni-notify 收到 notify 後會用 readingEndpoint 呼叫 API 並傳 readingBody
+        // 適用所有解讀類服務（pet/family/spa/nail/akashic/yuan-chen/past-life 等）
+        // readingBody 內部必須包含 userEmail（API 會自動寄信）
+        if (body.readingEndpoint) pendingPayload.readingEndpoint = body.readingEndpoint;
+        if (body.readingBody) pendingPayload.readingBody = body.readingBody;
         await db.collection('pendingOrders').doc(merTradeNo).set(pendingPayload);
         console.log(`✅ pendingOrders 已建立：${merTradeNo} userId=${userId} productId=${productId}${preGeneratedCode ? ' code=' + preGeneratedCode : ''}`);
       }
