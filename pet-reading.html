@@ -594,19 +594,20 @@ function initDraw(){
     }
     var staticShort=getShortText(staticFull,2);
     // 精油安全摘要（貓咪：顯示危險警告+替代；非貓：顯示精油名稱）
-    var oilSafety='';
+    var oilSafetyHTML='';
     if(petDNA){
+      var oilBase='font-size:.72rem;line-height:1.7;margin-top:8px;padding-top:8px;border-top:1px solid rgba(240,181,179,.07)';
       if(isCat&&petDNA.catSafe){
         var hasBan=petDNA.catSafe.indexOf('禁用')>=0||petDNA.catSafe.indexOf('不適合')>=0||petDNA.catSafe.indexOf('絕對')>=0;
         if(hasBan){
-          oilSafety='⚠️ '+(petDNA.oils?petDNA.oils+'：':'')+'對貓有毒性風險，請勿使用。';
-          if(petDNA.catAlt)oilSafety+='<br>替代：'+petDNA.catAlt;
+          var banText='⚠️ '+(petDNA.oils?petDNA.oils+'：':'')+'對貓有毒性風險，請勿使用。';
+          if(petDNA.catAlt)banText+='<br>替代：'+petDNA.catAlt;
+          oilSafetyHTML='<div style="'+oilBase+';color:rgba(240,160,60,.85)">'+banText+'</div>';
         }else{
-          oilSafety='🐱 '+petDNA.catSafe;
+          oilSafetyHTML='<div style="'+oilBase+';color:rgba(190,170,220,.7)">🐱 '+petDNA.catSafe+'</div>';
         }
       }else if(!isCat&&petDNA.oils){
-        // 非貓：顯示精油名稱供空間氛圍參考
-        oilSafety='🌿 精油氛圍：'+petDNA.oils;
+        oilSafetyHTML='<div style="'+oilBase+';color:rgba(120,180,140,.65)">🌿 精油氛圍：'+petDNA.oils+'</div>';
       }
     }
     slot.innerHTML=
@@ -625,7 +626,7 @@ function initDraw(){
           '<div style="font-size:.82rem;color:var(--paw);font-style:italic;line-height:1.8;text-align:center;margin-bottom:8px">「'+petMsg+'」</div>'+
           (staticShort?'<div style="font-size:.78rem;color:rgba(255,255,255,.58);line-height:1.8;padding-top:8px;border-top:1px solid rgba(240,181,179,.07)">'+sickLabel+staticShort+'</div>':'')+
           extraHint+
-          (oilSafety?'<div style="font-size:.72rem;line-height:1.7;margin-top:8px;padding-top:8px;border-top:1px solid rgba(240,181,179,.07);color:rgba(240,160,60,.8)">'+oilSafety+'</div>':'')+
+          oilSafetyHTML+
         '</div>'
       :'');
     grid.appendChild(slot);
