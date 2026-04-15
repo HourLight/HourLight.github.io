@@ -12,19 +12,36 @@
   /**
    * 發起付款
    * @param {Object} opts
-   * @param {string} opts.productId    - 商品ID（如 'pet-5', 'plus-30', 'draw-3'）
-   * @param {string} opts.productName  - 商品名稱（如 '寵物溝通五感覺察'）
-   * @param {number} opts.amount       - 金額（整數，新台幣）
-   * @param {string} opts.userId       - Firebase UID
-   * @param {string} opts.userEmail    - 使用者 email（選填）
-   * @param {string} opts.returnUrl    - 付款完成後客人被導回的 hourlightkey.com 頁面（選填，
-   *                                     不填則預設導回 member-dashboard.html）
+   * @param {string} opts.productId       - 商品ID（如 'pet-5', 'plus-30', 'draw-3', 'akashic-1'）
+   * @param {string} opts.productName     - 商品名稱
+   * @param {number} opts.amount          - 金額（整數，新台幣）
+   * @param {string} opts.userId          - Firebase UID
+   * @param {string} opts.userEmail       - 使用者 email（選填）
+   * @param {string} opts.returnUrl       - 付款完成後客人被導回的 hourlightkey.com 頁面
+   * @param {Array}  opts.cards           - 抽牌資料（用於 ATM/超商背景觸發）
+   * @param {string} opts.question        - 問題描述
+   * @param {string} opts.readingEndpoint - 解讀 API endpoint（ATM/超商付款成功後後端自動呼叫）
+   *                                         例：'https://app.hourlightkey.com/api/pet-reading'
+   * @param {Object} opts.readingBody     - 呼叫解讀 API 時的 request body（後端會自動補 email/uid/unlockCode）
+   * @param {Object} opts.localState      - 要存到 localStorage 的頁面狀態（付款返回時復原用）
+   *                                         會用 key `hl_pending_${productId}` 存
    */
   window.HLPayment = {
     pay: async function(opts) {
       if (!opts.productId || !opts.productName || !opts.amount || !opts.userId) {
         alert('付款資訊不完整，請重新操作。');
         return;
+      }
+
+      // ── 存頁面狀態到 localStorage（付款返回時復原用）──
+      if (opts.localState) {
+        try {
+          localStorage.setItem('hl_pending_' + opts.productId, JSON.stringify({
+            productId: opts.productId,
+            state: opts.localState,
+            savedAt: Date.now()
+          }));
+        } catch (e) { /* 容量滿等錯誤忽略 */ }
       }
 
       // 顯示載入狀態
@@ -49,7 +66,9 @@
             returnUrl: opts.returnUrl || '',
             businessId: opts.businessId || '',
             cards: opts.cards || null,
-            question: opts.question || ''
+            question: opts.question || '',
+            readingEndpoint: opts.readingEndpoint || '',
+            readingBody: opts.readingBody || null
           })
         });
 
@@ -86,6 +105,41 @@
           btn.disabled = false;
         }
       }
+    },
+
+    /**
+     * 檢查目前頁面是否剛從 PAYUNi 付款返回
+     * 回傳：{ success: bool, code: string, orderId: string, localState: object } 或 null
+     * 同時會自動從 URL 移除 payment/order/code 參數避免重複觸發
+     */
+    checkReturn: function(productId) {
+      var params = new URLSearchParams(location.search);
+      var payment = params.get('payment');
+      var code = params.get('code');
+      var order = params.get('order');
+      if (payment !== 'success' || !code) return null;
+
+      // 從 localStorage 復原頁面狀態
+      var localState = null;
+      try {
+        var saved = localStorage.getItem('hl_pending_' + productId);
+        if (saved) {
+          var parsed = JSON.parse(saved);
+          if (parsed && parsed.state) localState = parsed.state;
+          localStorage.removeItem('hl_pending_' + productId);
+        }
+      } catch (e) { /* ignore */ }
+
+      // 清掉 URL 參數避免 F5 重複觸發
+      try {
+        params.delete('payment');
+        params.delete('order');
+        params.delete('code');
+        var newUrl = location.pathname + (params.toString() ? '?' + params.toString() : '') + location.hash;
+        history.replaceState(null, '', newUrl);
+      } catch (e) { /* ignore */ }
+
+      return { success: true, code: code, orderId: order || '', localState: localState };
     }
   };
 

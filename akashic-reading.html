@@ -861,11 +861,47 @@ function akPayuniPay(){
   var btn=document.getElementById('akPayuniBtn');
   var u=(typeof firebase!=='undefined'&&firebase.auth)?firebase.auth().currentUser:null;
   if(!u){alert('請先登入會員才能線上付款。');location.href='app.html?redirect='+encodeURIComponent(location.href.split('?')[0]);return;}
+  // 必須先完成抽牌才能付款
+  if(!drawnCards||drawnCards.length<7){alert('請先完成 7 張抽牌再進行付款。');btn.disabled=false;return;}
   btn.disabled=true;btn.textContent='處理中⋯⋯';
+
+  // 組 readingBody（後端 payuni-notify 會用來背景觸發 API 寄信）
+  var birthday=document.getElementById('birthdayInput').value;
+  var category=document.getElementById('questionCategory').value;
+  var detail=document.getElementById('questionDetail').value.trim();
+  var question=category+(detail?'：'+detail:'');
+  var cardsPayload=[];
+  for(var i=0;i<7;i++){
+    var code_i=drawnCodes[i]||'';
+    var title_i=drawnTitles[i]||'';
+    var info=window.cardData?window.cardData[code_i]:null;
+    cardsPayload.push({
+      layer:LAYER_NAMES[i],code:code_i,title:title_i,
+      reversed:drawnReversed[i]||false,
+      orientation:drawnReversed[i]?'挑戰（逆位）':'禮物（正位）',
+      meaning:info?(info['覺察']||info.meaning||''):''
+    });
+  }
+  var readingBody={birthday:birthday,question:question,giftChallengeMode:true,cards:cardsPayload};
+
   function go(){
     window.HLPayment.pay({
-      productId:'akashic-1',productName:'阿卡西紀錄 AI 深度解讀',amount:599,
-      userId:u.uid,userEmail:u.email||'',returnUrl:location.href.split('?')[0]
+      productId:'akashic-1',
+      productName:'阿卡西紀錄 AI 深度解讀',
+      amount:599,
+      userId:u.uid,
+      userEmail:u.email||'',
+      returnUrl:location.href.split('?')[0],
+      readingEndpoint:'https://app.hourlightkey.com/api/reading-services?type=akashic',
+      readingBody:readingBody,
+      localState:{
+        birthday:birthday,
+        questionCategory:category,
+        questionDetail:detail,
+        drawnCodes:drawnCodes,
+        drawnTitles:drawnTitles,
+        drawnReversed:drawnReversed
+      }
     });
   }
   if(window.HLPayment&&window.HLPayment.pay){go();return;}
@@ -873,6 +909,34 @@ function akPayuniPay(){
   s.onload=go;s.onerror=function(){alert('付款模組載入失敗，請改用代碼兌換。');btn.disabled=false;btn.textContent='線上付款 NT$ 599';};
   document.head.appendChild(s);
 }
+
+// ── 付款返回自動觸發解讀 ──
+(function waitForAkPayment(){
+  function tryCheck(){
+    if(!window.HLPayment||!window.HLPayment.checkReturn){setTimeout(tryCheck,200);return;}
+    var ret=window.HLPayment.checkReturn('akashic-1');
+    if(!ret||!ret.success)return;
+
+    // 復原頁面狀態
+    if(ret.localState){
+      try{
+        if(ret.localState.birthday)document.getElementById('birthdayInput').value=ret.localState.birthday;
+        if(ret.localState.questionCategory)document.getElementById('questionCategory').value=ret.localState.questionCategory;
+        if(ret.localState.questionDetail)document.getElementById('questionDetail').value=ret.localState.questionDetail;
+        drawnCodes=ret.localState.drawnCodes||drawnCodes;
+        drawnTitles=ret.localState.drawnTitles||drawnTitles;
+        drawnReversed=ret.localState.drawnReversed||drawnReversed;
+        drawnCards=drawnCodes.slice(); // 讓 startReading 的檢查過關
+      }catch(e){console.warn('復原狀態失敗:',e);}
+    }
+
+    // 隱藏付款區 + 自動觸發解讀
+    var ps=document.getElementById('paidSection');if(ps)ps.style.display='none';
+    var pc=document.getElementById('previewCta');if(pc)pc.style.display='none';
+    startReading(ret.code);
+  }
+  tryCheck();
+})();
 </script>
 
 <!-- Standard site scripts -->
