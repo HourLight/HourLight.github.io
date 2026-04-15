@@ -431,6 +431,106 @@ document.querySelectorAll('.rb-dd > .rb-topbar-link').forEach(link => {
       </a>
     </div>
     <p style="text-align:left;color:rgba(248,223,165,0.85);font-size:0.88rem;margin-top:16px;letter-spacing:1.5px;font-weight:500">3 分鐘有結果 · 基礎免費體驗</p>
+
+    <!-- 📱 裝到手機變成 App（PWA install CTA）-->
+    <div id="installAppWrap" style="margin-top:18px;display:none">
+      <button id="installAppBtn" type="button" style="display:inline-flex;align-items:center;gap:10px;padding:12px 24px;background:rgba(248,223,165,.08);border:1.5px solid rgba(248,223,165,.35);border-radius:999px;color:#f8dfa5;font-size:.88rem;letter-spacing:1.5px;cursor:pointer;transition:all .25s;font-family:inherit" onmouseover="this.style.background='rgba(248,223,165,.15)';this.style.borderColor='rgba(248,223,165,.6)'" onmouseout="this.style.background='rgba(248,223,165,.08)';this.style.borderColor='rgba(248,223,165,.35)'">
+        📱 裝到手機變成 App
+      </button>
+      <div style="color:rgba(255,255,255,.5);font-size:.75rem;margin-top:6px;letter-spacing:1px">免下載，直接在手機主畫面開啟</div>
+    </div>
+
+    <!-- iOS 安裝教學 Modal -->
+    <div id="installAppModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;align-items:center;justify-content:center;padding:20px">
+      <div style="background:#1a1428;border:1px solid rgba(248,223,165,.25);border-radius:20px;max-width:420px;width:100%;padding:28px 24px;color:#fff;box-shadow:0 20px 60px rgba(0,0,0,.4)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="font-size:1.1rem;font-weight:600;color:#f8dfa5">📱 安裝到手機主畫面</div>
+          <button type="button" onclick="document.getElementById('installAppModal').style.display='none'" style="background:transparent;border:none;color:#f8dfa5;font-size:1.4rem;cursor:pointer;padding:0;line-height:1">✕</button>
+        </div>
+        <div id="installAppModalBody" style="font-size:.9rem;line-height:1.85;color:rgba(255,255,255,.85)"></div>
+        <button type="button" onclick="document.getElementById('installAppModal').style.display='none'" style="margin-top:18px;width:100%;padding:12px;background:linear-gradient(135deg,#f8dfa5,#e9c27d);border:none;border-radius:10px;color:#1a1008;font-weight:600;font-size:.92rem;cursor:pointer;font-family:inherit">我知道了</button>
+      </div>
+    </div>
+
+    <script>
+    // ═══ PWA 安裝：beforeinstallprompt + iOS fallback ═══
+    (function(){
+      var deferredPrompt = null;
+      var wrap = document.getElementById('installAppWrap');
+      var btn = document.getElementById('installAppBtn');
+      var modal = document.getElementById('installAppModal');
+      var modalBody = document.getElementById('installAppModalBody');
+
+      // 已經在 standalone（app 模式）就不顯示按鈕
+      var isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                      || window.navigator.standalone === true;
+      if (isStandalone) return;
+
+      // 偵測裝置
+      var ua = navigator.userAgent || '';
+      var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+      var isAndroid = /Android/.test(ua);
+
+      // 監聽 beforeinstallprompt（Chrome/Edge/Android）
+      window.addEventListener('beforeinstallprompt', function(e){
+        e.preventDefault();
+        deferredPrompt = e;
+        wrap.style.display = 'block';
+      });
+
+      // 監聽 appinstalled
+      window.addEventListener('appinstalled', function(){
+        wrap.style.display = 'none';
+        deferredPrompt = null;
+      });
+
+      // 手機（iOS + Android）預設顯示按鈕，即使沒觸發 beforeinstallprompt
+      if (isIOS || isAndroid) {
+        wrap.style.display = 'block';
+      }
+
+      btn.addEventListener('click', function(){
+        if (deferredPrompt) {
+          // Chrome / Android：直接觸發安裝提示
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then(function(choice){
+            if (choice.outcome === 'accepted') wrap.style.display = 'none';
+            deferredPrompt = null;
+          });
+          return;
+        }
+        // iOS Safari / 其他：顯示說明 modal
+        if (isIOS) {
+          modalBody.innerHTML =
+            '<div style="margin-bottom:14px">iOS Safari 沒有一鍵安裝功能，但只要 3 步就能把馥靈之鑰放到你的主畫面：</div>' +
+            '<ol style="padding-left:22px;margin:0 0 8px">' +
+              '<li style="margin-bottom:10px">點擊 Safari 底部的「<strong style="color:#f8dfa5">分享</strong>」按鈕 <span style="display:inline-block;padding:2px 8px;background:rgba(0,122,255,.15);border-radius:4px;font-size:.85rem">⬆️</span>（正方形往上的箭頭）</li>' +
+              '<li style="margin-bottom:10px">往下滑，找到「<strong style="color:#f8dfa5">加入主畫面</strong>」<span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,.08);border-radius:4px;font-size:.85rem">➕</span></li>' +
+              '<li>右上角點「<strong style="color:#f8dfa5">加入</strong>」</li>' +
+            '</ol>' +
+            '<div style="margin-top:14px;padding:10px 14px;background:rgba(248,223,165,.06);border-left:3px solid #f8dfa5;border-radius:6px;font-size:.82rem;color:rgba(255,255,255,.7);line-height:1.7">裝好之後從主畫面開啟，會像 App 一樣全螢幕，沒有 Safari 的網址列。</div>';
+        } else if (isAndroid) {
+          modalBody.innerHTML =
+            '<div style="margin-bottom:14px">Android 的 Chrome / Samsung Browser 可以直接安裝：</div>' +
+            '<ol style="padding-left:22px;margin:0 0 8px">' +
+              '<li style="margin-bottom:10px">點右上角「<strong style="color:#f8dfa5">⋮</strong>」選單按鈕</li>' +
+              '<li style="margin-bottom:10px">選「<strong style="color:#f8dfa5">安裝應用程式</strong>」或「<strong style="color:#f8dfa5">加到主畫面</strong>」</li>' +
+              '<li>點「<strong style="color:#f8dfa5">安裝</strong>」確認</li>' +
+            '</ol>' +
+            '<div style="margin-top:14px;padding:10px 14px;background:rgba(248,223,165,.06);border-left:3px solid #f8dfa5;border-radius:6px;font-size:.82rem;color:rgba(255,255,255,.7);line-height:1.7">有些 Android 瀏覽器會在網址列旁邊直接顯示「安裝」按鈕，點那個也可以。</div>';
+        } else {
+          modalBody.innerHTML =
+            '<div style="margin-bottom:14px">電腦版 Chrome / Edge 可以把馥靈之鑰裝成桌面應用程式：</div>' +
+            '<ol style="padding-left:22px;margin:0 0 8px">' +
+              '<li style="margin-bottom:10px">看網址列右邊是否有「<strong style="color:#f8dfa5">安裝</strong>」或電腦圖示 <span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,.08);border-radius:4px;font-size:.85rem">⊕</span>，直接點</li>' +
+              '<li style="margin-bottom:10px">或開啟瀏覽器選單（右上 ⋮）→「<strong style="color:#f8dfa5">安裝馥靈之鑰</strong>」</li>' +
+              '<li>裝好後會出現在作業系統應用列表，可以獨立開啟</li>' +
+            '</ol>';
+        }
+        modal.style.display = 'flex';
+      });
+    })();
+    </script>
     <div style="margin-top:12px"><a href="free-fortune-tools.html" style="color:rgba(255,255,255,.55);font-size:.85rem;text-decoration:none;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,.15);padding-bottom:2px;transition:all .3s" onmouseover="this.style.color='rgba(248,223,165,.8)'" onmouseout="this.style.color='rgba(255,255,255,.55)'">🔗 免費算命工具總覽</a></div>
   </div>
   <div class="rb-hero-visual">
