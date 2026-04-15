@@ -279,6 +279,24 @@ async function handleAkashic(req, res, apiKey) {
         readingLength: reading.length,
         createdAt: new Date()
       });
+      // 同時寫入統一 readings collection（admin-dashboard 查詢用）
+      await db2.collection('readings').add({
+        service: 'akashic',
+        source: 'reading-services',
+        uid: uid || '',
+        email: userEmail || '',
+        name: '',
+        n: 7,
+        spread: '阿卡西 7 層',
+        reading: reading,
+        question: question || '',
+        cardCodes: cards.map(function(c) { return c.code; }),
+        cardTitles: cards.map(function(c) { return c.title; }),
+        unlockCode: unlockCode || '',
+        isPaid: true,
+        price: 599,
+        createdAt: new Date()
+      });
     }
   } catch (logErr) {
     console.error('Firestore log error:', logErr.message);
@@ -478,6 +496,23 @@ async function handleYuanChen(req, res, apiKey) {
         storyLength: story.length,
         createdAt: new Date()
       });
+      // 同時寫入統一 readings collection
+      await db2.collection('readings').add({
+        service: 'yuan-chen',
+        source: 'reading-services',
+        uid: uid || '',
+        email: userEmail || '',
+        name: '',
+        n: (cards && cards.length) || 0,
+        spread: '元辰宮',
+        reading: story,
+        question: question || '',
+        cardCodes: cards.map(function(c) { return c.code; }),
+        unlockCode: unlockCode || '',
+        isPaid: true,
+        price: 599,
+        createdAt: new Date()
+      });
     }
   } catch (logErr) {
     console.error('Firestore log error:', logErr.message);
@@ -626,6 +661,22 @@ async function handlePastLife(req, res, apiKey) {
         uid: uid || 'guest',
         email: userEmail || '',
         storyLength: story.length,
+        createdAt: new Date()
+      });
+      // 同時寫入統一 readings collection
+      await db2.collection('readings').add({
+        service: 'past-life',
+        source: 'reading-services',
+        uid: uid || '',
+        email: userEmail || '',
+        name: '',
+        n: 1,
+        spread: '前世故事',
+        reading: story,
+        question: '',
+        unlockCode: unlockCode || '',
+        isPaid: true,
+        price: 399,
         createdAt: new Date()
       });
     }

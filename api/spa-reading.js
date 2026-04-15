@@ -1637,6 +1637,32 @@ SPA 覺察處方箋 AI 解牌指令系統 v2.0
       ? data.content.map(block => block.text || '').join('')
       : '';
 
+    // ── 存入 readings collection（統一 admin-dashboard 查詢用）──
+    try {
+      const SA_JSON = process.env.FIREBASE_SERVICE_ACCOUNT;
+      if (SA_JSON && text) {
+        const admin = require('firebase-admin');
+        if (!admin.apps.length) {
+          admin.initializeApp({ credential: admin.credential.cert(JSON.parse(SA_JSON)) });
+        }
+        await admin.firestore().collection('readings').add({
+          service: 'spa',
+          source: 'spa-reading',
+          uid: req.body.uid || '',
+          email: req.body.email || '',
+          name: req.body.name || '',
+          n: spread || 0,
+          spread: String(spread || ''),
+          reading: text,
+          question: (prompt || '').substring(0, 500),
+          isPaid: true,
+          createdAt: new Date()
+        });
+      }
+    } catch (saveErr) {
+      console.error('spa-reading readings save error:', saveErr.message);
+    }
+
     // ── 自動寄信（若前端帶 email 就寄一份，避免消費糾紛）──
     if (req.body.email && text) {
       try {
