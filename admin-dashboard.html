@@ -1203,12 +1203,177 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
 
     <!-- ═══ Tab 6: Live Monitor ═══ -->
     <div id="panel-monitor" class="adm-panel">
+
+      <!-- 📊 系統指標總覽 -->
       <div class="adm-card">
         <div class="adm-card-head">
-          <div class="adm-card-title">即時事件監控</div>
+          <div class="adm-card-title">📊 系統指標總覽</div>
+          <button class="adm-btn adm-btn-sm adm-btn-outline" onclick="loadSystemMetrics()">🔄 重新載入</button>
+        </div>
+        <div class="adm-card-body">
+          <div style="font-size:.78rem;color:var(--adm-text3);line-height:1.7;margin-bottom:14px">
+            所有數字從 Firestore 即時讀取。換日以台灣時間（UTC+8）計算。
+          </div>
+          <div id="sysMetricsGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+            <div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🔗 外部服務監控連結 -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">🔗 外部服務監控儀表板</div>
+          <span class="adm-card-badge badge badge-blue">外部連結</span>
+        </div>
+        <div class="adm-card-body">
+          <div style="font-size:.78rem;color:var(--adm-text3);line-height:1.7;margin-bottom:14px">
+            這些數據無法從前端直接抓（API 需要 token 或憑證）。點卡片會開對應 console，登入後即可看到即時用量。
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">
+
+            <!-- Vercel -->
+            <a href="https://vercel.com/hourlight/hour-light-github-io/usage" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+              <div style="border:1px solid var(--adm-border);border-radius:12px;padding:16px;background:#000;color:#fff">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                  <span style="font-size:1.2rem">▲</span>
+                  <span style="font-weight:700;font-size:.95rem">Vercel</span>
+                  <span style="margin-left:auto;font-size:.68rem;opacity:.6">Hobby 免費</span>
+                </div>
+                <div style="font-size:.78rem;opacity:.8;line-height:1.7">
+                  網站 12 支 API function 的執行紀錄（PAYUNi 金流、AI 解讀、send-report）。<br>
+                  看 Build Minutes / Edge Requests / Data Transfer / Fluid CPU 用量。
+                </div>
+                <div style="font-size:.72rem;margin-top:10px;color:#60a5fa">→ 點擊開啟 Vercel Usage</div>
+              </div>
+            </a>
+
+            <!-- Firebase / Firestore -->
+            <a href="https://console.firebase.google.com/project/hourlight-key/usage" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+              <div style="border:1px solid var(--adm-border);border-radius:12px;padding:16px;background:#ffca28;color:#1a1520">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                  <span style="font-size:1.2rem">🔥</span>
+                  <span style="font-weight:700;font-size:.95rem">Firebase</span>
+                  <span style="margin-left:auto;font-size:.68rem;opacity:.7">Spark 免費</span>
+                </div>
+                <div style="font-size:.78rem;line-height:1.7">
+                  會員帳號、所有資料（users / readings / orders / readings_codes 等）都存在 Firebase Firestore。<br>
+                  看每日讀寫次數（Spark：50K 讀/天、20K 寫/天）+ 儲存空間。
+                </div>
+                <div style="font-size:.72rem;margin-top:10px;color:#6d5640">→ 點擊開啟 Firebase 用量</div>
+              </div>
+            </a>
+
+            <!-- Anthropic -->
+            <a href="https://console.anthropic.com/settings/billing" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+              <div style="border:1px solid var(--adm-border);border-radius:12px;padding:16px;background:#da7756;color:#fff">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                  <span style="font-size:1.2rem">🤖</span>
+                  <span style="font-weight:700;font-size:.95rem">Anthropic</span>
+                  <span style="margin-left:auto;font-size:.68rem;opacity:.7">Claude API</span>
+                </div>
+                <div style="font-size:.78rem;opacity:.95;line-height:1.7">
+                  所有 AI 解讀（draw/pet/family/spa/nail/akashic/yuan-chen/past-life/wallpaper）都呼叫 Claude。<br>
+                  按 token 計費，Sonnet 4 每百萬 token 輸入 \$3 / 輸出 \$15。
+                </div>
+                <div style="font-size:.72rem;margin-top:10px">→ 點擊開啟 Anthropic Billing</div>
+              </div>
+            </a>
+
+            <!-- Google Analytics 4 -->
+            <a href="https://analytics.google.com" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+              <div style="border:1px solid var(--adm-border);border-radius:12px;padding:16px;background:#f9ab00;color:#1a1520">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                  <span style="font-size:1.2rem">📈</span>
+                  <span style="font-weight:700;font-size:.95rem">Google Analytics 4</span>
+                  <span style="margin-left:auto;font-size:.68rem;opacity:.7">G-BXP7K53QG6</span>
+                </div>
+                <div style="font-size:.78rem;line-height:1.7">
+                  網站訪客流量、熱門頁面、來源、停留時間、裝置。每頁都有追蹤碼。<br>
+                  主要看哪些工具被使用、轉化率、SEO 流量。
+                </div>
+                <div style="font-size:.72rem;margin-top:10px;color:#6d5640">→ 點擊開啟 GA4</div>
+              </div>
+            </a>
+
+            <!-- PAYUNi -->
+            <a href="https://www.payuni.com.tw" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+              <div style="border:1px solid var(--adm-border);border-radius:12px;padding:16px;background:#667eea;color:#fff">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                  <span style="font-size:1.2rem">💳</span>
+                  <span style="font-weight:700;font-size:.95rem">PAYUNi 統一金流</span>
+                  <span style="margin-left:auto;font-size:.68rem;opacity:.7">U031269167</span>
+                </div>
+                <div style="font-size:.78rem;opacity:.95;line-height:1.7">
+                  客人信用卡 / ATM / 超商 / Apple Pay 付款都走 PAYUNi。<br>
+                  看今日成功筆數、對帳、撥款狀態、失敗訂單。
+                </div>
+                <div style="font-size:.72rem;margin-top:10px">→ 點擊開啟 PAYUNi 商家後台</div>
+              </div>
+            </a>
+
+            <!-- GitHub Pages -->
+            <a href="https://github.com/HourLight/HourLight.github.io" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+              <div style="border:1px solid var(--adm-border);border-radius:12px;padding:16px;background:#24292e;color:#fff">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                  <span style="font-size:1.2rem">📦</span>
+                  <span style="font-weight:700;font-size:.95rem">GitHub Pages</span>
+                  <span style="margin-left:auto;font-size:.68rem;opacity:.6">主站託管</span>
+                </div>
+                <div style="font-size:.78rem;opacity:.9;line-height:1.7">
+                  hourlightkey.com 所有 HTML/CSS/JS/圖片都在 GitHub Pages（免費 + 無限流量）。<br>
+                  push 到 main branch 後 1-2 分鐘自動部署。
+                </div>
+                <div style="font-size:.72rem;margin-top:10px;color:#6ce6ff">→ 點擊開啟 repo</div>
+              </div>
+            </a>
+
+            <!-- MailerLite -->
+            <a href="https://dashboard.mailerlite.com" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+              <div style="border:1px solid var(--adm-border);border-radius:12px;padding:16px;background:#00c48c;color:#fff">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                  <span style="font-size:1.2rem">📧</span>
+                  <span style="font-weight:700;font-size:.95rem">MailerLite</span>
+                  <span style="margin-left:auto;font-size:.68rem;opacity:.7">電子報系統</span>
+                </div>
+                <div style="font-size:.78rem;opacity:.95;line-height:1.7">
+                  訂閱名單管理、電子報發送、自動化流程。<br>
+                  hl-email.js 每次客人留 email 都會加入這裡。
+                </div>
+                <div style="font-size:.72rem;margin-top:10px">→ 點擊開啟 MailerLite</div>
+              </div>
+            </a>
+
+            <!-- Firestore Rules -->
+            <a href="https://console.firebase.google.com/project/hourlight-key/firestore/rules" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+              <div style="border:1px solid var(--adm-border);border-radius:12px;padding:16px;background:#fef3c7;color:#7c2d12">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                  <span style="font-size:1.2rem">🔐</span>
+                  <span style="font-weight:700;font-size:.95rem">Firestore 安全規則</span>
+                  <span style="margin-left:auto;font-size:.68rem;opacity:.7">rules</span>
+                </div>
+                <div style="font-size:.78rem;line-height:1.7">
+                  控制哪些集合誰能讀寫（例如 admin 專屬集合、用戶自己的資料）。<br>
+                  每次修改 rules 必須在這裡 publish 才會生效（GitHub 推 commit 不會自動部署）。
+                </div>
+                <div style="font-size:.72rem;margin-top:10px;color:#b45309">→ 點擊開啟 Rules</div>
+              </div>
+            </a>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ⚡ 即時事件流 -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">⚡ 即時事件監控</div>
           <span class="adm-card-badge badge badge-green" id="monitorStatus">自動刷新中</span>
         </div>
         <div class="adm-card-body">
+          <div style="font-size:.78rem;color:var(--adm-text3);line-height:1.7;margin-bottom:14px">
+            從 Firestore events 集合讀取最近 100 筆用戶行為（抽牌、解讀、算命、測驗、登入等）。每 30 秒自動刷新一次。
+          </div>
           <div class="adm-event-list" id="monitorEvents">
             <div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>
           </div>
@@ -3484,10 +3649,93 @@ window.loadFeedback = loadFeedback;
 // ═══════════════════════════════════════════════════════════════
 
 function startMonitor() {
+  loadSystemMetrics();
   loadMonitorEvents();
   if (monitorInterval) clearInterval(monitorInterval);
   monitorInterval = setInterval(loadMonitorEvents, 30000);
 }
+
+// ═══ 系統指標總覽（從 Firestore 即時抓）═══
+// 逸君需求：「我要隨時掌握 但要說明那是什麼並且給我連結」
+async function loadSystemMetrics() {
+  var grid = document.getElementById('sysMetricsGrid');
+  if (!grid) return;
+  grid.innerHTML = '<div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>';
+
+  // 台灣時間今日 0:00 的 Date 物件
+  var tw = new Date(new Date().getTime() + 8 * 3600000);
+  var todayYmd = tw.getUTCFullYear() + '-' + String(tw.getUTCMonth()+1).padStart(2,'0') + '-' + String(tw.getUTCDate()).padStart(2,'0');
+  var todayStart = new Date(tw.getUTCFullYear(), tw.getUTCMonth(), tw.getUTCDate(), 0, 0, 0);
+  // 轉回 UTC 的相同瞬間（扣 8 小時）
+  todayStart = new Date(todayStart.getTime() - 8 * 3600000);
+
+  // 本月第一天 0:00
+  var monthStart = new Date(tw.getUTCFullYear(), tw.getUTCMonth(), 1, 0, 0, 0);
+  monthStart = new Date(monthStart.getTime() - 8 * 3600000);
+
+  // 指標定義
+  var metrics = [];
+
+  function card(icon, label, value, sub, color, tooltip) {
+    return '<div style="background:var(--adm-gold-bg2);border:1px solid var(--adm-border);border-radius:12px;padding:14px 16px" title="' + esc(tooltip || '') + '">' +
+      '<div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--adm-text2);margin-bottom:6px">' +
+        '<span>' + icon + '</span><span>' + esc(label) + '</span>' +
+      '</div>' +
+      '<div style="font-size:1.4rem;font-weight:700;color:' + (color || 'var(--adm-text)') + ';line-height:1.2">' + esc(String(value)) + '</div>' +
+      (sub ? '<div style="font-size:.7rem;color:var(--adm-text3);margin-top:4px">' + esc(sub) + '</div>' : '') +
+      '</div>';
+  }
+
+  try {
+    // 並行抓所有 query（加 catch 讓個別失敗不影響其他）
+    var queries = await Promise.allSettled([
+      db.collection('users').get(),
+      db.collection('users').where('plan', 'in', ['plus','pro']).get(),
+      db.collection('readings').where('createdAt', '>=', todayStart).get(),
+      db.collection('readings').where('createdAt', '>=', monthStart).get(),
+      db.collection('orders').where('paidAt', '>=', todayStart).get(),
+      db.collection('orders').where('paidAt', '>=', monthStart).get(),
+      db.collection('pendingOrders').where('status', '==', 'pending').get(),
+      db.collection('events').where('ts', '>=', todayStart).get(),
+      db.collection('reading_codes').where('used', '==', false).get(),
+      db.collection('feedback').orderBy('timestamp', 'desc').limit(20).get()
+    ]);
+
+    var [allUsers, paidMembers, readingsToday, readingsMonth, ordersToday, ordersMonth, pending, eventsToday, unusedCodes, recentFeedback] = queries.map(function(r) {
+      return r.status === 'fulfilled' ? r.value : { size: 0, empty: true, forEach: function(){}, docs: [] };
+    });
+
+    // 計算今日/當月營收
+    var todayRevenue = 0;
+    ordersToday.forEach && ordersToday.forEach(function(d) { todayRevenue += Number(d.data().amount || 0); });
+    var monthRevenue = 0;
+    ordersMonth.forEach && ordersMonth.forEach(function(d) { monthRevenue += Number(d.data().amount || 0); });
+
+    // 計算新回報（未處理的 feedback）
+    var unresolvedFeedback = 0;
+    recentFeedback.forEach && recentFeedback.forEach(function(d) {
+      var dt = d.data();
+      if (!dt.resolved && !dt.handled) unresolvedFeedback++;
+    });
+
+    grid.innerHTML = [
+      card('👥', '總會員數', allUsers.size || 0, 'users collection', 'var(--adm-gold)', '所有已註冊的 Firebase Auth 帳號'),
+      card('💎', '付費會員數', paidMembers.size || 0, 'plus / pro 方案', 'var(--adm-gold)', '目前訂閱中的鑰友 + 大師會員數量'),
+      card('📜', '今日解讀', readingsToday.size || 0, todayYmd, '#8b6f4e', '今日透過 readings collection 記錄的所有解讀（draw/pet/family/spa/nail/akashic/yuan-chen/past-life）'),
+      card('📚', '當月解讀', readingsMonth.size || 0, tw.getUTCMonth()+1 + '月累計', '#8b6f4e', '本月所有解讀總數'),
+      card('💳', '今日付款', ordersToday.size || 0, 'NT$ ' + todayRevenue.toLocaleString(), '#00c48c', '今日 PAYUNi 成功入帳的訂單數 + 當日總營收'),
+      card('💰', '當月營收', 'NT$ ' + monthRevenue.toLocaleString(), ordersMonth.size + ' 筆', '#00c48c', '本月 PAYUNi 成功入帳的總營收 + 訂單筆數'),
+      card('⏳', '待處理訂單', pending.size || 0, 'pendingOrders', pending.size > 0 ? '#e67e22' : 'var(--adm-text3)', '用戶已跳轉到 PAYUNi 但還沒付款（可能剛跳過去、或超商/ATM 等待付款）'),
+      card('📡', '今日事件', eventsToday.size || 0, 'events 集合', 'var(--adm-text2)', '今日用戶行為事件（抽牌、解讀、算命、登入等）'),
+      card('🎟️', '未使用代碼', unusedCodes.size || 0, 'reading_codes', 'var(--adm-text2)', '已產生但還沒兌換的解讀代碼（月禮、付款代碼、管理員發的）'),
+      card('🐛', '未處理回報', unresolvedFeedback, '最近 20 筆中', unresolvedFeedback > 0 ? '#d93025' : 'var(--adm-text3)', '問題回報分頁裡還沒標記已處理的')
+    ].join('');
+  } catch (err) {
+    console.error('loadSystemMetrics error:', err);
+    grid.innerHTML = '<div class="adm-empty" style="grid-column:1/-1">指標載入失敗：' + esc(err.message) + '<br><small>如果是 Missing or insufficient permissions，請先部署 firestore.rules 到 Firebase Console</small></div>';
+  }
+}
+window.loadSystemMetrics = loadSystemMetrics;
 
 function loadMonitorEvents() {
   var container = document.getElementById('monitorEvents');
