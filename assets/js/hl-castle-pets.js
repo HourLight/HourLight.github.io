@@ -273,85 +273,102 @@
     savePets(state);
   }
 
-  // ═══ 解鎖條件檢查 ═══
+  // ═══ 解鎖條件檢查（2026/04/15 重寫為完整重算模式）═══
+  // 原本的 bug：
+  // 1. legendary_master / rare_achiever 根本沒有合法的 check 邏輯，導致條件 key 只能被「雲端合併 / 舊版 bug」帶進來
+  // 2. 只 set=true 不 set=false，一旦資料污染就永遠留著
+  // 3. ownedCats 在 sync 時走 arrayUnion 聯集 → 污染狀態只會累積不會消失
+  // 修正：每次都完整重算 unlockedConditions，然後雙向 reconcile ownedCats
+  // （保留 milestone 類 flag 不退回：first_login / pet_feed_1 / first_furniture）
   function checkUnlockConditions(state){
     if(!window.hlCastle || !window.hlMaterial) return;
     var castleState = hlCastle.getState();
     var diary = hlCastle.getDiary(999);
 
-    // first_login：首次進入城堡自動解鎖基礎寵物
-    if(!state.unlockedConditions['first_login']) {
-      state.unlockedConditions['first_login'] = true;
-    }
+    // ── sticky flags（一旦成就達成就不退回）──
+    var old = state.unlockedConditions || {};
+    var fresh = {};
 
-    // ── 每日登入與連續天數 ──
+    // first_login：首次進入城堡自動解鎖（永久保留）
+    fresh['first_login'] = true;
+
+    // ── 連續天數（hlCastle.streak 同步自 Firestore）──
     var streak = castleState.streak || 0;
-    if(streak >= 3) state.unlockedConditions['daily_login_3'] = true;  // 豆豆（虎斑）
-    if(streak >= 7) state.unlockedConditions['streak_7'] = true;
+    if(streak >= 3)   fresh['daily_login_3'] = true;  // 豆豆（虎斑）
+    if(streak >= 7)   fresh['streak_7'] = true;
+    if(streak >= 30)  fresh['streak_30'] = true;
+    if(streak >= 90)  fresh['streak_90'] = true;
+    if(streak >= 100) fresh['streak_100'] = true;
 
-    // ── 分享 ──
+    // ── 分享次數 ──
     var shareCount = castleState.shareCount || 0;
-    if(shareCount >= 2) state.unlockedConditions['share_count_2'] = true;  // 阿BO（賓士）
-    if(shareCount >= 5) state.unlockedConditions['share_count_5'] = true;
+    if(shareCount >= 2)  fresh['share_count_2'] = true;   // 阿BO（賓士）
+    if(shareCount >= 5)  fresh['share_count_5'] = true;
+    if(shareCount >= 50) fresh['share_count_50'] = true;
 
-    // ── 探索次數（totalExplore 從 pets state 或 castleState.totalRooms 推算）──
-    var totalExplore = state.totalExplore || castleState.totalRooms || 0;
-    if(totalExplore >= 5) state.unlockedConditions['explore_count_5'] = true;  // 雪糕（白貓）
-    if(totalExplore >= 100) state.unlockedConditions['legendary_explorer'] = true;  // 皮皮（摺耳）要配合 90 天活躍 + 所有房間
+    // ── 探索次數 ──
+    var totalExplore = castleState.totalRooms || 0;
+    if(totalExplore >= 5)   fresh['explore_count_5'] = true;   // 雪糕（白貓）
+    if(totalExplore >= 100) fresh['explore_count_100'] = true;
 
-    // ── 測驗次數（從日記 + 城堡 totalRooms 反推）──
+    // ── 測驗次數（從 totalRooms 或日記反推）──
     var quizCount = diary.filter(function(d){ return d.roomId === 'mirror'||d.roomId === 'treasure'; }).length;
-    // quiz_count_3：橘貓糖果（panghu）— 完成 3 道測驗
-    // 反推邏輯：如果 totalRooms >= 3 或 quizCount >= 3 或 diary 長度 >= 3，代表用戶做過至少 3 次互動
-    if(castleState.totalRooms >= 3 || quizCount >= 3 || diary.length >= 3) {
-      state.unlockedConditions['quiz_count_3'] = true;
-    }
-    // quiz_count_10
-    if(castleState.totalRooms >= 10 || quizCount >= 10) state.unlockedConditions['quiz_count_10'] = true;
-    // 如果 quiz_count_10 已解鎖，quiz_count_3 必定也達成（向上相容）
-    if(state.unlockedConditions['quiz_count_10']) state.unlockedConditions['quiz_count_3'] = true;
+    var effectiveQuiz = Math.max(castleState.totalRooms || 0, quizCount, diary.length);
+    if(effectiveQuiz >= 3)   fresh['quiz_count_3'] = true;
+    if(effectiveQuiz >= 10)  fresh['quiz_count_10'] = true;
+    if(effectiveQuiz >= 50)  fresh['quiz_count_50'] = true;
+    if(effectiveQuiz >= 200) fresh['quiz_count_200'] = true;
 
-    // ── 餵食寵物 ──
-    // pet_feed_1：七七（花貓）— 任意餵食一次
-    // 檢查 petMoods 是否有任何 lastFed 非空
-    var hasFed = Object.keys(state.petMoods).some(function(pid){
+    // ── 餵食寵物（sticky milestone）──
+    var hasFed = Object.keys(state.petMoods || {}).some(function(pid){
       return state.petMoods[pid] && state.petMoods[pid].lastFed;
     });
-    if(hasFed) state.unlockedConditions['pet_feed_1'] = true;
+    if(old['pet_feed_1'] || hasFed) fresh['pet_feed_1'] = true;
 
-    // ── 材料與家具 ──
+    // ── 家具（sticky milestone）──
     var furniture = hlMaterial.getFurniture();
-    if(furniture.length > 0) state.unlockedConditions['first_furniture'] = true;
+    if(old['first_furniture'] || (furniture && furniture.length > 0)) fresh['first_furniture'] = true;
 
-    // 共用 milestones 來源（castleState.milestones 可能為 undefined → 給空物件防呆）
+    // ── 房間里程碑 ──
     var milestones = castleState.milestones || {};
-    // hour_complete（H.O.U.R. 四房各完成一次）
     var hourRooms = ['mirror','treasure','key','throne'];
-    var hourDone = hourRooms.every(function(r){ return milestones[r]; });
-    if(hourDone) state.unlockedConditions['hour_complete'] = true;
-    // light_complete（L.I.G.H.T. 五房各完成一次）
+    if(hourRooms.every(function(r){ return milestones[r]; })) fresh['hour_complete'] = true;
     var lightRooms = ['love','intuition','ground','harmony','transform'];
-    var lightDone = lightRooms.every(function(r){ return milestones[r]; });
-    if(lightDone) state.unlockedConditions['light_complete'] = true;
-    // all_rooms_once（12房各至少一次）
+    if(lightRooms.every(function(r){ return milestones[r]; })) fresh['light_complete'] = true;
     var allRooms = ['mirror','treasure','key','throne','love','intuition','ground','harmony','transform','dream','garden','tower'];
-    var allDone = allRooms.every(function(r){ return milestones[r]; });
-    if(allDone) state.unlockedConditions['all_rooms_once'] = true;
-    // transform_5：從日記統計
-    var transformCount = diary.filter(function(d){ return d.roomId === 'transform'; }).length;
-    if(transformCount >= 5) state.unlockedConditions['transform_5'] = true;
-    // selfcompassion_done：從材料推算（完成相關測驗會有材料）
-    var inv = hlMaterial.getInventory();
-    if(inv['insight_feather'] && inv['insight_feather'].count >= 5) state.unlockedConditions['selfcompassion_done'] = true;
+    if(allRooms.every(function(r){ return milestones[r]; })) fresh['all_rooms_once'] = true;
 
-    // ── 安全網：同步 unlockedConditions → ownedCats ──
-    // Sonnet 4 災後復原：如果條件已達成但 ownedCats 缺少該貓，補進去
-    // 這樣即使 localStorage 部分損壞，checkUnlockConditions 跑完之後貓會重新出現
+    var transformCount = diary.filter(function(d){ return d.roomId === 'transform'; }).length;
+    if(transformCount >= 5) fresh['transform_5'] = true;
+
+    var inv = hlMaterial.getInventory();
+    if(inv['insight_feather'] && inv['insight_feather'].count >= 5) fresh['selfcompassion_done'] = true;
+
+    // ── 稀有貓：rare_achiever（可可 keke）= 50 測驗 + 50 分享 ──
+    if(effectiveQuiz >= 50 && shareCount >= 50) fresh['rare_achiever'] = true;
+
+    // ── 傳說貓 1：legendary_explorer（皮皮 yuanyuan）= 100 探索 + 所有房間 + 連續 90 天 ──
+    if(totalExplore >= 100 && fresh['all_rooms_once'] && streak >= 90) fresh['legendary_explorer'] = true;
+
+    // ── 傳說貓 2：legendary_master（小咪 fuyun）= 200 測驗 + 所有房間 + 連續 100 天 + rare_achiever ──
+    if(effectiveQuiz >= 200 && fresh['all_rooms_once'] && streak >= 100 && fresh['rare_achiever']){
+      fresh['legendary_master'] = true;
+    }
+
+    // ═══ 覆寫 unlockedConditions（權威來源）═══
+    state.unlockedConditions = fresh;
+
+    // ═══ 雙向 Reconcile ownedCats ═══
+    // 1. 清除不合法的貓（unlockKey 不在 fresh 裡）
+    // 2. 補齊合法但缺失的貓
     if(!Array.isArray(state.ownedCats)) state.ownedCats = [];
+    state.ownedCats = state.ownedCats.filter(function(catId){
+      var cat = CATS.find(function(c){ return c.id === catId; });
+      return cat && fresh[cat.unlockKey] === true;
+    });
     CATS.forEach(function(cat){
-      if(state.unlockedConditions[cat.unlockKey] && state.ownedCats.indexOf(cat.id) === -1){
+      if(fresh[cat.unlockKey] === true && state.ownedCats.indexOf(cat.id) === -1){
         state.ownedCats.push(cat.id);
-        // 初始化心情值（讓貓咪立刻有情緒顯示）
         if(!state.petMoods[cat.id]) state.petMoods[cat.id] = { mood:70, lastFed:'' };
       }
     });
@@ -500,10 +517,17 @@
     },
 
     // 取得貓咪清單（含解鎖狀態）
+    // 2026/04/15：每次呼叫都先 reconcile，避免 sync merge 帶進 ghost 貓
     getCats: function(){
       var state = loadPets();
+      // 如果 hlCastle / hlMaterial 已載入才 reconcile（模組順序保險）
+      if(window.hlCastle && window.hlMaterial){
+        checkUnlockConditions(state);
+        savePets(state);
+      }
       return CATS.map(function(cat){
-        var unlocked = state.unlockedConditions[cat.unlockKey] || state.ownedCats.indexOf(cat.id) > -1;
+        // reconcile 後 ownedCats 是權威來源（不再 fallback 到 unlockedConditions）
+        var unlocked = state.ownedCats.indexOf(cat.id) > -1;
         var mood = state.petMoods[cat.id] || { mood:60 };
         var moodLevel = unlocked ? mood.mood : 0;
         var currentExpression = unlocked ? getCatExpression(cat, moodLevel) : null;
@@ -584,6 +608,22 @@
     ZODIAC_PETS: ZODIAC_PETS,
     CATS: CATS
   };
+
+  // ═══ 2026/04/15 啟動時強制 reconcile ═══
+  // 修 Sonnet 4 災後復原 + 雲端 mergePets arrayUnion 帶入 ghost 貓的 bug
+  // 等 hlCastle / hlMaterial 載入後立刻執行一次完整 reconcile
+  (function initReconcile(retries){
+    retries = retries || 0;
+    if(!window.hlCastle || !window.hlMaterial){
+      if(retries < 20) setTimeout(function(){ initReconcile(retries+1); }, 250);
+      return;
+    }
+    try{
+      var state = loadPets();
+      checkUnlockConditions(state);
+      savePets(state);
+    }catch(e){ console.warn('[hlPets] initReconcile error:', e); }
+  })();
 
   // ── 成長階段判斷 ──
   function getStage(state){
