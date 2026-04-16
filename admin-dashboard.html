@@ -1544,6 +1544,23 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
           <span class="adm-card-badge badge badge-gold">calc / match</span>
         </div>
         <div class="adm-card-body">
+          <div class="adm-form-row" style="margin-bottom:12px;gap:8px;align-items:flex-end;flex-wrap:wrap">
+            <div class="adm-form-group" style="flex:2;min-width:160px">
+              <input type="text" class="adm-input" id="destinySearchInput" placeholder="搜尋姓名 / email / 生日" onkeydown="if(event.key==='Enter')renderDestinyTable()">
+            </div>
+            <select class="adm-input" id="destinyTypeFilter" style="flex:1;min-width:110px" onchange="renderDestinyTable()">
+              <option value="all">全部類型</option>
+              <option value="calc">個人命盤</option>
+              <option value="match">合盤</option>
+            </select>
+            <select class="adm-input" id="destinyGenderFilter" style="flex:1;min-width:90px" onchange="renderDestinyTable()">
+              <option value="all">全部性別</option>
+              <option value="M">男</option>
+              <option value="F">女</option>
+            </select>
+            <button class="adm-btn adm-btn-outline" onclick="loadDestinyRecords()">重新載入</button>
+            <button class="adm-btn adm-btn-outline" onclick="exportDestinyCSV()">匯出 CSV</button>
+          </div>
           <div class="adm-table-wrap" id="destinyRecords">
             <div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>
           </div>
@@ -5016,48 +5033,116 @@ window.loadReferralStats = loadReferralStats;
 //  DESTINY RECORDS (Tab 8)
 // ═══════════════════════════════════════════════════════════════
 
+// 全域快取，供 renderDestinyTable() 篩選用
+window._destinyCache = [];
+
 function loadDestinyRecords() {
   var container = document.getElementById('destinyRecords');
-  container.innerHTML = '<div class="adm-loading"><div class="adm-spinner"></div> 載入中</div>';
+  container.innerHTML = '<div class="adm-loading"><div class="adm-spinner"></div> 載入中（直接查 calc_complete + match_complete）</div>';
 
-  db.collection('events').orderBy('ts', 'desc').limit(500).get().then(function(snap) {
+  // 修正：不用全掃 500 筆再過濾（會被 page_enter 吃光）
+  // 改為兩個獨立 where 查詢，各取最近 200 筆，client-side 合並排序
+  var q1 = db.collection('events').where('eventType', '==', 'calc_complete').limit(200).get();
+  var q2 = db.collection('events').where('eventType', '==', 'match_complete').limit(200).get();
+
+  Promise.all([q1, q2]).then(function(results) {
     var records = [];
-    snap.forEach(function(doc) {
-      var d = doc.data();
-      var et = d.eventType || d.type || '';
-      if (et.indexOf('calc_complete') >= 0 || et.indexOf('match_complete') >= 0) {
-        records.push(d);
-      }
+    results.forEach(function(snap) {
+      snap.forEach(function(doc) { records.push(doc.data()); });
     });
+
+    // client-side 按 ts 倒序排列
+    records.sort(function(a, b) {
+      var ta = (a.ts && a.ts.seconds) ? a.ts.seconds : (a.ts ? new Date(a.ts).getTime()/1000 : 0);
+      var tb = (b.ts && b.ts.seconds) ? b.ts.seconds : (b.ts ? new Date(b.ts).getTime()/1000 : 0);
+      return tb - ta;
+    });
+
+    window._destinyCache = records;
 
     if (records.length === 0) {
-      container.innerHTML = '<div class="adm-empty"><div class="adm-empty-icon">🌌</div>尚無命盤計算紀錄</div>';
+      container.innerHTML = '<div class="adm-empty"><div class="adm-empty-icon">🌌</div>尚無命盤計算紀錄<br><small style="color:var(--adm-text3)">登入會員跑命盤後才會出現</small></div>';
       return;
     }
-
-    var html = '<table class="adm-table"><thead><tr><th>時間</th><th>用戶</th><th>類型</th><th>工具</th><th>詳情</th></tr></thead><tbody>';
-    records.slice(0, 100).forEach(function(d) {
-      var et = d.eventType || d.type || '';
-      var typeBadge = et.indexOf('match') >= 0
-        ? '<span class="badge badge-purple">合盤</span>'
-        : '<span class="badge badge-gold">命盤</span>';
-      var detail = '';
-      if (d.detail) {
-        detail = typeof d.detail === 'string' ? d.detail : JSON.stringify(d.detail);
-      }
-      html += '<tr>' +
-        '<td>' + formatTs(d.ts || d.createdAt) + '</td>' +
-        '<td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(d.email || d.uid || '-') + '</td>' +
-        '<td>' + typeBadge + '</td>' +
-        '<td>' + esc(d.toolName || d.toolId || '-') + '</td>' +
-        '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + esc(detail) + '">' + esc(truncate(detail, 40)) + '</td>' +
-        '</tr>';
-    });
-    html += '</tbody></table>';
-    container.innerHTML = html;
+    renderDestinyTable();
   }).catch(function(e) {
     container.innerHTML = '<div class="adm-empty">載入失敗：' + esc(e.message) + '</div>';
   });
+}
+
+function renderDestinyTable() {
+  var container = document.getElementById('destinyRecords');
+  var records = window._destinyCache || [];
+  if (!records.length) return;
+
+  var search = ((document.getElementById('destinySearchInput') || {}).value || '').trim().toLowerCase();
+  var typeF  = (document.getElementById('destinyTypeFilter')  || {}).value || 'all';
+  var genderF= (document.getElementById('destinyGenderFilter')|| {}).value || 'all';
+
+  var filtered = records.filter(function(d) {
+    var et = d.eventType || '';
+    if (typeF === 'calc'  && et !== 'calc_complete')  return false;
+    if (typeF === 'match' && et !== 'match_complete') return false;
+    var det = d.detail || {};
+    var gender = det.gender || '';
+    if (genderF === 'M' && gender !== 'M') return false;
+    if (genderF === 'F' && gender !== 'F') return false;
+    if (search) {
+      var hay = [d.email||'', det.nameZh||det.name1||'', det.solarDate||'', det.lunarDate||''].join(' ').toLowerCase();
+      if (hay.indexOf(search) < 0) return false;
+    }
+    return true;
+  });
+
+  var html = '<div style="font-size:.78rem;color:var(--adm-text3);margin-bottom:8px">共 ' + filtered.length + ' 筆（篩選後）/ 全部 ' + records.length + ' 筆</div>';
+  html += '<table class="adm-table"><thead><tr><th>時間</th><th>類型</th><th>會員</th><th>姓名</th><th>生日</th><th>日主</th><th>對象</th></tr></thead><tbody>';
+
+  filtered.slice(0, 200).forEach(function(d) {
+    var et = d.eventType || '';
+    var typeBadge = et === 'match_complete'
+      ? '<span class="badge badge-purple">合盤</span>'
+      : '<span class="badge badge-gold">命盤</span>';
+    var det = d.detail || {};
+    var name1 = det.nameZh || det.name1 || '-';
+    var bday  = det.solarDate || (det.birthYear ? det.birthYear+'/'+det.birthMonth+'/'+det.birthDay : '-');
+    var dayM  = det.dayMaster || det.dayMaster1 || '-';
+    var name2 = det.name2 || (et === 'match_complete' ? '（雙人）' : '');
+    html += '<tr>' +
+      '<td style="white-space:nowrap">' + formatTs(d.ts || d.createdAt) + '</td>' +
+      '<td>' + typeBadge + '</td>' +
+      '<td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + esc(d.email||d.uid||'') + '">' + esc(d.email || d.uid || '-') + '</td>' +
+      '<td>' + esc(name1) + '</td>' +
+      '<td style="white-space:nowrap">' + esc(bday) + '</td>' +
+      '<td style="text-align:center">' + esc(dayM) + '</td>' +
+      '<td>' + esc(name2) + '</td>' +
+      '</tr>';
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+function exportDestinyCSV() {
+  var records = window._destinyCache || [];
+  if (!records.length) { alert('請先載入資料'); return; }
+  var lines = ['時間,類型,email,姓名,生日,日主,對象'];
+  records.forEach(function(d) {
+    var det = d.detail || {};
+    var bday = det.solarDate || (det.birthYear ? det.birthYear+'/'+det.birthMonth+'/'+det.birthDay : '');
+    lines.push([
+      formatTs(d.ts||d.createdAt),
+      d.eventType==='match_complete'?'合盤':'命盤',
+      d.email||d.uid||'',
+      det.nameZh||det.name1||'',
+      bday,
+      det.dayMaster||det.dayMaster1||'',
+      det.name2||''
+    ].map(function(v){return '"'+(v||'').replace(/"/g,'""')+'"'}).join(','));
+  });
+  var csv = '\ufeff' + lines.join('\n');
+  var a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'destiny_records_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();
 }
 
 // ═══════════════════════════════════════════════════════════════
