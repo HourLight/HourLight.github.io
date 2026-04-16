@@ -3362,6 +3362,8 @@ async function giftOnly(plan) {
     }
 
     if (plan === 'pro') {
+      var voucherExp = new Date();
+      voucherExp.setDate(voucherExp.getDate() + 90); // 3 個月
       for (var v = 0; v < 2; v++) {
         var voucherCode = generateGiftCode('VIP500');
         var voucherDoc = {
@@ -3372,7 +3374,7 @@ async function giftOnly(plan) {
           createdBy: currentUser.email,
           userId: uid,
           userEmail: userData.email || '',
-          expiresAt: firebase.firestore.Timestamp.fromDate(giftExp),
+          expiresAt: voucherExp,
           minOrderAmount: 1800,
           restrictedTo: 'one-on-one',
           maxUsePerOrder: 1,
@@ -3382,7 +3384,7 @@ async function giftOnly(plan) {
           compensationGift: true
         };
         await db.collection('coupons').doc(voucherCode).set(voucherDoc);
-        giftVouchers.push({ code: voucherCode, expires: giftExp });
+        giftVouchers.push({ code: voucherCode, expires: voucherExp });
       }
     }
 
@@ -3496,14 +3498,14 @@ async function batchGiftProVouchers() {
       var displayName = userData.displayName || userEmail;
 
       try {
-        // 2. 查該用戶在 coupons 中未使用且未過期的抵用券數量
+        // 2. 查該用戶在 coupons 中的抵用券，client 端過濾未用且未過期
         var couponsSnap = await db.collection('coupons')
           .where('userId', '==', uid)
-          .where('used', '==', false)
           .get();
 
         var activeCoupons = couponsSnap.docs.filter(function(cd) {
           var cdata = cd.data();
+          if (cdata.used) return false;
           if (!cdata.expiresAt) return true;
           var exp = cdata.expiresAt.toDate ? cdata.expiresAt.toDate() : new Date(cdata.expiresAt);
           return exp > now;
@@ -3530,7 +3532,7 @@ async function batchGiftProVouchers() {
             createdBy: currentUser.email,
             userId: uid,
             userEmail: userEmail,
-            expiresAt: firebase.firestore.Timestamp.fromDate(voucherExp),
+            expiresAt: voucherExp,
             minOrderAmount: 1800,
             restrictedTo: 'one-on-one',
             maxUsePerOrder: 1,
