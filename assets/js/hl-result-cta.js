@@ -219,17 +219,61 @@
   }
 
   // ═════════════════════════════════════════════════
-  // 觸發時機
+  // 觸發時機（三層）
   // ═════════════════════════════════════════════════
-  // 1. 頁面標明是結果頁 → 立即注入
-  // 2. 頁面是工具頁 → 等 'hl:result-ready' 事件
+  // 1. 頁面標明是結果頁 [data-hl-result-ready] → 立即注入
+  // 2. 工具頁 dispatch 'hl:result-ready' 事件 → 注入
+  // 3. 自動偵測常見結果容器（#quizResult/.active、#result 等）變 visible → 注入
   var cfg = window.HL_RESULT_CTA || {};
   var isStaticResult = document.querySelector('[data-hl-result-ready]') || cfg.autoRender === true;
+
+  var AUTO_SELECTORS = [
+    '#quizResult.active', '#result.active', '#resultPanel.active',
+    '#output.show', '#result-panel.active', '.result-page.active',
+    '[data-result-visible="true"]'
+  ];
+
+  function isVisible(el){
+    if (!el) return false;
+    try {
+      var style = window.getComputedStyle(el);
+      if (style.display === 'none' || style.visibility === 'hidden') return false;
+      var r = el.getBoundingClientRect();
+      return r.height > 50;
+    } catch(_) { return false; }
+  }
+
+  function checkAutoVisible(){
+    for (var i = 0; i < AUTO_SELECTORS.length; i++){
+      var el = document.querySelector(AUTO_SELECTORS[i]);
+      if (el && isVisible(el)) { renderCTAs(); return true; }
+    }
+    return false;
+  }
+
+  function setupAutoDetect(){
+    // 立刻檢查一次（用戶重新進頁面時結果可能已在）
+    if (checkAutoVisible()) return;
+    // 監聽 body 的 class/style 變化（結果區塊通常 class='active' 或 display 切換）
+    var rendered = false;
+    var mo = new MutationObserver(function(){
+      if (rendered) return;
+      if (checkAutoVisible()) { rendered = true; mo.disconnect(); }
+    });
+    mo.observe(document.body, {
+      subtree: true, attributes: true,
+      attributeFilter: ['class','style','data-result-visible']
+    });
+    // 10 分鐘超時清理
+    setTimeout(function(){ try{mo.disconnect();}catch(_){} }, 10 * 60 * 1000);
+  }
 
   function boot(){
     if (isStaticResult) { renderCTAs(); return; }
     // 等工具頁主動 dispatch 事件
     window.addEventListener('hl:result-ready', renderCTAs);
+    // 並行啟動自動偵測（萬一頁面沒 dispatch 事件）
+    setupAutoDetect();
   }
 
   if (document.readyState === 'loading') {
