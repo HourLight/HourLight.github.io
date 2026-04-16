@@ -139,6 +139,19 @@ body.cv3-phase-night .cv3-tools-item-name, body.cv3-phase-midnight .cv3-tools-it
   .cv3-tools-item{padding:10px 12px}
 }
 
+/* ── 貓咪想念你（Finch 責任感模式）── */
+.cv3-pets-miss{max-width:1200px;margin:0 auto 20px;padding:4px}
+.cv3-pets-miss-inner{display:flex;align-items:center;gap:16px;padding:18px 22px;background:linear-gradient(135deg,rgba(214,167,199,.12),rgba(160,124,220,.08));border:1px solid rgba(160,124,220,.3);border-radius:18px;flex-wrap:wrap}
+body.cv3-phase-night .cv3-pets-miss-inner, body.cv3-phase-midnight .cv3-pets-miss-inner{background:linear-gradient(135deg,rgba(214,167,199,.18),rgba(160,124,220,.15));border-color:rgba(214,167,199,.35)}
+.cv3-pets-miss-icon{font-size:2rem;flex-shrink:0;filter:drop-shadow(0 2px 6px rgba(160,124,220,.35))}
+.cv3-pets-miss-body{flex:1;min-width:180px}
+.cv3-pets-miss-title{font-family:var(--cv3-serif);font-size:.95rem;font-weight:500;color:var(--cv3-ink);letter-spacing:.04em;margin-bottom:4px}
+body.cv3-phase-night .cv3-pets-miss-title, body.cv3-phase-midnight .cv3-pets-miss-title{color:#e9c27d}
+.cv3-pets-miss-desc{font-size:.82rem;color:var(--cv3-ink-soft);line-height:1.75;font-family:'LXGW WenKai TC','Noto Serif TC',serif}
+body.cv3-phase-night .cv3-pets-miss-desc, body.cv3-phase-midnight .cv3-pets-miss-desc{color:rgba(244,240,235,.72)}
+.cv3-pets-miss-cta{flex-shrink:0;padding:10px 20px;border-radius:999px;background:linear-gradient(135deg,#a07cdc,#7e5ec0);color:#fff;text-decoration:none;font-size:.82rem;letter-spacing:.06em;transition:all .3s}
+.cv3-pets-miss-cta:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(160,124,220,.4);color:#fff}
+
 /* ── 留給以後的自己（keepsakes 收藏櫃）── */
 .cv3-keepsakes{max-width:1200px;margin:0 auto 24px;padding:22px 20px;background:linear-gradient(135deg,rgba(200,134,42,.06),rgba(232,184,109,.06));border:1px solid var(--cv3-line);border-radius:18px}
 body.cv3-phase-night .cv3-keepsakes, body.cv3-phase-midnight .cv3-keepsakes{background:linear-gradient(135deg,rgba(248,223,165,.06),rgba(232,184,109,.08));border-color:rgba(248,223,165,.18)}
@@ -339,6 +352,18 @@ body.cv3-phase-night .cv3-keepsake-title, body.cv3-phase-midnight .cv3-keepsake-
       <div class="cv3-explorations-count" id="cv3-explorations-count"></div>
     </div>
     <div class="cv3-explorations-list" id="cv3-explorations-list"></div>
+  </section>
+
+  <!-- 貓咪想念你（Finch 責任感模式 · 溫柔召回，不是懲罰）-->
+  <section class="cv3-pets-miss" id="cv3-pets-miss" style="display:none">
+    <div class="cv3-pets-miss-inner">
+      <div class="cv3-pets-miss-icon">🐈</div>
+      <div class="cv3-pets-miss-body">
+        <div class="cv3-pets-miss-title" id="cv3-pets-miss-title"></div>
+        <div class="cv3-pets-miss-desc" id="cv3-pets-miss-desc"></div>
+      </div>
+      <a class="cv3-pets-miss-cta" href="castle-pets.html">去看牠們 →</a>
+    </div>
   </section>
 
   <!-- 留給以後的自己（城堡收藏櫃）-->
@@ -1416,6 +1441,59 @@ body.cv3-phase-night .cv3-keepsake-title, body.cv3-phase-midnight .cv3-keepsake-
     });
   }
 
+  // 貓咪想念你 · Finch 責任感模式（溫柔召回，不是懲罰）
+  function renderPetsMiss(){
+    try {
+      var state = JSON.parse(localStorage.getItem('hl_pets_v1') || '{}');
+      var moods = state.petMoods || {};
+      var ownedCats = state.ownedCats || [];
+      if (!ownedCats.length) return;
+
+      // 找出 mood < 55 的貓
+      var CATS_MAP = {};
+      if (window.hlPets && hlPets.CATS){
+        hlPets.CATS.forEach(function(c){ CATS_MAP[c.id] = c; });
+      }
+
+      var missing = ownedCats.filter(function(id){
+        var m = moods[id];
+        return m && m.mood < 55;
+      }).map(function(id){
+        var cat = CATS_MAP[id];
+        return cat ? cat.name : id;
+      });
+
+      if (missing.length === 0) return;
+
+      var section = document.getElementById('cv3-pets-miss');
+      var titleEl = document.getElementById('cv3-pets-miss-title');
+      var descEl = document.getElementById('cv3-pets-miss-desc');
+      if (!section || !titleEl || !descEl) return;
+
+      // 馥靈馥語訊息（不責備、不威脅，只是告知）
+      var msg;
+      if (missing.length === 1){
+        msg = {
+          title: missing[0] + ' 最近安靜了一點',
+          desc: '不催你，但牠把你留在心裡。有空的話，去摸牠一下。'
+        };
+      } else if (missing.length <= 3){
+        msg = {
+          title: missing.join('、') + ' 在城堡裡輪流等你',
+          desc: '牠們不會離開，只是在等你回來看一眼。'
+        };
+      } else {
+        msg = {
+          title: '你的貓們在城堡裡慢慢等你',
+          desc: '共 ' + missing.length + ' 隻最近有點低。牠們不需要你做什麼，只需要你在。'
+        };
+      }
+      titleEl.textContent = msg.title;
+      descEl.textContent = msg.desc;
+      section.style.display = 'block';
+    } catch(_){}
+  }
+
   // 留給以後的自己 · 城堡收藏櫃
   function renderKeepsakes(){
     try {
@@ -1580,6 +1658,7 @@ body.cv3-phase-night .cv3-keepsake-title, body.cv3-phase-midnight .cv3-keepsake-
       renderLord(); renderRooms(); renderDailyQuests(); renderPetsPanel();
       renderExplorations();
       renderKeepsakes();
+      renderPetsMiss();
       renderToolsMap('destiny');
       setupToolsMapTabs();
       initShieldSystem();
@@ -1603,6 +1682,7 @@ body.cv3-phase-night .cv3-keepsake-title, body.cv3-phase-midnight .cv3-keepsake-
       renderLord(); renderRooms(); renderDailyQuests(); renderPetsPanel();
       renderExplorations();
       renderKeepsakes();
+      renderPetsMiss();
       renderToolsMap('destiny');
       setupToolsMapTabs();
       initShieldSystem();
