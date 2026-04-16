@@ -51,7 +51,7 @@
     },
     destiny: {
       label: '座標就緒，下一步',
-      cta1: { title:'抽一張牌，問命盤沒回答的事', desc:'命盤告訴你設定，牌卡回應你當下。130 張馥靈之鑰原創牌，接住你每一個具體的此刻。', href:'draw-hl.html', tag:'智慧抽牌' },
+      cta1: { title:'抽一張牌，問命盤沒回答的事', desc:'命盤告訴你設定，牌卡回應你當下。馥靈之鑰，接住你每一個具體的此刻。', href:'draw-hl.html', tag:'智慧抽牌' },
       cta2: { title:'看看跟某個人合盤會怎樣', desc:'不只是星座合盤。33 套全維度交叉，找出彼此最容易卡在哪一步。', href:'destiny-match.html', tag:'33 套合盤' },
       cta3: { title:'把這張座標送朋友', desc:'讓他知道自己的設定。一張屬於他的地圖。', href:'#share', tag:'分享' }
     },
@@ -64,14 +64,14 @@
     castle: {
       label: '走出城堡，帶一把鑰匙',
       cta1: { title:'去看看你還沒走過的房', desc:'每間房對應你內在的一個面向。還沒進的那扇門，可能是你最該看的地方。', href:'castle-game.html', tag:'城堡房間' },
-      cta2: { title:'抽一張今日指引', desc:'從 130 張馥靈之鑰原創牌卡挑一張回答你當下的問題。', href:'draw-hl.html', tag:'智慧抽牌' },
+      cta2: { title:'抽一張今日指引', desc:'從馥靈之鑰挑一張回答你當下的問題。', href:'draw-hl.html', tag:'智慧抽牌' },
       cta3: { title:'讓朋友也進城堡看看', desc:'分享連結，朋友一進來就拿到 48 小時大師體驗。', href:'#share', tag:'分享' }
     },
     generic: {
       label: '繼續你的內在探索',
       cta1: { title:'做一個覺察測驗', desc:'101 支原創測驗，幫你定位現在站在哪裡。', href:'quiz-hub.html', tag:'覺察測驗' },
       cta2: { title:'算一次你的命盤座標', desc:'33 套系統交叉，看清楚你的出廠設定。', href:'destiny-engine.html', tag:'命盤引擎' },
-      cta3: { title:'抽一張牌回應當下', desc:'130 張馥靈之鑰原創牌卡，是為你而生的那一張。', href:'draw-hl.html', tag:'智慧抽牌' }
+      cta3: { title:'抽一張牌回應當下', desc:'馥靈之鑰，是為你而生的那一張。', href:'draw-hl.html', tag:'智慧抽牌' }
     }
   };
 
