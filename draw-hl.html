@@ -1545,12 +1545,16 @@ function drawCards(n) {
     // 城門銘牌：固定種子，同一天同一人同一類型 → 同一張
     var seed = _hlDailySeed(_hlDailyType);
     selected = [seed % allFiles.length];
+    // 1 張牌的正逆位也用日種子決定（同一天同一張固定）
+    window._selectedReversed = [((seed >> 8) & 1) === 1];
   } else {
     for (let i = pool.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [pool[i], pool[j]] = [pool[j], pool[i]];
     }
     selected = pool.slice(0, n);
+    // 每張牌 50/50 正逆位（禮物位 / 挑戰位）
+    window._selectedReversed = selected.map(function(){ return Math.random() < 0.5; });
   }
   renderCards(n === 1);
   copyBtn.disabled = false;
@@ -1714,23 +1718,36 @@ function renderCards(showExplain) {
       const code = file.replace('.png', '');
       const info = window.cardData ? window.cardData[code] : {};
       const cardName = info.name || info.title || '';
+      const reversed = !!(window._selectedReversed && window._selectedReversed[cardIndex]);
 
       const readingDiv = document.createElement('div');
       readingDiv.className = 'hl-bestie-reading';
 
       const senseText = info.sense || info['覺察'] || '';
       const actionText = info.action || info['行動指引'] || '';
+      // 正位（禮物）顯示 giftText，逆位（挑戰）顯示 challengeText，fallback 至 senseText
+      const orientationText = reversed
+        ? (info.challengeText || senseText || '')
+        : (info.giftText || senseText || '');
+      const orientLabel = reversed ? '◆ 挑戰位' : '✦ 禮物位';
+      const orientColor = reversed ? 'rgba(214,167,199,.9)' : 'rgba(248,223,165,.9)';
+      const orientBgGrad = reversed
+        ? 'linear-gradient(135deg,rgba(160,124,220,.18),rgba(214,167,199,.12))'
+        : 'linear-gradient(135deg,rgba(248,223,165,.18),rgba(233,194,125,.12))';
+      const orientBorder = reversed ? 'rgba(214,167,199,.35)' : 'rgba(248,223,165,.35)';
+      const imgRotate = reversed ? 'transform:rotate(180deg);' : '';
 
       readingDiv.innerHTML = `
         <div style="text-align:center;margin-bottom:20px">
-          <img loading="lazy" src="${code}.png" alt="${cardName}" style="width:120px;height:auto;border-radius:14px;box-shadow:0 8px 32px rgba(240,181,179,.25);margin-bottom:16px" onerror="this.style.display='none'">
+          <div style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;background:${orientBgGrad};border:1px solid ${orientBorder};font-size:.72rem;letter-spacing:.18em;color:${orientColor};margin-bottom:14px">${orientLabel}</div><br>
+          <img loading="lazy" src="${code}.png" alt="${cardName}" style="width:120px;height:auto;border-radius:14px;box-shadow:0 8px 32px rgba(240,181,179,.25);margin-bottom:16px;${imgRotate}transition:transform .6s cubic-bezier(.4,0,.2,1)" onerror="this.style.display='none'">
           <div style="font-size:.72rem;letter-spacing:3px;color:rgba(240,181,179,.5);margin-bottom:6px">✦ 今日覺察 ✦</div>
           <div class="hl-bestie-title" style="font-size:1.4rem;margin-bottom:4px">${cardName}</div>
           <div style="font-size:.82rem;color:rgba(255,255,255,.35);letter-spacing:1px">${code}</div>
         </div>
         <div style="width:40px;height:1px;background:linear-gradient(90deg,transparent,rgba(240,181,179,.3),transparent);margin:20px auto"></div>
         <div class="hl-bestie-content">
-          <div class="hl-bestie-opener" style="text-align:center;font-size:1rem;line-height:2;color:rgba(255,255,255,.8)">${senseText}</div>
+          <div class="hl-bestie-opener" style="text-align:center;font-size:1rem;line-height:2;color:rgba(255,255,255,.8)">${orientationText}</div>
           ${actionText ? `<div style="width:40px;height:1px;background:linear-gradient(90deg,transparent,rgba(233,194,125,.3),transparent);margin:24px auto"></div><div class="hl-bestie-closer" style="text-align:center"><div style="font-size:.72rem;letter-spacing:3px;color:rgba(233,194,125,.5);margin-bottom:10px">✨ 今天可以做的一件事</div><div style="font-size:.95rem;line-height:1.9;color:rgba(233,194,125,.85)">${actionText}</div></div>` : ''}
         </div>
       `;
@@ -1836,13 +1853,21 @@ function createCardEl(idx, showExplain) {
   const code = file.replace('.png', '');
   const info = window.cardData ? window.cardData[code] : {};
 
+  // 取得這張牌的正逆位（索引依 selected 順序）
+  var posIdx = selected.indexOf(idx);
+  var reversed = !!(window._selectedReversed && posIdx > -1 && window._selectedReversed[posIdx]);
+
   const wrap = document.createElement('div');
   wrap.className = 'hl-v2-card-item';
   wrap.style.animationDelay = `${idx * 0.06}s`;
 
   const cardName = info.name || info.title || '';
+  var orientBadge = reversed
+    ? '<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:.62rem;letter-spacing:.12em;background:rgba(160,124,220,.25);color:#d6a7c7;border:1px solid rgba(214,167,199,.4);margin-right:4px">◆ 挑戰</span>'
+    : '<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:.62rem;letter-spacing:.12em;background:rgba(248,223,165,.2);color:#f8dfa5;border:1px solid rgba(248,223,165,.4);margin-right:4px">✦ 禮物</span>';
+  var imgRotate = reversed ? 'transform:rotate(180deg);transition:transform .6s cubic-bezier(.4,0,.2,1);' : '';
 
-  wrap.innerHTML = `<img class="hl-v2-card-thumb" src="${file}" alt="${code}" loading="lazy" onerror="this.onerror=null;this.style.cssText='display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:7/10;background:radial-gradient(circle at 30% 30%,#2a1535,#0d0520);font-size:1.5rem;';this.outerHTML='<div class=\\'hl-v2-card-thumb hl-card-back\\'><span style=\\'font-family:Cormorant Garamond,serif;color:rgba(233,194,125,0.8);font-size:.9rem;letter-spacing:3px;\\'>${code}</span></div>';"><div class="hl-v2-card-cap">${code}${cardName ? ' ' + cardName : ''}</div>`;
+  wrap.innerHTML = `<img class="hl-v2-card-thumb" src="${file}" alt="${code}" loading="lazy" style="${imgRotate}" onerror="this.onerror=null;this.style.cssText='display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:7/10;background:radial-gradient(circle at 30% 30%,#2a1535,#0d0520);font-size:1.5rem;';this.outerHTML='<div class=\\'hl-v2-card-thumb hl-card-back\\'><span style=\\'font-family:Cormorant Garamond,serif;color:rgba(233,194,125,0.8);font-size:.9rem;letter-spacing:3px;\\'>${code}</span></div>';"><div class="hl-v2-card-cap">${orientBadge}${code}${cardName ? ' ' + cardName : ''}</div>`;
 
   return wrap;
 }
