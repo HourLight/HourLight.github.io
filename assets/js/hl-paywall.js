@@ -17,6 +17,7 @@ window.hlPaywall = (function(){
     if (p.indexOf('draw-nail') !== -1) return 'nail';
     if (p.indexOf('draw-light') !== -1) return 'light';
     if (p.indexOf('draw-hl') !== -1 || p.indexOf('draw-') !== -1) return 'draw';
+    if (p.indexOf('wealth-wallpaper') !== -1) return 'wallpaper';
     return null;
   }
 

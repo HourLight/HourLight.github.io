@@ -307,6 +307,46 @@ body{min-height:100vh;min-height:100dvh;font-family:var(--ff-font);color:var(--f
   </div>
 </div>
 
+<!-- 桌布代碼方案 -->
+<div class="ff-glass">
+  <div class="ff-section-head">
+    <h2>桌布代碼方案</h2>
+    <div class="ff-hint">一個代碼換一張・可換主題・可換風格・購買後永不過期</div>
+  </div>
+  <div id="memberBalanceBar" style="display:none;margin-bottom:16px;padding:12px 18px;border-radius:12px;background:rgba(248,223,165,.08);border:1px solid rgba(248,223,165,.2);color:var(--ff-gold);font-size:.88rem;text-align:center"></div>
+  <div class="ww-prices-grid">
+    <div class="ww-price-card" onclick="buyWallpaperCredits(1)">
+      <div class="qty">1 張</div>
+      <div class="price">NT$ 199</div>
+      <div class="unit">試試看，一次一張</div>
+    </div>
+    <div class="ww-price-card" onclick="buyWallpaperCredits(3)">
+      <div class="badge">省 NT$198</div>
+      <div class="qty">3 張</div>
+      <div class="price">NT$ 399</div>
+      <div class="unit">每張 $133・換三個主題</div>
+    </div>
+    <div class="ww-price-card active" onclick="buyWallpaperCredits(6)">
+      <div class="badge">最多人選</div>
+      <div class="qty">6 張</div>
+      <div class="price">NT$ 599</div>
+      <div class="unit">每張 $100・半年不重複</div>
+      <div class="perpc">省 NT$595</div>
+    </div>
+    <div class="ww-price-card" onclick="buyWallpaperCredits(12)">
+      <div class="badge">最划算</div>
+      <div class="qty">12 張</div>
+      <div class="price">NT$ 999</div>
+      <div class="unit">每張 $83・一年份</div>
+      <div class="perpc">省 NT$1,389</div>
+    </div>
+  </div>
+  <div style="text-align:center;font-size:.76rem;color:rgba(255,255,255,.4);margin-top:8px;line-height:1.8">
+    鑰友每月贈 1 張・大師每月贈 3 張・代碼隨時可用不限主題<br>
+    PAYUNi 安全結帳，付款後代碼自動入帳，不需等人工確認
+  </div>
+</div>
+
 <!-- 輸入區 -->
 <div class="ff-glass">
   <div class="ww-form">
@@ -1625,23 +1665,39 @@ async function checkMemberQuota(){
     var db = firebase.firestore();
     var userDoc = await db.collection('users').doc(user.uid).get();
     if(!userDoc.exists) return null;
-    var plan = userDoc.data().plan || 'free';
-    var quota = WALLPAPER_QUOTA[plan] || 0;
-    if(quota <= 0) return null;
-    // 查本月用量
-    var now = new Date();
-    var monthKey = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
-    var qDoc = await db.collection('users').doc(user.uid).collection('wallpaper_quota').doc(monthKey).get();
-    var used = qDoc.exists ? (qDoc.data().count || 0) : 0;
-    return { plan: plan, quota: quota, used: used, remaining: Math.max(0, quota - used), uid: user.uid, monthKey: monthKey };
+    var data = userDoc.data();
+    var plan = data.plan || 'free';
+
+    // ① 月贈額度（訂閱會員，優先消耗有效期限較短的）
+    var monthlyQuota = WALLPAPER_QUOTA[plan] || 0;
+    if(monthlyQuota > 0){
+      var now = new Date();
+      var monthKey = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+      var qDoc = await db.collection('users').doc(user.uid).collection('wallpaper_quota').doc(monthKey).get();
+      var used = qDoc.exists ? (qDoc.data().count || 0) : 0;
+      var remaining = Math.max(0, monthlyQuota - used);
+      if(remaining > 0) return { plan:plan, quota:monthlyQuota, used:used, remaining:remaining, uid:user.uid, monthKey:monthKey, isBonus:false };
+    }
+
+    // ② 購買代碼（wallpaper_bonus，永不過期）
+    var bonus = (data.wallpaper_bonus || 0);
+    if(bonus > 0) return { plan:plan, quota:bonus, used:0, remaining:bonus, uid:user.uid, monthKey:null, isBonus:true };
+
+    return null;
   } catch(e){ return null; }
 }
 
 async function useMemberQuota(info){
   try {
     var db = firebase.firestore();
-    var ref = db.collection('users').doc(info.uid).collection('wallpaper_quota').doc(info.monthKey);
-    await ref.set({ count: (info.used + 1), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    if(info.isBonus){
+      await db.collection('users').doc(info.uid).set({
+        wallpaper_bonus: firebase.firestore.FieldValue.increment(-1)
+      }, { merge: true });
+    } else {
+      var ref = db.collection('users').doc(info.uid).collection('wallpaper_quota').doc(info.monthKey);
+      await ref.set({ count: (info.used + 1), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    }
   } catch(e){}
 }
 
@@ -1652,19 +1708,22 @@ async function generateWallpaper(){
   // 一次一張：先查會員額度
   var memberInfo = await checkMemberQuota();
   if(memberInfo && memberInfo.remaining > 0){
-    showToast('使用本月會員贈送額度（剩餘 ' + memberInfo.remaining + ' 張）');
+    var toastMsg = memberInfo.isBonus
+      ? '使用代碼（剩餘 ' + (memberInfo.remaining - 1) + ' 張）'
+      : '使用本月贈送額度（剩餘 ' + (memberInfo.remaining - 1) + ' 張）';
+    showToast(toastMsg);
     await useMemberQuota(memberInfo);
     doGenerate();
     return;
   }
 
-  // 觸發付費牆（序號兌換，deferConsume：成功才消耗）
+  // 觸發付費牆（序號兌換 或 PAYUNi 線上付款）
   if(typeof hlPaywall !== 'undefined'){
     hlPaywall.show({
       n: 1,
       priceMap: {1:199, 3:399, 6:599, 12:999},
       serviceName: '馥靈蘊福桌布',
-      pageType: 'wealth-wallpaper',
+      productCategory: 'wallpaper',
       deferConsume: true,
       onProceed: function(){ doGenerate(); }
     });
@@ -1878,6 +1937,59 @@ function resetAll(){
 
 function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2200)}
 
+// 購買桌布代碼（直接 PAYUNi 結帳）
+function buyWallpaperCredits(n){
+  var priceMap = {1:199, 3:399, 6:599, 12:999};
+  var price = priceMap[n];
+  if(!price) return;
+  var u = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
+  if(!u){
+    showToast('請先登入會員才能購買代碼');
+    setTimeout(function(){ location.href = 'app.html?redirect=' + encodeURIComponent(location.href.split('?')[0]); }, 1200);
+    return;
+  }
+  function doPay(){
+    HLPayment.pay({
+      productId:   'wallpaper-' + n,
+      productName: '馥靈蘊福桌布代碼 × ' + n,
+      amount:      price,
+      userId:      u.uid,
+      userEmail:   u.email || '',
+      returnUrl:   location.href.split('?')[0]
+    });
+  }
+  if(typeof HLPayment !== 'undefined'){ doPay(); return; }
+  var s = document.createElement('script');
+  s.src = 'assets/js/hl-payment.js';
+  s.onload = doPay;
+  s.onerror = function(){ showToast('付款模組載入失敗，請重試'); };
+  document.head.appendChild(s);
+}
+
+// PAYUNi 付款返回處理
+(function(){
+  var params = new URLSearchParams(location.search);
+  if(params.get('payment') !== 'success') return;
+  params.delete('payment'); params.delete('order'); params.delete('code');
+  history.replaceState(null, '', location.pathname + (params.toString() ? '?' + params.toString() : ''));
+  setTimeout(function(){
+    showToast('代碼購買成功！已加入您的帳戶，可以開始生成桌布');
+    setTimeout(function(){ refreshQuotaChip(); refreshBalanceBar(); }, 1500);
+  }, 400);
+})();
+
+// 更新頂部餘額條
+async function refreshBalanceBar(){
+  var bar = document.getElementById('memberBalanceBar');
+  if(!bar) return;
+  var info = await checkMemberQuota();
+  if(!info){ bar.style.display='none'; return; }
+  var planLabel = info.plan === 'pro' ? '馥靈大師' : (info.plan === 'plus' ? '馥靈鑰友' : '');
+  var sourceLabel = info.isBonus ? '代碼餘額' : (planLabel ? planLabel + '月贈' : '代碼餘額');
+  bar.style.display = 'block';
+  bar.innerHTML = '✨ 目前可用代碼：<b style="color:#fff;font-size:1.1rem">' + info.remaining + '</b> 張（' + sourceLabel + '）';
+}
+
 // 會員額度即時顯示
 async function refreshQuotaChip(){
   var chip = document.getElementById('quotaChip');
@@ -1885,11 +1997,11 @@ async function refreshQuotaChip(){
   var info = await checkMemberQuota();
   if(!info){ chip.classList.remove('show'); return; }
   var planName = info.plan === 'pro' ? '馥靈大師' : (info.plan === 'plus' ? '馥靈鑰友' : '');
-  if(!planName){ chip.classList.remove('show'); return; }
+  var sourceTag = info.isBonus ? '購買代碼' : (planName ? planName + '月贈' : '代碼');
   if(info.remaining > 0){
-    chip.innerHTML = '✨ ' + planName + '本月還剩 <b style="color:#fff">' + info.remaining + '</b> / ' + info.quota + ' 張贈送額度';
+    chip.innerHTML = '✨ ' + sourceTag + '剩餘 <b style="color:#fff">' + info.remaining + '</b> 張可用';
   } else {
-    chip.innerHTML = '⚠️ ' + planName + '本月贈送額度已用完，下個月初自動補回';
+    chip.innerHTML = '⚠️ ' + (planName || '您的') + '代碼已用完，可在上方購買補充';
   }
   chip.classList.add('show');
 }
@@ -1897,7 +2009,7 @@ async function refreshQuotaChip(){
 // 等 Firebase auth 準備好再查
 (function waitAuth(){
   if(typeof firebase === 'undefined' || !firebase.auth){ setTimeout(waitAuth, 500); return; }
-  firebase.auth().onAuthStateChanged(function(user){ if(user) refreshQuotaChip(); });
+  firebase.auth().onAuthStateChanged(function(user){ if(user){ refreshQuotaChip(); refreshBalanceBar(); } });
 })();
 
 // 初始化螢幕比例選擇器（預設手機 9:16）
