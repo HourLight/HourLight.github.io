@@ -1222,6 +1222,12 @@ async function handleWallpaper(req, res, apiKey) {
     if (flParts.length) personalElements.push('FuLing HOUR sacred codes (' + flParts.join('/') + ') as hidden numerical micro-pattern');
   }
   if (profile.cityLabel) personalElements.push('a subtle cultural echo of birthplace ' + profile.cityLabel);
+  if (profile.humanDesign) {
+    personalElements.push('Human Design ' + profile.humanDesign.type + ' (' + profile.humanDesign.authority + ') energy signature woven as invisible force field');
+    if (profile.humanDesign.channels && profile.humanDesign.channels.length) {
+      personalElements.push('activated channel "' + profile.humanDesign.channels[0].name + '" as a luminous thread of destiny running through the composition');
+    }
+  }
 
   // ─── 八字五行統計（讓 AI 知道整體能量分佈）───
   var wxStatStr = '';
@@ -1311,6 +1317,16 @@ async function handleWallpaper(req, res, apiKey) {
   if (profile.celtic) dossier += profile.celtic.name + '\n';
   if (profile.cityLabel) dossier += '\n— 出生地 —\n' + profile.cityLabel + '\n';
   if (profile.gender) dossier += '\n— 性別 —\n' + (profile.gender === 'F' ? '女' : '男') + '\n';
+  dossier += '\n— 人類圖 —\n';
+  if (profile.humanDesign) {
+    var hd = profile.humanDesign;
+    dossier += '類型：' + hd.type + '｜策略：' + hd.strategy + '\n';
+    dossier += '內在權威：' + hd.authority + '｜人生角色：' + hd.profile + '\n';
+    if (hd.defType) dossier += '定義：' + hd.defType + '\n';
+    if (hd.channels && hd.channels.length) dossier += '活化通道：' + hd.channels.map(function(c){return c.name;}).join('、') + '\n';
+    if (hd.defC && hd.defC.length) dossier += '已定義中心：' + hd.defC.join('、') + '\n';
+    if (hd.crossFull) dossier += '輪迴交叉：' + hd.crossFull + '\n';
+  }
 
   var themeNamesZh = { wealth:'招財豐盛', love:'愛情桃花', career:'事業貴人', protection:'護佑平安', luck:'幸運轉運' };
   var themeZhForClaude = themeNamesZh[theme] || theme;
@@ -1351,21 +1367,25 @@ async function handleWallpaper(req, res, apiKey) {
     '3. 既有的星座/動物/宗教符號如果你選用，必須「抽象化處理」，不要畫得像維基百科圖鑑（避免：寫實的巨蟹、寫實的佛陀、寫實的十字架、教科書插圖風）。處理方式：rendered as constellation of stardust / abstracted as luminous sculpture / dissolved into cosmic light\n' +
     '4. 美學方向：Vogue 編輯封面 × 唱片美術 × 概念藝術 × 巴洛克教堂浮雕，Rich 不是 minimal，戲劇感不是空洞\n' +
     '5. 圖中絕對不能有任何文字、字母、數字\n' +
-    '6. ⚡ **浮雕戲劇感是不可違抗的視覺核心** ⚡ — 每一個視覺元素必須帶有：\n' +
-    '   • dimensional luminous bas-relief surface, sculpted from light itself\n' +
-    '   • particles of stardust forming the silhouette and edges\n' +
-    '   • dramatic chiaroscuro with strong directional spotlight\n' +
-    '   • 3D sculpted depth, the form catches light like sacred jewelry (NOT literal gold borders/outlining)\n' +
-    '   • painterly luminous texture with subsurface scattering glow\n' +
-    '   絕對禁止：flat illustration / vector art / cartoon / anime / 2D digital painting / literal gold outlining\n\n' +
+    '6. ⚡ **浮雕光影感是不可違抗的視覺核心，這是讓桌布值 $599 的關鍵** ⚡\n' +
+    '   每一個視覺元素必須具備：\n' +
+    '   • ultra-dimensional bas-relief surface — sculpted from light like Chartres cathedral tympanum\n' +
+    '   • single-source dramatic spotlight casting deep chiaroscuro shadows (Caravaggio-level contrast)\n' +
+    '   • highlights catching edges like polished obsidian meeting candlelight\n' +
+    '   • subsurface scattering: warm inner glow emanating from within the sculptural form\n' +
+    '   • 3D volumetric depth with stark highlight-to-shadow transition\n' +
+    '   • impasto oil-paint tactile surface texture, each brushstroke raised\n' +
+    '   • particles of stardust/gold-dust forming silhouette edges\n' +
+    '   • sacred geometry carved in deep-relief with shadow recessing inward\n' +
+    '   絕對禁止：flat lighting / flat illustration / vector art / cartoon / anime / evenly-lit scene / 2D digital painting\n\n' +
     '【輸出格式】\n' +
-    '只輸出英文 prompt 本身，不要加任何說明。長度約 320-500 字，必須包含：\n' +
+    '只輸出英文 prompt 本身，不要加任何說明。長度約 350-550 字，必須包含：\n' +
     '- Hero motif（你自由創造，根據主題意圖 + 命理座標合成獨一無二的視覺，每次不同）\n' +
     '- **明確列出至少 4 個 hex 色碼**（從個人色彩處方挑），格式如「primary palette: #FFD700 (lifePath gold), #FF6F61 (zodiac coral), #15803D (wuxing green), #1E3A8A (moon sapphire)」\n' +
     '- 整體氛圍與構圖（cinematic / chiaroscuro / atmospheric / dramatic spotlight）\n' +
-    '- 表面質感強制詞：「dimensional bas-relief」「luminous sculpted depth」「stardust particles」「painterly chiaroscuro」必須出現至少 3 個\n' +
-    '- 美學參考錨點（cinematic concept art × baroque cathedral relief × Renaissance dramatic painting × editorial album cover）\n' +
-    '- 必需的負面詞：「NO flat illustration, NO vector art, NO cartoon, NO anime, NO text, NO numbers, NO literal gold outlining, NO encyclopedia illustration, NO sparse minimalism, NO 2D look」\n';
+    '- 表面質感強制詞（至少 4 個必須出現）：「dimensional bas-relief」「luminous sculpted depth」「stardust particles」「painterly chiaroscuro」「subsurface scattering glow」「impasto tactile texture」\n' +
+    '- 美學參考錨點（cinematic concept art × Baroque cathedral bas-relief × Caravaggio chiaroscuro × Romantic oil painting × editorial album cover art）\n' +
+    '- 必需的負面詞：「NO flat illustration, NO vector art, NO cartoon, NO anime, NO text, NO numbers, NO literal gold outlining, NO encyclopedia illustration, NO sparse minimalism, NO flat lighting, NO even illumination」\n';
 
   var claudeUserPrompt = dossier + paletteText + symbolText + '\n\n' +
     '【今日要做的桌布】\n' +
@@ -1405,6 +1425,8 @@ async function handleWallpaper(req, res, apiKey) {
     if (!prompt) {
       return res.status(502).json({ error: '視覺合成失敗，請稍後再試' });
     }
+    // 強制附加浮雕光影關鍵詞，確保 grok 每次都生成真正立體感
+    prompt += ' | MANDATORY RENDERING: ultra-dimensional bas-relief surface — every element sculpted from light like ancient temple relief, dramatic single-source chiaroscuro casting deep pool-of-shadow contrast, highlights catching edges like polished obsidian or burnished metal, subsurface scattering warm inner glow emanating from within the form, 3D volumetric depth with strong highlight-to-shadow gradients, cinematic Rembrandt lighting, impasto oil-paint tactile texture, sacred geometry etched in deep-relief. Absolute NO: flat surfaces, flat lighting, even illumination, 2D illustration, vector flat art.';
   } catch (claudeErr) {
     console.error('Claude synthesis exception:', claudeErr);
     return res.status(502).json({ error: '視覺合成服務暫時不可用：' + claudeErr.message });
