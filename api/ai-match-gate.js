@@ -134,6 +134,6 @@ module.exports = async function handler(req, res) {
     });
   } catch (e) {
     console.error('ai-match-gate error:', e);
-    return res.status(500).json({ error: '伺服器錯誤，請稍後再試' });
+    return res.status(500).json({ error: '伺服器錯誤，過一下再試試' });
   }
 };

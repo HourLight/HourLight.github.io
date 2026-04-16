@@ -465,7 +465,7 @@ window.copyResult=function(){
 
   if(navigator.clipboard&&navigator.clipboard.writeText){
     navigator.clipboard.writeText(text).then(function(){
-      alert('已複製完整結果！去貼給你的好朋友 ✨');
+      alert('複製好了！貼給朋友時他會看到你的故事 ✨');
     }).catch(function(){fallbackCopy(text);});
   }else{
     fallbackCopy(text);

@@ -1628,7 +1628,7 @@ SPA 覺察處方箋 AI 解牌指令系統 v2.0
     if (!response.ok) {
       console.error('Anthropic API error:', data);
       return res.status(response.status).json({ 
-        error: '解讀服務暫時不可用，請稍後再試',
+        error: '解讀服務暫時不可用，過一下再試試',
         detail: data.error?.message || '未知錯誤'
       });
     }
@@ -1692,6 +1692,6 @@ SPA 覺察處方箋 AI 解牌指令系統 v2.0
 
   } catch (error) {
     console.error('Server error:', error);
-    return res.status(500).json({ error: '伺服器錯誤，請稍後再試' });
+    return res.status(500).json({ error: '伺服器錯誤，過一下再試試' });
   }
 }

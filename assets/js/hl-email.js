@@ -110,7 +110,7 @@
         status.innerHTML = '<span class="hle-err">❌ ' + (data.error || '寄送失敗') + '</span>';
       }
     } catch(e) {
-      status.innerHTML = '<span class="hle-err">❌ 網路錯誤，請稍後再試</span>';
+      status.innerHTML = '<span class="hle-err">❌ 網路錯誤，過一下再試試</span>';
     }
     btn.disabled = false; btn.textContent = '寄送到信箱';
   }
@@ -183,7 +183,7 @@
           }
         }
         if (content) openModal(content, sysLabel);
-        else alert('找不到測算內容');
+        else alert('系統暫時抓不到你的測算結果，重整一下');
       };
 
       // 插入到複製按鈕旁邊
@@ -298,7 +298,7 @@
         if (typeof gtag === 'function') gtag('event', 'email_subscribe', { event_category: 'conversion', method: 'sticky_cta' });
         setTimeout(function() { form.classList.remove('show'); }, 2500);
       }).catch(function() {
-        msg.innerHTML = '<span style="color:#d4694a">訂閱失敗，請稍後再試</span>';
+        msg.innerHTML = '<span style="color:#d4694a">訂閱失敗，過一下再試試</span>';
       });
     });
 

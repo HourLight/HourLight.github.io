@@ -29,7 +29,7 @@
   window.HLPayment = {
     pay: async function(opts) {
       if (!opts.productId || !opts.productName || !opts.amount || !opts.userId) {
-        alert('付款資訊不完整，請重新操作。');
+        alert('資訊還有缺的地方，再試一次。');
         return;
       }
 
@@ -49,7 +49,7 @@
       var originalText = '';
       if (btn && btn.tagName === 'BUTTON') {
         originalText = btn.textContent;
-        btn.textContent = '處理中⋯⋯';
+        btn.textContent = '稍等一下⋯';
         btn.disabled = true;
       }
 
@@ -139,7 +139,7 @@
 
       } catch (err) {
         // HLPayment error handled with user alert
-        alert('付款發生錯誤：' + (err.message || '請稍後再試'));
+        alert('付款發生錯誤：' + (err.message || '過一下再試試'));
         // 還原按鈕
         if (btn && originalText) {
           btn.textContent = originalText;

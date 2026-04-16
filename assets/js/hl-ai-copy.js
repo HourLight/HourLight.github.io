@@ -12,7 +12,7 @@
 
 window.hlAICopy = function(preId, system, btn) {
   var pre = document.getElementById(preId);
-  if (!pre) { alert('找不到命盤資料'); return; }
+  if (!pre) { alert('命盤資料還在載入，再等一下'); return; }
   var data = pre.textContent;
 
   // 同步組好完整內容

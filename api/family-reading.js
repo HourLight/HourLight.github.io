@@ -302,6 +302,6 @@ R 數 → 案主要帶領家族走向的方向
     });
   } catch (err) {
     console.error('Family reading error:', err);
-    return res.status(500).json({ error: '系統暫時忙碌，請稍後再試' });
+    return res.status(500).json({ error: '系統暫時忙碌，過一下再試試' });
   }
 }

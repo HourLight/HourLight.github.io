@@ -69,7 +69,7 @@ async function validateCode(unlockCode, serviceType, uid, userEmail) {
       var codeData = codeDoc.data();
 
       if (codeData.used) {
-        return { error: '此代碼已使用過，無法再次兌換', usedCode: true, status: 403 };
+        return { error: '這組代碼已經被用過了。要不要試試另一個？', usedCode: true, status: 403 };
       }
 
       var codeType = codeData.type || '';
@@ -252,7 +252,7 @@ async function handleAkashic(req, res, apiKey) {
   if (!response.ok) {
     var errText = await response.text();
     console.error('Claude API error:', response.status, errText);
-    return res.status(502).json({ error: '解讀服務暫時不可用，請稍後再試' });
+    return res.status(502).json({ error: '解讀服務暫時不可用，過一下再試試' });
   }
 
   var result = await response.json();
@@ -262,7 +262,7 @@ async function handleAkashic(req, res, apiKey) {
   }
 
   if (!reading) {
-    return res.status(502).json({ error: '解讀生成失敗，請稍後再試' });
+    return res.status(502).json({ error: '解讀生成失敗，過一下再試試' });
   }
 
   // 寫入 Firestore 紀錄
@@ -468,7 +468,7 @@ async function handleYuanChen(req, res, apiKey) {
   if (!response.ok) {
     var errText = await response.text();
     console.error('Claude API error:', response.status, errText);
-    return res.status(502).json({ error: '導覽生成服務暫時不可用，請稍後再試' });
+    return res.status(502).json({ error: '導覽生成服務暫時不可用，過一下再試試' });
   }
 
   var result = await response.json();
@@ -478,7 +478,7 @@ async function handleYuanChen(req, res, apiKey) {
   }
 
   if (!story) {
-    return res.status(502).json({ error: '導覽生成失敗，請稍後再試' });
+    return res.status(502).json({ error: '導覽生成失敗，過一下再試試' });
   }
 
   // 寫入 Firestore 紀錄
@@ -638,7 +638,7 @@ async function handlePastLife(req, res, apiKey) {
   if (!response.ok) {
     var errText = await response.text();
     console.error('Claude API error:', response.status, errText);
-    return res.status(502).json({ error: '故事生成服務暫時不可用，請稍後再試' });
+    return res.status(502).json({ error: '故事生成服務暫時不可用，過一下再試試' });
   }
 
   var result = await response.json();
@@ -648,7 +648,7 @@ async function handlePastLife(req, res, apiKey) {
   }
 
   if (!story) {
-    return res.status(502).json({ error: '故事生成失敗，請稍後再試' });
+    return res.status(502).json({ error: '故事生成失敗，過一下再試試' });
   }
 
   // 寫入 Firestore 紀錄
@@ -830,7 +830,7 @@ async function handleName(req, res, apiKey) {
 
   if (data.error) {
     console.error('Claude API error:', data.error);
-    return res.status(500).json({ error: '分析服務暫時不可用，請稍後再試' });
+    return res.status(500).json({ error: '分析服務暫時不可用，過一下再試試' });
   }
 
   var result = '';
@@ -1472,14 +1472,14 @@ async function handleWallpaper(req, res, apiKey) {
     if (!claudeResp.ok) {
       var errText = await claudeResp.text();
       console.error('Claude synthesis error:', claudeResp.status, errText);
-      return res.status(502).json({ error: '視覺合成服務暫時不可用，請稍後再試' });
+      return res.status(502).json({ error: '視覺合成服務暫時不可用，過一下再試試' });
     }
     var claudeResult = await claudeResp.json();
     if (claudeResult.content && claudeResult.content.length > 0) {
       prompt = claudeResult.content[0].text || '';
     }
     if (!prompt) {
-      return res.status(502).json({ error: '視覺合成失敗，請稍後再試' });
+      return res.status(502).json({ error: '視覺合成失敗，過一下再試試' });
     }
     // 強制附加浮雕光影關鍵詞，確保 grok 每次都生成真正立體感
     prompt += ' | MANDATORY RENDERING: ultra-dimensional bas-relief surface — every element sculpted from light like ancient temple relief, dramatic single-source chiaroscuro casting deep pool-of-shadow contrast, highlights catching edges like polished obsidian or burnished metal, subsurface scattering warm inner glow emanating from within the form, 3D volumetric depth with strong highlight-to-shadow gradients, cinematic Rembrandt lighting, impasto oil-paint tactile texture, sacred geometry etched in deep-relief. Absolute NO: flat surfaces, flat lighting, even illumination, 2D illustration, vector flat art.';
@@ -1780,7 +1780,7 @@ async function handleWallpaper(req, res, apiKey) {
 
   } catch(e) {
     console.error('Wallpaper generation error:', e);
-    return res.status(500).json({ error: '生成服務暫時不可用，請稍後再試' });
+    return res.status(500).json({ error: '生成服務暫時不可用，過一下再試試' });
   }
 }
 
@@ -2018,7 +2018,7 @@ async function handleAbundancePrayer(req, res, apiKey) {
   if (!response.ok) {
     var errText = await response.text();
     console.error('Claude API (abundance-prayer) error:', response.status, errText);
-    return res.status(502).json({ error: '祈禱文生成暫時不可用，請稍後再試' });
+    return res.status(502).json({ error: '祈禱文生成暫時不可用，過一下再試試' });
   }
 
   var result = await response.json();
@@ -2026,7 +2026,7 @@ async function handleAbundancePrayer(req, res, apiKey) {
   if (result.content && result.content.length > 0) {
     prayer = result.content[0].text || '';
   }
-  if (!prayer) return res.status(502).json({ error: '祈禱文生成失敗，請稍後再試' });
+  if (!prayer) return res.status(502).json({ error: '祈禱文生成失敗，過一下再試試' });
 
   // Firestore 寫入
   try {
@@ -2334,6 +2334,6 @@ module.exports = async function handler(req, res) {
     }
   } catch (err) {
     console.error('reading-services error (' + type + '):', err);
-    return res.status(500).json({ error: '伺服器錯誤，請稍後再試' });
+    return res.status(500).json({ error: '伺服器錯誤，過一下再試試' });
   }
 };

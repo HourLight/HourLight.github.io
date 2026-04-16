@@ -1017,7 +1017,7 @@
   }
 
   function copyLink(code) {
-    copyToClipboard(getShareUrl(code), '✓ 推薦連結已複製');
+    copyToClipboard(getShareUrl(code), '複製好了，分享給朋友 ✨');
   }
 
   function copyCode(code) {

@@ -274,7 +274,7 @@ export default async function handler(req, res) {
     if (!response.ok) {
       console.error('Anthropic API error:', data);
       return res.status(response.status).json({ 
-        error: '解讀服務暫時不可用，請稍後再試',
+        error: '解讀服務暫時不可用，過一下再試試',
         detail: data.error?.message || '未知錯誤'
       });
     }
@@ -338,6 +338,6 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Server error:', error);
-    return res.status(500).json({ error: '伺服器錯誤，請稍後再試' });
+    return res.status(500).json({ error: '伺服器錯誤，過一下再試試' });
   }
 }

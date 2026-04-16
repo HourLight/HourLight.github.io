@@ -273,7 +273,7 @@
       if(!response.ok) throw new Error('API Error');
 
       var data = await response.json();
-      var reply = data.reply || '抱歉，我現在無法回應。請稍後再試。';
+      var reply = data.reply || '抱歉，我現在無法回應。過一下再試試。';
 
       hideTyping();
       addMessage('ai', reply);
@@ -281,7 +281,7 @@
 
     } catch(err) {
       hideTyping();
-      addMessage('ai', '抱歉，連接出了點問題。請稍後再試或直接聯繫我們 LINE：@hourlight');
+      addMessage('ai', '抱歉，連接出了點問題。過一下再試試或直接聯繫我們 LINE：@hourlight');
     }
 
     input.disabled = false;

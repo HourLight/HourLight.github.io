@@ -171,7 +171,7 @@ window.hlPaywall = (function(){
             return;
           }
           payuniBtn.disabled = true;
-          payuniBtn.textContent = '處理中⋯⋯';
+          payuniBtn.textContent = '稍等一下⋯';
           ensurePaymentLoaded(function(){
             HLPayment.pay({
               productId:   _category + '-' + _n,
@@ -243,7 +243,7 @@ window.hlPaywall = (function(){
           var codeData = codeDoc.data();
           if (codeData.used) {
             errEl.style.display = 'block';
-            errEl.textContent = '此代碼已使用過，無法再次兌換';
+            errEl.textContent = '這組代碼已經被用過了。要不要試試另一個？';
             if (btn) { btn.disabled = false; btn.textContent = '✨ 兌換'; }
             return;
           }
@@ -283,7 +283,7 @@ window.hlPaywall = (function(){
           }
         } catch(e) {
           errEl.style.display = 'block';
-          errEl.textContent = '驗證失敗：' + (e.message || '請稍後再試');
+          errEl.textContent = '驗證失敗：' + (e.message || '過一下再試試');
           if (btn) { btn.disabled = false; btn.textContent = '✨ 兌換'; }
         }
       };

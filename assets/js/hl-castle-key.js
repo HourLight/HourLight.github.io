@@ -960,7 +960,7 @@
       // 🔧 修復：檢查登入狀態和 Firebase 可用性
       if(item.action==='generate_coupon'){
         if(typeof firebase==='undefined'||!firebase.firestore){
-          return{ok:false,reason:'firebase_unavailable',message:'系統暫時無法連線，請稍後再試'};
+          return{ok:false,reason:'firebase_unavailable',message:'系統暫時無法連線，過一下再試試'};
         }
         if(!firebase.auth().currentUser){
           return{ok:false,reason:'not_logged_in',message:'請先登入會員才能兌換折價券'};
@@ -986,7 +986,7 @@
           console.log('[城堡] 折價券已確認生成：'+couponCode);
         }catch(e){
           console.error('[城堡] Firestore 寫入失敗：',e);
-          return{ok:false,reason:'firestore_error',message:'系統錯誤：'+e.message+'，請稍後再試或聯絡客服'};
+          return{ok:false,reason:'firestore_error',message:'系統錯誤：'+e.message+'，過一下再試試或聯絡客服'};
         }
       }
 
