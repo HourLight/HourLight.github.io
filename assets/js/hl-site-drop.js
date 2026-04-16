@@ -112,6 +112,10 @@
     pricing:    'calculator',
     naha:       'quiz',
     aromacare:  'draw',
+    heal:       'heal_room',    // H 勇氣殿
+    own:        'own_room',     // O 心門宮
+    unlock:     'unlock_room',  // U 志氣殿
+    rise:       'rise_room',    // R 平衡室
     castle:     'castle_riddle',
     draw:       'draw',
     oracle:     'draw',

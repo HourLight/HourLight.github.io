@@ -1835,35 +1835,4 @@
   window.hlMaterial.refreshCachedPlan = refreshCachedPlan;
   window.hlMaterial.checkMemberBonusDrop = checkMemberBonusDrop;
 
-  // ═══ 全站被動掉落（懶加載觸發，scroll 65% + 10% 機率）═══
-  (function initPassiveDrop(){
-    // 城堡、管理、登入、定價、法務頁面跳過（這些有自己的觸發邏輯）
-    var skipPaths = ['castle-room','castle-hub','castle-world','castle-game','castle-materials',
-                     'admin-dashboard','member-login','member-dashboard','app.html',
-                     'pricing','price-list','privacy','terms','aroma-garden'];
-    var path = (window.location.pathname || '').toLowerCase();
-    for(var i=0;i<skipPaths.length;i++){
-      if(path.indexOf(skipPaths[i])>=0) return;
-    }
-
-    var sessionKey = 'hl_passive_drop_' + path.replace(/[^a-z0-9]/g,'_');
-    if(sessionStorage.getItem(sessionKey)) return; // 本次瀏覽已觸發過
-
-    var fired = false;
-    function onScroll(){
-      if(fired) return;
-      var scrollPct = window.scrollY / Math.max(1, document.body.scrollHeight - window.innerHeight);
-      if(scrollPct < 0.65) return;
-      fired = true;
-      window.removeEventListener('scroll', onScroll);
-      if(Math.random() > 0.10) return; // 10% 機率
-      sessionStorage.setItem(sessionKey, '1');
-      var result = dropMaterial('passive_browse');
-      if(result && result.ok){
-        setTimeout(function(){ showDropToast(result.item); }, 800);
-      }
-    }
-    window.addEventListener('scroll', onScroll, { passive: true });
-  })();
-
 })();
