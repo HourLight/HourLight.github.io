@@ -266,6 +266,50 @@ main{position:relative;z-index:1}
     </div>
   </section>
 
+  <!-- 城堡夥伴：小馥 + 元辰動物 + 9 隻貓咪 -->
+  <section class="cv3-map-wrap">
+    <div class="cv3-card" style="padding:22px 20px">
+      <div class="cv3-card-title" style="display:flex;align-items:center;justify-content:space-between">
+        <span>🐾 城堡夥伴</span>
+        <a href="castle-pets.html" style="font-size:.78rem;color:var(--cv3-gold-dk,#8a6d1f);text-decoration:none;letter-spacing:.05em">查看全部 ›</a>
+      </div>
+
+      <!-- 小馥面板 -->
+      <div style="display:flex;align-items:center;gap:14px;padding:14px;background:linear-gradient(135deg,rgba(248,223,165,.12),rgba(233,194,125,.06));border:1px solid rgba(184,146,42,.18);border-radius:14px;margin-bottom:14px">
+        <div id="cv3-xiaofu-avatar" style="flex:0 0 auto;width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fbe9c8,#e9c27d);display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden;box-shadow:0 4px 14px rgba(184,146,42,.22);border:2px solid rgba(255,255,255,.6)">
+          <img src="fufu-cute.webp" alt="小馥" id="cv3-xiaofu-img" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none';this.parentNode.innerHTML='🧚'" loading="lazy" decoding="async">
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:var(--cv3-serif);font-size:.98rem;color:var(--cv3-ink);margin-bottom:3px;font-weight:500">
+            小馥 · <span id="cv3-xiaofu-mood">平靜</span>
+          </div>
+          <div id="cv3-xiaofu-quote" style="font-size:.82rem;color:var(--cv3-ink-soft);line-height:1.6">
+            城堡管家今天在某個房間等您⋯⋯
+          </div>
+        </div>
+      </div>
+
+      <!-- 元辰動物（登入 + 有生日資料才顯示） -->
+      <div id="cv3-zodiac-wrap" style="display:none;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(160,124,220,.06);border:1px solid rgba(160,124,220,.18);border-radius:12px">
+          <div id="cv3-zodiac-icon" style="flex:0 0 auto;width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#e3d7f2,#b99dd8);display:flex;align-items:center;justify-content:center;font-size:1.6rem">🐰</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:.86rem;color:var(--cv3-ink);font-weight:500;margin-bottom:2px">
+              您的元辰 · <span id="cv3-zodiac-name">—</span>
+            </div>
+            <div id="cv3-zodiac-quote" style="font-size:.78rem;color:var(--cv3-ink-soft);line-height:1.55">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9 隻貓咪小格子 -->
+      <div style="font-size:.75rem;color:var(--cv3-ink-lite);letter-spacing:.08em;margin-bottom:8px">收服的貓咪 · <span id="cv3-cats-count">0</span> / 9</div>
+      <div id="cv3-cats-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(64px,1fr));gap:8px">
+        <div style="text-align:center;padding:18px;color:var(--cv3-ink-lite);font-size:.78rem;grid-column:1/-1">載入中⋯⋯</div>
+      </div>
+    </div>
+  </section>
+
   <!-- 12 房間卡片 -->
   <section class="cv3-map-wrap">
     <div class="cv3-rooms-grid" id="cv3-rooms-grid">
@@ -366,7 +410,10 @@ main{position:relative;z-index:1}
 <script src="assets/js/hl-gate.js"></script>
 <script src="assets/js/hl-tracker.js" data-tool="castle-hub" data-tool-name="內在城堡中樞" data-tool-type="game"></script>
 
-<!-- 城堡 v3 核心邏輯 -->
+<!-- 城堡 v3 核心邏輯 + 舊版核心（寵物系統依賴 hlCastle + hlMaterial） -->
+<script src="assets/js/hl-castle-key.js"></script>
+<script src="assets/js/hl-castle-material.js"></script>
+<script src="assets/js/hl-castle-pets.js"></script>
 <script src="assets/js/hl-castle-v3.js"></script>
 
 <script>
@@ -815,6 +862,103 @@ main{position:relative;z-index:1}
     document.getElementById('cv3-ex-reward-overlay').classList.remove('show');
   };
 
+  // ── 小馥 + 寵物面板（9 貓 + 元辰動物）──
+  var XIAOFU_FACES = {
+    bright: 'fufu-cute.webp',
+    calm: 'fufu-good.webp',
+    pensive: 'fufu-sleep.webp',
+    playful: 'fufu-thanks.webp',
+    melancholy: 'fufu-ignore.webp'
+  };
+  var XIAOFU_QUOTES = {
+    bright:     ['今天有好事等著，我先在鏡之廳暖好位子。','氣味是記憶的門，您今天要打開哪一扇？','我發現您的步伐比昨天輕一些，這是好事。'],
+    calm:       ['城堡很靜，這種靜不是空，是剛好。','今天沒有非做不可的事，也好。','我把茶備好了，您想坐哪個房間？'],
+    pensive:    ['有件事我想了整個上午——您最近是不是也在想同一件事？','有時候不動不是拖延，是靈魂在整理資料。','書房最裡面那本，今天特別想翻您一頁。'],
+    playful:    ['煉金室的泡泡一整天都在排隊等您！','今天我試著把薰衣草藏進廚房，您找找看～','陽光比我還早起，我差點被它嘲笑。'],
+    melancholy: ['城堡有一個房間今天比較安靜，那裡也需要您。','有些事放不下也沒關係，我陪您放著。','今天允許自己慢一點。我在。']
+  };
+
+  function pickXiaofuQuote(mood){
+    var arr = XIAOFU_QUOTES[mood] || XIAOFU_QUOTES.calm;
+    var seed = 0;
+    for (var i = 0; i < TODAY.length; i++) seed += TODAY.charCodeAt(i);
+    return arr[seed % arr.length];
+  }
+
+  function renderXiaofu(){
+    // 用「今日所有房間心情中最常見的」作為小馥整體心情
+    var counts = {};
+    Object.keys(state.moods || {}).forEach(function(rid){
+      var m = state.moods[rid] || 'calm';
+      counts[m] = (counts[m] || 0) + 1;
+    });
+    var topMood = 'calm', topCount = -1;
+    Object.keys(counts).forEach(function(m){
+      if (counts[m] > topCount){ topMood = m; topCount = counts[m]; }
+    });
+    var moodDef = (V3.SERVANT_MOODS || []).find(function(x){ return x.id === topMood; }) || { name:'平靜' };
+    var moodEl = document.getElementById('cv3-xiaofu-mood');
+    var quoteEl = document.getElementById('cv3-xiaofu-quote');
+    var imgEl = document.getElementById('cv3-xiaofu-img');
+    if (moodEl) moodEl.textContent = moodDef.name;
+    if (quoteEl) quoteEl.textContent = pickXiaofuQuote(topMood);
+    if (imgEl) imgEl.src = XIAOFU_FACES[topMood] || 'fufu-cute.webp';
+  }
+
+  function renderZodiac(){
+    if (!window.hlPets) return;
+    try {
+      var zp = hlPets.getZodiacPet();
+      if (!zp) return;
+      var wrap = document.getElementById('cv3-zodiac-wrap');
+      var nameEl = document.getElementById('cv3-zodiac-name');
+      var quoteEl = document.getElementById('cv3-zodiac-quote');
+      var iconEl = document.getElementById('cv3-zodiac-icon');
+      if (nameEl) nameEl.textContent = zp.name + '（' + zp.zodiac + '）';
+      if (quoteEl) quoteEl.textContent = zp.quote || zp.energy;
+      if (iconEl) iconEl.textContent = zp.icon;
+      if (wrap) wrap.style.display = 'block';
+    } catch(e) { console.warn('renderZodiac:', e); }
+  }
+
+  function renderCats(){
+    if (!window.hlPets) {
+      document.getElementById('cv3-cats-grid').innerHTML =
+        '<div style="text-align:center;padding:14px;color:var(--cv3-ink-lite);font-size:.78rem;grid-column:1/-1">登入後顯示您收服的貓咪</div>';
+      return;
+    }
+    try {
+      var cats = hlPets.getCats();
+      var ownedCount = cats.filter(function(c){ return c.unlocked; }).length;
+      var countEl = document.getElementById('cv3-cats-count');
+      if (countEl) countEl.textContent = ownedCount;
+
+      var html = cats.map(function(cat){
+        if (cat.unlocked){
+          var imgPath = 'images/pets/' + (cat.stickerImg || 'cat-hupo-new.png');
+          return '<a href="castle-pets.html#' + cat.id + '" title="' + cat.name + '：' + (cat.quote || '') + '" style="display:block;text-align:center;text-decoration:none;padding:4px">' +
+            '<div style="width:56px;height:56px;margin:0 auto 4px;border-radius:50%;overflow:hidden;background:#fbe9c8;border:2px solid rgba(184,146,42,.3);box-shadow:0 3px 10px rgba(184,146,42,.15)">' +
+              '<img src="' + imgPath + '" alt="' + cat.name + '" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span style=&quot;font-size:1.8rem;line-height:52px&quot;>' + (cat.icon || '🐱') + '</span>\'">' +
+            '</div>' +
+            '<div style="font-size:.72rem;color:var(--cv3-ink);font-weight:500">' + cat.name + '</div>' +
+            '</a>';
+        } else {
+          return '<div title="' + (cat.unlockCond || '未解鎖') + '" style="text-align:center;padding:4px;opacity:.5;cursor:help">' +
+            '<div style="width:56px;height:56px;margin:0 auto 4px;border-radius:50%;background:rgba(42,31,76,.08);border:2px dashed rgba(184,146,42,.25);display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--cv3-ink-lite)">?</div>' +
+            '<div style="font-size:.68rem;color:var(--cv3-ink-lite)">未解鎖</div>' +
+            '</div>';
+        }
+      }).join('');
+      document.getElementById('cv3-cats-grid').innerHTML = html;
+    } catch(e) { console.warn('renderCats:', e); }
+  }
+
+  function renderPetsPanel(){
+    renderXiaofu();
+    renderZodiac();
+    renderCats();
+  }
+
   // ── 初始化 ──
   async function init(){
     renderTimeContext();
@@ -823,7 +967,7 @@ main{position:relative;z-index:1}
     if (!window.firebase || !firebase.auth){
       var seed = 'guest' + TODAY;
       state.moods = V3.rollDailyMoods(seed);
-      renderLord(); renderRooms(); renderDailyQuests();
+      renderLord(); renderRooms(); renderDailyQuests(); renderPetsPanel();
       return;
     }
 
@@ -838,7 +982,7 @@ main{position:relative;z-index:1}
       }
       var seedStr = (state.uid || 'guest') + TODAY;
       state.moods = V3.rollDailyMoods(seedStr);
-      renderLord(); renderRooms(); renderDailyQuests();
+      renderLord(); renderRooms(); renderDailyQuests(); renderPetsPanel();
     });
   }
 
