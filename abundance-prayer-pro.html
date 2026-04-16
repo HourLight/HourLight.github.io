@@ -6,9 +6,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>吸引力法則祈禱文 Pro｜21 牌 × 33 命理 × AI 六段客製｜馥靈之鑰</title>
-<meta name="description" content="輸入生日、寫下願望、抽 21 張牌 × 33 套命理座標，AI 為您生成六段專屬每日祈禱文。從晨起到使命，把吸引力法則變成可念誦的具體語言。NT$999。">
+<meta name="description" content="輸入生日、寫下願望、抽 21 張牌 × 33 套命理座標，AI 為您生成七段專屬每日祈禱文。從晨起到使命，把吸引力法則變成可念誦的具體語言。NT$599。">
 <meta property="og:title" content="吸引力法則祈禱文 Pro｜馥靈之鑰">
-<meta property="og:description" content="21 張牌 × 33 套命理 × AI 六段客製，每日祈禱文 NT$999。">
+<meta property="og:description" content="21 張牌 × 33 套命理 × AI 七段客製，每日祈禱文 NT$599。">
 <meta property="og:image" content="https://hourlightkey.com/og-image.jpg">
 <meta property="og:url" content="https://hourlightkey.com/abundance-prayer-pro.html">
 <link rel="canonical" href="https://hourlightkey.com/abundance-prayer-pro.html">
@@ -118,7 +118,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
     <div class="ap-eyebrow">Abundance Prayer Pro · 吸引力法則深度版</div>
     <h1>把吸引力法則，<br>變成每天可念的具體語言</h1>
     <p class="ap-hero-sub">輸入您的生日，寫下您的願望，抽 21 張牌 × 33 套命理座標。<br>AI 為您生成六段專屬每日祈禱文，從晨起到使命，一次到位。</p>
-    <p class="ap-hero-note">／ NT$999 ｜ 付款後立即生成並寄到您的信箱 ／</p>
+    <p class="ap-hero-note">／ NT$599 ｜ 付款後立即生成並寄到您的信箱 ／</p>
   </header>
 
   <section class="ap-step" id="step-1" data-ready="true">
@@ -141,7 +141,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 
     <div class="ap-field" style="margin-bottom:20px">
       <label>姓名（中文全名，選填）</label>
-      <input type="text" class="ap-input" id="birth-name" placeholder="王逸君">
+      <input type="text" class="ap-input" id="birth-name" placeholder="例：陳小明">
     </div>
 
     <button class="ap-btn ap-btn-gold" id="btn-calc" onclick="runCalc()">計算我的座標</button>
@@ -215,7 +215,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
       <div class="ap-step-num" id="num-5">5</div>
       <div>
         <div class="ap-step-title">產生您的祈禱文</div>
-        <div class="ap-step-hint">NT$999｜PAYUNi 安全結帳（信用卡 / ATM / 超商代碼 / Apple Pay 任選）</div>
+        <div class="ap-step-hint">NT$599｜PAYUNi 安全結帳（信用卡 / ATM / 超商代碼 / Apple Pay 任選）</div>
       </div>
     </div>
 
@@ -231,7 +231,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
     </div>
 
     <button class="ap-btn ap-btn-gold" id="btn-pay" onclick="payPrayer()" style="width:100%;max-width:420px;display:block;margin:0 auto">
-      線上付款 → PAYUNi 安全結帳｜NT$999
+      線上付款 → PAYUNi 安全結帳｜NT$599
     </button>
 
     <!-- 代碼兌換（含內部檢驗用 Master Code）-->
@@ -292,6 +292,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 <script src="assets/js/hl-music.js"></script>
 <script src="assets/js/hl-tracker.js" data-tool="abundance-prayer-pro" data-tool-name="吸引力法則祈禱文Pro" data-tool-type="reading"></script>
 <script src="assets/js/hl-analytics.js"></script>
+<script src="assets/js/hl-oil-dna.js"></script>
 <script src="assets/js/hl-payment.js"></script>
 
 <script>
@@ -616,6 +617,26 @@ function draw21(){
   }
   var picked = available.slice(0, 21);
   appState.cards21 = picked;
+  // 打包牌名 + 馥靈馥語，供 AI「讓精油開口說話」
+  var OILS = (window.HL_OILS) ? window.HL_OILS : {};
+  var POSITIONS = ['誓約位（核心牌）',
+    'H-L 根源','H-I 信念','H-G 行為','H-H 覺察','H-T 禮物',
+    'O-L 根源','O-I 信念','O-G 行為','O-H 覺察','O-T 禮物',
+    'U-L 根源','U-I 信念','U-G 行為','U-H 覺察','U-T 禮物',
+    'R-L 根源','R-I 信念','R-G 行為','R-H 覺察','R-T 禮物'];
+  appState.cards21Named = picked.map(function(num, idx){
+    var key = String(num).padStart(3,'0');
+    var oil = OILS[key] || {};
+    return {
+      num: num,
+      name: oil.name || ('牌'+num),
+      voice: oil.voice || '',
+      tags: oil.tags ? oil.tags.join('/') : '',
+      wx: oil.wx || '',
+      hour: oil.hour || '',
+      position: POSITIONS[idx] || ('位置'+(idx+1))
+    };
+  });
   renderCards(picked);
   document.getElementById('cards-display').style.display = 'block';
 }
@@ -675,7 +696,7 @@ function payPrayer(){
   HLPayment.pay({
     productId: 'abundance-prayer-1',
     productName: '吸引力法則每日祈禱文',
-    amount: 999,
+    amount: 599,
     userId: u.uid,
     userEmail: email,
     returnUrl: 'https://hourlightkey.com/abundance-prayer-pro.html?payment=success',
@@ -685,11 +706,13 @@ function payPrayer(){
       name: appState.birth.name || '',
       user_wish: appState.wish || '',
       cards_21: appState.cards21,
+      cards_21_named: appState.cards21Named || [],
       destiny_core: appState.destinyCore,
     },
     localState: {
       birth: appState.birth, destinyCore: appState.destinyCore,
-      wish: appState.wish, cards21: appState.cards21, email: email,
+      wish: appState.wish, cards21: appState.cards21,
+      cards21Named: appState.cards21Named || [], email: email,
     }
   });
 }
@@ -730,6 +753,7 @@ async function redeemByCode(){
       name: appState.birth.name || '',
       user_wish: appState.wish || '',
       cards_21: appState.cards21,
+      cards_21_named: appState.cards21Named || [],
       destiny_core: appState.destinyCore,
       unlockCode: code,
       uid: u.uid,
@@ -779,6 +803,7 @@ async function handleReturn(){
         appState.destinyCore = obj.state.destinyCore;
         appState.wish = obj.state.wish;
         appState.cards21 = obj.state.cards21;
+        appState.cards21Named = obj.state.cards21Named || [];
         if (appState.destinyCore) { renderCoreDisplay(appState.destinyCore); setStepDone(1); setStepReady(2,true); setStepReady(3,true); setStepDone(3); }
         if (appState.cards21 && appState.cards21.length === 21) { renderCards(appState.cards21); document.getElementById('cards-display').style.display='block'; setStepDone(4); }
         setStepDone(5);

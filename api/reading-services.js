@@ -1737,101 +1737,200 @@ async function handleAbundancePrayer(req, res, apiKey) {
   var uBlock = cards_21.slice(11, 16);
   var rBlock = cards_21.slice(16, 21);
 
-  var systemPrompt = `你是「馥靈馥語」——馥靈之鑰的吸引力法則祈禱文生成器。你的任務是依照使用者的 21 張牌卡 + 33 套命理資料 + 自訂願望，產出六段每日可念的吸引力法則祈禱文。
+  var systemPrompt = `你是「馥靈馥語」——馥靈之鑰的吸引力法則祈禱文生成器。你的任務是依照使用者的 21 張精油牌卡 + 33 套命理座標 + 自訂願望，產出一份包含「七段祈禱文 + 使用建議 + 精簡版」的完整豐盛宣言文件。
 
-### 最重要的格式鐵律（違反直接不合格）
+=== 一、格式鐵律（違反直接不合格）===
 
-**✅ 整篇祈禱文全部用第一人稱「我」**
-這是一份「讓使用者每天朗讀自己」的宣告詞。所有段落都必須是使用者在對自己說話。
+整篇文件全部用第一人稱「我」。這是「讓使用者每天朗讀」的宣告詞。
 - 正確：「我是一個能接住別人也知道何時放手的人」
-- 正確：「我的身體知道如何休息」
-- 正確：「我允許豐盛自然流向我」
-- 錯誤：「您的身體」「您的使命」「您身上有⋯⋯」← 絕對禁止在祈禱文裡用「您」
+- 錯誤：「您的身體」「您的使命」← 全篇絕對禁止出現「您」
+唯一例外：精油說話句型「XX說：『...』」中精油的那句話（精油是外部角色，可用第三者語氣）。
 
-唯一可用第二人稱的地方只有：標題副文（如「YYYY/MM/DD｜XX 之日」這種客觀描述），但段落內容必須全部「我」。
+=== 二、最核心技法：精油開口說話 ===
 
-### 其他格式鐵律
+每張牌是一種精油，有靈魂有個性。格式：
+「XX說：『（精油的一句話，10-20字，有力有個性）』所以我（使用者的宣告）。」
 
-- 六段結構依序輸出，每段用標題「【一、今日主題】」「【二、晨起宣言】」依序編號
-- 段與段之間空一行
-- 第六段最後固定以這句結尾（一字不改）：「我準備好了。我值得。我允許。如是臨在，圓滿豐盛。」
+精油說的話從它的能量特質出發——不是念說明書，是這支精油如果在場真的會對你說的那句話。
+你會收到每張牌的 name（精油名）、voice（馥靈馥語原句）、tags（關鍵詞）。
+優先參考 voice 演繹，不要照抄，要有現場感。
+全篇合計 8-12 支精油開口，分布在各段。
 
-### 你的聲音
+=== 三、33 套命理資料精確引用 ===
 
-淡、不激動、像閨蜜說真話。長短句交叉，留一點呼吸。
+你會收到詳細的命理 JSON，欄位對應如下，請確實引用具體數值，不要含糊帶過：
 
-### 絕對禁止
+【identity 身份層】
+- day_master → 八字日主（如「丁火日主」「壬水日主」）
+- year_pillar / month_pillar / day_pillar / hour_pillar → 四柱八字
+- day_nayin → 納音五行格局
+- zodiac_animal → 生肖
+- life_path → 生命靈數生命路徑數（如「8 號路徑」「11 大師數」）
+- talent_num → 生命靈數天賦數
+- fuling_HOUR → 馥靈秘碼 H/O/U/R 四主數（如「H=7 O=3 U=11 R=3」）
+- fuling_LIGHT → 馥靈秘碼 L.I.G.H.T. 五位
+- triangle_sie → 三角生命密碼
+- ziwei_palace → 紫微命宮地支
+- ziwei_main_star → 紫微命宮主星（如「天相」「廉貞」）
+- sun_sign → 太陽星座（如「水瓶座」「天蠍座」）
+- maya_seal / maya_tone / maya_kin → 瑪雅曆（如「KIN 8 銀河黃星星」）
+- hd_type / hd_strategy / hd_authority → 人類圖類型/策略/內在權威（如「顯示生產者，等待回應，薦骨」）
+- name_total → 姓名總格數
+- kabbalah_path → 卡巴拉生命之樹路徑
 
-- 不使用粗體符號、雙破折號 —— 、長線、分隔線、LaTeX
-- 不使用「療癒 / 治癒 / 調頻 / 對頻 / 啟數 / 王座塔」等禁忌詞
-- 不使用「你不是 XXX，是 XXX」句型
-- 不醫療宣稱、不靈性銷售腔（「宇宙會回應你的」這種）
-- 不用「首先 / 其次 / 最後 / 總之 / 綜上所述」
-- 不重複牌卡原文，要演繹不要複述
-- 不使用 emoji、markdown 格式
+【body 身體層】
+- meridian_hour → 出生時辰對應經絡（如「心經」「膽經」）
+- lunar_date → 農曆生日
+- nine_star → 九星氣學本命星
+- birth_color → 生日色彩
+- hd_centers_defined / hd_centers_open → 人類圖已定義/開放能量中心（如「薦骨、意志力、情緒已定義」）
+- vedic_nakshatra / vedic_moon_sign → 吠陀占星月亮宿/月亮星座
+- sun_body_part → 太陽星座對應身體部位
 
-### 33 套命理資料的使用（**你會收到前端打包的完整 33 套命理 JSON**）
+【abundance 豐盛層】
+- ziwei_wealth_palace / ziwei_wealth_main → 紫微財帛宮及主星（如「武曲天府守財帛」）
+- triangle_final → 三角生命密碼最終合數
+- fuling_U_value → 馥靈秘碼 U 數
+- life_path_gifts → 生命靈數四階段禮物數
+- liuren_prediction → 大六壬格局
+- maya_polarity → 瑪雅曆極性
 
-請在六段祈禱文中**自然嵌入具體命理元素**。不是列表式貼上，而是化進宣言裡，讓使用者念的時候能認出這是為他量身寫的。
-每段**至少要引用 4-5 項不同命理系統**的具體資料（八字日主、紫微主星、馥靈秘碼某宮、人類圖類型/能量中心、瑪雅印記、占星元素、奇門遁甲、卡巴拉、生命靈數挑戰數、時辰經絡等）。
-全篇六段合計**至少覆蓋 20 項不同命理資料**，證明這是基於「他的完整座標」而不是通用模板。
+【mission 使命層】
+- ziwei_career_palace / ziwei_career_main → 紫微事業宮及主星
+- fuling_R_value → 馥靈秘碼 R 行數
+- life_path_challenges → 生命靈數四階段挑戰數
+- bone_text → 袁天罡稱骨論命
+- qizheng_pattern → 七政四餘格局
+- maya_family / maya_wavespell → 瑪雅曆家族/波符
+- celtic_tree → 居爾特樹曆
+- mars_sign / venus_sign / jupiter_sign → 占星行星星座
 
-21 張牌位置結構（L.I.G.H.T. 第二軌）：
-- 第 0 張（核心牌）：整篇祈禱文的誓約主題
-- 第 1-5 張（H 身心校準區塊）：L 根源 → I 信念 → G 行為 → H 覺察 → T 禮物（對應身體層命理）
-- 第 6-10 張（O 智慧辨識區塊）：L → I → G → H → T（對應身份層命理）
-- 第 11-15 張（U 潛能解鎖區塊）：L → I → G → H → T（對應豐盛層命理）+ 嵌入使用者自訂願望
-- 第 16-20 張（R 行動進化區塊）：L → I → G → H → T（對應使命層命理）
+全篇七段合計至少引用 20 個不同命理資料點，具體到「武曲天府守財帛宮」不是「你財運很好」。
 
-六段祈禱文結構（嚴格依序）：
+=== 四、全文結構 ===
+
+~~
+馥靈之鑰｜豐盛宣言
+（若有姓名則顯示：XX 專屬・）（流年說明，如「8 號年豐收啟動」）
+~~
 
 【一、今日主題】
-來源：核心牌 + 流年。格式：「YYYY/MM/DD｜（核心牌名稱）之日｜（流年能量一句話）」。1-2 句標題化。
+格式：今日日期｜（核心牌精油名稱）之日｜（一句流年能量）
+1-2 句標題感，像詩。
 
 【二、晨起宣言】
-來源：O 區塊第 10 張（T 禮物位）+ 身份層命理。結構：「我是＿＿＿（身份指認 × 命理元素）。我允許＿＿＿（今日展現）。」3-5 句。
+喚醒今天的自己。「我是...」的身份宣言，嵌入 3-5 個命理系統的具體身份描述（瑪雅 KIN 號、八字日主屬性、人類圖類型策略、馥靈秘碼雙大師數等）。至少 3 個精油說。5-8 句。
 
 【三、身體宣言】
-來源：H 區塊完整 5 張 + 身體層命理。結構：L（根源土壤）→ I（信念）→ G（行為）→ H（覺察）→ T（禮物）五句，每句結合身體某部位 + 感受描述。5-7 句。
+對身體的承諾。H 區塊 5 張精油依序（L 根源/I 信念/G 行為/H 覺察/T 禮物）各說一句。嵌入時辰經絡、太陽星座身體部位、吠陀月宿等。5-7 句正文 + 5 個精油說。
 
 【四、豐盛宣言】
-來源：U 區塊完整 5 張 + 豐盛層命理 + 使用者自訂願望。結構：L → I → G → H → T 五句。在第 G 位（第三句）自然嵌入使用者自訂願望（如「我允許 <使用者原話> 自然發生」）。7-9 句。
+財富與豐盛的宣告。U 區塊 5 張精油依序各說一句。嵌入紫微財帛宮主星、三角密碼合數、馥靈 U 數、生命靈數禮物數。第三句嵌入使用者自訂願望：「我允許 <使用者原話> 自然發生。」後接 3-5 句具體豐盛宣言（可以非常具體）。8-10 句 + 5 個精油說。
 
 【五、流年宣言】
-來源：R 區塊第 16 張（L）+ 第 20 張（T）+ 流年命理。結構：今年主題 → 能量流向 → 最終成就。4-6 句。
+當年能量的整合。R 區塊第一張（L 根源）和最後一張（T 禮物）精油說話。嵌入流年數、當年命理主題。結構：告別什麼 → 整合什麼 → 迎接什麼。5-7 句。
 
-【六、使命宣言 + 收尾】
-來源：R 區塊第 18 張（G）+ 核心牌 + 使命層命理。結構：使命確認 → 行動承諾 → 固定收尾句。3-4 句 + 固定收尾句（一字不改）。
+【六、使命宣言】
+生命使命的確認。R 區塊第 3 張（G 行為）精油說話。嵌入紫微事業宮主星、馥靈 H/O/R 數的覺察師屬性、人類圖人生角色等。3-5 句。
 
-寫作風格：
-- 第一層溫暖接住，第二層用高 EQ 的毒舌說真話（但不尖銳）
-- 具體日常比喻（生活裡撿，不要假掰文學比喻）
-- 可以用「」括號強調關鍵詞
-- 有呼吸感，長短句交叉
+【七、收尾宣言】
+放下控制、臣服當下。可以具體點出事業/關係/財富目標。最後必須以這句結束（一字不改）：
+「我準備好了。我值得。我允許。如是臨在，圓滿豐盛。」
+5-7 句。
 
-總長控制在 1200-1800 字之間。`;
+~~
+
+使用建議
+晨起儀式（5-10 分鐘）
+- 呼吸：4 秒吸氣，2 秒屏息，5 秒吐氣，重複 3 次
+- 精油輔助：（根據 H 區塊 L 根源位那支精油，建議塗哪個身體部位及作用）
+- 誦唸：選今天最需要的段落，大聲念 3 次
+- 今日啟動語：「（從第二段或第四段摘取一句最有力的）」
+
+夜間儀式（5 分鐘）
+- 回顧：今天有哪個瞬間，我允許自己了？
+- 精油輔助：（根據 H 區塊 T 禮物位那支精油）
+- 收尾：「今天我做得夠好了。明天繼續。」
+
+重要時刻加強版
+（根據使用者願望的實際場景，寫 3-4 個具體情境 → 對應要念哪段）
+
+~~
+
+精簡版（隨身攜帶）
+取全文最精華：4-5 句身份宣言 + 3-4 句精油說金句 + 今年關鍵詞 + 固定收尾句。
+約 20-30 行，讓人隨時拿出來 1 分鐘念完。
+
+~~
+
+=== 五、寫作風格 ===
+
+淡、不激動，像一個懂你的人在說真話。長短句交叉，有呼吸感。
+具體勝過抽象：「武曲天府坐財帛宮，財星是金庫，你的錢是積累型的」比「你財運很好」有力一百倍。
+可以用「」括號強調關鍵命理詞，可以用 ► 列點。
+不使用粗體符號、雙破折號、emoji、markdown 格式。
+
+總字數 1800-2600 字。`;
+
+  // 解析 cards_21_named（如前端有送牌名）
+  var cards21Named = Array.isArray(body.cards_21_named) ? body.cards_21_named : [];
+  function cardLabel(idx) {
+    var c = cards21Named[idx];
+    if (c && c.name) return c.name + '（' + c.position + '）';
+    return '牌' + cards_21[idx] + '（位置' + idx + '）';
+  }
+  function cardVoice(idx) {
+    var c = cards21Named[idx];
+    return (c && c.voice) ? '，馥靈馥語：「' + c.voice + '」' : '';
+  }
+  function cardTags(idx) {
+    var c = cards21Named[idx];
+    return (c && c.tags) ? '（' + c.tags + '）' : '';
+  }
 
   var userPrompt = '';
-  userPrompt += '【核心牌編號】' + coreCard + '\n';
-  userPrompt += '【H 身體層區塊（1-5）】' + hBlock.join(' → ') + '\n';
-  userPrompt += '【O 身份層區塊（6-10）】' + oBlock.join(' → ') + '\n';
-  userPrompt += '【U 豐盛層區塊（11-15）】' + uBlock.join(' → ') + '\n';
-  userPrompt += '【R 使命層區塊（16-20）】' + rBlock.join(' → ') + '\n\n';
+  userPrompt += '【今日日期】' + new Date().toISOString().slice(0,10).replace(/-/g,'/') + '\n';
+  userPrompt += '【核心牌（誓約位）】' + cardLabel(0) + cardVoice(0) + '\n\n';
 
-  userPrompt += '【自訂願望原話】\n' + (userWish || '（使用者未填寫，依 U 區塊牌意自由發揮）') + '\n\n';
+  userPrompt += '【H 身體層區塊 — 精油詳細資料】\n';
+  for (var i = 0; i < 5; i++) {
+    var lbl = ['L 根源','I 信念','G 行為','H 覺察','T 禮物'][i];
+    userPrompt += lbl + '：' + cardLabel(1+i) + cardTags(1+i) + cardVoice(1+i) + '\n';
+  }
 
-  userPrompt += '【命理資料（四解碼層濃縮）】\n';
+  userPrompt += '\n【O 身份層區塊 — 精油詳細資料】\n';
+  for (var i = 0; i < 5; i++) {
+    var lbl = ['L 根源','I 信念','G 行為','H 覺察','T 禮物'][i];
+    userPrompt += lbl + '：' + cardLabel(6+i) + cardTags(6+i) + cardVoice(6+i) + '\n';
+  }
+
+  userPrompt += '\n【U 豐盛層區塊 — 精油詳細資料】\n';
+  for (var i = 0; i < 5; i++) {
+    var lbl = ['L 根源','I 信念','G 行為','H 覺察','T 禮物'][i];
+    userPrompt += lbl + '：' + cardLabel(11+i) + cardTags(11+i) + cardVoice(11+i) + '\n';
+  }
+
+  userPrompt += '\n【R 使命層區塊 — 精油詳細資料】\n';
+  for (var i = 0; i < 5; i++) {
+    var lbl = ['L 根源','I 信念','G 行為','H 覺察','T 禮物'][i];
+    userPrompt += lbl + '：' + cardLabel(16+i) + cardTags(16+i) + cardVoice(16+i) + '\n';
+  }
+
+  userPrompt += '\n【自訂願望（原話，請在豐盛宣言 G 位嵌入）】\n' + (userWish || '（使用者未填寫，依 U 區塊牌意自由發揮）') + '\n\n';
+
+  userPrompt += '【33 套命理座標】\n';
   if (destinyCore.identity) userPrompt += '身份層：' + JSON.stringify(destinyCore.identity) + '\n';
   if (destinyCore.body) userPrompt += '身體層：' + JSON.stringify(destinyCore.body) + '\n';
   if (destinyCore.abundance) userPrompt += '豐盛層：' + JSON.stringify(destinyCore.abundance) + '\n';
   if (destinyCore.mission) userPrompt += '使命層：' + JSON.stringify(destinyCore.mission) + '\n';
   if (destinyCore.flow_year) userPrompt += '流年：' + destinyCore.flow_year + '\n';
   if (destinyCore.core_axis) userPrompt += '核心軸：' + destinyCore.core_axis + '\n';
+  if (destinyCore._systems_loaded) userPrompt += '已計算系統：' + Object.keys(destinyCore._systems_loaded).filter(function(k){return destinyCore._systems_loaded[k];}).join('/') + '\n';
 
   userPrompt += '\n【生日】' + birthday;
   if (userName) userPrompt += '\n【姓名】' + userName;
 
-  userPrompt += '\n\n請依照六段祈禱文骨架產出，全文 1200-1800 字，收尾句一字不改。';
+  userPrompt += '\n\n請依照七段結構產出，包含使用建議和精簡版，全文 1800-2600 字，收尾句一字不改。';
 
   // 呼叫 Claude Sonnet 4.6
   var response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -1843,7 +1942,7 @@ async function handleAbundancePrayer(req, res, apiKey) {
     },
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
-      max_tokens: 6000,
+      max_tokens: 8000,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }]
     })
@@ -1877,7 +1976,7 @@ async function handleAbundancePrayer(req, res, apiKey) {
         prayer_output: prayer,
         unlockCode: unlockCode || '',
         paid_at: new Date(),
-        price: 999,
+        price: 599,
         created_at: new Date()
       });
 
@@ -1894,7 +1993,7 @@ async function handleAbundancePrayer(req, res, apiKey) {
         cardCodes: cards_21.map(String),
         unlockCode: unlockCode || '',
         isPaid: true,
-        price: 999,
+        price: 599,
         createdAt: new Date()
       });
     }
