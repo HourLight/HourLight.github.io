@@ -110,6 +110,19 @@ main{position:relative;z-index:1}
 /* ── 城堡地圖區（等圖到位替換）── */
 .cv3-map-wrap{max-width:1200px;margin:24px auto;padding:0 20px}
 .cv3-map-container{position:relative;background:linear-gradient(135deg,#f7f0e0,#ece1c9);border:1px solid var(--cv3-line);border-radius:24px;padding:40px 30px;min-height:400px;overflow:hidden}
+/* ── 最近探索 widget（本週覺察）── */
+.cv3-explorations{max-width:1200px;margin:0 auto 24px;padding:22px 20px;background:linear-gradient(135deg,rgba(184,146,42,.04),rgba(160,124,220,.04));border:1px solid var(--cv3-line);border-radius:18px}
+.cv3-explorations-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;gap:10px;flex-wrap:wrap}
+.cv3-explorations-label{font-size:.82rem;letter-spacing:.12em;color:var(--cv3-ink);font-weight:500}
+.cv3-explorations-count{font-size:.7rem;letter-spacing:.08em;color:var(--cv3-ink-lite)}
+.cv3-explorations-list{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+.cv3-explorations-list::-webkit-scrollbar{height:4px}
+.cv3-explorations-list::-webkit-scrollbar-thumb{background:var(--cv3-line);border-radius:2px}
+.cv3-exp-item{flex-shrink:0;display:flex;flex-direction:column;gap:4px;padding:10px 14px;border:1px solid var(--cv3-line);border-radius:12px;background:#fff;text-decoration:none;transition:all .3s;min-width:160px;max-width:220px}
+.cv3-exp-item:hover{transform:translateY(-2px);border-color:var(--cv3-gold);box-shadow:0 6px 18px rgba(184,146,42,.15)}
+.cv3-exp-type{font-size:.62rem;letter-spacing:.12em;color:var(--cv3-gold);text-transform:uppercase}
+.cv3-exp-title{font-size:.82rem;color:var(--cv3-ink);line-height:1.4;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cv3-exp-time{font-size:.66rem;color:var(--cv3-ink-lite);margin-top:2px}
 .cv3-map-placeholder{text-align:center;padding:80px 20px;color:var(--cv3-ink-lite);font-size:.85rem;line-height:2}
 .cv3-map-placeholder-emoji{font-size:4rem;margin-bottom:18px;display:block;filter:grayscale(.3)}
 
@@ -271,6 +284,15 @@ main{position:relative;z-index:1}
       <div class="cv3-lord-stat"><strong id="cv3-materials">0</strong>材料</div>
       <div class="cv3-lord-stat"><strong id="cv3-furniture">0</strong>傢具</div>
     </div>
+  </section>
+
+  <!-- 最近探索 widget（全站 callback 閉環）-->
+  <section class="cv3-explorations" id="cv3-explorations" style="display:none">
+    <div class="cv3-explorations-header">
+      <div class="cv3-explorations-label">本週覺察 · 你最近發現了什麼</div>
+      <div class="cv3-explorations-count" id="cv3-explorations-count"></div>
+    </div>
+    <div class="cv3-explorations-list" id="cv3-explorations-list"></div>
   </section>
 
   <!-- 城堡地圖 — 圖到位自動顯示，未到則顯示 emoji placeholder -->
@@ -1135,6 +1157,44 @@ main{position:relative;z-index:1}
   }
 
   // ── 初始化 ──
+  // 最近探索 widget（本週覺察 · 全站 callback 閉環）
+  function renderExplorations(){
+    try {
+      var list = JSON.parse(localStorage.getItem('hl_castle_explorations') || '[]');
+      if (!list.length) return;
+      var sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      list = list.filter(function(e){ return e.ts > sevenDaysAgo; });
+      if (list.length < 2) return;  // 少於 2 筆不顯示（視覺太空）
+
+      var section = document.getElementById('cv3-explorations');
+      var listEl = document.getElementById('cv3-explorations-list');
+      var countEl = document.getElementById('cv3-explorations-count');
+      if (!section || !listEl) return;
+
+      var TYPE_LABELS = {
+        quiz: '覺察測驗', draw: '抽牌占卜', destiny: '命盤探索',
+        castle: '城堡儀式', generic: '探索'
+      };
+
+      var html = '';
+      list.slice(0, 12).forEach(function(e){
+        var ago = Math.floor((Date.now() - e.ts) / (1000 * 60));
+        var timeLabel = ago < 60 ? (ago + ' 分鐘前')
+          : ago < 60*24 ? (Math.floor(ago/60) + ' 小時前')
+          : (Math.floor(ago/(60*24)) + ' 天前');
+        var typeLabel = TYPE_LABELS[e.type] || '探索';
+        html += '<a class="cv3-exp-item" href="' + e.page + '">' +
+          '<span class="cv3-exp-type">' + typeLabel + '</span>' +
+          '<span class="cv3-exp-title">' + e.title.replace(/[<>&"]/g, '') + '</span>' +
+          '<span class="cv3-exp-time">' + timeLabel + '</span>' +
+          '</a>';
+      });
+      listEl.innerHTML = html;
+      if (countEl) countEl.textContent = list.length + ' 次探索 · 7 天內';
+      section.style.display = 'block';
+    } catch(_) {}
+  }
+
   // 累積訪次里程碑（10 / 50 / 100 / 365 次進城堡）
   function tryVisitMilestone(){
     try {
@@ -1211,6 +1271,7 @@ main{position:relative;z-index:1}
       var seed = 'guest' + TODAY;
       state.moods = V3.rollDailyMoods(seed);
       renderLord(); renderRooms(); renderDailyQuests(); renderPetsPanel();
+      renderExplorations();
       tryDailyLoginBonus();
       tryVisitMilestone();
       return;
@@ -1228,6 +1289,7 @@ main{position:relative;z-index:1}
       var seedStr = (state.uid || 'guest') + TODAY;
       state.moods = V3.rollDailyMoods(seedStr);
       renderLord(); renderRooms(); renderDailyQuests(); renderPetsPanel();
+      renderExplorations();
       tryDailyLoginBonus();
       tryVisitMilestone();
     });

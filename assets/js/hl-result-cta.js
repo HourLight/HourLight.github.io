@@ -161,6 +161,33 @@
     }
   }
 
+  // ═════════════════════════════════════════════════
+  // 全站 → 城堡 閉環：記錄這次探索到 localStorage
+  // castle-hub 會讀取這個 list 渲染「最近探索」widget
+  // ═════════════════════════════════════════════════
+  function recordExploration(type){
+    try {
+      var key = 'hl_castle_explorations';
+      var list = JSON.parse(localStorage.getItem(key) || '[]');
+      var title = document.title.replace(/[｜\|].*$/, '').trim() || page;
+      var entry = {
+        page: page,
+        type: type || getSourceType(),
+        title: title.slice(0, 40),
+        ts: Date.now()
+      };
+      // 同頁 60 分鐘內只記一次（避免重入）
+      var hourAgo = Date.now() - 60 * 60 * 1000;
+      var existingIdx = list.findIndex(function(e){ return e.page === page && e.ts > hourAgo; });
+      if (existingIdx === -1) {
+        list.unshift(entry);
+        // 最多保留 30 筆
+        if (list.length > 30) list = list.slice(0, 30);
+        localStorage.setItem(key, JSON.stringify(list));
+      }
+    } catch(_) {}
+  }
+
   function renderCTAs(){
     var target = document.getElementById('hl-result-cta');
     if (!target) {
@@ -174,6 +201,9 @@
     // 防重入
     if (target.dataset.rendered === '1') return;
     target.dataset.rendered = '1';
+
+    // 自動記錄這次探索
+    recordExploration();
 
     var light = isLightTheme();
     injectCSS(light);
@@ -283,5 +313,8 @@
   }
 
   // 公開 API（方便工具頁手動觸發）
-  window.hlResultCTA = { render: renderCTAs };
+  window.hlResultCTA = {
+    render: renderCTAs,
+    recordExploration: recordExploration
+  };
 })();
