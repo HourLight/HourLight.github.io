@@ -179,14 +179,6 @@
       }
     }
 
-    // 折價券（只在 180+ 天高忠誠才給）
-    if (r.coupon){
-      // 標記：讓 admin 或 member-dashboard 發現並生成真實折價券
-      var pending = lsGet('hl_pending_coupons') || [];
-      pending.push({ type: 'streak_reward', value: r.coupon, awardedAt: TODAY_TW, title: r.title });
-      lsSet('hl_pending_coupons', pending);
-    }
-
     // 顯示 streak 成就 toast
     showStreakToast(r);
   }
@@ -197,7 +189,7 @@
     t.innerHTML = '<div style="font-size:2.2rem;margin-bottom:8px">' + (r.icon || '🏅') + '</div>' +
                   '<div style="font-family:Noto Serif TC,serif;font-size:1.1rem;margin-bottom:4px">連續登入 ' + r.days + ' 天</div>' +
                   '<div style="font-weight:500;color:#8a6d1f;margin-bottom:8px">「' + r.title + '」</div>' +
-                  '<div style="font-size:.82rem;opacity:.85">+' + r.points + ' 靈感點' + (r.rare ? ' + ' + r.rare + ' Rare' : '') + (r.legendary ? ' + ' + r.legendary + ' Legendary' : '') + (r.coupon ? ' + $' + r.coupon + ' 折價券' : '') + '</div>';
+                  '<div style="font-size:.82rem;opacity:.85">+' + r.points + ' 靈感點' + (r.rare ? ' + ' + r.rare + ' Rare' : '') + (r.legendary ? ' + ' + r.legendary + ' Legendary' : '') + '</div>';
     document.body.appendChild(t);
     setTimeout(function(){ t.style.transition = 'opacity .5s, transform .5s'; t.style.opacity = '0'; t.style.transform = 'translate(-50%, -60%)'; }, 4500);
     setTimeout(function(){ t.remove(); }, 5200);
