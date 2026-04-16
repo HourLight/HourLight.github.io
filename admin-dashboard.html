@@ -1009,6 +1009,17 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
             <div id="giftOnlyResult" style="display:none;margin-top:14px;padding:12px 16px;border-radius:10px;font-size:.86rem;line-height:1.8"></div>
           </details>
 
+          <!-- 🔄 批次補發大師抵用券 -->
+          <details style="margin-top:18px;padding-top:14px;border-top:1px dashed var(--adm-border)">
+            <summary style="cursor:pointer;font-size:.86rem;color:var(--adm-text2);padding:8px 0;font-weight:500">🔄 批次補發大師抵用券</summary>
+            <div style="font-size:.78rem;color:var(--adm-text3);line-height:1.7;margin:8px 0 12px">
+              掃描所有有效大師用戶，若持有的未用抵用券不足 2 張，自動補發到 2 張。<br>
+              每張 NT$500、限一對一服務（1800+）折抵、3 個月有效。
+            </div>
+            <button class="adm-btn adm-btn-primary" style="min-height:44px;font-size:.86rem" onclick="batchGiftProVouchers()">👑 批次補發（全部大師用戶）</button>
+            <div id="batchVoucherResult" style="display:none;margin-top:14px;padding:12px 16px;border-radius:10px;font-size:.86rem;line-height:1.8"></div>
+          </details>
+
           <!-- 💎 加購 AI 解讀次數（aiBonus）-->
           <details style="margin-top:18px;padding-top:14px;border-top:1px dashed var(--adm-border)" open>
             <summary style="cursor:pointer;font-size:.86rem;color:var(--adm-text2);padding:8px 0;font-weight:500">💎 補加購次數（aiBonus）</summary>
@@ -3052,20 +3063,19 @@ async function activateMember() {
           var voucherExp = new Date();
           voucherExp.setDate(voucherExp.getDate() + 90); // 3 個月
           for (var v = 0; v < 2; v++) {
-            var voucherCode = generateGiftCode('HLV');
+            var voucherCode = generateGiftCode('VIP500');
             var voucherDoc = {
-              code: voucherCode,
-              value: 500,
-              type: 'one-on-one',
+              amount: 500,
               used: false,
+              source: 'admin-gift',
               createdAt: firebase.firestore.FieldValue.serverTimestamp(),
               createdBy: currentUser.email,
-              giftedFor: 'pro',
-              expiresAt: voucherExp.toISOString(),
-              // ═ 使用限制（對齊 payuni-notify.js 規格）═
-              minOrderAmount: 1800,           // 訂單最低金額 NT$1800
-              restrictedTo: 'one-on-one',     // 只能用於一對一解讀
-              maxUsePerOrder: 1,              // 一次一張
+              userId: uid,
+              userEmail: userData.email || '',
+              expiresAt: voucherExp,
+              minOrderAmount: 1800,
+              restrictedTo: 'one-on-one',
+              maxUsePerOrder: 1,
               applicableServices: [
                 'prayer-6800', 'prayer-8800', 'prayer-12800',
                 'prayer-39800', 'prayer-59800', 'prayer-16800',
@@ -3073,7 +3083,7 @@ async function activateMember() {
               ],
               memo: '馥靈大師月禮｜一對一 1800+ 可折 500｜3 個月內有效'
             };
-            await db.collection('users').doc(uid).collection('vouchers').doc(voucherCode).set(voucherDoc);
+            await db.collection('coupons').doc(voucherCode).set(voucherDoc);
             giftVouchers.push({ code: voucherCode, expires: voucherExp });
           }
         } catch (vErr) {
@@ -3353,16 +3363,25 @@ async function giftOnly(plan) {
 
     if (plan === 'pro') {
       for (var v = 0; v < 2; v++) {
-        var voucherCode = generateGiftCode('HLV');
-        await db.collection('users').doc(uid).collection('vouchers').doc(voucherCode).set({
-          code: voucherCode, value: 500, type: 'one-on-one',
+        var voucherCode = generateGiftCode('VIP500');
+        var voucherDoc = {
+          amount: 500,
           used: false,
+          source: 'admin-compensation',
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           createdBy: currentUser.email,
+          userId: uid,
+          userEmail: userData.email || '',
+          expiresAt: firebase.firestore.Timestamp.fromDate(giftExp),
+          minOrderAmount: 1800,
+          restrictedTo: 'one-on-one',
+          maxUsePerOrder: 1,
+          applicableServices: ['prayer-6800','prayer-8800','prayer-12800','prayer-39800','prayer-59800','prayer-16800','one-on-one'],
+          memo: '馥靈大師月禮補贈｜一對一 1800+ 可折 500｜3 個月內有效',
           giftedFor: 'pro',
-          compensationGift: true,
-          expiresAt: giftExpISO
-        });
+          compensationGift: true
+        };
+        await db.collection('coupons').doc(voucherCode).set(voucherDoc);
         giftVouchers.push({ code: voucherCode, expires: giftExp });
       }
     }
@@ -3441,6 +3460,104 @@ async function giftOnly(plan) {
   }
 }
 window.giftOnly = giftOnly;
+
+// ═══ 批次補發大師抵用券 ═══
+async function batchGiftProVouchers() {
+  var resultEl = document.getElementById('batchVoucherResult');
+  resultEl.style.display = 'block';
+  resultEl.style.background = 'rgba(160,124,220,.08)';
+  resultEl.style.color = 'var(--adm-text)';
+  resultEl.innerHTML = '⏳ 查詢中…';
+
+  try {
+    var now = new Date();
+    // 1. 查所有 plan=pro 且 planExpiry > now 的用戶
+    var usersSnap = await db.collection('users')
+      .where('plan', '==', 'pro')
+      .get();
+
+    var activeProUsers = usersSnap.docs.filter(function(doc) {
+      var d = doc.data();
+      if (!d.planExpiry) return false;
+      var expiry = d.planExpiry.toDate ? d.planExpiry.toDate() : new Date(d.planExpiry);
+      return expiry > now;
+    });
+
+    resultEl.innerHTML = '⏳ 找到 ' + activeProUsers.length + ' 位有效大師，逐一檢查中…';
+
+    var issued = 0, skipped = 0, errors = 0;
+    var log = [];
+
+    for (var i = 0; i < activeProUsers.length; i++) {
+      var userDoc = activeProUsers[i];
+      var uid = userDoc.id;
+      var userData = userDoc.data();
+      var userEmail = userData.email || '';
+      var displayName = userData.displayName || userEmail;
+
+      try {
+        // 2. 查該用戶在 coupons 中未使用且未過期的抵用券數量
+        var couponsSnap = await db.collection('coupons')
+          .where('userId', '==', uid)
+          .where('used', '==', false)
+          .get();
+
+        var activeCoupons = couponsSnap.docs.filter(function(cd) {
+          var cdata = cd.data();
+          if (!cdata.expiresAt) return true;
+          var exp = cdata.expiresAt.toDate ? cdata.expiresAt.toDate() : new Date(cdata.expiresAt);
+          return exp > now;
+        });
+
+        var have = activeCoupons.length;
+        var need = Math.max(0, 2 - have);
+
+        if (need === 0) {
+          skipped++;
+          log.push('✓ ' + displayName + '（已有 ' + have + ' 張）');
+          continue;
+        }
+
+        // 3. 補發缺少的張數
+        var voucherExp = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+        for (var v = 0; v < need; v++) {
+          var voucherCode = generateGiftCode('VIP500');
+          await db.collection('coupons').doc(voucherCode).set({
+            amount: 500,
+            used: false,
+            source: 'admin-batch-retro',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            createdBy: currentUser.email,
+            userId: uid,
+            userEmail: userEmail,
+            expiresAt: firebase.firestore.Timestamp.fromDate(voucherExp),
+            minOrderAmount: 1800,
+            restrictedTo: 'one-on-one',
+            maxUsePerOrder: 1,
+            applicableServices: ['prayer-6800','prayer-8800','prayer-12800','prayer-39800','prayer-59800','prayer-16800','one-on-one'],
+            memo: '馥靈大師月禮補發｜一對一 1800+ 可折 500｜3 個月內有效'
+          });
+          issued++;
+        }
+        log.push('💎 ' + displayName + '（補 ' + need + ' 張，原有 ' + have + ' 張）');
+      } catch (userErr) {
+        errors++;
+        log.push('❌ ' + (displayName || uid) + '：' + userErr.message);
+      }
+    }
+
+    resultEl.style.background = 'rgba(52,168,83,.08)';
+    resultEl.style.color = '#34a853';
+    resultEl.innerHTML = '✅ 完成！共補發 <strong>' + issued + '</strong> 張，跳過 ' + skipped + ' 位（已夠）' + (errors ? '，失敗 ' + errors + ' 位' : '') +
+      '<details style="margin-top:10px"><summary style="cursor:pointer;font-size:.78rem;color:var(--adm-text3)">展開明細</summary>' +
+      '<div style="font-size:.78rem;color:var(--adm-text3);line-height:2;margin-top:6px">' + log.join('<br>') + '</div></details>';
+  } catch (e) {
+    resultEl.style.background = 'rgba(234,67,53,.08)';
+    resultEl.style.color = '#ea4335';
+    resultEl.innerHTML = '❌ 失敗：' + e.message;
+  }
+}
+window.batchGiftProVouchers = batchGiftProVouchers;
 
 async function loadActivateHistory() {
   var el = document.getElementById('actHistory');
