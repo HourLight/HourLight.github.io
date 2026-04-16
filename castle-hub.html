@@ -98,8 +98,11 @@ main{position:relative;z-index:1}
 .cv3-lord-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--cv3-gold-lt),var(--cv3-purple-lt));display:flex;align-items:center;justify-content:center;font-size:1.8rem}
 .cv3-lord-info .cv3-lord-title{font-family:var(--cv3-serif);font-size:1.15rem;font-weight:500;color:var(--cv3-ink)}
 .cv3-lord-info .cv3-lord-meta{font-size:.82rem;color:var(--cv3-ink-lite);margin-top:2px}
-.cv3-lord-xpbar{width:100%;height:6px;background:var(--cv3-line-soft);border-radius:3px;margin-top:8px;overflow:hidden}
-.cv3-lord-xpbar-fill{height:100%;background:linear-gradient(90deg,var(--cv3-gold),var(--cv3-gold-lt));transition:width .6s var(--cv3-ease)}
+.cv3-lord-xpbar{width:100%;height:10px;background:var(--cv3-line-soft);border-radius:6px;margin-top:10px;overflow:hidden;position:relative;box-shadow:inset 0 1px 2px rgba(0,0,0,.06)}
+.cv3-lord-xpbar-fill{height:100%;background:linear-gradient(90deg,var(--cv3-gold-dk),var(--cv3-gold),var(--cv3-gold-lt),#fff6dc);transition:width .8s cubic-bezier(.4,0,.2,1);border-radius:6px;box-shadow:0 0 10px rgba(248,223,165,.55);position:relative}
+.cv3-lord-xpbar-fill::after{content:'';position:absolute;top:0;right:0;bottom:0;width:12px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent);animation:cv3XpShimmer 2.4s ease-in-out infinite}
+@keyframes cv3XpShimmer{0%{opacity:0;transform:translateX(-40px)}40%,60%{opacity:1}100%{opacity:0;transform:translateX(10px)}}
+.cv3-lord-xp-note{font-size:.7rem;color:var(--cv3-ink-lite);margin-top:4px;letter-spacing:.04em}
 .cv3-lord-stats{display:flex;gap:18px;text-align:center}
 .cv3-lord-stat{font-size:.75rem;color:var(--cv3-ink-lite)}
 .cv3-lord-stat strong{display:block;font-family:var(--cv3-serif);font-size:1.15rem;color:var(--cv3-gold-dk);margin-bottom:2px}
@@ -113,6 +116,19 @@ main{position:relative;z-index:1}
 /* ── 房間網格（美術圖到位前作為主顯示）── */
 .cv3-rooms-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-top:24px}
 .cv3-room-card{background:#fff;border:1px solid var(--cv3-line);border-radius:16px;padding:22px 20px;cursor:pointer;transition:all .3s var(--cv3-ease);position:relative;overflow:hidden;min-height:220px;display:flex;flex-direction:column;justify-content:space-between}
+/* 房間累積發光：Lv 越高越亮（做越多次謎語房間越亮） */
+.cv3-room-card[data-lv-tier="warm"]{box-shadow:0 4px 14px rgba(184,146,42,.15);border-color:rgba(184,146,42,.35)}
+.cv3-room-card[data-lv-tier="warm"]::before{background:linear-gradient(90deg,var(--cv3-gold-lt),var(--cv3-gold));height:4px}
+.cv3-room-card[data-lv-tier="bright"]{box-shadow:0 8px 24px rgba(184,146,42,.28),0 0 0 1px rgba(184,146,42,.18);border-color:rgba(184,146,42,.55)}
+.cv3-room-card[data-lv-tier="bright"]::before{background:linear-gradient(90deg,#fff6dc,var(--cv3-gold));height:5px;box-shadow:0 0 12px rgba(248,223,165,.55)}
+.cv3-room-card[data-lv-tier="bright"] .cv3-room-lv{color:var(--cv3-gold-dk);font-weight:600}
+.cv3-room-card[data-lv-tier="glow"]{box-shadow:0 12px 36px rgba(184,146,42,.35),0 0 28px rgba(248,223,165,.3);border-color:var(--cv3-gold);animation:cv3RoomPulse 3.2s ease-in-out infinite}
+.cv3-room-card[data-lv-tier="glow"]::before{background:linear-gradient(90deg,#fff6dc,var(--cv3-gold),#fff6dc);height:6px;box-shadow:0 0 18px rgba(248,223,165,.8)}
+.cv3-room-card[data-lv-tier="glow"] .cv3-room-lv{color:var(--cv3-gold-dk);font-weight:700;text-shadow:0 0 8px rgba(248,223,165,.6)}
+@keyframes cv3RoomPulse{0%,100%{box-shadow:0 12px 36px rgba(184,146,42,.35),0 0 28px rgba(248,223,165,.3)}50%{box-shadow:0 14px 42px rgba(184,146,42,.45),0 0 38px rgba(248,223,165,.5)}}
+/* 今日已完成任務的房間有勳章標記 */
+.cv3-room-card[data-quest-done="1"] .cv3-room-head::after{content:'✓';position:absolute;top:-2px;right:-2px;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#b8922a,#8a6d1f);color:#fff;font-size:.72rem;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(184,146,42,.35);z-index:3}
+.cv3-room-head{position:relative}
 .cv3-room-card::after{content:'';position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity .5s var(--cv3-ease);z-index:0;border-radius:16px}
 .cv3-room-card[data-img-loaded="true"]::after{opacity:.22}
 .cv3-room-card:hover::after{opacity:.42}
@@ -248,6 +264,7 @@ main{position:relative;z-index:1}
         · <span id="cv3-lord-xp">0</span> / <span id="cv3-lord-xp-next">100</span> XP
       </div>
       <div class="cv3-lord-xpbar"><div class="cv3-lord-xpbar-fill" id="cv3-lord-xp-fill" style="width:0%"></div></div>
+      <div class="cv3-lord-xp-note" id="cv3-lord-xp-note"></div>
     </div>
     <div class="cv3-lord-stats">
       <div class="cv3-lord-stat"><strong id="cv3-points">0</strong>靈感點</div>
@@ -570,16 +587,40 @@ main{position:relative;z-index:1}
   }
 
   // ── Lord 面板（從 localStorage 讀取實際靈感點）──
+  // _prevLv 記上次渲染時的等級，用來偵測升級
+  var _prevLv = null;
   function renderLord(){
     var castleData = lsGet('hl_castle_v3') || {};
     var lv = (state.save && state.save.cv3_lord_lv) || castleData.level || 1;
+    // xp 達標自動升級：如果 xp >= xpNext(lv) 就往上推
     var xp = (state.save && state.save.cv3_lord_xp) || castleData.xp || 0;
+    var origLv = lv;
+    while (lv < 200 && xp >= (V3.lordXpToNextLv(lv) || Infinity)) {
+      xp -= V3.lordXpToNextLv(lv);
+      lv++;
+    }
+    if (lv !== origLv) {
+      castleData.level = lv;
+      castleData.xp = xp;
+      lsSet('hl_castle_v3', castleData);
+    }
     var xpNext = V3.lordXpToNextLv(lv) || 1;
     document.getElementById('cv3-lord-title').textContent = V3.lordTitle(lv);
     document.getElementById('cv3-lord-lv').textContent = lv;
     document.getElementById('cv3-lord-xp').textContent = xp;
     document.getElementById('cv3-lord-xp-next').textContent = xpNext;
     document.getElementById('cv3-lord-xp-fill').style.width = Math.min(100, Math.floor(xp / xpNext * 100)) + '%';
+    var noteEl = document.getElementById('cv3-lord-xp-note');
+    if (noteEl){
+      var remain = Math.max(0, xpNext - xp);
+      noteEl.textContent = lv >= 200 ? '已達最高等級 · 馥靈君主' : ('距離 Lv.' + (lv + 1) + ' 還差 ' + remain + ' XP');
+    }
+
+    // 升級慶祝（如果 lv 從上次記錄變高）
+    if (_prevLv !== null && lv > _prevLv && window.hlRewardFX && hlRewardFX.levelUp){
+      setTimeout(function(){ hlRewardFX.levelUp(_prevLv, lv); }, 400);
+    }
+    _prevLv = lv;
 
     var points = getPoints() || (state.save && state.save.points) || 0;
     var materials = 0, furniture = 0;
@@ -607,7 +648,12 @@ main{position:relative;z-index:1}
       var slug = 'castle-room-' + room.id;
       var visited = todayRooms[slug] && todayRooms[slug].started;
       var questDone = todayRooms[slug] && todayRooms[slug].claimed;
-      html += '<div class="cv3-room-card" data-room-id="' + room.id + '" onclick="cv3EnterRoom(\'' + room.id + '\')">' +
+      // 依 Lv 判斷發光等級：Lv 3-5 warm / Lv 6-10 bright / Lv 11+ glow
+      var lvTier = lv >= 11 ? 'glow' : (lv >= 6 ? 'bright' : (lv >= 3 ? 'warm' : ''));
+      html += '<div class="cv3-room-card" data-room-id="' + room.id + '"' +
+          (lvTier ? ' data-lv-tier="' + lvTier + '"' : '') +
+          (questDone ? ' data-quest-done="1"' : '') +
+          ' onclick="cv3EnterRoom(\'' + room.id + '\')">' +
         '<div class="cv3-room-head"><span class="cv3-room-emoji">' + room.emoji + '</span>' +
           '<div><div class="cv3-room-name">' + room.name + '</div>' +
           '<div class="cv3-room-zone">' + room.zone + ' 區' + (visited ? ' · 今日已訪' : '') + '</div></div></div>' +
@@ -1089,6 +1135,51 @@ main{position:relative;z-index:1}
   }
 
   // ── 初始化 ──
+  // 累積訪次里程碑（10 / 50 / 100 / 365 次進城堡）
+  function tryVisitMilestone(){
+    try {
+      var today = TODAY;
+      var todayKey = 'hl_castle_hub_visited_' + today;
+      if (localStorage.getItem(todayKey)) return;  // 今天已計過
+      localStorage.setItem(todayKey, '1');
+      var total = parseInt(localStorage.getItem('hl_castle_hub_visits') || '0', 10) + 1;
+      localStorage.setItem('hl_castle_hub_visits', String(total));
+
+      var MILESTONES = {
+        10:  { title:'第 10 次進城堡', desc:'開始成形了。這份習慣，城堡都在記' },
+        30:  { title:'第 30 次進城堡', desc:'一個月的訪客，變成了城堡的常客' },
+        50:  { title:'第 50 次進城堡', desc:'半百刻度。你比大多數人更願意面對自己' },
+        100: { title:'第 100 次進城堡', desc:'三位數的堅持。你已是城堡的半個靈魂' },
+        200: { title:'第 200 次進城堡', desc:'這座城堡，是你走出來的' },
+        365: { title:'第 365 次進城堡', desc:'一年的長度。很少人走到這裡' }
+      };
+      if (!MILESTONES[total] || !window.hlRewardFX) return;
+      var cfg = MILESTONES[total];
+      setTimeout(function(){
+        hlRewardFX.confetti({ count: 100, origin:{ x:.5, y:.3 }, duration: 3200 });
+        // 自繪 milestone card
+        var ov = document.createElement('div');
+        ov.style.cssText = 'position:fixed;inset:0;background:radial-gradient(circle,rgba(0,0,0,.55),rgba(0,0,0,.75));z-index:10000;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .4s;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)';
+        var card = document.createElement('div');
+        card.style.cssText = 'background:linear-gradient(150deg,#2a1f4c,#1a1533);border:1.5px solid #a07cdc;border-radius:22px;padding:34px 30px;max-width:380px;width:86%;text-align:center;color:#fff;font-family:"Noto Serif TC",serif;transform:scale(.88);transition:transform .4s cubic-bezier(.34,1.56,.64,1);box-shadow:0 24px 80px rgba(0,0,0,.6),0 0 40px rgba(160,124,220,.4)';
+        card.innerHTML =
+          '<div style="font-size:3rem;margin-bottom:10px">🏰</div>' +
+          '<div style="font-size:.72rem;letter-spacing:.22em;color:#d6a7c7;margin-bottom:8px;text-transform:uppercase">Castle Milestone</div>' +
+          '<div style="font-size:1.2rem;font-weight:600;color:#f8dfa5;margin-bottom:12px">' + cfg.title + '</div>' +
+          '<div style="font-size:.88rem;color:rgba(255,255,255,.78);line-height:2;font-family:\'LXGW WenKai TC\',serif">' + cfg.desc + '</div>' +
+          '<button type="button" style="margin-top:22px;background:linear-gradient(135deg,#a07cdc,#7e5ec0);color:#fff;border:none;border-radius:999px;padding:10px 26px;font-size:.9rem;letter-spacing:.08em;cursor:pointer;font-family:inherit">收下</button>';
+        ov.appendChild(card);
+        document.body.appendChild(ov);
+        requestAnimationFrame(function(){ ov.style.opacity='1'; card.style.transform='scale(1)'; });
+        function close(){ ov.style.opacity='0'; setTimeout(function(){ ov.remove(); }, 400); }
+        card.querySelector('button').addEventListener('click', close);
+        ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
+        setTimeout(close, 8000);
+        try { if (window.HLSound && HLSound.drop_legendary) HLSound.drop_legendary(); } catch(_){}
+      }, 1400);
+    } catch(e) {}
+  }
+
   // 每日登入獎勵：首次進城堡送 2 顆月光碎片
   function tryDailyLoginBonus(){
     if (!window.hlMaterial || typeof hlMaterial.grantLoginBonus !== 'function') return;
@@ -1121,6 +1212,7 @@ main{position:relative;z-index:1}
       state.moods = V3.rollDailyMoods(seed);
       renderLord(); renderRooms(); renderDailyQuests(); renderPetsPanel();
       tryDailyLoginBonus();
+      tryVisitMilestone();
       return;
     }
 
@@ -1137,6 +1229,7 @@ main{position:relative;z-index:1}
       state.moods = V3.rollDailyMoods(seedStr);
       renderLord(); renderRooms(); renderDailyQuests(); renderPetsPanel();
       tryDailyLoginBonus();
+      tryVisitMilestone();
     });
   }
 
