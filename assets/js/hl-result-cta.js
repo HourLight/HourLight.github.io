@@ -41,38 +41,65 @@
     return 'generic';
   }
 
-  // 三大 CTA 配置（照類型給不同推薦）
+  // 三大 CTA 配置（依類型 · 痛點 + 利他 + 付費回應三合一）
   var CTA_PRESETS = {
     quiz: {
-      label: '做完測驗，再走一步',
-      cta1: { title:'看懂你的能量座標', desc:'用古今中外大數據系統交叉定位你的設定', href:'destiny-engine.html', tag:'命盤引擎' },
-      cta2: { title:'讓 AI 為你深度解讀', desc:'不只告訴你是什麼，還告訴你怎麼走', href:'pricing.html#ai-reading', tag:'AI 深度解讀' },
-      cta3: { title:'送朋友一次免費體驗', desc:'推薦碼自動帶入，朋友註冊你收分潤', href:'#share', tag:'分享' }
+      label: '做完測驗，三條路可以走',
+      cta1: { title:'把這個型放進你的農曆生日看', desc:'做完測驗最常卡的是「那我該怎麼選」。命盤把型放進 33 套系統看，會給你答案。', href:'destiny-engine.html', tag:'命盤引擎' },
+      cta2: { title:'AI 把你的型讀到最深', desc:'如果覺得「知道了但不知道怎麼辦」，AI 把這個型、農曆生日、最近抽的牌三層交叉讀。$199 起，90 秒。', href:'pricing.html#ai-reading', tag:'AI 深度解讀' },
+      cta3: { title:'送一位朋友免費體驗', desc:'看他是跟你同型還是互補，會比任何說明書準。朋友註冊送 48 小時大師體驗。', href:'#share', tag:'分享' }
     },
     destiny: {
-      label: '知道自己的座標後，下一步',
-      cta1: { title:'抽一張，問一個當下的問題', desc:'130 張原創智慧牌卡，AI 即時解讀', href:'draw-hl.html', tag:'智慧抽牌' },
-      cta2: { title:'升級看完整 33 套合盤', desc:'與另一半/家人/夥伴的能量交叉', href:'destiny-match.html', tag:'33 套合盤' },
-      cta3: { title:'送朋友一張免費體驗', desc:'推薦碼自動帶入，朋友註冊你收分潤', href:'#share', tag:'分享' }
+      label: '座標就緒，下一步',
+      cta1: { title:'抽一張牌，問命盤沒回答的事', desc:'命盤告訴你設定，牌卡回應你當下。130 張馥靈之鑰原創牌，比塔羅多接住你的命盤。', href:'draw-hl.html', tag:'智慧抽牌' },
+      cta2: { title:'看看跟某個人合盤會怎樣', desc:'不只是星座合盤。33 套全維度交叉，找出彼此最容易卡在哪一步。', href:'destiny-match.html', tag:'33 套合盤' },
+      cta3: { title:'把這張座標送朋友', desc:'讓他知道自己的設定。一張屬於他的地圖。', href:'#share', tag:'分享' }
     },
     draw: {
-      label: '抽完之後',
-      cta1: { title:'你的命盤告訴你為何抽到這張', desc:'把牌卡放進 33 大命理系統的座標看', href:'destiny-engine.html', tag:'命盤引擎' },
-      cta2: { title:'AI 深度解讀這 3/5/7 張', desc:'免費抽牌，付費看更深的故事', href:'pricing.html#draw-reading', tag:'AI 解讀' },
-      cta3: { title:'把這張送朋友看看', desc:'產生專屬分享連結 + 推薦碼', href:'#share', tag:'分享' }
+      label: '抽完之後，三個選擇',
+      cta1: { title:'這張牌是你命盤的哪一頁', desc:'把牌放回 33 套命理看，會發現原來這張牌是你某個宮位在說話。', href:'destiny-engine.html', tag:'命盤座標' },
+      cta2: { title:'3 張牌 AI 深度解讀 · NT$199', desc:'過去、現在、未來怎麼交織？AI 把你的牌組、問題、時間節奏一次讀給你聽。90 秒出，可停可續。', href:'pricing.html#draw-reading', tag:'AI 解讀' },
+      cta3: { title:'把這張牌送一個人', desc:'有時候答案不在你，在你要傳出去的那句話。分享連結帶專屬推薦碼。', href:'#share', tag:'分享' }
     },
     castle: {
       label: '走出城堡，帶一把鑰匙',
-      cta1: { title:'看看你缺哪一塊', desc:'做深潛覺察測驗，補上缺口', href:'quiz-hub.html', tag:'覺察測驗' },
-      cta2: { title:'抽一張今日指引', desc:'從 130 張牌卡挑一張回答你', href:'draw-hl.html', tag:'智慧抽牌' },
-      cta3: { title:'讓朋友也進城堡', desc:'分享連結 + 推薦碼', href:'#share', tag:'分享' }
+      cta1: { title:'去看看你還沒走過的房', desc:'每間房對應你內在的一個面向。還沒進的那扇門，可能是你最該看的地方。', href:'castle-game.html', tag:'城堡房間' },
+      cta2: { title:'抽一張今日指引', desc:'從 130 張馥靈之鑰原創牌卡挑一張回答你當下的問題。', href:'draw-hl.html', tag:'智慧抽牌' },
+      cta3: { title:'讓朋友也進城堡看看', desc:'分享連結，朋友一進來就拿到 48 小時大師體驗。', href:'#share', tag:'分享' }
     },
     generic: {
       label: '繼續你的內在探索',
-      cta1: { title:'做一個覺察測驗', desc:'101 項心理測驗幫你定位', href:'quiz-hub.html', tag:'覺察測驗' },
-      cta2: { title:'算一次你的命盤座標', desc:'33 大系統交叉定位你的設定', href:'destiny-engine.html', tag:'命盤引擎' },
-      cta3: { title:'抽一張牌看看今天', desc:'130 張智慧牌卡回答你當下的問題', href:'draw-hl.html', tag:'智慧抽牌' }
+      cta1: { title:'做一個覺察測驗', desc:'101 支原創測驗，幫你定位現在站在哪裡。', href:'quiz-hub.html', tag:'覺察測驗' },
+      cta2: { title:'算一次你的命盤座標', desc:'33 套系統交叉，看清楚你的出廠設定。', href:'destiny-engine.html', tag:'命盤引擎' },
+      cta3: { title:'抽一張牌回應當下', desc:'130 張原創牌卡，塔羅接不住的，這裡接得住。', href:'draw-hl.html', tag:'智慧抽牌' }
     }
+  };
+
+  // ═══ 座標已就位 橋樑（Giver Communication · 不推銷，只邀請）═══
+  var COORDINATE_BRIDGE = {
+    quiz:    '你拿到的是座標。座標告訴你你在哪，不告訴你怎麼走。',
+    destiny: '你拿到的是座標。這是馥靈之鑰把 33 套系統交叉定位給你的那個點。',
+    draw:    '你拿到的是一張牌。這張牌在馥靈之鑰是一個座標，不是預言。',
+    castle:  '你剛剛走過一個房間。那是你內在的一個面向。',
+    generic: '你現在站在一個新的座標上。'
+  };
+
+  // ═══ 72 小時一件事（Implementation Intention · if-then 收斂意圖）═══
+  var ACTION_72H = {
+    quiz:    '72 小時內，找一個跟你不同型的人，讓他跟你講一件你從沒想過的事。就一件。',
+    draw:    '如果這張牌讓你想起某件一直拖的事，72 小時內把它做完。就這一件。做完給自己一個空白的 30 分鐘。',
+    destiny: '你的座標剛才告訴你一個傾向。72 小時內，找一件跟這個傾向反著的事試試看。只試一次就好。',
+    castle:  '72 小時內，回到城堡裡選一間你沒進過的房。不帶任務、不為了鑰匙，就去看看。',
+    generic: '72 小時內，做一件你從沒給過自己機會做的事。小到「今晚 10 點關燈」也算。'
+  };
+
+  // ═══ 馥靈馥語收尾卡（Peak-End Rule · 結尾決定記憶）═══
+  var OUTRO_YUYU = {
+    quiz:    '看見自己，不是終點。是明天可以多愛自己一點的理由。',
+    draw:    '一張牌說了一件事。你聽到了，就已經在動了。',
+    destiny: '座標不是命定。是一張你可以選擇要不要走的地圖。',
+    castle:  '你每天回到城堡，不是為了收集什麼。是為了記得自己。',
+    generic: '今天的你，比昨天多知道了一點點關於自己的事。這已經夠了。'
   };
 
   // ═════════════════════════════════════════════════
@@ -118,6 +145,19 @@
       .hl-rcta-reflect-q summary::-webkit-details-marker{display:none}
       .hl-rcta-reflect-q textarea{width:100%;min-height:60px;margin-top:10px;padding:9px 11px;background:rgba(255,255,255,.75);border:1px solid rgba(200,134,42,.15);border-radius:8px;font-family:inherit;font-size:.86rem;line-height:1.8;color:#3e2a1a;resize:vertical}
       .hl-rcta-reflect-hint{font-size:.76rem;color:#8a7a6a;text-align:center;margin-top:12px;font-family:'LXGW WenKai TC','Noto Serif TC',serif;line-height:1.8}
+      /* 座標已就位 橋樑 */
+      .hl-rcta-bridge{margin-bottom:22px;padding:18px 22px;background:linear-gradient(90deg,rgba(200,134,42,.08),rgba(200,134,42,.02));border-left:3px solid #c8862a;border-radius:0 12px 12px 0}
+      .hl-rcta-bridge-eyebrow{font-size:.68rem;letter-spacing:.24em;color:#c8862a;text-transform:uppercase;margin-bottom:6px}
+      .hl-rcta-bridge-text{font-size:.98rem;color:#3e2a1a;line-height:1.9;font-family:'LXGW WenKai TC','Noto Serif TC',serif;letter-spacing:.03em}
+      /* 72 小時一件事 */
+      .hl-rcta-action72{margin:22px auto;padding:20px 22px;max-width:720px;background:linear-gradient(135deg,rgba(160,124,220,.08),rgba(214,167,199,.06));border:1px dashed rgba(160,124,220,.35);border-radius:16px;text-align:center}
+      .hl-rcta-action72-eyebrow{font-size:.7rem;letter-spacing:.26em;color:#7e5ec0;text-transform:uppercase;margin-bottom:8px}
+      .hl-rcta-action72-text{font-size:.95rem;color:#3e2a1a;line-height:2;font-family:'LXGW WenKai TC','Noto Serif TC',serif;letter-spacing:.03em}
+      /* 馥靈馥語收尾卡 */
+      .hl-rcta-outro{margin-top:36px;padding:28px 20px 12px;text-align:center}
+      .hl-rcta-outro-divider{width:60px;height:1px;margin:0 auto 18px;background:linear-gradient(90deg,transparent,#c8862a,transparent)}
+      .hl-rcta-outro-text{font-size:1.05rem;color:#3e2a1a;line-height:2.2;font-family:'LXGW WenKai TC','Noto Serif TC',serif;letter-spacing:.05em;margin-bottom:8px;font-style:italic}
+      .hl-rcta-outro-sign{font-size:.7rem;letter-spacing:.28em;color:#c8862a;text-transform:uppercase}
       @media(max-width:640px){.hl-rcta-grid{grid-template-columns:1fr;gap:10px}.hl-rcta-card{padding:16px}}
     ` : `
       .hl-rcta{margin:40px auto;max-width:960px;padding:0 16px;font-family:'Noto Serif TC',serif}
@@ -144,6 +184,19 @@
       .hl-rcta-reflect-q summary::-webkit-details-marker{display:none}
       .hl-rcta-reflect-q textarea{width:100%;min-height:60px;margin-top:10px;padding:9px 11px;background:rgba(255,255,255,.04);border:1px solid rgba(248,223,165,.15);border-radius:8px;font-family:inherit;font-size:.86rem;line-height:1.8;color:rgba(244,240,235,.88);resize:vertical}
       .hl-rcta-reflect-hint{font-size:.76rem;color:rgba(244,240,235,.5);text-align:center;margin-top:12px;font-family:'LXGW WenKai TC','Noto Serif TC',serif;line-height:1.8}
+      /* 座標已就位 橋樑（深色版）*/
+      .hl-rcta-bridge{margin-bottom:22px;padding:18px 22px;background:linear-gradient(90deg,rgba(248,223,165,.1),rgba(248,223,165,.02));border-left:3px solid #f8dfa5;border-radius:0 12px 12px 0}
+      .hl-rcta-bridge-eyebrow{font-size:.68rem;letter-spacing:.24em;color:#f8dfa5;text-transform:uppercase;margin-bottom:6px}
+      .hl-rcta-bridge-text{font-size:.98rem;color:rgba(244,240,235,.88);line-height:1.9;font-family:'LXGW WenKai TC','Noto Serif TC',serif;letter-spacing:.03em}
+      /* 72 小時一件事（深色版）*/
+      .hl-rcta-action72{margin:22px auto;padding:20px 22px;max-width:720px;background:linear-gradient(135deg,rgba(160,124,220,.12),rgba(214,167,199,.08));border:1px dashed rgba(214,167,199,.45);border-radius:16px;text-align:center}
+      .hl-rcta-action72-eyebrow{font-size:.7rem;letter-spacing:.26em;color:#d6a7c7;text-transform:uppercase;margin-bottom:8px}
+      .hl-rcta-action72-text{font-size:.95rem;color:rgba(244,240,235,.88);line-height:2;font-family:'LXGW WenKai TC','Noto Serif TC',serif;letter-spacing:.03em}
+      /* 馥靈馥語收尾卡（深色版）*/
+      .hl-rcta-outro{margin-top:36px;padding:28px 20px 12px;text-align:center}
+      .hl-rcta-outro-divider{width:60px;height:1px;margin:0 auto 18px;background:linear-gradient(90deg,transparent,#f8dfa5,transparent)}
+      .hl-rcta-outro-text{font-size:1.05rem;color:#f0d48a;line-height:2.2;font-family:'LXGW WenKai TC','Noto Serif TC',serif;letter-spacing:.05em;margin-bottom:8px;font-style:italic}
+      .hl-rcta-outro-sign{font-size:.7rem;letter-spacing:.28em;color:rgba(248,223,165,.6);text-transform:uppercase}
       @media(max-width:640px){.hl-rcta-grid{grid-template-columns:1fr;gap:10px}.hl-rcta-card{padding:16px}}
     `;
     document.head.appendChild(css);
@@ -278,8 +331,14 @@
 
     var html = '<section class="hl-rcta" role="complementary" aria-label="接下來的探索">';
 
-    // ═══ Layer 2：quiz 類型專屬反思層（利他 · CTA 合理化）═══
-    // 測驗做完 → 先給反思空間 → 再自然接升級 CTA
+    // ═══ Layer 1：座標已就位橋樑（整個轉化鏈的起點）═══
+    var bridgeText = COORDINATE_BRIDGE[type] || COORDINATE_BRIDGE.generic;
+    html += '<div class="hl-rcta-bridge">';
+    html += '<div class="hl-rcta-bridge-eyebrow">Your Coordinate · 座標已就位</div>';
+    html += '<p class="hl-rcta-bridge-text">' + bridgeText + '</p>';
+    html += '</div>';
+
+    // ═══ Layer 2：quiz 類型專屬反思層（先給空間再接 CTA）═══
     if (type === 'quiz') {
       html += '<div class="hl-rcta-reflect">';
       html += '<div class="hl-rcta-reflect-eyebrow">Pause · 先停一下</div>';
@@ -290,6 +349,13 @@
       html += '<p class="hl-rcta-reflect-hint">覺察不用完整。這幾秒的停頓，已經是你給自己的禮物。</p>';
       html += '</div>';
     }
+
+    // ═══ Layer 3：72 小時一件事（Implementation Intention · if-then 收斂）═══
+    var actionText = ACTION_72H[type] || ACTION_72H.generic;
+    html += '<div class="hl-rcta-action72">';
+    html += '<div class="hl-rcta-action72-eyebrow">72 Hours · 今天你能做的一件事</div>';
+    html += '<p class="hl-rcta-action72-text">' + actionText + '</p>';
+    html += '</div>';
 
     html += '<div class="hl-rcta-label">' + preset.label + '</div>';
     html += '<h3 class="hl-rcta-title">下一步，走哪條路</h3>';
@@ -310,6 +376,15 @@
     html += '<div class="hl-rcta-keepsake-wrap">';
     html += '<button type="button" class="hl-rcta-keepsake" data-hl-keepsake><span class="hl-rcta-keepsake-icon">🗝️</span><span>留給以後的自己 · 收藏到你的城堡</span></button>';
     html += '</div>';
+
+    // ═══ 馥靈馥語收尾卡（Peak-End Rule · 結尾決定記憶）═══
+    var outroText = OUTRO_YUYU[type] || OUTRO_YUYU.generic;
+    html += '<div class="hl-rcta-outro">';
+    html += '<div class="hl-rcta-outro-divider"></div>';
+    html += '<p class="hl-rcta-outro-text">' + outroText + '</p>';
+    html += '<div class="hl-rcta-outro-sign">｜ 馥靈馥語 ｜</div>';
+    html += '</div>';
+
     html += '</section>';
     target.innerHTML = html;
 
