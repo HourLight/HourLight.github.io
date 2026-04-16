@@ -499,7 +499,7 @@
     { lv:15,  icon:'➕', title:'解鎖第 4 日任務槽',          desc:'每日可同時追蹤 4 個任務' },
     { lv:20,  icon:'🐉', title:'賦賦成長階段 1',             desc:'賦賦長出翅膀芽（屬龍專屬顯示）' },
     { lv:25,  icon:'🗝️', title:'稱號：鑰友',                 desc:'可申請馥靈鑰友年度資格' },
-    { lv:30,  icon:'⚡', title:'連續登入獎勵 ×2',            desc:'所有 streak 獎勵翻倍' },
+    { lv:30,  icon:'⚡', title:'連登材料獎勵 +1',            desc:'每次 streak 觸發多掉 1 個 common 材料（點數不翻倍）' },
     { lv:40,  icon:'🌸', title:'節氣特殊事件',               desc:'24 節氣專屬活動解鎖' },
     { lv:50,  icon:'👑', title:'稱號：持鑰者 + 傢具 T3',     desc:'可合成進階精緻傢具' },
     { lv:60,  icon:'🐲', title:'賦賦成長階段 2',             desc:'賦賦進入少年期' },
@@ -521,17 +521,18 @@
 
   // ═══════════════════════════════════════
   // 連續登入獎勵（streak rewards）
-  // 7/14/30/60/90/180/365 天階梯，越久越豐厚
+  // 注意：1 點 = NT$1 真金白銀，點數發放要謹慎
+  // 稀有/傳說材料主要靠點數兌換，不免費灑
   // ═══════════════════════════════════════
   var STREAK_REWARDS = [
-    { days:3,   points:10,  rare:0, legendary:0, coupon:null,  title:'三日火花',         icon:'🔥' },
-    { days:7,   points:30,  rare:1, legendary:0, coupon:null,  title:'一週鑰匙守護者',   icon:'🗝️' },
-    { days:14,  points:60,  rare:2, legendary:0, coupon:null,  title:'雙週探訪者',       icon:'🌿' },
-    { days:30,  points:150, rare:3, legendary:1, coupon:199,   title:'三十日城堡達人',   icon:'💎' },
-    { days:60,  points:300, rare:5, legendary:1, coupon:null,  title:'小馥之友',         icon:'🧚' },
-    { days:90,  points:500, rare:7, legendary:2, coupon:399,   title:'季度築城者',       icon:'🏰' },
-    { days:180, points:1000,rare:10,legendary:3, coupon:599,   title:'半年馥靈夥伴',     icon:'✨' },
-    { days:365, points:2000,rare:15,legendary:5, coupon:null,  title:'城堡元老',         icon:'👑' }
+    { days:3,   points:3,   rare:0, legendary:0, coupon:null,  title:'三日火花',         icon:'🔥' },
+    { days:7,   points:7,   rare:0, legendary:0, coupon:null,  title:'一週鑰匙守護者',   icon:'🗝️' },
+    { days:14,  points:14,  rare:1, legendary:0, coupon:null,  title:'雙週探訪者',       icon:'🌿' },
+    { days:30,  points:30,  rare:1, legendary:0, coupon:null,  title:'三十日城堡達人',   icon:'💎' },
+    { days:60,  points:60,  rare:2, legendary:0, coupon:null,  title:'小馥之友',         icon:'🧚' },
+    { days:90,  points:99,  rare:2, legendary:1, coupon:null,  title:'季度築城者',       icon:'🏰' },
+    { days:180, points:200, rare:3, legendary:1, coupon:199,   title:'半年馥靈夥伴',     icon:'✨' },
+    { days:365, points:365, rare:5, legendary:2, coupon:399,   title:'城堡元老',         icon:'👑' }
   ];
   // 取得下一個 streak 里程碑
   function getNextStreakReward(currentStreak){

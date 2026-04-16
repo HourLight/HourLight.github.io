@@ -160,24 +160,26 @@
   }
 
   function claimStreakReward(r){
-    // 加點數
+    // 加點數（1 點 = NT$1，點數發放保守）
     var cd = lsGet('hl_castle_v3') || {};
     cd.points = (cd.points || 0) + (r.points || 0);
     lsSet('hl_castle_v3', cd);
 
-    // 加材料（common 等級從 quiz/draw/calculator 隨機各一，rare 從對應池）
+    // 加材料（連登獎勵 rare/legendary 只在高天數才給）
+    // rare 從對應房間池隨機（強制 forceItem = 對應池的 rare 物品）
     if (r.rare && window.HL_dropMaterial){
       for (var i = 0; i < r.rare; i++){
-        window.HL_dropMaterial('quiz');  // 會有動畫
+        // 從 draw pool 掉 rare（玫瑰精魄/橙花羽翼 等神諭系稀有）
+        window.HL_dropMaterial('draw');
       }
     }
     if (r.legendary && window.HL_dropMaterial){
       for (var j = 0; j < r.legendary; j++){
-        window.HL_dropMaterial('draw');
+        window.HL_dropMaterial('calculator');  // legendary 天命核心
       }
     }
 
-    // 折價券
+    // 折價券（只在 180+ 天高忠誠才給）
     if (r.coupon){
       // 標記：讓 admin 或 member-dashboard 發現並生成真實折價券
       var pending = lsGet('hl_pending_coupons') || [];
