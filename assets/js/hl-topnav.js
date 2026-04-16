@@ -68,7 +68,7 @@
       {label:'覺察測驗', href:'quiz-hub.html'},
       {label:'合盤配對', href:'destiny-match.html'},
       {label:'馥靈秘碼', href:'fuling-mima.html'},
-      {label:'內在城堡', href:'app.html'},
+      {label:'內在城堡', href:'castle-hub.html'},
     ]},
     {group:'知識學苑', items:[
       {label:'知識學苑', href:'knowledge-hub.html'},
