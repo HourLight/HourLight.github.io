@@ -2207,6 +2207,7 @@ function showMemberDetail(uid, data) {
     '<select class="adm-select" id="planDuration" style="width:110px">' +
       '<option value="1">1 天</option>' +
       '<option value="7">7 天</option>' +
+      '<option value="10">10 天</option>' +
       '<option value="14">14 天</option>' +
       '<option value="30" selected>30 天</option>' +
       '<option value="40">40 天</option>' +
@@ -2215,9 +2216,19 @@ function showMemberDetail(uid, data) {
       '<option value="180">180 天</option>' +
       '<option value="365">365 天</option>' +
       '<option value="permanent">永久</option>' +
-      '<option value="custom">自訂到期日…</option>' +
     '</select>' +
-    '<button class="adm-btn adm-btn-sm adm-btn-gold" onclick="updateMemberPlan()">儲存</button>' +
+    '<button class="adm-btn adm-btn-sm" style="background:#8b6f4e;color:#fff" onclick="addPlanDays()">＋N 天</button>' +
+    '<button class="adm-btn adm-btn-sm adm-btn-gold" onclick="updateMemberPlan()">覆蓋</button>' +
+    '</div>' +
+    '<div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
+      '<label class="adm-label" style="margin-bottom:0">指定到期日：</label>' +
+      '<input type="date" id="planCustomDate" class="adm-select" style="width:160px">' +
+      '<button class="adm-btn adm-btn-sm adm-btn-gold" onclick="setMemberPlanExpiryDate()">設定</button>' +
+    '</div>' +
+    '<div style="margin-top:6px;font-size:.72rem;color:var(--adm-text2);line-height:1.5">' +
+      '<b>＋N 天</b>＝現有到期日往後加（補差額、補天數）｜' +
+      '<b>覆蓋</b>＝從今天起 N 天｜' +
+      '<b>指定到期日</b>＝直接設定哪一天到期' +
     '</div>';
 
   // Show current planExpiry if exists
@@ -2398,6 +2409,7 @@ function loadMemberDraws(uid) {
   });
 }
 
+// 「覆蓋」— 從今天起算 N 天（或永久/免費）
 function updateMemberPlan() {
   if (!currentMemberUid) return;
   var newPlan = document.getElementById('planSelect').value;
@@ -2412,41 +2424,97 @@ function updateMemberPlan() {
   } else if (duration === 'permanent') {
     updateData.planExpiry = new Date('2099-12-31T23:59:59Z');
     durationLabel = '永久';
-  } else if (duration === 'custom') {
-    // 自訂到期日 — 支援補天數、提早到期、精準日期
-    var defaultDate = new Date();
-    defaultDate.setDate(defaultDate.getDate() + 30);
-    var defaultStr = defaultDate.toISOString().slice(0, 10);
-    var dateStr = prompt('輸入到期日（YYYY-MM-DD）\n例如：2026-05-26', defaultStr);
-    if (!dateStr) return; // 取消
-    // 解析（接受 2026-05-26 或 2026/05/26）
-    dateStr = dateStr.trim().replace(/\//g, '-');
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-      toast('日期格式錯誤，請用 YYYY-MM-DD');
-      return;
-    }
-    // 設為當日 23:59:59 台灣時區（+08:00）
-    var expiry = new Date(dateStr + 'T23:59:59+08:00');
-    if (isNaN(expiry.getTime())) { toast('日期無效'); return; }
-    updateData.planExpiry = expiry;
-    durationLabel = '到 ' + dateStr;
   } else {
     var days = parseInt(duration) || 30;
     var expiry = new Date();
     expiry.setDate(expiry.getDate() + days);
     updateData.planExpiry = expiry;
-    durationLabel = days + ' 天';
+    durationLabel = '從今天 +' + days + ' 天（' + expiry.toLocaleDateString('zh-TW') + ' 到期）';
   }
 
   updateData.planUpdatedAt = firebase.firestore.FieldValue.serverTimestamp();
   updateData.planUpdatedBy = currentUser.email;
 
   db.collection('users').doc(currentMemberUid).update(updateData).then(function() {
-    toast('方案已更新為 ' + getPlanName(newPlan) + '（' + durationLabel + '）');
+    toast('已覆蓋為 ' + getPlanName(newPlan) + '｜' + durationLabel);
   }).catch(function(e) {
     toast('更新失敗：' + e.message);
   });
 }
+
+// 「＋N 天」— 從現有到期日往後加 N 天（補天數用）
+function addPlanDays() {
+  if (!currentMemberUid) return;
+  var newPlan = document.getElementById('planSelect').value;
+  var duration = document.getElementById('planDuration').value;
+
+  if (newPlan === 'free') { toast('免費會員沒有到期日，請改選付費方案'); return; }
+  if (duration === 'permanent') { toast('永久方案不能用＋N 天，請用「覆蓋」'); return; }
+
+  var days = parseInt(duration) || 0;
+  if (!days || days <= 0) { toast('天數無效'); return; }
+
+  db.collection('users').doc(currentMemberUid).get().then(function(snap) {
+    var data = snap.data() || {};
+    var base;
+    var now = new Date();
+    if (data.planExpiry) {
+      var orig = data.planExpiry.toDate ? data.planExpiry.toDate() : new Date(data.planExpiry);
+      if (orig && !isNaN(orig.getTime()) && orig > now) {
+        base = orig; // 從原到期日加
+      } else {
+        base = now; // 已過期 → 從現在加
+      }
+    } else {
+      base = now;
+    }
+    var expiry = new Date(base);
+    expiry.setDate(expiry.getDate() + days);
+
+    var updateData = {
+      plan: newPlan,
+      planExpiry: expiry,
+      planUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      planUpdatedBy: currentUser.email,
+    };
+    db.collection('users').doc(currentMemberUid).update(updateData).then(function() {
+      toast('已加 ' + days + ' 天｜新到期日：' + expiry.toLocaleDateString('zh-TW'));
+    }).catch(function(e) {
+      toast('更新失敗：' + e.message);
+    });
+  }).catch(function(e) {
+    toast('讀取失敗：' + e.message);
+  });
+}
+window.addPlanDays = addPlanDays;
+
+// 「指定到期日」— 用 date input 直接設定
+function setMemberPlanExpiryDate() {
+  if (!currentMemberUid) return;
+  var newPlan = document.getElementById('planSelect').value;
+  var dateInput = document.getElementById('planCustomDate');
+  var dateStr = dateInput ? dateInput.value : '';
+  if (!dateStr) { toast('請先選日期'); return; }
+
+  if (newPlan === 'free') { toast('免費會員沒有到期日，請改選付費方案'); return; }
+
+  // 當日 23:59:59 台灣時區
+  var expiry = new Date(dateStr + 'T23:59:59+08:00');
+  if (isNaN(expiry.getTime())) { toast('日期無效'); return; }
+
+  var updateData = {
+    plan: newPlan,
+    planExpiry: expiry,
+    planUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    planUpdatedBy: currentUser.email,
+  };
+  db.collection('users').doc(currentMemberUid).update(updateData).then(function() {
+    toast('方案已設定｜到期日：' + expiry.toLocaleDateString('zh-TW'));
+  }).catch(function(e) {
+    toast('更新失敗：' + e.message);
+  });
+}
+window.setMemberPlanExpiryDate = setMemberPlanExpiryDate;
 window.updateMemberPlan = updateMemberPlan;
 
 function backToMemberSearch() {
