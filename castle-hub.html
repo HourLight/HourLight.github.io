@@ -324,6 +324,19 @@ main{position:relative;z-index:1}
     <div class="cv3-room-modal-event" id="cv3-modal-event"></div>
     <div class="cv3-room-modal-mood" id="cv3-modal-mood"></div>
     <div class="cv3-room-modal-tools" id="cv3-modal-tools"></div>
+    <!-- 房間等級升級區 -->
+    <div class="cv3-room-modal-upgrade" id="cv3-modal-upgrade" style="margin-top:16px;padding-top:16px;border-top:1px dashed rgba(248,223,165,.22)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:.84rem;color:var(--cv3-warm,#7a6068);letter-spacing:.08em">房間等級</span>
+        <span id="cv3-modal-lv-display" style="font-family:var(--cv3-serif);font-size:1rem;color:var(--cv3-gold-dk,#8a6d1f);font-weight:600">Lv.1</span>
+      </div>
+      <div style="background:rgba(184,146,42,.12);border-radius:4px;height:6px;overflow:hidden;margin-bottom:12px">
+        <div id="cv3-modal-lv-fill" style="height:100%;background:linear-gradient(90deg,#b8922a,#e9c27d);width:10%;transition:width .6s ease"></div>
+      </div>
+      <div id="cv3-modal-cost" style="font-size:.78rem;color:var(--cv3-ink-soft,#4a3f6c);line-height:1.8;margin-bottom:10px"></div>
+      <button id="cv3-modal-upgrade-btn" onclick="cv3UpgradeRoom()" style="width:100%;padding:11px;border-radius:10px;border:1.5px solid rgba(184,146,42,.4);background:linear-gradient(135deg,rgba(184,146,42,.18),rgba(233,194,125,.14));color:var(--cv3-gold-dk,#8a6d1f);font-size:.9rem;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.04em;transition:all .2s">✨ 升級這個房間</button>
+      <div id="cv3-modal-upgrade-msg" style="font-size:.72rem;color:var(--cv3-ink-lite,#8a7fa0);text-align:center;margin-top:8px;line-height:1.7"></div>
+    </div>
   </div>
 </div>
 
@@ -595,6 +608,10 @@ main{position:relative;z-index:1}
     }
     if (!toolsHtml) toolsHtml = '<div style="font-size:.82rem;color:var(--cv3-ink-lite)">探索工具建造中⋯⋯</div>';
     document.getElementById('cv3-modal-tools').innerHTML = toolsHtml;
+
+    // ── 渲染房間等級升級區 ──
+    cv3RenderRoomUpgrade(roomId);
+
     document.getElementById('cv3-room-modal-overlay').classList.add('show');
 
     // 造訪給 XP（今日每間限 1 次）
@@ -611,6 +628,112 @@ main{position:relative;z-index:1}
 
   window.cv3CloseRoomModal = function(){
     document.getElementById('cv3-room-modal-overlay').classList.remove('show');
+  };
+
+  // ── 房間等級升級：渲染成本 + 狀態 ──
+  var _currentModalRoomId = null;
+  function cv3RenderRoomUpgrade(roomId){
+    _currentModalRoomId = roomId;
+    var castleData = lsGet('hl_castle_v3') || {};
+    var roomLvs = castleData.cv3_room_lv || {};
+    var currentLv = roomLvs[roomId] || 1;
+
+    var lvDisplay = document.getElementById('cv3-modal-lv-display');
+    var lvFill = document.getElementById('cv3-modal-lv-fill');
+    var costEl = document.getElementById('cv3-modal-cost');
+    var btn = document.getElementById('cv3-modal-upgrade-btn');
+    var msgEl = document.getElementById('cv3-modal-upgrade-msg');
+
+    lvDisplay.textContent = 'Lv.' + currentLv + ' / 99';
+    lvFill.style.width = Math.min(100, currentLv) + '%';
+
+    if (currentLv >= 99) {
+      costEl.innerHTML = '<span style="color:var(--cv3-gold-dk,#8a6d1f)">✨ 房間已達滿級，無需升級</span>';
+      btn.disabled = true;
+      btn.style.opacity = '.4';
+      btn.textContent = '已達 Lv.99 滿級';
+      msgEl.textContent = '';
+      return;
+    }
+
+    var cost = V3.roomUpgradeCost(currentLv);
+    if (!cost) {
+      costEl.textContent = '升級資料載入中⋯⋯';
+      btn.disabled = true;
+      return;
+    }
+
+    // 顯示成本
+    var parts = [];
+    if (cost.common) parts.push('Common 材料 × ' + cost.common);
+    if (cost.rare) parts.push('Rare 材料 × ' + cost.rare);
+    if (cost.legendary) parts.push('Legendary 材料 × ' + cost.legendary);
+    costEl.innerHTML = '升到 Lv.' + (currentLv + 1) + ' 需要：<br>' + parts.join('｜');
+
+    // 檢查庫存
+    var mat = lsGet('hl_materials_v1') || { inventory: {} };
+    var inv = mat.inventory || {};
+    var commonHave = 0, rareHave = 0, legendaryHave = 0;
+    // hl_materials_v1 的 inventory 是 { materialId: count }，不區分 tier
+    // 這裡簡化：把所有材料當成 common 池（實際進階需再分 tier 歸類）
+    Object.values(inv).forEach(function(n){ commonHave += (n || 0); });
+
+    var canUpgrade = commonHave >= (cost.common || 0);
+    btn.disabled = !canUpgrade;
+    btn.style.opacity = canUpgrade ? '1' : '.5';
+    btn.textContent = canUpgrade ? '✨ 升級這個房間' : '材料不足，去抽牌 / 做測驗蒐集';
+    msgEl.innerHTML = canUpgrade
+      ? '您目前有 <b style="color:var(--cv3-gold-dk,#8a6d1f)">' + commonHave + '</b> 個材料可用'
+      : '您目前有 ' + commonHave + ' 個材料，還需要 ' + ((cost.common || 0) - commonHave) + ' 個';
+  }
+
+  // ── 執行升級 ──
+  window.cv3UpgradeRoom = function(){
+    var roomId = _currentModalRoomId;
+    if (!roomId) return;
+    var castleData = lsGet('hl_castle_v3') || {};
+    var roomLvs = castleData.cv3_room_lv || {};
+    var currentLv = roomLvs[roomId] || 1;
+    if (currentLv >= 99) { toast('已達滿級'); return; }
+
+    var cost = V3.roomUpgradeCost(currentLv);
+    if (!cost) return;
+
+    var mat = lsGet('hl_materials_v1') || { inventory: {} };
+    var inv = mat.inventory || {};
+    var total = Object.values(inv).reduce(function(a,b){ return a+(b||0); }, 0);
+
+    if (total < (cost.common || 0)) {
+      toast('材料不足，差 ' + ((cost.common || 0) - total) + ' 個', 2500);
+      return;
+    }
+
+    // 扣除材料（從庫存中扣 cost.common 個）
+    var toDeduct = cost.common || 0;
+    var matKeys = Object.keys(inv);
+    for (var i = 0; i < matKeys.length && toDeduct > 0; i++) {
+      var k = matKeys[i];
+      var take = Math.min(inv[k] || 0, toDeduct);
+      inv[k] = (inv[k] || 0) - take;
+      toDeduct -= take;
+      if (inv[k] <= 0) delete inv[k];
+    }
+    mat.inventory = inv;
+    lsSet('hl_materials_v1', mat);
+
+    // 升級
+    roomLvs[roomId] = currentLv + 1;
+    castleData.cv3_room_lv = roomLvs;
+    // 加城堡主 XP
+    castleData.xp = (castleData.xp || 0) + (cost.xp_needed || 10);
+    lsSet('hl_castle_v3', castleData);
+
+    toast('✨ 升級成功！\n' + (V3.getRoom(roomId) || {name:''}).name + ' Lv.' + (currentLv + 1) + '\n+ ' + (cost.xp_needed || 10) + ' 城堡主經驗', 3500);
+
+    // 重新渲染 modal + 房間卡
+    cv3RenderRoomUpgrade(roomId);
+    if (typeof renderRooms === 'function') renderRooms();
+    if (typeof renderLord === 'function') renderLord();
   };
   document.addEventListener('DOMContentLoaded', function(){
     document.getElementById('cv3-room-modal-overlay').addEventListener('click', function(e){
