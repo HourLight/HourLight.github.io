@@ -487,8 +487,9 @@ function showToast(msg){
 }
 function fallbackCopy(text){
   var ta=document.createElement('textarea');
-  ta.value=text;ta.style.cssText='position:fixed;opacity:0';
-  document.body.appendChild(ta);ta.select();
+  ta.value=text;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;top:50%;left:50%;opacity:.01';
+  document.body.appendChild(ta);ta.focus();
+  if(/ipad|iphone/i.test(navigator.userAgent)){var rng=document.createRange();rng.selectNodeContents(ta);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(rng);ta.setSelectionRange(0,999999);}else{ta.select();}
   try{document.execCommand('copy');showToast('✅ 已複製！');}catch(e){alert('請手動複製上方文字');}
   document.body.removeChild(ta);
 }

@@ -1140,10 +1140,12 @@ function copyResult() {
     // Fallback
     var ta = document.createElement('textarea');
     ta.value = text;
+    ta.setAttribute('readonly','');
+    ta.style.cssText = 'position:fixed;top:50%;left:50%;opacity:.01';
     document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
+    ta.focus();
+    if(/ipad|iphone/i.test(navigator.userAgent)){var rng=document.createRange();rng.selectNodeContents(ta);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(rng);ta.setSelectionRange(0,999999);}else{ta.select();}
+    try{document.execCommand('copy');}catch(e){}    document.body.removeChild(ta);
     showToast('已複製，貼給朋友看看 ✨');
   }
 }

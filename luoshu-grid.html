@@ -498,8 +498,10 @@ function copyReading(){
   navigator.clipboard.writeText(text).then(function(){
     showToast('命盤資料已複製 📋');
   }).catch(function(){
-    var t=document.createElement('textarea');t.value=text;t.style.cssText='position:fixed;opacity:0';
-    document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);
+    var t=document.createElement('textarea');t.value=text;t.setAttribute('readonly','');t.style.cssText='position:fixed;top:50%;left:50%;opacity:.01';
+    document.body.appendChild(t);t.focus();
+    if(/ipad|iphone/i.test(navigator.userAgent)){var rng=document.createRange();rng.selectNodeContents(t);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(rng);t.setSelectionRange(0,999999);}else{t.select();}
+    try{document.execCommand('copy');}catch(e){} document.body.removeChild(t);
     showToast('命盤資料已複製 📋');
   });
 }

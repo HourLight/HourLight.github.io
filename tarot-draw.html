@@ -1135,8 +1135,9 @@ function showTarotToast(msg){
 }
 function _syncCopy(s){
   var t=document.createElement('textarea');
-  t.value=s;t.style.cssText='position:fixed;opacity:0;top:0;left:0;font-size:16px;';
-  document.body.appendChild(t);t.focus();t.select();
+  t.value=s;t.setAttribute('readonly','');t.style.cssText='position:fixed;top:50%;left:50%;opacity:.01;font-size:16px;';
+  document.body.appendChild(t);t.focus();
+  if(/ipad|iphone/i.test(navigator.userAgent)){var rng=document.createRange();rng.selectNodeContents(t);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(rng);t.setSelectionRange(0,999999);}else{t.select();}
   try{document.execCommand('copy');}catch(e){}
   document.body.removeChild(t);
   if(navigator.clipboard&&window.isSecureContext){
@@ -1144,13 +1145,7 @@ function _syncCopy(s){
   }
 }
 function doCopy(s){_syncCopy(s);}
-function fb(s){
-  var t=document.createElement('textarea');t.value=s;
-  t.style.cssText='position:fixed;opacity:0;top:0;left:0;font-size:16px;';
-  document.body.appendChild(t);t.focus();t.select();
-  try{document.execCommand('copy');}catch(e){}
-  document.body.removeChild(t);
-}
+function fb(s){_syncCopy(s);}
 function p2(n){return String(n).padStart(2,'0')}
 
 // ── 虛擬鍵盤彈出時增加底部空間 ──
