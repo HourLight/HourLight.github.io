@@ -1,0 +1,243 @@
+/**
+ * 馥靈之鑰 結果頁三大 CTA 模組 v1.0
+ * ─────────────────────────────────────
+ * 解決問題：測驗/命理/抽牌做完之後，用戶沒有下一步引導 → 流失
+ * 策略：統一注入三顆 CTA，把「免費體驗完」的人導到「更深的探索」或「付費 AI 解讀」或「分享好友」
+ *
+ * 使用方式（結果頁）：
+ *   1. 在結果顯示區塊加 <div id="hl-result-cta"></div>（可選；沒有會自動 append body 尾）
+ *   2. 載入模組：<script src="assets/js/hl-result-cta.js"></script>
+ *   3. 可選：頁面自訂配置
+ *      <script>window.HL_RESULT_CTA = { sourceType:'quiz', sourceId:'mbti' };</script>
+ *
+ * 自動偵測：讀 URL path 判斷來源類型（quiz-* / draw-* / destiny-* / fuling-* 等）
+ * 呼叫時機：用戶抽完牌 / 測驗做完 / 命盤算完後，觸發事件 window.dispatchEvent(new Event('hl:result-ready'))
+ * 或 DOMContentLoaded 時自動顯示（對靜態結果頁）
+ */
+(function(){
+  'use strict';
+
+  // 跳過首頁/會員/admin 等不該出現 CTA 的頁
+  var page = (location.pathname.split('/').pop() || 'index.html').split('?')[0];
+  var SKIP = [
+    'index.html','','member-login.html','member-dashboard.html',
+    'admin-dashboard.html','admin-analytics.html','admin-payments.html',
+    'privacy.html','terms.html','app.html','404.html',
+    'pricing.html','price-list.html','price-list-vip.html','price-list-b2b.html',
+    'services.html','booking.html','contact.html','founder.html','about.html','book.html'
+  ];
+  if (SKIP.indexOf(page) > -1 || /^admin-/.test(page)) return;
+
+  // ═════════════════════════════════════════════════
+  // 推薦路由：根據當前頁類型 → 推薦下一步
+  // ═════════════════════════════════════════════════
+  function getSourceType(){
+    var cfg = window.HL_RESULT_CTA || {};
+    if (cfg.sourceType) return cfg.sourceType;
+    if (/^quiz-/.test(page)) return 'quiz';
+    if (/^draw-|draw\.html|tarot-|angel-|past-life|witch-|projection-|oracle|divination|yijing/.test(page)) return 'draw';
+    if (/^destiny-|bazi|ziwei|astro|hd-|maya|lifepath|numerology|qizheng|triangle|fuling-mima|name-oracle|rainbow/.test(page)) return 'destiny';
+    if (/castle-room-|castle-/.test(page)) return 'castle';
+    return 'generic';
+  }
+
+  // 三大 CTA 配置（照類型給不同推薦）
+  var CTA_PRESETS = {
+    quiz: {
+      label: '做完測驗，再走一步',
+      cta1: { title:'看懂你的能量座標', desc:'用古今中外大數據系統交叉定位你的設定', href:'destiny-engine.html', tag:'命盤引擎' },
+      cta2: { title:'讓 AI 為你深度解讀', desc:'不只告訴你是什麼，還告訴你怎麼走', href:'pricing.html#ai-reading', tag:'AI 深度解讀' },
+      cta3: { title:'送朋友一次免費體驗', desc:'推薦碼自動帶入，朋友註冊你收分潤', href:'#share', tag:'分享' }
+    },
+    destiny: {
+      label: '知道自己的座標後，下一步',
+      cta1: { title:'抽一張，問一個當下的問題', desc:'130 張原創智慧牌卡，AI 即時解讀', href:'draw-hl.html', tag:'智慧抽牌' },
+      cta2: { title:'升級看完整 33 套合盤', desc:'與另一半/家人/夥伴的能量交叉', href:'destiny-match.html', tag:'33 套合盤' },
+      cta3: { title:'送朋友一張免費體驗', desc:'推薦碼自動帶入，朋友註冊你收分潤', href:'#share', tag:'分享' }
+    },
+    draw: {
+      label: '抽完之後',
+      cta1: { title:'你的命盤告訴你為何抽到這張', desc:'把牌卡放進 33 大命理系統的座標看', href:'destiny-engine.html', tag:'命盤引擎' },
+      cta2: { title:'AI 深度解讀這 3/5/7 張', desc:'免費抽牌，付費看更深的故事', href:'pricing.html#draw-reading', tag:'AI 解讀' },
+      cta3: { title:'把這張送朋友看看', desc:'產生專屬分享連結 + 推薦碼', href:'#share', tag:'分享' }
+    },
+    castle: {
+      label: '走出城堡，帶一把鑰匙',
+      cta1: { title:'看看你缺哪一塊', desc:'做深潛覺察測驗，補上缺口', href:'quiz-hub.html', tag:'覺察測驗' },
+      cta2: { title:'抽一張今日指引', desc:'從 130 張牌卡挑一張回答你', href:'draw-hl.html', tag:'智慧抽牌' },
+      cta3: { title:'讓朋友也進城堡', desc:'分享連結 + 推薦碼', href:'#share', tag:'分享' }
+    },
+    generic: {
+      label: '繼續你的內在探索',
+      cta1: { title:'做一個覺察測驗', desc:'101 項心理測驗幫你定位', href:'quiz-hub.html', tag:'覺察測驗' },
+      cta2: { title:'算一次你的命盤座標', desc:'33 大系統交叉定位你的設定', href:'destiny-engine.html', tag:'命盤引擎' },
+      cta3: { title:'抽一張牌看看今天', desc:'130 張智慧牌卡回答你當下的問題', href:'draw-hl.html', tag:'智慧抽牌' }
+    }
+  };
+
+  // ═════════════════════════════════════════════════
+  // UI：三張卡片（RWD，深色/淺色自動辨識）
+  // ═════════════════════════════════════════════════
+  function isLightTheme(){
+    // 偵測淺色頁（新頁面背景 #faf9f7 / #fdf6ef 系列）
+    var bg = window.getComputedStyle(document.body).backgroundColor;
+    if (!bg) return false;
+    var m = bg.match(/\d+/g);
+    if (!m || m.length < 3) return false;
+    var r = parseInt(m[0]), g = parseInt(m[1]), b = parseInt(m[2]);
+    // 平均亮度 > 200 視為淺色
+    return (r + g + b) / 3 > 200;
+  }
+
+  function injectCSS(light){
+    if (document.getElementById('hl-result-cta-style')) return;
+    var css = document.createElement('style');
+    css.id = 'hl-result-cta-style';
+    css.textContent = light ? `
+      .hl-rcta{margin:40px auto;max-width:960px;padding:0 16px;font-family:'Noto Serif TC',serif}
+      .hl-rcta-label{font-size:.78rem;letter-spacing:.18em;color:#9a7a60;text-align:center;margin-bottom:8px;text-transform:uppercase}
+      .hl-rcta-title{font-size:1.15rem;color:#3e2a1a;text-align:center;margin-bottom:24px;font-weight:500;letter-spacing:.04em}
+      .hl-rcta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+      .hl-rcta-card{background:rgba(255,255,255,.9);border:1px solid rgba(200,134,42,.2);border-radius:16px;padding:20px 18px;text-decoration:none;color:inherit;transition:all .3s;display:flex;flex-direction:column;gap:10px;box-shadow:0 6px 20px rgba(62,42,26,.06)}
+      .hl-rcta-card:hover{transform:translateY(-3px);border-color:rgba(200,134,42,.45);box-shadow:0 14px 32px rgba(62,42,26,.1)}
+      .hl-rcta-tag{font-size:.68rem;letter-spacing:.1em;color:#c8862a;text-transform:uppercase}
+      .hl-rcta-ct{font-size:1rem;font-weight:600;color:#3e2a1a;line-height:1.4}
+      .hl-rcta-desc{font-size:.82rem;color:#6b4a30;line-height:1.55;flex:1}
+      .hl-rcta-arrow{margin-top:auto;font-size:.8rem;color:#c8862a;letter-spacing:.04em;opacity:.85}
+      @media(max-width:640px){.hl-rcta-grid{grid-template-columns:1fr;gap:10px}.hl-rcta-card{padding:16px}}
+    ` : `
+      .hl-rcta{margin:40px auto;max-width:960px;padding:0 16px;font-family:'Noto Serif TC',serif}
+      .hl-rcta-label{font-size:.78rem;letter-spacing:.18em;color:rgba(248,223,165,.55);text-align:center;margin-bottom:8px;text-transform:uppercase}
+      .hl-rcta-title{font-size:1.15rem;color:#f8dfa5;text-align:center;margin-bottom:24px;font-weight:500;letter-spacing:.04em}
+      .hl-rcta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+      .hl-rcta-card{background:rgba(248,223,165,.04);border:1px solid rgba(248,223,165,.15);border-radius:16px;padding:20px 18px;text-decoration:none;color:inherit;transition:all .3s;display:flex;flex-direction:column;gap:10px}
+      .hl-rcta-card:hover{transform:translateY(-3px);border-color:rgba(248,223,165,.45);background:rgba(248,223,165,.08);box-shadow:0 14px 32px rgba(0,0,0,.3)}
+      .hl-rcta-tag{font-size:.68rem;letter-spacing:.1em;color:#f0d48a;text-transform:uppercase}
+      .hl-rcta-ct{font-size:1rem;font-weight:500;color:#f8dfa5;line-height:1.4}
+      .hl-rcta-desc{font-size:.82rem;color:rgba(244,240,235,.72);line-height:1.55;flex:1}
+      .hl-rcta-arrow{margin-top:auto;font-size:.8rem;color:#f0d48a;letter-spacing:.04em;opacity:.85}
+      @media(max-width:640px){.hl-rcta-grid{grid-template-columns:1fr;gap:10px}.hl-rcta-card{padding:16px}}
+    `;
+    document.head.appendChild(css);
+  }
+
+  // 分享連結生成（hl-referral.js 若存在則用，不然純分享）
+  function handleShare(e){
+    e.preventDefault();
+    var refCode = '';
+    try {
+      if (window.hlReferral && typeof hlReferral.getMyCode === 'function') {
+        refCode = hlReferral.getMyCode();
+      } else {
+        refCode = localStorage.getItem('hl_my_ref_code') || '';
+      }
+    } catch(_) {}
+    var shareURL = location.origin + location.pathname + (refCode ? '?ref=' + encodeURIComponent(refCode) : '');
+    var shareText = '剛在馥靈之鑰做了一個很有感的覺察 — 你也試看看：';
+    if (navigator.share) {
+      navigator.share({ title:'馥靈之鑰 Hour Light', text: shareText, url: shareURL }).catch(function(){});
+    } else {
+      // fallback 複製到剪貼簿
+      var ta = document.createElement('textarea');
+      ta.value = shareText + '\n' + shareURL;
+      ta.style.position = 'fixed';
+      ta.style.top = '50%'; ta.style.left = '50%'; ta.style.opacity = '.01';
+      document.body.appendChild(ta);
+      ta.setAttribute('readonly','');
+      try {
+        if (/iPad|iPhone/.test(navigator.userAgent)) {
+          var range = document.createRange();
+          range.selectNodeContents(ta);
+          var sel = window.getSelection();
+          sel.removeAllRanges(); sel.addRange(range);
+          ta.setSelectionRange(0, 999999);
+        } else { ta.select(); }
+        document.execCommand('copy');
+        alert('分享連結已複製，貼給朋友吧');
+      } catch(_) {
+        prompt('複製下面這段給朋友：', shareText + '\n' + shareURL);
+      }
+      document.body.removeChild(ta);
+    }
+  }
+
+  function renderCTAs(){
+    var target = document.getElementById('hl-result-cta');
+    if (!target) {
+      // 沒有指定容器 → 自動 append 到 body 尾（main 之後，footer 之前）
+      var footer = document.querySelector('.hl-footer, .ff-footer, footer');
+      target = document.createElement('div');
+      target.id = 'hl-result-cta';
+      if (footer && footer.parentNode) footer.parentNode.insertBefore(target, footer);
+      else document.body.appendChild(target);
+    }
+    // 防重入
+    if (target.dataset.rendered === '1') return;
+    target.dataset.rendered = '1';
+
+    var light = isLightTheme();
+    injectCSS(light);
+
+    var type = getSourceType();
+    var preset = CTA_PRESETS[type] || CTA_PRESETS.generic;
+
+    var html = '<section class="hl-rcta" role="complementary" aria-label="接下來的探索">';
+    html += '<div class="hl-rcta-label">' + preset.label + '</div>';
+    html += '<h3 class="hl-rcta-title">下一步，走哪條路</h3>';
+    html += '<div class="hl-rcta-grid">';
+    [preset.cta1, preset.cta2, preset.cta3].forEach(function(c, i){
+      var isShare = c.href === '#share';
+      var href = isShare ? '#share' : c.href;
+      var attr = isShare ? ' data-hl-cta-share' : '';
+      html += '<a class="hl-rcta-card" href="' + href + '"' + attr + ' data-hl-cta-idx="' + (i+1) + '">';
+      html += '<div class="hl-rcta-tag">' + c.tag + '</div>';
+      html += '<div class="hl-rcta-ct">' + c.title + '</div>';
+      html += '<div class="hl-rcta-desc">' + c.desc + '</div>';
+      html += '<div class="hl-rcta-arrow">繼續 →</div>';
+      html += '</a>';
+    });
+    html += '</div></section>';
+    target.innerHTML = html;
+
+    // 綁分享事件
+    target.querySelectorAll('[data-hl-cta-share]').forEach(function(el){
+      el.addEventListener('click', handleShare);
+    });
+
+    // 追蹤
+    target.querySelectorAll('.hl-rcta-card').forEach(function(el){
+      el.addEventListener('click', function(){
+        try {
+          if (window.gtag) gtag('event', 'result_cta_click', {
+            cta_idx: el.dataset.hlCtaIdx,
+            source_type: type,
+            source_page: page
+          });
+        } catch(_) {}
+      });
+    });
+  }
+
+  // ═════════════════════════════════════════════════
+  // 觸發時機
+  // ═════════════════════════════════════════════════
+  // 1. 頁面標明是結果頁 → 立即注入
+  // 2. 頁面是工具頁 → 等 'hl:result-ready' 事件
+  var cfg = window.HL_RESULT_CTA || {};
+  var isStaticResult = document.querySelector('[data-hl-result-ready]') || cfg.autoRender === true;
+
+  function boot(){
+    if (isStaticResult) { renderCTAs(); return; }
+    // 等工具頁主動 dispatch 事件
+    window.addEventListener('hl:result-ready', renderCTAs);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+
+  // 公開 API（方便工具頁手動觸發）
+  window.hlResultCTA = { render: renderCTAs };
+})();
