@@ -111,6 +111,80 @@
       { id:'scent_memory',     name:'氣味記憶',   icon:'🌸', rarity:'rare',      weight:40, zone:'馥語書房' }
     ],
 
+    // 夢境殿（dream-decoder、castle-room-dream）
+    dream: [
+      { id:'dream_fragment',  name:'夢境碎片',   icon:'🌙', rarity:'common',    weight:50, zone:'夢境殿' },
+      { id:'sleep_mist',      name:'安眠霧氣',   icon:'💨', rarity:'common',    weight:35, zone:'夢境殿' },
+      { id:'lucid_crystal',   name:'清醒水晶',   icon:'🔷', rarity:'rare',      weight:12, zone:'夢境殿' },
+      { id:'dream_key',       name:'夢境之鑰',   icon:'🗝️', rarity:'epic',      weight:2,  zone:'夢境殿' },
+      { id:'subconsious_orb', name:'潛識球核',   icon:'🫧', rarity:'legendary', weight:1,  zone:'夢境殿' }
+    ],
+
+    // 和諧苑（castle-room-harmony）
+    harmony: [
+      { id:'harmony_petal',   name:'和諧花瓣',   icon:'🌸', rarity:'common',    weight:55, zone:'和諧苑' },
+      { id:'bond_thread',     name:'羈絆絲線',   icon:'🧵', rarity:'common',    weight:35, zone:'和諧苑' },
+      { id:'heart_mirror',    name:'心鏡碎片',   icon:'💞', rarity:'rare',      weight:8,  zone:'和諧苑' },
+      { id:'resonance_gem',   name:'共鳴寶石',   icon:'💎', rarity:'epic',      weight:1,  zone:'和諧苑' }
+    ],
+
+    // 音樂廳（castle-room-music）
+    music_room: [
+      { id:'chord_fragment',  name:'和弦碎片',   icon:'🎵', rarity:'common',    weight:55, zone:'音樂廳' },
+      { id:'lyric_ink',       name:'樂章墨滴',   icon:'🎶', rarity:'common',    weight:35, zone:'音樂廳' },
+      { id:'resonance_note',  name:'共鳴音符',   icon:'🎼', rarity:'rare',      weight:8,  zone:'音樂廳' },
+      { id:'soulful_tone',    name:'靈魂音調',   icon:'🎹', rarity:'epic',      weight:2,  zone:'音樂廳' }
+    ],
+
+    // 廚房（castle-room-kitchen）
+    kitchen_room: [
+      { id:'herb_essence',    name:'香草精華',   icon:'🌿', rarity:'common',    weight:55, zone:'廚房' },
+      { id:'nourish_glow',    name:'滋養靈光',   icon:'✨', rarity:'common',    weight:35, zone:'廚房' },
+      { id:'elixir_drop',     name:'靈藥液滴',   icon:'🧪', rarity:'rare',      weight:8,  zone:'廚房' },
+      { id:'primal_spice',    name:'原初香料',   icon:'🫙', rarity:'epic',      weight:2,  zone:'廚房' }
+    ],
+
+    // 煉金室（castle-room-alchemy）
+    alchemy_room: [
+      { id:'alchemy_bubble',  name:'煉金泡泡',   icon:'⚗️', rarity:'common',    weight:50, zone:'煉金室' },
+      { id:'transform_dust',  name:'轉化塵埃',   icon:'🌟', rarity:'common',    weight:35, zone:'煉金室' },
+      { id:'catalyst_stone',  name:'催化石晶',   icon:'🔵', rarity:'rare',      weight:12, zone:'煉金室' },
+      { id:'prime_matter',    name:'原質精素',   icon:'🌀', rarity:'epic',      weight:2,  zone:'煉金室' },
+      { id:'philosopher_core',name:'賢者之核',   icon:'⚜️', rarity:'legendary', weight:1,  zone:'煉金室' }
+    ],
+
+    // 蛻變室（castle-room-transform）
+    transform_room: [
+      { id:'chrysalis_dust',  name:'蛹化之粉',   icon:'🦋', rarity:'common',    weight:50, zone:'蛻變室' },
+      { id:'rebirth_dew',     name:'重生露珠',   icon:'💧', rarity:'rare',      weight:40, zone:'蛻變室' },
+      { id:'phoenix_ash',     name:'鳳凰灰燼',   icon:'🔥', rarity:'epic',      weight:8,  zone:'蛻變室' },
+      { id:'evolution_seal',  name:'進化印記',   icon:'🌈', rarity:'legendary', weight:2,  zone:'蛻變室' }
+    ],
+
+    // 直覺廳（castle-room-intuition）
+    intuition_room: [
+      { id:'instinct_spark',  name:'本能火花',   icon:'⚡', rarity:'common',    weight:55, zone:'直覺廳' },
+      { id:'sixth_sense',     name:'第六感碎片', icon:'🔮', rarity:'rare',      weight:35, zone:'直覺廳' },
+      { id:'precog_crystal',  name:'先知水晶',   icon:'🫧', rarity:'epic',      weight:8,  zone:'直覺廳' },
+      { id:'oracle_heart',    name:'神諭心核',   icon:'💗', rarity:'legendary', weight:2,  zone:'直覺廳' }
+    ],
+
+    // 愛情室（castle-room-love）
+    love_room: [
+      { id:'rose_petal_gold', name:'金玫瑰花瓣', icon:'🌹', rarity:'common',    weight:50, zone:'愛情室' },
+      { id:'love_thread',     name:'愛之絲線',   icon:'💝', rarity:'rare',      weight:40, zone:'愛情室' },
+      { id:'twin_flame',      name:'雙生火焰',   icon:'🕯️', rarity:'epic',      weight:8,  zone:'愛情室' },
+      { id:'eternal_bloom',   name:'永恆之花',   icon:'💐', rarity:'legendary', weight:2,  zone:'愛情室' }
+    ],
+
+    // 光明殿（castle-light.html）
+    light_room: [
+      { id:'photon_shard',    name:'光子碎片',   icon:'☀️', rarity:'common',    weight:55, zone:'光明殿' },
+      { id:'clarity_beam',    name:'澄明光束',   icon:'🌤️', rarity:'rare',      weight:35, zone:'光明殿' },
+      { id:'radiance_core',   name:'輝光核心',   icon:'💫', rarity:'epic',      weight:8,  zone:'光明殿' },
+      { id:'dawn_crystal',    name:'黎明水晶',   icon:'🌅', rarity:'legendary', weight:2,  zone:'光明殿' }
+    ],
+
     // 知識學苑（knowledge 閱讀知識頁完畢掉落）
     knowledge: [
       { id:'moonlight_shard',  name:'月光碎片',   icon:'🌙', rarity:'common',    weight:60, zone:'知識學苑' },
@@ -237,6 +311,340 @@
       ingredients: { calibration_key: 1, matrix_core: 1, nine_palace_mark: 1 },
       zone: '傳說王座',
       paidOnly: 28
+    },
+
+    // Tier 1 入門傢具（常見材料合成）
+    {
+      id: 'dream_lamp',
+      name: '夢境小夜燈',
+      icon: '🌙',
+      desc: '放在床頭，讓你進入深夜時有一點光不那麼孤單。',
+      ingredients: { dream_fragment: 2, sleep_mist: 1 },
+      zone: '夢境殿傢具',
+      tier: 1
+    },
+    {
+      id: 'harmony_cushion',
+      name: '和諧坐墊',
+      icon: '🪷',
+      desc: '坐下去的那一刻，那些糾結的關係好像就稍微鬆了一點。',
+      ingredients: { harmony_petal: 3, bond_thread: 1 },
+      zone: '和諧苑傢具',
+      tier: 1
+    },
+    {
+      id: 'music_stool',
+      name: '旋律琴凳',
+      icon: '🎹',
+      desc: '坐在上面不需要會彈什麼，只需要聽。',
+      ingredients: { chord_fragment: 2, lyric_ink: 1 },
+      zone: '音樂廳傢具',
+      tier: 1
+    },
+    {
+      id: 'herb_rack',
+      name: '香草收納架',
+      icon: '🌿',
+      desc: '廚房的角落，每一格都是一個你記得的味道。',
+      ingredients: { herb_essence: 2, nourish_glow: 2 },
+      zone: '廚房傢具',
+      tier: 1
+    },
+    {
+      id: 'alchemy_stool',
+      name: '煉金高腳椅',
+      icon: '⚗️',
+      desc: '坐在煉金台前，等待一個還沒命名的東西慢慢成形。',
+      ingredients: { alchemy_bubble: 3, transform_dust: 1 },
+      zone: '煉金室傢具',
+      tier: 1
+    },
+    {
+      id: 'butterfly_frame',
+      name: '蛻變標本框',
+      icon: '🦋',
+      desc: '那個從前的自己，不是要被丟掉，是值得被好好放著。',
+      ingredients: { chrysalis_dust: 3, rebirth_dew: 1 },
+      zone: '蛻變室傢具',
+      tier: 1
+    },
+    {
+      id: 'intuition_candle',
+      name: '直覺燭光',
+      icon: '🕯️',
+      desc: '點上它的時候，你聽到的那個聲音，通常是對的。',
+      ingredients: { instinct_spark: 2, insight_feather: 2 },
+      zone: '直覺廳傢具',
+      tier: 1
+    },
+    {
+      id: 'rose_vase',
+      name: '愛情玫瑰瓶',
+      icon: '🌹',
+      desc: '不是等人送你的，是你自己放在那裡提醒自己：值得被愛。',
+      ingredients: { rose_petal_gold: 3, harmony_petal: 1 },
+      zone: '愛情室傢具',
+      tier: 1
+    },
+    {
+      id: 'light_crystal_ball',
+      name: '光明水晶球',
+      icon: '🔮',
+      desc: '放在窗邊，陽光折射的那一下，你就知道今天會沒事的。',
+      ingredients: { photon_shard: 3, clarity_beam: 1 },
+      zone: '光明殿傢具',
+      tier: 1
+    },
+    {
+      id: 'parchment_scroll',
+      name: '覺察卷軸架',
+      icon: '📜',
+      desc: '把你這段時間的洞見都捲起來放好，哪天需要的時候翻出來看。',
+      ingredients: { insight_feather: 2, chart_ink: 2 },
+      zone: '覺察殿傢具',
+      tier: 1
+    },
+
+    // Tier 2 進階傢具（普通+稀有材料）
+    {
+      id: 'starlight_armchair',
+      name: '星光靠椅',
+      icon: '🪑',
+      desc: '坐在上面的人，好像都會開始想起自己是誰。',
+      ingredients: { star_shard: 2, wuxing_crystal: 1, insight_feather: 2 },
+      zone: '星象塔傢具',
+      tier: 2
+    },
+    {
+      id: 'mirror_wardrobe',
+      name: '真實衣櫃',
+      icon: '🪞',
+      desc: '不是照你穿什麼，是照你還沒穿上的那個樣子。',
+      ingredients: { mirror_truth: 1, honest_mirror: 1, moonlight_shard: 2 },
+      zone: '鏡之廳傢具',
+      tier: 2
+    },
+    {
+      id: 'garden_lantern',
+      name: '花園石燈',
+      icon: '🏮',
+      desc: '每晚點亮，讓夜裡走進來的東西都知道這裡有人。',
+      ingredients: { angel_feather: 1, harmony_petal: 3, dawn_dew: 1 },
+      zone: '庭院傢具',
+      tier: 2
+    },
+    {
+      id: 'dream_curtain',
+      name: '夢境流紗簾',
+      icon: '✨',
+      desc: '半透明的，隔著它看出去，現實好像也多了一點神話感。',
+      ingredients: { lucid_crystal: 1, dream_fragment: 3, sleep_mist: 2 },
+      zone: '夢境殿傢具',
+      tier: 2
+    },
+    {
+      id: 'alchemy_cauldron_deco',
+      name: '展示用煉金爐',
+      icon: '🪄',
+      desc: '不是真的要用，是放在那裡讓你記得：你轉化過很多東西了。',
+      ingredients: { catalyst_stone: 1, alchemy_bubble: 3, transform_dust: 2 },
+      zone: '煉金室傢具',
+      tier: 2
+    },
+    {
+      id: 'wisdom_lantern',
+      name: '智慧書燈',
+      icon: '📖',
+      desc: '讀到忘了時間，這盞燈會讓你記得——有些東西不是一晚上能讀完的。',
+      ingredients: { wisdom_scroll: 1, chart_ink: 2, moonlight_shard: 1 },
+      zone: '學院塔傢具',
+      tier: 2
+    },
+    {
+      id: 'key_display',
+      name: '鑰匙展示板',
+      icon: '🗝️',
+      desc: '每一把鑰匙都是你打開過的一扇門的證明。',
+      ingredients: { honest_mirror: 1, castle_key_core: 1, star_shard: 2 },
+      zone: '城堡入口傢具',
+      tier: 2
+    },
+    {
+      id: 'music_shelf',
+      name: '音樂收藏架',
+      icon: '🎵',
+      desc: '那些讓你哭過、笑過、突然想起某個人的歌，都在這裡。',
+      ingredients: { resonance_note: 1, chord_fragment: 3, lyric_ink: 2 },
+      zone: '音樂廳傢具',
+      tier: 2
+    },
+    {
+      id: 'love_window',
+      name: '愛情窗框',
+      icon: '💝',
+      desc: '有時候不是關係不好，是你看出去的角度需要換一個。',
+      ingredients: { love_thread: 1, rose_petal_gold: 2, bond_thread: 2 },
+      zone: '愛情室傢具',
+      tier: 2
+    },
+    {
+      id: 'intuition_board',
+      name: '直覺靈感板',
+      icon: '🧠',
+      desc: '那些說不清楚但就是對的感覺，可以先釘在這裡。',
+      ingredients: { sixth_sense: 1, instinct_spark: 3, insight_feather: 1 },
+      zone: '直覺廳傢具',
+      tier: 2
+    },
+
+    // Tier 3 精緻傢具（稀有+史詩材料）
+    {
+      id: 'transform_altar',
+      name: '蛻變祭台',
+      icon: '🔥',
+      desc: '這是你獻祭「舊的自己」的地方。不是失去，是更新。',
+      ingredients: { phoenix_ash: 1, evolution_seal: 1, rebirth_dew: 2 },
+      zone: '蛻變室傢具',
+      tier: 3
+    },
+    {
+      id: 'harmony_harp',
+      name: '和聲豎琴',
+      icon: '🎶',
+      desc: '這種樂器需要兩隻手，就像真正的關係需要兩個人。',
+      ingredients: { resonance_gem: 1, soulful_tone: 1, bond_thread: 3 },
+      zone: '和諧苑傢具',
+      tier: 3
+    },
+    {
+      id: 'dream_telescope',
+      name: '夢境望遠鏡',
+      icon: '🔭',
+      desc: '有時候你看不清楚的，用這個角度會好一點。',
+      ingredients: { subconsious_orb: 1, lucid_crystal: 2, sleep_mist: 3 },
+      zone: '夢境殿傢具',
+      tier: 3
+    },
+    {
+      id: 'kitchen_oven',
+      name: '靈糧窯爐',
+      icon: '🫙',
+      desc: '滋養自己是一種技能，不是一種奢侈。',
+      ingredients: { primal_spice: 1, elixir_drop: 2, herb_essence: 3 },
+      zone: '廚房傢具',
+      tier: 3
+    },
+    {
+      id: 'light_prism',
+      name: '光明稜鏡架',
+      icon: '🌈',
+      desc: '光進去只有一道白，出來是七種顏色。你也是這樣的。',
+      ingredients: { radiance_core: 1, clarity_beam: 2, photon_shard: 3 },
+      zone: '光明殿傢具',
+      tier: 3
+    },
+    {
+      id: 'intuition_mirror',
+      name: '直覺感知鏡',
+      icon: '🫧',
+      desc: '不是照外表的，是照那些你快說出口又吞回去的話。',
+      ingredients: { precog_crystal: 1, oracle_heart: 1, sixth_sense: 2 },
+      zone: '直覺廳傢具',
+      tier: 3
+    },
+    {
+      id: 'love_altar',
+      name: '愛情供桌',
+      icon: '💐',
+      desc: '供的不是神，是你對關係這件事還保留的那一點點相信。',
+      ingredients: { eternal_bloom: 1, twin_flame: 1, love_thread: 2 },
+      zone: '愛情室傢具',
+      tier: 3
+    },
+    {
+      id: 'star_map_wall',
+      name: '命盤星圖牆',
+      icon: '🌌',
+      desc: '你的命盤不是天花板，是地圖。地圖是告訴你從哪裡出發的。',
+      ingredients: { time_fragment: 2, wuxing_crystal: 2, star_shard: 4 },
+      zone: '星象塔傢具',
+      tier: 3
+    },
+
+    // Tier 4 豪華傢具（史詩+傳說材料）
+    {
+      id: 'oracle_throne_cushion',
+      name: '神諭水晶座',
+      icon: '💎',
+      desc: '坐在上面的人，問題本身會開始變得更清楚。',
+      ingredients: { oracle_essence: 1, oracle_heart: 1, vision_shadow: 3 },
+      zone: '神諭廳傢具',
+      tier: 4
+    },
+    {
+      id: 'alchemy_grand_table',
+      name: '大師煉金大桌',
+      icon: '⚜️',
+      desc: '這張桌子見過太多的「不可能」變成「居然真的可以」。',
+      ingredients: { philosopher_core: 1, prime_matter: 1, catalyst_stone: 2 },
+      zone: '煉金室傢具',
+      tier: 4
+    },
+    {
+      id: 'transform_phoenix',
+      name: '蛻變鳳凰雕像',
+      icon: '🦅',
+      desc: '每次看到它，你都會記得——你已經在火裡待過了，出來了。',
+      ingredients: { evolution_seal: 1, phoenix_ash: 2, destiny_core: 1 },
+      zone: '蛻變室傢具',
+      tier: 4
+    },
+    {
+      id: 'dream_bed',
+      name: '清醒夢大床',
+      icon: '🛏️',
+      desc: '躺在上面你會知道：夢裡你是誰，醒來你就是誰。',
+      ingredients: { subconsious_orb: 1, dream_key: 1, lucid_crystal: 2 },
+      zone: '夢境殿傢具',
+      tier: 4
+    },
+    {
+      id: 'light_crown_shelf',
+      name: '光冠陳列台',
+      icon: '👑',
+      desc: '這裡擺的不是你贏來的，是你一直都有、只是忘了戴上去的。',
+      ingredients: { dawn_crystal: 1, radiance_core: 2, photon_shard: 4 },
+      zone: '光明殿傢具',
+      tier: 4
+    },
+
+    // Tier 5 傳說傢具（多件傳說材料）
+    {
+      id: 'castle_origin_stone',
+      name: '城堡原石',
+      icon: '🪨',
+      desc: '城堡最初的模樣就是這塊石頭。什麼都還不是，但一切都在。',
+      ingredients: { destiny_core: 1, awareness_seal: 1, oracle_essence: 1, evolution_seal: 1 },
+      zone: '傳說傢具',
+      tier: 5
+    },
+    {
+      id: 'eternal_hourglass',
+      name: '永恆沙漏',
+      icon: '⏳',
+      desc: '沙子不是在流逝，是在累積。你一直在進行中。',
+      ingredients: { time_fragment: 3, destiny_core: 1, philosopher_core: 1 },
+      zone: '傳說傢具',
+      tier: 5
+    },
+    {
+      id: 'inner_map',
+      name: '內在全境地圖',
+      icon: '🗺️',
+      desc: '這張地圖不是外面的世界，是你自己。到最後你才知道，它有多大。',
+      ingredients: { oracle_heart: 1, precog_crystal: 2, dawn_crystal: 1, awareness_seal: 1 },
+      zone: '傳說傢具',
+      tier: 5
     }
   ];
 
@@ -265,7 +673,16 @@
     nature_event: 999,   // 節氣活動不限（限時掉落）
     inner_realm: 1,      // 深宮材料每天最多1次
     member_plus: 2,      // 鑰友材料每天最多2次（登入+測驗）
-    member_pro: 2        // 大師材料每天最多2次（登入+抽牌）
+    member_pro: 2,       // 大師材料每天最多2次（登入+抽牌）
+    dream: 3,
+    harmony: 3,
+    music_room: 2,
+    kitchen_room: 2,
+    alchemy_room: 2,
+    transform_room: 2,
+    intuition_room: 2,
+    love_room: 2,
+    light_room: 2
   };
 
   // ═══ 工具函數 ═══
@@ -353,6 +770,7 @@
     // 觸發 hl-castle-key 點數（掉到稀有材料加點）
     if(window.hlCastle){
       if(item.rarity === 'rare')      window.hlCastle.addPoints(3);
+      if(item.rarity === 'epic')      window.hlCastle.addPoints(6);
       if(item.rarity === 'legendary') window.hlCastle.addPoints(10);
     }
 
@@ -910,7 +1328,32 @@
     dropPaidReading: dropPaidReadingMaterials,
     showBlindBox: showBlindBoxReveal,
     MATERIAL_DEFS: MATERIAL_DEFS,
-    RECIPES:      RECIPES
+    RECIPES:      RECIPES,
+    exchangePointsForMaterial: function(rarityTier) {
+      // rarityTier: 'rare' (50 pts) or 'epic' (200 pts)
+      var cost = rarityTier === 'epic' ? 200 : 50;
+      if(!window.hlCastle || typeof hlCastle.getPoints !== 'function') return { ok:false, reason:'no_points_system' };
+      var currentPts = hlCastle.getPoints();
+      if(currentPts < cost) return { ok:false, reason:'insufficient_points', have:currentPts, need:cost };
+
+      // Pick random material of that rarity
+      var allMats = [];
+      Object.values(MATERIAL_DEFS).forEach(function(pool){
+        pool.forEach(function(m){ if(m.rarity === rarityTier) allMats.push(m); });
+      });
+      if(!allMats.length) return { ok:false, reason:'no_materials' };
+      var mat = allMats[Math.floor(Math.random() * allMats.length)];
+
+      // Deduct points
+      hlCastle.addPoints(-cost);
+
+      // Add material
+      var state = loadMaterials();
+      state.inventory[mat.id] = (state.inventory[mat.id] || 0) + 1;
+      saveMaterials(state);
+
+      return { ok:true, item:mat };
+    }
   };
 
   // ═══ 自動整合 HL_track ═══

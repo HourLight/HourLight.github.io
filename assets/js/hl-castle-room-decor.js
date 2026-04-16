@@ -15,18 +15,24 @@
   // key = 房間 slug（從 URL castle-room-{slug}.html 擷取）
   // value = 該房間可能出現的傢具 id 陣列
   var FURNITURE_ROOM_MAP = {
-    'mirror':   ['reflection_lamp'],
-    'alchemy':  [],
-    'dream':    [],
-    'garden':   ['moonlight_fountain'],
-    'key':      [],
-    'kitchen':  [],
-    'library':  ['wisdom_desk'],
-    'music':    [],
-    'secret':   [],
-    'star':     ['star_compass'],
-    'throne':   [],
-    'treasure': ['oracle_table']
+    'mirror':       ['reflection_lamp', 'mirror_wardrobe', 'intuition_mirror'],
+    'alchemy':      ['alchemy_stool', 'alchemy_cauldron_deco', 'alchemy_grand_table'],
+    'dream':        ['dream_lamp', 'dream_curtain', 'dream_telescope', 'dream_bed'],
+    'garden':       ['moonlight_fountain', 'garden_lantern', 'rose_vase'],
+    'key':          ['key_display'],
+    'kitchen':      ['herb_rack', 'kitchen_oven'],
+    'library':      ['wisdom_desk', 'wisdom_lantern', 'parchment_scroll'],
+    'music':        ['music_stool', 'music_shelf', 'harmony_harp'],
+    'secret':       ['castle_almanac', 'parchment_scroll'],
+    'star':         ['star_compass', 'starlight_armchair', 'star_map_wall'],
+    'throne':       ['castle_throne', 'light_crown_shelf'],
+    'treasure':     ['oracle_table', 'oracle_throne_cushion'],
+    'ground':       ['reflection_lamp', 'harmony_cushion', 'light_crystal_ball'],
+    'harmony':      ['harmony_cushion', 'harmony_harp', 'love_window'],
+    'love':         ['rose_vase', 'love_window', 'love_altar'],
+    'intuition':    ['intuition_candle', 'intuition_board', 'intuition_mirror'],
+    'transform':    ['butterfly_frame', 'transform_altar', 'transform_phoenix'],
+    'light':        ['light_crystal_ball', 'light_prism', 'light_crown_shelf']
   };
 
   // ── 傢具顯示名稱 & icon（備用，萬一 hlMaterial 還沒載入）──
@@ -131,6 +137,35 @@
     document.body.appendChild(card);
   }
 
+  function getRoomStarCount(slug) {
+    var state;
+    try {
+      var raw = localStorage.getItem('hl_materials_v1');
+      state = raw ? JSON.parse(raw) : {};
+    } catch(e) { state = {}; }
+    var owned = state.furniture || [];
+    var roomFurnitureIds = FURNITURE_ROOM_MAP[slug] || [];
+    var universalOwned = UNIVERSAL_FURNITURE.filter(function(id){ return owned.indexOf(id) > -1; });
+    var roomOwned = roomFurnitureIds.filter(function(id){ return owned.indexOf(id) > -1; });
+    var total = roomOwned.length + universalOwned.length;
+    // Stars: 1 per piece, max 5
+    return Math.min(5, total);
+  }
+
+  function renderRoomStars(slug) {
+    var stars = getRoomStarCount(slug);
+    if(stars === 0) return; // nothing to show
+    var existing = document.getElementById('hl-room-stars');
+    if(existing) existing.remove();
+    var el = document.createElement('div');
+    el.id = 'hl-room-stars';
+    el.style.cssText = 'position:fixed;top:58px;right:12px;z-index:201;display:flex;gap:2px;align-items:center;background:rgba(253,246,239,.92);border:1px solid rgba(200,134,42,.25);border-radius:20px;padding:4px 10px;font-size:.75rem;color:#c8862a;font-family:"Noto Serif TC",serif;box-shadow:0 2px 8px rgba(200,134,42,.12);pointer-events:none;';
+    var starStr = '';
+    for(var i=0;i<5;i++) starStr += (i<stars ? '★' : '☆');
+    el.innerHTML = starStr;
+    document.body.appendChild(el);
+  }
+
   function init(){
     var slug = getRoomSlug();
     if(!slug) return;
@@ -158,6 +193,7 @@
     if(matched.length > 0){
       renderDecorCard(matched);
     }
+    renderRoomStars(slug);
   }
 
   // 等 DOM + hlMaterial 都準備好
