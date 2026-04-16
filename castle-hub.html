@@ -110,6 +110,35 @@ main{position:relative;z-index:1}
 /* ── 城堡地圖區（等圖到位替換）── */
 .cv3-map-wrap{max-width:1200px;margin:24px auto;padding:0 20px}
 .cv3-map-container{position:relative;background:linear-gradient(135deg,#f7f0e0,#ece1c9);border:1px solid var(--cv3-line);border-radius:24px;padding:40px 30px;min-height:400px;overflow:hidden}
+/* ── 工具單一入口地圖 ── */
+.cv3-tools-map{max-width:1200px;margin:0 auto 24px;padding:22px 20px;background:rgba(255,255,255,.5);border:1px solid var(--cv3-line);border-radius:20px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+body.cv3-phase-night .cv3-tools-map, body.cv3-phase-midnight .cv3-tools-map{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1)}
+.cv3-tools-header{margin-bottom:14px}
+.cv3-tools-title{font-family:var(--cv3-serif);font-size:1.1rem;font-weight:500;color:var(--cv3-ink);letter-spacing:.08em;margin-bottom:4px}
+.cv3-tools-sub{font-size:.8rem;color:var(--cv3-ink-lite);letter-spacing:.04em}
+.cv3-tools-tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:14px;scrollbar-width:thin}
+.cv3-tools-tabs::-webkit-scrollbar{height:4px}
+.cv3-tools-tabs::-webkit-scrollbar-thumb{background:var(--cv3-line);border-radius:2px}
+.cv3-tools-tab{flex-shrink:0;padding:8px 16px;border-radius:999px;border:1px solid var(--cv3-line);background:transparent;font-family:var(--cv3-serif);font-size:.82rem;letter-spacing:.04em;color:var(--cv3-ink-soft);cursor:pointer;transition:all .3s var(--cv3-ease);white-space:nowrap}
+.cv3-tools-tab:hover{border-color:var(--cv3-gold);color:var(--cv3-gold-dk)}
+.cv3-tools-tab.active{background:linear-gradient(135deg,var(--cv3-gold-lt),var(--cv3-gold));color:#fff;border-color:var(--cv3-gold);box-shadow:0 4px 14px rgba(184,146,42,.25)}
+.cv3-tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.cv3-tools-item{display:flex;flex-direction:column;gap:4px;padding:12px 14px;background:#fff;border:1px solid var(--cv3-line);border-radius:12px;text-decoration:none;color:inherit;transition:all .3s var(--cv3-ease);position:relative}
+body.cv3-phase-night .cv3-tools-item, body.cv3-phase-midnight .cv3-tools-item{background:rgba(255,255,255,.06);color:#f0ecf5}
+.cv3-tools-item:hover{transform:translateY(-2px);border-color:var(--cv3-gold);box-shadow:0 8px 22px rgba(184,146,42,.2)}
+.cv3-tools-item-name{font-size:.88rem;font-weight:500;color:var(--cv3-ink);letter-spacing:.03em}
+body.cv3-phase-night .cv3-tools-item-name, body.cv3-phase-midnight .cv3-tools-item-name{color:#f8dfa5}
+.cv3-tools-item-meta{font-size:.68rem;color:var(--cv3-ink-lite);letter-spacing:.04em;display:flex;align-items:center;gap:6px}
+.cv3-tools-item-dot{width:6px;height:6px;border-radius:50%;background:var(--cv3-gold);opacity:.6}
+.cv3-tools-item.hot{border-color:rgba(184,146,42,.5);box-shadow:0 0 0 1px rgba(248,223,165,.35)}
+.cv3-tools-item.hot::after{content:'最近去過';position:absolute;top:8px;right:10px;font-size:.58rem;color:var(--cv3-gold-dk);letter-spacing:.1em}
+.cv3-tools-more{grid-column:1/-1;text-align:center;padding:12px;font-size:.82rem;color:var(--cv3-gold-dk);letter-spacing:.08em;border:1px dashed var(--cv3-line);border-radius:12px;text-decoration:none;transition:all .3s}
+.cv3-tools-more:hover{border-color:var(--cv3-gold);background:rgba(184,146,42,.05)}
+@media(max-width:640px){
+  .cv3-tools-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .cv3-tools-item{padding:10px 12px}
+}
+
 /* ── 最近探索 widget（本週覺察）── */
 .cv3-explorations{max-width:1200px;margin:0 auto 24px;padding:22px 20px;background:linear-gradient(135deg,rgba(184,146,42,.04),rgba(160,124,220,.04));border:1px solid var(--cv3-line);border-radius:18px}
 .cv3-explorations-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;gap:10px;flex-wrap:wrap}
@@ -293,6 +322,22 @@ main{position:relative;z-index:1}
       <div class="cv3-explorations-count" id="cv3-explorations-count"></div>
     </div>
     <div class="cv3-explorations-list" id="cv3-explorations-list"></div>
+  </section>
+
+  <!-- 工具單一入口地圖（中樞化核心：33 命理 + 130 牌卡 + 101 測驗 + 知識 + 服務）-->
+  <section class="cv3-tools-map">
+    <div class="cv3-tools-header">
+      <div class="cv3-tools-title">你的工具櫃</div>
+      <div class="cv3-tools-sub">城堡連著整座網站。從這裡走，最快。</div>
+    </div>
+    <div class="cv3-tools-tabs" id="cv3-tools-tabs">
+      <button class="cv3-tools-tab active" data-tab="destiny">命盤 33 套</button>
+      <button class="cv3-tools-tab" data-tab="draw">抽牌 130 張</button>
+      <button class="cv3-tools-tab" data-tab="quiz">測驗 101 支</button>
+      <button class="cv3-tools-tab" data-tab="learn">知識學苑</button>
+      <button class="cv3-tools-tab" data-tab="service">服務預約</button>
+    </div>
+    <div class="cv3-tools-grid" id="cv3-tools-grid"></div>
   </section>
 
   <!-- 城堡地圖 — 圖到位自動顯示，未到則顯示 emoji placeholder -->
@@ -1238,6 +1283,112 @@ main{position:relative;z-index:1}
     } catch(_) {}
   }
 
+  // ═══ 工具單一入口地圖 · 中樞化核心 ═══
+  var TOOLS_BY_CATEGORY = {
+    destiny: [
+      { name:'命盤 33 合 1', url:'destiny-engine.html' },
+      { name:'馥靈秘碼', url:'fuling-mima.html' },
+      { name:'八字排盤', url:'bazi-calculator.html' },
+      { name:'紫微斗數', url:'ziwei-calculator.html' },
+      { name:'西洋占星', url:'astro-calculator.html' },
+      { name:'人類圖', url:'hd-calculator.html' },
+      { name:'瑪雅曆', url:'maya-calculator.html' },
+      { name:'33 套合盤', url:'destiny-match.html' }
+    ],
+    destinyMore: { name:'命盤中心 · 看全部 →', url:'destiny-hub.html' },
+
+    draw: [
+      { name:'130 張智慧抽牌', url:'draw-hl.html' },
+      { name:'塔羅牌', url:'tarot-draw.html' },
+      { name:'天使卡', url:'angel-oracle.html' },
+      { name:'易經卜卦', url:'yijing-oracle.html' },
+      { name:'前世故事', url:'past-life.html' },
+      { name:'女巫原力', url:'witch-power.html' },
+      { name:'投射卡', url:'projection-cards.html' },
+      { name:'夢境解碼', url:'dream-decoder.html' }
+    ],
+    drawMore: { name:'抽牌占卜中心 · 看全部 →', url:'draw-hub.html' },
+
+    quiz: [
+      { name:'MBTI 64 型', url:'quiz-mbti.html' },
+      { name:'依附型態', url:'quiz-attachment.html' },
+      { name:'原型測驗', url:'quiz-archetype.html' },
+      { name:'覺察指數', url:'quiz-awareness.html' },
+      { name:'美業倦怠', url:'quiz-beauty-burnout.html' },
+      { name:'愛之語', url:'quiz-love-language.html' },
+      { name:'內在小孩', url:'quiz-inner-child.html' },
+      { name:'關係羅盤', url:'quiz-shadow.html' }
+    ],
+    quizMore: { name:'覺察測驗中心 · 看全部 →', url:'quiz-hub.html' },
+
+    learn: [
+      { name:'知識學苑', url:'knowledge-hub.html' },
+      { name:'芳療園地', url:'aroma-garden.html' },
+      { name:'十四經絡', url:'meridian-guide.html' },
+      { name:'七脈輪', url:'chakra-guide.html' },
+      { name:'水晶覺察', url:'crystal-guide.html' },
+      { name:'認知芳療', url:'cognitive-aromatherapy-theory.html' },
+      { name:'NAHA 講義', url:'naha-study-guide.html' },
+      { name:'課程學苑', url:'courses.html' }
+    ],
+    learnMore: { name:'知識學苑 · 看全部 →', url:'knowledge-hub.html' },
+
+    service: [
+      { name:'服務項目', url:'services.html' },
+      { name:'服務價目', url:'pricing.html' },
+      { name:'線上預約', url:'booking.html' },
+      { name:'一對一覺察', url:'price-list-vip.html' },
+      { name:'美業合作', url:'price-list-b2b.html' },
+      { name:'豐盛祈禱文', url:'abundance-prayer.html' },
+      { name:'元辰宮', url:'yuan-chen-reading.html' },
+      { name:'阿卡西解讀', url:'akashic-reading.html' }
+    ],
+    serviceMore: { name:'全部服務 →', url:'pricing.html' }
+  };
+
+  function renderToolsMap(tab){
+    tab = tab || 'destiny';
+    var grid = document.getElementById('cv3-tools-grid');
+    if (!grid) return;
+
+    // 讀最近探索（用來標記「最近去過」）
+    var recentUrls = {};
+    try {
+      var exp = JSON.parse(localStorage.getItem('hl_castle_explorations') || '[]');
+      var weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      exp.forEach(function(e){ if (e.ts > weekAgo) recentUrls[e.page] = Math.floor((Date.now() - e.ts) / (60*60*1000)); });
+    } catch(_){}
+
+    var tools = TOOLS_BY_CATEGORY[tab] || [];
+    var more = TOOLS_BY_CATEGORY[tab + 'More'];
+
+    var html = '';
+    tools.forEach(function(t){
+      var hoursAgo = recentUrls[t.url];
+      var isHot = hoursAgo !== undefined;
+      var meta = isHot
+        ? (hoursAgo < 1 ? '剛剛用過' : hoursAgo < 24 ? (hoursAgo + ' 小時前') : (Math.floor(hoursAgo/24) + ' 天前'))
+        : '';
+      html += '<a class="cv3-tools-item' + (isHot ? ' hot' : '') + '" href="' + t.url + '">';
+      html += '<div class="cv3-tools-item-name">' + t.name + '</div>';
+      if (meta) html += '<div class="cv3-tools-item-meta"><span class="cv3-tools-item-dot"></span>' + meta + '</div>';
+      html += '</a>';
+    });
+    if (more) html += '<a class="cv3-tools-more" href="' + more.url + '">' + more.name + '</a>';
+    grid.innerHTML = html;
+  }
+
+  function setupToolsMapTabs(){
+    var tabs = document.querySelectorAll('.cv3-tools-tab');
+    tabs.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        tabs.forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        renderToolsMap(btn.dataset.tab);
+      });
+    });
+  }
+
   // 最近探索 widget（本週覺察 · 全站 callback 閉環）
   function renderExplorations(){
     try {
@@ -1353,6 +1504,8 @@ main{position:relative;z-index:1}
       state.moods = V3.rollDailyMoods(seed);
       renderLord(); renderRooms(); renderDailyQuests(); renderPetsPanel();
       renderExplorations();
+      renderToolsMap('destiny');
+      setupToolsMapTabs();
       tryDailyLoginBonus();
       tryVisitMilestone();
       tryOnboarding();
@@ -1372,6 +1525,8 @@ main{position:relative;z-index:1}
       state.moods = V3.rollDailyMoods(seedStr);
       renderLord(); renderRooms(); renderDailyQuests(); renderPetsPanel();
       renderExplorations();
+      renderToolsMap('destiny');
+      setupToolsMapTabs();
       tryDailyLoginBonus();
       tryVisitMilestone();
       tryOnboarding();
