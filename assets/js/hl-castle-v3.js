@@ -11,7 +11,7 @@
  *   - cv3_quests_daily: { date: [...] }    今日任務
  *   - cv3_quests_week : { weekIso: [...] } 本週任務
  *   - cv3_events_done : [eventId...]       已觸發過的事件
- *   - cv3_servant_mood: { roomId: mood }   僕人心情
+ *   - cv3_servant_mood: { roomId: mood }   小馥心情
  *   - cv3_furniture_t : { id: tier }       傢具進階階段
  *
  * 所有類別前綴 cv3-（CSS）/ cv3_（資料）避免與 v1/v2 衝突
@@ -168,56 +168,73 @@
   // ═══════════════════════════════════════
   // 格式：{ id, roomId, weight, minLv, conditions, text, rewards, choices }
   var EVENT_POOL_SEEDS = [
-    // 鏡之廳（sample 3 個）
+    // ═══ 鏡之廳（H 塔） ═══
     { id:'mirror_fog',     roomId:'mirror',    weight:10, minLv:1,
-      text:'鏡面結了一層霧。你伸手擦拭，看見鏡中的自己笑了一下。',
+      text:'鏡面結了一層霧。您伸手擦拭，看見鏡中的自己笑了一下。',
       rewards:{ xp:10, material:{common:'誠實碎鏡'} } },
-    { id:'mirror_older',   roomId:'mirror',    weight:5,  minLv:5,
-      text:'鏡中出現 10 年後的自己，正在做一件你現在還不敢做的事。',
+    { id:'mirror_hand',    roomId:'mirror',    weight:8,  minLv:3,
+      text:'鏡中的手先一步抬起來，跟您招了招。那一秒您知道：有些事不用解釋。',
+      rewards:{ xp:18, material:{common:'誠實碎鏡'} } },
+    { id:'mirror_older',   roomId:'mirror',    weight:5,  minLv:8,
+      text:'鏡中出現 10 年後的自己，正在做一件您現在還不敢做的事。',
       rewards:{ xp:25, material:{rare:'時辰碎片'} } },
-    { id:'mirror_broken',  roomId:'mirror',    weight:3,  minLv:15,
-      text:'鏡子裂了。僕人說：「有時候破碎才能真的看見。」',
-      rewards:{ xp:50, material:{legendary:'沒藥精髓'} } },
+    { id:'mirror_empty',   roomId:'mirror',    weight:4,  minLv:15,
+      text:'鏡子空了。小馥說：「有時候沒有影像，反而能看清自己。」',
+      rewards:{ xp:40, material:{rare:'靈視殘影'} } },
+    { id:'mirror_broken',  roomId:'mirror',    weight:3,  minLv:22,
+      text:'鏡子裂了。小馥說：「有時候破碎才能真的看見。」',
+      rewards:{ xp:55, material:{legendary:'沒藥精髓'} } },
 
-    // 價值寶庫（sample 2 個）
-    { id:'treasure_coin',  roomId:'treasure',  weight:10, minLv:1,
-      text:'寶庫角落掉了一枚金幣，上面刻著你的名字縮寫。',
-      rewards:{ xp:10, material:{common:'星辰碎片'} } },
-    { id:'treasure_chest', roomId:'treasure',  weight:4,  minLv:10,
-      text:'一個從未見過的寶箱自動打開。裡面是一封給你的信，署名「未來的你」。',
-      rewards:{ xp:30, material:{rare:'命盤墨跡'} } },
-
-    // ── 共 40+ 事件，12 房間 × 3-4 個，weight 決定出現頻率 ──
-    // H.O.U.R. 四塔
+    // ═══ 價值寶庫（H 塔） ═══
     { id:'treasure_coin',  roomId:'treasure',  weight:10, minLv:1,
       text:'寶庫角落掉了一枚金幣，上面刻著您的名字縮寫。',
       rewards:{ xp:10, material:{common:'星辰碎片'} } },
-    { id:'treasure_chest', roomId:'treasure',  weight:4,  minLv:10,
+    { id:'treasure_dust',  roomId:'treasure',  weight:8,  minLv:4,
+      text:'灰塵底下露出一件您以為自己沒有的東西。您笑了一下，想起原來我有。',
+      rewards:{ xp:18, material:{common:'星辰碎片'} } },
+    { id:'treasure_chest', roomId:'treasure',  weight:5,  minLv:10,
       text:'一個從未見過的寶箱自動打開。裡面是一封給您的信，署名「未來的您」。',
       rewards:{ xp:30, material:{rare:'命盤墨跡'} } },
+    { id:'treasure_scale', roomId:'treasure',  weight:4,  minLv:18,
+      text:'寶庫中央的天秤自己動了一下。您在兩端放的東西原來一直都等重。',
+      rewards:{ xp:45, material:{rare:'天命核心'} } },
     { id:'treasure_deep',  roomId:'treasure',  weight:2,  minLv:25,
       text:'寶庫深處傳來低語：「您擁有的比您以為的更多。」',
       rewards:{ xp:60, material:{legendary:'天命核心'} } },
 
+    // ═══ 解鎖密室（O 塔） ═══
     { id:'key_whisper',    roomId:'key',       weight:10, minLv:1,
       text:'一把小金鑰匙浮在空中。它說：「您已經有答案了，只是還沒承認。」',
       rewards:{ xp:15, material:{common:'覺察印記'} } },
-    { id:'key_rust',       roomId:'key',       weight:5,  minLv:8,
-      text:'有一個很老的鎖，您試了所有鑰匙都打不開。僕人說：「試試您的呼吸。」',
-      rewards:{ xp:25, material:{rare:'時辰碎片'} } },
-    { id:'key_deep',       roomId:'key',       weight:2,  minLv:20,
+    { id:'key_chain',      roomId:'key',       weight:8,  minLv:5,
+      text:'桌上的一串鑰匙自動解開最外面那一圈。剩下的要您自己來。',
+      rewards:{ xp:20, material:{common:'覺察印記'} } },
+    { id:'key_rust',       roomId:'key',       weight:5,  minLv:10,
+      text:'有一個很老的鎖，您試了所有鑰匙都打不開。小馥說：「試試您的呼吸。」',
+      rewards:{ xp:28, material:{rare:'時辰碎片'} } },
+    { id:'key_echo',       roomId:'key',       weight:4,  minLv:18,
+      text:'走廊盡頭回傳您昨晚問自己的問題。這次有答案。',
+      rewards:{ xp:40, material:{rare:'卦象印記'} } },
+    { id:'key_deep',       roomId:'key',       weight:2,  minLv:25,
       text:'房間中央的石板突然裂開，露出一個通往您 5 年前的走廊。',
-      rewards:{ xp:50, material:{legendary:'沒藥精髓'} } },
+      rewards:{ xp:55, material:{legendary:'沒藥精髓'} } },
 
+    // ═══ 啟程塔（R 塔） ═══
     { id:'throne_rise',    roomId:'throne',    weight:10, minLv:1,
       text:'站在塔頂往下看，您看見自己的人生像一張地圖。您的位置比想像中高。',
       rewards:{ xp:15, material:{common:'星辰碎片'} } },
-    { id:'throne_wind',    roomId:'throne',    weight:5,  minLv:10,
+    { id:'throne_crown',   roomId:'throne',    weight:8,  minLv:5,
+      text:'王冠懸在半空。小馥說：「它在等您願意相信自己配。」',
+      rewards:{ xp:20, material:{common:'星辰碎片'} } },
+    { id:'throne_wind',    roomId:'throne',    weight:5,  minLv:12,
       text:'一陣風吹過塔頂，帶來一句話：「不是您不夠好，是時候還沒到。」',
-      rewards:{ xp:25, material:{rare:'命盤墨跡'} } },
-    { id:'throne_star',    roomId:'throne',    weight:3,  minLv:25,
+      rewards:{ xp:28, material:{rare:'命盤墨跡'} } },
+    { id:'throne_banner',  roomId:'throne',    weight:4,  minLv:18,
+      text:'塔頂旗幟突然揚起，上面寫著只有您懂的那個字。',
+      rewards:{ xp:42, material:{rare:'校準之鑰'} } },
+    { id:'throne_star',    roomId:'throne',    weight:3,  minLv:28,
       text:'夜空中有一顆星突然變亮。您知道那是為您亮的。',
-      rewards:{ xp:50, material:{legendary:'校準之鑰'} } },
+      rewards:{ xp:60, material:{legendary:'校準之鑰'} } },
 
     // L.I.G.H.T. 五殿
     { id:'love_petal',     roomId:'love',      weight:10, minLv:1,
@@ -304,7 +321,7 @@
       text:'書架深處滑出一本沒有書名的書。翻開第一頁，是一句只有您懂的話。',
       rewards:{ xp:15, material:{common:'智慧卷軸'} } },
     { id:'library_candle', roomId:'library',   weight:5,  minLv:10,
-      text:'閱讀燈突然亮了，您還沒開燈。僕人說：「有的東西找到了就會自己發光。」',
+      text:'閱讀燈突然亮了，您還沒開燈。小馥說：「有的東西找到了就會自己發光。」',
       rewards:{ xp:28, material:{rare:'卦象印記'} } },
     { id:'library_map',    roomId:'library',   weight:3,  minLv:22,
       text:'最高那層書架上有一本書落下來。裡面夾著一張您從沒見過的地圖。',
@@ -318,7 +335,7 @@
       text:'薄紗後面有什麼動了一下。不是鬼，是您那個還沒說出口的事。',
       rewards:{ xp:28, material:{rare:'靈視殘影'} } },
     { id:'secret_portal',  roomId:'secret',    weight:3,  minLv:22,
-      text:'地板上出現一個圓形光紋。僕人說：「踏進去不會怎樣，只是會更懂自己一點。」',
+      text:'地板上出現一個圓形光紋。小馥說：「踏進去不會怎樣，只是會更懂自己一點。」',
       rewards:{ xp:55, material:{legendary:'月光精華'} } },
 
     // 音樂廳
@@ -340,7 +357,7 @@
       text:'您無意間調出一個氣味組合，是某個重要的人身上的味道。',
       rewards:{ xp:28, material:{rare:'薰衣草晨露'} } },
     { id:'kitchen_brew',   roomId:'kitchen',   weight:3,  minLv:22,
-      text:'爐子上的鍋裡浮出一個心形泡泡。僕人說：「今天這鍋送給最需要被照顧的人——是你。」',
+      text:'爐子上的鍋裡浮出一個心形泡泡。小馥說：「今天這鍋送給最需要被照顧的人——是你。」',
       rewards:{ xp:55, material:{legendary:'沒藥精髓'} } },
 
     // 煉金室
@@ -348,7 +365,7 @@
       text:'燒瓶裡的液體換了一個顏色，是您今天的心情色。您一看就懂。',
       rewards:{ xp:18, material:{common:'煉金泡泡'} } },
     { id:'alchemy_catalyst',roomId:'alchemy',  weight:5,  minLv:12,
-      text:'材料自己湊在一起了。僕人說：「有些反應不需要催化劑，只需要合適的時機。」',
+      text:'材料自己湊在一起了。小馥說：「有些反應不需要催化劑，只需要合適的時機。」',
       rewards:{ xp:30, material:{rare:'五行晶石'} } },
     { id:'alchemy_gold',   roomId:'alchemy',   weight:3,  minLv:25,
       text:'放進去的鉛真的變成金了。您知道那其實是比喻，但還是感動了一下。',
@@ -378,7 +395,7 @@
   }
 
   // ═══════════════════════════════════════
-  // 僕人心情系統（每房間 5 種心情）
+  // 小馥心情系統（每房間 5 種心情）
   // ═══════════════════════════════════════
   var SERVANT_MOODS = [
     { id:'bright',    name:'明朗', chance:30, xpBonus:1.2 },
@@ -387,7 +404,7 @@
     { id:'playful',   name:'俏皮', chance:15, xpBonus:1.3, materialBonus:{common:0.3} },
     { id:'melancholy',name:'憂愁', chance:5,  xpBonus:0.9, materialBonus:{legendary:0.05} }
   ];
-  // 每日決定各房間僕人心情
+  // 每日決定各房間小馥心情
   function rollDailyMoods(seedStr){
     // 用日期 + uid 作為 seed，保證一天內同一玩家看到的心情固定
     var moods = {};

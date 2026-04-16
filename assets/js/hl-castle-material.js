@@ -260,7 +260,7 @@
       id: 'wisdom_desk',
       name: '智慧書桌',
       icon: '🗂️',
-      desc: '放在學院塔，解鎖後僕人可以在這裡幫你整理洞見。',
+      desc: '放在學院塔，解鎖後小馥可以在這裡幫你整理洞見。',
       ingredients: { wisdom_tome: 1, heritage_candle: 2, chart_ink: 2 },
       zone: '學院塔傢具'
     },
