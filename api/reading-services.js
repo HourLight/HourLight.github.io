@@ -2094,6 +2094,210 @@ async function handleAbundancePrayer(req, res, apiKey) {
 
 
 // ════════════════════════════════════════
+// Handler 7: 每月會員月禮自動發送 (?type=monthly-gift)
+// 需要 Bearer token 驗證（避免惡意觸發）
+// 由 GitHub Actions cron 或 cron-job.org 每月 1 號打
+// ════════════════════════════════════════
+async function handleMonthlyGift(req, res) {
+  // 驗證密鑰（防止惡意觸發浪費資源）
+  var providedToken = (req.headers['authorization'] || '').replace(/^Bearer\s+/i, '');
+  if (!providedToken) providedToken = (req.query && req.query.token) || (req.body && req.body.token) || '';
+  var expectedToken = process.env.MONTHLY_GIFT_TOKEN;
+  if (!expectedToken) {
+    return res.status(500).json({ error: 'MONTHLY_GIFT_TOKEN 未在 Vercel env 設定' });
+  }
+  if (providedToken !== expectedToken) {
+    return res.status(401).json({ error: 'Unauthorized: invalid token' });
+  }
+
+  var db = getFirestore();
+  if (!db) {
+    return res.status(500).json({ error: 'Firestore 未設定' });
+  }
+
+  var now = new Date();
+  var currentYM = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  var stats = { checked: 0, sent: 0, skipped: 0, errors: 0, details: [] };
+
+  try {
+    // 查所有付費會員（plus + pro）
+    var snap = await db.collection('users').where('plan', 'in', ['plus', 'pro']).get();
+    stats.checked = snap.size;
+
+    for (var i = 0; i < snap.docs.length; i++) {
+      var doc = snap.docs[i];
+      var data = doc.data();
+      var uid = doc.id;
+      var email = data.email || '';
+      var displayName = data.displayName || '';
+      var plan = data.plan;
+      var planExpiry = data.planExpiry;
+      var lastGiftYM = data.lastGiftYM || '';
+
+      // 檢查方案有效
+      if (planExpiry && planExpiry !== 'permanent') {
+        var expDate = planExpiry.toDate ? planExpiry.toDate() : new Date(planExpiry);
+        if (expDate <= now) {
+          stats.skipped++;
+          stats.details.push({ uid: uid, reason: 'plan-expired' });
+          continue;
+        }
+      }
+
+      // 本月已發 → 跳過
+      if (lastGiftYM === currentYM) {
+        stats.skipped++;
+        stats.details.push({ uid: uid, reason: 'already-sent-this-month' });
+        continue;
+      }
+
+      // 需要 email 才能寄信
+      if (!email) {
+        stats.skipped++;
+        stats.details.push({ uid: uid, reason: 'no-email' });
+        continue;
+      }
+
+      try {
+        // 生成月禮代碼
+        var randCode = function() { return Math.random().toString(36).substring(2, 10).toUpperCase().replace(/[^A-Z0-9]/g, 'X'); };
+        var readingCodes = [];
+        var wallpaperCodes = [];
+        var voucherCodes = [];
+
+        if (plan === 'plus') {
+          // 鑰友：3 張桌布兌換碼
+          for (var w = 0; w < 1; w++) {
+            var wp = 'WP-MG' + randCode();
+            await db.collection('reading_codes').doc(wp).set({
+              service: 'wallpaper', n: 1, spreads: 1, price: 0, used: false,
+              source: 'monthly-gift', userId: uid, userEmail: email,
+              paidAt: now, createdAt: now,
+              memo: '鑰友月禮 ' + currentYM + '（桌布 1 張）'
+            });
+            wallpaperCodes.push(wp);
+          }
+          // 3 張 draw-3 解讀碼
+          for (var r = 0; r < 3; r++) {
+            var rc = 'BONUS3-' + randCode();
+            await db.collection('reading_codes').doc(rc).set({
+              service: 'draw', n: 3, spreads: 3, price: 0, used: false,
+              source: 'monthly-gift', userId: uid, userEmail: email,
+              paidAt: now, createdAt: now,
+              memo: '鑰友月禮 ' + currentYM + '（3 張牌 AI 解析）'
+            });
+            readingCodes.push(rc);
+          }
+        } else if (plan === 'pro') {
+          // 大師：3 張桌布兌換碼
+          for (var w = 0; w < 3; w++) {
+            var wpp = 'WP-MG' + randCode();
+            await db.collection('reading_codes').doc(wpp).set({
+              service: 'wallpaper', n: 1, spreads: 1, price: 0, used: false,
+              source: 'monthly-gift', userId: uid, userEmail: email,
+              paidAt: now, createdAt: now,
+              memo: '大師月禮 ' + currentYM + '（桌布 3 張）'
+            });
+            wallpaperCodes.push(wpp);
+          }
+          // aiBonus +10
+          var admin = require('firebase-admin');
+          await db.collection('users').doc(uid).update({
+            aiBonus: admin.firestore.FieldValue.increment(10)
+          });
+          // 2 張 VIP500 抵用券（3 個月有效，一對一 1800+）
+          for (var v = 0; v < 2; v++) {
+            var vc = 'VIP500-' + randCode();
+            await db.collection('coupons').doc(vc).set({
+              amount: 500, used: false,
+              source: 'monthly-gift', userId: uid, userEmail: email,
+              createdAt: now,
+              expiresAt: new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000),
+              minOrderAmount: 1800,
+              restrictedTo: 'one-on-one',
+              maxUsePerOrder: 1,
+              applicableServices: ['prayer-6800','prayer-8800','prayer-12800','prayer-39800','prayer-59800','prayer-16800','one-on-one'],
+              memo: '大師月禮 ' + currentYM + '（一對一 1800+ 可折 500，3 個月內有效）'
+            });
+            voucherCodes.push(vc);
+          }
+        }
+
+        // 組信件內容
+        var planName = plan === 'pro' ? '馥靈大師' : '馥靈鑰友';
+        var body = '親愛的 ' + (displayName || '馥靈夥伴') + '：\n\n';
+        body += '這個月的 ' + planName + ' 月禮送上 ✨\n\n';
+
+        if (wallpaperCodes.length) {
+          body += '══ 🌟 馥靈蘊福桌布兌換代碼（' + wallpaperCodes.length + ' 張）══\n';
+          wallpaperCodes.forEach(function(c, i){ body += (i+1) + '. ' + c + '\n'; });
+          body += '使用方式：到 https://hourlightkey.com/wealth-wallpaper.html 輸入代碼即可生成一張專屬桌布\n\n';
+        }
+        if (readingCodes.length) {
+          body += '══ 🃏 3 張牌 AI 解析代碼（' + readingCodes.length + ' 組）══\n';
+          readingCodes.forEach(function(c, i){ body += (i+1) + '. ' + c + '\n'; });
+          body += '使用方式：到 https://hourlightkey.com/draw-hl.html 抽 3 張牌後輸入代碼\n\n';
+        }
+        if (voucherCodes.length) {
+          body += '══ 💎 NT$500 一對一抵用券（' + voucherCodes.length + ' 張，3 個月內有效）══\n';
+          voucherCodes.forEach(function(c, i){ body += (i+1) + '. ' + c + '\n'; });
+          body += '使用規範：\n  ► 只能折抵一對一解讀 NT$1,800 以上\n  ► 一次用一張\n';
+          body += '適用方案：馥靈初探 / 深度覺醒 / 三次轉化 / 半年陪伴 / VIP 年度 / VIP 紫微\n';
+          body += '預約：https://hourlightkey.com/price-list-vip.html\n\n';
+        }
+
+        // aiBonus 通知
+        if (plan === 'pro') {
+          body += '此外，您的 AI 解讀次數已自動 +10 次（aiBonus）\n\n';
+        }
+
+        body += '══ 會員中心 ══\nhttps://hourlightkey.com/member-dashboard.html\n\n';
+        body += '如有問題請回覆此信或聯絡 LINE：https://lin.ee/RdQBFAN\n\n';
+        body += '馥靈之鑰 Hour Light | ' + currentYM + ' 月禮\n';
+
+        // 寄信
+        var mailResp = await fetch('https://app.hourlightkey.com/api/send-report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: email,
+            name: displayName,
+            subject: planName + ' ' + currentYM + ' 月禮到囉 🎁',
+            content: body,
+            system: planName + ' 月禮',
+            type: 'notification'
+          })
+        });
+
+        // 標記已發
+        await db.collection('users').doc(uid).update({
+          lastGiftYM: currentYM,
+          lastGiftAt: now
+        });
+
+        stats.sent++;
+        stats.details.push({ uid: uid, email: email, plan: plan, codes: wallpaperCodes.length + readingCodes.length + voucherCodes.length });
+      } catch (userErr) {
+        stats.errors++;
+        stats.details.push({ uid: uid, reason: 'error', message: userErr.message });
+        console.error('Monthly gift error for ' + uid + ':', userErr.message);
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      month: currentYM,
+      stats: { checked: stats.checked, sent: stats.sent, skipped: stats.skipped, errors: stats.errors },
+      details: stats.details.slice(0, 50)
+    });
+  } catch (err) {
+    console.error('handleMonthlyGift fatal:', err);
+    return res.status(500).json({ error: err.message, stats: stats });
+  }
+}
+
+
+// ════════════════════════════════════════
 // 主入口：路由分流
 // ════════════════════════════════════════
 module.exports = async function handler(req, res) {
@@ -2120,9 +2324,11 @@ module.exports = async function handler(req, res) {
         return await handleWallpaper(req, res, apiKey);
       case 'abundance-prayer':
         return await handleAbundancePrayer(req, res, apiKey);
+      case 'monthly-gift':
+        return await handleMonthlyGift(req, res);
       default:
         return res.status(400).json({
-          error: '未指定服務類型，請使用 ?type=akashic|yuan-chen|past-life|name|wallpaper|abundance-prayer',
+          error: '未指定服務類型，請使用 ?type=akashic|yuan-chen|past-life|name|wallpaper|abundance-prayer|monthly-gift',
           availableTypes: ['akashic', 'yuan-chen', 'past-life', 'name', 'wallpaper', 'abundance-prayer']
         });
     }

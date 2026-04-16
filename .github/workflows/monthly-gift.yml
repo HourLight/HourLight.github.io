@@ -1,0 +1,48 @@
+name: 每月會員月禮自動發送
+
+# 每月 1 號 UTC 00:00（台灣時間 08:00）觸發
+# 也可手動觸發做測試
+on:
+  schedule:
+    - cron: '0 0 1 * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: '只查看不發送（尚未實作）'
+        required: false
+        default: 'false'
+
+jobs:
+  send-gift:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 呼叫 monthly-gift handler
+        id: call
+        run: |
+          echo "呼叫 https://app.hourlightkey.com/api/reading-services?type=monthly-gift"
+          RESPONSE=$(curl -s -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.MONTHLY_GIFT_TOKEN }}" \
+            "https://app.hourlightkey.com/api/reading-services?type=monthly-gift")
+          echo "Response: $RESPONSE"
+          echo "response=$RESPONSE" >> $GITHUB_OUTPUT
+
+      - name: 解析結果
+        run: |
+          echo "${{ steps.call.outputs.response }}" | python3 -c "
+          import json, sys
+          try:
+              data = json.loads(sys.stdin.read())
+              print(f\"月份: {data.get('month', 'unknown')}\")
+              stats = data.get('stats', {})
+              print(f\"檢查: {stats.get('checked', 0)} 人\")
+              print(f\"成功: {stats.get('sent', 0)} 人\")
+              print(f\"跳過: {stats.get('skipped', 0)} 人\")
+              print(f\"失敗: {stats.get('errors', 0)} 人\")
+              if not data.get('success'):
+                  print('ERR:', data.get('error'))
+                  sys.exit(1)
+          except Exception as e:
+              print(f'Failed to parse: {e}')
+              sys.exit(1)
+          "
