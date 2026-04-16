@@ -1377,6 +1377,12 @@ async function handleWallpaper(req, res, apiKey) {
     dossier += '二層：' + tf.M + '/' + tf.N + '｜三層：' + tf.O + '\n';
     if (tf.sub) dossier += '隱藏碼：' + tf.sub + '｜擴展碼：' + tf.ext + '｜內核碼：' + tf.inner + '\n';
   }
+  if (profile.name && profile.nameTotal) {
+    dossier += '\n— 姓名解碼（五格）—\n';
+    dossier += '姓名：' + profile.name + '｜總格：' + profile.nameTotal + '\n';
+    if (profile.nameTianGe) dossier += '天格：' + profile.nameTianGe + '｜人格：' + (profile.nameRenGe || '-') + '｜地格：' + (profile.nameDiGe || '-') + '\n';
+    if (profile.nameStrokes) dossier += '筆畫：' + profile.nameStrokes.join('-') + '\n';
+  }
 
   var themeNamesZh = { wealth:'招財豐盛', love:'愛情桃花', career:'事業貴人', protection:'護佑平安', luck:'幸運轉運' };
   var themeZhForClaude = themeNamesZh[theme] || theme;

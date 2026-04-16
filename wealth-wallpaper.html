@@ -402,6 +402,11 @@ body{min-height:100vh;min-height:100dvh;font-family:var(--ff-font);color:var(--f
       <div class="ww-theme" data-gender="M" onclick="selectGender(this)" style="padding:10px 22px">♂ 男</div>
     </div>
 
+    <label style="margin-top:24px">✦ 中文姓名（選填，補姓名解碼五格）✦</label>
+    <div style="text-align:center">
+      <input type="text" class="ww-input" id="userNameInput" placeholder="例：陳小明" maxlength="12" style="min-width:260px;margin-top:6px;text-align:center;letter-spacing:.1em">
+    </div>
+
     <label style="margin-top:24px">✦ 出生地（選填，讓占星更精準）✦</label>
     <div style="text-align:center">
       <select class="ww-select" id="cityInput" style="min-width:260px;margin-top:6px">
@@ -1601,8 +1606,28 @@ async function calculateProfile(){
     }
   } catch (e) { console.warn('三角密碼補算失敗：', e.message); }
 
-  // 姓名筆畫（如果用戶有填姓名欄；目前 wealth-wallpaper 沒有姓名輸入，留 hook 給未來）
-  // TODO: 當 UI 加上姓名輸入後，呼叫 getStroke() 累加
+  // ⑮ 姓名解碼（如果用戶填了姓名欄，呼叫 destiny-calc.js getStroke 算五格）
+  try {
+    var nameInput = (document.getElementById('userNameInput') || {}).value || '';
+    nameInput = nameInput.trim();
+    if (nameInput && typeof getStroke === 'function') {
+      var strokes = [];
+      for (var ni = 0; ni < nameInput.length; ni++) {
+        strokes.push(getStroke(nameInput.charAt(ni)) || 0);
+      }
+      var total = strokes.reduce(function(a,b){ return a+b; }, 0);
+      // 簡化：姓名五格（天/人/地/外/總）—— 這裡只存 total + strokes 給後端
+      profileData.name = nameInput;
+      profileData.nameStrokes = strokes;
+      profileData.nameTotal = total;
+      // 天格（姓 + 1）
+      if (strokes.length >= 1) profileData.nameTianGe = strokes[0] + 1;
+      // 人格（姓 + 名1）
+      if (strokes.length >= 2) profileData.nameRenGe = strokes[0] + strokes[1];
+      // 地格（名全）
+      if (strokes.length >= 2) profileData.nameDiGe = strokes.slice(1).reduce(function(a,b){return a+b;},0);
+    }
+  } catch (e) { console.warn('姓名解碼補算失敗：', e.message); }
 
   // 渲染量身打造的命理座標卡
   var grid = document.getElementById('profileGrid');
