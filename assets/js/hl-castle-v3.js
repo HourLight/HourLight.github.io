@@ -41,13 +41,13 @@
 
     // L.I.G.H.T. 五殿
     { id:'love',      name:'愛之殿',   zone:'L', emoji:'💕', gold:'#d6a7c7',
-      desc:'關係與連結', tools:['quiz-love-language.html','quiz-attachment.html','destiny-match.html'],
+      desc:'關係與連結', tools:['quiz-lovelang.html','quiz-attachment.html','destiny-match.html'],
       servantId:'love', primaryMaterial:'玫瑰精魄' },
     { id:'intuition', name:'直覺閣',   zone:'I', emoji:'🔮', gold:'#a07cdc',
       desc:'內在聲音', tools:['draw-hl.html','yijing-oracle.html','angel-oracle.html','tarot-draw.html'],
       servantId:'intuition', primaryMaterial:'靈視殘影' },
     { id:'ground',    name:'磐石廳',   zone:'G', emoji:'🏔️', gold:'#8a6d1f',
-      desc:'身體與扎根', tools:['bazi.html','ziwei.html','massage-guide.html','aroma-garden.html'],
+      desc:'身體與扎根', tools:['bazi-calculator.html','ziwei-calculator.html','massage-guide.html','aroma-garden.html'],
       servantId:'ground', primaryMaterial:'五行晶石' },
     { id:'harmony',   name:'和諧苑',   zone:'H', emoji:'🌿', gold:'#7aab6d',
       desc:'平衡與流動', tools:['draw-family.html','aromatherapy-science.html','blending-guide.html'],
@@ -61,10 +61,10 @@
       desc:'潛意識對話', tools:['dream-decoder.html','projection-cards.html','mirror-oracle.html'],
       servantId:'dream', primaryMaterial:'月光精華' },
     { id:'garden',    name:'記憶花園', zone:'秘境', emoji:'🌸', gold:'#d6a7c7',
-      desc:'懷舊與療癒', tools:['yuan-chen-reading.html','quiz-family.html','season-oracle.html'],
+      desc:'懷舊與療癒', tools:['yuan-chen-reading.html','quiz-family-deep.html','season-oracle.html'],
       servantId:'garden', primaryMaterial:'橙花羽翼' },
     { id:'star',      name:'星象台',   zone:'秘境', emoji:'🌌', gold:'#c8d4f0',
-      desc:'命理與天文', tools:['destiny-engine.html','bazi.html','astro.html','qizheng.html'],
+      desc:'命理與天文', tools:['destiny-engine.html','bazi-calculator.html','astro-calculator.html','qizheng-calculator.html'],
       servantId:'star', primaryMaterial:'星辰碎片' },
 
     // 擴展六殿（與 castle-room-*.html 對應）
@@ -521,18 +521,19 @@
 
   // ═══════════════════════════════════════
   // 連續登入獎勵（streak rewards）
-  // 注意：1 點 = NT$1 真金白銀，點數發放要謹慎
-  // 稀有/傳說材料主要靠點數兌換，不免費灑
+  // 注意：1 點 = NT$1 真金白銀，點數不主動送
+  // 稀有/傳說材料只能靠點數兌換，不免費灑
+  // Streak 獎勵只給稱號徽章，不送點數材料
   // ═══════════════════════════════════════
   var STREAK_REWARDS = [
-    { days:3,   points:3,   rare:0, legendary:0, title:'三日火花',         icon:'🔥' },
-    { days:7,   points:7,   rare:0, legendary:0, title:'一週鑰匙守護者',   icon:'🗝️' },
-    { days:14,  points:14,  rare:1, legendary:0, title:'雙週探訪者',       icon:'🌿' },
-    { days:30,  points:30,  rare:1, legendary:0, title:'三十日城堡達人',   icon:'💎' },
-    { days:60,  points:60,  rare:2, legendary:0, title:'小馥之友',         icon:'🧚' },
-    { days:90,  points:99,  rare:2, legendary:1, title:'季度築城者',       icon:'🏰' },
-    { days:180, points:200, rare:3, legendary:1, title:'半年馥靈夥伴',     icon:'✨' },
-    { days:365, points:365, rare:5, legendary:2, title:'城堡元老',         icon:'👑' }
+    { days:3,   points:0, rare:0, legendary:0, title:'三日火花',         icon:'🔥' },
+    { days:7,   points:0, rare:0, legendary:0, title:'一週鑰匙守護者',   icon:'🗝️' },
+    { days:14,  points:0, rare:0, legendary:0, title:'雙週探訪者',       icon:'🌿' },
+    { days:30,  points:0, rare:0, legendary:0, title:'三十日城堡達人',   icon:'💎' },
+    { days:60,  points:0, rare:0, legendary:0, title:'小馥之友',         icon:'🧚' },
+    { days:90,  points:0, rare:0, legendary:0, title:'季度築城者',       icon:'🏰' },
+    { days:180, points:0, rare:0, legendary:0, title:'半年馥靈夥伴',     icon:'✨' },
+    { days:365, points:0, rare:0, legendary:0, title:'城堡元老',         icon:'👑' }
   ];
   // 取得下一個 streak 里程碑
   function getNextStreakReward(currentStreak){
