@@ -117,7 +117,7 @@ module.exports = async function handler(req, res) {
     //   draw-N / pet-N / family-N / spa-N / nail-N / light-N（N 張牌）
     //   akashic-N / yuan-chen-N / past-life-N / name-1 / wallpaper-N（特殊服務）
     let preGeneratedCode = null;
-    const drawMatch = (productId || '').match(/^(draw|pet|family|spa|nail|light|akashic|yuan-chen|past-life|name|wallpaper)[-]?(\d+)?$/i);
+    const drawMatch = (productId || '').match(/^(draw|pet|family|spa|nail|light|akashic|yuan-chen|past-life|name|wallpaper|abundance-prayer)[-]?(\d+)?$/i);
     if (drawMatch) {
       const category = drawMatch[1].toLowerCase();
       const drawN = drawMatch[2] ? parseInt(drawMatch[2], 10) : 1;
@@ -126,12 +126,13 @@ module.exports = async function handler(req, res) {
       if (['draw','pet','family','spa','nail','light'].indexOf(category) > -1) {
         preGeneratedCode = `HL${drawN}-${codeRand}`;
       } else {
-        // 服務類代碼：AK-XXXXXX（阿卡西）/ YC-XXXXXX（元辰宮）/ PL-XXXXXX（前世）
+        // 服務類代碼：AK（阿卡西）/ YC（元辰宮）/ PL（前世）/ NM（姓名）/ WP（桌布）/ AP（吸引力祈禱文）
         const prefix = category === 'akashic' ? 'AK'
                      : category === 'yuan-chen' ? 'YC'
                      : category === 'past-life' ? 'PL'
                      : category === 'name' ? 'NM'
                      : category === 'wallpaper' ? 'WP'
+                     : category === 'abundance-prayer' ? 'AP'
                      : 'HL';
         preGeneratedCode = `${prefix}-${codeRand}`;
       }

@@ -1708,6 +1708,206 @@ async function handleWallpaper(req, res, apiKey) {
 
 
 // ════════════════════════════════════════
+// Handler 6: 吸引力法則祈禱文 (?type=abundance-prayer)
+// ════════════════════════════════════════
+async function handleAbundancePrayer(req, res, apiKey) {
+  var body = req.body || {};
+  var birthday = (body.birthday || '').trim();
+  var userName = (body.name || '').trim();
+  var userWish = (body.user_wish || '').trim();
+  var cards_21 = body.cards_21 || [];
+  var destinyCore = body.destiny_core || {};
+  var unlockCode = (body.unlockCode || '').trim().toUpperCase();
+  var uid = (body.uid || '').trim();
+  var userEmail = (body.email || '').trim();
+
+  if (!birthday) return res.status(400).json({ error: '缺少生日資料' });
+  if (!Array.isArray(cards_21) || cards_21.length !== 21) {
+    return res.status(400).json({ error: '需要 21 張牌的編號（1 核心 + 4 區塊 × 5 張）' });
+  }
+
+  var codeResult = await validateCode(unlockCode, 'abundance-prayer', uid, userEmail);
+  if (codeResult.error) {
+    return res.status(codeResult.status).json(codeResult);
+  }
+
+  var coreCard = cards_21[0];
+  var hBlock = cards_21.slice(1, 6);
+  var oBlock = cards_21.slice(6, 11);
+  var uBlock = cards_21.slice(11, 16);
+  var rBlock = cards_21.slice(16, 21);
+
+  var systemPrompt = `你是「馥靈馥語」——馥靈之鑰的吸引力法則祈禱文生成器。你的任務是依照使用者的 21 張牌卡 + 33 套命理資料 + 自訂願望，產出六段每日可念的吸引力法則祈禱文。
+
+你的聲音：淡、不激動、像閨蜜說真話。長短句交叉，留一點呼吸。
+
+絕對禁止：
+- 不使用粗體符號、雙破折號 —— 、長線、分隔線、LaTeX
+- 不使用「療癒 / 治癒 / 調頻 / 對頻 / 啟數 / 王座塔」等禁忌詞
+- 不使用「你不是 XXX，是 XXX」句型
+- 不醫療宣稱、不靈性銷售腔（「宇宙會回應你的」這種）
+- 不用「首先 / 其次 / 最後 / 總之 / 綜上所述」
+- 不重複牌卡原文，要演繹不要複述
+- 不使用 emoji、markdown 格式
+
+格式鐵律：
+- 六段結構依序輸出，每段用標題「【一、今日主題】」開頭
+- 段與段之間空一行
+- 對使用者用「您」
+- 第六段最後固定以這句結尾（一字不改）：「我準備好了。我值得。我允許。如是臨在，圓滿豐盛。」
+
+21 張牌位置結構（L.I.G.H.T. 第二軌）：
+- 第 0 張（核心牌）：整篇祈禱文的誓約主題
+- 第 1-5 張（H 身心校準區塊）：L 根源 → I 信念 → G 行為 → H 覺察 → T 禮物（對應身體層命理）
+- 第 6-10 張（O 智慧辨識區塊）：L → I → G → H → T（對應身份層命理）
+- 第 11-15 張（U 潛能解鎖區塊）：L → I → G → H → T（對應豐盛層命理）+ 嵌入使用者自訂願望
+- 第 16-20 張（R 行動進化區塊）：L → I → G → H → T（對應使命層命理）
+
+六段祈禱文結構（嚴格依序）：
+
+【一、今日主題】
+來源：核心牌 + 流年。格式：「YYYY/MM/DD｜（核心牌名稱）之日｜（流年能量一句話）」。1-2 句標題化。
+
+【二、晨起宣言】
+來源：O 區塊第 10 張（T 禮物位）+ 身份層命理。結構：「我是＿＿＿（身份指認 × 命理元素）。我允許＿＿＿（今日展現）。」3-5 句。
+
+【三、身體宣言】
+來源：H 區塊完整 5 張 + 身體層命理。結構：L（根源土壤）→ I（信念）→ G（行為）→ H（覺察）→ T（禮物）五句，每句結合身體某部位 + 感受描述。5-7 句。
+
+【四、豐盛宣言】
+來源：U 區塊完整 5 張 + 豐盛層命理 + 使用者自訂願望。結構：L → I → G → H → T 五句。在第 G 位（第三句）自然嵌入使用者自訂願望（如「我允許 <使用者原話> 自然發生」）。7-9 句。
+
+【五、流年宣言】
+來源：R 區塊第 16 張（L）+ 第 20 張（T）+ 流年命理。結構：今年主題 → 能量流向 → 最終成就。4-6 句。
+
+【六、使命宣言 + 收尾】
+來源：R 區塊第 18 張（G）+ 核心牌 + 使命層命理。結構：使命確認 → 行動承諾 → 固定收尾句。3-4 句 + 固定收尾句（一字不改）。
+
+寫作風格：
+- 第一層溫暖接住，第二層用高 EQ 的毒舌說真話（但不尖銳）
+- 具體日常比喻（生活裡撿，不要假掰文學比喻）
+- 可以用「」括號強調關鍵詞
+- 有呼吸感，長短句交叉
+
+總長控制在 1200-1800 字之間。`;
+
+  var userPrompt = '';
+  userPrompt += '【核心牌編號】' + coreCard + '\n';
+  userPrompt += '【H 身體層區塊（1-5）】' + hBlock.join(' → ') + '\n';
+  userPrompt += '【O 身份層區塊（6-10）】' + oBlock.join(' → ') + '\n';
+  userPrompt += '【U 豐盛層區塊（11-15）】' + uBlock.join(' → ') + '\n';
+  userPrompt += '【R 使命層區塊（16-20）】' + rBlock.join(' → ') + '\n\n';
+
+  userPrompt += '【自訂願望原話】\n' + (userWish || '（使用者未填寫，依 U 區塊牌意自由發揮）') + '\n\n';
+
+  userPrompt += '【命理資料（四解碼層濃縮）】\n';
+  if (destinyCore.identity) userPrompt += '身份層：' + JSON.stringify(destinyCore.identity) + '\n';
+  if (destinyCore.body) userPrompt += '身體層：' + JSON.stringify(destinyCore.body) + '\n';
+  if (destinyCore.abundance) userPrompt += '豐盛層：' + JSON.stringify(destinyCore.abundance) + '\n';
+  if (destinyCore.mission) userPrompt += '使命層：' + JSON.stringify(destinyCore.mission) + '\n';
+  if (destinyCore.flow_year) userPrompt += '流年：' + destinyCore.flow_year + '\n';
+  if (destinyCore.core_axis) userPrompt += '核心軸：' + destinyCore.core_axis + '\n';
+
+  userPrompt += '\n【生日】' + birthday;
+  if (userName) userPrompt += '\n【姓名】' + userName;
+
+  userPrompt += '\n\n請依照六段祈禱文骨架產出，全文 1200-1800 字，收尾句一字不改。';
+
+  // 呼叫 Claude Sonnet 4.6
+  var response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 6000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }]
+    })
+  });
+
+  if (!response.ok) {
+    var errText = await response.text();
+    console.error('Claude API (abundance-prayer) error:', response.status, errText);
+    return res.status(502).json({ error: '祈禱文生成暫時不可用，請稍後再試' });
+  }
+
+  var result = await response.json();
+  var prayer = '';
+  if (result.content && result.content.length > 0) {
+    prayer = result.content[0].text || '';
+  }
+  if (!prayer) return res.status(502).json({ error: '祈禱文生成失敗，請稍後再試' });
+
+  // Firestore 寫入
+  try {
+    var db = getFirestore();
+    if (db) {
+      await db.collection('prayer_sessions').add({
+        uid: uid || 'guest',
+        email: userEmail || '',
+        name: userName || '',
+        birthday: birthday,
+        user_wish: userWish || '',
+        cards_21: cards_21,
+        destiny_core: destinyCore,
+        prayer_output: prayer,
+        unlockCode: unlockCode || '',
+        paid_at: new Date(),
+        price: 999,
+        created_at: new Date()
+      });
+
+      await db.collection('readings').add({
+        service: 'abundance-prayer',
+        source: 'reading-services',
+        uid: uid || '',
+        email: userEmail || '',
+        name: userName || '',
+        n: 21,
+        spread: '吸引力法則祈禱文',
+        reading: prayer,
+        user_wish: userWish || '',
+        cardCodes: cards_21.map(String),
+        unlockCode: unlockCode || '',
+        isPaid: true,
+        price: 999,
+        createdAt: new Date()
+      });
+    }
+  } catch (logErr) {
+    console.error('Firestore log (abundance-prayer) error:', logErr.message);
+  }
+
+  // 寄信（避免消費糾紛）
+  if (userEmail && prayer) {
+    try {
+      await fetch('https://app.hourlightkey.com/api/send-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: userEmail,
+          name: userName || '',
+          subject: '您的馥靈之鑰・吸引力法則每日祈禱文',
+          content: prayer,
+          system: '吸引力法則祈禱文',
+          type: 'report'
+        })
+      });
+      console.log('📧 祈禱文已寄送：' + userEmail);
+    } catch (mailErr) {
+      console.error('祈禱文寄信失敗:', mailErr.message);
+    }
+  }
+
+  return res.status(200).json({ prayer: prayer });
+}
+
+
+// ════════════════════════════════════════
 // 主入口：路由分流
 // ════════════════════════════════════════
 module.exports = async function handler(req, res) {
@@ -1732,10 +1932,12 @@ module.exports = async function handler(req, res) {
         return await handleName(req, res, apiKey);
       case 'wallpaper':
         return await handleWallpaper(req, res, apiKey);
+      case 'abundance-prayer':
+        return await handleAbundancePrayer(req, res, apiKey);
       default:
         return res.status(400).json({
-          error: '未指定服務類型，請使用 ?type=akashic|yuan-chen|past-life|name|wallpaper',
-          availableTypes: ['akashic', 'yuan-chen', 'past-life', 'name', 'wallpaper']
+          error: '未指定服務類型，請使用 ?type=akashic|yuan-chen|past-life|name|wallpaper|abundance-prayer',
+          availableTypes: ['akashic', 'yuan-chen', 'past-life', 'name', 'wallpaper', 'abundance-prayer']
         });
     }
   } catch (err) {
