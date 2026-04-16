@@ -391,7 +391,8 @@ function calcHumanDesign(planets,Y,M,D,H,min){
   if(hasSacral&&_hasM2T){type='顯示生產者';strategy='等待回應（聽肚子），然後告知';nst='挫敗/憤怒'}
   else if(hasSacral){type='生產者';strategy='等待回應（不主動發起，等事情來找你，用肚子回答）';nst='挫敗'}
   else if(!hasSacral&&_hasM2T){type='顯示者';strategy='告知';nst='憤怒'}
-  else if(defC.length<=1){type='反映者';strategy='等待月循環';nst='失望'}
+  else if(defC.length===0){type='反映者';strategy='等待月循環';nst='失望'}
+  else{type='投射者';strategy='等待邀請';nst='苦澀'}
   // 內在權威
   if(defC.indexOf('情緒')>=0)authority='情緒權威';
   else if(defC.indexOf('薦骨')>=0)authority='薦骨權威（聽肚子的第一反應：嗯哼=YES，嗯⋯=NO）';
