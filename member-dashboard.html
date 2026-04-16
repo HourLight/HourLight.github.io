@@ -279,7 +279,8 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
     <div class="bcard">
       <div class="bcard-title">💎 NT$500 一對一抵用券</div>
       <p style="font-size:.85rem;color:var(--mid);line-height:1.7;margin-bottom:14px">
-        馥靈大師月禮，可在預約一對一覺察服務時折抵 NT$500。預約時請提供抵用券代碼給覺察師。
+        馥靈大師月禮，每月自動發放 2 張。可折抵 NT$1,800 以上一對一覺察服務，一次使用一張，有效期 3 個月。<br>
+        使用方式：複製代碼後在預約時提供給覺察師，或在結帳頁面輸入折抵。
       </p>
       <div id="vouchersList"><div class="empty"><div class="eicon"><span class="spinner"></span></div>載入中...</div></div>
       <div style="text-align:center;margin-top:14px">
@@ -509,31 +510,48 @@ async function loadGifts(){
   } catch(e) {
     codesEl.innerHTML = '<div class="empty"><div class="eicon">⚠️</div>載入失敗：'+e.message+'</div>';
   }
-  // ─── 抵用券 ───
+  // ─── 抵用券（從頂層 coupons 集合查詢）───
   try {
-    var voucherSnap = await db.collection('users').doc(u.uid).collection('vouchers').get();
+    var voucherSnap = await db.collection('coupons')
+      .where('userId', '==', u.uid)
+      .limit(20).get();
     if(voucherSnap.empty) {
       voucherEl.innerHTML = '<div class="empty"><div class="eicon">💎</div>還沒有抵用券<br><span style="font-size:.78rem;color:var(--mid)">升級馥靈大師每月送 2 張 NT$500 一對一抵用券</span></div>';
     } else {
       var vouchers = [];
       voucherSnap.forEach(function(d){ var x = d.data(); x._id = d.id; vouchers.push(x); });
-      vouchers.sort(function(a,b){ return (a.used?1:-1) - (b.used?1:-1); });
+      // 未使用且未過期的排最前面
       var nowV = new Date();
+      vouchers.sort(function(a, b){
+        var aActive = !a.used && (!a.expiresAt || (a.expiresAt.toDate ? a.expiresAt.toDate() : new Date(a.expiresAt)) > nowV);
+        var bActive = !b.used && (!b.expiresAt || (b.expiresAt.toDate ? b.expiresAt.toDate() : new Date(b.expiresAt)) > nowV);
+        return (bActive ? 1 : 0) - (aActive ? 1 : 0);
+      });
       voucherEl.innerHTML = vouchers.map(function(v){
-        var expV = v.expiresAt ? new Date(v.expiresAt) : null;
-        var expiredV = expV && expV < nowV && !v.used;
-        var badge='', bg='#fff';
-        if(v.used) { badge='<span style="display:inline-block;padding:2px 10px;background:#e8e4de;color:#888;border-radius:999px;font-size:.72rem">已使用</span>'; bg='#f5f0e8'; }
-        else if(expiredV) { badge='<span style="display:inline-block;padding:2px 10px;background:#fce4ec;color:#c2185b;border-radius:999px;font-size:.72rem">已過期</span>'; bg='#fdf0f0'; }
-        else { badge='<span style="display:inline-block;padding:2px 10px;background:#ede7f6;color:#5e35b1;border-radius:999px;font-size:.72rem">可使用</span>'; }
-        var expTxt = expV ? '到期 '+expV.toLocaleDateString('zh-TW') : '';
-        return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:'+bg+';border:1px solid var(--border);border-radius:10px;margin-bottom:10px;flex-wrap:wrap">'
+        var expRaw = v.expiresAt ? (v.expiresAt.toDate ? v.expiresAt.toDate() : new Date(v.expiresAt)) : null;
+        var expiredV = expRaw && expRaw < nowV && !v.used;
+        var badge='', rowBg='#fff', textColor='var(--ink)';
+        if(v.used){
+          badge='<span style="display:inline-block;padding:2px 10px;background:#e8e4de;color:#888;border-radius:999px;font-size:.72rem">已使用</span>';
+          rowBg='#f5f0e8'; textColor='#999';
+        } else if(expiredV){
+          badge='<span style="display:inline-block;padding:2px 10px;background:#fce4ec;color:#c2185b;border-radius:999px;font-size:.72rem">已過期</span>';
+          rowBg='#fdf0f0'; textColor='#bbb';
+        } else {
+          badge='<span style="display:inline-block;padding:2px 10px;background:#ede7f6;color:#5e35b1;border-radius:999px;font-size:.72rem">可使用</span>';
+        }
+        var expTxt = expRaw ? '到期 '+expRaw.toLocaleDateString('zh-TW') : '';
+        var code = escapeText(v._id);
+        var copyBtn = !v.used && !expiredV
+          ? '<button onclick="copyCode(\''+code+'\',this)" style="padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--primary);font-size:.78rem;cursor:pointer;white-space:nowrap">複製代碼</button>'
+          : '';
+        return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:'+rowBg+';border:1px solid var(--border);border-radius:10px;margin-bottom:10px;flex-wrap:wrap">'
           + '<div>'
-          +   '<div style="font-family:monospace;font-size:1.05rem;font-weight:600;color:var(--ink);letter-spacing:.05em">'+escapeText(v.code || v._id)+'</div>'
-          +   '<div style="font-size:.78rem;color:var(--mid);margin-top:2px">NT$ '+(v.value||500)+' 折抵 ・ '+expTxt+'</div>'
+          +   '<div style="font-family:monospace;font-size:1.05rem;font-weight:600;color:'+textColor+';letter-spacing:.06em">'+code+'</div>'
+          +   '<div style="font-size:.78rem;color:var(--mid);margin-top:3px">NT$ '+(v.amount||500)+' 折抵・一對一 1,800+・'+expTxt+'</div>'
           + '</div>'
-          + '<div style="display:flex;align-items:center;gap:8px">'
-          +   badge
+          + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
+          +   badge + copyBtn
           + '</div>'
           + '</div>';
       }).join('');
