@@ -331,7 +331,7 @@ main{position:relative;z-index:1}
 
 <script>
 // ═══════════════════════════════════════
-// castle-hub.html 專屬頁面邏輯
+// castle-hub.html 專屬頁面邏輯 v3.1
 // ═══════════════════════════════════════
 (function(){
   'use strict';
@@ -339,14 +339,84 @@ main{position:relative;z-index:1}
   var V3 = window.HLCastleV3;
   if (!V3) { console.error('hl-castle-v3.js 未載入'); return; }
 
+  var TODAY = new Date().toISOString().slice(0, 10);
+
   var state = {
     uid: null,
-    save: null,      // Firestore castle_save/state
+    save: null,
     rooms: V3.ROOMS,
-    moods: {},       // 今日僕人心情
-    quests: [],      // 今日任務
+    moods: {},
+    quests: [],
   };
 
+  // ── localStorage helpers ──
+  function lsGet(key){ try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch(e){ return null; } }
+  function lsSet(key, val){ try { localStorage.setItem(key, JSON.stringify(val)); } catch(e){} }
+
+  // ── 靈感點（hl_castle_v3.points）──
+  function getPoints(){
+    var d = lsGet('hl_castle_v3') || {};
+    return d.points || 0;
+  }
+  function addPoints(n){
+    var d = lsGet('hl_castle_v3') || {};
+    d.points = Math.max(0, (d.points || 0) + n);
+    lsSet('hl_castle_v3', d);
+    document.getElementById('cv3-points').textContent = d.points.toLocaleString();
+  }
+
+  // ── 材料庫（hl_materials_v1.inventory）──
+  function addMaterial(matId){
+    var d = lsGet('hl_materials_v1') || {};
+    if (!d.inventory) d.inventory = {};
+    d.inventory[matId] = (d.inventory[matId] || 0) + 1;
+    lsSet('hl_materials_v1', d);
+    var total = 0;
+    Object.keys(d.inventory).forEach(function(k){ total += d.inventory[k]; });
+    document.getElementById('cv3-materials').textContent = total.toLocaleString();
+  }
+
+  // ── 每日兌換計數（hl_castle_exchange）──
+  function getExData(){
+    var d = lsGet('hl_castle_exchange') || {};
+    if (d.date !== TODAY) d = { date: TODAY, common:0, rare:0, legendary:0 };
+    return d;
+  }
+  function saveExData(d){ lsSet('hl_castle_exchange', d); }
+
+  // ── 可兌換材料池 ──
+  var EX_MATS = {
+    common: [
+      { id:'star_shard',      name:'星辰碎片',   icon:'✨' },
+      { id:'insight_feather', name:'洞見羽毛',   icon:'🪶' },
+      { id:'emotion_color',   name:'情緒色彩',   icon:'🎨' },
+      { id:'moonlight_shard', name:'月光碎片',   icon:'🌙' },
+      { id:'chart_ink',       name:'命盤墨跡',   icon:'📜' },
+      { id:'hexagram_mark',   name:'卦象印記',   icon:'☯️' },
+      { id:'vision_shadow',   name:'靈視殘影',   icon:'🌫️' },
+    ],
+    rare: [
+      { id:'mirror_truth',    name:'鏡中真相',   icon:'🪞' },
+      { id:'wuxing_crystal',  name:'五行晶石',   icon:'🔮' },
+      { id:'time_fragment',   name:'時辰碎片',   icon:'⏳' },
+      { id:'oil_spirit',      name:'玫瑰精魄',   icon:'🌿' },
+      { id:'dawn_dew',        name:'薰衣草晨露', icon:'💧' },
+      { id:'honest_mirror',   name:'誠實碎鏡',   icon:'🔑' },
+      { id:'psyche_crystal',  name:'心靈水晶',   icon:'💎' },
+    ],
+    legendary: [
+      { id:'destiny_core',    name:'天命核心',   icon:'🌌' },
+      { id:'awareness_seal',  name:'覺察印記',   icon:'✴️' },
+      { id:'oracle_essence',  name:'沒藥精髓',   icon:'🔯' },
+      { id:'castle_key_core', name:'城堡鑰芯',   icon:'🗝️' },
+    ],
+  };
+  function pickMat(tier){
+    var pool = EX_MATS[tier] || EX_MATS.common;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  // ── Toast ──
   function toast(msg, ms){
     var el = document.getElementById('cv3-toast');
     el.textContent = msg;
@@ -364,7 +434,7 @@ main{position:relative;z-index:1}
     document.body.classList.add('cv3-phase-' + phase.id);
   }
 
-  // ── 金色塵埃漂浮粒子（15 顆隨機位置隨機延遲）──
+  // ── 金色塵埃漂浮粒子 ──
   function spawnParticles(){
     var container = document.getElementById('cv3-particles');
     if (!container) return;
@@ -375,30 +445,28 @@ main{position:relative;z-index:1}
       p.style.animationDelay = (Math.random() * 14) + 's';
       p.style.animationDuration = (10 + Math.random() * 8) + 's';
       var size = 4 + Math.random() * 6;
-      p.style.width = size + 'px';
-      p.style.height = size + 'px';
+      p.style.width = size + 'px'; p.style.height = size + 'px';
       container.appendChild(p);
     }
   }
 
-  // ── Lord 面板 ──
+  // ── Lord 面板（從 localStorage 讀取實際靈感點）──
   function renderLord(){
-    var lv = (state.save && state.save.cv3_lord_lv) || 1;
-    var xp = (state.save && state.save.cv3_lord_xp) || 0;
+    var castleData = lsGet('hl_castle_v3') || {};
+    var lv = (state.save && state.save.cv3_lord_lv) || castleData.level || 1;
+    var xp = (state.save && state.save.cv3_lord_xp) || castleData.xp || 0;
     var xpNext = V3.lordXpToNextLv(lv) || 1;
     document.getElementById('cv3-lord-title').textContent = V3.lordTitle(lv);
     document.getElementById('cv3-lord-lv').textContent = lv;
     document.getElementById('cv3-lord-xp').textContent = xp;
     document.getElementById('cv3-lord-xp-next').textContent = xpNext;
-    var pct = Math.min(100, Math.floor(xp / xpNext * 100));
-    document.getElementById('cv3-lord-xp-fill').style.width = pct + '%';
+    document.getElementById('cv3-lord-xp-fill').style.width = Math.min(100, Math.floor(xp / xpNext * 100)) + '%';
 
-    // 統計
-    var points = (state.save && state.save.points) || 0;
+    var points = getPoints() || (state.save && state.save.points) || 0;
     var materials = 0, furniture = 0;
     try {
-      var mat = JSON.parse(localStorage.getItem('hl_materials_v1') || '{}');
-      if (mat.inventory) Object.values(mat.inventory).forEach(function(n){ materials += n; });
+      var mat = lsGet('hl_materials_v1') || {};
+      if (mat.inventory) Object.keys(mat.inventory).forEach(function(k){ materials += mat.inventory[k]; });
       if (mat.furniture) furniture = mat.furniture.length;
     } catch(e) {}
     document.getElementById('cv3-points').textContent = points.toLocaleString();
@@ -409,106 +477,192 @@ main{position:relative;z-index:1}
   // ── 12 房間卡片 ──
   function renderRooms(){
     var grid = document.getElementById('cv3-rooms-grid');
+    var dailyData = lsGet('hl_castle_daily') || {};
+    var todayRooms = dailyData[TODAY] || {};
     var html = '';
     state.rooms.forEach(function(room){
       var lv = (state.save && state.save.cv3_room_lv && state.save.cv3_room_lv[room.id]) || 1;
       var mood = state.moods[room.id] || 'calm';
       var moodDef = V3.SERVANT_MOODS.find(function(m){ return m.id === mood; });
       var moodName = moodDef ? moodDef.name : '平靜';
-      var tool = room.tools && room.tools[0] ? room.tools[0] : '#';
-
-      var imgPath = 'images/castle/room-' + room.id + '.png';
+      var slug = 'castle-room-' + room.id;
+      var visited = todayRooms[slug] && todayRooms[slug].started;
+      var questDone = todayRooms[slug] && todayRooms[slug].claimed;
       html += '<div class="cv3-room-card" data-room-id="' + room.id + '" onclick="cv3EnterRoom(\'' + room.id + '\')">' +
-        '<div class="cv3-room-head">' +
-          '<span class="cv3-room-emoji">' + room.emoji + '</span>' +
-          '<div>' +
-            '<div class="cv3-room-name">' + room.name + '</div>' +
-            '<div class="cv3-room-zone">' + room.zone + ' 區</div>' +
-          '</div>' +
-        '</div>' +
+        '<div class="cv3-room-head"><span class="cv3-room-emoji">' + room.emoji + '</span>' +
+          '<div><div class="cv3-room-name">' + room.name + '</div>' +
+          '<div class="cv3-room-zone">' + room.zone + ' 區' + (visited ? ' · 今日已訪' : '') + '</div></div></div>' +
         '<div class="cv3-room-desc">' + room.desc + '</div>' +
-        '<div class="cv3-room-footer">' +
-          '<span class="cv3-room-lv">Lv.' + lv + '</span>' +
+        '<div class="cv3-room-footer"><span class="cv3-room-lv">Lv.' + lv + '</span>' +
           '<span class="cv3-room-mood ' + mood + '">僕人' + moodName + '</span>' +
-        '</div>' +
-      '</div>';
+          (questDone ? '<span style="font-size:.68rem;color:#4a7a4a;padding:2px 8px;background:#e8f5e9;border-radius:6px">任務完成</span>' : '') +
+        '</div></div>';
     });
     grid.innerHTML = html;
-
-    // 預先探測每張房間圖片，載入成功才顯示背景（避免 404 圖顯示裂圖）
+    // 探測房間圖片
     state.rooms.forEach(function(room){
       var card = grid.querySelector('[data-room-id="' + room.id + '"]');
       if (!card) return;
-      var testImg = new Image();
-      testImg.onload = function(){
-        card.style.setProperty('background-image', 'none');
-        card.style.setProperty('--cv3-room-bg-ready', '1');
+      var img = new Image();
+      img.onload = function(){
         card.setAttribute('data-img-loaded', 'true');
-        var bgSrc = 'images/castle/room-' + room.id + '.png';
-        // 透過偽元素 ::after 顯示
-        var styleTag = document.getElementById('cv3-room-bg-' + room.id);
-        if (!styleTag) {
-          styleTag = document.createElement('style');
-          styleTag.id = 'cv3-room-bg-' + room.id;
-          document.head.appendChild(styleTag);
-        }
-        styleTag.textContent = '.cv3-room-card[data-room-id="' + room.id + '"]::after{background-image:url("' + bgSrc + '")}';
+        var st = document.getElementById('cv3-room-bg-' + room.id);
+        if (!st){ st = document.createElement('style'); st.id='cv3-room-bg-'+room.id; document.head.appendChild(st); }
+        st.textContent = '.cv3-room-card[data-room-id="' + room.id + '"]::after{background-image:url("images/castle/room-' + room.id + '.png")}';
       };
-      testImg.src = 'images/castle/room-' + room.id + '.png';
+      img.src = 'images/castle/room-' + room.id + '.png';
     });
   }
 
-  // ── 進入房間 — 顯示今日事件 tease 後跳工具頁 ──
+  // ── 工具名稱對照 ──
+  var TOOL_NAMES = {
+    'draw-hl.html':'抽牌解讀','destiny-engine.html':'命運引擎 33合1','destiny-match.html':'合盤分析',
+    'quiz-hub.html':'心理測驗中心','yijing-oracle.html':'易經占卜','angel-oracle.html':'天使卡',
+    'tarot-draw.html':'塔羅牌','dream-decoder.html':'夢境解碼','mirror-oracle.html':'真實之鏡',
+    'akashic-reading.html':'阿卡西解讀','past-life.html':'前世故事','name-oracle.html':'姓名占卜',
+    'fortune-wealth.html':'財富分析','triangle-calculator.html':'三角秘碼',
+    'chiron-lilith.html':'凱龍莉莉絲','quiz-shadow.html':'陰影覺察',
+    'quiz-inner-child.html':'內在小孩','quiz-love-language.html':'愛之語測驗',
+    'quiz-attachment.html':'依附型態','bazi.html':'八字排盤','ziwei.html':'紫微斗數',
+    'massage-guide.html':'按摩指南','aroma-garden.html':'芳療共享園地',
+    'knowledge-hub.html':'知識學苑','aromatherapy-science.html':'芳療科學',
+    'blending-guide.html':'調香指南','witch-power.html':'女巫原力',
+    'draw-family.html':'家族牌陣','draw-spa.html':'SPA牌陣','season-oracle.html':'季節神諭',
+    'yuan-chen-reading.html':'元辰宮','quiz-family.html':'家族系統',
+    'projection-cards.html':'投射卡','hour-training.html':'覺察師培訓',
+    'course-slides/index.html':'課程投影片','birthday-gift.html':'生日月禮',
+    'member-dashboard.html':'會員中心','abundance-prayer-pro.html':'豐盛祈禱文',
+  };
+  function toolName(href){ return TOOL_NAMES[href] || href.replace('.html','').replace('castle-room-',''); }
+
+  // ── 房間進入彈窗 ──
   window.cv3EnterRoom = function(roomId){
     var room = V3.getRoom(roomId);
-    if (!room || !room.tools || !room.tools[0]) { toast('這個房間還在建造中⋯⋯'); return; }
-    // 取今日事件（依 uid + 日期 + roomId 做 seed，同一天同一房間事件固定）
-    var lv = (state.save && state.save.cv3_room_lv && state.save.cv3_room_lv[roomId]) || 1;
-    var today = new Date().toISOString().slice(0, 10);
-    var seedStr = (state.uid || 'guest') + today + roomId;
-    var ev = V3.pickTodayRoomEvent ? V3.pickTodayRoomEvent(roomId, lv, seedStr) : null;
-    if (ev && ev.text) {
-      toast(room.emoji + ' ' + room.name + '\n\n' + ev.text, 4000);
-      setTimeout(function(){ location.href = room.tools[0]; }, 3500);
-    } else {
-      toast('進入 ' + room.name + '⋯⋯', 1500);
-      setTimeout(function(){ location.href = room.tools[0]; }, 800);
+    if (!room) { toast('這個房間還在建造中⋯⋯'); return; }
+
+    // 選今日事件（seed = uid + 日期 + roomId，固定一天）
+    var events = V3.EVENT_POOL_SEEDS.filter(function(e){ return e.roomId === roomId; });
+    var seedNum = 0;
+    var seedStr = (state.uid || 'guest') + TODAY + roomId;
+    for (var i=0; i<seedStr.length; i++) seedNum += seedStr.charCodeAt(i);
+    var evt = events.length ? events[seedNum % events.length] : null;
+
+    var mood = state.moods[roomId] || 'calm';
+    var moodDef = V3.SERVANT_MOODS.find(function(m){ return m.id === mood; });
+    var moodName = moodDef ? moodDef.name : '平靜';
+    var moodBonus = moodDef && moodDef.xpBonus > 1 ? '　經驗 ×' + moodDef.xpBonus : '';
+
+    document.getElementById('cv3-modal-icon').textContent = room.emoji;
+    document.getElementById('cv3-modal-title').textContent = room.name;
+    document.getElementById('cv3-modal-zone').textContent = room.zone + ' 區';
+    document.getElementById('cv3-modal-event').textContent = evt ? evt.text : room.desc;
+    document.getElementById('cv3-modal-mood').textContent = '僕人今日心情：' + moodName + moodBonus;
+
+    var tools = room.tools || [];
+    var toolsHtml = '';
+    var max = Math.min(tools.length, 4);
+    for (var t=0; t<max; t++){
+      toolsHtml += '<a href="' + tools[t] + '" class="cv3-room-modal-tool-btn">' +
+        '<span>' + toolName(tools[t]) + '</span>' +
+        '<span class="cv3-tool-arrow">→</span></a>';
+    }
+    if (!toolsHtml) toolsHtml = '<div style="font-size:.82rem;color:var(--cv3-ink-lite)">探索工具建造中⋯⋯</div>';
+    document.getElementById('cv3-modal-tools').innerHTML = toolsHtml;
+    document.getElementById('cv3-room-modal-overlay').classList.add('show');
+
+    // 造訪給 XP（今日每間限 1 次）
+    var visitKey = 'cv3_visit_' + TODAY;
+    var visited = lsGet(visitKey) || [];
+    if (visited.indexOf(roomId) === -1){
+      visited.push(roomId);
+      lsSet(visitKey, visited);
+      var cd = lsGet('hl_castle_v3') || {};
+      cd.xp = (cd.xp || 0) + 5;
+      lsSet('hl_castle_v3', cd);
     }
   };
 
-  // ── 今日任務 ──
+  window.cv3CloseRoomModal = function(){
+    document.getElementById('cv3-room-modal-overlay').classList.remove('show');
+  };
+  document.addEventListener('DOMContentLoaded', function(){
+    document.getElementById('cv3-room-modal-overlay').addEventListener('click', function(e){
+      if (e.target === this) window.cv3CloseRoomModal();
+    });
+    document.getElementById('cv3-ex-reward-overlay').addEventListener('click', function(e){
+      if (e.target === this) window.cv3CloseExReward();
+    });
+  });
+
+  // ── 今日任務（從 hl_castle_daily + hl_castle_v3 讀取進度）──
   function renderDailyQuests(){
     var wrap = document.getElementById('cv3-daily-quests');
-    var today = new Date().toISOString().slice(0, 10);
-    var quests = (state.save && state.save.cv3_quests_daily && state.save.cv3_quests_daily[today])
-      || V3.pickDailyQuests(today + (state.uid || 'guest'), 3);
+    var dailyData = lsGet('hl_castle_daily') || {};
+    var todayRooms = dailyData[TODAY] || {};
+    var roomsVisited = Object.keys(todayRooms).length;
+    var questsClaimed = Object.keys(todayRooms).filter(function(k){ return todayRooms[k].claimed; }).length;
+    var hiddenFound = Object.keys(todayRooms).filter(function(k){ return todayRooms[k].hiddenFound; }).length;
+
+    var quests = V3.pickDailyQuests(TODAY + (state.uid || 'guest'), 3);
     state.quests = quests;
+
+    var castleData = lsGet('hl_castle_v3') || {};
+    var ds = (castleData.dailyStats && castleData.dailyStats[TODAY]) || {};
+    var progressMap = {
+      visit3rooms: Math.min(roomsVisited, 3),
+      draw5cards:  Math.min(ds.draws || 0, 5),
+      quiz1:       Math.min(ds.quizzes || 0, 1),
+      destiny_run: Math.min(ds.destiny || 0, 1),
+      furniture1:  Math.min(ds.furniture || 0, 1),
+      event3:      Math.min(hiddenFound, 3),
+      feed_pet:    Math.min(ds.pet_feed || 0, 1),
+      share_castle:Math.min(ds.share || 0, 1),
+    };
 
     var html = '';
     quests.forEach(function(q){
-      var cls = q.done ? 'cv3-quest-done' : '';
-      html += '<div class="cv3-quest-item ' + cls + '">' +
+      var prog = progressMap[q.id] || 0;
+      var done = prog >= q.target;
+      html += '<div class="cv3-quest-item' + (done ? ' cv3-quest-done' : '') + '">' +
         '<div class="cv3-quest-text">' + q.text + '</div>' +
         '<div style="text-align:right">' +
-          '<div class="cv3-quest-progress">' + q.progress + '/' + q.target + '</div>' +
+          '<div class="cv3-quest-progress">' + prog + '/' + q.target + '</div>' +
           '<div class="cv3-quest-reward">+' + q.reward.xp + 'xp · +' + q.reward.points + '點</div>' +
-        '</div>' +
-      '</div>';
+        '</div></div>';
     });
+    if (questsClaimed > 0){
+      html += '<div style="margin-top:12px;padding:10px 12px;background:#e8f5e9;border-radius:10px;font-size:.78rem;color:#2e7d32">' +
+        '今日已完成 ' + questsClaimed + ' 個房間任務</div>';
+    }
     wrap.innerHTML = html;
   }
 
-  // ── 材料兌換 ──
+  // ── 材料兌換（真實實作）──
   window.cv3ExchangeMaterial = function(tier){
     var def = V3.MATERIAL_EXCHANGE[tier];
     if (!def) return;
-    var points = (state.save && state.save.points) || 0;
-    if (points < def.cost) {
-      toast('靈感點不足（需要 ' + def.cost + ' 點）');
+    var pts = getPoints();
+    if (pts < def.cost){ toast('靈感點不足，需要 ' + def.cost + ' 點（目前 ' + pts + ' 點）'); return; }
+    var ex = getExData();
+    if ((ex[tier] || 0) >= def.dailyLimit){
+      toast(({ common:'Common', rare:'Rare', legendary:'Legendary' }[tier] || tier) + ' 今日已達上限 ' + def.dailyLimit + ' 次');
       return;
     }
-    // TODO Phase 2: 實作真正扣點 + 加材料 + 每日上限檢查
-    toast('兌換功能即將開放⋯⋯（Phase 2）');
+    addPoints(-def.cost);
+    var mat = pickMat(tier);
+    addMaterial(mat.id);
+    ex[tier] = (ex[tier] || 0) + 1;
+    saveExData(ex);
+
+    document.getElementById('cv3-ex-reward-icon').textContent = mat.icon;
+    document.getElementById('cv3-ex-reward-name').textContent = '獲得 ' + mat.name;
+    document.getElementById('cv3-ex-reward-sub').textContent =
+      '花費 ' + def.cost + ' 靈感點 · 今日剩餘次數 ' + (def.dailyLimit - ex[tier]);
+    document.getElementById('cv3-ex-reward-overlay').classList.add('show');
+  };
+
+  window.cv3CloseExReward = function(){
+    document.getElementById('cv3-ex-reward-overlay').classList.remove('show');
   };
 
   // ── 初始化 ──
@@ -516,29 +670,25 @@ main{position:relative;z-index:1}
     renderTimeContext();
     spawnParticles();
 
-    // 等 Firebase Auth
-    if (!window.firebase || !firebase.auth) {
+    if (!window.firebase || !firebase.auth){
+      var seed = 'guest' + TODAY;
+      state.moods = V3.rollDailyMoods(seed);
       renderLord(); renderRooms(); renderDailyQuests();
       return;
     }
 
     firebase.auth().onAuthStateChanged(async function(user){
-      if (user) {
+      if (user){
         state.uid = user.uid;
         try {
           var doc = await firebase.firestore().collection('users').doc(user.uid)
             .collection('castle_save').doc('state').get();
           if (doc.exists) state.save = doc.data();
-        } catch(e) { console.warn('讀取 castle_save 失敗：', e.message); }
+        } catch(e){ console.warn('castle_save 讀取失敗：', e.message); }
       }
-
-      // 用 uid + 今日 作為 seed 決定僕人心情
-      var seedStr = (state.uid || 'guest') + new Date().toISOString().slice(0, 10);
+      var seedStr = (state.uid || 'guest') + TODAY;
       state.moods = V3.rollDailyMoods(seedStr);
-
-      renderLord();
-      renderRooms();
-      renderDailyQuests();
+      renderLord(); renderRooms(); renderDailyQuests();
     });
   }
 
