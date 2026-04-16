@@ -147,12 +147,68 @@
     }
   }
 
+  // 60 句快捷提問（每次隨機顯示 6 句）
+  var QUICK_CHIPS = [
+    // 抽牌占卜
+    '我現在的狀態適合抽幾張牌？','今天想抽一張牌，從哪裡開始好？','塔羅、易經、天使牌有什麼差？','抽牌之前需要做什麼準備嗎？','抽到逆位代表什麼意思？',
+    // 心理測驗
+    '我適合做哪個心理測驗？','MBTI 和九型人格哪個更準？','DISC 測驗可以測什麼？','我想了解自己的依附型態','怎麼知道自己的愛之語？',
+    // 命理工具
+    '我想查自己的生命靈數怎麼算？','馥靈秘碼是什麼？','八字和紫微有什麼不同？','人類圖是什麼？怎麼看？','我的出生日期可以算什麼？',
+    // 城堡系統
+    '城堡裡有哪些房間？','什麼是城堡材料？怎麼收集？','靈感點數怎麼使用？','我今天可以做什麼城堡任務？','H.O.U.R. 四殿是什麼意思？',
+    // 精油與芳療
+    '有沒有適合放鬆的精油？','我最近很焦慮，推薦哪款精油？','薰衣草跟羅馬洋甘菊有什麼不同？','什麼是認知芳療？','精油可以直接塗皮膚嗎？',
+    // 關係與情感
+    '我和某人的關係適合做合盤嗎？','怎麼用牌卡看感情狀態？','我想了解自己的感情模式','愛的 5 種語言怎麼測？','家族動力測驗是什麼？',
+    // 覺察與成長
+    '什麼是 H.O.U.R. 覺察系統？','我想知道自己的潛能在哪裡','怎麼開始自我覺察的練習？','我感覺卡住了，從哪個工具開始？','什麼是身心校準？',
+    // 會員方案
+    '馥靈鑰友和大師有什麼差別？','免費會員每天有幾次 AI 解讀？','AI 解讀怎麼用？','加購次數怎麼計算？','推薦碼是什麼？',
+    // 品牌與服務
+    '馥靈之鑰是什麼？','逸君是誰？','一對一覺察師服務怎麼預約？','馥靈之鑰有哪些服務？','我適合哪種方案？',
+    // 元辰宮與特殊解讀
+    '元辰宮是什麼？','阿卡西紀錄怎麼解讀？','前世故事是什麼？','姓名分析怎麼做？','我想做深度解讀從哪裡開始？'
+  ];
+
   function showWelcome(){
     if(isRubyBrain){
       addMessage('ai', '馥寶為您服務，逸君。\n\n今天要處理什麼工作嗎？\n• 網站技術問題\n• 內容創作\n• 數據分析\n• 商業策略');
     } else {
       addMessage('ai', '您好！我是小馥 🌸\n\n我可以幫您：\n• 推薦適合的測驗或工具\n• 回答馥靈之鑰的問題\n• 聊聊您想探索的話題');
+      showQuickChips();
     }
+  }
+
+  function showQuickChips(){
+    var messagesDiv = document.getElementById('hlaiMessages');
+    if(!messagesDiv) return;
+    // 隨機取 6 句
+    var pool = QUICK_CHIPS.slice();
+    var chosen = [];
+    while(chosen.length < 6 && pool.length){
+      var idx = Math.floor(Math.random() * pool.length);
+      chosen.push(pool.splice(idx, 1)[0]);
+    }
+    var chipsDiv = document.createElement('div');
+    chipsDiv.id = 'hlaiChips';
+    chipsDiv.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;padding:0 4px 4px;';
+    chosen.forEach(function(text){
+      var chip = document.createElement('button');
+      chip.style.cssText = 'padding:6px 12px;border-radius:20px;border:1px solid rgba(248,223,165,.25);background:rgba(248,223,165,.07);color:rgba(249,240,229,.75);font-size:.75rem;cursor:pointer;font-family:inherit;transition:.2s;text-align:left;line-height:1.4;min-height:0;';
+      chip.textContent = text;
+      chip.onmouseenter = function(){ this.style.background='rgba(248,223,165,.14)'; this.style.borderColor='rgba(248,223,165,.4)'; this.style.color='#f8dfa5'; };
+      chip.onmouseleave = function(){ this.style.background='rgba(248,223,165,.07)'; this.style.borderColor='rgba(248,223,165,.25)'; this.style.color='rgba(249,240,229,.75)'; };
+      chip.onclick = function(){
+        var input = document.getElementById('hlaiInput');
+        if(input){ input.value = this.textContent; input.focus(); }
+        var c = document.getElementById('hlaiChips');
+        if(c) c.remove();
+      };
+      chipsDiv.appendChild(chip);
+    });
+    messagesDiv.appendChild(chipsDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
   }
 
   function addMessage(type, text){

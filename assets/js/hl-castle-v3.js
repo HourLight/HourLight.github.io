@@ -83,6 +83,20 @@
     { id:'alchemy',   name:'煉金室',   zone:'合成', emoji:'⚗️', gold:'#c8a030',
       desc:'材料與合成', tools:['castle-materials.html','destiny-engine.html','aromatherapy-science.html'],
       servantId:'alchemy', primaryMaterial:'煉金泡泡' },
+
+    // H.O.U.R. 四殿（2026/04/16 新增）
+    { id:'heal',   name:'勇氣殿', zone:'H', emoji:'🔥', gold:'#c0334d',
+      desc:'身心校準', tools:['draw-hl.html','quiz-hub.html','aroma-garden.html','aromatherapy-science.html'],
+      servantId:'heal', primaryMaterial:'勇氣印記' },
+    { id:'own',    name:'心門宮', zone:'O', emoji:'💜', gold:'#7a4aad',
+      desc:'智慧辨識', tools:['quiz-hub.html','draw-hl.html','destiny-engine.html'],
+      servantId:'own', primaryMaterial:'心門鑰匙' },
+    { id:'unlock', name:'志氣殿', zone:'U', emoji:'✨', gold:'#c8a030',
+      desc:'潛能解鎖', tools:['destiny-engine.html','quiz-hub.html','hour-training.html'],
+      servantId:'unlock', primaryMaterial:'潛能碎片' },
+    { id:'rise',   name:'平衡室', zone:'R', emoji:'🧭', gold:'#2a8a6a',
+      desc:'行動進化', tools:['destiny-engine.html','draw-hl.html','services.html'],
+      servantId:'rise', primaryMaterial:'行動羅盤' },
   ];
 
   // ═══════════════════════════════════════

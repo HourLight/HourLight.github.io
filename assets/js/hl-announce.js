@@ -1,11 +1,11 @@
 /* ═══════════════════════════════════════
-   hl-announce.js — 馥靈全站公告彈窗 v4
-   2026/4/6 更新：推薦碼推廣 + 數字更新
+   hl-announce.js — 馥靈全站公告彈窗 v7
+   2026/04/16 更新：新城堡中樞 + 命定豐盛桌布 + 免費理念 + 建議小禮物
    ═══════════════════════════════════════ */
 (function(){
 'use strict';
 
-var ANNOUNCE_VER = '2026-04-12-system-upgrade-v5';
+var ANNOUNCE_VER = '2026-04-16-castle-hub-wallpaper-v7';
 var DISMISS_KEY = 'hl_announce_' + ANNOUNCE_VER;
 
 try { if(sessionStorage.getItem(DISMISS_KEY)) return; } catch(e){}
@@ -20,35 +20,38 @@ overlay.innerHTML = `
   <div class="hla-close" onclick="document.getElementById('hlAnnounce').remove();try{sessionStorage.setItem('${DISMISS_KEY}','1')}catch(e){}" title="關閉">✕</div>
 
   <div class="hla-header">
-    <div class="hla-brand">🏰 系統升級公告</div>
-    <div class="hla-title">內在城堡同步機制升級完成</div>
+    <div class="hla-brand">🏰 新城堡中樞 · 命定桌布</div>
+    <div class="hla-title">21 間房間，小馥在家等您</div>
   </div>
 
   <div class="hla-body">
     <div class="hla-welcome">
-      為了提供更穩定的雲端同步體驗，我們在 4/12 進行了重要的系統升級。<br>
-      部分朋友可能發現內在城堡的進度出現異常，包含靈感點數或房間狀態與之前不一致。
+      內在城堡 v3 全新上線：<strong style="color:#f8dfa5">21 間房間、9 隻貓咪、節氣活動、每日任務</strong>。<br>
+      城堡管家「小馥」依您的心情換表情，每天陪您走不同的房間。<br>
+      連瀏覽網站都會掉材料，累積靈感點可兌換傢具或折價券。
     </div>
 
     <div class="hla-popular">
-      <div class="hla-popular-title">升級後保障 ↓</div>
-      <div class="hla-link">✅ 雲端同步機制完全穩定</div>
-      <div class="hla-link">✅ 跨裝置進度完美同步</div>
-      <div class="hla-link">✅ 未來不會再發生類似問題</div>
+      <div class="hla-popular-title">本週新亮點 ↓</div>
+      <a href="castle-hub.html" class="hla-link">🏰 進入城堡中樞 — 21 房 × 小馥 × 9 隻貓咪</a>
+      <a href="wealth-wallpaper.html" class="hla-link">🔮 命定豐盛桌布 — 33 套命理合成您的專屬招財桌布</a>
+      <a href="draw-hl.html" class="hla-link">✨ 馥靈智慧牌 — 130 張 × 9 種牌陣（1 張永遠免費）</a>
+      <a href="quiz-hub.html" class="hla-link">📊 101 項心理測驗 — 全部免費</a>
     </div>
 
     <div class="hla-gift">
-      🎁 <strong>補償方案</strong><br>
-      凡是在 4/12 前有分享城堡進度截圖的朋友，可獲得 <strong>NT$399 抵用券序號一組</strong>（可用於 5 張牌 AI 深度解讀）<br>
-      <a href="https://lin.ee/RdQBFAN" style="color:#f8dfa5;font-size:.82rem">點此申請補償 LINE 客服 →</a>
+      <strong style="color:#f8dfa5">網站大部分內容都是免費的。</strong><br>
+      如果您有任何問題，或想給我們一個建議，都歡迎告訴我們。<br>
+      每一則有效回饋都有小禮物答謝。<br>
+      <a href="https://lin.ee/RdQBFAN" style="color:#f8dfa5;font-size:.82rem;display:inline-block;margin-top:6px">LINE 給我們建議 →</a>
     </div>
   </div>
 
   <div class="hla-footer">
     <button class="hla-btn" onclick="document.getElementById('hlAnnounce').remove();try{sessionStorage.setItem('${DISMISS_KEY}','1')}catch(e){}">
-      我知道了
+      進城堡看看
     </button>
-    <a href="castle-game.html" class="hla-sub-link">前往內在城堡 →</a>
+    <a href="wealth-wallpaper.html" class="hla-sub-link">命定桌布 →</a>
   </div>
 </div>
 `;
