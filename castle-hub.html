@@ -158,6 +158,34 @@ main{position:relative;z-index:1}
 .cv3-toast.show{display:block;animation:cv3Up .25s ease}
 @keyframes cv3Up{from{opacity:0;transform:translate(-50%,-48%)}to{opacity:1;transform:translate(-50%,-50%)}}
 
+/* ── 房間進入彈窗 ── */
+.cv3-room-modal-overlay{position:fixed;inset:0;background:rgba(10,6,24,.55);z-index:800;display:none;align-items:center;justify-content:center;padding:20px}
+.cv3-room-modal-overlay.show{display:flex;animation:cv3FadeIn .22s ease}
+@keyframes cv3FadeIn{from{opacity:0}to{opacity:1}}
+.cv3-room-modal{background:#fff;border-radius:24px;padding:30px 26px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(42,31,76,.25);position:relative;animation:cv3ModalUp .28s cubic-bezier(.34,1.56,.64,1)}
+@keyframes cv3ModalUp{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.cv3-room-modal-close{position:absolute;top:14px;right:16px;font-size:1.3rem;color:var(--cv3-ink-lite);cursor:pointer;line-height:1;padding:4px}
+.cv3-room-modal-close:hover{color:var(--cv3-ink)}
+.cv3-room-modal-head{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.cv3-room-modal-icon{font-size:2.6rem;line-height:1}
+.cv3-room-modal-title{font-family:var(--cv3-serif);font-size:1.2rem;font-weight:500;color:var(--cv3-ink)}
+.cv3-room-modal-zone{font-size:.72rem;color:var(--cv3-gold);letter-spacing:.1em;margin-top:2px}
+.cv3-room-modal-event{background:var(--cv3-bg-alt);border-radius:12px;padding:14px 16px;font-size:.85rem;color:var(--cv3-ink-soft);line-height:1.85;margin-bottom:14px;border-left:3px solid var(--cv3-gold-lt)}
+.cv3-room-modal-mood{display:inline-flex;align-items:center;gap:6px;font-size:.76rem;color:var(--cv3-warm);margin-bottom:18px}
+.cv3-room-modal-tools{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
+.cv3-room-modal-tool-btn{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1.5px solid var(--cv3-line);border-radius:12px;background:#fff;cursor:pointer;transition:all .2s var(--cv3-ease);text-align:left;font-size:.85rem;color:var(--cv3-ink-soft);text-decoration:none}
+.cv3-room-modal-tool-btn:hover{border-color:var(--cv3-gold);background:rgba(233,194,125,.06);color:var(--cv3-ink)}
+.cv3-room-modal-tool-btn .cv3-tool-arrow{margin-left:auto;color:var(--cv3-gold-lt);font-size:.8rem}
+
+/* ── 兌換獎勵彈窗 ── */
+.cv3-ex-reward-overlay{position:fixed;inset:0;background:rgba(10,6,24,.45);z-index:900;display:none;align-items:center;justify-content:center}
+.cv3-ex-reward-overlay.show{display:flex;animation:cv3FadeIn .2s ease}
+.cv3-ex-reward-popup{background:#fff8f0;border:2px solid rgba(200,134,42,.3);border-radius:22px;padding:30px 26px;text-align:center;min-width:240px;max-width:min(88vw,320px);box-shadow:0 16px 48px rgba(42,31,76,.2);animation:cv3ModalUp .28s cubic-bezier(.34,1.56,.64,1)}
+.cv3-ex-reward-icon{font-size:3rem;display:block;margin-bottom:10px}
+.cv3-ex-reward-name{font-family:var(--cv3-serif);font-size:1.1rem;color:var(--cv3-ink);font-weight:500;margin-bottom:4px}
+.cv3-ex-reward-sub{font-size:.8rem;color:var(--cv3-ink-lite);margin-bottom:18px}
+.cv3-ex-reward-close{padding:9px 24px;background:linear-gradient(135deg,#c8862a,#e8b86d);color:#fff;border:none;border-radius:20px;cursor:pointer;font-size:.86rem;font-family:inherit}
+
 /* ── Footer ── */
 .cv3-footer{text-align:center;padding:40px 20px 30px;color:var(--cv3-ink-lite);font-size:.78rem;letter-spacing:.05em}
 </style>
@@ -256,6 +284,33 @@ main{position:relative;z-index:1}
   </div>
 
 </main>
+
+<!-- 房間進入彈窗 -->
+<div class="cv3-room-modal-overlay" id="cv3-room-modal-overlay">
+  <div class="cv3-room-modal" id="cv3-room-modal">
+    <span class="cv3-room-modal-close" id="cv3-modal-close" onclick="cv3CloseRoomModal()">✕</span>
+    <div class="cv3-room-modal-head">
+      <span class="cv3-room-modal-icon" id="cv3-modal-icon"></span>
+      <div>
+        <div class="cv3-room-modal-title" id="cv3-modal-title"></div>
+        <div class="cv3-room-modal-zone" id="cv3-modal-zone"></div>
+      </div>
+    </div>
+    <div class="cv3-room-modal-event" id="cv3-modal-event"></div>
+    <div class="cv3-room-modal-mood" id="cv3-modal-mood"></div>
+    <div class="cv3-room-modal-tools" id="cv3-modal-tools"></div>
+  </div>
+</div>
+
+<!-- 兌換獎勵彈窗 -->
+<div class="cv3-ex-reward-overlay" id="cv3-ex-reward-overlay">
+  <div class="cv3-ex-reward-popup">
+    <span class="cv3-ex-reward-icon" id="cv3-ex-reward-icon"></span>
+    <div class="cv3-ex-reward-name" id="cv3-ex-reward-name"></div>
+    <div class="cv3-ex-reward-sub" id="cv3-ex-reward-sub"></div>
+    <button class="cv3-ex-reward-close" onclick="cv3CloseExReward()">收下了</button>
+  </div>
+</div>
 
 <div class="cv3-toast" id="cv3-toast"></div>
 
@@ -403,13 +458,22 @@ main{position:relative;z-index:1}
     });
   }
 
-  // ── 進入房間（跳到既有工具）──
+  // ── 進入房間 — 顯示今日事件 tease 後跳工具頁 ──
   window.cv3EnterRoom = function(roomId){
     var room = V3.getRoom(roomId);
     if (!room || !room.tools || !room.tools[0]) { toast('這個房間還在建造中⋯⋯'); return; }
-    // TODO Phase 2: 開始彈窗顯示房間事件，而非直接跳頁
-    toast('進入 ' + room.name + '⋯⋯', 1500);
-    setTimeout(function(){ location.href = room.tools[0]; }, 800);
+    // 取今日事件（依 uid + 日期 + roomId 做 seed，同一天同一房間事件固定）
+    var lv = (state.save && state.save.cv3_room_lv && state.save.cv3_room_lv[roomId]) || 1;
+    var today = new Date().toISOString().slice(0, 10);
+    var seedStr = (state.uid || 'guest') + today + roomId;
+    var ev = V3.pickTodayRoomEvent ? V3.pickTodayRoomEvent(roomId, lv, seedStr) : null;
+    if (ev && ev.text) {
+      toast(room.emoji + ' ' + room.name + '\n\n' + ev.text, 4000);
+      setTimeout(function(){ location.href = room.tools[0]; }, 3500);
+    } else {
+      toast('進入 ' + room.name + '⋯⋯', 1500);
+      setTimeout(function(){ location.href = room.tools[0]; }, 800);
+    }
   };
 
   // ── 今日任務 ──

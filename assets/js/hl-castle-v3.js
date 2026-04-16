@@ -170,9 +170,139 @@
       text:'一個從未見過的寶箱自動打開。裡面是一封給你的信，署名「未來的你」。',
       rewards:{ xp:30, material:{rare:'命盤墨跡'} } },
 
-    // 其他 10 房間後續補
-    // TODO: Phase 3 補滿 100+ 事件
+    // ── 共 40+ 事件，12 房間 × 3-4 個，weight 決定出現頻率 ──
+    // H.O.U.R. 四塔
+    { id:'treasure_coin',  roomId:'treasure',  weight:10, minLv:1,
+      text:'寶庫角落掉了一枚金幣，上面刻著您的名字縮寫。',
+      rewards:{ xp:10, material:{common:'星辰碎片'} } },
+    { id:'treasure_chest', roomId:'treasure',  weight:4,  minLv:10,
+      text:'一個從未見過的寶箱自動打開。裡面是一封給您的信，署名「未來的您」。',
+      rewards:{ xp:30, material:{rare:'命盤墨跡'} } },
+    { id:'treasure_deep',  roomId:'treasure',  weight:2,  minLv:25,
+      text:'寶庫深處傳來低語：「您擁有的比您以為的更多。」',
+      rewards:{ xp:60, material:{legendary:'天命核心'} } },
+
+    { id:'key_whisper',    roomId:'key',       weight:10, minLv:1,
+      text:'一把小金鑰匙浮在空中。它說：「您已經有答案了，只是還沒承認。」',
+      rewards:{ xp:15, material:{common:'覺察印記'} } },
+    { id:'key_rust',       roomId:'key',       weight:5,  minLv:8,
+      text:'有一個很老的鎖，您試了所有鑰匙都打不開。僕人說：「試試您的呼吸。」',
+      rewards:{ xp:25, material:{rare:'時辰碎片'} } },
+    { id:'key_deep',       roomId:'key',       weight:2,  minLv:20,
+      text:'房間中央的石板突然裂開，露出一個通往您 5 年前的走廊。',
+      rewards:{ xp:50, material:{legendary:'沒藥精髓'} } },
+
+    { id:'throne_rise',    roomId:'throne',    weight:10, minLv:1,
+      text:'站在塔頂往下看，您看見自己的人生像一張地圖。您的位置比想像中高。',
+      rewards:{ xp:15, material:{common:'星辰碎片'} } },
+    { id:'throne_wind',    roomId:'throne',    weight:5,  minLv:10,
+      text:'一陣風吹過塔頂，帶來一句話：「不是您不夠好，是時候還沒到。」',
+      rewards:{ xp:25, material:{rare:'命盤墨跡'} } },
+    { id:'throne_star',    roomId:'throne',    weight:3,  minLv:25,
+      text:'夜空中有一顆星突然變亮。您知道那是為您亮的。',
+      rewards:{ xp:50, material:{legendary:'校準之鑰'} } },
+
+    // L.I.G.H.T. 五殿
+    { id:'love_petal',     roomId:'love',      weight:10, minLv:1,
+      text:'玫瑰花瓣從天花板輕輕飄下。其中一片落在您掌心，是溫熱的。',
+      rewards:{ xp:15, material:{common:'玫瑰精魄'} } },
+    { id:'love_mirror',    roomId:'love',      weight:5,  minLv:10,
+      text:'愛之殿的鏡子裡出現一個人影，是您自己。鏡中的您在笑著對現在的您點頭。',
+      rewards:{ xp:30, material:{rare:'薰衣草晨露'} } },
+    { id:'love_vow',       roomId:'love',      weight:3,  minLv:20,
+      text:'您聽見一句古老的誓言：「值得被愛不需要資格。」這句話是說給您聽的。',
+      rewards:{ xp:50, material:{legendary:'馥靈精髓'} } },
+
+    { id:'intuition_card', roomId:'intuition', weight:10, minLv:1,
+      text:'桌上自動翻出一張塔羅牌。您看一眼就懂了答案。',
+      rewards:{ xp:15, material:{common:'靈視殘影'} } },
+    { id:'intuition_ball', roomId:'intuition', weight:5,  minLv:10,
+      text:'水晶球裡浮現一個畫面。是三天後的一個小選擇，您會做對。',
+      rewards:{ xp:25, material:{rare:'卦象印記'} } },
+    { id:'intuition_void', roomId:'intuition', weight:3,  minLv:25,
+      text:'整個房間突然安靜。在這個安靜裡，您聽見內在的聲音從未這麼清楚。',
+      rewards:{ xp:50, material:{legendary:'天命核心'} } },
+
+    { id:'ground_stone',   roomId:'ground',    weight:10, minLv:1,
+      text:'您踩在地板上的石紋發熱了。身體的重心突然穩下來。',
+      rewards:{ xp:15, material:{common:'五行晶石'} } },
+    { id:'ground_mountain',roomId:'ground',    weight:5,  minLv:12,
+      text:'牆上的山圖活了過來。一座山對您說：「您也是這樣長出來的。」',
+      rewards:{ xp:30, material:{rare:'時辰碎片'} } },
+
+    { id:'harmony_lotus',  roomId:'harmony',   weight:10, minLv:1,
+      text:'水池裡開出一朵新蓮花。您看著它開的速度，呼吸慢了下來。',
+      rewards:{ xp:15, material:{common:'薰衣草晨露'} } },
+    { id:'harmony_breeze', roomId:'harmony',   weight:5,  minLv:10,
+      text:'一陣輕風從葉縫穿過，帶著某種熟悉的香氣。是很久以前您喜歡的那種。',
+      rewards:{ xp:25, material:{rare:'玫瑰精魄'} } },
+    { id:'harmony_balance',roomId:'harmony',   weight:3,  minLv:22,
+      text:'整個花園突然進入完美平衡。您感覺自己也一樣。',
+      rewards:{ xp:50, material:{legendary:'馥靈精髓'} } },
+
+    { id:'transform_cocoon', roomId:'transform', weight:10, minLv:1,
+      text:'一隻蝴蝶從牆上飛下來停在您的手指。您們對視了三秒。',
+      rewards:{ xp:15, material:{common:'覺察印記'} } },
+    { id:'transform_shed',   roomId:'transform', weight:5,  minLv:12,
+      text:'您感覺身上某個很舊的東西剝落了。輕了一點點。',
+      rewards:{ xp:30, material:{rare:'沒藥精髓'} } },
+    { id:'transform_light',  roomId:'transform', weight:3,  minLv:25,
+      text:'光從您的內側亮起。您意識到：您一直是這個亮的。只是剛剛才記得。',
+      rewards:{ xp:60, material:{legendary:'校準之鑰'} } },
+
+    // 三秘境
+    { id:'dream_moon',     roomId:'dream',     weight:10, minLv:1,
+      text:'地板倒映的月亮輕輕晃了一下。您聽見一段很久以前的夢。',
+      rewards:{ xp:15, material:{common:'月光碎片'} } },
+    { id:'dream_door',     roomId:'dream',     weight:5,  minLv:12,
+      text:'夢境走廊的盡頭有一扇門。您認得它，它是您最深的那個問題。',
+      rewards:{ xp:30, material:{rare:'靈視殘影'} } },
+    { id:'dream_meet',     roomId:'dream',     weight:3,  minLv:25,
+      text:'您在夢裡遇見小時候的自己。您沒說話，只是抱了抱他。',
+      rewards:{ xp:55, material:{legendary:'月光精華'} } },
+
+    { id:'garden_tree',    roomId:'garden',    weight:10, minLv:1,
+      text:'櫻花樹上掉下一張紙。是您 10 歲時寫的願望，還在這裡等您。',
+      rewards:{ xp:20, material:{common:'橙花羽翼'} } },
+    { id:'garden_bridge',  roomId:'garden',    weight:5,  minLv:12,
+      text:'石橋另一端站著一個人，是您最想謝謝的人。您想起了為什麼。',
+      rewards:{ xp:30, material:{rare:'薰衣草晨露'} } },
+    { id:'garden_petal',   roomId:'garden',    weight:3,  minLv:20,
+      text:'花瓣一次全部落下。在這一秒您知道：原諒不是忘記，是不再痛。',
+      rewards:{ xp:55, material:{legendary:'馥靈精髓'} } },
+
+    { id:'tower_star',     roomId:'tower',     weight:10, minLv:1,
+      text:'望遠鏡裡看見一顆星在眨眼。是您生日那年的星。',
+      rewards:{ xp:18, material:{common:'星辰碎片'} } },
+    { id:'tower_map',      roomId:'tower',     weight:5,  minLv:12,
+      text:'星圖自動攤開。您看懂了自己人生的三個關鍵轉折，其中兩個還沒到。',
+      rewards:{ xp:30, material:{rare:'命盤墨跡'} } },
+    { id:'tower_cross',    roomId:'tower',     weight:3,  minLv:25,
+      text:'所有星座同時閃了一下。您感覺自己終於「在」位置上。',
+      rewards:{ xp:60, material:{legendary:'天命核心'} } },
   ];
+
+  // ═══════════════════════════════════════
+  // 依房間 + 日期 seed 挑今日事件（weight × level gate）
+  // ═══════════════════════════════════════
+  function pickTodayRoomEvent(roomId, currentLv, seedStr){
+    currentLv = currentLv || 1;
+    var pool = EVENT_POOL_SEEDS.filter(function(e){
+      return e.roomId === roomId && (e.minLv || 1) <= currentLv;
+    });
+    if (!pool.length) return null;
+    // weighted seeded pick
+    var seedNum = 0;
+    for (var i = 0; i < seedStr.length; i++) seedNum += seedStr.charCodeAt(i);
+    var totalWeight = pool.reduce(function(s, e){ return s + (e.weight || 1); }, 0);
+    var roll = (seedNum + roomId.charCodeAt(0) * 37) % totalWeight;
+    var accum = 0;
+    for (var j = 0; j < pool.length; j++) {
+      accum += (pool[j].weight || 1);
+      if (roll < accum) return pool[j];
+    }
+    return pool[0];
+  }
 
   // ═══════════════════════════════════════
   // 僕人心情系統（每房間 5 種心情）
@@ -262,6 +392,7 @@
     // 每日循環
     rollDailyMoods: rollDailyMoods,
     pickDailyQuests: pickDailyQuests,
+    pickTodayRoomEvent: pickTodayRoomEvent,
 
     // Util：取得房間定義
     getRoom: function(id){
