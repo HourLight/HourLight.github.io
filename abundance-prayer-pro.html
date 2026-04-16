@@ -358,36 +358,51 @@ async function runCalc(){
       for (var i = 0; i < name.length; i++) nameTotal += (getStroke(name.charAt(i)) || 0);
     }
 
+    // 整理命理資料（注意 destiny-calc.js 的實際返回結構）
+    // num: { life, talent, yS, mS, dS, gifts:{g1..g4}, challenges:{c1..c4}, meridian, ... }
+    // fl:  { H:{H,O,U,R}, L:{L,I,G,H,T}, pals:{...} }
+    // tri: { I,J,K,L,M,N,O,T,S,U,V,W,X,P,Q,R, sub, ext, inner }
+    var flH = (fl && fl.H) ? fl.H : {};
+    var flL = (fl && fl.L) ? fl.L : {};
+    var flCode = (flH.H != null) ? (flH.H + '/' + flH.O + '/' + flH.U + '/' + flH.R) : null;
+    var triTuple = tri ? (tri.sub + '/' + tri.inner + '/' + tri.ext) : null;
+
     var destinyCore = {
       identity: {
         day_master: dayGZ.charAt(0),
-        life_path: num ? num.rd : null,
+        life_path: num ? num.life : null,
+        talent_num: num ? num.talent : null,
         sun_sign: sunSign,
-        fuling_code: fl ? (fl.H + '/' + fl.O + '/' + fl.U + '/' + fl.R) : null,
-        triangle: tri ? (tri.a + '/' + tri.b + '/' + tri.c) : null,
+        fuling_code_HOUR: flCode,                       // 馥靈秘碼四主數 H/O/U/R
+        fuling_L_five: (flL.L != null) ? (flL.L + '/' + flL.I + '/' + flL.G + '/' + flL.H + '/' + flL.T) : null,
+        triangle_sie: triTuple,                         // 三角密碼 sub/inner/ext
         ziwei_palace: PALACE_NAMES[ziweiPalace] + '宮',
-        year_gz: yearGZ, month_gz: monthGZ,
+        year_gz: yearGZ,
+        month_gz: monthGZ,
       },
       body: {
-        day_gz: dayGZ, hour_gz: hourGZ,
-        lunar_month: lm, lunar_day: ld,
+        day_gz: dayGZ,
+        hour_gz: hourGZ,
+        lunar_month: lm,
+        lunar_day: ld,
         meridian_hour: ['膽','肝','肺','大腸','胃','脾','心','小腸','膀胱','腎','心包','三焦'][hzI],
+        meridian_detail: num && num.meridian ? num.meridian : null,
       },
       abundance: {
-        ziwei_wealth_palace: PALACE_NAMES[(ziweiPalace + 4) % 12] + '宮',
-        triangle_final: tri ? tri.c : null,
-        fuling_U: fl ? fl.U : null,
-        life_path_gift: num && num.gift ? num.gift : null,
+        ziwei_wealth_palace: PALACE_NAMES[(ziweiPalace + 4) % 12] + '宮',  // 財帛宮
+        triangle_final: tri ? tri.R : null,                                 // 三角最終合數
+        fuling_U: (flH.U != null) ? flH.U : null,
+        life_path_gifts: (num && num.gifts) ? (num.gifts.g1 + '/' + num.gifts.g2 + '/' + num.gifts.g3 + '/' + num.gifts.g4) : null,
       },
       mission: {
         sun_sign: sunSign,
-        ziwei_career_palace: PALACE_NAMES[(ziweiPalace + 8) % 12] + '宮',
-        fuling_R: fl ? fl.R : null,
-        life_path_challenge: num && num.challenge ? num.challenge : null,
+        ziwei_career_palace: PALACE_NAMES[(ziweiPalace + 8) % 12] + '宮',   // 事業宮
+        fuling_R: (flH.R != null) ? flH.R : null,
+        life_path_challenges: (num && num.challenges) ? (num.challenges.c1 + '/' + num.challenges.c2 + '/' + num.challenges.c3 + '/' + num.challenges.c4) : null,
         name_total: nameTotal || null,
       },
       flow_year: flowYear ? '當年度流年數 ' + flowYear : null,
-      core_axis: (num ? '生命靈數 ' + num.rd : '') + (sunSign ? ' × ' + sunSign : '') + (fl ? ' × 馥靈秘碼 ' + fl.H : ''),
+      core_axis: (num && num.life ? '生命靈數 ' + num.life : '') + (sunSign ? ' × ' + sunSign : '') + (flCode ? ' × 馥靈秘碼 ' + flCode : ''),
     };
 
     appState.birth = { y:y, m:m, d:d, h:h, min:min, gender:gender, name:name };
@@ -415,9 +430,9 @@ function calcSunSign(m, d){
 function renderCoreDisplay(core){
   var html = '<div class="ap-core-title">四解碼層速覽</div><div class="ap-core-grid">';
   if (core.identity) {
-    if (core.identity.life_path) html += '<div class="ap-core-item"><strong>生命路徑</strong>' + core.identity.life_path + '</div>';
+    if (core.identity.life_path != null) html += '<div class="ap-core-item"><strong>生命靈數</strong>' + core.identity.life_path + '</div>';
     if (core.identity.sun_sign) html += '<div class="ap-core-item"><strong>太陽星座</strong>' + core.identity.sun_sign + '</div>';
-    if (core.identity.fuling_code) html += '<div class="ap-core-item"><strong>馥靈秘碼</strong>' + core.identity.fuling_code + '</div>';
+    if (core.identity.fuling_code_HOUR) html += '<div class="ap-core-item"><strong>馥靈秘碼 (H/O/U/R)</strong>' + core.identity.fuling_code_HOUR + '</div>';
     if (core.identity.day_master) html += '<div class="ap-core-item"><strong>八字日主</strong>' + core.identity.day_master + '</div>';
     if (core.identity.ziwei_palace) html += '<div class="ap-core-item"><strong>紫微命宮</strong>' + core.identity.ziwei_palace + '</div>';
   }
