@@ -932,6 +932,8 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
           <button class="adm-btn adm-btn-sm" style="background:#8b6f4e;color:#fff" onclick="listMembersByPlan('pro')">👑 列出所有大師</button>
           <button class="adm-btn adm-btn-sm" style="background:#a07cdc;color:#fff" onclick="listMembersByPlan('plus')">✨ 列出所有鑰友</button>
           <button class="adm-btn adm-btn-sm" style="background:#e9c27d;color:#1a1520" onclick="listMembersByPlan('paid')">💎 列出付費會員（鑰友+大師）</button>
+          <button class="adm-btn adm-btn-sm" style="background:#2a8a6a;color:#fff" onclick="listPaidOrders()">💳 金流交易列表（已付款）</button>
+          <button class="adm-btn adm-btn-sm" style="background:#e67e22;color:#fff" onclick="listPendingOrders()">⏳ 待處理訂單</button>
         </div>
         <div id="memberSearchResult"></div>
       </div>
@@ -2302,6 +2304,135 @@ function listMembersByPlan(planFilter) {
   });
 }
 window.listMembersByPlan = listMembersByPlan;
+
+// ═══ 金流交易列表（2026/04/16 逸君要求）═══
+function listPaidOrders() { renderOrderList('paid'); }
+function listPendingOrders() { renderOrderList('pending'); }
+
+function renderOrderList(statusFilter) {
+  var container = document.getElementById('memberSearchResult');
+  container.innerHTML = '<div class="adm-loading"><div class="adm-spinner"></div> 載入中…</div>';
+
+  var query = db.collection('pendingOrders').where('status', '==', statusFilter);
+  // 只撈最近 90 天，避免撈太多
+  var sinceDate = new Date(Date.now() - 90 * 24 * 3600 * 1000);
+  query.get().then(function(snap) {
+    if (snap.empty) {
+      container.innerHTML = '<div class="adm-empty"><div class="adm-empty-icon">💳</div>目前沒有 ' + (statusFilter === 'paid' ? '已付款' : '待處理') + ' 的訂單</div>';
+      return;
+    }
+
+    var rows = [];
+    var totalAmount = 0;
+    snap.forEach(function(doc) {
+      var d = doc.data();
+      // 過濾 90 天內（createdAt 是 Firestore Timestamp）
+      var createdAt = d.createdAt;
+      if (createdAt && createdAt.toDate) createdAt = createdAt.toDate();
+      else if (createdAt) createdAt = new Date(createdAt);
+      if (createdAt && createdAt < sinceDate) return;
+      rows.push({ id: doc.id, d: d, createdAt: createdAt });
+      totalAmount += Number(d.amount || 0);
+    });
+
+    rows.sort(function(a, b) {
+      var ta = a.createdAt ? a.createdAt.getTime() : 0;
+      var tb = b.createdAt ? b.createdAt.getTime() : 0;
+      return tb - ta; // 最新在前
+    });
+
+    var title = statusFilter === 'paid' ? '💳 已付款訂單' : '⏳ 待處理訂單';
+    var html = '<div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">' +
+      '<div style="font-weight:600;font-size:1rem">' + title + ' · 近 90 天共 ' + rows.length + ' 筆 · 總額 NT$' + totalAmount.toLocaleString() + '</div>' +
+      '<button class="adm-btn adm-btn-sm" onclick="exportOrdersCSV(\'' + statusFilter + '\')">📋 複製 CSV</button>' +
+      '</div>';
+
+    html += '<div style="overflow-x:auto"><table class="adm-table" style="width:100%;font-size:.82rem;border-collapse:collapse">' +
+      '<thead><tr style="background:rgba(139,111,78,.1);text-align:left">' +
+        '<th style="padding:8px">訂單編號</th>' +
+        '<th style="padding:8px">Email</th>' +
+        '<th style="padding:8px">商品</th>' +
+        '<th style="padding:8px">金額</th>' +
+        '<th style="padding:8px">狀態</th>' +
+        '<th style="padding:8px">建立時間</th>' +
+        (statusFilter === 'paid' ? '<th style="padding:8px">付款時間</th>' : '') +
+      '</tr></thead><tbody>';
+
+    rows.forEach(function(row) {
+      var d = row.d;
+      var statusBadge = d.status === 'paid'
+        ? '<span class="badge badge-green">已付款</span>'
+        : d.status === 'pending'
+          ? '<span class="badge badge-orange">待付款</span>'
+          : '<span class="badge badge-gray">' + esc(d.status || '—') + '</span>';
+
+      var createdAtStr = row.createdAt
+        ? row.createdAt.toLocaleString('zh-TW', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+        : '—';
+
+      var paidAtStr = '';
+      if (statusFilter === 'paid') {
+        var paidAt = d.paidAt;
+        if (paidAt) {
+          if (paidAt.toDate) paidAt = paidAt.toDate();
+          else paidAt = new Date(paidAt);
+          paidAtStr = '<td style="padding:8px;font-size:.75rem;color:var(--adm-text2)">' + paidAt.toLocaleString('zh-TW', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) + '</td>';
+        } else {
+          paidAtStr = '<td style="padding:8px;color:var(--adm-text3)">—</td>';
+        }
+      }
+
+      html += '<tr style="border-bottom:1px solid rgba(139,111,78,.1)">' +
+        '<td style="padding:8px;font-family:monospace;font-size:.72rem">' + esc(row.id) + '</td>' +
+        '<td style="padding:8px;font-size:.78rem">' + esc(d.userEmail || d.userId || '—') + '</td>' +
+        '<td style="padding:8px;font-size:.78rem">' + esc(d.productName || d.productId || '—') + '</td>' +
+        '<td style="padding:8px;font-weight:600;color:#b8922a">NT$' + Number(d.amount || 0).toLocaleString() + '</td>' +
+        '<td style="padding:8px">' + statusBadge + '</td>' +
+        '<td style="padding:8px;font-size:.75rem;color:var(--adm-text2)">' + createdAtStr + '</td>' +
+        paidAtStr +
+      '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+    window._lastOrderList = { rows: rows, status: statusFilter };
+  }).catch(function(e) {
+    container.innerHTML = '<div class="adm-empty">載入失敗：' + esc(e.message) + '</div>';
+  });
+}
+
+function exportOrdersCSV(statusFilter) {
+  var data = window._lastOrderList || {};
+  var rows = data.rows || [];
+  if (!rows.length) { toast('沒有資料可複製'); return; }
+  var lines = ['merTradeNo,userEmail,productName,amount,status,createdAt,paidAt'];
+  rows.forEach(function(row) {
+    var d = row.d;
+    var createdStr = row.createdAt ? row.createdAt.toISOString() : '';
+    var paidAt = d.paidAt;
+    if (paidAt && paidAt.toDate) paidAt = paidAt.toDate();
+    else if (paidAt) paidAt = new Date(paidAt);
+    var paidStr = paidAt ? paidAt.toISOString() : '';
+    lines.push([
+      row.id,
+      (d.userEmail || d.userId || '').replace(/,/g, ''),
+      (d.productName || d.productId || '').replace(/,/g, ''),
+      d.amount || 0,
+      d.status || '',
+      createdStr,
+      paidStr
+    ].join(','));
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(function() {
+    toast('已複製 ' + rows.length + ' 筆交易到剪貼簿');
+  }).catch(function() {
+    toast('複製失敗，請手動複製');
+  });
+}
+
+window.listPaidOrders = listPaidOrders;
+window.listPendingOrders = listPendingOrders;
+window.exportOrdersCSV = exportOrdersCSV;
 
 // 複製成 CSV
 function exportMemberListCSV(planFilter) {
