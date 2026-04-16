@@ -81,10 +81,11 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .ap-block-label{font-size:.82rem;color:var(--gold-dk);letter-spacing:.1em;margin:18px 0 10px;font-weight:500}
 .ap-cards-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .ap-cards-row.core{grid-template-columns:1fr;max-width:140px;margin:0 auto 12px}
-.ap-card-chip{aspect-ratio:2/3;border-radius:8px;background:linear-gradient(135deg,#f8f5ed,#ede6d0);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;text-align:center;transition:all .3s var(--ease)}
+.ap-card-chip{aspect-ratio:2/3;border-radius:8px;background:linear-gradient(135deg,#f8f5ed,#ede6d0);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0;text-align:center;transition:all .3s var(--ease);overflow:hidden;position:relative}
+.ap-card-chip img{width:100%;height:100%;object-fit:cover;display:block}
+.ap-card-chip .label-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,rgba(10,5,0,.78) 10%,rgba(10,5,0,0));color:#f8dfa5;font-size:.6rem;letter-spacing:.08em;padding:14px 4px 4px;font-weight:500}
+.ap-card-chip .no-overlay{position:absolute;top:4px;left:6px;font-family:var(--serif);font-size:.78rem;color:#fff;background:rgba(0,0,0,.55);padding:2px 8px;border-radius:10px;font-weight:500}
 .ap-card-chip.empty{background:#fff;border-style:dashed;color:var(--ink-lite)}
-.ap-card-chip .no{font-family:var(--serif);font-size:1.15rem;color:var(--gold-dk);font-weight:600}
-.ap-card-chip .label{font-size:.62rem;color:var(--warm);letter-spacing:.05em;margin-top:4px}
 
 .ap-prayer{background:#fff;border:1px solid var(--gold);border-radius:var(--radius);padding:32px 30px;margin-top:24px;box-shadow:0 4px 28px rgba(184,146,42,.12)}
 .ap-prayer-body{font-family:var(--serif);font-size:1rem;line-height:2.3;color:var(--ink);white-space:pre-wrap;letter-spacing:.03em}
@@ -232,6 +233,23 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
     <button class="ap-btn ap-btn-gold" id="btn-pay" onclick="payPrayer()" style="width:100%;max-width:420px;display:block;margin:0 auto">
       線上付款 → PAYUNi 安全結帳｜NT$999
     </button>
+
+    <!-- 代碼兌換（含內部檢驗用 Master Code）-->
+    <div style="margin-top:28px;padding-top:22px;border-top:1px dashed var(--line)">
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px">
+        <span style="flex:1;height:1px;background:var(--line-soft)"></span>
+        <span style="font-size:.78rem;color:var(--ink-lite);letter-spacing:.1em">或輸入解讀代碼</span>
+        <span style="flex:1;height:1px;background:var(--line-soft)"></span>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;max-width:420px;margin:0 auto">
+        <input type="text" class="ap-input" id="unlock-code" placeholder="例如 AP-XXXXXX"
+          style="flex:1;min-width:180px;text-transform:uppercase;letter-spacing:.08em;font-family:monospace"
+          oninput="this.value=this.value.toUpperCase()"
+          onkeydown="if(event.key==='Enter')redeemByCode()">
+        <button class="ap-btn ap-btn-outline" onclick="redeemByCode()" style="padding:12px 22px;font-size:.88rem">兌換</button>
+      </div>
+      <div id="code-msg" style="text-align:center;margin-top:10px;font-size:.82rem;color:#d32f2f;min-height:20px"></div>
+    </div>
   </section>
 
   <section class="ap-step" id="step-6" data-ready="false">
@@ -434,9 +452,14 @@ function draw21(){
 }
 
 function renderCards(cards){
-  var L_LABELS = ['L根源','I信念','G行為','H覺察','T禮物'];
+  var L_LABELS = ['L 根源','I 信念','G 行為','H 覺察','T 禮物'];
   function cardHTML(no, label){
-    return '<div class="ap-card-chip"><div class="no">' + no + '</div><div class="label">' + (label || '') + '</div></div>';
+    var fname = String(no).padStart(3, '0') + '.png';
+    return '<div class="ap-card-chip">' +
+             '<img src="' + fname + '" alt="牌卡 ' + no + '" loading="lazy" onerror="this.style.display=&quot;none&quot;">' +
+             '<div class="no-overlay">' + no + '</div>' +
+             '<div class="label-overlay">' + (label || '') + '</div>' +
+           '</div>';
   }
   document.getElementById('row-core').innerHTML = cardHTML(cards[0], '誓約位');
   var hRow='', oRow='', uRow='', rRow='';
@@ -500,6 +523,76 @@ function payPrayer(){
       wish: appState.wish, cards21: appState.cards21, email: email,
     }
   });
+}
+
+// 代碼兌換（Master Code / 贈送碼 / 測試碼都走這條）
+async function redeemByCode(){
+  var code = (document.getElementById('unlock-code').value || '').trim().toUpperCase();
+  var msgEl = document.getElementById('code-msg');
+  msgEl.textContent = '';
+
+  if (!code) { msgEl.textContent = '請輸入代碼'; return; }
+
+  var email = (document.getElementById('user-email').value || '').trim();
+  if (!email || !email.includes('@')) { msgEl.textContent = '請先在上方輸入有效 email（祈禱文會寄到這裡）'; return; }
+
+  if (!appState.cards21 || appState.cards21.length !== 21) {
+    msgEl.textContent = '請先完成步驟 1-4（生日、願望、抽牌）'; return;
+  }
+
+  var u = (firebase && firebase.auth) ? firebase.auth().currentUser : null;
+  if (!u) {
+    alert('請先登入會員才能兌換。按「確定」前往登入頁。');
+    var redirect = encodeURIComponent(location.href);
+    location.href = 'app.html?redirect=' + redirect;
+    return;
+  }
+
+  // 先進 Step 6 loading 畫面
+  setStepDone(5);
+  setStepReady(6, true);
+  document.getElementById('step-6').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('loading-prayer').classList.add('show');
+  document.getElementById('prayer-wrap').style.display = 'none';
+
+  try {
+    var payload = {
+      birthday: appState.birth.y + '-' + String(appState.birth.m).padStart(2,'0') + '-' + String(appState.birth.d).padStart(2,'0') + ' ' + String(appState.birth.h).padStart(2,'0') + ':' + String(appState.birth.min).padStart(2,'0'),
+      name: appState.birth.name || '',
+      user_wish: appState.wish || '',
+      cards_21: appState.cards21,
+      destiny_core: appState.destinyCore,
+      unlockCode: code,
+      uid: u.uid,
+      email: email
+    };
+    var resp = await fetch('https://app.hourlightkey.com/api/reading-services?type=abundance-prayer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    document.getElementById('loading-prayer').classList.remove('show');
+
+    if (!resp.ok) {
+      var errData;
+      try { errData = await resp.json(); } catch(e) { errData = { error: 'HTTP ' + resp.status }; }
+      msgEl.textContent = errData.error || '兌換失敗';
+      return;
+    }
+
+    var data = await resp.json();
+    if (data && data.prayer) {
+      document.getElementById('prayer-body').textContent = data.prayer;
+      document.getElementById('prayer-wrap').style.display = 'block';
+      setStepDone(6);
+      showToast('已生成並寄到您的信箱');
+    } else {
+      msgEl.textContent = data.error || '未收到祈禱文內容';
+    }
+  } catch(err) {
+    document.getElementById('loading-prayer').classList.remove('show');
+    msgEl.textContent = '兌換失敗：' + (err.message || '網路錯誤');
+  }
 }
 
 async function handleReturn(){
