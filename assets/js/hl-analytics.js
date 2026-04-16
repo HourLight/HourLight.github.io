@@ -219,4 +219,16 @@
     if (hasGA) gtag('event', eventName, params || {});
   };
 
+  // 5. 自動注入 MailerLite Universal tracking（若未載入）
+  // 讓 MailerLite 後台的「URL visit trigger」能在所有頁面運作
+  // 例：URL 含 quiz- 自動加 tag quiz_complete → 觸發測驗跟進序列
+  if (typeof window.ml !== 'function') {
+    (function(w,d,e,u,f,l,n){
+      w[f]=w[f]||function(){(w[f].q=w[f].q||[]).push(arguments);};
+      l=d.createElement(e);l.async=1;l.src=u;
+      n=d.getElementsByTagName(e)[0];n.parentNode.insertBefore(l,n);
+    })(window, document, 'script', 'https://assets.mailerlite.com/js/universal.js', 'ml');
+    try { window.ml('account', '2060689'); } catch(e) {}
+  }
+
 })();

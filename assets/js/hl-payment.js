@@ -53,6 +53,30 @@
         btn.disabled = true;
       }
 
+      // ── GA4 事件：begin_checkout（使用者點擊付款）──
+      try {
+        if (typeof gtag === 'function') {
+          gtag('event', 'begin_checkout', {
+            currency: 'TWD',
+            value: Number(opts.amount) || 0,
+            items: [{
+              item_id: opts.productId,
+              item_name: opts.productName,
+              price: Number(opts.amount) || 0,
+              quantity: 1
+            }]
+          });
+        }
+        if (typeof fbq === 'function') {
+          fbq('track', 'InitiateCheckout', {
+            value: Number(opts.amount) || 0,
+            currency: 'TWD',
+            content_ids: [opts.productId],
+            content_name: opts.productName
+          });
+        }
+      } catch(e) { /* analytics never block payment */ }
+
       try {
         var response = await fetch(API_URL, {
           method: 'POST',
@@ -78,6 +102,23 @@
         if (!result.success || !result.action || !result.formData) {
           throw new Error(result.error || '建立訂單失敗');
         }
+
+        // ── GA4 事件：add_payment_info（PAYUNi 建單成功，準備跳轉）──
+        try {
+          if (typeof gtag === 'function') {
+            gtag('event', 'add_payment_info', {
+              currency: 'TWD',
+              value: Number(opts.amount) || 0,
+              payment_type: 'PAYUNi',
+              items: [{
+                item_id: opts.productId,
+                item_name: opts.productName,
+                price: Number(opts.amount) || 0,
+                quantity: 1
+              }]
+            });
+          }
+        } catch(e) {}
 
         // 建立隱藏表單，POST 跳轉到 PAYUNi 支付頁
         var form = document.createElement('form');
@@ -129,6 +170,33 @@
           localStorage.removeItem('hl_pending_' + productId);
         }
       } catch (e) { /* ignore */ }
+
+      // ── GA4/FB 事件：purchase（付款成功回到）──
+      try {
+        var amount = localState && localState.amount ? Number(localState.amount) : 0;
+        var itemName = localState && localState.productName ? localState.productName : productId;
+        if (typeof gtag === 'function') {
+          gtag('event', 'purchase', {
+            transaction_id: order || code,
+            value: amount,
+            currency: 'TWD',
+            items: [{
+              item_id: productId,
+              item_name: itemName,
+              price: amount,
+              quantity: 1
+            }]
+          });
+        }
+        if (typeof fbq === 'function') {
+          fbq('track', 'Purchase', {
+            value: amount,
+            currency: 'TWD',
+            content_ids: [productId],
+            content_name: itemName
+          });
+        }
+      } catch(e) { /* analytics never block */ }
 
       // 清掉 URL 參數避免 F5 重複觸發
       try {
