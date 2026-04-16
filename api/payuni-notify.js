@@ -444,7 +444,8 @@ module.exports = async function handler(req, res) {
                   await userRef.set({
                     aiBonus: require('firebase-admin').firestore.FieldValue.increment(10),
                   }, { merge: true });
-                  // 產生 2 張 NT$500 抵用券
+                  // 產生 2 張 NT$500 抵用券（馥靈大師月禮）
+                  // 規格：只能折抵一對一解讀（>= 1800）｜一次用一張｜使用期限 3 個月
                   for (let i = 0; i < 2; i++) {
                     const code = `VIP500-${randCode()}`;
                     await db.collection('coupons').doc(code).set({
@@ -455,8 +456,21 @@ module.exports = async function handler(req, res) {
                       userId: userId,
                       userEmail: userEmail || null,
                       createdAt: now,
-                      expiresAt: new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000), // 1 年
-                      memo: `馥靈大師月禮（升級贈送）`,
+                      expiresAt: new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000), // 3 個月
+                      // ═ 使用限制 ═
+                      minOrderAmount: 1800,           // 訂單最低金額 NT$1800
+                      restrictedTo: 'one-on-one',     // 只能用於一對一解讀
+                      maxUsePerOrder: 1,              // 一次一張
+                      applicableServices: [
+                        'prayer-6800',   // 馥靈初探 6800
+                        'prayer-8800',   // 深度覺醒 8800
+                        'prayer-12800',  // 三次轉化 12800
+                        'prayer-39800',  // 半年陪伴 39800
+                        'prayer-59800',  // VIP 年度 59800
+                        'prayer-16800',  // VIP 紫微 16800
+                        'one-on-one',    // 通用一對一
+                      ],
+                      memo: `馥靈大師月禮（升級贈送）｜一對一 1800+ 可折 500｜3 個月內有效`,
                     });
                     coupons.push(code);
                   }
@@ -482,7 +496,7 @@ module.exports = async function handler(req, res) {
                   }
 
                   if (coupons.length > 0) {
-                    body += `══ NT$500 抵用券（2 張，一年內有效）══\n`;
+                    body += `══ NT$500 抵用券（2 張，3 個月內有效 ※ 只能折抵一對一解讀 NT$1800 以上，一次一張）══\n`;
                     coupons.forEach((c, i) => { body += `${i + 1}. ${c}\n`; });
                     body += `\n使用方式：結帳時輸入代碼折抵。\n\n`;
                   }
