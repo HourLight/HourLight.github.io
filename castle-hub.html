@@ -312,6 +312,7 @@ body.cv3-phase-night .cv3-tools-item-name, body.cv3-phase-midnight .cv3-tools-it
       <div class="cv3-lord-stat"><strong id="cv3-points">0</strong>靈感點</div>
       <div class="cv3-lord-stat"><strong id="cv3-materials">0</strong>材料</div>
       <div class="cv3-lord-stat"><strong id="cv3-furniture">0</strong>傢具</div>
+      <div class="cv3-lord-stat" id="cv3-shield-slot" style="padding:0"></div>
     </div>
   </section>
 
@@ -527,6 +528,7 @@ body.cv3-phase-night .cv3-tools-item-name, body.cv3-phase-midnight .cv3-tools-it
 
 <!-- 城堡 v3 核心邏輯 + 舊版核心（寵物系統依賴 hlCastle + hlMaterial） -->
 <script src="assets/js/hl-reward-fx.js"></script>
+<script src="assets/js/hl-castle-shield.js"></script>
 <script src="assets/js/hl-castle-key.js"></script>
 <script src="assets/js/hl-castle-material.js"></script>
 <script src="assets/js/hl-castle-pets.js"></script>
@@ -1472,6 +1474,26 @@ body.cv3-phase-night .cv3-tools-item-name, body.cv3-phase-midnight .cv3-tools-it
     } catch(e) {}
   }
 
+  // 月光護盾：每月自動發放 + 渲染 Badge
+  function initShieldSystem(){
+    if (!window.hlShield) return;
+    try {
+      var result = hlShield.ensureMonthlyGrant();
+      // 渲染 Badge
+      var slot = document.getElementById('cv3-shield-slot');
+      if (slot){
+        slot.innerHTML = '';
+        hlShield.showBadge(slot);
+      }
+      // 本月首次發放 → 彈馥靈馥語歡迎訊息
+      if (result && result.granted){
+        setTimeout(function(){
+          hlShield.showModal('grantFirst', { n: result.amount });
+        }, 1400);
+      }
+    } catch(_){}
+  }
+
   // 每日登入獎勵：首次進城堡送 2 顆月光碎片
   function tryDailyLoginBonus(){
     if (!window.hlMaterial || typeof hlMaterial.grantLoginBonus !== 'function') return;
@@ -1506,6 +1528,7 @@ body.cv3-phase-night .cv3-tools-item-name, body.cv3-phase-midnight .cv3-tools-it
       renderExplorations();
       renderToolsMap('destiny');
       setupToolsMapTabs();
+      initShieldSystem();
       tryDailyLoginBonus();
       tryVisitMilestone();
       tryOnboarding();
@@ -1527,6 +1550,7 @@ body.cv3-phase-night .cv3-tools-item-name, body.cv3-phase-midnight .cv3-tools-it
       renderExplorations();
       renderToolsMap('destiny');
       setupToolsMapTabs();
+      initShieldSystem();
       tryDailyLoginBonus();
       tryVisitMilestone();
       tryOnboarding();
