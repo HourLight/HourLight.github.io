@@ -5572,25 +5572,23 @@ function doCalc(Y,M,D,H,min,gen,lat,lon,sect){
       +'<a href="destiny-match.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border:1px solid rgba(240,212,138,.25);border-radius:24px;color:#f0d485;font-size:.78rem;text-decoration:none;white-space:nowrap;flex-shrink:0">💑 加入第二個人，看雙人合盤 →</a>';
     ra.insertBefore(navBar, ra.firstChild);
   })();
-}
 
-  // ── 命盤計算記錄寫入 Firestore ──
-  (function(){
-    try{
-      if(window.HL_track){
-        var lunarObj=Solar.fromYmd(Y,M,D).getLunar();
-        window.HL_track('calc_complete',{
-          birthYear:Y,birthMonth:M,birthDay:D,birthHour:H,birthMin:min||0,
-          gender:gen||'',
-          nameZh:(document.getElementById('bname')?document.getElementById('bname').value.trim():''),
-          solarDate:Y+'/'+M+'/'+D,
-          lunarDate:lunarObj.getYearGan()+lunarObj.getYearZhi()+'年'+Math.abs(lunarObj.getMonth())+'月'+lunarObj.getDay()+'日',
-          bazi:(ec?ec.getYear()+' '+ec.getMonth()+' '+ec.getDay()+' '+ec.getTime():''),
-          dayMaster:(ec?ec.getDayGan():'')
-        });
-      }
-    }catch(e){}
-  })();
+  // ── 命盤計算記錄寫入 Firestore（2026/04/16 修：原本在 doCalc 外 scope 導致永遠不觸發）──
+  try{
+    if(window.HL_track){
+      var lunarObj=Solar.fromYmd(Y,M,D).getLunar();
+      window.HL_track('calc_complete',{
+        birthYear:Y,birthMonth:M,birthDay:D,birthHour:H,birthMin:min||0,
+        gender:gen||'',
+        nameZh:(document.getElementById('bname')?document.getElementById('bname').value.trim():''),
+        solarDate:Y+'/'+M+'/'+D,
+        lunarDate:lunarObj.getYearGan()+lunarObj.getYearZhi()+'年'+Math.abs(lunarObj.getMonth())+'月'+lunarObj.getDay()+'日',
+        bazi:(ec?ec.getYear()+' '+ec.getMonth()+' '+ec.getDay()+' '+ec.getTime():''),
+        dayMaster:(ec?ec.getDayGan():'')
+      });
+    }
+  }catch(e){ console.warn('[destiny-engine] HL_track calc_complete 失敗：', e.message); }
+}
 
 function addP(c,h){var d=document.createElement('div');d.className='panel';d.innerHTML=h;c.appendChild(d)}
 
