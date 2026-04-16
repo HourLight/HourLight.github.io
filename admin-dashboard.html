@@ -3046,10 +3046,11 @@ async function activateMember() {
       }
 
       // 大師額外加 2 張 NT$500 一對一抵用券
+      // 規格：只能折抵一對一解讀（>= 1800）｜一次用一張｜使用期限 3 個月
       if (actualPlan === 'pro') {
         try {
           var voucherExp = new Date();
-          voucherExp.setDate(voucherExp.getDate() + 30);
+          voucherExp.setDate(voucherExp.getDate() + 90); // 3 個月
           for (var v = 0; v < 2; v++) {
             var voucherCode = generateGiftCode('HLV');
             var voucherDoc = {
@@ -3060,7 +3061,17 @@ async function activateMember() {
               createdAt: firebase.firestore.FieldValue.serverTimestamp(),
               createdBy: currentUser.email,
               giftedFor: 'pro',
-              expiresAt: voucherExp.toISOString()
+              expiresAt: voucherExp.toISOString(),
+              // ═ 使用限制（對齊 payuni-notify.js 規格）═
+              minOrderAmount: 1800,           // 訂單最低金額 NT$1800
+              restrictedTo: 'one-on-one',     // 只能用於一對一解讀
+              maxUsePerOrder: 1,              // 一次一張
+              applicableServices: [
+                'prayer-6800', 'prayer-8800', 'prayer-12800',
+                'prayer-39800', 'prayer-59800', 'prayer-16800',
+                'one-on-one'
+              ],
+              memo: '馥靈大師月禮｜一對一 1800+ 可折 500｜3 個月內有效'
             };
             await db.collection('users').doc(uid).collection('vouchers').doc(voucherCode).set(voucherDoc);
             giftVouchers.push({ code: voucherCode, expires: voucherExp });
@@ -3126,14 +3137,22 @@ async function activateMember() {
         contentLines.push('💎 您的大師月禮：NT$500 一對一抵用券 × 2 張');
         contentLines.push('═══════════════════════════════════');
         contentLines.push('');
-        contentLines.push('每張抵用券可在預約「一對一覺察服務」時折抵 NT$500，');
-        contentLines.push('適用方案：馥靈初探 / 深度覺醒 / 三次轉化 / 半年陪伴 / VIP 年度夥伴 / VIP 紫微事業藍圖');
+        contentLines.push('每張抵用券可在預約「一對一覺察服務」時折抵 NT$500。');
+        contentLines.push('');
+        contentLines.push('✧ 使用規範：');
+        contentLines.push('  ► 只能折抵一對一解讀，訂單金額 NT$1800 以上');
+        contentLines.push('  ► 一次只能使用一張');
+        contentLines.push('  ► 使用期限 3 個月（90 天）');
+        contentLines.push('');
+        contentLines.push('✧ 適用方案：');
+        contentLines.push('  馥靈初探 NT$6,800 / 深度覺醒 NT$8,800 / 三次轉化 NT$12,800');
+        contentLines.push('  半年陪伴 NT$39,800 / VIP 年度夥伴 NT$59,800 / VIP 紫微事業藍圖 NT$16,800');
         contentLines.push('');
         giftVouchers.forEach(function(v, idx) {
-          contentLines.push('  抵用券 ' + (idx + 1) + ': ' + v.code + '（30 天內使用，' + v.expires.toLocaleDateString('zh-TW') + ' 到期）');
+          contentLines.push('  抵用券 ' + (idx + 1) + '：' + v.code + '（到期日 ' + v.expires.toLocaleDateString('zh-TW') + '）');
         });
         contentLines.push('');
-        contentLines.push('🔗 服務頁：https://hourlightkey.com/services.html');
+        contentLines.push('🔗 服務頁：https://hourlightkey.com/price-list-vip.html');
         contentLines.push('預約時請附上抵用券代碼，由覺察師人工確認折抵。');
         contentLines.push('');
       }
