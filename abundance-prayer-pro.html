@@ -360,8 +360,9 @@ async function runCalc(){
     // ── ④ 馥靈秘碼（destiny-calc.js: calcFL）──
     var fl = (typeof calcFL === 'function') ? calcFL(lm, ld, y, m, d, h) : null;
 
-    // ── ⑤ 太陽星座 ──
-    var sunSign = calcSunSign(m, d);
+    // ── ⑤ 太陽星座（精準版：必須用 destiny-calc.js 的 SIGNS × 星曆黃經，不自編月日區間）──
+    // sunSign 變數先宣告，等下方 astrology 算完才填值；若星曆載入失敗則留 null，不用近似版
+    var sunSign = null;
 
     // ── ⑥ 紫微斗數（destiny-calc.js: calcZiwei 需要完整參數）──
     var hzI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'].indexOf(hourGZ.charAt(1));
@@ -431,7 +432,7 @@ async function runCalc(){
       try {
         var planets = ephLookup(y, m, d, h, min);
         if (planets) {
-          // 占星簡要（只取太陽月亮 ASC 等關鍵）
+          // 占星簡要（使用 destiny-calc.js 既有 degToSignStr 精準函式）
           astrology = {
             sun_deg: planets.sun != null ? Math.floor(planets.sun) : null,
             moon_deg: planets.moon != null ? Math.floor(planets.moon) : null,
@@ -440,6 +441,10 @@ async function runCalc(){
             venus_deg: planets.venus != null ? Math.floor(planets.venus) : null,
             jupiter_deg: planets.jupiter != null ? Math.floor(planets.jupiter) : null,
           };
+          // 精準太陽星座（從 degToSignStr 結果取星座名，不自編區間判斷）
+          if (typeof degToSignStr === 'function' && planets.sun != null) {
+            sunSign = String(degToSignStr(planets.sun)).replace(/\d.*$/, '').trim();
+          }
           // 人類圖
           try { if (typeof calcHumanDesign === 'function') humanDesign = calcHumanDesign(planets, y, m, d, h, min); } catch(e) {}
           // 七政四餘
@@ -458,8 +463,11 @@ async function runCalc(){
     var flCode = (flH.H != null) ? (flH.H + '/' + flH.O + '/' + flH.U + '/' + flH.R) : null;
     var flLCode = (flL.L != null) ? (flL.L + '/' + flL.I + '/' + flL.G + '/' + flL.H + '/' + flL.T) : null;
     var triTuple = tri ? (tri.sub + '/' + tri.inner + '/' + tri.ext) : null;
-    var SIGNS = ['牡羊','金牛','雙子','巨蟹','獅子','處女','天秤','天蠍','射手','摩羯','水瓶','雙魚'];
-    function degToSign(deg) { if (deg == null) return null; return SIGNS[Math.floor(((deg%360)+360)%360/30)]; }
+    // 從度數取星座名（完全委託 destiny-calc.js 的 degToSignStr 再剝尾巴，不自編區間判斷）
+    function degToSignOnly(deg) {
+      if (deg == null || typeof degToSignStr !== 'function') return null;
+      return String(degToSignStr(deg)).replace(/\d.*$/, '').trim();
+    }
 
     var destinyCore = {
       // ═ 身份層（第一區塊 O 身份）═
@@ -543,10 +551,10 @@ async function runCalc(){
         maya_wavespell: maya ? maya.wavespell : null,                       // 瑪雅波符
         celtic_tree: celticTree ? (celticTree.name || JSON.stringify(celticTree).slice(0,30)) : null,  // 居爾特樹曆
         // 占星核心軸
-        ascendant_sign: astrology ? degToSign(astrology.sun_deg) : null,    // 暫用太陽代 ASC 佔位
-        mars_sign: astrology ? degToSign(astrology.mars_deg) : null,
-        venus_sign: astrology ? degToSign(astrology.venus_deg) : null,
-        jupiter_sign: astrology ? degToSign(astrology.jupiter_deg) : null,
+        ascendant_sign: astrology ? degToSignOnly(astrology.sun_deg) : null,    // 暫用太陽代 ASC 佔位
+        mars_sign: astrology ? degToSignOnly(astrology.mars_deg) : null,
+        venus_sign: astrology ? degToSignOnly(astrology.venus_deg) : null,
+        jupiter_sign: astrology ? degToSignOnly(astrology.jupiter_deg) : null,
       },
       flow_year: flowYear ? '當年度流年數 ' + flowYear : null,
       core_axis: (num && num.life ? '生命靈數 ' + num.life : '') + (sunSign ? ' × ' + sunSign : '') + (flCode ? ' × 馥靈秘碼 ' + flCode : '') + (maya && maya.seal ? ' × 瑪雅 ' + maya.seal : ''),
@@ -577,10 +585,8 @@ async function runCalc(){
   }
 }
 
-function calcSunSign(m, d){
-  var b = [[20,'水瓶'],[19,'雙魚'],[21,'牡羊'],[20,'金牛'],[21,'雙子'],[22,'巨蟹'],[23,'獅子'],[23,'處女'],[23,'天秤'],[24,'天蠍'],[23,'射手'],[22,'摩羯']];
-  return d < b[m-1][0] ? (m === 1 ? '摩羯' : b[m-2][1]) : b[m-1][1];
-}
+// calcSunSign 近似版已移除（2026/04/16）
+// 精準太陽星座由 destiny-calc.js 的 degToSignStr(planets.sun) 計算，參見 runCalc() 中 astrology 區塊
 
 function renderCoreDisplay(core){
   var html = '<div class="ap-core-title">四解碼層速覽</div><div class="ap-core-grid">';
