@@ -347,6 +347,12 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
     s.src = basePath + 'hl-exit-intent.js';
     s.defer = true;
     document.body.appendChild(s);
+
+    // ── 全站材料掉落系統（深度版：隨機 + 停留 + 節氣 + 連登 + 會員加成）──
+    var dropScript = document.createElement('script');
+    dropScript.src = basePath + 'hl-site-drop.js';
+    dropScript.defer = true;
+    document.body.appendChild(dropScript);
   })();
 
 })();

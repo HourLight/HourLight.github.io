@@ -203,6 +203,51 @@
     member_pro: [
       { id:'master_star',      name:'大師之星',   icon:'👑', rarity:'legendary', weight:60, zone:'大師寶庫', memberOnly:'pro', dropHint:'每日登入自動掉落' },
       { id:'fuling_essence',   name:'馥靈精髓',   icon:'✨', rarity:'legendary', weight:40, zone:'大師寶庫', memberOnly:'pro', dropHint:'完成抽牌解讀時掉落' }
+    ],
+
+    // H.O.U.R. 四階段房間材料
+    // 勇氣殿（H 身心校準）
+    heal_room: [
+      { id:'courage_spark',    name:'勇氣火花',   icon:'🔥', rarity:'common',    weight:50, zone:'勇氣殿' },
+      { id:'heal_dew',         name:'癒合露珠',   icon:'💧', rarity:'common',    weight:35, zone:'勇氣殿' },
+      { id:'worth_crystal',    name:'自我價值晶石', icon:'💎', rarity:'rare',    weight:12, zone:'勇氣殿' },
+      { id:'root_flame',       name:'根源之焰',   icon:'🕯️', rarity:'epic',      weight:2,  zone:'勇氣殿' },
+      { id:'heal_seal',        name:'校準印記',   icon:'✴️', rarity:'legendary', weight:1,  zone:'勇氣殿' }
+    ],
+
+    // 心門宮（O 智慧辨識）
+    own_room: [
+      { id:'heart_petal',      name:'心門花瓣',   icon:'🌸', rarity:'common',    weight:50, zone:'心門宮' },
+      { id:'wisdom_drop',      name:'智慧液滴',   icon:'🫧', rarity:'common',    weight:35, zone:'心門宮' },
+      { id:'discern_lens',     name:'辨識透鏡',   icon:'🔮', rarity:'rare',      weight:12, zone:'心門宮' },
+      { id:'gate_key',         name:'心門之鑰',   icon:'🗝️', rarity:'epic',      weight:2,  zone:'心門宮' },
+      { id:'own_seal',         name:'識我印記',   icon:'🌀', rarity:'legendary', weight:1,  zone:'心門宮' }
+    ],
+
+    // 志氣殿（U 潛能解鎖）
+    unlock_room: [
+      { id:'potential_seed',   name:'潛能種子',   icon:'🌱', rarity:'common',    weight:50, zone:'志氣殿' },
+      { id:'unlock_spark',     name:'解鎖火花',   icon:'⚡', rarity:'common',    weight:35, zone:'志氣殿' },
+      { id:'ambition_stone',   name:'志氣石晶',   icon:'🏅', rarity:'rare',      weight:12, zone:'志氣殿' },
+      { id:'unlock_key',       name:'潛能鑰匙',   icon:'🔑', rarity:'epic',      weight:2,  zone:'志氣殿' },
+      { id:'unlock_seal',      name:'解鎖印記',   icon:'🌟', rarity:'legendary', weight:1,  zone:'志氣殿' }
+    ],
+
+    // 平衡室（R 行動進化）
+    rise_room: [
+      { id:'action_dust',      name:'行動塵埃',   icon:'✨', rarity:'common',    weight:50, zone:'平衡室' },
+      { id:'balance_thread',   name:'平衡絲線',   icon:'🧵', rarity:'common',    weight:35, zone:'平衡室' },
+      { id:'rise_compass',     name:'行動羅盤',   icon:'🧭', rarity:'rare',      weight:12, zone:'平衡室' },
+      { id:'evolution_core',   name:'進化核心',   icon:'🌈', rarity:'epic',      weight:2,  zone:'平衡室' },
+      { id:'rise_seal',        name:'進化印記',   icon:'🦋', rarity:'legendary', weight:1,  zone:'平衡室' }
+    ],
+
+    // 全站被動掉落（瀏覽任意頁面自然觸發）
+    passive_browse: [
+      { id:'moonlight_shard',  name:'月光碎片',   icon:'🌙', rarity:'common',    weight:55, zone:'城堡漫步' },
+      { id:'insight_feather',  name:'洞見羽毛',   icon:'🪶', rarity:'common',    weight:30, zone:'城堡漫步' },
+      { id:'star_shard',       name:'星辰碎片',   icon:'✨', rarity:'rare',      weight:12, zone:'城堡漫步' },
+      { id:'oracle_essence',   name:'沒藥精髓',   icon:'🔯', rarity:'legendary', weight:3,  zone:'城堡漫步' }
     ]
   };
 
@@ -645,6 +690,82 @@
       ingredients: { oracle_heart: 1, precog_crystal: 2, dawn_crystal: 1, awareness_seal: 1 },
       zone: '傳說傢具',
       tier: 5
+    },
+
+    // H.O.U.R. 四殿 Tier 1 傢具
+    {
+      id: 'heal_candle',
+      name: '校準蠟燭',
+      icon: '🕯️',
+      desc: '點上它不是為了照亮別人，是為了看清楚自己站在哪裡。',
+      ingredients: { courage_spark: 2, heal_dew: 1 },
+      zone: '勇氣殿傢具',
+      tier: 1
+    },
+    {
+      id: 'heart_chair',
+      name: '心門小椅',
+      icon: '🪑',
+      desc: '坐在這裡的人，容易說出一些平時說不出口的話。',
+      ingredients: { heart_petal: 3, wisdom_drop: 1 },
+      zone: '心門宮傢具',
+      tier: 1
+    },
+    {
+      id: 'unlock_jar',
+      name: '潛能封存罐',
+      icon: '🫙',
+      desc: '不是把潛能裝進去，是把「我不配」裝進去。蓋上蓋子，放到角落。',
+      ingredients: { potential_seed: 3, unlock_spark: 1 },
+      zone: '志氣殿傢具',
+      tier: 1
+    },
+    {
+      id: 'rise_compass',
+      name: '行動指南針',
+      icon: '🧭',
+      desc: '指南針不告訴你要去哪裡，只告訴你你在哪個方向上。起點就夠了。',
+      ingredients: { action_dust: 3, balance_thread: 1 },
+      zone: '平衡室傢具',
+      tier: 1
+    },
+
+    // H.O.U.R. 四殿 Tier 2 傢具（稀有材料）
+    {
+      id: 'worth_mirror',
+      name: '自我價值之鏡',
+      icon: '🪞',
+      desc: '這面鏡子只看得見你「夠好」的部分。不是假的，是真的只照那個角度。',
+      ingredients: { worth_crystal: 1, courage_spark: 3, heal_dew: 2 },
+      zone: '勇氣殿傢具',
+      tier: 2
+    },
+    {
+      id: 'wisdom_gate_scroll',
+      name: '識我智慧卷',
+      icon: '📜',
+      desc: '展開來什麼都沒寫。你要看什麼，就寫什麼。這才是真正的智慧辨識。',
+      ingredients: { discern_lens: 1, heart_petal: 3, wisdom_drop: 2 },
+      zone: '心門宮傢具',
+      tier: 2
+    },
+    {
+      id: 'potential_lantern',
+      name: '潛能引路燈',
+      icon: '🏮',
+      desc: '你以為它在照亮前方的路。其實它在照亮你走過的路——讓你知道你能走到這裡。',
+      ingredients: { ambition_stone: 1, potential_seed: 3, unlock_spark: 2 },
+      zone: '志氣殿傢具',
+      tier: 2
+    },
+    {
+      id: 'balance_scale',
+      name: '行動天平',
+      icon: '⚖️',
+      desc: '不是用來判斷對錯，是用來問自己：「這個決定，我可以對得起自己嗎？」',
+      ingredients: { rise_compass: 1, action_dust: 3, balance_thread: 2 },
+      zone: '平衡室傢具',
+      tier: 2
     }
   ];
 
@@ -1713,5 +1834,36 @@
   window.hlMaterial.planAtLeast      = planAtLeast;
   window.hlMaterial.refreshCachedPlan = refreshCachedPlan;
   window.hlMaterial.checkMemberBonusDrop = checkMemberBonusDrop;
+
+  // ═══ 全站被動掉落（懶加載觸發，scroll 65% + 10% 機率）═══
+  (function initPassiveDrop(){
+    // 城堡、管理、登入、定價、法務頁面跳過（這些有自己的觸發邏輯）
+    var skipPaths = ['castle-room','castle-hub','castle-world','castle-game','castle-materials',
+                     'admin-dashboard','member-login','member-dashboard','app.html',
+                     'pricing','price-list','privacy','terms','aroma-garden'];
+    var path = (window.location.pathname || '').toLowerCase();
+    for(var i=0;i<skipPaths.length;i++){
+      if(path.indexOf(skipPaths[i])>=0) return;
+    }
+
+    var sessionKey = 'hl_passive_drop_' + path.replace(/[^a-z0-9]/g,'_');
+    if(sessionStorage.getItem(sessionKey)) return; // 本次瀏覽已觸發過
+
+    var fired = false;
+    function onScroll(){
+      if(fired) return;
+      var scrollPct = window.scrollY / Math.max(1, document.body.scrollHeight - window.innerHeight);
+      if(scrollPct < 0.65) return;
+      fired = true;
+      window.removeEventListener('scroll', onScroll);
+      if(Math.random() > 0.10) return; // 10% 機率
+      sessionStorage.setItem(sessionKey, '1');
+      var result = dropMaterial('passive_browse');
+      if(result && result.ok){
+        setTimeout(function(){ showDropToast(result.item); }, 800);
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+  })();
 
 })();
