@@ -23,8 +23,6 @@ module.exports = async function handler(req, res) {
   // 驗證後 nodemailer from 欄位可以用別名地址，Google 會以此身分寄出
   var MAIL_FROM_EMAIL = process.env.MAIL_FROM_EMAIL || 'info@hourlightkey.com';
 
-  if (!ML_KEY) return res.status(500).json({ error: 'MailerLite not configured' });
-
   try {
     var body = req.body || {};
     var email = (body.email || '').trim().toLowerCase();
@@ -34,6 +32,10 @@ module.exports = async function handler(req, res) {
     var system = body.system || '命盤引擎';
     // type: 'report'（預設）= 測算報告，'notification' = 會員通知信
     var type = body.type || 'report';
+    // notification 類型不需要 MailerLite，只有 report 類型才加入名單
+    if (type === 'report' && !ML_KEY) {
+      console.warn('MAILERLITE_API_KEY not set — skipping MailerLite subscription');
+    }
 
     // 驗證 email
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -43,9 +45,9 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: '沒有內容可寄送' });
     }
 
-    // ── 1. 加入 MailerLite 訂閱名單（僅報告信加入）──
+    // ── 1. 加入 MailerLite 訂閱名單（僅報告信加入，且需有 API key）──
     var mlResult = null;
-    if (type === 'report') {
+    if (type === 'report' && ML_KEY) {
       try {
         var mlResp = await fetch('https://connect.mailerlite.com/api/subscribers', {
           method: 'POST',
