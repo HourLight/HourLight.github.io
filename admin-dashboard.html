@@ -922,6 +922,11 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
           <input type="email" class="adm-input" id="memberEmailInput" placeholder="輸入會員 email 搜尋..." autocomplete="off">
           <button class="adm-btn adm-btn-gold" onclick="searchMember()">搜尋</button>
         </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px">
+          <button class="adm-btn adm-btn-sm" style="background:#8b6f4e;color:#fff" onclick="listMembersByPlan('pro')">👑 列出所有大師</button>
+          <button class="adm-btn adm-btn-sm" style="background:#a07cdc;color:#fff" onclick="listMembersByPlan('plus')">✨ 列出所有鑰友</button>
+          <button class="adm-btn adm-btn-sm" style="background:#e9c27d;color:#1a1520" onclick="listMembersByPlan('paid')">💎 列出付費會員（鑰友+大師）</button>
+        </div>
         <div id="memberSearchResult"></div>
       </div>
 
@@ -2168,6 +2173,164 @@ function searchMember() {
   });
 }
 window.searchMember = searchMember;
+
+// 列出指定 plan 的所有會員（pro / plus / paid=plus+pro）
+function listMembersByPlan(planFilter) {
+  var container = document.getElementById('memberSearchResult');
+  container.innerHTML = '<div class="adm-loading"><div class="adm-spinner"></div> 載入中…</div>';
+
+  var query;
+  if (planFilter === 'paid') {
+    query = db.collection('users').where('plan', 'in', ['plus', 'pro']);
+  } else {
+    query = db.collection('users').where('plan', '==', planFilter);
+  }
+
+  query.get().then(function(snap) {
+    if (snap.empty) {
+      container.innerHTML = '<div class="adm-empty"><div class="adm-empty-icon">👥</div>沒有符合條件的會員</div>';
+      return;
+    }
+
+    // 收集 + 依 planExpiry 排序（最快到期的在前面）
+    var rows = [];
+    var now = new Date();
+    snap.forEach(function(doc) {
+      var d = doc.data();
+      var exp = null;
+      if (d.planExpiry) {
+        exp = d.planExpiry.toDate ? d.planExpiry.toDate() : new Date(d.planExpiry);
+      }
+      rows.push({ id: doc.id, d: d, exp: exp });
+    });
+    rows.sort(function(a, b) {
+      if (!a.exp && !b.exp) return 0;
+      if (!a.exp) return 1;
+      if (!b.exp) return -1;
+      return a.exp - b.exp;
+    });
+
+    var title = planFilter === 'pro' ? '👑 馥靈大師（pro）'
+              : planFilter === 'plus' ? '✨ 馥靈鑰友（plus）'
+              : '💎 付費會員（plus + pro）';
+
+    var html = '<div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">' +
+      '<div style="font-weight:600;font-size:1rem">' + title + ' · 共 ' + rows.length + ' 位</div>' +
+      '<button class="adm-btn adm-btn-sm" onclick="exportMemberListCSV(\'' + planFilter + '\')">📋 複製 CSV（email,plan,expiry,升級時間,升級者）</button>' +
+      '</div>';
+
+    html += '<div style="overflow-x:auto"><table class="adm-table" style="width:100%;font-size:.85rem;border-collapse:collapse">' +
+      '<thead><tr style="background:rgba(139,111,78,.1);text-align:left">' +
+        '<th style="padding:8px">Email</th>' +
+        '<th style="padding:8px">方案</th>' +
+        '<th style="padding:8px">到期日</th>' +
+        '<th style="padding:8px">狀態</th>' +
+        '<th style="padding:8px">升級時間</th>' +
+        '<th style="padding:8px">升級者</th>' +
+        '<th style="padding:8px">操作</th>' +
+      '</tr></thead><tbody>';
+
+    rows.forEach(function(row) {
+      var d = row.d;
+      var exp = row.exp;
+      var expStr = '—';
+      var statusBadge = '';
+      if (d.plan === 'pro' || d.plan === 'plus') {
+        if (exp) {
+          if (exp.getFullYear() >= 2099) {
+            expStr = '永久';
+            statusBadge = '<span class="badge badge-gold">永久</span>';
+          } else {
+            expStr = exp.toLocaleDateString('zh-TW');
+            var daysLeft = Math.ceil((exp - now) / (24 * 60 * 60 * 1000));
+            if (daysLeft < 0) {
+              statusBadge = '<span class="badge badge-red">已過期 ' + Math.abs(daysLeft) + ' 天</span>';
+            } else if (daysLeft <= 7) {
+              statusBadge = '<span class="badge badge-orange">剩 ' + daysLeft + ' 天</span>';
+            } else {
+              statusBadge = '<span class="badge badge-green">剩 ' + daysLeft + ' 天</span>';
+            }
+          }
+        } else {
+          statusBadge = '<span class="badge badge-gray">無到期</span>';
+        }
+      }
+
+      var upgradeAt = d.planUpgradedAt || d.planUpdatedAt;
+      var upgradeAtStr = upgradeAt ? (upgradeAt.toDate ? upgradeAt.toDate() : new Date(upgradeAt)).toLocaleString('zh-TW', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
+      var upgradeBy = d.planUpgradedBy || d.planUpdatedBy || '—';
+      // PAYUNi 升級的會帶 'payuni:MerTradeNo' 前綴
+      if (upgradeBy && upgradeBy.indexOf('payuni:') === 0) {
+        upgradeBy = '🔄 ' + upgradeBy.slice(7, 20);
+      } else if (upgradeBy && upgradeBy.indexOf('@') > -1) {
+        upgradeBy = '👤 ' + upgradeBy.split('@')[0];
+      }
+
+      html += '<tr style="border-bottom:1px solid rgba(139,111,78,.1)">' +
+        '<td style="padding:8px;font-size:.8rem">' + esc(d.email || row.id) + '</td>' +
+        '<td style="padding:8px">' + getPlanIcon(d.plan) + ' ' + esc(getPlanName(d.plan)) + '</td>' +
+        '<td style="padding:8px">' + expStr + '</td>' +
+        '<td style="padding:8px">' + statusBadge + '</td>' +
+        '<td style="padding:8px;font-size:.75rem;color:var(--adm-text2)">' + upgradeAtStr + '</td>' +
+        '<td style="padding:8px;font-size:.75rem;color:var(--adm-text2)">' + esc(upgradeBy) + '</td>' +
+        '<td style="padding:8px"><button class="adm-btn adm-btn-sm" onclick="loadMemberDetailByUid(\'' + row.id + '\')">查看</button></td>' +
+      '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+    window._lastMemberList = rows; // 給 CSV 用
+  }).catch(function(e) {
+    container.innerHTML = '<div class="adm-empty">載入失敗：' + esc(e.message) + '</div>';
+  });
+}
+window.listMembersByPlan = listMembersByPlan;
+
+// 複製成 CSV
+function exportMemberListCSV(planFilter) {
+  var rows = window._lastMemberList || [];
+  if (!rows.length) { toast('沒有資料可複製'); return; }
+  var lines = ['email,plan,planExpiry,planUpgradedAt,planUpgradedBy'];
+  rows.forEach(function(row) {
+    var d = row.d;
+    var exp = row.exp ? row.exp.toISOString().slice(0, 10) : '';
+    var upAt = (d.planUpgradedAt || d.planUpdatedAt);
+    var upAtStr = upAt ? (upAt.toDate ? upAt.toDate() : new Date(upAt)).toISOString() : '';
+    var upBy = d.planUpgradedBy || d.planUpdatedBy || '';
+    lines.push([d.email || row.id, d.plan || '', exp, upAtStr, upBy].join(','));
+  });
+  var csv = lines.join('\n');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(csv).then(function() {
+      toast('已複製 ' + rows.length + ' 筆到剪貼簿');
+    }).catch(function() {
+      // fallback
+      var ta = document.createElement('textarea');
+      ta.value = csv; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); toast('已複製 ' + rows.length + ' 筆'); }
+      catch(e) { toast('複製失敗，請長按選取'); }
+      document.body.removeChild(ta);
+    });
+  } else {
+    var ta2 = document.createElement('textarea');
+    ta2.value = csv; document.body.appendChild(ta2); ta2.select();
+    try { document.execCommand('copy'); toast('已複製 ' + rows.length + ' 筆'); }
+    catch(e) { toast('複製失敗'); }
+    document.body.removeChild(ta2);
+  }
+}
+window.exportMemberListCSV = exportMemberListCSV;
+
+// 從清單點「查看」時，先讀完整 user data 再開詳情頁
+function loadMemberDetailByUid(uid) {
+  db.collection('users').doc(uid).get().then(function(snap) {
+    if (!snap.exists) { toast('找不到此會員'); return; }
+    showMemberDetail(uid, snap.data());
+  }).catch(function(e) {
+    toast('載入失敗：' + e.message);
+  });
+}
+window.loadMemberDetailByUid = loadMemberDetailByUid;
 
 document.getElementById('memberEmailInput').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') searchMember();
