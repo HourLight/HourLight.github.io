@@ -1711,8 +1711,55 @@ function renderCards(showExplain) {
     grid.appendChild(cardRow);
   }
 
-  // 1張：顯示牌卡涵義
+  // 1張：顯示牌卡涵義（儀式卡容器 v2 · 禮物位/挑戰位視覺分化）
   if (n === 1) {
+    // 一次性樣式
+    if (!document.getElementById('hl-cardsole-style')) {
+      var cardSoleStyle = document.createElement('style');
+      cardSoleStyle.id = 'hl-cardsole-style';
+      cardSoleStyle.textContent = `
+        .hl-cardsole{max-width:560px;margin:20px auto;position:relative;font-family:'Noto Serif TC','LXGW WenKai TC',serif}
+        .hl-cardsole-bg{position:absolute;inset:0;border-radius:32px;overflow:hidden;z-index:0;pointer-events:none}
+        .hl-cardsole-bg::before{content:'';position:absolute;inset:-40%;background:radial-gradient(ellipse at 50% 30%,rgba(248,223,165,.18),transparent 55%);animation:hlCardsoleGlow 6s ease-in-out infinite}
+        .hl-cardsole.is-challenge .hl-cardsole-bg::before{background:radial-gradient(ellipse at 50% 30%,rgba(160,124,220,.22),transparent 55%)}
+        @keyframes hlCardsoleGlow{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.12);opacity:1}}
+        .hl-cardsole-inner{position:relative;z-index:1;padding:44px 28px 38px;background:linear-gradient(180deg,rgba(10,7,24,.82),rgba(6,4,14,.92));border:1px solid rgba(248,223,165,.22);border-radius:28px;box-shadow:0 28px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(248,223,165,.12)}
+        .hl-cardsole.is-challenge .hl-cardsole-inner{border-color:rgba(214,167,199,.28);box-shadow:0 28px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(214,167,199,.15)}
+        .hl-cardsole-eyebrow{font-family:'Cormorant Garamond',serif;font-size:.72rem;letter-spacing:.42em;color:rgba(248,223,165,.6);text-align:center;text-transform:uppercase;margin-bottom:12px}
+        .hl-cardsole.is-challenge .hl-cardsole-eyebrow{color:rgba(214,167,199,.65)}
+        .hl-cardsole-badge{display:inline-flex;align-items:center;gap:7px;padding:8px 18px;border-radius:999px;font-size:.78rem;letter-spacing:.2em;font-weight:500}
+        .hl-cardsole-badge.gift{background:linear-gradient(135deg,rgba(248,223,165,.22),rgba(232,184,109,.14));color:#f8dfa5;border:1px solid rgba(248,223,165,.45);box-shadow:0 4px 18px rgba(248,223,165,.12)}
+        .hl-cardsole-badge.challenge{background:linear-gradient(135deg,rgba(160,124,220,.24),rgba(214,167,199,.14));color:#d6a7c7;border:1px solid rgba(214,167,199,.45);box-shadow:0 4px 18px rgba(160,124,220,.18)}
+        .hl-cardsole-imgwrap{margin:24px auto 22px;position:relative;width:160px}
+        .hl-cardsole-img{width:100%;height:auto;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.55),0 0 0 1px rgba(248,223,165,.15),0 0 40px rgba(248,223,165,.18);transition:transform .9s cubic-bezier(.4,0,.2,1)}
+        .hl-cardsole.is-challenge .hl-cardsole-img{box-shadow:0 20px 60px rgba(0,0,0,.55),0 0 0 1px rgba(214,167,199,.18),0 0 40px rgba(160,124,220,.22)}
+        .hl-cardsole-img.reversed{transform:rotate(180deg)}
+        .hl-cardsole-code{text-align:center;font-family:'Cormorant Garamond',serif;font-size:.78rem;letter-spacing:.5em;color:rgba(248,223,165,.55);margin-bottom:4px}
+        .hl-cardsole-name{text-align:center;font-size:1.55rem;color:#f8dfa5;letter-spacing:.14em;font-weight:500;margin-bottom:18px;line-height:1.4}
+        .hl-cardsole.is-challenge .hl-cardsole-name{color:#e9c27d}
+        .hl-cardsole-ornament{display:flex;align-items:center;justify-content:center;gap:14px;margin:18px 0 24px}
+        .hl-cardsole-ornament span{flex:0 0 auto;font-size:.8rem;color:rgba(248,223,165,.55);letter-spacing:.3em}
+        .hl-cardsole-ornament::before,.hl-cardsole-ornament::after{content:'';flex:1;height:1px;max-width:100px;background:linear-gradient(90deg,transparent,rgba(248,223,165,.35),transparent)}
+        .hl-cardsole.is-challenge .hl-cardsole-ornament::before,.hl-cardsole.is-challenge .hl-cardsole-ornament::after{background:linear-gradient(90deg,transparent,rgba(214,167,199,.4),transparent)}
+        .hl-cardsole-body{font-family:'LXGW WenKai TC','Noto Serif TC',serif;font-size:1.02rem;line-height:2.25;color:rgba(244,240,235,.88);letter-spacing:.04em;text-align:justify;padding:0 4px}
+        .hl-cardsole-body p{margin-bottom:14px}
+        .hl-cardsole-body p:last-child{margin-bottom:0}
+        .hl-cardsole-action{margin-top:28px;padding:18px 20px;background:linear-gradient(135deg,rgba(233,194,125,.08),rgba(248,223,165,.04));border:1px solid rgba(248,223,165,.2);border-radius:16px}
+        .hl-cardsole.is-challenge .hl-cardsole-action{background:linear-gradient(135deg,rgba(160,124,220,.08),rgba(214,167,199,.04));border-color:rgba(214,167,199,.25)}
+        .hl-cardsole-action-eyebrow{font-family:'Cormorant Garamond',serif;font-size:.7rem;letter-spacing:.28em;color:#f8dfa5;text-transform:uppercase;margin-bottom:8px;text-align:center}
+        .hl-cardsole.is-challenge .hl-cardsole-action-eyebrow{color:#d6a7c7}
+        .hl-cardsole-action-text{font-size:.94rem;line-height:2;color:rgba(244,240,235,.88);text-align:center;font-family:'LXGW WenKai TC',serif;letter-spacing:.03em}
+        .hl-cardsole-footer{margin-top:22px;text-align:center;font-size:.7rem;letter-spacing:.3em;color:rgba(248,223,165,.4);font-family:'Cormorant Garamond',serif}
+        @media(max-width:600px){
+          .hl-cardsole-inner{padding:34px 22px 28px;border-radius:22px}
+          .hl-cardsole-imgwrap{width:140px}
+          .hl-cardsole-name{font-size:1.3rem;letter-spacing:.1em}
+          .hl-cardsole-body{font-size:.95rem;line-height:2.1}
+        }
+      `;
+      document.head.appendChild(cardSoleStyle);
+    }
+
     selected.forEach((idx, cardIndex) => {
       const file = allFiles[idx];
       const code = file.replace('.png', '');
@@ -1720,35 +1767,39 @@ function renderCards(showExplain) {
       const cardName = info.name || info.title || '';
       const reversed = !!(window._selectedReversed && window._selectedReversed[cardIndex]);
 
-      const readingDiv = document.createElement('div');
-      readingDiv.className = 'hl-bestie-reading';
-
       const senseText = info.sense || info['覺察'] || '';
       const actionText = info.action || info['行動指引'] || '';
-      // 正位（禮物）顯示 giftText，逆位（挑戰）顯示 challengeText，fallback 至 senseText
       const orientationText = reversed
         ? (info.challengeText || senseText || '')
         : (info.giftText || senseText || '');
-      const orientLabel = reversed ? '◆ 挑戰位' : '✦ 禮物位';
-      const orientColor = reversed ? 'rgba(214,167,199,.9)' : 'rgba(248,223,165,.9)';
-      const orientBgGrad = reversed
-        ? 'linear-gradient(135deg,rgba(160,124,220,.18),rgba(214,167,199,.12))'
-        : 'linear-gradient(135deg,rgba(248,223,165,.18),rgba(233,194,125,.12))';
-      const orientBorder = reversed ? 'rgba(214,167,199,.35)' : 'rgba(248,223,165,.35)';
-      const imgRotate = reversed ? 'transform:rotate(180deg);' : '';
 
+      // 內文分段處理（換行 → <p>）
+      const paragraphs = orientationText.split(/\n{1,}/).filter(function(s){ return s.trim(); });
+      const bodyHtml = paragraphs.map(function(p){ return '<p>' + p.replace(/</g,'&lt;') + '</p>'; }).join('');
+
+      const eyebrow = reversed ? 'Challenge Card · 挑戰的禮物' : 'Gift Card · 今日的禮物';
+      const badgeClass = reversed ? 'challenge' : 'gift';
+      const badgeText = reversed ? '◆ 挑戰位' : '✦ 禮物位';
+      const footerText = reversed ? '—— 逆位讀法 · 深處的邀請 ——' : '—— 正位讀法 · 光裡的訊息 ——';
+
+      const readingDiv = document.createElement('div');
+      readingDiv.className = 'hl-cardsole' + (reversed ? ' is-challenge' : '');
       readingDiv.innerHTML = `
-        <div style="text-align:center;margin-bottom:20px">
-          <div style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;background:${orientBgGrad};border:1px solid ${orientBorder};font-size:.72rem;letter-spacing:.18em;color:${orientColor};margin-bottom:14px">${orientLabel}</div><br>
-          <img loading="lazy" src="${code}.png" alt="${cardName}" style="width:120px;height:auto;border-radius:14px;box-shadow:0 8px 32px rgba(240,181,179,.25);margin-bottom:16px;${imgRotate}transition:transform .6s cubic-bezier(.4,0,.2,1)" onerror="this.style.display='none'">
-          <div style="font-size:.72rem;letter-spacing:3px;color:rgba(240,181,179,.5);margin-bottom:6px">✦ 今日覺察 ✦</div>
-          <div class="hl-bestie-title" style="font-size:1.4rem;margin-bottom:4px">${cardName}</div>
-          <div style="font-size:.82rem;color:rgba(255,255,255,.35);letter-spacing:1px">${code}</div>
-        </div>
-        <div style="width:40px;height:1px;background:linear-gradient(90deg,transparent,rgba(240,181,179,.3),transparent);margin:20px auto"></div>
-        <div class="hl-bestie-content">
-          <div class="hl-bestie-opener" style="text-align:center;font-size:1rem;line-height:2;color:rgba(255,255,255,.8)">${orientationText}</div>
-          ${actionText ? `<div style="width:40px;height:1px;background:linear-gradient(90deg,transparent,rgba(233,194,125,.3),transparent);margin:24px auto"></div><div class="hl-bestie-closer" style="text-align:center"><div style="font-size:.72rem;letter-spacing:3px;color:rgba(233,194,125,.5);margin-bottom:10px">✨ 今天可以做的一件事</div><div style="font-size:.95rem;line-height:1.9;color:rgba(233,194,125,.85)">${actionText}</div></div>` : ''}
+        <div class="hl-cardsole-bg"></div>
+        <div class="hl-cardsole-inner">
+          <div class="hl-cardsole-eyebrow">${eyebrow}</div>
+          <div style="text-align:center">
+            <div class="hl-cardsole-badge ${badgeClass}">${badgeText}</div>
+          </div>
+          <div class="hl-cardsole-imgwrap">
+            <img class="hl-cardsole-img${reversed ? ' reversed' : ''}" src="${code}.png" alt="${cardName}" loading="lazy" onerror="this.style.display='none'">
+          </div>
+          <div class="hl-cardsole-code">${code}</div>
+          <div class="hl-cardsole-name">${cardName}</div>
+          <div class="hl-cardsole-ornament"><span>✧ 馥靈之鑰 ✧</span></div>
+          <div class="hl-cardsole-body">${bodyHtml}</div>
+          ${actionText ? `<div class="hl-cardsole-action"><div class="hl-cardsole-action-eyebrow">Today's One Step · 今天可以做的一件事</div><div class="hl-cardsole-action-text">${actionText}</div></div>` : ''}
+          <div class="hl-cardsole-footer">${footerText}</div>
         </div>
       `;
 
