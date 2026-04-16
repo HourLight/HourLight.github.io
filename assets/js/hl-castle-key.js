@@ -916,7 +916,22 @@
              newAchievements:newAch,
              unlockMsg:newUnlocked.length?UNLOCK_MSGS[newUnlocked[newUnlocked.length-1]]:null};
     },
-    addPoints:function(n){state.points+=(n||0);saveState(state);},
+    addPoints:function(n){
+      var before=state.points;
+      state.points+=(n||0);
+      saveState(state);
+      // 里程碑慶祝（跨越 50/100/200/300/500 觸發 hl-reward-fx milestone）
+      var MILESTONES=[50,100,200,300,500,800,1200];
+      try {
+        MILESTONES.forEach(function(m){
+          if (before < m && state.points >= m && window.hlRewardFX && hlRewardFX.milestone){
+            setTimeout(function(){ hlRewardFX.milestone({ points: m }); }, 300);
+          }
+        });
+        // 連續簽到獎牌（進城堡即 check）
+        if (window.hlRewardFX && hlRewardFX.streakBadge) hlRewardFX.streakBadge(state.streak);
+      } catch(_){}
+    },
     shareBonus:function(){
       // 2026/04/15 分享獎勵下修 2→1
       state.points+=1;state.shareCount=(state.shareCount||0)+1;
@@ -970,6 +985,17 @@
       state.coupons=state.coupons||[];
       if(couponCode)state.coupons.unshift({code:couponCode,value:item.couponValue,n:item.couponN,date:todayKey()});
       var na=checkAch(state);saveState(state);
+      // 兌換慶祝動畫
+      try {
+        if (window.hlRewardFX && hlRewardFX.redeemCelebration){
+          setTimeout(function(){
+            hlRewardFX.redeemCelebration({
+              name: item.name || '折價券',
+              desc: couponCode ? ('兌換碼 ' + couponCode + '｜' + (item.couponValue ? 'NT$'+item.couponValue+' 抵用券' : '好禮已收下')) : '好禮已收下'
+            });
+          }, 200);
+        }
+      } catch(_){}
       return{ok:true,item:item,couponCode:couponCode,newAchievements:na};
     },
     getRedeemItems:function(){
