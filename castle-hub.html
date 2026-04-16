@@ -1157,6 +1157,87 @@ main{position:relative;z-index:1}
   }
 
   // ── 初始化 ──
+  // ═══ 新手 onboarding（首次進城堡的儀式動畫）═══
+  function tryOnboarding(){
+    try {
+      if (localStorage.getItem('hl_castle_onboarded_v1') === '1') return;
+
+      var STEPS = [
+        {
+          icon: '🏰',
+          label: '第 1 步',
+          title: '這裡不是遊戲，是你的儀式場',
+          desc: '每天進來一次，讓自己停下來 3 分鐘。城堡記得你每一步，你不用證明什麼。'
+        },
+        {
+          icon: '🔑',
+          label: '第 2 步',
+          title: '選一間房，做一個謎語',
+          desc: '21 間房對應你內在的 21 個面向。覺察謎語沒有對錯，重點是你停下來想了那幾秒。'
+        },
+        {
+          icon: '✨',
+          label: '第 3 步',
+          title: '累積靈感點，收穫連續簽到',
+          desc: '做任務賺靈感點，200 點可兌換 NT$500 抵用券。連續 7 / 30 / 90 天有專屬獎牌。'
+        }
+      ];
+      var cur = 0;
+
+      var ov = document.createElement('div');
+      ov.style.cssText = 'position:fixed;inset:0;background:radial-gradient(circle at center,rgba(42,31,76,.85),rgba(14,11,36,.92));z-index:10000;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .5s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:20px';
+
+      var card = document.createElement('div');
+      card.style.cssText = 'background:linear-gradient(160deg,#2a1f4c 0%,#1a1533 100%);border:1.5px solid rgba(248,223,165,.4);border-radius:24px;padding:36px 28px 28px;max-width:420px;width:100%;text-align:center;color:#fff;font-family:"Noto Serif TC",serif;transform:scale(.88);transition:transform .5s cubic-bezier(.34,1.56,.64,1);box-shadow:0 32px 100px rgba(0,0,0,.7),0 0 50px rgba(248,223,165,.2);position:relative';
+
+      function render(){
+        var s = STEPS[cur];
+        var dots = STEPS.map(function(_, i){
+          return '<span style="width:8px;height:8px;border-radius:50%;background:' + (i === cur ? '#f8dfa5' : 'rgba(255,255,255,.25)') + ';transition:all .3s"></span>';
+        }).join('');
+        var prevBtn = cur > 0 ? '<button type="button" data-onb-act="prev" style="background:transparent;color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:10px 22px;font-size:.86rem;letter-spacing:.06em;cursor:pointer;font-family:inherit">上一步</button>' : '<span style="width:85px"></span>';
+        var nextLabel = cur === STEPS.length - 1 ? '開始探索' : '下一步';
+        card.innerHTML =
+          '<div style="font-size:3.4rem;margin-bottom:12px;filter:drop-shadow(0 6px 20px rgba(248,223,165,.4))">' + s.icon + '</div>' +
+          '<div style="font-size:.7rem;letter-spacing:.24em;color:#e9c27d;margin-bottom:8px;text-transform:uppercase">' + s.label + '</div>' +
+          '<div style="font-size:1.2rem;font-weight:600;color:#f8dfa5;margin-bottom:14px;letter-spacing:.04em;line-height:1.5">' + s.title + '</div>' +
+          '<div style="font-size:.9rem;color:rgba(255,255,255,.8);line-height:2;font-family:\'LXGW WenKai TC\',serif;margin-bottom:22px">' + s.desc + '</div>' +
+          '<div style="display:flex;justify-content:center;gap:8px;margin-bottom:22px">' + dots + '</div>' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px">' +
+            prevBtn +
+            '<button type="button" data-onb-act="next" style="background:linear-gradient(135deg,#f8dfa5,#b8922a);color:#2a1f4c;border:none;border-radius:999px;padding:11px 28px;font-size:.88rem;letter-spacing:.08em;cursor:pointer;font-family:inherit;font-weight:600">' + nextLabel + '</button>' +
+            '<button type="button" data-onb-act="skip" style="background:transparent;color:rgba(255,255,255,.45);border:none;font-size:.72rem;letter-spacing:.08em;cursor:pointer;font-family:inherit;padding:6px 8px">跳過</button>' +
+          '</div>';
+        card.querySelectorAll('[data-onb-act]').forEach(function(b){
+          b.addEventListener('click', handleAct);
+        });
+      }
+
+      function handleAct(e){
+        var act = e.currentTarget.dataset.onbAct;
+        if (act === 'skip') return close();
+        if (act === 'prev'){ cur = Math.max(0, cur - 1); render(); return; }
+        if (cur === STEPS.length - 1) return close(true);
+        cur++; render();
+      }
+
+      function close(done){
+        localStorage.setItem('hl_castle_onboarded_v1', '1');
+        if (done && window.hlRewardFX) hlRewardFX.confetti({ count: 60, origin:{ x:.5, y:.4 }, duration: 2600 });
+        ov.style.opacity = '0';
+        card.style.transform = 'scale(.9)';
+        setTimeout(function(){ ov.remove(); }, 500);
+      }
+
+      ov.appendChild(card);
+      document.body.appendChild(ov);
+      setTimeout(function(){
+        render();
+        requestAnimationFrame(function(){ ov.style.opacity = '1'; card.style.transform = 'scale(1)'; });
+      }, 1000);
+    } catch(_) {}
+  }
+
   // 最近探索 widget（本週覺察 · 全站 callback 閉環）
   function renderExplorations(){
     try {
@@ -1274,6 +1355,7 @@ main{position:relative;z-index:1}
       renderExplorations();
       tryDailyLoginBonus();
       tryVisitMilestone();
+      tryOnboarding();
       return;
     }
 
@@ -1292,6 +1374,7 @@ main{position:relative;z-index:1}
       renderExplorations();
       tryDailyLoginBonus();
       tryVisitMilestone();
+      tryOnboarding();
     });
   }
 
