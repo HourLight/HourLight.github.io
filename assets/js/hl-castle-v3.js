@@ -371,7 +371,7 @@
       text:'您無意間調出一個氣味組合，是某個重要的人身上的味道。',
       rewards:{ xp:28, material:{rare:'薰衣草晨露'} } },
     { id:'kitchen_brew',   roomId:'kitchen',   weight:3,  minLv:22,
-      text:'爐子上的鍋裡浮出一個心形泡泡。小馥說：「今天這鍋送給最需要被照顧的人——是你。」',
+      text:'爐子上的鍋裡浮出一個心形泡泡。小馥說：「今天這鍋送給最需要被照顧的人，是你。」',
       rewards:{ xp:55, material:{legendary:'沒藥精髓'} } },
 
     // 煉金室

@@ -352,7 +352,7 @@
       id: 'castle_throne',
       name: '城堡王座',
       icon: '👑',
-      desc: '坐上去的那一刻你會發現——椅子一直都在，只是你以前覺得自己不配坐。這是全城堡最稀有的傢具。',
+      desc: '坐上去的那一刻你會發現，椅子一直都在，只是你以前覺得自己不配坐。這是全城堡最稀有的傢具。',
       ingredients: { calibration_key: 1, matrix_core: 1, nine_palace_mark: 1 },
       zone: '傳說王座',
       paidOnly: 28
@@ -500,7 +500,7 @@
       id: 'wisdom_lantern',
       name: '智慧書燈',
       icon: '📖',
-      desc: '讀到忘了時間，這盞燈會讓你記得——有些東西不是一晚上能讀完的。',
+      desc: '讀到忘了時間，這盞燈會讓你記得，有些東西不是一晚上能讀完的。',
       ingredients: { wisdom_scroll: 1, chart_ink: 2, moonlight_shard: 1 },
       zone: '學院塔傢具',
       tier: 2
@@ -639,7 +639,7 @@
       id: 'transform_phoenix',
       name: '蛻變鳳凰雕像',
       icon: '🦅',
-      desc: '每次看到它，你都會記得——你已經在火裡待過了，出來了。',
+      desc: '每次看到它，你都會記得，你已經在火裡待過了，出來了。',
       ingredients: { evolution_seal: 1, phoenix_ash: 2, destiny_core: 1 },
       zone: '蛻變室傢具',
       tier: 4
@@ -753,7 +753,7 @@
       id: 'potential_lantern',
       name: '潛能引路燈',
       icon: '🏮',
-      desc: '你以為它在照亮前方的路。其實它在照亮你走過的路——讓你知道你能走到這裡。',
+      desc: '你以為它在照亮前方的路。其實它在照亮你走過的路，讓你知道你能走到這裡。',
       ingredients: { ambition_stone: 1, potential_seed: 3, unlock_spark: 2 },
       zone: '志氣殿傢具',
       tier: 2
