@@ -1176,6 +1176,86 @@ async function copyReadingText(readingId){
       <div id="member-gratitude" style="max-width:760px;margin:0 auto 24px;padding:16px 20px;background:linear-gradient(135deg,rgba(200,134,42,.05),rgba(160,124,220,.05));border:1px solid rgba(200,134,42,.2);border-radius:14px;font-family:'LXGW WenKai TC','Noto Serif TC',serif;font-size:.86rem;line-height:2;color:rgba(244,240,235,.78);letter-spacing:.04em;display:none">
         <span id="member-gratitude-text"></span>
       </div>
+
+      <!-- 本月覺察故事（座標哲學 → 馥靈之鑰 橋樑）-->
+      <div id="monthly-story" style="max-width:760px;margin:0 auto 24px;padding:26px 24px;background:linear-gradient(160deg,rgba(42,31,76,.6),rgba(14,11,36,.7));border:1px solid rgba(248,223,165,.3);border-radius:20px;display:none;position:relative;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.3)">
+        <div style="position:absolute;top:0;right:0;width:140px;height:140px;background:radial-gradient(circle,rgba(248,223,165,.14),transparent 70%);pointer-events:none"></div>
+        <div style="font-size:.72rem;letter-spacing:.28em;color:#f8dfa5;margin-bottom:10px;text-transform:uppercase;position:relative">Your Coordinate · 你最近的座標</div>
+        <h3 style="font-size:1.15rem;color:#f0d48a;font-weight:500;letter-spacing:.06em;margin-bottom:14px;font-family:'Noto Serif TC',serif;position:relative" id="monthly-story-title">你這個月，在找答案</h3>
+        <div id="monthly-story-body" style="font-size:.92rem;color:rgba(244,240,235,.82);line-height:2.1;font-family:'LXGW WenKai TC','Noto Serif TC',serif;margin-bottom:18px;position:relative"></div>
+        <div id="monthly-story-cta" style="position:relative"></div>
+      </div>
+      <script>
+        (function(){
+          // 本月覺察故事：彙整本月探索 + 收藏 → 生成座標哲學敘述 + 溫柔 CTA
+          function renderMonthlyStory(){
+            try {
+              var el = document.getElementById('monthly-story');
+              var body = document.getElementById('monthly-story-body');
+              var cta = document.getElementById('monthly-story-cta');
+              var titleEl = document.getElementById('monthly-story-title');
+              if (!el || !body) return;
+
+              // 讀本月探索 + 收藏
+              var exp = JSON.parse(localStorage.getItem('hl_castle_explorations') || '[]');
+              var keep = JSON.parse(localStorage.getItem('hl_castle_keepsakes_v1') || '[]');
+              var refDraw = JSON.parse(localStorage.getItem('hl_draw_reflections_v1') || '[]');
+              var now = Date.now();
+              var monthAgo = now - 30 * 24 * 60 * 60 * 1000;
+
+              var recent = exp.filter(function(e){ return e.ts > monthAgo; });
+              var recentKeep = keep.filter(function(e){ return e.ts > monthAgo; });
+
+              // 至少要有 3 項探索才顯示（否則沒故事可說）
+              if (recent.length < 3) return;
+
+              // 今天已看過就不重複
+              var today = new Date(new Date().getTime() + 8*3600000).toISOString().slice(0,10);
+              var shownKey = 'hl_monthly_story_shown_' + today;
+              if (localStorage.getItem(shownKey)) return;
+
+              // 分類統計
+              var typeCount = { quiz: 0, draw: 0, destiny: 0, castle: 0, generic: 0 };
+              recent.forEach(function(e){ if (typeCount[e.type] !== undefined) typeCount[e.type]++; });
+              var dominantType = Object.keys(typeCount).reduce(function(a,b){ return typeCount[a] > typeCount[b] ? a : b; });
+
+              // 生成馥靈馥語敘述
+              var TYPE_NARRATIVE = {
+                quiz: '你這個月在找「我是誰」的答案。',
+                draw: '你這個月走近自己了 ' + recent.filter(function(e){return e.type==='draw';}).length + ' 次。',
+                destiny: '你這個月對自己的座標特別好奇。',
+                castle: '你這個月常常回到城堡，像回到一個安靜的房間。',
+                generic: '你這個月走過很多不同的路。'
+              };
+
+              var narr = '';
+              narr += '<p>' + TYPE_NARRATIVE[dominantType] + '</p>';
+              narr += '<p>30 天內你做了 <b style="color:#f8dfa5">' + recent.length + '</b> 次探索';
+              if (recentKeep.length) narr += '，留下 <b style="color:#f8dfa5">' + recentKeep.length + '</b> 個想給以後的自己看的片段';
+              if (refDraw.length) narr += '，寫了 <b style="color:#f8dfa5">' + refDraw.length + '</b> 份抽牌反思';
+              narr += '。</p>';
+              narr += '<p style="color:rgba(244,240,235,.7);font-size:.88rem;margin-top:10px">這些不是數字，是你給自己的時間。</p>';
+
+              body.innerHTML = narr;
+
+              // CTA 橋樑：座標 → 行動
+              var ctaHtml = '<div style="padding:16px 18px;background:rgba(248,223,165,.05);border:1px dashed rgba(248,223,165,.25);border-radius:12px;margin-top:6px">';
+              ctaHtml += '<div style="font-size:.78rem;letter-spacing:.22em;color:#f8dfa5;margin-bottom:6px;text-transform:uppercase">Next Step · 知道之後呢</div>';
+              ctaHtml += '<p style="font-size:.88rem;color:rgba(244,240,235,.82);line-height:1.9;margin-bottom:12px;font-family:\'LXGW WenKai TC\',serif">你看見的這些線索，如果能被一個懂你的人串起來讀，會很不一樣。一對一覺察師會把你的座標、你的牌、你的時間節奏放在一起，告訴你下一步可以怎麼走。</p>';
+              ctaHtml += '<div style="display:flex;gap:10px;flex-wrap:wrap">';
+              ctaHtml += '<a href="services.html" style="padding:9px 18px;background:linear-gradient(135deg,#f8dfa5,#e9c27d);color:#2a1f4c;border-radius:999px;text-decoration:none;font-size:.82rem;font-weight:600;letter-spacing:.04em">看看一對一覺察</a>';
+              ctaHtml += '<a href="pricing.html" style="padding:9px 18px;border:1px solid rgba(248,223,165,.3);color:#f8dfa5;border-radius:999px;text-decoration:none;font-size:.82rem;letter-spacing:.04em">看所有方案</a>';
+              ctaHtml += '</div></div>';
+              cta.innerHTML = ctaHtml;
+
+              el.style.display = 'block';
+              localStorage.setItem(shownKey, '1');
+            } catch(_){}
+          }
+          if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', renderMonthlyStory);
+          else renderMonthlyStory();
+        })();
+      </script>
       <script>
         (function(){
           // 等 firebase 與 plan 載入後出現訊息
