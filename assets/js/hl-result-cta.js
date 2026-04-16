@@ -109,6 +109,15 @@
       .hl-rcta-keepsake:hover{border-color:#c8862a;background:rgba(200,134,42,.08);color:#3e2a1a;transform:translateY(-1px)}
       .hl-rcta-keepsake.kept{background:linear-gradient(135deg,rgba(200,134,42,.14),rgba(232,184,109,.14));border-style:solid;color:#3e2a1a;cursor:default}
       .hl-rcta-keepsake-icon{font-size:1.05rem}
+      .hl-rcta-reflect{margin-bottom:28px;padding:22px 20px;background:linear-gradient(135deg,rgba(200,134,42,.05),rgba(160,124,220,.04));border:1px solid rgba(200,134,42,.18);border-radius:18px}
+      .hl-rcta-reflect-eyebrow{font-size:.7rem;letter-spacing:.28em;color:#c8862a;text-transform:uppercase;text-align:center;margin-bottom:8px}
+      .hl-rcta-reflect-title{font-size:1.05rem;color:#3e2a1a;font-weight:500;letter-spacing:.06em;text-align:center;margin-bottom:16px}
+      .hl-rcta-reflect-q{border:1px solid rgba(200,134,42,.15);border-radius:12px;padding:11px 15px;background:rgba(255,255,255,.6);margin-bottom:9px;transition:all .3s}
+      .hl-rcta-reflect-q[open]{border-color:rgba(200,134,42,.4)}
+      .hl-rcta-reflect-q summary{cursor:pointer;font-size:.88rem;color:#4a3f6c;letter-spacing:.04em;list-style:none}
+      .hl-rcta-reflect-q summary::-webkit-details-marker{display:none}
+      .hl-rcta-reflect-q textarea{width:100%;min-height:60px;margin-top:10px;padding:9px 11px;background:rgba(255,255,255,.75);border:1px solid rgba(200,134,42,.15);border-radius:8px;font-family:inherit;font-size:.86rem;line-height:1.8;color:#3e2a1a;resize:vertical}
+      .hl-rcta-reflect-hint{font-size:.76rem;color:#8a7a6a;text-align:center;margin-top:12px;font-family:'LXGW WenKai TC','Noto Serif TC',serif;line-height:1.8}
       @media(max-width:640px){.hl-rcta-grid{grid-template-columns:1fr;gap:10px}.hl-rcta-card{padding:16px}}
     ` : `
       .hl-rcta{margin:40px auto;max-width:960px;padding:0 16px;font-family:'Noto Serif TC',serif}
@@ -126,6 +135,15 @@
       .hl-rcta-keepsake:hover{border-color:rgba(248,223,165,.6);background:rgba(248,223,165,.08);color:#f8dfa5;transform:translateY(-1px)}
       .hl-rcta-keepsake.kept{background:linear-gradient(135deg,rgba(248,223,165,.14),rgba(232,184,109,.14));border-style:solid;color:#f8dfa5;cursor:default}
       .hl-rcta-keepsake-icon{font-size:1.05rem}
+      .hl-rcta-reflect{margin-bottom:28px;padding:22px 20px;background:linear-gradient(135deg,rgba(248,223,165,.06),rgba(160,124,220,.05));border:1px solid rgba(248,223,165,.2);border-radius:18px}
+      .hl-rcta-reflect-eyebrow{font-size:.7rem;letter-spacing:.28em;color:#f8dfa5;text-transform:uppercase;text-align:center;margin-bottom:8px}
+      .hl-rcta-reflect-title{font-size:1.05rem;color:#f0d48a;font-weight:500;letter-spacing:.06em;text-align:center;margin-bottom:16px}
+      .hl-rcta-reflect-q{border:1px solid rgba(248,223,165,.15);border-radius:12px;padding:11px 15px;background:rgba(0,0,0,.18);margin-bottom:9px;transition:all .3s}
+      .hl-rcta-reflect-q[open]{border-color:rgba(248,223,165,.4)}
+      .hl-rcta-reflect-q summary{cursor:pointer;font-size:.88rem;color:#f8dfa5;letter-spacing:.04em;list-style:none}
+      .hl-rcta-reflect-q summary::-webkit-details-marker{display:none}
+      .hl-rcta-reflect-q textarea{width:100%;min-height:60px;margin-top:10px;padding:9px 11px;background:rgba(255,255,255,.04);border:1px solid rgba(248,223,165,.15);border-radius:8px;font-family:inherit;font-size:.86rem;line-height:1.8;color:rgba(244,240,235,.88);resize:vertical}
+      .hl-rcta-reflect-hint{font-size:.76rem;color:rgba(244,240,235,.5);text-align:center;margin-top:12px;font-family:'LXGW WenKai TC','Noto Serif TC',serif;line-height:1.8}
       @media(max-width:640px){.hl-rcta-grid{grid-template-columns:1fr;gap:10px}.hl-rcta-card{padding:16px}}
     `;
     document.head.appendChild(css);
@@ -259,6 +277,20 @@
     var preset = CTA_PRESETS[type] || CTA_PRESETS.generic;
 
     var html = '<section class="hl-rcta" role="complementary" aria-label="接下來的探索">';
+
+    // ═══ Layer 2：quiz 類型專屬反思層（利他 · CTA 合理化）═══
+    // 測驗做完 → 先給反思空間 → 再自然接升級 CTA
+    if (type === 'quiz') {
+      html += '<div class="hl-rcta-reflect">';
+      html += '<div class="hl-rcta-reflect-eyebrow">Pause · 先停一下</div>';
+      html += '<h4 class="hl-rcta-reflect-title">看完結果，三個問題</h4>';
+      html += '<details class="hl-rcta-reflect-q" data-reflect-key="nod"><summary>🔍　這個結果有什麼讓你點頭？</summary><textarea placeholder="一個詞、一句話都可以"></textarea></details>';
+      html += '<details class="hl-rcta-reflect-q" data-reflect-key="known"><summary>🌱　有什麼是你早就知道但沒說出口的？</summary><textarea placeholder="寫給自己看"></textarea></details>';
+      html += '<details class="hl-rcta-reflect-q" data-reflect-key="action"><summary>🎯　如果這個結果幫你看懂一件事，那是什麼？</summary><textarea placeholder="不用完整，寫片段也可以"></textarea></details>';
+      html += '<p class="hl-rcta-reflect-hint">覺察不用完整。這幾秒的停頓，已經是你給自己的禮物。</p>';
+      html += '</div>';
+    }
+
     html += '<div class="hl-rcta-label">' + preset.label + '</div>';
     html += '<h3 class="hl-rcta-title">下一步，走哪條路</h3>';
     html += '<div class="hl-rcta-grid">';
