@@ -321,6 +321,22 @@ module.exports = async function handler(req, res) {
             }
           }
 
+          // ── 5b. 若是桌布商品（wallpaper-N），把張數加到 user.wallpaper_bonus ──
+          const wallpaperMatch = service && service.category === 'wallpaper';
+          if (wallpaperMatch && userId) {
+            try {
+              const admin = require('firebase-admin');
+              await db.collection('users').doc(userId).set({
+                wallpaper_bonus: admin.firestore.FieldValue.increment(service.n),
+                lastWallpaperPurchaseAt: now,
+                lastWallpaperOrderId: MerTradeNo,
+              }, { merge: true });
+              console.log(`✅ 桌布點數增加：userId=${userId} +${service.n} 張 orderId=${MerTradeNo}`);
+            } catch (wpErr) {
+              console.error('PAYUNi notify: 桌布點數寫入失敗', wpErr.message);
+            }
+          }
+
           // ── 5a. 若是加購商品（topup-N），把次數加到 user.aiBonus ──
           const topup = parseTopupProduct(productId);
           if (topup) {
