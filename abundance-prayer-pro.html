@@ -329,8 +329,16 @@ async function runCalc(){
   document.getElementById('loading-calc').classList.add('show');
 
   try {
-    try { if (typeof loadEphemeris === 'function') await loadEphemeris(); } catch(e) {}
+    // 嘗試載入星曆（占星 / 人類圖 / 七政四餘 / 吠陀 需要這個）
+    var ephLoaded = false;
+    try {
+      if (typeof loadEphemeris === 'function') {
+        await loadEphemeris();
+        ephLoaded = true;
+      }
+    } catch(e) { console.warn('星曆載入失敗，部分命理將缺席：', e); }
 
+    // ── ① 農曆 + 四柱八字（lunar.min.js）──
     var lSolar = Solar.fromYmdHms(y, m, d, h, min, 0);
     var lLunar = lSolar.getLunar();
     var lm = lLunar.getMonth();
@@ -339,70 +347,216 @@ async function runCalc(){
     var monthGZ = lLunar.getMonthInGanZhi();
     var dayGZ = lLunar.getDayInGanZhi();
     var hourGZ = lLunar.getTimeInGanZhi();
+    var yearAnimal = lLunar.getYearShengXiao();
+    var dayWuxing = lLunar.getDayNaYin ? lLunar.getDayNaYin() : '';
 
+    // ── ② 生命靈數系統（destiny-calc.js: calcNum）──
     var num = (typeof calcNum === 'function') ? calcNum(y, m, d, h) : null;
+
+    // ── ③ 三角生命密碼（destiny-calc.js: calcTri）──
     var tri = (typeof calcTri === 'function') ? calcTri(y, m, d) : null;
+
+    // ── ④ 馥靈秘碼（destiny-calc.js: calcFL）──
     var fl = (typeof calcFL === 'function') ? calcFL(lm, ld, y, m, d, h) : null;
+
+    // ── ⑤ 太陽星座 ──
     var sunSign = calcSunSign(m, d);
 
+    // ── ⑥ 紫微斗數（destiny-calc.js: calcZiwei 需要完整參數）──
     var hzI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'].indexOf(hourGZ.charAt(1));
     if (hzI < 0) hzI = 6;
+    var TG_STR = '甲乙丙丁戊己庚辛壬癸';
+    var ytI = TG_STR.indexOf(yearGZ.charAt(0));
+    var yzI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'].indexOf(yearGZ.charAt(1));
+    if (ytI < 0) ytI = 0; if (yzI < 0) yzI = 0;
+    var ziweiFull = null;
+    try {
+      if (typeof calcZiwei === 'function') ziweiFull = calcZiwei(lm, ld, ytI, yzI, hzI, gender);
+    } catch(e) { console.warn('紫微計算失敗:', e); }
     var ziweiPalace = ((lm + 1 - hzI) % 12 + 24) % 12;
     var PALACE_NAMES = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
 
+    // ── ⑦ 流年（destiny-calc.js: calcFlowYear）──
     var nowYear = new Date().getFullYear();
     var flowYear = (typeof calcFlowYear === 'function') ? calcFlowYear(m, d, nowYear) : null;
 
+    // ── ⑧ 姓名 + 筆畫（destiny-calc.js: getStroke）──
     var nameTotal = 0;
+    var nameStrokes = [];
     if (name && typeof getStroke === 'function') {
-      for (var i = 0; i < name.length; i++) nameTotal += (getStroke(name.charAt(i)) || 0);
+      for (var i = 0; i < name.length; i++) {
+        var s = getStroke(name.charAt(i)) || 0;
+        nameTotal += s;
+        nameStrokes.push(s);
+      }
     }
 
-    // 整理命理資料（注意 destiny-calc.js 的實際返回結構）
-    // num: { life, talent, yS, mS, dS, gifts:{g1..g4}, challenges:{c1..c4}, meridian, ... }
-    // fl:  { H:{H,O,U,R}, L:{L,I,G,H,T}, pals:{...} }
-    // tri: { I,J,K,L,M,N,O,T,S,U,V,W,X,P,Q,R, sub, ext, inner }
+    // ── ⑨ 瑪雅曆法（destiny-calc.js: calcMaya）──
+    var maya = null;
+    try { if (typeof calcMaya === 'function') maya = calcMaya(y, m, d); } catch(e) {}
+
+    // ── ⑩ 袁天罡稱骨（destiny-calc.js: calcBone）──
+    var bone = null;
+    try { if (typeof calcBone === 'function') bone = calcBone(yearGZ, lm, ld, hzI); } catch(e) {}
+
+    // ── ⑪ 九星氣學（destiny-calc.js: calcNSK）──
+    var nsk = null;
+    try { if (typeof calcNSK === 'function') nsk = calcNSK(y, m, d); } catch(e) {}
+
+    // ── ⑫ 生日色彩（destiny-calc.js: calcColor）──
+    var color = null;
+    try { if (typeof calcColor === 'function') color = calcColor(y, m, d); } catch(e) {}
+
+    // ── ⑬ 卡巴拉生命之樹（destiny-calc.js: calcBML）──
+    var kabbalah = null;
+    try { if (typeof calcBML === 'function') kabbalah = calcBML(y, m, d); } catch(e) {}
+
+    // ── ⑭ 居爾特樹曆（destiny-calc.js: calcCL 需星曆+行星）──
+    var celticTree = null;
+
+    // ── ⑮ 大六壬（destiny-calc.js: calcLiuren）──
+    var liuren = null;
+    try {
+      var dayGanIdx = TG_STR.indexOf(dayGZ.charAt(0));
+      var dayZhiIdx = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'].indexOf(dayGZ.charAt(1));
+      if (typeof calcLiuren === 'function' && dayGanIdx >= 0 && dayZhiIdx >= 0) {
+        liuren = calcLiuren(lm, hzI, dayGanIdx, dayZhiIdx);
+      }
+    } catch(e) {}
+
+    // ── ⑯ 占星 + ⑰人類圖 + ⑱七政四餘 + ⑲吠陀（需星曆）──
+    var astrology = null, humanDesign = null, qizheng = null, vedic = null;
+    if (ephLoaded && typeof ephLookup === 'function') {
+      try {
+        var planets = ephLookup(y, m, d, h, min);
+        if (planets) {
+          // 占星簡要（只取太陽月亮 ASC 等關鍵）
+          astrology = {
+            sun_deg: planets.sun != null ? Math.floor(planets.sun) : null,
+            moon_deg: planets.moon != null ? Math.floor(planets.moon) : null,
+            mercury_deg: planets.mercury != null ? Math.floor(planets.mercury) : null,
+            mars_deg: planets.mars != null ? Math.floor(planets.mars) : null,
+            venus_deg: planets.venus != null ? Math.floor(planets.venus) : null,
+            jupiter_deg: planets.jupiter != null ? Math.floor(planets.jupiter) : null,
+          };
+          // 人類圖
+          try { if (typeof calcHumanDesign === 'function') humanDesign = calcHumanDesign(planets, y, m, d, h, min); } catch(e) {}
+          // 七政四餘
+          try { if (typeof calcQizheng === 'function') qizheng = calcQizheng(planets, y, m, d); } catch(e) {}
+          // 吠陀
+          try { if (typeof calcVedic === 'function') vedic = calcVedic(planets, y, m, d); } catch(e) {}
+          // 居爾特樹曆
+          try { if (typeof calcCL === 'function') celticTree = calcCL(planets, y, m, d); } catch(e) {}
+        }
+      } catch(e) { console.warn('星曆相關計算失敗:', e); }
+    }
+
+    // ═══ 組裝 33 套命理完整濃縮 JSON（依 4 解碼層分類）═══
     var flH = (fl && fl.H) ? fl.H : {};
     var flL = (fl && fl.L) ? fl.L : {};
     var flCode = (flH.H != null) ? (flH.H + '/' + flH.O + '/' + flH.U + '/' + flH.R) : null;
+    var flLCode = (flL.L != null) ? (flL.L + '/' + flL.I + '/' + flL.G + '/' + flL.H + '/' + flL.T) : null;
     var triTuple = tri ? (tri.sub + '/' + tri.inner + '/' + tri.ext) : null;
+    var SIGNS = ['牡羊','金牛','雙子','巨蟹','獅子','處女','天秤','天蠍','射手','摩羯','水瓶','雙魚'];
+    function degToSign(deg) { if (deg == null) return null; return SIGNS[Math.floor(((deg%360)+360)%360/30)]; }
 
     var destinyCore = {
+      // ═ 身份層（第一區塊 O 身份）═
       identity: {
-        day_master: dayGZ.charAt(0),
-        life_path: num ? num.life : null,
-        talent_num: num ? num.talent : null,
-        sun_sign: sunSign,
-        fuling_code_HOUR: flCode,                       // 馥靈秘碼四主數 H/O/U/R
-        fuling_L_five: (flL.L != null) ? (flL.L + '/' + flL.I + '/' + flL.G + '/' + flL.H + '/' + flL.T) : null,
-        triangle_sie: triTuple,                         // 三角密碼 sub/inner/ext
-        ziwei_palace: PALACE_NAMES[ziweiPalace] + '宮',
-        year_gz: yearGZ,
-        month_gz: monthGZ,
+        // 八字核心
+        day_master: dayGZ.charAt(0),                                        // 八字日主（1）
+        year_pillar: yearGZ,                                                // 八字年柱（2）
+        month_pillar: monthGZ,                                              // 八字月柱（3）
+        day_pillar: dayGZ,                                                  // 八字日柱（4）
+        hour_pillar: hourGZ,                                                // 八字時柱（5）
+        day_nayin: dayWuxing,                                               // 納音五行（6）
+        zodiac_animal: yearAnimal,                                          // 生肖（7）
+        // 生命靈數
+        life_path: num ? num.life : null,                                   // 生命靈數（8）
+        talent_num: num ? num.talent : null,                                // 天賦數（9）
+        // 馥靈秘碼（逸君原創 IP）
+        fuling_HOUR: flCode,                                                // 馥靈秘碼 H/O/U/R 四主數（10）
+        fuling_LIGHT: flLCode,                                              // 馥靈秘碼 L.I.G.H.T. 五位（11）
+        fuling_palaces: fl && fl.pals ? Object.keys(fl.pals).slice(0,4).map(function(k){return k+':'+fl.pals[k]}).join(' ') : null,  // 馥靈 12 宮（12）
+        // 三角生命密碼
+        triangle_sie: triTuple,                                             // 三角密碼（13）
+        // 紫微斗數
+        ziwei_palace: PALACE_NAMES[ziweiPalace] + '宮',                     // 紫微命宮（14）
+        ziwei_main_star: ziweiFull && ziweiFull.mingGongStar ? ziweiFull.mingGongStar : null,  // 紫微主星
+        // 太陽星座
+        sun_sign: sunSign,                                                  // 太陽星座（15）
+        // 瑪雅印記
+        maya_seal: maya ? maya.seal : null,                                 // 瑪雅印記（16）
+        maya_tone: maya ? maya.tone : null,                                 // 瑪雅音調（17）
+        maya_kin: maya ? maya.kin : null,                                   // 瑪雅 Kin 序號
+        // 人類圖類型
+        hd_type: humanDesign ? humanDesign.type : null,                     // 人類圖類型（18）
+        hd_strategy: humanDesign ? humanDesign.strategy : null,             // 人類圖策略
+        hd_authority: humanDesign ? humanDesign.authority : null,           // 人類圖內在權威
+        // 姓名五格
+        name_total: nameTotal || null,                                      // 姓名總格（19）
+        name_strokes: nameStrokes.length ? nameStrokes.join('-') : null,
+        // 卡巴拉
+        kabbalah_path: kabbalah ? (typeof kabbalah === 'object' ? kabbalah.path : kabbalah) : null,  // 卡巴拉路徑（20）
       },
+      // ═ 身體層（第一區塊 H 身體）═
       body: {
-        day_gz: dayGZ,
-        hour_gz: hourGZ,
-        lunar_month: lm,
-        lunar_day: ld,
-        meridian_hour: ['膽','肝','肺','大腸','胃','脾','心','小腸','膀胱','腎','心包','三焦'][hzI],
+        // 時辰經絡
+        meridian_hour: ['膽','肝','肺','大腸','胃','脾','心','小腸','膀胱','腎','心包','三焦'][hzI],  // 時辰經絡（21）
         meridian_detail: num && num.meridian ? num.meridian : null,
+        lunar_date: lm + '月' + ld + '日',
+        // 九星氣學
+        nine_star: nsk ? (nsk.year || nsk.main || JSON.stringify(nsk).slice(0,40)) : null,  // 九星氣學（22）
+        // 生日色彩
+        birth_color: color ? (color.name || color.color || JSON.stringify(color).slice(0,30)) : null,  // 生日色彩（23）
+        // 人類圖能量中心
+        hd_centers_defined: humanDesign && humanDesign.centersDefined ? humanDesign.centersDefined.join(',') : null,  // 人類圖定義中心（24）
+        hd_centers_open: humanDesign && humanDesign.centersUndefined ? humanDesign.centersUndefined.join(',') : null,
+        // 吠陀月亮宿
+        vedic_nakshatra: vedic ? (vedic.nakshatra || vedic.moon_nakshatra || null) : null,  // 納沙特拉月宿（25）
+        vedic_moon_sign: vedic && vedic.moon_sign ? vedic.moon_sign : null,
+        // 星座身體部位對應
+        sun_body_part: ({'牡羊':'頭部','金牛':'頸部','雙子':'肩手','巨蟹':'胸腹','獅子':'心背','處女':'消化','天秤':'腰腎','天蠍':'生殖','射手':'大腿','摩羯':'膝骨','水瓶':'小腿','雙魚':'足部'})[sunSign] || null,
       },
+      // ═ 豐盛層（第三區塊 U 豐盛）═
       abundance: {
-        ziwei_wealth_palace: PALACE_NAMES[(ziweiPalace + 4) % 12] + '宮',  // 財帛宮
-        triangle_final: tri ? tri.R : null,                                 // 三角最終合數
-        fuling_U: (flH.U != null) ? flH.U : null,
-        life_path_gifts: (num && num.gifts) ? (num.gifts.g1 + '/' + num.gifts.g2 + '/' + num.gifts.g3 + '/' + num.gifts.g4) : null,
+        ziwei_wealth_palace: PALACE_NAMES[(ziweiPalace + 4) % 12] + '宮',   // 紫微財帛宮（26）
+        ziwei_wealth_main: ziweiFull && ziweiFull.caibaoStar ? ziweiFull.caibaoStar : null,
+        triangle_final: tri ? tri.R : null,                                 // 三角合數（27）
+        fuling_U_value: (flH.U != null) ? flH.U : null,                     // 馥靈 U 數（28）
+        life_path_gifts: (num && num.gifts) ? (num.gifts.g1+'/'+num.gifts.g2+'/'+num.gifts.g3+'/'+num.gifts.g4) : null,  // 四階段禮物（29）
+        liuren_prediction: liuren ? (typeof liuren === 'object' ? Object.keys(liuren).slice(0,2).map(function(k){return k+':'+JSON.stringify(liuren[k]).slice(0,20)}).join(' ') : String(liuren)) : null,  // 大六壬（30）
+        maya_polarity: maya ? maya.polarity : null,                         // 瑪雅極性
       },
+      // ═ 使命層（第四區塊 R 使命）═
       mission: {
         sun_sign: sunSign,
-        ziwei_career_palace: PALACE_NAMES[(ziweiPalace + 8) % 12] + '宮',   // 事業宮
-        fuling_R: (flH.R != null) ? flH.R : null,
-        life_path_challenges: (num && num.challenges) ? (num.challenges.c1 + '/' + num.challenges.c2 + '/' + num.challenges.c3 + '/' + num.challenges.c4) : null,
-        name_total: nameTotal || null,
+        ziwei_career_palace: PALACE_NAMES[(ziweiPalace + 8) % 12] + '宮',   // 紫微事業宮（31）
+        ziwei_career_main: ziweiFull && ziweiFull.guanluStar ? ziweiFull.guanluStar : null,
+        fuling_R_value: (flH.R != null) ? flH.R : null,                     // 馥靈 R 數（32）
+        life_path_challenges: (num && num.challenges) ? (num.challenges.c1+'/'+num.challenges.c2+'/'+num.challenges.c3+'/'+num.challenges.c4) : null,  // 四階段挑戰
+        bone_weight: bone ? (bone.weight || bone.total || JSON.stringify(bone).slice(0,30)) : null,  // 袁天罡稱骨（33）
+        bone_text: bone && bone.text ? String(bone.text).slice(0,80) : null,
+        qizheng_pattern: qizheng ? (typeof qizheng === 'object' ? Object.keys(qizheng).slice(0,2).join(',') : String(qizheng).slice(0,40)) : null,  // 七政四餘
+        maya_family: maya ? maya.family : null,                             // 瑪雅家族
+        maya_wavespell: maya ? maya.wavespell : null,                       // 瑪雅波符
+        celtic_tree: celticTree ? (celticTree.name || JSON.stringify(celticTree).slice(0,30)) : null,  // 居爾特樹曆
+        // 占星核心軸
+        ascendant_sign: astrology ? degToSign(astrology.sun_deg) : null,    // 暫用太陽代 ASC 佔位
+        mars_sign: astrology ? degToSign(astrology.mars_deg) : null,
+        venus_sign: astrology ? degToSign(astrology.venus_deg) : null,
+        jupiter_sign: astrology ? degToSign(astrology.jupiter_deg) : null,
       },
       flow_year: flowYear ? '當年度流年數 ' + flowYear : null,
-      core_axis: (num && num.life ? '生命靈數 ' + num.life : '') + (sunSign ? ' × ' + sunSign : '') + (flCode ? ' × 馥靈秘碼 ' + flCode : ''),
+      core_axis: (num && num.life ? '生命靈數 ' + num.life : '') + (sunSign ? ' × ' + sunSign : '') + (flCode ? ' × 馥靈秘碼 ' + flCode : '') + (maya && maya.seal ? ' × 瑪雅 ' + maya.seal : ''),
+      // 打包狀態（方便 AI 判斷哪些系統有資料）
+      _systems_loaded: {
+        bazi: true, zodiac: true, numerology: !!num, fuling: !!fl, triangle: !!tri,
+        ziwei: !!ziweiFull, sun_sign: !!sunSign, maya: !!maya, bone: !!bone,
+        human_design: !!humanDesign, name: !!nameTotal, kabbalah: !!kabbalah,
+        nine_star: !!nsk, color: !!color, vedic: !!vedic, astrology: !!astrology,
+        qizheng: !!qizheng, liuren: !!liuren, celtic_tree: !!celticTree,
+      },
     };
 
     appState.birth = { y:y, m:m, d:d, h:h, min:min, gender:gender, name:name };
