@@ -44,14 +44,47 @@ body.cv3-body{font-family:var(--cv3-sans);color:var(--cv3-ink);background:var(--
 a{color:var(--cv3-gold-dk);text-decoration:none}
 button{font-family:inherit;cursor:pointer;border:none;background:none}
 
-/* ── 時辰視覺主題（JS 加 class 切換）── */
-body.cv3-phase-dawn{background:linear-gradient(180deg,#fef4e6,#faf7f2)}
+/* ── 時辰視覺主題 ── */
+body.cv3-phase-dawn{background:linear-gradient(180deg,#fef4e6 0%,#fbebd4 40%,#faf7f2 100%)}
+body.cv3-phase-dawn::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 60% 25%,rgba(255,210,140,.35),transparent 60%);pointer-events:none;z-index:0}
 body.cv3-phase-day{background:linear-gradient(180deg,#faf9f0,#f5f2ea)}
-body.cv3-phase-dusk{background:linear-gradient(180deg,#ffe8d6,#fae0c9)}
-body.cv3-phase-night{background:linear-gradient(180deg,#2a2752,#3a3569);color:#f0ecf5}
+body.cv3-phase-dusk{background:linear-gradient(180deg,#ffe8d6 0%,#fdd5b8 45%,#fae0c9 100%)}
+body.cv3-phase-dusk::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 70% 70%,rgba(255,150,100,.35),transparent 55%);pointer-events:none;z-index:0}
+body.cv3-phase-night{background:linear-gradient(180deg,#1f1c3e 0%,#2a2752 50%,#3a3569 100%);color:#f0ecf5}
 body.cv3-phase-night .cv3-card{background:rgba(255,255,255,.08);color:#f0ecf5;border-color:rgba(255,255,255,.12)}
-body.cv3-phase-midnight{background:linear-gradient(180deg,#1f1c3e,#2d2755);color:#e8e2f0}
+body.cv3-phase-midnight{background:linear-gradient(180deg,#0e0b24 0%,#1f1c3e 55%,#2d2755 100%);color:#e8e2f0}
 body.cv3-phase-midnight .cv3-card{background:rgba(255,255,255,.06);color:#e8e2f0;border-color:rgba(255,255,255,.1)}
+
+/* ── 夜晚/深夜：星點漂浮背景 ── */
+body.cv3-phase-night::before, body.cv3-phase-midnight::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(1px 1px at 15% 20%, rgba(255,255,255,.8), transparent),
+    radial-gradient(1px 1px at 45% 50%, rgba(248,223,165,.6), transparent),
+    radial-gradient(1.5px 1.5px at 75% 15%, rgba(255,255,255,.9), transparent),
+    radial-gradient(1px 1px at 85% 70%, rgba(248,223,165,.6), transparent),
+    radial-gradient(1px 1px at 25% 80%, rgba(255,255,255,.6), transparent),
+    radial-gradient(1.5px 1.5px at 55% 35%, rgba(255,255,255,.7), transparent);
+  background-repeat:no-repeat;background-size:100% 100%;
+  animation:cv3Twinkle 6s ease-in-out infinite;
+}
+@keyframes cv3Twinkle{0%,100%{opacity:.7}50%{opacity:1}}
+
+/* ── 浮動粒子（所有時辰都有，金色塵埃）── */
+.cv3-particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.cv3-particle{position:absolute;width:6px;height:6px;border-radius:50%;
+  background:radial-gradient(circle,rgba(248,223,165,.6) 0%,rgba(248,223,165,0) 70%);
+  opacity:0;animation:cv3Float 14s linear infinite}
+@keyframes cv3Float{
+  0%{transform:translate(0,100vh) scale(.3);opacity:0}
+  10%{opacity:.5}
+  50%{opacity:.8}
+  90%{opacity:.4}
+  100%{transform:translate(40px,-10vh) scale(1);opacity:0}
+}
+
+/* ── 讓所有主要內容 z-index > 0 浮在粒子上 ── */
+main{position:relative;z-index:1}
 
 /* ── 頂部 Hero ── */
 .cv3-hero{max-width:1200px;margin:0 auto;padding:56px 20px 32px;text-align:center;position:relative}
@@ -79,9 +112,13 @@ body.cv3-phase-midnight .cv3-card{background:rgba(255,255,255,.06);color:#e8e2f0
 
 /* ── 房間網格（美術圖到位前作為主顯示）── */
 .cv3-rooms-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-top:24px}
-.cv3-room-card{background:#fff;border:1px solid var(--cv3-line);border-radius:16px;padding:22px 20px;cursor:pointer;transition:all .3s var(--cv3-ease);position:relative;overflow:hidden}
-.cv3-room-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(184,146,42,.15);border-color:var(--cv3-gold)}
-.cv3-room-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--cv3-gold)}
+.cv3-room-card{background:#fff;border:1px solid var(--cv3-line);border-radius:16px;padding:22px 20px;cursor:pointer;transition:all .3s var(--cv3-ease);position:relative;overflow:hidden;min-height:220px;display:flex;flex-direction:column;justify-content:space-between}
+.cv3-room-card::after{content:'';position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity .5s var(--cv3-ease);z-index:0;border-radius:16px}
+.cv3-room-card[data-img-loaded="true"]::after{opacity:.22}
+.cv3-room-card:hover::after{opacity:.42}
+.cv3-room-card > *{position:relative;z-index:1}
+.cv3-room-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(184,146,42,.22);border-color:var(--cv3-gold)}
+.cv3-room-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--cv3-gold);z-index:2}
 .cv3-room-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
 .cv3-room-emoji{font-size:2rem;line-height:1}
 .cv3-room-name{font-family:var(--cv3-serif);font-size:1.05rem;font-weight:500;color:var(--cv3-ink)}
@@ -127,6 +164,9 @@ body.cv3-phase-midnight .cv3-card{background:rgba(255,255,255,.06);color:#e8e2f0
 </head>
 <body class="cv3-body">
 
+<!-- 金色塵埃漂浮粒子（JS 動態生成） -->
+<div class="cv3-particles" id="cv3-particles"></div>
+
 <main>
 
   <!-- Hero -->
@@ -159,15 +199,17 @@ body.cv3-phase-midnight .cv3-card{background:rgba(255,255,255,.06);color:#e8e2f0
     </div>
   </section>
 
-  <!-- 城堡地圖（等 AI 生圖到位替換 Placeholder）-->
+  <!-- 城堡地圖 — 圖到位自動顯示，未到則顯示 emoji placeholder -->
   <section class="cv3-map-wrap">
-    <div class="cv3-map-container">
-      <div class="cv3-map-placeholder" id="cv3-map-placeholder">
+    <div class="cv3-map-container" id="cv3-map-container">
+      <img src="images/castle/castle-map.png" alt="內在城堡地圖" id="cv3-map-img"
+           style="width:100%;height:auto;display:block;border-radius:18px;box-shadow:0 8px 40px rgba(42,31,76,.18)"
+           onerror="this.style.display='none';document.getElementById('cv3-map-placeholder').style.display='block'">
+      <div class="cv3-map-placeholder" id="cv3-map-placeholder" style="display:none">
         <span class="cv3-map-placeholder-emoji">🏰</span>
-        城堡地圖美術即將到位<br>
-        <span style="font-size:.75rem">等逸君 AI 生圖完成後此處將顯示城堡俯視圖</span>
+        城堡地圖美術生成中<br>
+        <span style="font-size:.75rem">圖片到位後會自動顯示</span>
       </div>
-      <!-- 美術到位後：<img src="images/castle-map.webp" alt=""> 佔這個位置 -->
     </div>
   </section>
 
@@ -267,6 +309,23 @@ body.cv3-phase-midnight .cv3-card{background:rgba(255,255,255,.06);color:#e8e2f0
     document.body.classList.add('cv3-phase-' + phase.id);
   }
 
+  // ── 金色塵埃漂浮粒子（15 顆隨機位置隨機延遲）──
+  function spawnParticles(){
+    var container = document.getElementById('cv3-particles');
+    if (!container) return;
+    for (var i = 0; i < 15; i++) {
+      var p = document.createElement('div');
+      p.className = 'cv3-particle';
+      p.style.left = (Math.random() * 100) + '%';
+      p.style.animationDelay = (Math.random() * 14) + 's';
+      p.style.animationDuration = (10 + Math.random() * 8) + 's';
+      var size = 4 + Math.random() * 6;
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      container.appendChild(p);
+    }
+  }
+
   // ── Lord 面板 ──
   function renderLord(){
     var lv = (state.save && state.save.cv3_lord_lv) || 1;
@@ -303,7 +362,8 @@ body.cv3-phase-midnight .cv3-card{background:rgba(255,255,255,.06);color:#e8e2f0
       var moodName = moodDef ? moodDef.name : '平靜';
       var tool = room.tools && room.tools[0] ? room.tools[0] : '#';
 
-      html += '<div class="cv3-room-card" onclick="cv3EnterRoom(\'' + room.id + '\')">' +
+      var imgPath = 'images/castle/room-' + room.id + '.png';
+      html += '<div class="cv3-room-card" data-room-id="' + room.id + '" onclick="cv3EnterRoom(\'' + room.id + '\')">' +
         '<div class="cv3-room-head">' +
           '<span class="cv3-room-emoji">' + room.emoji + '</span>' +
           '<div>' +
@@ -319,6 +379,28 @@ body.cv3-phase-midnight .cv3-card{background:rgba(255,255,255,.06);color:#e8e2f0
       '</div>';
     });
     grid.innerHTML = html;
+
+    // 預先探測每張房間圖片，載入成功才顯示背景（避免 404 圖顯示裂圖）
+    state.rooms.forEach(function(room){
+      var card = grid.querySelector('[data-room-id="' + room.id + '"]');
+      if (!card) return;
+      var testImg = new Image();
+      testImg.onload = function(){
+        card.style.setProperty('background-image', 'none');
+        card.style.setProperty('--cv3-room-bg-ready', '1');
+        card.setAttribute('data-img-loaded', 'true');
+        var bgSrc = 'images/castle/room-' + room.id + '.png';
+        // 透過偽元素 ::after 顯示
+        var styleTag = document.getElementById('cv3-room-bg-' + room.id);
+        if (!styleTag) {
+          styleTag = document.createElement('style');
+          styleTag.id = 'cv3-room-bg-' + room.id;
+          document.head.appendChild(styleTag);
+        }
+        styleTag.textContent = '.cv3-room-card[data-room-id="' + room.id + '"]::after{background-image:url("' + bgSrc + '")}';
+      };
+      testImg.src = 'images/castle/room-' + room.id + '.png';
+    });
   }
 
   // ── 進入房間（跳到既有工具）──
@@ -368,6 +450,7 @@ body.cv3-phase-midnight .cv3-card{background:rgba(255,255,255,.06);color:#e8e2f0
   // ── 初始化 ──
   async function init(){
     renderTimeContext();
+    spawnParticles();
 
     // 等 Firebase Auth
     if (!window.firebase || !firebase.auth) {
