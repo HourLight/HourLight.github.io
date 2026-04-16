@@ -1212,6 +1212,8 @@ async function handleWallpaper(req, res, apiKey) {
   if (profile.celtic) personalElements.push('Celtic tree ' + profile.celtic.name + ' totem');
   if (profile.maya && profile.maya.seal) personalElements.push('Mayan totem ' + profile.maya.seal + ' (' + profile.maya.tone + ') woven subtly into the imagery');
   if (profile.lifePathNum) personalElements.push('life-path-number-' + profile.lifePathNum + ' vibrational pattern');
+  if (profile.triNum) personalElements.push('Triangle sacred code ' + profile.triNum + ' as geometric micro-pattern');
+  if (profile.rainbow) personalElements.push('Rainbow spectrum number ' + (profile.rainbow.n || profile.rainbow) + ' as subtle chromatic layering');
   if (profile.fuling) {
     var fl = profile.fuling;
     var flParts = [];
