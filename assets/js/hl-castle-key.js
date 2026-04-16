@@ -104,7 +104,7 @@
     {type:'read',   label:'讀一段認知芳療', hint:'為何線上也能做覺察的科學。',         url:'cognitive-aromatherapy-theory.html?castle=1'}
   ];
 
-  var ROOM_IDS = ['mirror','treasure','key','throne','love','intuition','ground','harmony','transform','dream','garden','tower'];
+  var ROOM_IDS = ['mirror','treasure','key','throne','love','intuition','ground','harmony','transform','dream','garden','tower','heal','own','unlock','rise','kitchen','secret','alchemy','library','music'];
 
   // 新用戶漸進解鎖順序：每完成一個房間就多開一扇
   var UNLOCK_STAGES = [
@@ -134,7 +134,16 @@
     transform:'蛻變室只讓脫下面具的人進入。',
     dream:'夢境走廊的門在意識放鬆時才會現形。',
     garden:'花園裡的花是您親手種的。',
-    tower:'瞭望塔在最高處等您。'
+    tower:'瞭望塔在最高處等您。',
+    heal:'勇氣殿在您願意停下來的時候發光。',
+    own:'心門宮藏著您願意真正擁有的東西。',
+    unlock:'志氣殿等待一個願意說「我可以」的人。',
+    rise:'平衡室的每一階都是您自己踏過來的。',
+    kitchen:'滋養廚房的火候，是您照顧自己的方式。',
+    secret:'隱密通道只在您願意誠實的那一刻打開。',
+    alchemy:'煉金室裡的材料要您親手融合。',
+    library:'圖書館的書認得出願意讀自己的人。',
+    music:'音樂廳的節奏跟著您的呼吸走。'
   };
 
   // 12 位小馥系統 v2 — 豐富對話（時段/節氣/進度/精油知識/俏皮吐槽）
@@ -766,13 +775,18 @@
   var ROOM_NAMES = {
     mirror:'鏡之廳',treasure:'價值寶庫',key:'解鎖密室',throne:'啟程塔',
     love:'愛之殿',intuition:'直覺閣',ground:'磐石廳',harmony:'和諧苑',
-    transform:'蛻變室',dream:'夢境走廊',garden:'記憶花園',tower:'瞭望塔'
+    transform:'蛻變室',dream:'夢境走廊',garden:'記憶花園',tower:'瞭望塔',
+    heal:'勇氣殿',own:'心門宮',unlock:'志氣殿',rise:'平衡室',
+    kitchen:'滋養廚房',secret:'隱密通道',alchemy:'煉金室',
+    library:'圖書館',music:'音樂廳'
   };
 
   var ROOM_ICONS = {
     mirror:'🪞',treasure:'💎',key:'🔑',throne:'👑',love:'💕',
     intuition:'🔮',ground:'🏔️',harmony:'🌿',transform:'🦋',
-    dream:'🌙',garden:'🌸',tower:'🔭'
+    dream:'🌙',garden:'🌸',tower:'🔭',
+    heal:'🔥',own:'💜',unlock:'🗝️',rise:'🌿',
+    kitchen:'🍲',secret:'🕯️',alchemy:'⚗️',library:'📚',music:'🎵'
   };
 
   var UNLOCK_MSGS = {
