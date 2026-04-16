@@ -139,6 +139,22 @@ body.cv3-phase-night .cv3-tools-item-name, body.cv3-phase-midnight .cv3-tools-it
   .cv3-tools-item{padding:10px 12px}
 }
 
+/* ── 留給以後的自己（keepsakes 收藏櫃）── */
+.cv3-keepsakes{max-width:1200px;margin:0 auto 24px;padding:22px 20px;background:linear-gradient(135deg,rgba(200,134,42,.06),rgba(232,184,109,.06));border:1px solid var(--cv3-line);border-radius:18px}
+body.cv3-phase-night .cv3-keepsakes, body.cv3-phase-midnight .cv3-keepsakes{background:linear-gradient(135deg,rgba(248,223,165,.06),rgba(232,184,109,.08));border-color:rgba(248,223,165,.18)}
+.cv3-keepsakes-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;gap:10px;flex-wrap:wrap}
+.cv3-keepsakes-label{font-size:.82rem;letter-spacing:.12em;color:var(--cv3-gold-dk);font-weight:500}
+body.cv3-phase-night .cv3-keepsakes-label, body.cv3-phase-midnight .cv3-keepsakes-label{color:#f8dfa5}
+.cv3-keepsakes-count{font-size:.7rem;letter-spacing:.08em;color:var(--cv3-ink-lite)}
+.cv3-keepsakes-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.cv3-keepsake-item{padding:12px 14px;background:#fff;border:1px solid var(--cv3-line);border-radius:12px;text-decoration:none;color:inherit;transition:all .3s;position:relative}
+body.cv3-phase-night .cv3-keepsake-item, body.cv3-phase-midnight .cv3-keepsake-item{background:rgba(255,255,255,.06);color:#f0ecf5}
+.cv3-keepsake-item:hover{transform:translateY(-2px);border-color:var(--cv3-gold);box-shadow:0 6px 16px rgba(184,146,42,.15)}
+.cv3-keepsake-type{font-size:.62rem;letter-spacing:.12em;color:var(--cv3-gold);text-transform:uppercase;margin-bottom:4px}
+.cv3-keepsake-title{font-size:.82rem;color:var(--cv3-ink);line-height:1.45;font-weight:500}
+body.cv3-phase-night .cv3-keepsake-title, body.cv3-phase-midnight .cv3-keepsake-title{color:#f8dfa5}
+.cv3-keepsake-date{font-size:.66rem;color:var(--cv3-ink-lite);margin-top:4px}
+
 /* ── 最近探索 widget（本週覺察）── */
 .cv3-explorations{max-width:1200px;margin:0 auto 24px;padding:22px 20px;background:linear-gradient(135deg,rgba(184,146,42,.04),rgba(160,124,220,.04));border:1px solid var(--cv3-line);border-radius:18px}
 .cv3-explorations-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;gap:10px;flex-wrap:wrap}
@@ -323,6 +339,15 @@ body.cv3-phase-night .cv3-tools-item-name, body.cv3-phase-midnight .cv3-tools-it
       <div class="cv3-explorations-count" id="cv3-explorations-count"></div>
     </div>
     <div class="cv3-explorations-list" id="cv3-explorations-list"></div>
+  </section>
+
+  <!-- 留給以後的自己（城堡收藏櫃）-->
+  <section class="cv3-keepsakes" id="cv3-keepsakes" style="display:none">
+    <div class="cv3-keepsakes-header">
+      <div class="cv3-keepsakes-label">留給以後的自己 · 城堡收藏櫃</div>
+      <div class="cv3-keepsakes-count" id="cv3-keepsakes-count"></div>
+    </div>
+    <div class="cv3-keepsakes-list" id="cv3-keepsakes-list"></div>
   </section>
 
   <!-- 工具單一入口地圖（中樞化核心：33 命理 + 130 牌卡 + 101 測驗 + 知識 + 服務）-->
@@ -1391,6 +1416,34 @@ body.cv3-phase-night .cv3-tools-item-name, body.cv3-phase-midnight .cv3-tools-it
     });
   }
 
+  // 留給以後的自己 · 城堡收藏櫃
+  function renderKeepsakes(){
+    try {
+      var list = JSON.parse(localStorage.getItem('hl_castle_keepsakes_v1') || '[]');
+      if (!list.length) return;
+      var section = document.getElementById('cv3-keepsakes');
+      var listEl = document.getElementById('cv3-keepsakes-list');
+      var countEl = document.getElementById('cv3-keepsakes-count');
+      if (!section || !listEl) return;
+
+      var TYPE_LABELS = { quiz:'測驗', draw:'抽牌', destiny:'命盤', castle:'城堡', generic:'探索' };
+      var html = '';
+      list.slice(0, 8).forEach(function(e){
+        var d = new Date(e.ts);
+        var dateStr = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0');
+        var typeLabel = TYPE_LABELS[e.type] || '探索';
+        html += '<a class="cv3-keepsake-item" href="' + e.page + '">';
+        html += '<div class="cv3-keepsake-type">' + typeLabel + '</div>';
+        html += '<div class="cv3-keepsake-title">' + e.title.replace(/[<>&"]/g, '') + '</div>';
+        html += '<div class="cv3-keepsake-date">' + dateStr + '</div>';
+        html += '</a>';
+      });
+      listEl.innerHTML = html;
+      if (countEl) countEl.textContent = '共 ' + list.length + ' 個';
+      section.style.display = 'block';
+    } catch(_){}
+  }
+
   // 最近探索 widget（本週覺察 · 全站 callback 閉環）
   function renderExplorations(){
     try {
@@ -1526,6 +1579,7 @@ body.cv3-phase-night .cv3-tools-item-name, body.cv3-phase-midnight .cv3-tools-it
       state.moods = V3.rollDailyMoods(seed);
       renderLord(); renderRooms(); renderDailyQuests(); renderPetsPanel();
       renderExplorations();
+      renderKeepsakes();
       renderToolsMap('destiny');
       setupToolsMapTabs();
       initShieldSystem();
@@ -1548,6 +1602,7 @@ body.cv3-phase-night .cv3-tools-item-name, body.cv3-phase-midnight .cv3-tools-it
       state.moods = V3.rollDailyMoods(seedStr);
       renderLord(); renderRooms(); renderDailyQuests(); renderPetsPanel();
       renderExplorations();
+      renderKeepsakes();
       renderToolsMap('destiny');
       setupToolsMapTabs();
       initShieldSystem();

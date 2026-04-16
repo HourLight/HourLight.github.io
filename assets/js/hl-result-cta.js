@@ -104,6 +104,11 @@
       .hl-rcta-ct{font-size:1rem;font-weight:600;color:#3e2a1a;line-height:1.4}
       .hl-rcta-desc{font-size:.82rem;color:#6b4a30;line-height:1.55;flex:1}
       .hl-rcta-arrow{margin-top:auto;font-size:.8rem;color:#c8862a;letter-spacing:.04em;opacity:.85}
+      .hl-rcta-keepsake-wrap{margin-top:18px;text-align:center}
+      .hl-rcta-keepsake{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:999px;border:1px dashed rgba(200,134,42,.4);background:rgba(200,134,42,.04);font-family:'Noto Serif TC',serif;font-size:.88rem;letter-spacing:.04em;color:#6b4a30;cursor:pointer;transition:all .3s}
+      .hl-rcta-keepsake:hover{border-color:#c8862a;background:rgba(200,134,42,.08);color:#3e2a1a;transform:translateY(-1px)}
+      .hl-rcta-keepsake.kept{background:linear-gradient(135deg,rgba(200,134,42,.14),rgba(232,184,109,.14));border-style:solid;color:#3e2a1a;cursor:default}
+      .hl-rcta-keepsake-icon{font-size:1.05rem}
       @media(max-width:640px){.hl-rcta-grid{grid-template-columns:1fr;gap:10px}.hl-rcta-card{padding:16px}}
     ` : `
       .hl-rcta{margin:40px auto;max-width:960px;padding:0 16px;font-family:'Noto Serif TC',serif}
@@ -116,6 +121,11 @@
       .hl-rcta-ct{font-size:1rem;font-weight:500;color:#f8dfa5;line-height:1.4}
       .hl-rcta-desc{font-size:.82rem;color:rgba(244,240,235,.72);line-height:1.55;flex:1}
       .hl-rcta-arrow{margin-top:auto;font-size:.8rem;color:#f0d48a;letter-spacing:.04em;opacity:.85}
+      .hl-rcta-keepsake-wrap{margin-top:18px;text-align:center}
+      .hl-rcta-keepsake{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:999px;border:1px dashed rgba(248,223,165,.35);background:rgba(248,223,165,.04);font-family:'Noto Serif TC',serif;font-size:.88rem;letter-spacing:.04em;color:rgba(244,240,235,.78);cursor:pointer;transition:all .3s}
+      .hl-rcta-keepsake:hover{border-color:rgba(248,223,165,.6);background:rgba(248,223,165,.08);color:#f8dfa5;transform:translateY(-1px)}
+      .hl-rcta-keepsake.kept{background:linear-gradient(135deg,rgba(248,223,165,.14),rgba(232,184,109,.14));border-style:solid;color:#f8dfa5;cursor:default}
+      .hl-rcta-keepsake-icon{font-size:1.05rem}
       @media(max-width:640px){.hl-rcta-grid{grid-template-columns:1fr;gap:10px}.hl-rcta-card{padding:16px}}
     `;
     document.head.appendChild(css);
@@ -159,6 +169,43 @@
       }
       document.body.removeChild(ta);
     }
+  }
+
+  // ═════════════════════════════════════════════════
+  // 「留給以後的自己」· 收藏到城堡
+  // ═════════════════════════════════════════════════
+  function keepForFuture(extra){
+    try {
+      var key = 'hl_castle_keepsakes_v1';
+      var list = JSON.parse(localStorage.getItem(key) || '[]');
+      var title = document.title.replace(/[｜\|].*$/, '').trim() || page;
+      var entry = Object.assign({
+        page: page,
+        type: getSourceType(),
+        title: title.slice(0, 50),
+        ts: Date.now()
+      }, extra || {});
+      // 同頁 24 小時內只收藏一次
+      var dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+      var existingIdx = list.findIndex(function(e){ return e.page === page && e.ts > dayAgo; });
+      if (existingIdx > -1) return { ok: false, reason: 'already_kept_today' };
+      list.unshift(entry);
+      if (list.length > 100) list = list.slice(0, 100);
+      localStorage.setItem(key, JSON.stringify(list));
+      return { ok: true, entry: entry };
+    } catch(e){
+      return { ok: false, reason: 'error', error: e.message };
+    }
+  }
+
+  function showKeepsakeToast(msg, variant){
+    var t = document.createElement('div');
+    var bg = variant === 'error' ? 'rgba(180,80,80,.92)' : 'linear-gradient(135deg,rgba(184,146,42,.95),rgba(232,184,109,.95))';
+    t.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:10000;padding:12px 22px;border-radius:14px;background:' + bg + ';color:#fff;font-family:"Noto Serif TC",serif;font-size:.88rem;letter-spacing:.04em;box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;transition:all .4s cubic-bezier(.4,0,.2,1);max-width:320px;text-align:center;line-height:1.7';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    requestAnimationFrame(function(){ t.style.opacity = '1'; t.style.transform = 'translate(-50%,8px)'; });
+    setTimeout(function(){ t.style.opacity = '0'; t.style.transform = 'translate(-50%,-12px)'; setTimeout(function(){ t.remove(); }, 450); }, 3200);
   }
 
   // ═════════════════════════════════════════════════
@@ -226,8 +273,31 @@
       html += '<div class="hl-rcta-arrow">繼續 →</div>';
       html += '</a>';
     });
-    html += '</div></section>';
+    html += '</div>';
+    // 第 4 顆：留給以後的自己（收藏到城堡，馥靈馥語）
+    html += '<div class="hl-rcta-keepsake-wrap">';
+    html += '<button type="button" class="hl-rcta-keepsake" data-hl-keepsake><span class="hl-rcta-keepsake-icon">🗝️</span><span>留給以後的自己 · 收藏到你的城堡</span></button>';
+    html += '</div>';
+    html += '</section>';
     target.innerHTML = html;
+
+    // 綁收藏按鈕
+    var keepBtn = target.querySelector('[data-hl-keepsake]');
+    if (keepBtn) {
+      keepBtn.addEventListener('click', function(){
+        var result = keepForFuture();
+        if (result.ok){
+          keepBtn.classList.add('kept');
+          keepBtn.innerHTML = '<span class="hl-rcta-keepsake-icon">✓</span><span>已留下｜它會在你城堡裡等你</span>';
+          showKeepsakeToast('收到你城堡的鑰匙了。需要的時候回來看。');
+          try { if (window.gtag) gtag('event','keepsake_save',{page:page,type:type}); } catch(_){}
+        } else if (result.reason === 'already_kept_today'){
+          showKeepsakeToast('今天已經收藏過這個了，換別的吧');
+        } else {
+          showKeepsakeToast('收藏沒成功，之後再試', 'error');
+        }
+      });
+    }
 
     // 綁分享事件
     target.querySelectorAll('[data-hl-cta-share]').forEach(function(el){
@@ -315,6 +385,7 @@
   // 公開 API（方便工具頁手動觸發）
   window.hlResultCTA = {
     render: renderCTAs,
-    recordExploration: recordExploration
+    recordExploration: recordExploration,
+    keepForFuture: keepForFuture
   };
 })();
