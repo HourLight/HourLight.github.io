@@ -51,6 +51,29 @@
               if (TOOL_TYPE === 'destiny') fbq('trackCustom', 'UseDestinyTool', { tool_id: TOOL_ID });
             }
           }
+          // ═══ 城堡中樞每日任務進度追蹤（hl_castle_v3.dailyStats）═══
+          try {
+            var tw = new Date(new Date().getTime() + 8*3600000);
+            var today = tw.getUTCFullYear() + '-' + String(tw.getUTCMonth()+1).padStart(2,'0') + '-' + String(tw.getUTCDate()).padStart(2,'0');
+            var cd = JSON.parse(localStorage.getItem('hl_castle_v3') || '{}');
+            if (!cd.dailyStats) cd.dailyStats = {};
+            if (!cd.dailyStats[today]) cd.dailyStats[today] = { draws:0, quizzes:0, destiny:0, furniture:0, pet_feed:0, share:0, breathe:0, aroma:0, match:0, journal:0, meditation:0, destiny_match:0 };
+            var st = cd.dailyStats[today];
+            if (eventType === 'draw_complete')      st.draws = (st.draws || 0) + 1;
+            if (eventType === 'quiz_complete')      st.quizzes = (st.quizzes || 0) + 1;
+            if (eventType === 'calc_complete' || eventType === 'calculator_complete' || eventType === 'destiny_complete')
+              st.destiny = (st.destiny || 0) + 1;
+            if (eventType === 'match_complete')     st.destiny_match = (st.destiny_match || 0) + 1;
+            if (eventType === 'furniture_crafted')  st.furniture = (st.furniture || 0) + 1;
+            if (eventType === 'pet_feed')           st.pet_feed = (st.pet_feed || 0) + 1;
+            if (eventType === 'castle_share' || eventType === 'share')
+              st.share = (st.share || 0) + 1;
+            if (eventType === 'breathe_complete')   st.breathe = (st.breathe || 0) + 1;
+            if (eventType === 'aroma_view')         st.aroma = (st.aroma || 0) + 1;
+            if (eventType === 'journal_write')      st.journal = (st.journal || 0) + 1;
+            if (eventType === 'meditation_complete')st.meditation = (st.meditation || 0) + 1;
+            localStorage.setItem('hl_castle_v3', JSON.stringify(cd));
+          } catch(e) {}
         };
       });
     } catch(e) {}
