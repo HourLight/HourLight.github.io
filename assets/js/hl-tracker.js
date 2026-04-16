@@ -97,4 +97,17 @@
 
   if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
   else init();
+
+  // ═══ 全站材料掉落系統自動載入 ═══
+  // hl-castle-material.js 會 patch window.HL_track，讓工具完成時自動掉材料
+  // 只在工具類頁面載入（避免首頁 / 登入頁 / admin 等白載）
+  var AUTOLOAD_TOOL_TYPES = ['quiz', 'draw', 'calculator', 'destiny', 'oracle', 'game', 'tool'];
+  if (AUTOLOAD_TOOL_TYPES.indexOf(TOOL_TYPE) > -1 && !window.HL_dropMaterial) {
+    var matScript = document.createElement('script');
+    matScript.src = 'assets/js/hl-castle-material.js';
+    matScript.async = true;
+    // 用 relative path，支援 sc/ 子目錄
+    if (location.pathname.indexOf('/sc/') > -1) matScript.src = '../' + matScript.src;
+    document.body.appendChild(matScript);
+  }
 })();
