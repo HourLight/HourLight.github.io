@@ -70,7 +70,7 @@ window.hlPaywall = (function(){
         '<div style="text-align:center;padding:16px;background:rgba(240,212,138,.06);border:1px solid rgba(240,212,138,.15);border-radius:14px;margin-bottom:20px">' +
           '<div style="font-size:.78rem;color:rgba(255,255,255,.4)">服務費用</div>' +
           '<div style="font-size:1.8rem;font-weight:700;color:#f0d48a;margin:6px 0">NT$ ' + price.toLocaleString() + '</div>' +
-          '<div style="font-size:.78rem;color:rgba(255,255,255,.4)">單次計費，付款後立即生成完整報告</div>' +
+          '<div style="font-size:.78rem;color:rgba(255,255,255,.4)">單次計費，付款後幾分鐘內生成完整報告</div>' +
         '</div>' +
 
         // ── 路徑 A：PAYUNi 線上付款（最推薦）──
@@ -78,7 +78,7 @@ window.hlPaywall = (function(){
         '<div style="background:linear-gradient(135deg,rgba(240,212,138,.12),rgba(201,160,96,.06));border:1.5px solid rgba(240,212,138,.4);border-radius:14px;padding:18px;margin-bottom:14px">' +
           '<div style="color:#f8dfa5;font-weight:700;font-size:.92rem;margin-bottom:6px">線上付款｜信用卡 ／ ATM ／ 超商</div>' +
           '<div style="font-size:.78rem;color:rgba(248,223,165,.65);line-height:1.7;margin-bottom:12px">PAYUNi 安全結帳，付款完成後系統自動發碼，立即回到頁面繼續解讀。不需要等人工確認。</div>' +
-          '<button id="hlPayuniBtn" style="width:100%;padding:14px 20px;border-radius:10px;background:linear-gradient(135deg,#f0d48a,#c9a060);color:#1a1520;font-weight:700;font-size:.95rem;border:none;cursor:pointer;letter-spacing:.04em">立即線上付款 NT$ ' + price.toLocaleString() + '</button>' +
+          '<button id="hlPayuniBtn" style="width:100%;padding:14px 20px;border-radius:10px;background:linear-gradient(135deg,#f0d48a,#c9a060);color:#1a1520;font-weight:700;font-size:.95rem;border:none;cursor:pointer;letter-spacing:.04em">開始線上付款 NT$ ' + price.toLocaleString() + '</button>' +
         '</div>' : '') +
 
         // 分隔線

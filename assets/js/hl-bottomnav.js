@@ -333,6 +333,34 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
     copyEl.parentNode.insertBefore(contactLine, copyEl);
   }
 
+  // ── 每日一句溫柔提醒（按日期 seed，每天不同，一天之內全站一致）──
+  if (copyEl && !document.getElementById('hl-footer-daily-line')) {
+    var DAILY_LINES = [
+      '讀懂自己，就是最好的自我照顧。',
+      '你不用完美，只需要願意看見。',
+      '命盤不是命定劇本，是你的人生藏寶圖。',
+      '累了就停下來，不是偷懶，是讓自己有機會知道。',
+      '覺察不是答案，是一種回來看自己的方式。',
+      '今天沒做完沒關係，明天還有。',
+      '你可以慢，可以空，可以什麼都不做。',
+      '不是所有的重量都需要你來扛。',
+      '允許自己被愛，是一種技能。',
+      '斷一天也可以。這裡不逼你。',
+      '有時候覺察只需要一個氣味、一段沉默、一次深呼吸。',
+      '不用急著變好。先承認「我還在消化」就夠了。',
+      '你每次眨一下眼，這座城堡都記得你。',
+      '停下來看見自己，是最珍貴的那一步。'
+    ];
+    var tw = new Date(new Date().getTime() + 8*3600000);
+    var seed = tw.getUTCFullYear() * 10000 + (tw.getUTCMonth()+1) * 100 + tw.getUTCDate();
+    var idx = seed % DAILY_LINES.length;
+    var dailyLine = document.createElement('div');
+    dailyLine.id = 'hl-footer-daily-line';
+    dailyLine.style.cssText = 'font-family:"LXGW WenKai TC","Noto Serif TC",serif;font-size:.82rem;color:rgba(248,223,165,.55);margin:14px 0 6px;letter-spacing:.06em;line-height:2;font-style:italic';
+    dailyLine.textContent = '｜今日。｜ ' + DAILY_LINES[idx];
+    copyEl.parentNode.insertBefore(dailyLine, copyEl);
+  }
+
   // ── 音樂整合 ──
   var musicBtn = document.getElementById('hl-bn-music');
   if (musicBtn) {

@@ -1172,6 +1172,41 @@ async function copyReadingText(readingId){
     <main class="main" id="main">
 <img src="images/page-banners-web/app.webp" alt="" width="1200" height="685" style="width:100%;max-width:600px;max-height:180px;object-fit:cover;margin:0 auto 20px;display:block;border-radius:12px" loading="eager" fetchpriority="high" decoding="async" onerror="this.style.display='none'">
 
+      <!-- 會員使命感｜感謝共同維護這座城堡 -->
+      <div id="member-gratitude" style="max-width:760px;margin:0 auto 24px;padding:16px 20px;background:linear-gradient(135deg,rgba(200,134,42,.05),rgba(160,124,220,.05));border:1px solid rgba(200,134,42,.2);border-radius:14px;font-family:'LXGW WenKai TC','Noto Serif TC',serif;font-size:.86rem;line-height:2;color:rgba(244,240,235,.78);letter-spacing:.04em;display:none">
+        <span id="member-gratitude-text"></span>
+      </div>
+      <script>
+        (function(){
+          // 等 firebase 與 plan 載入後出現訊息
+          function showGratitude(){
+            try {
+              var el = document.getElementById('member-gratitude');
+              var txt = document.getElementById('member-gratitude-text');
+              if (!el || !txt) return;
+              if (!window.firebase || !firebase.auth) return;
+              firebase.auth().onAuthStateChanged(function(u){
+                if (!u) return;
+                firebase.firestore().collection('users').doc(u.uid).get().then(function(snap){
+                  var plan = (snap.exists && snap.data().plan) || 'free';
+                  if (plan === 'pro' || plan === 'plus') {
+                    txt.textContent = plan === 'pro'
+                      ? '你是馥靈大師。謝謝你一直在這裡，讓這座城堡可以繼續把免費的部分，留給每一個需要的人。'
+                      : '你是馥靈鑰友。謝謝你選擇加入，讓這個地方可以繼續走下去。';
+                    el.style.display = 'block';
+                  } else {
+                    txt.innerHTML = '免費工具你都可以用。如果有一天覺得我們的工具對你有用，<a href="pricing.html" style="color:#f8dfa5;text-decoration:underline">可以選擇成為會員</a>，讓這裡能繼續存在。';
+                    el.style.display = 'block';
+                  }
+                }).catch(function(){});
+              });
+            } catch(_){}
+          }
+          if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', showGratitude);
+          else showGratitude();
+        })();
+      </script>
+
 
       <!-- Home -->
       <div class="page" id="page-home">
