@@ -22,18 +22,18 @@
   'use strict';
 
   // ═══════════════════════════════════════
-  // 12 房間定義（H.O.U.R. × L.I.G.H.T. × 秘境三塊）
+  // 17 房間定義（完整城堡，對應 castle-room-*.html × 17）
   // ═══════════════════════════════════════
   var ROOMS = [
     // H.O.U.R. 四塔
     { id:'mirror',    name:'鏡之廳',   zone:'H', emoji:'🪞', gold:'#f8dfa5',
-      desc:'自省與覺察', tools:['akashic-reading.html','past-life.html','name-oracle.html','mirror-oracle.html'],
+      desc:'自省與覺察', tools:['mirror-oracle.html','akashic-reading.html','past-life.html','name-oracle.html'],
       servantId:'mirror', primaryMaterial:'誠實碎鏡' },
     { id:'treasure',  name:'價值寶庫', zone:'H', emoji:'💎', gold:'#e9c27d',
-      desc:'認識自身價值', tools:['fortune-wealth.html','quiz-value.html','triangle-calculator.html'],
+      desc:'認識自身價值', tools:['fortune-wealth.html','triangle-calculator.html','quiz-hub.html'],
       servantId:'treasure', primaryMaterial:'天命核心' },
     { id:'key',       name:'解鎖密室', zone:'O', emoji:'🔑', gold:'#d4a853',
-      desc:'探索內在限制', tools:['quiz-shadow.html','quiz-inner-child.html','chiron-lilith.html'],
+      desc:'探索內在限制', tools:['quiz-hub.html','chiron-lilith.html','member-dashboard.html'],
       servantId:'key', primaryMaterial:'覺察印記' },
     { id:'throne',    name:'啟程塔',   zone:'R', emoji:'👑', gold:'#b8922a',
       desc:'決策與行動', tools:['destiny-engine.html','destiny-match.html','abundance-prayer-pro.html'],
@@ -50,22 +50,39 @@
       desc:'身體與扎根', tools:['bazi.html','ziwei.html','massage-guide.html','aroma-garden.html'],
       servantId:'ground', primaryMaterial:'五行晶石' },
     { id:'harmony',   name:'和諧苑',   zone:'H', emoji:'🌿', gold:'#7aab6d',
-      desc:'平衡與流動', tools:['knowledge-hub.html','aromatherapy-science.html','blending-guide.html'],
+      desc:'平衡與流動', tools:['draw-family.html','aromatherapy-science.html','blending-guide.html'],
       servantId:'harmony', primaryMaterial:'薰衣草晨露' },
     { id:'transform', name:'蛻變室',   zone:'T', emoji:'🦋', gold:'#c97a6d',
-      desc:'改變與超越', tools:['hour-training.html','course-slides/index.html','witch-power.html'],
+      desc:'改變與超越', tools:['hour-training.html','witch-power.html','quiz-hub.html'],
       servantId:'transform', primaryMaterial:'馥靈精髓' },
 
-    // 三秘境（最後解鎖）
+    // 秘境三廳
     { id:'dream',     name:'夢境走廊', zone:'秘境', emoji:'🌙', gold:'#6d7acc',
-      desc:'潛意識對話', tools:['dream-decoder.html','quiz-dream.html','projection-cards.html'],
+      desc:'潛意識對話', tools:['dream-decoder.html','projection-cards.html','mirror-oracle.html'],
       servantId:'dream', primaryMaterial:'月光精華' },
     { id:'garden',    name:'記憶花園', zone:'秘境', emoji:'🌸', gold:'#d6a7c7',
       desc:'懷舊與療癒', tools:['yuan-chen-reading.html','quiz-family.html','season-oracle.html'],
       servantId:'garden', primaryMaterial:'橙花羽翼' },
-    { id:'tower',     name:'瞭望塔',   zone:'秘境', emoji:'🔭', gold:'#f8dfa5',
-      desc:'俯瞰全局', tools:['birthday-gift.html','member-dashboard.html'],
-      servantId:'tower', primaryMaterial:'九宮全觀印記' },
+    { id:'star',      name:'星象台',   zone:'秘境', emoji:'🌌', gold:'#c8d4f0',
+      desc:'命理與天文', tools:['destiny-engine.html','bazi.html','astro.html','qizheng.html'],
+      servantId:'star', primaryMaterial:'星辰碎片' },
+
+    // 擴展六殿（與 castle-room-*.html 對應）
+    { id:'library',   name:'學院塔',   zone:'知識', emoji:'📚', gold:'#a0b86d',
+      desc:'智慧與學習', tools:['knowledge-hub.html','aroma-garden.html','cognitive-aromatherapy-theory.html'],
+      servantId:'library', primaryMaterial:'智慧卷軸' },
+    { id:'secret',    name:'秘密室',   zone:'占卜', emoji:'🔮', gold:'#8a6dc8',
+      desc:'神秘與占卜', tools:['tarot-draw.html','yijing-oracle.html','bone-casting.html','phone-oracle.html'],
+      servantId:'secret', primaryMaterial:'盧恩石' },
+    { id:'music',     name:'音樂廳',   zone:'感知', emoji:'🎵', gold:'#9a7acc',
+      desc:'聲音與情緒', tools:['draw-hl.html','quiz-hub.html','season-oracle.html'],
+      servantId:'music', primaryMaterial:'和弦碎片' },
+    { id:'kitchen',   name:'廚房',     zone:'滋養', emoji:'🌿', gold:'#7aaa6d',
+      desc:'香氣與療癒', tools:['aroma-garden.html','skincare-science.html','draw-spa.html','blending-guide.html'],
+      servantId:'kitchen', primaryMaterial:'香草精華' },
+    { id:'alchemy',   name:'煉金室',   zone:'合成', emoji:'⚗️', gold:'#c8a030',
+      desc:'材料與合成', tools:['castle-materials.html','destiny-engine.html','aromatherapy-science.html'],
+      servantId:'alchemy', primaryMaterial:'煉金泡泡' },
   ];
 
   // ═══════════════════════════════════════
@@ -271,14 +288,70 @@
       text:'花瓣一次全部落下。在這一秒您知道：原諒不是忘記，是不再痛。',
       rewards:{ xp:55, material:{legendary:'馥靈精髓'} } },
 
-    { id:'tower_star',     roomId:'tower',     weight:10, minLv:1,
-      text:'望遠鏡裡看見一顆星在眨眼。是您生日那年的星。',
+    // 星象台
+    { id:'star_gaze',      roomId:'star',      weight:10, minLv:1,
+      text:'您把望遠鏡對準最亮的那顆星，發現它也一直在看您。',
       rewards:{ xp:18, material:{common:'星辰碎片'} } },
-    { id:'tower_map',      roomId:'tower',     weight:5,  minLv:12,
-      text:'星圖自動攤開。您看懂了自己人生的三個關鍵轉折，其中兩個還沒到。',
+    { id:'star_map',       roomId:'star',      weight:5,  minLv:12,
+      text:'星圖自動攤開在桌上。您看懂了三個關鍵轉折，其中兩個還沒到。',
       rewards:{ xp:30, material:{rare:'命盤墨跡'} } },
-    { id:'tower_cross',    roomId:'tower',     weight:3,  minLv:25,
-      text:'所有星座同時閃了一下。您感覺自己終於「在」位置上。',
+    { id:'star_align',     roomId:'star',      weight:3,  minLv:25,
+      text:'所有星座同時閃了一下。那一秒您知道：時機到了。',
+      rewards:{ xp:60, material:{legendary:'天命核心'} } },
+
+    // 學院塔
+    { id:'library_scroll', roomId:'library',   weight:10, minLv:1,
+      text:'書架深處滑出一本沒有書名的書。翻開第一頁，是一句只有您懂的話。',
+      rewards:{ xp:15, material:{common:'智慧卷軸'} } },
+    { id:'library_candle', roomId:'library',   weight:5,  minLv:10,
+      text:'閱讀燈突然亮了，您還沒開燈。僕人說：「有的東西找到了就會自己發光。」',
+      rewards:{ xp:28, material:{rare:'卦象印記'} } },
+    { id:'library_map',    roomId:'library',   weight:3,  minLv:22,
+      text:'最高那層書架上有一本書落下來。裡面夾著一張您從沒見過的地圖。',
+      rewards:{ xp:55, material:{legendary:'校準之鑰'} } },
+
+    // 秘密室
+    { id:'secret_rune',    roomId:'secret',    weight:10, minLv:1,
+      text:'盧恩石在桌上自動排成一個圖案。您不知道它在說什麼，但感覺是好事。',
+      rewards:{ xp:15, material:{common:'盧恩石'} } },
+    { id:'secret_veil',    roomId:'secret',    weight:5,  minLv:10,
+      text:'薄紗後面有什麼動了一下。不是鬼，是您那個還沒說出口的事。',
+      rewards:{ xp:28, material:{rare:'靈視殘影'} } },
+    { id:'secret_portal',  roomId:'secret',    weight:3,  minLv:22,
+      text:'地板上出現一個圓形光紋。僕人說：「踏進去不會怎樣，只是會更懂自己一點。」',
+      rewards:{ xp:55, material:{legendary:'月光精華'} } },
+
+    // 音樂廳
+    { id:'music_note',     roomId:'music',     weight:10, minLv:1,
+      text:'一個音符在空中飄著，是您小時候學過的那首曲子的第一個音。',
+      rewards:{ xp:15, material:{common:'和弦碎片'} } },
+    { id:'music_echo',     roomId:'music',     weight:5,  minLv:10,
+      text:'房間的迴響把您剛才說的話變成了旋律。聽起來比您想的還好。',
+      rewards:{ xp:28, material:{rare:'玫瑰精魄'} } },
+    { id:'music_silence',  roomId:'music',     weight:3,  minLv:22,
+      text:'音樂突然停了。在這個靜默裡，您聽見平常被噪音蓋掉的那個聲音。',
+      rewards:{ xp:55, material:{legendary:'馥靈精髓'} } },
+
+    // 廚房
+    { id:'kitchen_herb',   roomId:'kitchen',   weight:10, minLv:1,
+      text:'一把新鮮薰衣草插在窗台上。香氣飄進來的時候，您想起了一件很久前讓您開心的事。',
+      rewards:{ xp:15, material:{common:'香草精華'} } },
+    { id:'kitchen_blend',  roomId:'kitchen',   weight:5,  minLv:10,
+      text:'您無意間調出一個氣味組合，是某個重要的人身上的味道。',
+      rewards:{ xp:28, material:{rare:'薰衣草晨露'} } },
+    { id:'kitchen_brew',   roomId:'kitchen',   weight:3,  minLv:22,
+      text:'爐子上的鍋裡浮出一個心形泡泡。僕人說：「今天這鍋送給最需要被照顧的人——是你。」',
+      rewards:{ xp:55, material:{legendary:'沒藥精髓'} } },
+
+    // 煉金室
+    { id:'alchemy_bubble', roomId:'alchemy',   weight:10, minLv:1,
+      text:'燒瓶裡的液體換了一個顏色，是您今天的心情色。您一看就懂。',
+      rewards:{ xp:18, material:{common:'煉金泡泡'} } },
+    { id:'alchemy_catalyst',roomId:'alchemy',  weight:5,  minLv:12,
+      text:'材料自己湊在一起了。僕人說：「有些反應不需要催化劑，只需要合適的時機。」',
+      rewards:{ xp:30, material:{rare:'五行晶石'} } },
+    { id:'alchemy_gold',   roomId:'alchemy',   weight:3,  minLv:25,
+      text:'放進去的鉛真的變成金了。您知道那其實是比喻，但還是感動了一下。',
       rewards:{ xp:60, material:{legendary:'天命核心'} } },
   ];
 
@@ -403,7 +476,7 @@
     },
 
     // 版本資訊
-    version: '3.0.0-skeleton',
+    version: '3.1.0',
   };
 
 })();
