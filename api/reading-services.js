@@ -1330,6 +1330,54 @@ async function handleWallpaper(req, res, apiKey) {
     if (hd.crossFull) dossier += '輪迴交叉：' + hd.crossFull + '\n';
   }
 
+  // ═ 補齊 33 套：紫微完整 / 七政四餘 / 吠陀 / 卡巴拉 / 大六壬 / 三角密碼完整 ═
+  if (profile.ziwei && typeof profile.ziwei === 'object') {
+    dossier += '\n— 紫微斗數（完整）—\n';
+    if (profile.ziwei.mingGong) dossier += '命宮：' + profile.ziwei.mingGong + '\n';
+    if (profile.ziwei.shenGong) dossier += '身宮：' + profile.ziwei.shenGong + '\n';
+    if (profile.ziwei.mingZhu) dossier += '命主：' + profile.ziwei.mingZhu + '\n';
+    if (profile.ziwei.shenZhu) dossier += '身主：' + profile.ziwei.shenZhu + '\n';
+    if (profile.ziwei.ju) dossier += '五行局：' + profile.ziwei.ju + '\n';
+  }
+  if (profile.qizheng) {
+    dossier += '\n— 七政四餘 —\n';
+    if (typeof profile.qizheng === 'object') {
+      var qKeys = Object.keys(profile.qizheng).slice(0, 5);
+      qKeys.forEach(function(k){
+        var v = profile.qizheng[k];
+        dossier += k + ': ' + (typeof v === 'object' ? JSON.stringify(v).slice(0,60) : String(v).slice(0,60)) + '\n';
+      });
+    }
+  }
+  if (profile.vedic) {
+    dossier += '\n— 吠陀占星 —\n';
+    if (profile.vedic.nakshatra) dossier += '納沙特拉月宿：' + profile.vedic.nakshatra + '\n';
+    if (profile.vedic.moon_sign) dossier += '吠陀月座：' + profile.vedic.moon_sign + '\n';
+  }
+  if (profile.kabbalah) {
+    dossier += '\n— 卡巴拉生命之樹 —\n';
+    if (typeof profile.kabbalah === 'object' && profile.kabbalah.path) dossier += '路徑：' + profile.kabbalah.path + '\n';
+    else if (typeof profile.kabbalah !== 'object') dossier += String(profile.kabbalah) + '\n';
+  }
+  if (profile.liuren) {
+    dossier += '\n— 大六壬 —\n';
+    if (typeof profile.liuren === 'object') {
+      var lKeys = Object.keys(profile.liuren).slice(0, 3);
+      lKeys.forEach(function(k){
+        dossier += k + ': ' + String(profile.liuren[k]).slice(0,40) + '\n';
+      });
+    } else {
+      dossier += String(profile.liuren).slice(0, 80) + '\n';
+    }
+  }
+  if (profile.triangleFull) {
+    dossier += '\n— 三角生命密碼（完整）—\n';
+    var tf = profile.triangleFull;
+    dossier += '一層：' + tf.I + '/' + tf.J + '/' + tf.K + '/' + tf.L + '\n';
+    dossier += '二層：' + tf.M + '/' + tf.N + '｜三層：' + tf.O + '\n';
+    if (tf.sub) dossier += '隱藏碼：' + tf.sub + '｜擴展碼：' + tf.ext + '｜內核碼：' + tf.inner + '\n';
+  }
+
   var themeNamesZh = { wealth:'招財豐盛', love:'愛情桃花', career:'事業貴人', protection:'護佑平安', luck:'幸運轉運' };
   var themeZhForClaude = themeNamesZh[theme] || theme;
 

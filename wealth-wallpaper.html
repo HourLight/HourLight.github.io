@@ -16,6 +16,8 @@
 <link rel="stylesheet" href="assets/css/hl-music.css">
 <!-- lunar-javascript：農曆＋八字計算庫，讓蘊福桌布能算出 33 套命理座標 -->
 <script src="js/lunar.min.js"></script>
+<!-- destiny-calc.js：提供 calcZiwei/calcQizheng/calcVedic/calcBML/calcLiuren/calcTri 等既有精準函式（不自編），補齊 33 套命理給 profileData -->
+<script src="js/destiny-calc.js"></script>
 <style>
 :root{--ff-font:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;--ff-oracle:"LXGW WenKai TC","Noto Serif TC",serif;--ff-bg:#05030a;--ff-ink:#ffffff;--ff-ink-soft:rgba(255,255,255,.7);--ff-gold:#f8dfa5;--ff-gold-deep:#f8dfa5;--ff-border:rgba(255,255,255,.12);--ff-ease:cubic-bezier(.4,0,.2,1)}
 *{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
@@ -1493,6 +1495,74 @@ async function calculateProfile(){
     celtic: celtic,
     humanDesign: humanDesign
   };
+
+  // ═══ 補齊 33 套命理（用 destiny-calc.js 既有函式，不自編）═══
+  // ② 紫微斗數（完整命宮/財帛/官祿主星）
+  try {
+    if (typeof calcZiwei === 'function' && yearGz && hasHourInfo) {
+      var TG_STR = '甲乙丙丁戊己庚辛壬癸';
+      var DZ_STR = '子丑寅卯辰巳午未申酉戌亥';
+      var ytI = TG_STR.indexOf(yearGz.charAt(0));
+      var yzI = DZ_STR.indexOf(yearGz.charAt(1));
+      if (ytI >= 0 && yzI >= 0 && lunarMonth > 0 && lunarDay > 0) {
+        var hzI = hour !== null ? (hour === 23 ? 0 : Math.floor((hour + 1) / 2) % 12) : 6;
+        profileData.ziwei = calcZiwei(lunarMonth, lunarDay, ytI, yzI, hzI, gender || 'F');
+      }
+    }
+  } catch (e) { console.warn('紫微補算失敗：', e.message); }
+
+  // ⑤ 七政四餘（需要完整行星資料）
+  try {
+    if (typeof calcQizheng === 'function' && WW_EPH && hasHourInfo) {
+      var planetsForQi = wwEphLookup(y, m, d, hour, minute || 0);
+      if (planetsForQi) profileData.qizheng = calcQizheng(planetsForQi, y, m, d);
+    }
+  } catch (e) { console.warn('七政補算失敗：', e.message); }
+
+  // ⑭ 吠陀占星（月宿 + 行星位置）
+  try {
+    if (typeof calcVedic === 'function' && WW_EPH && hasHourInfo) {
+      var planetsForVedic = wwEphLookup(y, m, d, hour, minute || 0);
+      if (planetsForVedic) profileData.vedic = calcVedic(planetsForVedic, y, m, d);
+    }
+  } catch (e) { console.warn('吠陀補算失敗：', e.message); }
+
+  // ⑯ 卡巴拉生命之樹（需要太陽黃經）
+  try {
+    if (typeof calcBML === 'function') {
+      profileData.kabbalah = calcBML(y, m, d);
+    }
+  } catch (e) { console.warn('卡巴拉補算失敗：', e.message); }
+
+  // ⑩ 大六壬
+  try {
+    if (typeof calcLiuren === 'function' && bazi && bazi.dayMaster && hasHourInfo) {
+      var TG_L = '甲乙丙丁戊己庚辛壬癸';
+      var DZ_L = '子丑寅卯辰巳午未申酉戌亥';
+      var dayGanIdx = TG_L.indexOf(bazi.dayMaster);
+      // bazi.dayGz 應該有值，但為了保險再從 dayMaster 推
+      var dayPillarGz = bazi.pillars && bazi.pillars.day ? bazi.pillars.day.full : (bazi.dayGz || '');
+      var dayZhiIdx = dayPillarGz.length >= 2 ? DZ_L.indexOf(dayPillarGz.charAt(1)) : -1;
+      var hzIForLiu = hour === 23 ? 0 : Math.floor((hour + 1) / 2) % 12;
+      if (dayGanIdx >= 0 && dayZhiIdx >= 0 && lunarMonth > 0) {
+        profileData.liuren = calcLiuren(lunarMonth, hzIForLiu, dayGanIdx, dayZhiIdx);
+      }
+    }
+  } catch (e) { console.warn('大六壬補算失敗：', e.message); }
+
+  // ⑨ 三角密碼完整版（覆蓋前面簡化的 triNum）
+  try {
+    if (typeof calcTri === 'function') {
+      var triFull = calcTri(y, m, d);
+      if (triFull) {
+        profileData.triangleFull = triFull;
+        profileData.triNum = triFull.O || profileData.triNum;  // O 是中心合數
+      }
+    }
+  } catch (e) { console.warn('三角密碼補算失敗：', e.message); }
+
+  // 姓名筆畫（如果用戶有填姓名欄；目前 wealth-wallpaper 沒有姓名輸入，留 hook 給未來）
+  // TODO: 當 UI 加上姓名輸入後，呼叫 getStroke() 累加
 
   // 渲染量身打造的命理座標卡
   var grid = document.getElementById('profileGrid');
