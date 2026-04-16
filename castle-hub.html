@@ -1085,6 +1085,29 @@ main{position:relative;z-index:1}
   }
 
   // ── 初始化 ──
+  // 每日登入獎勵：首次進城堡送 2 顆月光碎片
+  function tryDailyLoginBonus(){
+    if (!window.hlMaterial || typeof hlMaterial.grantLoginBonus !== 'function') return;
+    try {
+      var result = hlMaterial.grantLoginBonus();
+      if (result && result.ok){
+        // 延遲 800ms 讓頁面初始化完再彈，避免被渲染蓋掉
+        setTimeout(function(){
+          // 自繪 toast，帶「每日登入獎勵 × N」文案
+          var t = document.createElement('div');
+          t.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:10000;padding:14px 22px;border-radius:16px;background:linear-gradient(135deg,rgba(184,146,42,.95),rgba(232,184,109,.95));color:#fff;font-family:"Noto Serif TC",serif;font-size:.95rem;letter-spacing:.04em;box-shadow:0 12px 36px rgba(0,0,0,.25);display:flex;align-items:center;gap:10px;animation:loginBonusSlide .45s cubic-bezier(.4,0,.2,1)';
+          t.innerHTML = '<span style="font-size:1.4rem">' + result.icon + '</span><span>每日登入獎勵｜' + result.materialName + ' × ' + result.amount + '</span>';
+          var style = document.createElement('style');
+          style.textContent = '@keyframes loginBonusSlide{from{opacity:0;transform:translate(-50%,-12px)}to{opacity:1;transform:translate(-50%,0)}}';
+          document.head.appendChild(style);
+          document.body.appendChild(t);
+          setTimeout(function(){ t.style.transition = 'all .4s'; t.style.opacity = '0'; t.style.transform = 'translate(-50%,-12px)'; setTimeout(function(){ t.remove(); }, 450); }, 3500);
+          if (window.HLSound && HLSound.drop_common) HLSound.drop_common();
+        }, 800);
+      }
+    } catch(e){}
+  }
+
   async function init(){
     renderTimeContext();
     spawnParticles();
@@ -1093,6 +1116,7 @@ main{position:relative;z-index:1}
       var seed = 'guest' + TODAY;
       state.moods = V3.rollDailyMoods(seed);
       renderLord(); renderRooms(); renderDailyQuests(); renderPetsPanel();
+      tryDailyLoginBonus();
       return;
     }
 
@@ -1108,6 +1132,7 @@ main{position:relative;z-index:1}
       var seedStr = (state.uid || 'guest') + TODAY;
       state.moods = V3.rollDailyMoods(seedStr);
       renderLord(); renderRooms(); renderDailyQuests(); renderPetsPanel();
+      tryDailyLoginBonus();
     });
   }
 

@@ -780,30 +780,32 @@
   ];
 
   // ═══ 每日掉落限制（防刷）═══
+  // 2026/04/16 調整：寵物 9 隻需餵，原配額每天 7-8 顆勉強夠，拉高到 12-14 顆讓煉材料有 buffer
   var DAILY_LIMITS = {
-    quiz: 5,         // 每天最多從測驗掉 5 次
-    calculator: 4,   // 每天最多從命理掉 4 次
-    draw: 3,         // 每天最多從抽牌掉 3 次
-    oracle: 3,
-    castle_riddle: 3, // 城堡謎語每天最多 3 次（對應每天開 3 房）
-    course: 1,
-    commerce: 999,   // 購課不限
-    brand: 2,
-    draw_dna: 2,         // 牌卡DNA每天最多2次
-    knowledge: 5,        // 知識頁每天最多掉5次月光碎片
-    nature_event: 999,   // 節氣活動不限（限時掉落）
-    inner_realm: 1,      // 深宮材料每天最多1次
-    member_plus: 2,      // 鑰友材料每天最多2次（登入+測驗）
-    member_pro: 2,       // 大師材料每天最多2次（登入+抽牌）
-    dream: 3,
-    harmony: 3,
-    music_room: 2,
-    kitchen_room: 2,
-    alchemy_room: 2,
-    transform_room: 2,
-    intuition_room: 2,
-    love_room: 2,
-    light_room: 2
+    quiz: 6,         // 5 → 6（測驗做多點就多 1 顆）
+    calculator: 5,   // 4 → 5
+    draw: 4,         // 3 → 4
+    oracle: 4,       // 3 → 4
+    castle_riddle: 5, // 3 → 5（每天開 3 房變開 5 房誘因）
+    course: 2,       // 1 → 2（追看課更有回饋）
+    commerce: 999,
+    brand: 3,        // 2 → 3
+    draw_dna: 3,     // 2 → 3
+    knowledge: 7,    // 5 → 7（讀知識頁動機強化）
+    nature_event: 999,
+    inner_realm: 2,  // 1 → 2
+    member_plus: 3,  // 2 → 3
+    member_pro: 3,   // 2 → 3
+    dream: 4,        // 3 → 4
+    harmony: 4,      // 3 → 4
+    music_room: 3,
+    kitchen_room: 3,
+    alchemy_room: 3,
+    transform_room: 3,
+    intuition_room: 3,
+    love_room: 3,
+    light_room: 3,
+    login_bonus: 1   // NEW 每日首次進城堡額外送 2 顆月光碎片
   };
 
   // ═══ 工具函數 ═══
@@ -1431,6 +1433,22 @@
     } catch(e) {}
   }
 
+  // ═══ 每日登入獎勵：首次進城堡送 2 顆月光碎片 ═══
+  // 2026/04/16 加 — 寵物 9 隻每天要吃，單靠掉落不夠，每日獎勵拉高基礎量
+  function grantLoginBonus(){
+    var state = loadMaterials();
+    var today = todayKey();
+    var key = today + '_login_bonus';
+    if(state.dailyDrops[key]) return { ok:false, reason:'already_claimed_today' };
+    var amount = 2;
+    state.inventory['moonlight_shard'] = (state.inventory['moonlight_shard'] || 0) + amount;
+    state.dailyDrops[key] = 1;
+    state.totalDrops = (state.totalDrops || 0) + amount;
+    saveMaterials(state);
+    reportCastleEvent('login_bonus_claimed', { amount: amount, material:'moonlight_shard' });
+    return { ok:true, amount: amount, material:'moonlight_shard', materialName:'月光碎片', icon:'🌙' };
+  }
+
   // ═══ 公開 API ═══
   window.hlMaterial = {
     drop:         dropMaterial,
@@ -1448,6 +1466,7 @@
     showToast:    showDropToast,
     dropPaidReading: dropPaidReadingMaterials,
     showBlindBox: showBlindBoxReveal,
+    grantLoginBonus: grantLoginBonus,
     MATERIAL_DEFS: MATERIAL_DEFS,
     RECIPES:      RECIPES,
     exchangePointsForMaterial: function(rarityTier) {
