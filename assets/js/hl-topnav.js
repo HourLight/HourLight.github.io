@@ -106,7 +106,7 @@
   var logo = document.createElement('a');
   logo.className = 'htn-logo';
   logo.href = 'index.html';
-  logo.innerHTML = '<img src="LOGO-1.png" alt="" loading="lazy"><span class="htn-logo-text">馥靈之鑰</span>';
+  logo.innerHTML = '<img src="/LOGO-1.png" alt="" loading="lazy"><span class="htn-logo-text">馥靈之鑰</span>';
   nav.appendChild(logo);
 
   // Desktop links
