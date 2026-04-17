@@ -417,6 +417,43 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
     recallScript.src = basePath + 'hl-recall.js';
     recallScript.defer = true;
     document.body.appendChild(recallScript);
+
+    // ── 全站 <input type="date"> 自動轉三下拉（解決年份難選 + 對比度問題）──
+    var dpScript = document.createElement('script');
+    dpScript.src = basePath + 'hl-datepicker.js';
+    dpScript.defer = true;
+    document.body.appendChild(dpScript);
+  })();
+
+  // ── 城堡返回按鈕：從城堡房間去做測驗/占卜後，浮出「← 回城堡」 ──
+  (function castleReturn(){
+    var path = location.pathname;
+    var isCastlePage = /castle-(room|hub|pets|aromatherapy|light|materials|minigames|guide|world)/.test(path);
+
+    if (isCastlePage) {
+      // 在城堡頁：記下當前 URL
+      try { sessionStorage.setItem('hl_castle_return', location.href); } catch(e){}
+    } else {
+      // 不在城堡頁：若有記錄就浮出返回按鈕
+      var returnUrl;
+      try { returnUrl = sessionStorage.getItem('hl_castle_return'); } catch(e){}
+      if (!returnUrl) return;
+
+      var btn = document.createElement('a');
+      btn.href = returnUrl;
+      btn.id = 'hl-castle-return-btn';
+      btn.textContent = '← 回城堡';
+      btn.style.cssText = 'position:fixed;top:68px;left:12px;z-index:9998;'
+        + 'background:rgba(10,6,24,.88);color:#f0d48a;font-size:.78rem;'
+        + 'padding:7px 14px;border-radius:20px;text-decoration:none;'
+        + 'border:1px solid rgba(240,212,138,.3);backdrop-filter:blur(6px);'
+        + 'transition:opacity .2s;letter-spacing:.04em;white-space:nowrap;'
+        + 'box-shadow:0 2px 12px rgba(0,0,0,.35)';
+      btn.addEventListener('click', function(){
+        try { sessionStorage.removeItem('hl_castle_return'); } catch(e){}
+      });
+      document.body.appendChild(btn);
+    }
   })();
 
 })();
