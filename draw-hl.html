@@ -2102,6 +2102,8 @@ function payOnlinePayUni() {
   var codeFromUrl = params.get('code');
 
   if (payment === 'success' && codeFromUrl) {
+    // 清掉 sessionStorage 裡的舊代碼，避免自動觸發舊碼導致「已使用過」
+    window._lastUsedUnlockCode = null;
     // 等 firebase auth 與 cardData 載入
     var tries = 0;
     var poll = setInterval(function(){
@@ -2396,7 +2398,8 @@ async function triggerAIReading() {
       document.getElementById('aiLoadingBlock').style.display = 'none';
 
       if (data.needCode || data.invalidCode || data.usedCode || data.wrongN) {
-        // 解鎖碼問題 → 回到輸入畫面
+        // 解鎖碼問題 → 清掉 sessionStorage 失效代碼，回到輸入畫面
+        window._lastUsedUnlockCode = null;
         if (n > 1) {
           document.getElementById('aiPaidBlock').style.display = 'block';
         }
@@ -2410,7 +2413,8 @@ async function triggerAIReading() {
       return;
     }
 
-    // 成功 → 顯示結果
+    // 成功 → 顯示結果；代碼已消耗，清掉 sessionStorage 避免重載再次觸發
+    window._lastUsedUnlockCode = null;
     document.getElementById('aiLoadingBlock').style.display = 'none';
     document.getElementById('aiResultBlock').style.display = 'block';
     document.getElementById('aiResultTitle').textContent = data.spread || 'AI 解讀結果';
