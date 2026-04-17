@@ -13,6 +13,14 @@ var FIREBASE_CONFIG = {
   measurementId: "G-1PQYBM206R"
 };
 
+// ⚡ 自動初始化 Firebase App（2026-04-17 逸君回報：draw-hl / wealth-wallpaper 付費 API 403）
+// 之前各頁自己 init，有些頁面漏了或 init 在太後面 → 頁面載入時 hl-paywall 等模組
+// 已經 new 出 firebase.firestore() 但 [DEFAULT] app 不存在 → 整個付費流程失效。
+// 統一在 config 載入時立刻 init，後續重複呼叫有 !apps.length 守門不會壞。
+if (typeof firebase !== 'undefined' && firebase.initializeApp && (!firebase.apps || !firebase.apps.length)) {
+  try { firebase.initializeApp(FIREBASE_CONFIG); } catch(e) { console.warn('Firebase init failed:', e); }
+}
+
 // ═══════════════════════════════════════════════════════════
 //  馥靈之鑰 八層身分系統 v2.0
 //  由馥靈管理員在後台統一調整各身分的工具開放權限
