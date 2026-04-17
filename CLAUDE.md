@@ -419,7 +419,7 @@ AI 營運團隊 15 部門 → 看第四部分。
 | hl-points.js | 積分系統（城堡靈感點 → 折價券） |
 | hl-benefits-modal.js | **完整會員權益彈窗**（SSOT，4 個價目頁共用） |
 | hl-share.js | 跨平台分享（FB/IG/Threads/LINE，line.me/R/share 協議） |
-| hl-chat.js | 馥靈即時對話介面 |
+| hl-chat.js | 馥靈即時對話介面（⚠️ 2026/04/17 全站已移除 import，檔案保留供未來 admin-only 模式用） |
 | hl-record.js | 解讀紀錄存檔 |
 | hl-quiz-save.js | 心理測驗結果存檔 + 馥靈稱號卡 |
 | hl-member.js | 會員資料管理 |
@@ -638,6 +638,23 @@ Firestore 結構：
 ► 參考檔案：`assets/js/hl-ai-copy.js` 的 `_syncCopy()` 函數是標準範本
 ► **以後所有新頁面的複製功能必須用 `_syncCopy()` 的寫法，不得自己寫新的複製函數**
 
+### 付費 paywall `deferConsume: true` 鐵則（2026/04/17 血淚教訓）
+
+► **情境**：hlPaywall.show() 呼叫 API 消耗 code（draw-hl / family-reading / pet-reading / name-oracle / draw-nail / draw-spa / draw-family / wealth-wallpaper 等）
+► **根因**：paywall 驗碼成功後**立刻** `reading_codes/{code}.update({used:true})`，接著 onProceed 呼叫 API → API 再驗一次 → 看到 used:true → 403「此解鎖碼已使用過」。code 被消耗兩次。
+► **鐵則**：這類頁面 **`hlPaywall.show({...,deferConsume:true,...})`**，讓 API 成功生成後才消耗 code
+► **例外**：只有「paywall 後無 API 接手消耗」的頁面才 deferConsume:false（例如 draw-light 28 張抽牌）
+► callback 欄位**一律用 `onProceed`**，不是 `onSuccess`（hl-paywall.js 只認前者，name-oracle 被此雷過）
+► 參考 commit：`32a16c87`（繁體 7 頁）、`5067ff95`（簡體 7 頁）
+► 未來 `hl-paywall.js` 默認值可考慮改為 `deferConsume:true`，把「消耗時機」責任壓回 API 那邊
+
+### 桌布 email 寄送鐵則：URL-only 必須 fetch 轉 base64（2026/04/17 血淚教訓）
+
+► `api/reading-services.js handleWallpaper` 寄信條件是 `userEmail && imageB64`
+► **圖片引擎回 URL 而非 b64_json 時必須主動 fetch 轉 base64**，不然 imageB64 空 → 靜默不寄信 → 客人投訴
+► xAI 那邊有 fallback fetch（line 1541-1552），OpenAI 那邊原本漏寫 → 補上（commit `35ec6bdb`）
+► 未來新增其他引擎也要記得補這段
+
 ~~
 
 ## 七、常見工程任務（git 直推流程）
@@ -698,6 +715,11 @@ Firestore 結構：
 15. **LINE 按鈕用金色背景 ＋ 深色文字**（逸君討厭綠色）
 16. **iOS 公告快取**：改 hl-announce.js 後要加 `?v=N` 版本號才會強制重新下載
 17. **小花事件**：PAYUNi 試用期不能蓋掉付費方案 plan（commit 0f024fd8 修過）
+18. **付費 paywall double-consume**（2026/04/17）：`hlPaywall.show({...})` 凡是走「驗碼→onProceed→API」路徑的都必須 `deferConsume:true`，否則 paywall 標 used + API 再驗 → 403。詳見第六節鐵則與 commit 32a16c87
+19. **桌布 OpenAI URL-only 不寄信**（2026/04/17）：圖片引擎回 URL 若沒 fetch 轉 base64，imageB64 空 → 靜默不寄信。見第六節鐵則與 commit 35ec6bdb
+20. **城堡每日禮物 claim 死鎖**（2026/04/17）：checkDailyLogin 若提前把 `state.lastDate = today` 存起來，claimDailyReward 不能再用 `lastDate === today` 作為早期返回條件，只能檢查 `state.claimed`。commit 306b9843
+21. **小馥聊天已全站移除**（2026/04/17）：`hl-chat.js` 不會被任何公開頁面 import（354 頁清過）。檔案仍保留供未來 admin-only 模式。客戶找 Ruby 走底部 nav 的 LINE / Email。commit e1006355
+22. **topnav 尺寸敏感**（2026/04/17）：`.htn-link` 維持 `font-size:.72rem;padding:6px 10px` 與 `.htn-menu-btn{display:none}` + 媒體查詢 768px 斷點是穩定版。若放大字級或把 menu-btn 改成 `display:inline-flex`，6 個 QUICK link 會在平板寬度擠到兩行。commit e6b29379
 
 ~~
 
