@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-BXP7K53QG6');</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MBTI × 塔羅靈魂對照｜APESK 64 型 × 馥靈智慧牌｜馥靈之鑰</title>
+<meta name="description" content="用 APESK 64 型 MBTI（含 A/T 果斷糾結 × H/C 溫暖高冷）對應三張馥靈智慧牌：核心牌、挑戰牌、禮物牌。不是隨機抽，是你的認知指紋映射。免費使用。">
+<meta property="og:title" content="MBTI × 塔羅靈魂對照｜64 型對應 3 張馥靈智慧牌">
+<meta property="og:description" content="不是隨機抽，是你的認知指紋映射。輸入 MBTI，看你的三張專屬牌：本質、課題、禮物。">
+<meta property="og:image" content="https://hourlightkey.com/og-image.jpg">
+<meta property="og:url" content="https://hourlightkey.com/mbti-tarot.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.ico">
+<link rel="canonical" href="https://hourlightkey.com/mbti-tarot.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Sans+TC:wght@300;400;500&family=LXGW+WenKai+TC&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"MBTI × 塔羅靈魂對照",
+  "url":"https://hourlightkey.com/mbti-tarot.html",
+  "applicationCategory":"LifestyleApplication",
+  "operatingSystem":"Web",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"TWD"},
+  "description":"APESK 64 型 MBTI 對應三張馥靈智慧牌：核心、挑戰、禮物。"
+}
+</script>
+
+<!-- Firebase（計次門控） -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#faf9f7;color:#1a1714;font-family:'Noto Sans TC',sans-serif;font-weight:400;line-height:1.7;padding-bottom:120px;min-height:100vh;min-height:100dvh;min-height:100svh}
+
+/* Header */
+.mt-wrap{max-width:960px;margin:0 auto;padding:48px 32px}
+.mt-hero{text-align:center;padding:32px 0 48px;border-bottom:1px solid #e8e4de}
+.mt-eyebrow{font-family:'Cormorant Garamond',serif;font-size:.88rem;letter-spacing:.28em;text-transform:uppercase;color:#a0917f;margin-bottom:12px}
+.mt-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4.6vw,3rem);font-weight:300;letter-spacing:.04em;color:#1a1714;line-height:1.15}
+.mt-title em{font-style:italic;color:#8b6f4e}
+.mt-sub{margin-top:14px;font-size:.96rem;color:#72655a;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.9}
+
+/* Step */
+.mt-step{margin-top:44px}
+.mt-step-eyebrow{font-family:'Cormorant Garamond',serif;font-size:.82rem;letter-spacing:.2em;color:#a0917f;text-transform:uppercase;margin-bottom:8px;text-align:center}
+.mt-step-q{font-size:1.05rem;color:#1a1714;text-align:center;margin-bottom:22px;font-weight:500}
+.mt-step-hint{text-align:center;color:#8a7a6a;font-size:.88rem;margin-top:-14px;margin-bottom:22px;font-style:italic}
+
+/* Letter buttons (4 dimensions) */
+.mt-letters{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:640px;margin:0 auto}
+.mt-letter-group{display:flex;flex-direction:column;gap:8px}
+.mt-letter-label{font-family:'Cormorant Garamond',serif;font-size:.78rem;letter-spacing:.15em;color:#a0917f;text-align:center;text-transform:uppercase}
+.mt-letter-btns{display:flex;flex-direction:column;gap:6px}
+.mt-letter-btn{padding:16px 10px;background:#fff;border:1px solid #ddd7cd;cursor:pointer;font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:#1a1714;transition:all .18s;letter-spacing:.05em;touch-action:manipulation}
+.mt-letter-btn:hover{border-color:#c4a882;background:#fdfaf6}
+.mt-letter-btn.active{background:#8b6f4e;color:#fff;border-color:#8b6f4e}
+.mt-letter-caption{font-size:.7rem;color:#a0917f;margin-top:2px;text-align:center;font-family:'Noto Sans TC',sans-serif;letter-spacing:0}
+.mt-letter-btn.active .mt-letter-caption{color:rgba(255,255,255,.7)}
+
+/* Dual choice (A/T, H/C) */
+.mt-dual{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:520px;margin:0 auto}
+.mt-dual-btn{padding:22px 18px;background:#fff;border:1px solid #ddd7cd;cursor:pointer;transition:all .18s;text-align:center;touch-action:manipulation}
+.mt-dual-btn:hover{border-color:#c4a882;background:#fdfaf6}
+.mt-dual-btn.active{background:#8b6f4e;color:#fff;border-color:#8b6f4e}
+.mt-dual-letter{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:400;margin-bottom:4px;letter-spacing:.08em}
+.mt-dual-name{font-size:.96rem;font-weight:500;margin-bottom:6px}
+.mt-dual-desc{font-size:.82rem;opacity:.72;line-height:1.6}
+
+/* Submit */
+.mt-submit-wrap{text-align:center;margin-top:40px}
+.mt-submit{padding:18px 56px;background:#8b6f4e;color:#fff;border:none;font-size:1rem;font-family:'Cormorant Garamond',serif;letter-spacing:.22em;cursor:pointer;transition:all .22s;touch-action:manipulation;font-weight:400;min-height:52px}
+.mt-submit:hover:not(:disabled){background:#6f5639}
+.mt-submit:disabled{background:#d6cebb;cursor:not-allowed}
+.mt-submit-hint{margin-top:12px;font-size:.82rem;color:#a0917f}
+
+/* Result */
+.mt-result{margin-top:48px;display:none}
+.mt-result.show{display:block}
+.mt-result-header{text-align:center;margin-bottom:40px;padding-bottom:28px;border-bottom:1px solid #e8e4de}
+.mt-type-label{font-family:'Cormorant Garamond',serif;font-size:.86rem;letter-spacing:.22em;text-transform:uppercase;color:#a0917f;margin-bottom:8px}
+.mt-type-code{font-family:'Cormorant Garamond',serif;font-size:2.6rem;font-weight:300;color:#1a1714;letter-spacing:.12em}
+.mt-type-name{margin-top:6px;font-size:1.08rem;color:#8b6f4e;font-weight:500}
+
+.mt-card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.mt-card{background:#fff;border:1px solid #e0d9cd;padding:28px 22px;text-align:center;transition:border-color .25s,box-shadow .25s}
+.mt-card:hover{border-color:#c4a882;box-shadow:0 6px 24px rgba(139,111,78,.08)}
+.mt-card-role{font-family:'Cormorant Garamond',serif;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:#a0917f;margin-bottom:4px}
+.mt-card-role-zh{font-size:1.02rem;color:#8b6f4e;font-weight:500;margin-bottom:20px;letter-spacing:.05em}
+.mt-card-img-wrap{width:148px;margin:0 auto 18px;aspect-ratio:2/3;background:#f4efe8;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.mt-card-img-wrap img{width:100%;height:100%;object-fit:cover}
+.mt-card-code{font-family:'Cormorant Garamond',serif;font-size:.82rem;letter-spacing:.15em;color:#a0917f;margin-bottom:4px}
+.mt-card-name{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;color:#1a1714;margin-bottom:14px;letter-spacing:.03em;line-height:1.3}
+.mt-card-body{font-size:.92rem;color:#5b5047;line-height:1.9;text-align:left;min-height:72px}
+
+/* CTA */
+.mt-cta{margin-top:48px;padding:32px 24px;background:#fff;border:1px solid #e0d9cd;text-align:center}
+.mt-cta-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;color:#1a1714;margin-bottom:12px;letter-spacing:.06em}
+.mt-cta-desc{font-size:.92rem;color:#6b5e52;margin-bottom:22px;line-height:1.85;max-width:520px;margin-left:auto;margin-right:auto}
+.mt-cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.mt-btn-main{padding:14px 32px;background:#8b6f4e;color:#fff;border:none;font-size:.94rem;font-family:'Noto Sans TC',sans-serif;letter-spacing:.1em;cursor:pointer;transition:background .2s;font-weight:500;text-decoration:none;display:inline-block;touch-action:manipulation;min-height:48px;display:inline-flex;align-items:center;justify-content:center}
+.mt-btn-main:hover{background:#6f5639}
+.mt-btn-sub{padding:14px 28px;background:transparent;color:#8b6f4e;border:1px solid #c4a882;font-size:.92rem;font-family:'Noto Sans TC',sans-serif;letter-spacing:.1em;cursor:pointer;transition:background .2s;text-decoration:none;display:inline-block;touch-action:manipulation;min-height:48px;display:inline-flex;align-items:center;justify-content:center}
+.mt-btn-sub:hover{background:#fdf8f3}
+
+/* Retry */
+.mt-retry{margin-top:32px;text-align:center}
+.mt-retry-btn{background:transparent;border:1px solid #c4a882;color:#8b6f4e;padding:10px 24px;cursor:pointer;font-size:.88rem;letter-spacing:.08em;transition:all .2s}
+.mt-retry-btn:hover{background:#fdf8f3}
+
+@media(max-width:720px){
+  .mt-wrap{padding:32px 18px 40px}
+  .mt-letters{grid-template-columns:repeat(2,1fr);gap:12px;max-width:340px}
+  .mt-letter-btn{padding:14px 8px;font-size:1.3rem}
+  .mt-dual{max-width:420px}
+  .mt-dual-btn{padding:18px 14px}
+  .mt-card-grid{grid-template-columns:1fr;gap:16px}
+  .mt-card{padding:24px 18px}
+  .mt-card-img-wrap{width:128px}
+  .mt-submit{padding:16px 40px;font-size:.94rem;letter-spacing:.18em}
+  .mt-cta-actions{flex-direction:column;align-items:stretch}
+}
+</style>
+</head>
+<body>
+
+<div id="hl-topnav-mount"></div>
+
+<div class="mt-wrap">
+  <div class="mt-hero">
+    <div class="mt-eyebrow">MBTI × Tarot Soul Mapping</div>
+    <h1 class="mt-title">你的 MBTI，藏著<em>三張</em>專屬的牌</h1>
+    <p class="mt-sub">不是隨機抽。APESK 64 型的認知指紋，對應馥靈智慧牌其中 3 張：你的本質、你的課題、你還沒用上的禮物。同一個 MBTI，永遠同樣的三張。</p>
+  </div>
+
+  <!-- Input area -->
+  <div id="mbtiInput">
+
+    <!-- Step 1: 4 dimensions -->
+    <div class="mt-step">
+      <div class="mt-step-eyebrow">Step 1 · Cognitive Preferences</div>
+      <div class="mt-step-q">你的 MBTI 四個字母</div>
+      <div class="mt-step-hint">不知道的話可以<a href="https://www.apesk.com/mbti/i20.asp" target="_blank" rel="noopener" style="color:#8b6f4e">先做測驗</a>再回來</div>
+      <div class="mt-letters">
+        <div class="mt-letter-group">
+          <div class="mt-letter-label">Energy</div>
+          <div class="mt-letter-btns">
+            <button class="mt-letter-btn" data-dim="EI" data-val="E">E<div class="mt-letter-caption">外向</div></button>
+            <button class="mt-letter-btn" data-dim="EI" data-val="I">I<div class="mt-letter-caption">內向</div></button>
+          </div>
+        </div>
+        <div class="mt-letter-group">
+          <div class="mt-letter-label">Mind</div>
+          <div class="mt-letter-btns">
+            <button class="mt-letter-btn" data-dim="SN" data-val="S">S<div class="mt-letter-caption">實感</div></button>
+            <button class="mt-letter-btn" data-dim="SN" data-val="N">N<div class="mt-letter-caption">直覺</div></button>
+          </div>
+        </div>
+        <div class="mt-letter-group">
+          <div class="mt-letter-label">Nature</div>
+          <div class="mt-letter-btns">
+            <button class="mt-letter-btn" data-dim="TF" data-val="T">T<div class="mt-letter-caption">思考</div></button>
+            <button class="mt-letter-btn" data-dim="TF" data-val="F">F<div class="mt-letter-caption">情感</div></button>
+          </div>
+        </div>
+        <div class="mt-letter-group">
+          <div class="mt-letter-label">Tactics</div>
+          <div class="mt-letter-btns">
+            <button class="mt-letter-btn" data-dim="JP" data-val="J">J<div class="mt-letter-caption">計畫</div></button>
+            <button class="mt-letter-btn" data-dim="JP" data-val="P">P<div class="mt-letter-caption">彈性</div></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: A/O (APESK extension) -->
+    <div class="mt-step">
+      <div class="mt-step-eyebrow">Step 2 · APESK Assertiveness</div>
+      <div class="mt-step-q">你更接近哪一種？</div>
+      <div class="mt-dual">
+        <button class="mt-dual-btn" data-dim="AO" data-val="A">
+          <div class="mt-dual-letter">A</div>
+          <div class="mt-dual-name">果斷型</div>
+          <div class="mt-dual-desc">決定了就做，不太回頭糾結</div>
+        </button>
+        <button class="mt-dual-btn" data-dim="AO" data-val="O">
+          <div class="mt-dual-letter">O</div>
+          <div class="mt-dual-name">糾結型</div>
+          <div class="mt-dual-desc">決定了還會反覆推演、修正</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: H/C (馥靈品牌擴充) -->
+    <div class="mt-step">
+      <div class="mt-step-eyebrow">Step 3 · 馥靈品牌擴充維度</div>
+      <div class="mt-step-q">你對人的溫度是？</div>
+      <div class="mt-dual">
+        <button class="mt-dual-btn" data-dim="HC" data-val="H">
+          <div class="mt-dual-letter">H</div>
+          <div class="mt-dual-name">溫暖型</div>
+          <div class="mt-dual-desc">靠近人不費力，同理來得快</div>
+        </button>
+        <button class="mt-dual-btn" data-dim="HC" data-val="C">
+          <div class="mt-dual-letter">C</div>
+          <div class="mt-dual-name">高冷型</div>
+          <div class="mt-dual-desc">情緒保持距離，穩定是你的招牌</div>
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-submit-wrap">
+      <button class="mt-submit" id="submitBtn" disabled>查看我的三張牌</button>
+      <div class="mt-submit-hint" id="submitHint">請完成 6 個選項</div>
+    </div>
+  </div>
+
+  <!-- Result area -->
+  <div class="mt-result" id="resultArea">
+    <div class="mt-result-header">
+      <div class="mt-type-label">Your Soul Type</div>
+      <div class="mt-type-code" id="typeCode">—</div>
+      <div class="mt-type-name" id="typeName">—</div>
+    </div>
+
+    <div class="mt-card-grid" id="cardGrid"></div>
+
+    <div class="mt-cta">
+      <div class="mt-cta-title">想看這三張牌的完整解讀</div>
+      <div class="mt-cta-desc">複製 AI 解讀指令，貼到 Claude / ChatGPT 任何 AI 工具，就能拿到你的 MBTI 靈魂卡深度解讀（本質 × 課題 × 禮物三層）。</div>
+      <div class="mt-cta-actions">
+        <button class="mt-btn-main" id="copyBtn">🤖 複製 AI 解讀指令</button>
+        <a href="draw-hl.html" class="mt-btn-sub">抽一張牌看今天</a>
+      </div>
+    </div>
+
+    <div class="mt-retry">
+      <button class="mt-retry-btn" id="retryBtn">換一個 MBTI 再看</button>
+    </div>
+  </div>
+</div>
+
+<!-- 載入卡片資料 -->
+<script src="js/cardData-protected.js"></script>
+
+<!-- 占卜計次門控 -->
+<script src="assets/js/hl-divination-gate.js"></script>
+
+<!-- 頂導航 -->
+<script src="assets/js/hl-topnav.js"></script>
+
+<!-- 底導航（含全站模組自動注入）-->
+<script src="assets/js/hl-bottomnav.js"></script>
+
+<script>
+(function(){
+  'use strict';
+
+  // ═══════════════════════════════════════
+  // 130 張馥靈牌卡 code 清單
+  // A00-A21 (22 張天使系列) + 001-108 (108 張)
+  // ═══════════════════════════════════════
+  var CARD_CODES = [];
+  for (var i = 0; i < 22; i++) CARD_CODES.push('A' + String(i).padStart(2, '0'));
+  for (var j = 1; j <= 108; j++) CARD_CODES.push(String(j).padStart(3, '0'));
+
+  // ═══════════════════════════════════════
+  // MBTI 64 型中文名稱對照
+  // ═══════════════════════════════════════
+  var MBTI_CORE_NAMES = {
+    'INTJ':'建築師','INTP':'邏輯學家','ENTJ':'指揮官','ENTP':'辯論家',
+    'INFJ':'提倡者','INFP':'調停者','ENFJ':'主人公','ENFP':'競選者',
+    'ISTJ':'物流師','ISFJ':'守衛者','ESTJ':'總經理','ESFJ':'執政官',
+    'ISTP':'鑑賞家','ISFP':'探險家','ESTP':'企業家','ESFP':'表演者'
+  };
+
+  // ═══════════════════════════════════════
+  // 選擇狀態
+  // ═══════════════════════════════════════
+  var state = { EI:null, SN:null, TF:null, JP:null, AO:null, HC:null };
+
+  // ═══════════════════════════════════════
+  // 綁定選項按鈕
+  // ═══════════════════════════════════════
+  document.querySelectorAll('.mt-letter-btn, .mt-dual-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var dim = btn.dataset.dim;
+      var val = btn.dataset.val;
+      state[dim] = val;
+      // 清掉同維度其他 active
+      document.querySelectorAll('[data-dim="'+dim+'"]').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      refreshSubmit();
+    });
+  });
+
+  function refreshSubmit(){
+    var filled = Object.keys(state).every(function(k){ return state[k]; });
+    var btn = document.getElementById('submitBtn');
+    var hint = document.getElementById('submitHint');
+    btn.disabled = !filled;
+    if (filled){
+      var code = state.EI + state.SN + state.TF + state.JP + '-' + state.AO + '-' + state.HC;
+      hint.textContent = '你的 APESK 64 型：' + code;
+      hint.style.color = '#8b6f4e';
+    } else {
+      var left = 6 - Object.keys(state).filter(function(k){ return state[k]; }).length;
+      hint.textContent = '還差 ' + left + ' 個選項';
+      hint.style.color = '#a0917f';
+    }
+  }
+
+  // ═══════════════════════════════════════
+  // Deterministic hash（djb2 變體）
+  // 64 型 → 固定 3 張牌映射（不重複）
+  // ═══════════════════════════════════════
+  function hashMBTI(str){
+    var h = 5381;
+    for (var i=0; i<str.length; i++) h = (h * 33) ^ str.charCodeAt(i);
+    return h >>> 0;
+  }
+
+  function pickThreeCards(mbti){
+    var h = hashMBTI(mbti);
+    var i1 = h % 130;
+    var i2 = ((h * 2654435761) >>> 0) % 130;
+    var i3 = ((h * 40503) >>> 0) % 130;
+    // 避免重複
+    var picks = [i1];
+    if (picks.indexOf(i2) < 0) picks.push(i2); else picks.push((i1 + 43) % 130);
+    if (picks.indexOf(i3) < 0) picks.push(i3); else picks.push((i1 + 87) % 130);
+    return picks.map(function(idx){ return CARD_CODES[idx]; });
+  }
+
+  // ═══════════════════════════════════════
+  // 角色標籤
+  // ═══════════════════════════════════════
+  var ROLES = [
+    { en:'Core Card', zh:'核心牌 · 你的本質', field:'giftText' },
+    { en:'Challenge Card', zh:'挑戰牌 · 你的課題', field:'challengeText' },
+    { en:'Gift Card', zh:'禮物牌 · 還沒用上的力量', field:'giftText' }
+  ];
+
+  // ═══════════════════════════════════════
+  // 送出 → 映射 → 顯示結果
+  // ═══════════════════════════════════════
+  document.getElementById('submitBtn').addEventListener('click', function(){
+    var fullCode = state.EI + state.SN + state.TF + state.JP + state.AO + state.HC;
+    var coreMBTI = state.EI + state.SN + state.TF + state.JP;
+
+    // 占卜計次（走 hl-divination-gate）
+    function proceed(){
+      var codes = pickThreeCards(fullCode);
+      showResult(fullCode, coreMBTI, codes);
+    }
+
+    if (window.HL_drawCheck){
+      window.HL_drawCheck('mbti', proceed);
+    } else {
+      proceed();
+    }
+  });
+
+  function showResult(fullCode, coreMBTI, codes){
+    // 隱藏輸入、顯示結果
+    document.getElementById('mbtiInput').style.display = 'none';
+    var res = document.getElementById('resultArea');
+    res.classList.add('show');
+
+    // 型別顯示：ENFP-A-H
+    var displayCode = coreMBTI + '-' + state.AO + '-' + state.HC;
+    document.getElementById('typeCode').textContent = displayCode;
+    document.getElementById('typeName').textContent = (MBTI_CORE_NAMES[coreMBTI] || '') + ' · ' + labelOfAO(state.AO) + labelOfHC(state.HC);
+
+    // 3 張牌
+    var grid = document.getElementById('cardGrid');
+    grid.innerHTML = '';
+    codes.forEach(function(code, idx){
+      var info = (window.cardData && window.cardData[code]) || {};
+      var name = info.name || info.title || code;
+      var role = ROLES[idx];
+      var text = info[role.field] || info.sense || info['覺察'] || '這張牌需要你自己去問。';
+      // 截短 body 避免三張長度不一
+      if (text.length > 120) text = text.substring(0, 118) + '…';
+
+      var el = document.createElement('div');
+      el.className = 'mt-card';
+      el.innerHTML = ''
+        + '<div class="mt-card-role">' + role.en + '</div>'
+        + '<div class="mt-card-role-zh">' + role.zh + '</div>'
+        + '<div class="mt-card-img-wrap"><img src="' + code + '.png" alt="' + escapeHtml(name) + '" loading="lazy" onerror="this.style.display=\'none\'"></div>'
+        + '<div class="mt-card-code">' + code + '</div>'
+        + '<div class="mt-card-name">' + escapeHtml(name) + '</div>'
+        + '<div class="mt-card-body">' + escapeHtml(text) + '</div>';
+      grid.appendChild(el);
+    });
+
+    // AI 解讀指令
+    setupCopyButton(displayCode, codes);
+
+    // 滾到結果
+    res.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  function labelOfAO(v){ return v === 'A' ? '果斷' : '糾結'; }
+  function labelOfHC(v){ return v === 'H' ? '溫暖' : '高冷'; }
+
+  function escapeHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ═══════════════════════════════════════
+  // AI 複製指令
+  // ═══════════════════════════════════════
+  function setupCopyButton(displayCode, codes){
+    var btn = document.getElementById('copyBtn');
+    btn.onclick = function(){
+      var names = codes.map(function(c){
+        var info = (window.cardData && window.cardData[c]) || {};
+        return (info.name || info.title || c) + '（' + c + '）';
+      });
+
+      var prompt =
+        '請用馥靈之鑰的語感，幫我深度解讀以下三張馥靈智慧牌。\n\n' +
+        '我的 APESK 64 型 MBTI：' + displayCode + '\n' +
+        '（' + (MBTI_CORE_NAMES[displayCode.slice(0,4)] || '') + ' × ' + labelOfAO(displayCode.slice(5,6)) + labelOfHC(displayCode.slice(7,8)) + '）\n\n' +
+        '三張牌的角色：\n' +
+        '① 核心牌（你的本質）：' + names[0] + '\n' +
+        '② 挑戰牌（你的課題）：' + names[1] + '\n' +
+        '③ 禮物牌（你還沒用上的力量）：' + names[2] + '\n\n' +
+        '請分三層解讀，每張 2-3 段文字：\n' +
+        '第一層｜這張牌照出 MBTI 此類型的什麼特質？\n' +
+        '第二層｜這張牌挑戰此類型的哪個盲點？\n' +
+        '第三層｜此類型如何把這張牌的力量用出來？具體到「今天可以做的一件事」。\n\n' +
+        '語感要求：淡、不勵志、有呼吸感。禁用「你不是 X，是 Y」句型、不用粗體符號、不用雙破折號。';
+
+      // iOS Safari _syncCopy 鐵則寫法（CLAUDE.md 2026/04/06 血淚教訓）
+      var ta = document.createElement('textarea');
+      ta.value = prompt;
+      ta.style.position='fixed';
+      ta.style.top='50%';
+      ta.style.left='50%';
+      ta.style.width='1em';
+      ta.style.height='1em';
+      ta.style.opacity='0.01';
+      ta.style.zIndex='-1';
+      document.body.appendChild(ta);
+      ta.setAttribute('readonly','');
+
+      // iOS 用 createRange + setSelectionRange 取代 .select()
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      if (isIOS){
+        var range = document.createRange();
+        range.selectNodeContents(ta);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        ta.setSelectionRange(0, 999999);
+      } else {
+        ta.select();
+      }
+
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch(e){}
+      document.body.removeChild(ta);
+      btn.textContent = ok ? '✓ 已複製，貼到 AI 工具即可' : '複製失敗，請手動';
+      setTimeout(function(){ btn.textContent = '🤖 複製 AI 解讀指令'; }, 3500);
+    };
+  }
+
+  // ═══════════════════════════════════════
+  // 重選
+  // ═══════════════════════════════════════
+  document.getElementById('retryBtn').addEventListener('click', function(){
+    state = { EI:null, SN:null, TF:null, JP:null, AO:null, HC:null };
+    document.querySelectorAll('.mt-letter-btn.active, .mt-dual-btn.active').forEach(function(b){ b.classList.remove('active'); });
+    document.getElementById('resultArea').classList.remove('show');
+    document.getElementById('mbtiInput').style.display = '';
+    refreshSubmit();
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+
+})();
+</script>
+
+</body>
+</html>
