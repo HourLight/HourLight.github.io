@@ -762,7 +762,8 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
 
 <!-- 每日登入獎勵浮層 -->
 <div class="daily-overlay" id="dailyOverlay" onclick="if(event.target===this)closeDailyPanel()">
-  <div class="daily-card">
+  <div class="daily-card" style="position:relative">
+    <button aria-label="關閉" onclick="closeDailyPanel()" style="position:absolute;top:8px;right:10px;background:none;border:none;color:var(--txt-d);font-size:1.4rem;line-height:1;cursor:pointer;padding:4px 8px;border-radius:999px" onmouseover="this.style.background='rgba(0,0,0,.08)'" onmouseout="this.style.background='none'">✕</button>
     <div class="daily-title">每日城堡禮物</div>
     <div class="daily-subtitle" id="dailySubtitle">連續登入，城堡會給您特別的材料</div>
     <div class="daily-grid" id="dailyGrid"></div>
@@ -2516,7 +2517,9 @@ function renderShopRecipes(){
   window.claimDailyReward = function(){
     var state = loadDailyState();
     var today = getTodayStr();
-    if(state.claimed || state.lastDate === today) return;
+    // 修 2026/04/17：checkDailyLogin 已把 lastDate 設為今天（讓面板不重複彈出），
+    // 這裡只能用 state.claimed 判斷是否領過，不然面板一彈出就卡住永遠無法領取
+    if(state.claimed) return;
 
     var dayNum = state.streak;
     var reward = getRewardForDay(dayNum);
