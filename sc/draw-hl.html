@@ -2108,9 +2108,14 @@ function showAISection(n) {
     document.getElementById('aiSectionTitle').textContent = '🔮 深度解讀（' + n + ' 張｜' + (priceMap[n]||'') + '）';
     var codeInput = document.getElementById('unlockCodeInput');
     if (codeInput) {
-      // 如果 paywall 已驗證過碼，自動帶入
       if (window._lastUsedUnlockCode) {
         codeInput.value = window._lastUsedUnlockCode;
+        var _paidBlockEl = document.getElementById('aiPaidBlock');
+        var _loadingBlockEl = document.getElementById('aiLoadingBlock');
+        if (_paidBlockEl) _paidBlockEl.style.display = 'none';
+        if (_loadingBlockEl) _loadingBlockEl.style.display = 'block';
+        window._isAutoTrigger = true;
+        setTimeout(function(){ if(typeof triggerAIReading==='function') triggerAIReading(); }, 400);
       } else {
         codeInput.value = '';
       }
@@ -2295,10 +2300,11 @@ async function triggerAIReading() {
       document.getElementById('aiLoadingBlock').style.display = 'none';
 
       if (data.needCode || data.invalidCode || data.usedCode || data.wrongN) {
-        window._lastUsedUnlockCode = null; // 清掉失效代码
-        if (n > 1) {
-          document.getElementById('aiPaidBlock').style.display = 'block';
-        }
+        var wasAutoTrigger = window._isAutoTrigger;
+        window._lastUsedUnlockCode = null;
+        window._isAutoTrigger = false;
+        if (n > 1) document.getElementById('aiPaidBlock').style.display = 'block';
+        if (wasAutoTrigger && data.usedCode) return; // 靜默處理，不顯示錯誤
         showAIError(data.error || '解锁码无效');
         return;
       }

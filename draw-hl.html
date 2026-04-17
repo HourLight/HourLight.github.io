@@ -1459,6 +1459,8 @@ modalConfirm.addEventListener('click', async () => {
         n: pendingN,
         priceMap: drawPriceMap,
         serviceName: pendingN >= 9 ? '覺察師一對一深度解讀' : '馥靈智慧牌卡 AI 解讀',
+        productCategory: 'reading', pageType: 'reading',
+        deferConsume: true,
         onProceed: function() {
           if(typeof hlBreathe==='function'){hlBreathe(function(){drawCards(pendingN);},8000);}else{drawCards(pendingN);}
         }
@@ -2202,6 +2204,7 @@ function showAISection(n) {
         var _loadingBlockEl = document.getElementById('aiLoadingBlock');
         if (_paidBlockEl) _paidBlockEl.style.display = 'none';
         if (_loadingBlockEl) _loadingBlockEl.style.display = 'block';
+        window._isAutoTrigger = true; // 標記為快取自動觸發，403 usedCode 時靜默處理
         setTimeout(function(){ if(typeof triggerAIReading==='function') triggerAIReading(); }, 400);
       } else {
         codeInput.value = '';
@@ -2392,11 +2395,13 @@ async function triggerAIReading() {
       document.getElementById('aiLoadingBlock').style.display = 'none';
 
       if (data.needCode || data.invalidCode || data.usedCode || data.wrongN) {
-        // 解鎖碼問題 → 清掉 sessionStorage 失效代碼，回到輸入畫面
+        // 解鎖碼問題 → 清掉 sessionStorage 失效代碼，回到付費畫面
+        var wasAutoTrigger = window._isAutoTrigger;
         window._lastUsedUnlockCode = null;
-        if (n > 1) {
-          document.getElementById('aiPaidBlock').style.display = 'block';
-        }
+        window._isAutoTrigger = false;
+        if (n > 1) document.getElementById('aiPaidBlock').style.display = 'block';
+        // 快取自動觸發且代碼已用 → 靜默處理，不顯示錯誤（用戶看到乾淨付費畫面）
+        if (wasAutoTrigger && data.usedCode) return;
         showAIError(data.error || '解鎖碼無效');
         return;
       }
