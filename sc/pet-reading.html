@@ -346,10 +346,10 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
         <div class="spread-card" onclick="selectSpread(3)"><span class="num">3</span><div class="name">🐾 宠物三塔</div><div class="desc">快速聚焦，三維度聆聽牠的一句话</div><div class="price">NT$199</div></div>
         <div class="spread-card" onclick="selectSpread(5)"><span class="num">5</span><div class="name">🐾 五感觉察</div><div class="desc">五个維度聆聽毛孩，找出什麼失衡了</div><div class="price">NT$399</div></div>
         <div class="spread-card" onclick="selectSpread(7)"><span class="num">7</span><div class="name">🐾 H.O.U.R. 宠物完整</div><div class="desc">安頓→看见→解锁→进化，完整走过四个階段</div><div class="price">NT$599</div></div>
-        <div class="spread-card" onclick="selectSpread(9)"><span class="num">9</span><div class="name">🐾 九宮全观</div><div class="desc">身心灵三层 × 三个面向，系统化全面扫描</div><div class="price">详洽</div></div>
-        <div class="spread-card" onclick="selectSpread(12)"><span class="num">12</span><div class="name">🐾 十二宮深度</div><div class="desc">走进牠的內在城堡，12 个生活面向一次全看见</div><div class="price">详洽</div></div>
-        <div class="spread-card" onclick="selectSpread(15)"><span class="num">15</span><div class="name">🐾 L.I.G.H.T. 五门三钥</div><div class="desc">五个維度 × 三层深度，解码牠的完整生活</div><div class="price">详洽</div></div>
-        <div class="spread-card" onclick="selectSpread(21)"><span class="num">21</span><div class="name">🐾 完整矩阵</div><div class="desc">H.O.U.R. × L.I.G.H.T. 双向觉察，牠生命故事的完整地图</div><div class="price">详洽</div></div>
+        <div class="spread-card" onclick="selectSpread(9)"><span class="num">9</span><div class="name">🐾 九宮全观</div><div class="desc">身心灵三层 × 三个面向，系统化全面扫描</div><div class="price">觉察师预约</div></div>
+        <div class="spread-card" onclick="selectSpread(12)"><span class="num">12</span><div class="name">🐾 十二宮深度</div><div class="desc">走进牠的內在城堡，12 个生活面向一次全看见</div><div class="price">觉察师预约</div></div>
+        <div class="spread-card" onclick="selectSpread(15)"><span class="num">15</span><div class="name">🐾 L.I.G.H.T. 五门三钥</div><div class="desc">五个維度 × 三层深度，解码牠的完整生活</div><div class="price">觉察师预约</div></div>
+        <div class="spread-card" onclick="selectSpread(21)"><span class="num">21</span><div class="name">🐾 完整矩阵</div><div class="desc">H.O.U.R. × L.I.G.H.T. 双向觉察，牠生命故事的完整地图</div><div class="price">觉察师预约</div></div>
       </div>
     </section>
   </div>
@@ -682,15 +682,34 @@ function requestAIReading(){
     if(typeof window.HL_track==='function')window.HL_track('pet_reading_line_redirect',{spread:currentSpread,petName:pn});
     return;
   }
-  // 付款牆攔截（支援代碼兌換 onProceed）
+  // 付款牆攔截（支援代碼兌換 onProceed + PAYUNi 線上付款）
   if(typeof hlPaywall!=='undefined'){
     var petPriceMap={3:199,5:399,7:599};
     if(petPriceMap[currentSpread]){
+      // 付款前：存頁面狀態到 localStorage（PAYUNi 付款返回時復原用）
+      try{
+        localStorage.setItem('hl_pending_pet-'+currentSpread,JSON.stringify({
+          state:{
+            currentSpread:currentSpread,
+            selectedCards:selectedCards,
+            quizAnswers:quizAnswers,
+            petName:(document.getElementById('petName')||{}).value||'',
+            petBreed:(document.getElementById('petBreed')||{}).value||'',
+            petAge:(document.getElementById('petAge')||{}).value||'',
+            petGender:(document.getElementById('petGender')||{}).value||'',
+            petStatus:(document.getElementById('petStatus')||{}).value||'',
+            petQuestion:(document.getElementById('petQuestion')||{}).value||''
+          },
+          savedAt:Date.now()
+        }));
+      }catch(e){}
       var _returnCode=window._petPaymentReturnCode||(function(){try{return sessionStorage.getItem('hl_pet_payment_code');}catch(e){return null;}}());
       hlPaywall.show({
         n:currentSpread,
         priceMap:petPriceMap,
-        serviceName:'寵物溝通智慧解讀',
+        serviceName:'宠物沟通智慧解读',
+        productCategory:'pet',
+        pageType:'pet',
         onProceed:function(){
           window._petPaymentReturnCode=null;
           try{sessionStorage.removeItem('hl_pet_payment_code');}catch(e){}
@@ -727,8 +746,10 @@ async function _requestAIReadingOriginal(retryCount){
   var prompt=buildPrompt();
   var loadingEl=document.getElementById('readingBox');
   loadingEl.innerHTML='<div style="text-align:center;padding:40px 20px"><div style="width:40px;height:40px;border:2px solid rgba(240,181,179,.2);border-radius:50%;margin:0 auto 16px;animation:breathCircle 4s ease-in-out infinite"></div><div style="color:var(--paw);font-size:.9rem">正在聆聽牠想說的話⋯⋯</div><div style="color:var(--ink-dim);font-size:.78rem;margin-top:8px">'+(retryCount>0?'重新連結中，請稍候':'通常需要 15-30 秒')+'</div></div>';
+  var _petUid='',_petEmail='';
+  try{if(typeof firebase!=='undefined'&&firebase.auth){var _u=firebase.auth().currentUser;if(_u){_petUid=_u.uid||'';_petEmail=_u.email||'';}}}catch(e){}
   try{
-    var res=await fetch('https://app.hourlightkey.com/api/pet-reading',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt,spread:currentSpread})});
+    var res=await fetch('https://app.hourlightkey.com/api/pet-reading',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt,spread:currentSpread,uid:_petUid,email:_petEmail})});
     var data=await res.json();
     var text=data.reading||data.error||'';
     if(!text&&retryCount<2){return _requestAIReadingOriginal(retryCount+1);}
