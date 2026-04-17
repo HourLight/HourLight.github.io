@@ -999,6 +999,20 @@ function wwEphLookup(Y, M, D, H, min) {
     var retro = diff < 0;
     result[P_ORDER[i]] = { lon: lon, sign: WW_SIGNS_RAW[si], deg: Math.floor(deg), min: Math.round((deg % 1) * 60), retro: retro, si: si };
   }
+  // 南交點 snode（對宮，+180°）— 從 destiny-engine.html line 1370-1374 補上
+  // 人類圖需要 snode 閘門計算，缺它會讓 wwCalcHumanDesign 崩
+  if (result.node && typeof result.node.lon === 'number') {
+    var snLon = (result.node.lon + 180) % 360;
+    var snSi = Math.floor(snLon / 30);
+    result.snode = {
+      lon: snLon,
+      sign: WW_SIGNS_RAW[snSi],
+      deg: Math.floor(snLon - snSi * 30),
+      min: Math.round(((snLon - snSi * 30) % 1) * 60),
+      retro: false,
+      si: snSi
+    };
+  }
   return result;
 }
 
@@ -1314,16 +1328,12 @@ var HD_CENTERS={head:[61,63,64],ajna:[47,24,4,17,43,11],throat:[62,23,56,35,12,4
 var HD_CENTER_NAMES={head:'頭頂',ajna:'阿賈那',throat:'喉嚨',g:'G中心',sacral:'薦骨',spleen:'脾',solar:'情緒',ego:'意志力',root:'根部'};
 function wwCalcHumanDesign(planets,Y,M,D,H,min){
   if(!planets||!WW_EPH)return null;
-  // 防禦：至少要有 sun 才能算人類圖；sun 都沒有直接 return null 降級（避免整個 calculateProfile 崩）
   if(!planets.sun||typeof planets.sun.lon!=='number')return null;
   var pGates={},dGates={};
   var pNames=['太陽','地球','月亮','北交點','南交點','水星','金星','火星','木星','土星','天王星','海王星','冥王星'];
   var pKeys=['sun','earth','moon','node','snode','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto'];
   pKeys.forEach(function(k,i){
-    var lon=0;
-    if(k=='earth'){lon=(planets.sun.lon+180)%360;}
-    else if(k=='snode'){lon=(planets.snode&&typeof planets.snode.lon==='number')?planets.snode.lon:0;}
-    else if(planets[k]&&typeof planets[k].lon==='number'){lon=planets[k].lon;}
+    var lon=k=='earth'?(planets.sun.lon+180)%360:k=='snode'?planets.snode.lon:planets[k]?planets[k].lon:0;
     var g=lonToGate(lon);pGates[pNames[i]]=g.gate+'.'+g.line;
   });
   var targetSun=(planets.sun.lon-88+360)%360;
@@ -1705,9 +1715,15 @@ async function calculateProfile(){
   cards.push('<div class="ww-profile-item"><div class="label">㉒ 居爾特樹</div><div class="value" style="font-size:.92rem">' + celtic.name + '</div></div>');
   if (humanDesign) {
     cards.push('<div class="ww-profile-item"><div class="label">④ 人類圖類型</div><div class="value" style="font-size:.9rem">' + humanDesign.type + '</div></div>');
-    cards.push('<div class="ww-profile-item"><div class="label">人生角色</div><div class="value">' + humanDesign.profile + '</div></div>');
+    cards.push('<div class="ww-profile-item"><div class="label">人生策略</div><div class="value" style="font-size:.8rem">' + humanDesign.strategy + '</div></div>');
     if (humanDesign.authority) cards.push('<div class="ww-profile-item"><div class="label">內在權威</div><div class="value" style="font-size:.82rem">' + humanDesign.authority + '</div></div>');
-    if (humanDesign.channels && humanDesign.channels.length) cards.push('<div class="ww-profile-item"><div class="label">活化通道</div><div class="value" style="font-size:.78rem">' + humanDesign.channels.map(function(c){return c.name;}).join('、') + '</div></div>');
+    cards.push('<div class="ww-profile-item"><div class="label">人生角色</div><div class="value">' + humanDesign.profile + '</div></div>');
+    if (humanDesign.defType) cards.push('<div class="ww-profile-item"><div class="label">定義類型</div><div class="value" style="font-size:.85rem">' + humanDesign.defType + '</div></div>');
+    if (humanDesign.nst) cards.push('<div class="ww-profile-item"><div class="label">非自己主題</div><div class="value" style="font-size:.82rem">' + humanDesign.nst + '</div></div>');
+    if (humanDesign.crossFull) cards.push('<div class="ww-profile-item"><div class="label">輪迴交叉</div><div class="value" style="font-size:.72rem;line-height:1.5">' + humanDesign.crossFull + '</div></div>');
+    if (humanDesign.channels && humanDesign.channels.length) cards.push('<div class="ww-profile-item"><div class="label">活化通道（' + humanDesign.channels.length + '條）</div><div class="value" style="font-size:.75rem;line-height:1.7">' + humanDesign.channels.map(function(c){return c.gates+'（'+c.name+'）';}).join('<br>') + '</div></div>');
+    if (humanDesign.defC && humanDesign.defC.length) cards.push('<div class="ww-profile-item"><div class="label">已定義中心</div><div class="value" style="font-size:.8rem">' + humanDesign.defC.join('、') + '</div></div>');
+    if (humanDesign.undefC && humanDesign.undefC.length) cards.push('<div class="ww-profile-item"><div class="label">未定義中心</div><div class="value" style="font-size:.8rem">' + humanDesign.undefC.join('、') + '</div></div>');
   }
   cards.push('<div class="ww-profile-item"><div class="label">幸運數字</div><div class="value">' + luckyNums.join('、') + '</div></div>');
   if (cityInfo) cards.push('<div class="ww-profile-item"><div class="label">出生地</div><div class="value" style="font-size:.88rem">' + cityInfo.label + '</div></div>');
