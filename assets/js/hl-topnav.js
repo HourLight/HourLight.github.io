@@ -32,22 +32,22 @@
 .htn-logo{display:flex;align-items:center;gap:8px;color:#f0d48a;font-size:.92rem;letter-spacing:.12em;font-weight:500;white-space:nowrap;flex-shrink:0}
 .htn-logo img{width:28px;height:28px;border-radius:50%;object-fit:cover}
 .htn-links{display:flex;align-items:center;gap:6px}
-.htn-link{color:rgba(244,240,235,.65);font-size:.78rem;letter-spacing:.06em;padding:8px 14px;border-radius:16px;border:1px solid transparent;white-space:nowrap;min-height:36px;display:inline-flex;align-items:center}
+.htn-link{color:rgba(244,240,235,.65);font-size:.72rem;letter-spacing:.06em;padding:6px 10px;border-radius:16px;border:1px solid transparent;white-space:nowrap}
 .htn-link:hover{color:#f0d48a;border-color:rgba(240,212,138,.15);background:rgba(240,212,138,.04)}
 .htn-link.active{color:#f0d48a;border-color:rgba(240,212,138,.2);background:rgba(240,212,138,.06)}
-.htn-menu-btn{display:inline-flex;align-items:center;justify-content:center;background:none;border:1px solid rgba(240,212,138,.15);color:rgba(244,240,235,.7);cursor:pointer;padding:8px 12px;font-size:1rem;border-radius:8px;min-height:36px;transition:all .2s;margin-left:8px}
-.htn-menu-btn:hover{border-color:rgba(240,212,138,.4);color:#f0d48a;background:rgba(240,212,138,.06)}
+.htn-menu-btn{display:none;background:none;border:none;color:rgba(244,240,235,.7);cursor:pointer;padding:8px;font-size:1.2rem}
 .htn-dropdown{display:none;position:fixed;top:52px;right:0;left:0;z-index:9997;
   background:rgba(6,4,14,.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   border-bottom:1px solid rgba(240,212,138,.1);padding:12px 16px;
   max-height:70vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.5)}
 .htn-dropdown.show{display:block;animation:htnDown .25s ease}
 @keyframes htnDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
-.htn-dropdown a{display:block;color:rgba(244,240,235,.75);font-size:.9rem;padding:15px 16px;border-radius:10px;text-decoration:none;letter-spacing:.05em;transition:all .2s;min-height:48px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.htn-dropdown a{display:block;color:rgba(244,240,235,.75);font-size:.85rem;padding:13px 14px;border-radius:10px;text-decoration:none;letter-spacing:.05em;transition:all .2s;min-height:44px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .htn-dropdown a:hover,.htn-dropdown a.active{color:#f0d48a;background:rgba(240,212,138,.05)}
 .htn-dropdown .htn-group{font-size:.7rem;color:rgba(200,188,170,.4);letter-spacing:.12em;padding:14px 14px 6px;text-transform:uppercase}
-@media(max-width:768px){
+@media(max-width:860px){
   .htn-links{display:none}
+  .htn-menu-btn{display:block}
 }
 `;
   document.head.appendChild(css);
