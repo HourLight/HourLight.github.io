@@ -2159,6 +2159,12 @@ var AI_READING_API = 'https://app.hourlightkey.com/api/ai-draw-reading';
 function showAISection(n) {
   var sec = document.getElementById('aiReadingSection');
   if (!sec) return;
+  // 🎴 逸君 2026-04-17：9 張以上只顯示牌卡，不要任何 AI 解讀 / 覺察師 block
+  if (n >= 9) {
+    sec.style.display = 'none';
+    if(window.HL_track) HL_track('draw_complete',{toolId:'draw-hl',toolName:'馥靈智慧牌',cards:n});
+    return;
+  }
   sec.style.display = 'block';
   // 材料掉落：抽牌完成
   if(window.HL_track) HL_track('draw_complete',{toolId:'draw-hl',toolName:'馥靈智慧牌',cards:n});
@@ -2232,14 +2238,19 @@ async function triggerAIReading() {
   var unlockCode = '';
   var HL_MASTER_CODE = 'ASDF2258';
   if (n > 1) {
-    var codeInput = document.getElementById('unlockCodeInput');
-    unlockCode = codeInput ? codeInput.value.trim().toUpperCase() : '';
+    // 🔑 優先用 paywall 驗過的 _lastUsedUnlockCode（2026-04-17 修）
+    // aiPaidBlock 裡已移除可見的 code input，用戶只會從 paywall 驗碼或線上付款進來
+    unlockCode = window._lastUsedUnlockCode || '';
+    if (!unlockCode) {
+      var codeInput = document.getElementById('unlockCodeInput');
+      unlockCode = codeInput ? codeInput.value.trim().toUpperCase() : '';
+    }
     if (!unlockCode || unlockCode.length < 6) {
-      showAIError('請輸入解讀代碼（格式：HRC3-XXXXXX 或 HLC3-XXXXXX）');
+      showAIError('請先完成付款或透過付款牆驗證代碼');
       return;
     }
 
-    // ✅ 已被 paywall 驗證過的碼，跳過二次驗證（避免雙重扣碼）
+    // ✅ paywall 已驗過：跳過二次驗證（避免雙重扣碼）
     if (window._lastUsedUnlockCode && unlockCode === window._lastUsedUnlockCode) {
       // paywall 已驗證+標記已用，直接放行
     }
