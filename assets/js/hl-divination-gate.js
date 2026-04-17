@@ -34,7 +34,7 @@
 (function(){
   'use strict';
 
-  var DAILY_LIMITS = { 'free': 3, 'plus': 10, 'pro': Infinity };
+  var DAILY_LIMITS = { 'free': 3, 'plus': 12, 'pro': Infinity };
 
   function getDayKey(){
     var n = new Date();
