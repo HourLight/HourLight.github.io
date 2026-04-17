@@ -59,6 +59,38 @@
     return null;
   }
 
+  // 等 Firebase auth state 就緒（已登入/未登入都會回 callback）
+  // 同步 currentUser 在 auth 初始化完成前可能是 null — 必須用 onAuthStateChanged
+  // 2026/04/17 加入：修 mbti-tarot 等新占卜工具「明明登入卻彈登入窗」的 bug
+  function waitAuthReady(cb, timeoutMs){
+    if (typeof firebase === 'undefined' || !firebase.auth) { cb(null); return; }
+    // 如果已 resolve 就直接走
+    var current = firebase.auth().currentUser;
+    if (current) { cb(current); return; }
+    // 否則 listen 第一次 state change
+    var done = false;
+    var unsub = null;
+    try {
+      unsub = firebase.auth().onAuthStateChanged(function(user){
+        if (done) return;
+        done = true;
+        if (unsub) unsub();
+        cb(user || null);
+      });
+    } catch(e) {
+      done = true;
+      cb(null);
+      return;
+    }
+    // 安全 timeout：若 3 秒還沒觸發就回 currentUser（可能真的未登入）
+    setTimeout(function(){
+      if (done) return;
+      done = true;
+      if (unsub) { try { unsub(); } catch(e){} }
+      cb(firebase.auth().currentUser || null);
+    }, timeoutMs || 3000);
+  }
+
   function getUserPlan(uid, cb){
     try {
       firebase.firestore().collection('users').doc(uid).get().then(function(doc){
@@ -191,26 +223,28 @@
       callback = toolId;
       toolId = 'divination';
     }
-    var user = getUser();
-    if (!user) {
-      showLoginPrompt();
-      return;
-    }
-    getUserPlan(user.uid, function(plan){
-      var limit = DAILY_LIMITS[plan] || DAILY_LIMITS['free'];
-      if (limit === Infinity) {
-        recordUsage(user.uid, toolId);
-        if (callback) callback();
+    // 等 auth state ready 再判斷（修登入後仍彈窗 bug）
+    waitAuthReady(function(user){
+      if (!user) {
+        showLoginPrompt();
         return;
       }
-      getDailyUsage(user.uid, toolId, function(count){
-        if (count < limit) {
+      getUserPlan(user.uid, function(plan){
+        var limit = DAILY_LIMITS[plan] || DAILY_LIMITS['free'];
+        if (limit === Infinity) {
           recordUsage(user.uid, toolId);
           if (callback) callback();
-          showRemainingHint(count + 1, limit);
-        } else {
-          showUpgradeModal(plan, count, limit);
+          return;
         }
+        getDailyUsage(user.uid, toolId, function(count){
+          if (count < limit) {
+            recordUsage(user.uid, toolId);
+            if (callback) callback();
+            showRemainingHint(count + 1, limit);
+          } else {
+            showUpgradeModal(plan, count, limit);
+          }
+        });
       });
     });
   };
