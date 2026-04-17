@@ -1590,8 +1590,18 @@ async function handleWallpaper(req, res, apiKey) {
             imageUrl = 'data:image/png;base64,' + imageB64;
             imageEngine = 'openai/gpt-image-1';
           } else if (data.data[0].url) {
-            imageUrl = data.data[0].url;
-            imageEngine = 'openai/gpt-image-1+url-only';
+            // OpenAI 回 URL → 拉下來轉 base64（為了存檔/寄信，原本漏寫導致 email 空）
+            try {
+              var oaiFetch = await fetch(data.data[0].url);
+              var oaiAb = await oaiFetch.arrayBuffer();
+              imageB64 = Buffer.from(oaiAb).toString('base64');
+              imageUrl = 'data:image/png;base64,' + imageB64;
+              imageEngine = 'openai/gpt-image-1+fetched';
+            } catch(oaiFetchErr) {
+              imageUrl = data.data[0].url;
+              imageEngine = 'openai/gpt-image-1+url-only';
+              console.warn('OpenAI URL fetch 失敗，email 將無法寄送：', oaiFetchErr.message);
+            }
           }
         }
       } catch (oaiErr) {
