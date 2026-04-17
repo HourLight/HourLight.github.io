@@ -36,10 +36,6 @@
 
   var DAILY_LIMITS = { 'free': 3, 'plus': 10, 'pro': Infinity };
 
-  // session 內已成功抽過的工具（重複點不扣次）
-  // 呼叫 HL_resetDrawSession(toolId) 可重置（重新測算時用）
-  var _sessionDrawn = {};
-
   function getDayKey(){
     var n = new Date();
     var tw = new Date(n.getTime() + 8 * 3600000);
@@ -248,11 +244,6 @@
     }
     // 60 秒內同工具再點 → 不扣直接放行
     if (wasUsedRecently(toolId)) {
-      if (callback) callback();
-      return;
-    }
-    // 同 session 內已成功抽過，直接放行不扣次
-    if (_sessionDrawn[toolId]) {
       if (callback) callback();
       return;
     }
