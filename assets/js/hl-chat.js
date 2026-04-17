@@ -1,6 +1,6 @@
 /**
  * 馥靈之鑰 AI 聊天助手 v1.0
- * 小馥（公開版）& 馥寶（逸君專屬）
+ * 小馥（公開版）& 馥寶（管理者模式）
  */
 (function(){
   'use strict';
@@ -133,11 +133,11 @@
     if(isRubyBrain){
       bubble.className = 'hlai-bubble ruby';
       bubble.innerHTML = '👑';
-      bubble.title = '馥寶 - 逸君專屬AI';
+      bubble.title = '馥寶 · 管理者模式';
       var title = panel.querySelector('.title-text');
       if(title) title.textContent = '👑 馥寶';
       var welcome = panel.querySelector('.hlai-welcome');
-      if(welcome) welcome.innerHTML = '<div class="icon">👑</div>馥寶為您服務<br>逸君，今天要處理什麼？';
+      if(welcome) welcome.innerHTML = '<div class="icon">👑</div>馥寶為您服務<br>今天要處理什麼？';
     } else {
       bubble.className = 'hlai-bubble';
       bubble.innerHTML = '🌸';
@@ -173,7 +173,7 @@
 
   function showWelcome(){
     if(isRubyBrain){
-      addMessage('ai', '馥寶為您服務，逸君。\n\n今天要處理什麼工作嗎？\n• 網站技術問題\n• 內容創作\n• 數據分析\n• 商業策略');
+      addMessage('ai', '馥寶為您服務。\n\n今天要處理什麼工作嗎？\n• 網站技術問題\n• 內容創作\n• 數據分析\n• 商業策略');
     } else {
       addMessage('ai', '您好！我是小馥 🌸\n\n我可以幫您：\n• 推薦適合的測驗或工具\n• 回答馥靈之鑰的問題\n• 聊聊您想探索的話題');
       showQuickChips();
