@@ -24,7 +24,7 @@
 (function(){
   'use strict';
   var GATE_START_TIME = new Date('2026-03-25T16:00:00Z').getTime();
-  var DAILY_LIMITS = { 'free': 3, 'plus': 10, 'pro': Infinity };
+  var DAILY_LIMITS = { 'free': 3, 'plus': 12, 'pro': Infinity };
 
   function getDayKey(){
     var now=new Date();var twMs=now.getTime()+8*3600000;var tw=new Date(twMs);

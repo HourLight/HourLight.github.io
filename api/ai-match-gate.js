@@ -24,7 +24,7 @@ function getMatchSystems() { return _ALL_MATCH; }
 
 
 
-var DAILY_LIMITS = { free: 3, plus: 10, pro: 999999 };
+var DAILY_LIMITS = { free: 3, plus: 12, pro: 999999 };
 
 function getDayKey() {
   var now = new Date();

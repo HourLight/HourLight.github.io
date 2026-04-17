@@ -224,7 +224,7 @@ function getSystems() { return SYSTEMS; }
 
 
 // 日制配額（對齊 hl-ai-gate.js v3）
-var DAILY_LIMITS = { free: 3, plus: 10, pro: 999999 };
+var DAILY_LIMITS = { free: 3, plus: 12, pro: 999999 };
 
 // 取得台灣日期 key
 function getDayKey() {
