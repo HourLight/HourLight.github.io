@@ -27,10 +27,16 @@ TODAY = datetime.now().strftime('%Y-%m-%d')
 def should_exclude(name):
     bn = name.split('/')[-1]
     if bn == '404.html': return True
-    if bn.startswith('admin-'): return True
+    # 管理後台 / 儀表板（各種命名 pattern）
+    if bn.startswith('admin-'): return True          # admin-*
+    if bn.endswith('-admin.html'): return True       # *-admin (draw-admin / booking-admin / platform-admin)
+    if bn.endswith('-dashboard.html'): return True   # *-dashboard (partner-dashboard)
+    if bn in ('admin.html', 'dashboard.html'): return True
+    # 內部工具 / 測試
     if bn.startswith('tarot-widget'): return True
     if bn.startswith('googled') and bn.endswith('.html'): return True  # GSC verify
     if bn in ('AIpreview.html', 'Bookpreview.html', 'Fulingpreview.html'): return True
+    if bn.startswith('test-') or bn.startswith('debug-'): return True
     if bn == 'index.html' and '/' not in name: return False  # root index 特殊處理
     return False
 
@@ -145,13 +151,11 @@ def main():
     print(f'✓ sitemap.xml：{hant_xml.count("<url>")} 頁 (before {len(hant_old)})')
 
     # 簡體
+    # 注意：collect_html(ROOT, 'sc') 回傳的路徑已含 'sc/' prefix（相對於 ROOT）
+    # 所以 url_prefix 用 https://hourlightkey.com（不加 /sc）避免雙重 sc/sc/
     sc_paths = collect_html(ROOT, 'sc')
-    # sc 的 base 是 sc/，所以要把前綴去掉並用 sc/ url prefix
-    # 但 collect_html 回傳的是相對於 sc/ 的 path
     sc_old = parse_old(ROOT / 'sc' / 'sitemap.xml')
-    # sc_paths 是相對於 sc/ 的路徑（e.g., 'index.html' / 'blog/xxx.html'）
-    # url prefix = https://hourlightkey.com/sc
-    sc_xml = build_sitemap(sc_paths, 'https://hourlightkey.com/sc', sc_old)
+    sc_xml = build_sitemap(sc_paths, 'https://hourlightkey.com', sc_old)
     (ROOT / 'sc' / 'sitemap.xml').write_text(sc_xml, encoding='utf-8')
     print(f'✓ sc/sitemap.xml：{sc_xml.count("<url>")} 頁 (before {len(sc_old)})')
 
