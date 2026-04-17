@@ -232,14 +232,14 @@
       getUserPlan(user.uid, function(plan){
         var limit = DAILY_LIMITS[plan] || DAILY_LIMITS['free'];
         if (limit === Infinity) {
-          recordUsage(user.uid, toolId);
           if (callback) callback();
+          recordUsage(user.uid, toolId);
           return;
         }
         getDailyUsage(user.uid, toolId, function(count){
           if (count < limit) {
-            recordUsage(user.uid, toolId);
             if (callback) callback();
+            recordUsage(user.uid, toolId);
             showRemainingHint(count + 1, limit);
           } else {
             showUpgradeModal(plan, count, limit);
