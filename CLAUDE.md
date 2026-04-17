@@ -51,12 +51,12 @@ AI 營運團隊 15 部門 → 看第四部分。
 ► 2. 占卜給方向，覺察給力量
 ► 3. 變現不廉價
 
-品牌數據（核實版 2026/04/10）：
+品牌數據（核實版 2026/04/18）：
 ► 130張 原創智慧牌卡 × 9 種牌陣
 ► 33大 命理系統整合
-► 100+項 心理覺察測驗（quiz-* 實際 101 支）
-► 727+頁 官網內容（繁體367頁+簡體360頁，含SEO文章29篇、城堡23頁、課程投影片33頁）
-► 46支 hl-* 共用前端模組 + 12支 Vercel API + 20支核心資料 JS
+► 100+項 心理覺察測驗（quiz-* 實際 102 支）
+► 981頁 官網內容（繁體 499 + 繁 blog 58 + 簡體 370 + 簡 blog 54，含城堡 30 頁、課程投影片 25 頁）
+► 57支 hl-* 共用前端模組 + 12支 Vercel API + 20支核心資料 JS
 
 ~~
 
@@ -304,7 +304,7 @@ AI 營運團隊 15 部門 → 看第四部分。
 ► □ 牌卡名稱沒竄改？核心金句用正確版本？
 ► □ 「你不是XXX，是XXX」句型沒出現？
 ► □ 四主數命名正確（癒/識/鑰/行）？「啟數」已廢止？
-► □ 數字正確：33大命理/100+項測驗/130張牌卡/9種牌陣/727+頁網站？
+► □ 數字正確：33大命理/100+項測驗/130張牌卡/9種牌陣/981頁網站？
 ► □ UI 元素沒亂放 emoji（nav/footer/按鈕/連結要純文字，高端調性）？
 ► □ 沒寫虛假見證/評價/數據？沒真實資料就刪掉？
 ► □ 對外用大眾語言：身心校準/智慧辨識/潛能解鎖/行動進化？
@@ -373,7 +373,7 @@ AI 營運團隊 15 部門 → 看第四部分。
 
 ► 網域：hourlightkey.com（GitHub Pages 靜態託管，main 分支自動部署）
 ► 子網域：app.hourlightkey.com（Vercel，API + PWA）
-► 頁面總數：727+ 頁 HTML（繁體 367 + 簡體 360，含 blog 29+10 篇）
+► 頁面總數：981 頁 HTML（繁體 499 + 繁 blog 58 + 簡體 370 + 簡 blog 54；2026-04-18 實測）
 ► 設計風格：深色主題為主（深紫底 #06040e + 金色 #f8dfa5/#f0d48a/#e9c27d）；
    pricing.html 為米色淺色主題（#faf9f7）；price-list*.html 為深色橫式單頁
 ► 字體：Noto Serif TC（標題）+ Cormorant Garamond（pricing 西文）+ 系統字體
@@ -389,7 +389,7 @@ AI 營運團隊 15 部門 → 看第四部分。
 ► 心理測驗（101 頁）：quiz-hub.html + quiz-* 100 支獨立測驗（含深潛覺察、美業專屬、家族系列）
 ► 會員系統：member-login/member-dashboard/app.html/castle-game.html
 ► 服務與價目：services.html / pricing.html / price-list.html / price-list-vip.html / price-list-b2b.html
-► 遊戲化系統：game.html（RPG框架）、app.html（內在城堡入口）、castle-* 24 頁（房間/材料/小遊戲）
+► 遊戲化系統：game.html（RPG框架）、app.html（內在城堡入口）、castle-* 30 頁（房間/材料/小遊戲）
 ► SEO 落地頁：blog/* 與 sc/blog/*（東南亞華人 SEO 三篇旗艦文已上線）
 ► 簡體版：sc/* 與 sc/blog/* 雙版策略
 ► 法務與內容：privacy/terms/about/faq/founder/brand-vision/brand-story/changelog/contact 等
@@ -413,7 +413,7 @@ AI 營運團隊 15 部門 → 看第四部分。
 | hl-divination-gate.js | **占卜計次門控 v1.1**（塔羅/易經/天使/骨牌/夢境/鏡像 等每工具獨立計次：免費 3/天 / 鑰友 10/天 / 大師無限） |
 | hl-paywall.js | 付費牆模組（美甲/SPA/家族/寵物） |
 | hl-biz-code.js | 合作商代碼驗證 |
-| hl-premium-gate.js | 合盤門控（前 5 套免費，後半段鑰友/大師） |
+| hl-biz-gate.js | 合盤/B2B 合作場景門控（前 5 套免費，後半段鑰友/大師；原 hl-premium-gate 併入） |
 | hl-referral.js | 推薦碼分潤系統 |
 | hl-payment.js | 付款流程（PAYUNi 整合準備） |
 | hl-points.js | 積分系統（城堡靈感點 → 折價券） |
@@ -434,6 +434,27 @@ AI 營運團隊 15 部門 → 看第四部分。
 | hl-oil-dna.js | 130 張精油 DNA 對應 |
 | hl-performance.js | 效能監控 |
 | hl-sweph.js | 星曆計算 |
+
+「新增模組（2026/04 後上線，共 16 支）」
+
+| 模組 | 功能 |
+|------|------|
+| hl-biz-gate.js | 合盤/B2B 合作場景門控（前 5 套免費，後半段鑰友/大師） |
+| hl-back-to-castle.js | 任何頁面一鍵回城堡入口 |
+| hl-castle-daily.js | 城堡每日登入 + 每日禮物（已修領取+關閉雙 bug） |
+| hl-castle-epic.js | 城堡史詩事件系統 |
+| hl-castle-shield.js | 城堡護盾機制 |
+| hl-castle-v3.js | 城堡核心引擎 v3 |
+| hl-daily-code.js | 每日解鎖碼發放 |
+| hl-datepicker.js | 統一日期選擇器（農曆西曆切換） |
+| hl-exit-intent.js | 離站意圖挽留彈窗 |
+| hl-meridian-clock.js | 子午流注時辰經絡即時對應 |
+| hl-recall.js | 回訪用戶喚回模組 |
+| hl-result-cta.js | 結果頁 CTA 導流（測驗/命理結束推薦下一步） |
+| hl-reward-fx.js | 獎勵動畫特效（靈感點/折價券等） |
+| hl-site-drop.js | 站內禮物掉落系統 |
+| hl-slides.js | 課程投影片引擎（course-slides 共用） |
+| hl-yt-music.js | YouTube 背景音樂整合 |
 
 「核心資料 JS」（js/，19 支）
 
@@ -535,14 +556,14 @@ CSS 變數（深色主題）：
 ► 前 5 套免費（八字 / 紫微 / 占星 / 人類圖 / 七政四餘）
 ► 鑰友：33 套合盤後半段解鎖
 ► 大師：全套 33 合盤完整解鎖
-► 門控模組：assets/js/hl-premium-gate.js
+► 門控模組：assets/js/hl-biz-gate.js（合盤/合作場景；原 hl-premium-gate 已併入）+ api/ai-match-gate.js（後端）
 
-### 三份價目表（2026/04/10 上線）
+### 四份價目表（2026/04/10 上線，2026-04-18 校正含 MYR）
 
 ► **price-list.html**（一般版）：橫式單頁，含平台會員 / 馥靈智慧牌 9 種牌陣 / 馥靈深度服務 / 寵物 / 家族 / SPA / 美甲 / 占卜計次 / 連結列
 ► **price-list-vip.html**（高端客戶版）：6 個一對一陪跑方案 — 馥靈初探 6,800 / 深度覺醒 8,800 / 三次轉化 12,800 / 半年陪伴 39,800 / VIP 年度 59,800 / VIP 紫微 16,800
 ► **price-list-b2b.html**（專業合作版）：B2B 限定 — 美業平台合作（年費 $39,800 + 月費 $999 + 月配額 3/5/9 張 × 50/30/20 組）/ 推薦碼分潤 / 美業三把刀 / 培訓授權
-► 三份頂端 nav 互連，當前版本 highlight
+► 四份頂端 nav 互連，當前版本 highlight（含 price-list-myr 馬來幣版）
 ► 完整會員權益彈窗：`assets/js/hl-benefits-modal.js`（SSOT，4 個價目頁共用），點擊開啟不占版面
 ► 客服聯絡：`pricing.html#contact`（LINE / Email / 服務時間 / 美業窗口 / 公司資訊 / 危機協助 1925/113）
 ► 全站頁尾自動注入「服務價目 / 價目表 / 客服聯絡 / AI 認識我們」連結 + 客服 LINE/Email 一行（hl-bottomnav.js 內）
@@ -741,12 +762,12 @@ Notion 關鍵文件：
 
 ## 網站核心數字（對話中可直接引用，2026/04/10 校準）
 
-► 727+ 頁 HTML（繁體 367 + 簡體 360，含 SEO 文章 39 篇、城堡 23 頁）
+► 981 頁 HTML（繁體 499 + 繁 blog 58 + 簡體 370 + 簡 blog 54，含城堡 30 頁）
 ► 33套 命理系統（全球最完整整合）
 ► 130張 原創智慧牌卡 × 9 種牌陣
-► 100+ 心理測驗（quiz-* 實際 101 支）
+► 100+ 心理測驗（quiz-* 實際 102 支）
 ► 3 級 訂閱方案（免費 / NT$399 鑰友 / NT$999 大師）+ 加購 10 次/$199 永久有效
-► 46 支 hl-* 共用前端模組 + 12 支 Vercel API（含 PAYUNi 兩支，Hobby plan 已滿）
+► 57 支 hl-* 共用前端模組 + 12 支 Vercel API（含 PAYUNi 兩支，Hobby plan 已滿）
 
 ## 五大功能區速覽
 
@@ -764,7 +785,7 @@ Notion 關鍵文件：
 美業人專屬：quiz-beauty-burnout / client / locus / savior
 9 個測驗已改 Likert 量表為直式按鈕（commit 04/07）
 
-### 遊戲化系統（castle-* 24 頁）
+### 遊戲化系統（castle-* 30 頁）
 game.html：整套 RPG 框架（算秘碼 = 查角色屬性；抽牌 = 翻任務卡；做測驗 = 解鎖技能樹）
 五個角色身份：覺察旅人 → 覺察學員 → 覺察修練者 → 馥靈夥伴 → 馥靈傳承者
 成就系統、語言包系統（RPG / 麻將 / 銀髮 / 青少年）
@@ -827,7 +848,7 @@ references/
 **新增章節**
 ► 系統 A2：占卜工具計次制（hl-divination-gate.js v1.1，每工具獨立計次）
 ► 系統 B 改為「9 種牌陣完整價目」（1-7 張 AI / 9-28 張覺察師預約）
-► 三份價目表（一般 / 高端 / 專業合作版）+ 互連 nav
+► 四份價目表（一般 / 高端 / 專業合作 / 馬來幣 MYR）+ 互連 nav
 ► 完整會員權益彈窗（hl-benefits-modal.js SSOT）
 ► 客服聯絡 #contact + 全站頁尾自動注入連結
 ► PAYUNi 統一金流（已通過審核 2026/04/10，憑證放 Vercel env vars）
@@ -955,7 +976,7 @@ D05｜視覺設計部
 ► 觸發：「做配圖」「輪播圖」「海報」「電子報模板」
 
 D06｜技術工程部
-► hourlightkey.com 727+ 頁維護與新增、HTML/CSS/JS/SEO
+► hourlightkey.com 981 頁維護與新增、HTML/CSS/JS/SEO
 ► Vercel API（12支）、Firebase、AI解讀指令系統
 ► PAYUNi 統一金流（已上線，AES-256-GCM）、推薦碼系統
 ► SaaS 多租戶預約系統（booking / booking-admin / partner-dashboard / platform-admin）
