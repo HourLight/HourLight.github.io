@@ -423,6 +423,12 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
     dpScript.src = basePath + 'hl-datepicker.js';
     dpScript.defer = true;
     document.body.appendChild(dpScript);
+
+    // ── 從城堡來的頁面自動顯示「返回城堡」浮動按鈕 ──
+    var btcScript = document.createElement('script');
+    btcScript.src = basePath + 'hl-back-to-castle.js';
+    btcScript.defer = true;
+    document.body.appendChild(btcScript);
   })();
 
   // ── 城堡返回按鈕：從城堡房間去做測驗/占卜後，浮出「← 回城堡」 ──
