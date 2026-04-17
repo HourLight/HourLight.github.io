@@ -296,6 +296,11 @@
         localStorage.setItem(SUBSCRIBED_KEY, '1');
         if (window.hlTrackSubscribe) hlTrackSubscribe();
         if (typeof gtag === 'function') gtag('event', 'email_subscribe', { event_category: 'conversion', method: 'sticky_cta' });
+        // FB Pixel Custom Audience（2026/04/17 新增）— 訂閱事件分群做再行銷
+        if (typeof fbq === 'function') {
+          fbq('track', 'Subscribe', { content_name: 'newsletter', currency: 'TWD', value: 0 });
+          fbq('trackCustom', 'NewsletterSubscribe', { source: 'sticky_cta', email_hash: 'hashed' });
+        }
         setTimeout(function() { form.classList.remove('show'); }, 2500);
       }).catch(function() {
         msg.innerHTML = '<span style="color:#d4694a">訂閱失敗，過一下再試試</span>';
