@@ -217,35 +217,16 @@
    *     doActualDraw();
    *   });
    */
-  // 2026-04-17 逸君指示：同 toolId 60 秒內再點不扣次（第一次沒複製到能重試）
-  // 跨天或超過 60 秒 = 算新測算，扣新次數
-  var DEBOUNCE_MS = 60000;
-  function lastUseKey(toolId){ return 'hl_div_last_' + toolId; }
-  function wasUsedRecently(toolId){
-    try {
-      var raw = localStorage.getItem(lastUseKey(toolId));
-      if (!raw) return false;
-      var parts = raw.split('|');
-      var ts = parseInt(parts[0], 10);
-      var day = parts[1] || '';
-      if (day !== getDayKey()) return false;
-      return (Date.now() - ts) < DEBOUNCE_MS;
-    } catch(e) { return false; }
-  }
-  function markUsed(toolId){
-    try { localStorage.setItem(lastUseKey(toolId), Date.now() + '|' + getDayKey()); } catch(e){}
-  }
-
+  // 鐵則（逸君 2026-04-17）：抽牌代碼不給兩次。每次 HL_drawCheck 都扣次、
+  // 都產新代碼。不做任何 debounce / session cache / 免扣放行。
+  //
+  // 用戶「沒複製到」的 UX 問題在【結果頁複製按鈕】解決（複製按鈕本來就不扣次，
+  // 結果保留在 DOM 用戶可以重複按複製）— 不該在 HL_drawCheck 層做 bypass。
   window.HL_drawCheck = function(toolId, callback){
     // 兼容舊呼叫：HL_drawCheck(callback)
     if (typeof toolId === 'function') {
       callback = toolId;
       toolId = 'divination';
-    }
-    // 60 秒內同工具再點 → 不扣直接放行
-    if (wasUsedRecently(toolId)) {
-      if (callback) callback();
-      return;
     }
     // 等 auth state ready 再判斷（修登入後仍彈窗 bug）
     waitAuthReady(function(user){
@@ -258,14 +239,12 @@
         if (limit === Infinity) {
           if (callback) callback();
           recordUsage(user.uid, toolId);
-          markUsed(toolId);
           return;
         }
         getDailyUsage(user.uid, toolId, function(count){
           if (count < limit) {
             if (callback) callback();
             recordUsage(user.uid, toolId);
-            markUsed(toolId);
             showRemainingHint(count + 1, limit);
           } else {
             showUpgradeModal(plan, count, limit);
