@@ -1314,11 +1314,16 @@ var HD_CENTERS={head:[61,63,64],ajna:[47,24,4,17,43,11],throat:[62,23,56,35,12,4
 var HD_CENTER_NAMES={head:'頭頂',ajna:'阿賈那',throat:'喉嚨',g:'G中心',sacral:'薦骨',spleen:'脾',solar:'情緒',ego:'意志力',root:'根部'};
 function wwCalcHumanDesign(planets,Y,M,D,H,min){
   if(!planets||!WW_EPH)return null;
+  // 防禦：至少要有 sun 才能算人類圖；sun 都沒有直接 return null 降級（避免整個 calculateProfile 崩）
+  if(!planets.sun||typeof planets.sun.lon!=='number')return null;
   var pGates={},dGates={};
   var pNames=['太陽','地球','月亮','北交點','南交點','水星','金星','火星','木星','土星','天王星','海王星','冥王星'];
   var pKeys=['sun','earth','moon','node','snode','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto'];
   pKeys.forEach(function(k,i){
-    var lon=k=='earth'?(planets.sun.lon+180)%360:k=='snode'?planets.snode.lon:planets[k]?planets[k].lon:0;
+    var lon=0;
+    if(k=='earth'){lon=(planets.sun.lon+180)%360;}
+    else if(k=='snode'){lon=(planets.snode&&typeof planets.snode.lon==='number')?planets.snode.lon:0;}
+    else if(planets[k]&&typeof planets[k].lon==='number'){lon=planets[k].lon;}
     var g=lonToGate(lon);pGates[pNames[i]]=g.gate+'.'+g.line;
   });
   var targetSun=(planets.sun.lon-88+360)%360;
