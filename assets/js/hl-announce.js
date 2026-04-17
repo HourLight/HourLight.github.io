@@ -1,11 +1,11 @@
 /* ═══════════════════════════════════════
    hl-announce.js — 馥靈全站公告彈窗 v8
-   2026/04/17 更新：占卜計次 Bug 修復公告 + 鑰友補償升至 12 次
+   2026/04/17 更新：占卜計次 Bug 修復 + 鑰友補償 12 次 + 新城堡 + 推薦送大師一天
    ═══════════════════════════════════════ */
 (function(){
 'use strict';
 
-var ANNOUNCE_VER = '2026-04-17-bug-fix-plus12-v8';
+var ANNOUNCE_VER = '2026-04-17-bug-fix-plus12-castle-referral-v8';
 var DISMISS_KEY = 'hl_announce_' + ANNOUNCE_VER;
 
 try { if(sessionStorage.getItem(DISMISS_KEY)) return; } catch(e){}
@@ -20,23 +20,30 @@ overlay.innerHTML = `
   <div class="hla-close" onclick="document.getElementById('hlAnnounce').remove();try{sessionStorage.setItem('${DISMISS_KEY}','1')}catch(e){}" title="關閉">✕</div>
 
   <div class="hla-header">
-    <div class="hla-brand">系統公告</div>
-    <div class="hla-title">占卜計次問題已修復</div>
+    <div class="hla-brand">系統公告 · 2026/04/17</div>
+    <div class="hla-title">占卜修復 · 鑰友補償 · 新城堡</div>
   </div>
 
   <div class="hla-body">
     <div class="hla-welcome">
-      先前占卜系統有一個計次誤差問題：偶爾會在動作尚未完成時提前扣次，造成部分會員次數損失。<br><br>
-      <strong style="color:#f8dfa5">已於 2026/04/17 完整修復。</strong>同時新增 60 秒內重複點擊不重複扣次，讓複製失敗時能安心重試。
+      占卜計次誤差問題已於今日完整修復。同時新增 60 秒內重複點擊不扣次，讓複製失敗時能安心重試。
     </div>
 
     <div class="hla-popular">
-      <div class="hla-popular-title">鑰友補償方案 ↓</div>
+      <div class="hla-popular-title">鑰友補償 ↓</div>
       <div class="hla-link" style="cursor:default">
-        馥靈鑰友每日占卜次數由 10 次提升為 <strong style="color:#f8dfa5">12 次</strong>，即日起生效，感謝您的耐心等待。
+        馥靈鑰友每日占卜次數即日起由 10 次提升為 <strong style="color:#f8dfa5">12 次</strong>，感謝您的耐心。
       </div>
-      <a href="draw-hl.html" class="hla-link">✨ 馥靈智慧牌 — 130 張 × 9 種牌陣</a>
-      <a href="quiz-hub.html" class="hla-link">📊 101 項心理測驗 — 全部免費</a>
+
+      <div class="hla-popular-title" style="margin-top:14px">新城堡上線 ↓</div>
+      <a href="castle-hub.html" class="hla-link">🏰 內在城堡 v3 — 21 間房間 × 小馥管家 × 9 隻貓咪</a>
+      <a href="wealth-wallpaper.html" class="hla-link">🔮 命定豐盛桌布 — 33 套命理合成專屬招財桌布</a>
+
+      <div class="hla-popular-title" style="margin-top:14px">推薦好友送大師一天 ↓</div>
+      <div class="hla-link" style="cursor:default">
+        成功推薦一位好友加入，您與好友各獲得 <strong style="color:#f8dfa5">馥靈大師體驗一天</strong>（無限占卜）。<br>
+        <a href="member-dashboard.html" style="color:#f8dfa5;font-size:.8rem;display:inline-block;margin-top:4px">會員中心取得推薦碼 →</a>
+      </div>
     </div>
 
     <div class="hla-gift">
@@ -49,7 +56,7 @@ overlay.innerHTML = `
     <button class="hla-btn" onclick="document.getElementById('hlAnnounce').remove();try{sessionStorage.setItem('${DISMISS_KEY}','1')}catch(e){}">
       了解，繼續探索
     </button>
-    <a href="draw-hl.html" class="hla-sub-link">立即占卜 →</a>
+    <a href="castle-hub.html" class="hla-sub-link">進城堡看看 →</a>
   </div>
 </div>
 `;
