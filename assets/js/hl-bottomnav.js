@@ -461,6 +461,38 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
     document.body.appendChild(btcScript);
   })();
 
+  // ── 滾動感知：下滾=收起，上滾/停住=展開 ──
+  (function scrollReveal(){
+    var lastY = pageYOffset;
+    var ticking = false;
+    var idleTimer;
+
+    function update(){
+      var y = pageYOffset;
+      var delta = y - lastY;
+      var atBottom = (y + innerHeight) >= (document.body.scrollHeight - 40);
+
+      clearTimeout(idleTimer);
+
+      if (atBottom || delta < -8) {
+        nav.classList.add('hlbn-reveal');
+      } else if (delta > 8 && y > 80) {
+        nav.classList.remove('hlbn-reveal');
+      }
+
+      idleTimer = setTimeout(function(){ nav.classList.add('hlbn-reveal'); }, 2500);
+
+      lastY = y;
+      ticking = false;
+    }
+
+    addEventListener('scroll', function(){
+      if (!ticking){ requestAnimationFrame(update); ticking = true; }
+    }, {passive:true});
+
+    setTimeout(function(){ nav.classList.add('hlbn-reveal'); }, 2000);
+  })();
+
   // ── 城堡返回按鈕：從城堡房間去做測驗/占卜後，浮出「← 回城堡」 ──
   (function castleReturn(){
     var path = location.pathname;
