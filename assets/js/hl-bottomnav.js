@@ -144,7 +144,9 @@
   align-items: stretch;
   justify-content: space-around;
   box-shadow: 0 -4px 20px rgba(0,0,0,0.35);
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
 }
+#hl-bottom-nav.hlbn-hidden { transform: translateY(100%); }
 .hl-bn-item {
   flex: 1;
   display: flex;
@@ -391,6 +393,34 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
       setTimeout(syncMusicState, 300);
     });
   }
+
+  // ── 滾動隱藏：往下滑藏 bottom nav，往上滑顯示 ──
+  // 逸君 2026-04-17 指示 b：避免 nav 遮擋內容，但需要時一滑就回來
+  (function setupScrollHide(){
+    var lastY = window.pageYOffset;
+    var ticking = false;
+    var THRESHOLD = 6; // 抖動容忍
+    var TOP_REVEAL = 120; // 頁面頂部 120px 內永遠顯示
+    window.addEventListener('scroll', function(){
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function(){
+        var y = window.pageYOffset;
+        var navEl = document.getElementById('hl-bottom-nav');
+        if (navEl) {
+          if (y < TOP_REVEAL) {
+            navEl.classList.remove('hlbn-hidden');
+          } else if (y > lastY + THRESHOLD) {
+            navEl.classList.add('hlbn-hidden');
+          } else if (y < lastY - THRESHOLD) {
+            navEl.classList.remove('hlbn-hidden');
+          }
+        }
+        lastY = y;
+        ticking = false;
+      });
+    }, { passive: true });
+  })();
 
   // ── 動態載入 exit-intent popup ──
   (function loadExitIntent() {
