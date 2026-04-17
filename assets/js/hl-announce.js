@@ -41,7 +41,7 @@ overlay.innerHTML = `
 
       <div class="hla-popular-title" style="margin-top:14px">推薦好友送大師一天 ↓</div>
       <div class="hla-link" style="cursor:default">
-        成功推薦一位好友加入，您與好友各獲得 <strong style="color:#f8dfa5">馥靈大師體驗一天</strong>（無限占卜）。<br>
+        成功推薦一位好友加入，好友立即獲得 <strong style="color:#f8dfa5">48 小時大師體驗</strong>；好友滿 3 天後，您也獲得 <strong style="color:#f8dfa5">1 天大師體驗</strong>（上限 30 天）。<br>
         <a href="member-dashboard.html" style="color:#f8dfa5;font-size:.8rem;display:inline-block;margin-top:4px">會員中心取得推薦碼 →</a>
       </div>
     </div>

@@ -9,7 +9,7 @@
  *
  * 每日限額（每個工具獨立）：
  *   free  → 每天 3 次
- *   plus  → 每天 10 次（馥靈鑰友 $399/月）
+ *   plus  → 每天 12 次（馥靈鑰友 $399/月）
  *   pro   → 無上限（馥靈大師 $999/月）
  *
  * Firestore 結構：
@@ -181,7 +181,7 @@
     var old = document.getElementById('hl-div-upgrade');
     if (old) old.remove();
     var planName = plan === 'free' ? '免費會員' : (plan === 'plus' ? '馥靈鑰友' : '馥靈大師');
-    var nextPlan = plan === 'free' ? '馥靈鑰友（NT$399/月，每天 10 次）' : '馥靈大師（NT$999/月，無限次）';
+    var nextPlan = plan === 'free' ? '馥靈鑰友（NT$399/月，每天 12 次）' : '馥靈大師（NT$999/月，無限次）';
     var hr = getHoursUntilReset();
     var m = document.createElement('div');
     m.id = 'hl-div-upgrade';
@@ -196,7 +196,7 @@
       + '明天午夜（台灣時間）自動歸零，還有約 ' + hr + ' 小時。</div>'
       + '<div style="text-align:left;font-size:.82rem;color:rgba(255,255,255,.55);line-height:2;margin-bottom:16px;padding:14px 16px;border-radius:12px;background:rgba(240,212,138,.04);border:1px solid rgba(240,212,138,.1)">'
       + '<div style="color:rgba(240,212,138,.85);font-weight:700;margin-bottom:6px">💛 想繼續探索？</div>'
-      + '► 馥靈鑰友 NT$399/月：每天 10 次占卜<br>'
+      + '► 馥靈鑰友 NT$399/月：每天 12 次占卜<br>'
       + '► 馥靈大師 NT$999/月：無限占卜<br>'
       + '<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(240,212,138,.08);font-size:.78rem;color:rgba(240,212,138,.65)">每月還會收到桌布兌換代碼月禮 🎁</div>'
       + '</div>'

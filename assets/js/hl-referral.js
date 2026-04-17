@@ -215,14 +215,14 @@
 
             var batch = db.batch();
 
-            // 1. 寫入新用戶的推薦來源 + 送1天大師體驗
+            // 1. 寫入新用戶的推薦來源 + 送48小時大師體驗
             var userRef = db.collection('users').doc(uid);
             var newUserExpiry = new Date();
             newUserExpiry.setDate(newUserExpiry.getDate() + 2); // 新用戶送48小時（2天）
             batch.set(userRef, {
               referral_code: code,
               referral_date: firebase.firestore.FieldValue.serverTimestamp(),
-              referral_premium_until: newUserExpiry.toISOString()  // 新用戶1天大師體驗
+              referral_premium_until: newUserExpiry.toISOString()  // 新用戶48小時大師體驗
             }, { merge: true });
 
             // 2. 推薦人獎勵：延遲3天發放 + 同IP警示（不阻擋）

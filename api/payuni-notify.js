@@ -481,7 +481,7 @@ module.exports = async function handler(req, res) {
                   let body = '';
                   const planName = membership.plan === 'plus' ? '馥靈鑰友' : '馥靈大師';
                   const planBenefits = membership.plan === 'plus'
-                    ? '► 每天 10 次 AI 深度解讀\n► 每月贈 3 次 3 張牌 AI 解析\n► 完整馥靈牌卡資料庫存取'
+                    ? '► 每天 12 次 AI 深度解讀\n► 每月贈 3 次 3 張牌 AI 解析\n► 完整馥靈牌卡資料庫存取'
                     : '► 無限次 AI 深度解讀\n► 每月贈 10 次 AI 解讀\n► 每月 2 張 NT$500 抵用券\n► 完整功能全開通';
 
                   body = `您好：\n\n謝謝您成為「${planName}」會員！\n\n`;
