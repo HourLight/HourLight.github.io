@@ -129,9 +129,31 @@ select,input[type=text],textarea{font-size:16px!important}
 </div>
 
 <div class="mr-card" style="border:1px dashed rgba(184,146,42,.25);background:rgba(184,146,42,.03)">
-  <label for="birthInput" style="display:block;font-family:var(--ff-oracle);font-size:.95rem;color:var(--lt-gold);font-weight:600;margin-bottom:8px">想要更精準？輸入生日（選填）</label>
-  <input type="date" id="birthInput" style="font-size:16px;width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--lt-border);background:#ffffff;color:#1a1714;color-scheme:light;-webkit-appearance:none;appearance:none;font-family:var(--ff-font)">
+  <label style="display:block;font-family:var(--ff-oracle);font-size:.95rem;color:var(--lt-gold);font-weight:600;margin-bottom:10px">想要更精準？輸入生日（選填）</label>
+  <div style="display:flex;gap:8px;align-items:center">
+    <select id="birthYear" style="flex:2;font-size:16px;padding:10px 10px;border-radius:10px;border:1px solid var(--lt-border);background:#fff;color:#1a1714;font-family:var(--ff-font)">
+      <option value="">年</option>
+    </select>
+    <select id="birthMonth" style="flex:1.2;font-size:16px;padding:10px 8px;border-radius:10px;border:1px solid var(--lt-border);background:#fff;color:#1a1714;font-family:var(--ff-font)">
+      <option value="">月</option>
+    </select>
+    <select id="birthDay" style="flex:1.2;font-size:16px;padding:10px 8px;border-radius:10px;border:1px solid var(--lt-border);background:#fff;color:#1a1714;font-family:var(--ff-font)">
+      <option value="">日</option>
+    </select>
+  </div>
+  <input type="hidden" id="birthInput">
   <div style="font-size:.82rem;color:#8b7a60;margin-top:6px;line-height:1.6">有生日資料，系統會交叉比對生命靈數和馥靈H數</div>
+  <script>
+  (function(){
+    var y=document.getElementById('birthYear'),m=document.getElementById('birthMonth'),d=document.getElementById('birthDay'),h=document.getElementById('birthInput');
+    var yr=new Date().getFullYear();
+    for(var i=yr;i>=1930;i--){var o=document.createElement('option');o.value=i;o.textContent=i+'年';y.appendChild(o);}
+    for(var i=1;i<=12;i++){var o=document.createElement('option');o.value=String(i).padStart(2,'0');o.textContent=i+'月';m.appendChild(o);}
+    for(var i=1;i<=31;i++){var o=document.createElement('option');o.value=String(i).padStart(2,'0');o.textContent=i+'日';d.appendChild(o);}
+    function sync(){h.value=(y.value&&m.value&&d.value)?(y.value+'-'+m.value+'-'+d.value):'';}
+    y.addEventListener('change',sync);m.addEventListener('change',sync);d.addEventListener('change',sync);
+  })();
+  </script>
 </div>
 
 <div id="questionArea">
