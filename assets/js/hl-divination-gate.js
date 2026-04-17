@@ -36,6 +36,10 @@
 
   var DAILY_LIMITS = { 'free': 3, 'plus': 10, 'pro': Infinity };
 
+  // session 內已成功抽過的工具（重複點不扣次）
+  // 呼叫 HL_resetDrawSession(toolId) 可重置（重新測算時用）
+  var _sessionDrawn = {};
+
   function getDayKey(){
     var n = new Date();
     var tw = new Date(n.getTime() + 8 * 3600000);
@@ -217,11 +221,40 @@
    *     doActualDraw();
    *   });
    */
+  // 2026-04-17 逸君指示：同 toolId 60 秒內再點不扣次（第一次沒複製到能重試）
+  // 跨天或超過 60 秒 = 算新測算，扣新次數
+  var DEBOUNCE_MS = 60000;
+  function lastUseKey(toolId){ return 'hl_div_last_' + toolId; }
+  function wasUsedRecently(toolId){
+    try {
+      var raw = localStorage.getItem(lastUseKey(toolId));
+      if (!raw) return false;
+      var parts = raw.split('|');
+      var ts = parseInt(parts[0], 10);
+      var day = parts[1] || '';
+      if (day !== getDayKey()) return false;
+      return (Date.now() - ts) < DEBOUNCE_MS;
+    } catch(e) { return false; }
+  }
+  function markUsed(toolId){
+    try { localStorage.setItem(lastUseKey(toolId), Date.now() + '|' + getDayKey()); } catch(e){}
+  }
+
   window.HL_drawCheck = function(toolId, callback){
     // 兼容舊呼叫：HL_drawCheck(callback)
     if (typeof toolId === 'function') {
       callback = toolId;
       toolId = 'divination';
+    }
+    // 60 秒內同工具再點 → 不扣直接放行
+    if (wasUsedRecently(toolId)) {
+      if (callback) callback();
+      return;
+    }
+    // 同 session 內已成功抽過，直接放行不扣次
+    if (_sessionDrawn[toolId]) {
+      if (callback) callback();
+      return;
     }
     // 等 auth state ready 再判斷（修登入後仍彈窗 bug）
     waitAuthReady(function(user){
@@ -234,13 +267,14 @@
         if (limit === Infinity) {
           if (callback) callback();
           recordUsage(user.uid, toolId);
+          markUsed(toolId);
           return;
         }
         getDailyUsage(user.uid, toolId, function(count){
           if (count < limit) {
-            _sessionDrawn[toolId] = true;
             if (callback) callback();
             recordUsage(user.uid, toolId);
+            markUsed(toolId);
             showRemainingHint(count + 1, limit);
           } else {
             showUpgradeModal(plan, count, limit);
