@@ -152,16 +152,16 @@
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  color: #e6dac4;
+  color: rgba(196,183,166,0.7);
   cursor: pointer;
   border: none;
   background: none;
   font-family: inherit;
-  padding: 6px 0 8px;
-  min-height: 56px;
+  padding: 8px 0 6px;
+  min-height: 48px;
   position: relative;
   transition: color 0.18s;
-  gap: 4px;
+  gap: 3px;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
@@ -194,10 +194,9 @@
   transform: translateY(-1px);
 }
 .hl-bn-label {
-  font-size: 0.74rem;
-  letter-spacing: 0.05em;
-  line-height: 1.2;
-  white-space: nowrap;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
 }
 /* 音樂播放中動態 */
 .hl-bn-item.music-playing .hl-bn-icon {
@@ -239,16 +238,16 @@
     opacity: 1;
   }
 }
-/* 手機：保留 label（縮小字），不要隱藏 */
+/* 手機：隱藏 label，縮小 */
 @media (max-width: 480px) {
-  #hl-bottom-nav { height: calc(60px + env(safe-area-inset-bottom, 0px)); }
-  .hl-bn-icon { width: 20px; height: 20px; }
-  .hl-bn-label { display: block; font-size: 0.66rem; letter-spacing: 0.02em; }
+  #hl-bottom-nav { height: calc(54px + env(safe-area-inset-bottom, 0px)); }
+  .hl-bn-icon { width: 22px; height: 22px; }
+  .hl-bn-label { display: none; }
   .hl-bn-tip { display: none; }
 }
 /* body padding 避免內容被蓋住（含 iPhone 底部安全區域） */
-body { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important; }
-@media (max-width: 480px) { body { padding-bottom: calc(66px + env(safe-area-inset-bottom, 0px)) !important; } }
+body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important; }
+@media (max-width: 480px) { body { padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important; } }
 `;
 
   // ── 建立 style tag ──
