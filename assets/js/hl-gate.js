@@ -142,6 +142,12 @@
   // 4. 全域攔截（capture phase）
   document.addEventListener('click', function(e){
     if (isLoggedIn||!authReady) return;
+    // onAuthStateChanged 可能先以 null 觸發（auth 快取還沒還原），雙重確認 currentUser
+    try {
+      if (typeof firebase!=='undefined' && firebase.auth && firebase.auth().currentUser) {
+        isLoggedIn = true; return;
+      }
+    } catch(er){}
     var el=e.target, depth=0;
     while(el && depth<6){
       if(isInteractive(el)){
