@@ -233,6 +233,9 @@ body{background:#faf9f7;color:#1a1714;font-family:'Noto Sans TC',sans-serif;font
 
     <div class="mt-card-grid" id="cardGrid"></div>
 
+    <!-- YouTube 音樂（王逸君原創 MBTI 主題曲） -->
+    <div id="mtMusic"></div>
+
     <div class="mt-cta">
       <div class="mt-cta-title">想看這三張牌的完整解讀</div>
       <div class="mt-cta-desc">複製 AI 解讀指令，貼到 Claude / ChatGPT 任何 AI 工具，就能拿到你的 MBTI 靈魂卡深度解讀（本質 × 課題 × 禮物三層）。</div>
@@ -256,6 +259,9 @@ body{background:#faf9f7;color:#1a1714;font-family:'Noto Sans TC',sans-serif;font
 
 <!-- 頂導航 -->
 <script src="assets/js/hl-topnav.js"></script>
+
+<!-- YouTube 音樂共用元件 -->
+<script src="assets/js/hl-yt-music.js"></script>
 
 <!-- 底導航（含全站模組自動注入）-->
 <script src="assets/js/hl-bottomnav.js"></script>
@@ -405,6 +411,19 @@ body{background:#faf9f7;color:#1a1714;font-family:'Noto Sans TC',sans-serif;font
 
     // AI 解讀指令
     setupCopyButton(displayCode, codes);
+
+    // YouTube 音樂（依 MBTI 類型嵌入對應主題曲，沒上傳的 fallback 到 16 型總覽）
+    if (window.hlYTMusic){
+      // 先試 coreMBTI 對應音樂；若沒有就顯示 16 型總覽（overview_16）
+      window.hlYTMusic.load().then(function(data){
+        var has = data && data.mbti && data.mbti[coreMBTI] && data.mbti[coreMBTI].yt_id;
+        if (has){
+          window.hlYTMusic.embed('#mtMusic', { kind:'mbti', key: coreMBTI, eyebrow: '你的 MBTI 主題曲' });
+        } else {
+          window.hlYTMusic.embed('#mtMusic', { kind:'mbti', key: 'overview_16', eyebrow: '16 型人格主題曲總覽', fallbackMsg: '這型單獨曲還在調音中，先聽 16 型總覽版。' });
+        }
+      });
+    }
 
     // 滾到結果
     res.scrollIntoView({ behavior:'smooth', block:'start' });
