@@ -448,11 +448,8 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
     recallScript.defer = true;
     document.body.appendChild(recallScript);
 
-    // ── 全站 <input type="date"> 自動轉三下拉（解決年份難選 + 對比度問題）──
-    var dpScript = document.createElement('script');
-    dpScript.src = basePath + 'hl-datepicker.js';
-    dpScript.defer = true;
-    document.body.appendChild(dpScript);
+    // hl-datepicker 改 opt-in（頁面要手動引用才啟用）
+    // 原自動注入在 wealth-wallpaper 等頁面造成按鈕失效，暫停 auto-load（2026-04-17）
 
     // ── 從城堡來的頁面自動顯示「返回城堡」浮動按鈕 ──
     var btcScript = document.createElement('script');
