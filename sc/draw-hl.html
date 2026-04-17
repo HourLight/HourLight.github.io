@@ -1253,29 +1253,9 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
         </div>
       </div>
 
-      <!-- ✅ 代码兌換区塊 -->
-      <div style="background:rgba(240,212,138,.05);border:1px solid rgba(240,212,138,.2);border-radius:14px;padding:18px;margin-bottom:18px">
-        <div style="color:#f0d48a;font-weight:700;font-size:.92rem;margin-bottom:12px">🎟️ 已有解读代码？直接兌換</div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-          <input type="text" id="unlockCodeInput" placeholder="输入代码，例如 HRC3-ABCD12"
-            style="flex:1;min-width:180px;padding:12px 16px;border-radius:10px;border:1.5px solid rgba(240,212,138,.3);background:rgba(255,255,255,.04);color:#fff;font-size:.95rem;font-family:monospace;letter-spacing:.08em;outline:none;text-transform:uppercase"
-            oninput="this.value=this.value.toUpperCase()"
-            onkeydown="if(event.key==='Enter')triggerAIReading()">
-          <button onclick="triggerAIReading()"
-            style="padding:12px 24px;border-radius:10px;background:linear-gradient(135deg,#f0d48a,#c9a060);color:#1a1520;font-weight:700;font-size:.92rem;border:none;cursor:pointer;white-space:nowrap;letter-spacing:.04em">
-            ✨ 兌換並解读
-          </button>
-        </div>
-        <div id="aiCodeError" style="display:none;margin-top:10px;padding:10px 14px;border-radius:8px;background:rgba(217,48,37,.08);color:#e57373;font-size:.82rem"></div>
-        <div style="margin-top:8px;font-size:.75rem;color:rgba(255,255,255,.35)">代码格式：HRC3-XXXXXX（3张）/ HRC5-XXXXXX（5张）/ HRC7-XXXXXX（7张）/ HRCM-XXXXXX（行销贈送）</div>
-      </div>
-
-      <!-- 分隔线 -->
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
-        <div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div>
-        <div style="font-size:.8rem;color:rgba(255,255,255,.35)">或选擇付款方式</div>
-        <div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div>
-      </div>
+      <!-- 隐藏 input 供付款返回後 JS 自动填入代码 -->
+      <input type="hidden" id="unlockCodeInput">
+      <div id="aiCodeError" style="display:none;margin-bottom:12px;padding:10px 14px;border-radius:8px;background:rgba(217,48,37,.08);color:#e57373;font-size:.82rem"></div>
 
       <!-- 线上付款 PAYUNi（单一按鈕，UPP 整合页支援信用卡/ATM/超商/Apple Pay/Google Pay）-->
       <div style="margin-bottom:20px;text-align:center">
@@ -1286,13 +1266,13 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
         </button>
       </div>
 
-      <!-- 服務承諾 -->
+      <!-- 解读说明 -->
       <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:16px 18px;margin-bottom:14px">
-        <div style="color:rgba(240,212,138,.75);font-weight:700;font-size:.85rem;margin-bottom:10px">⏰ 服務承諾</div>
+        <div style="color:rgba(240,212,138,.75);font-weight:700;font-size:.85rem;margin-bottom:10px">⚡ 服务流程</div>
         <div style="font-size:.82rem;color:rgba(255,255,255,.55);line-height:2">
-          ► 上班時间（週一至週五 10:00-18:00）：确认付款後 <strong style="color:rgba(240,212,138,.8)">30 分鐘內</strong>回覆解读結果<br>
-          ► 下班時间或假日：解读将於次营业日处理<br>
-          ► 比較趕的话：直接加 LINE <strong style="color:rgba(240,212,138,.8)">judyanee</strong>，告诉我，我会优先处理
+          ► 付款完成後 <strong style="color:rgba(240,212,138,.8)">立即启动 AI 解读</strong>，约 30-60 秒生成完整报告<br>
+          ► 报告直接在网页显示，同时自动存档到您的会员中心<br>
+          ► 附上 AI 解读指令，可复制到 Claude / ChatGPT 进行无限次延伸对话
         </div>
       </div>
 
@@ -1300,16 +1280,15 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
       <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:16px 18px">
         <div style="color:rgba(240,212,138,.75);font-weight:700;font-size:.85rem;margin-bottom:10px">🛡️ 消费者权益保障</div>
         <div style="font-size:.78rem;color:rgba(255,255,255,.45);line-height:2">
-          ► <strong style="color:rgba(255,255,255,.6)">服務內容</strong>：依据您所抽取的牌卡组合，提供个人化的深度文字解读报告（约 800-2,500 字）<br>
-          ► <strong style="color:rgba(255,255,255,.6)">交付方式</strong>：透过 LINE 官方帳号以文字讯息交付，可永久保存於对话纪录中<br>
-          ► <strong style="color:rgba(255,255,255,.6)">延伸提问</strong>：解读交付後，如有看不懂的部分，可延伸提问 <strong style="color:rgba(240,212,138,.7)">3 次</strong>，不另收费<br>
-          ► <strong style="color:rgba(255,255,255,.6)">退款政策</strong>：付款後尚未收到解读报告前，可申请全額退款。解读报告交付後恕不退费，因每份报告皆为針对您的牌卡组合独立撰写<br>
-          ► <strong style="color:rgba(255,255,255,.6)">隐私保护</strong>：您的个人资料与抽牌內容仅用於本次解读服務，不会儲存、转载或分享给第三方<br>
-          ► <strong style="color:rgba(255,255,255,.6)">服務提供者</strong>：馥灵之钥国际有限公司（统编：60303284）<br>
-          ► <strong style="color:rgba(255,255,255,.6)">联络方式</strong>：LINE 官方帳号 <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" style="color:rgba(240,212,138,.6);text-decoration:underline">@hourlight</a>｜Email：info@hourlightkey.com
+          ► <strong style="color:rgba(255,255,255,.6)">服务内容</strong>：依您所抽牌卡组合，由 AI 即时生成个人化深度文字解读（3 张约 1,000–1,500 字／5 张约 2,000–2,500 字／7 张约 3,000–3,500 字）<br>
+          ► <strong style="color:rgba(255,255,255,.6)">交付方式</strong>：付款後 30-60 秒网页显示；同步存档于会员中心，登入後可永久回看<br>
+          ► <strong style="color:rgba(255,255,255,.6)">退款政策</strong>：AI 解读为即时生成，一旦成功生成即不予退款。如遇系统异常未成功生成，请联系客服全额退款<br>
+          ► <strong style="color:rgba(255,255,255,.6)">隐私保护</strong>：您的个人资料与抽牌内容仅用于本次 AI 解读，不会储存、转载或分享给第三方<br>
+          ► <strong style="color:rgba(255,255,255,.6)">服务提供者</strong>：馥灵之钥国际有限公司（统编：60303284）<br>
+          ► <strong style="color:rgba(255,255,255,.6)">客服联络</strong>：LINE <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" style="color:rgba(240,212,138,.6);text-decoration:underline">@hourlight</a>｜Email：info@hourlightkey.com
         </div>
         <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.04);font-size:.75rem;color:rgba(255,255,255,.3);line-height:1.8">
-          📌 本服務为「个人觉察輔助工具」，非心理咨商、医疗诊断或投资建议。牌卡解读結果仅供自我觉察參考，不应作为重大人生决策的唯一依据。
+          📌 本服务为「个人觉察辅助工具」，非心理咨商、医疗诊断或投资建议。AI 解读结果仅供自我觉察参考，不应作为重大人生决策的唯一依据。
         </div>
       </div>
     </div>
@@ -2035,6 +2014,8 @@ function payOnlinePayUni() {
   var codeFromUrl = params.get('code');
 
   if (payment === 'success' && codeFromUrl) {
+    // 清掉 sessionStorage 舊代碼，避免自動觸發舊碼
+    window._lastUsedUnlockCode = null;
     // 等 firebase auth 與 cardData 載入
     var tries = 0;
     var poll = setInterval(function(){
@@ -2135,8 +2116,9 @@ function showAISection(n) {
       }
     }
   } else if (n >= 9) {
-    document.getElementById('aiPractitionerBlock').style.display = 'block';
-    document.getElementById('aiSectionTitle').textContent = '🌿 覺察師深度解讀（' + n + ' 張）';
+    // 9 張以上只需看牌卡，不顯示 AI 解讀區塊
+    sec.style.display = 'none';
+    return;
   }
 
   // 滾動到 AI 區塊
@@ -2313,11 +2295,11 @@ async function triggerAIReading() {
       document.getElementById('aiLoadingBlock').style.display = 'none';
 
       if (data.needCode || data.invalidCode || data.usedCode || data.wrongN) {
-        // 解鎖碼問題 → 回到輸入畫面
+        window._lastUsedUnlockCode = null; // 清掉失效代码
         if (n > 1) {
           document.getElementById('aiPaidBlock').style.display = 'block';
         }
-        showAIError(data.error || '解鎖碼無效');
+        showAIError(data.error || '解锁码无效');
         return;
       }
 
@@ -2327,7 +2309,8 @@ async function triggerAIReading() {
       return;
     }
 
-    // 成功 → 顯示結果
+    // 成功 → 顯示結果；清掉 sessionStorage 避免重載再次觸發
+    window._lastUsedUnlockCode = null;
     document.getElementById('aiLoadingBlock').style.display = 'none';
     document.getElementById('aiResultBlock').style.display = 'block';
     document.getElementById('aiResultTitle').textContent = data.spread || 'AI 解讀結果';
