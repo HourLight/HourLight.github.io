@@ -419,11 +419,24 @@ function runReading(){
     }
     return;
   }
-  // 付款牆攔截
+  // 付款牆攔截（onProceed 補上：付款/驗碼成功後自動觸發 AI 解讀）
   if(typeof hlPaywall!=='undefined'){
     var frPriceMap={3:199,5:399,7:599};
     if(frPriceMap[currentSpread]){
-      hlPaywall.show({n:currentSpread,priceMap:frPriceMap,serviceName:'家族覺察智慧解讀'});
+      hlPaywall.show({
+        n:currentSpread,
+        priceMap:frPriceMap,
+        serviceName:'家族覺察智慧解讀',
+        productCategory:'family',
+        pageType:'family',
+        onProceed:function(){
+          if(typeof hlAIGateCheck==='function'){
+            hlAIGateCheck(function(){ _runReadingOriginal(); });
+          }else{
+            _runReadingOriginal();
+          }
+        }
+      });
       return;
     }
   }
