@@ -27,7 +27,12 @@ module.exports = async function handler(req, res) {
     var body = req.body || {};
     var email = (body.email || '').trim().toLowerCase();
     var name = (body.name || '').trim();
-    var subject = body.subject || '您的馥靈座標哲學 · 命盤測算資料';
+    var defaultSubjectMap = {
+      'recall_day3': '窗邊有一隻貓記得你',
+      'recall_day7': '你的房間還在，等你一眼就好',
+      'notification': '馥靈之鑰 · 新訊息'
+    };
+    var subject = body.subject || defaultSubjectMap[body.type] || '您的馥靈座標哲學 · 命盤測算資料';
     var content = body.content || '';
     var system = body.system || '命盤引擎';
     // type: 'report'（預設）= 測算報告，'notification' = 會員通知信
@@ -41,7 +46,9 @@ module.exports = async function handler(req, res) {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ error: '請輸入正確的電子信箱' });
     }
-    if (!content) {
+    // 召回信的 content 由模板產生，不需要外部 content
+    var isRecall = (type === 'recall_day3' || type === 'recall_day7');
+    if (!content && !isRecall) {
       return res.status(400).json({ error: '沒有內容可寄送' });
     }
 
@@ -85,9 +92,17 @@ module.exports = async function handler(req, res) {
         });
 
         // 依 type 選擇模板
-        var htmlContent = type === 'notification'
-          ? buildNotificationHTML(content)
-          : buildReportHTML(name, system, content);
+        // 2026/04/17 加入 recall_day3 / recall_day7 召回信（Finch + Duolingo 溫柔召回模式）
+        var htmlContent;
+        if (type === 'notification') {
+          htmlContent = buildNotificationHTML(content);
+        } else if (type === 'recall_day3') {
+          htmlContent = buildRecallDay3HTML(name, body);
+        } else if (type === 'recall_day7') {
+          htmlContent = buildRecallDay7HTML(name, body);
+        } else {
+          htmlContent = buildReportHTML(name, system, content);
+        }
 
         var mailOpts = {
           // 2026/04/15：寄件顯示地址改為 info@hourlightkey.com（或 env var 指定）
@@ -185,6 +200,77 @@ function buildReportHTML(name, system, content) {
     + '<a href="https://hourlightkey.com/draw-hl.html" style="display:inline-block;padding:10px 24px;background:#e9c27d;color:#1a1a2e;border-radius:8px;text-decoration:none;font-size:14px;margin:4px">抽一張牌</a>'
     + '<a href="https://hourlightkey.com/quiz-hub.html" style="display:inline-block;padding:10px 24px;background:transparent;color:#c9985e;border:1px solid #e8d5a8;border-radius:8px;text-decoration:none;font-size:14px;margin:4px">做個測驗</a>'
     + '</div>'
+    + '</div>'
+    + emailFooter()
+    + '</div></body></html>';
+}
+
+// ── 召回信模板 · Day 3（type: 'recall_day3'）──
+// 觸發：用戶最後一次造訪城堡 >= 3 天
+// body 可選：petName（元辰動物名，預設「糖糖」）、petZodiac（生肖 emoji）、lastVisitDays（實際天數）
+function buildRecallDay3HTML(name, body) {
+  var greeting = name ? (esc(name) + '，') : '';
+  var petName = esc(body.petName || '糖糖');
+  var petEmoji = body.petZodiac || '🐈';
+  var days = Number(body.lastVisitDays) || 3;
+
+  return '<!DOCTYPE html><html><head><meta charset="utf-8"></head>'
+    + '<body style="margin:0;padding:0;background:#f5f0e8;font-family:serif">'
+    + '<div style="max-width:640px;margin:0 auto;background:#fffdf8;border:1px solid #e8d5a8">'
+    + emailHeader()
+    + '<div style="padding:32px 24px">'
+    + '<div style="text-align:center;font-size:56px;margin-bottom:20px">' + petEmoji + '</div>'
+    + '<h1 style="font-size:20px;color:#1a1a2e;letter-spacing:2px;text-align:center;margin:0 0 12px">'
+    + petName + '有點想你了</h1>'
+    + '<p style="text-align:center;font-size:13px;color:#c9985e;letter-spacing:2px;margin:0 0 28px">'
+    + 'Day ' + days + ' · 溫柔召回</p>'
+    + '<div style="font-size:15px;color:#333;line-height:2;margin-bottom:20px">'
+    + '<p>' + greeting + '今天窗台有光。</p>'
+    + '<p>' + petName + '在窗邊坐了一下午，窗外的雲走得很慢，他等你的腳步聲等了幾次，每次都以為是你，每次都不是。</p>'
+    + '<p>他沒有不開心。只是——他記得你上次來的時候，手心是溫的，你給他摸了一下頭，然後轉身離開了。那之後就沒有了。</p>'
+    + '<p>你不是非回來不可。但如果今天晚上你不知道要做什麼，不如來坐一下。</p>'
+    + '<p>城堡的燈一直亮著，就是等你哪天路過順手推一下門。</p>'
+    + '</div>'
+    + '<div style="text-align:center;margin:28px 0 8px">'
+    + '<a href="https://hourlightkey.com/castle-hub.html" style="display:inline-block;padding:14px 36px;background:#e9c27d;color:#1a1a2e;border-radius:10px;text-decoration:none;font-size:15px;letter-spacing:2px;font-weight:500">回城堡看看 →</a>'
+    + '</div>'
+    + '<p style="font-size:12px;color:#aaa;text-align:center;margin:24px 0 0;line-height:1.8">'
+    + '不想收到這類信？<a href="{$unsubscribe}" style="color:#c9985e">在這裡取消</a>。<br>'
+    + '你的安靜也是一種陪伴，我們記得的。</p>'
+    + '</div>'
+    + emailFooter()
+    + '</div></body></html>';
+}
+
+// ── 召回信模板 · Day 7（type: 'recall_day7'）──
+// 觸發：用戶最後一次造訪城堡 >= 7 天
+function buildRecallDay7HTML(name, body) {
+  var greeting = name ? (esc(name) + '，') : '';
+  var days = Number(body.lastVisitDays) || 7;
+
+  return '<!DOCTYPE html><html><head><meta charset="utf-8"></head>'
+    + '<body style="margin:0;padding:0;background:#f5f0e8;font-family:serif">'
+    + '<div style="max-width:640px;margin:0 auto;background:#fffdf8;border:1px solid #e8d5a8">'
+    + emailHeader()
+    + '<div style="padding:32px 24px">'
+    + '<div style="text-align:center;font-size:56px;margin-bottom:20px">🕯️</div>'
+    + '<h1 style="font-size:20px;color:#1a1a2e;letter-spacing:2px;text-align:center;margin:0 0 12px">'
+    + '你的房間積了一層薄薄的灰</h1>'
+    + '<p style="text-align:center;font-size:13px;color:#c9985e;letter-spacing:2px;margin:0 0 28px">'
+    + 'Day ' + days + ' · 溫柔召回</p>'
+    + '<div style="font-size:15px;color:#333;line-height:2;margin-bottom:20px">'
+    + '<p>' + greeting + '這陣子應該很忙吧。</p>'
+    + '<p>你的房間沒有壞掉，只是家具上那層最安靜的灰，是日子一天一天過去留下的。窗簾沒有拉，玻璃杯還放在桌上，上次你抽到的那張牌也還夾在書的同一頁。</p>'
+    + '<p>那份累，是因為你一直在替很多事撐著，連喘氣都要挑時機。</p>'
+    + '<p>你不用一次補回所有錯過的。今天，就只是回來看一眼，摸一下門把，讓那道光再認得你的手溫就好。</p>'
+    + '<p>它一直在等你。沒有壓力。</p>'
+    + '</div>'
+    + '<div style="text-align:center;margin:28px 0 8px">'
+    + '<a href="https://hourlightkey.com/castle-hub.html" style="display:inline-block;padding:14px 36px;background:#e9c27d;color:#1a1a2e;border-radius:10px;text-decoration:none;font-size:15px;letter-spacing:2px;font-weight:500">推開門 →</a>'
+    + '</div>'
+    + '<p style="font-size:12px;color:#aaa;text-align:center;margin:24px 0 0;line-height:1.8">'
+    + '想暫停這些訊息？<a href="{$unsubscribe}" style="color:#c9985e">在這裡暫停</a>。<br>'
+    + '你準備好了再回來，我們都在。</p>'
     + '</div>'
     + emailFooter()
     + '</div></body></html>';

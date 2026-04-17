@@ -411,6 +411,12 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
     dropScript.src = basePath + 'hl-site-drop.js';
     dropScript.defer = true;
     document.body.appendChild(dropScript);
+
+    // ── 溫柔召回（Day 3 / Day 7）自動掛鉤 ──
+    var recallScript = document.createElement('script');
+    recallScript.src = basePath + 'hl-recall.js';
+    recallScript.defer = true;
+    document.body.appendChild(recallScript);
   })();
 
 })();
