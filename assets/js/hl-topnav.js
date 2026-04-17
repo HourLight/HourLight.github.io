@@ -45,7 +45,7 @@
 .htn-dropdown a{display:block;color:rgba(244,240,235,.75);font-size:.85rem;padding:13px 14px;border-radius:10px;text-decoration:none;letter-spacing:.05em;transition:all .2s;min-height:44px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .htn-dropdown a:hover,.htn-dropdown a.active{color:#f0d48a;background:rgba(240,212,138,.05)}
 .htn-dropdown .htn-group{font-size:.7rem;color:rgba(200,188,170,.4);letter-spacing:.12em;padding:14px 14px 6px;text-transform:uppercase}
-@media(max-width:860px){
+@media(max-width:768px){
   .htn-links{display:none}
   .htn-menu-btn{display:block}
 }
@@ -87,14 +87,15 @@
     ]}
   ];
 
-  // Quick links for desktop — 精簡 6 個
+  // Quick links for desktop
   var QUICK = [
     {label:'首頁', href:'index.html'},
-    {label:'服務項目', href:'services.html'},
-    {label:'服務價目', href:'pricing.html'},
-    {label:'線上預約', href:'booking.html'},
-    {label:'創辦人', href:'founder.html'},
-    {label:'著作', href:'book.html'},
+    {label:'命盤引擎', href:'destiny-engine.html'},
+    {label:'合盤', href:'destiny-match.html'},
+    {label:'馥靈秘碼', href:'fuling-mima.html'},
+    {label:'抽牌', href:'draw-hl.html'},
+    {label:'測驗', href:'quiz-hub.html'},
+    {label:'地圖', href:'hourlight-sitemap.html'},
   ];
 
   // Build
