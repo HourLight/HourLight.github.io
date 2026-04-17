@@ -36,9 +36,6 @@
 
   var DAILY_LIMITS = { 'free': 3, 'plus': 10, 'pro': Infinity };
 
-  // 本次頁面載入內已成功抽過的工具，重複點不再扣次數
-  var _sessionDrawn = {};
-
   function getDayKey(){
     var n = new Date();
     var tw = new Date(n.getTime() + 8 * 3600000);
@@ -226,11 +223,6 @@
       callback = toolId;
       toolId = 'divination';
     }
-    // 同 session 內已抽過，直接放行不再扣次
-    if (_sessionDrawn[toolId]) {
-      if (callback) callback();
-      return;
-    }
     // 等 auth state ready 再判斷（修登入後仍彈窗 bug）
     waitAuthReady(function(user){
       if (!user) {
@@ -240,7 +232,6 @@
       getUserPlan(user.uid, function(plan){
         var limit = DAILY_LIMITS[plan] || DAILY_LIMITS['free'];
         if (limit === Infinity) {
-          _sessionDrawn[toolId] = true;
           if (callback) callback();
           recordUsage(user.uid, toolId);
           return;
