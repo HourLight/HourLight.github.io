@@ -1,5 +1,27 @@
 // ═══════════════════════════════════════
 // 馥靈之鑰 · 付款牆模組 hl-paywall.js v2.0
+// 2026-04-17 修「第二次 code 失效」bug：用 sessionStorage 保 _lastUsedUnlockCode
+//           不再只存記憶體，避免頁面切換時遺失。property getter/setter 同步自動寫。
+(function(){
+  try {
+    var _savedCode = sessionStorage.getItem('hl_last_unlock_code') || '';
+    var _currentCode = _savedCode;
+    Object.defineProperty(window, '_lastUsedUnlockCode', {
+      get: function(){ return _currentCode; },
+      set: function(v){
+        _currentCode = v || '';
+        try {
+          if (v) sessionStorage.setItem('hl_last_unlock_code', v);
+          else sessionStorage.removeItem('hl_last_unlock_code');
+        } catch(e){}
+      },
+      configurable: true
+    });
+  } catch(e) {
+    // 若瀏覽器禁用 sessionStorage，fallback 還是原本的記憶體變數
+  }
+})();
+
 // 在 AI 解讀觸發前攔截，顯示付款資訊
 // v2.0：加入 PAYUNi 線上付款（路徑 A）+ 保留代碼兌換（路徑 B）
 // © 2026 Hour Light International
