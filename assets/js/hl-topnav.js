@@ -170,3 +170,33 @@
   });
 
 })();
+
+// 全站圖片載入失敗防護（隱藏破圖，避免白屏破版）
+(function(){
+  function guardImgs(root){
+    (root || document).querySelectorAll('img:not([data-hl-guard])').forEach(function(img){
+      img.setAttribute('data-hl-guard','1');
+      if(!img.hasAttribute('onerror')){
+        img.addEventListener('error', function(){ this.style.display='none'; });
+      }
+    });
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', function(){ guardImgs(); });
+  } else {
+    guardImgs();
+  }
+  // 動態插入的圖片也能覆蓋
+  if(window.MutationObserver){
+    new MutationObserver(function(muts){
+      muts.forEach(function(m){
+        m.addedNodes.forEach(function(n){
+          if(n.nodeType===1){
+            if(n.tagName==='IMG') guardImgs(n.parentElement);
+            else if(n.querySelectorAll) guardImgs(n);
+          }
+        });
+      });
+    }).observe(document.body||document.documentElement,{childList:true,subtree:true});
+  }
+})();
