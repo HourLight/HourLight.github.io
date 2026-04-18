@@ -571,19 +571,25 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
       }
     }catch(e){}
 
-    var pct = Math.min(100, Math.round((visits / d.need) * 100));
-    var done = visits >= d.need;
+    // LV 制：每 3 次訪問升 1 級，無上限
+    var PER_LV = 3;
+    var lv = Math.floor(visits / PER_LV) + 1;
+    var remaining = visits % PER_LV;
+    var pct = Math.max(0, Math.min(100, Math.round(remaining / PER_LV * 100)));
+    if(visits > 0 && visits % PER_LV === 0){
+      lv = visits / PER_LV;
+      pct = 100;
+    }
 
     // 更新門卡片
-    var card = document.getElementById('door-'+d.id);
     var visitsEl = document.getElementById('visits-'+d.id);
     var barEl = document.getElementById('bar-'+d.id);
     var statusEl = document.getElementById('status-'+d.id);
 
-    if(visitsEl) visitsEl.textContent = visits + ' / ' + d.need + ' 次';
+    if(visitsEl) visitsEl.textContent = 'LV ' + lv + ' · 第 ' + visits + ' 次造訪';
     if(barEl) barEl.style.width = pct + '%';
 
-    if(done){
+    if(lv >= 3){
       if(statusEl) statusEl.textContent = '✨';
     } else if(visits > 0){
       if(statusEl) statusEl.textContent = '🚪';

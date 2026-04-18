@@ -392,17 +392,17 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
   <p class="hero-sub">每次探索都留下了什麼。<br>收集夠了，就可以合成。</p>
 </div>
 
-<!-- 收集進度 -->
+<!-- 收集進度（LV 制｜無止盡累積）-->
 <div class="progress-strip" id="progress-strip">
   <div class="prog-row">
-    <span class="prog-label">已收集材料</span>
+    <span class="prog-label">材料採集 <span id="prog-mat-lv" style="font-family:'Playfair Display',serif;font-weight:700;color:var(--gold);margin-left:6px">LV 1</span></span>
     <div class="prog-bar"><div class="prog-fill material" id="prog-mat" style="width:0%"></div></div>
-    <span class="prog-num" id="prog-mat-num">0/28</span>
+    <span class="prog-num" id="prog-mat-num">0</span>
   </div>
   <div class="prog-row">
-    <span class="prog-label">已合成傢具</span>
+    <span class="prog-label">傢具合成 <span id="prog-furn-lv" style="font-family:'Playfair Display',serif;font-weight:700;color:var(--gold);margin-left:6px">LV 1</span></span>
     <div class="prog-bar"><div class="prog-fill furniture" id="prog-furn" style="width:0%"></div></div>
-    <span class="prog-num" id="prog-furn-num">0/7</span>
+    <span class="prog-num" id="prog-furn-num">0</span>
   </div>
 </div>
 
@@ -763,16 +763,43 @@ function renderProgressBars(){
     });
   });
   if(totalMats === 0) totalMats = 28;
-  var matPct = Math.round(collectedMats / totalMats * 100);
-  document.getElementById('prog-mat').style.width = matPct + '%';
-  document.getElementById('prog-mat-num').textContent = collectedMats + '/' + totalMats;
 
+  // LV 制：累積材料總個數（不是種類），每 25 個升 1 級，無上限
+  var totalMatCount = 0;
+  Object.keys(inv).forEach(function(k){
+    var v = inv[k];
+    if(typeof v === 'number') totalMatCount += v;
+    else if(v && typeof v.count === 'number') totalMatCount += v.count;
+  });
+  var matLvInfo = _lvOf(totalMatCount, 25);
+  document.getElementById('prog-mat').style.width = matLvInfo.pct + '%';
+  document.getElementById('prog-mat-num').textContent = totalMatCount + '（已收 ' + collectedMats + '/' + totalMats + ' 種）';
+  var matLvEl = document.getElementById('prog-mat-lv');
+  if(matLvEl) matLvEl.textContent = 'LV ' + matLvInfo.lv;
+
+  // 傢具：每 2 件升 1 級，無上限
   var recipes = hlMaterial ? hlMaterial.getRecipes() : [];
   var totalFurn = recipes.length || 7;
   var ownedFurn = recipes.filter(function(r){return r.owned;}).length;
-  var furnPct = Math.round(ownedFurn / totalFurn * 100);
-  document.getElementById('prog-furn').style.width = furnPct + '%';
-  document.getElementById('prog-furn-num').textContent = ownedFurn + '/' + totalFurn;
+  var furnLvInfo = _lvOf(ownedFurn, 2);
+  document.getElementById('prog-furn').style.width = furnLvInfo.pct + '%';
+  document.getElementById('prog-furn-num').textContent = ownedFurn + ' 件';
+  var furnLvEl = document.getElementById('prog-furn-lv');
+  if(furnLvEl) furnLvEl.textContent = 'LV ' + furnLvInfo.lv;
+}
+
+// 共用：依累積值與每級門檻算 LV（無上限）
+function _lvOf(total, perLevel){
+  if(perLevel <= 0) perLevel = 10;
+  var lv = Math.floor(total / perLevel) + 1;
+  var remaining = total % perLevel;
+  var pct = Math.max(0, Math.min(100, Math.round(remaining / perLevel * 100)));
+  // 剛好達到升級邊界 → 顯示該級 100% 而非下一級 0%
+  if(total > 0 && total % perLevel === 0){
+    lv = Math.max(1, total / perLevel);
+    pct = 100;
+  }
+  return { lv: lv, pct: pct, remaining: remaining, perLevel: perLevel };
 }
 
 function renderZoneProgress(){
