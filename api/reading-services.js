@@ -2308,6 +2308,180 @@ async function handleMonthlyGift(req, res) {
 
 
 // ════════════════════════════════════════
+// Handler: 鉑金智慧煥顏前後對比 (?type=skin-compare)
+// ════════════════════════════════════════
+async function handleSkinCompare(req, res, apiKey) {
+  try {
+    var body = req.body || {};
+    var uid = (body.uid || '').trim();
+    var oldReportId = (body.oldReportId || '').trim();
+    var newReportId = (body.newReportId || '').trim();
+
+    if (!uid || !oldReportId || !newReportId) {
+      return res.status(400).json({ error: '缺少必要參數（uid / oldReportId / newReportId）' });
+    }
+    if (oldReportId === newReportId) {
+      return res.status(400).json({ error: '請選兩份不同的報告' });
+    }
+
+    var db = getFirestore();
+    if (!db) {
+      return res.status(500).json({ error: '資料庫未設定' });
+    }
+
+    // 讀兩份報告（先從 users 副本讀，fallback 全局 skin_reports）
+    async function getReport(rid) {
+      var userDoc = await db.collection('users').doc(uid)
+        .collection('skin_reports').doc(rid).get();
+      if (userDoc.exists) return userDoc.data();
+      var globalDoc = await db.collection('skin_reports').doc(rid).get();
+      if (globalDoc.exists) {
+        var gData = globalDoc.data();
+        if (gData.uid !== uid) {
+          throw new Error('報告歸屬不符');
+        }
+        return gData;
+      }
+      return null;
+    }
+
+    var oldR, newR;
+    try {
+      oldR = await getReport(oldReportId);
+      newR = await getReport(newReportId);
+    } catch (permErr) {
+      return res.status(403).json({ error: permErr.message });
+    }
+
+    if (!oldR || !newR) {
+      return res.status(404).json({ error: '找不到指定的報告' });
+    }
+
+    // 時間差
+    function toDate(ts) {
+      if (!ts) return null;
+      if (ts.toDate) return ts.toDate();
+      return new Date(ts);
+    }
+    var oldT = toDate(oldR.createdAt);
+    var newT = toDate(newR.createdAt);
+    if (oldT && newT && oldT > newT) {
+      var tmp = oldR; oldR = newR; newR = tmp;
+      var tmpT = oldT; oldT = newT; newT = tmpT;
+    }
+    var dayDiff = (oldT && newT)
+      ? Math.round(Math.abs(newT - oldT) / (1000 * 60 * 60 * 24))
+      : null;
+
+    var clientName = (newR.clientName || oldR.clientName || '').trim() || '這位客人';
+
+    // 組 prompt
+    var systemPrompt =
+      '你是 HOUR LIGHT 未來美容學苑旗下的鉑金智慧煥顏師，協助美業學員分析同一位客人前後兩份煥顏報告的肌膚變化。\n' +
+      '目的：客觀指出 28 天的差異，給客人看見自己的進步軌跡。\n\n' +
+      '格式：A4 半頁（300-400 字，4 段）\n' +
+      '禁忌詞：療癒 / 治癒 / 治療 / 媲美醫美 / 除皺 / 美白 / 「你不是 XXX，是 XXX」句型 / 宿命論\n' +
+      '語氣：淡的、不用力、主動語態、敬語「您」\n' +
+      '格式禁用：粗體 ** / 雙破折號 ——\n\n' +
+      '報告結構（按順序）：\n\n' +
+      '### 第 1 段｜客觀變化\n' +
+      '三點條列，每點一行。標記改善 ✓ / 持平 ○ / 需關注 ⚠。\n' +
+      '只講能從文字比對出來的事（膚況 / 毛孔 / 細紋 / 膚色 / 泛紅），不臆測沒提到的。\n\n' +
+      '### 第 2 段｜前次三個訊號的現況\n' +
+      '重讀前次「需要被照顧的三個訊號」，逐一評估本次報告有沒有改善。\n' +
+      '格式：\n' +
+      '訊號 1：[標題] → 改善 ✓ / 持平 ○ / 需關注 ⚠｜一行說明\n' +
+      '訊號 2：...\n' +
+      '訊號 3：...\n' +
+      '如果前次報告沒有明確三訊號結構，用本次報告的訊號反推前次有沒有進步。\n\n' +
+      '### 第 3 段｜下階段重點\n' +
+      '看狀況分兩種寫法：\n' +
+      '► 整體在進步 → 寫「維持期」的建議（頻率可以拉開 / 換季要注意）\n' +
+      '► 有新訊號出現 → 指出該優先處理的一件事 + 對應建議（若原報告有伊詩汀推薦，保持一致）\n\n' +
+      '### 第 4 段｜馥靈馥語\n' +
+      '1-2 行溫柔收尾。不煽情、不誇張、不雞湯。\n' +
+      '可以寫皮膚像什麼（Google Maps / 四季 / 土壤 / 時光這類生活比喻）。\n\n' +
+      '底部自動加免責聲明：\n' +
+      '━━━ 免責聲明 ━━━\n' +
+      '本分析為 AI 輔助評估，不取代專業醫療建議。\n' +
+      '若有持續性紅腫 / 異常斑塊 / 反覆發炎，請諮詢皮膚科醫師。\n' +
+      '━━━━━━━━━━━';
+
+    var userMessage =
+      '客人：' + clientName + '\n' +
+      '前次報告時間：' + (oldT ? oldT.toISOString().slice(0, 10) : '—') + '\n' +
+      '本次報告時間：' + (newT ? newT.toISOString().slice(0, 10) : '—') + '\n' +
+      '時距：' + (dayDiff !== null ? dayDiff + ' 天' : '未知') + '\n\n' +
+      '── 前次報告 ──\n' +
+      (oldR.report || '(無內容)') + '\n\n' +
+      '── 本次報告 ──\n' +
+      (newR.report || '(無內容)') + '\n\n' +
+      '請照系統指示產出 28 天變化分析，4 段 300-400 字。';
+
+    // 呼叫 Claude
+    var aiRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1500,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userMessage }]
+      })
+    });
+
+    var aiData = await aiRes.json();
+    if (!aiRes.ok) {
+      console.error('Anthropic error (skin-compare):', aiData);
+      return res.status(500).json({ error: '分析服務暫時無法使用' });
+    }
+
+    var comparison = '';
+    if (aiData.content) {
+      for (var i = 0; i < aiData.content.length; i++) {
+        if (aiData.content[i].text) comparison += aiData.content[i].text;
+      }
+    }
+    if (!comparison.trim()) {
+      return res.status(500).json({ error: '分析生成失敗，請重試' });
+    }
+
+    // 存 Firestore（歸檔）
+    try {
+      await db.collection('users').doc(uid)
+        .collection('skin_compares').add({
+          oldReportId: oldReportId,
+          newReportId: newReportId,
+          clientName: clientName,
+          dayDiff: dayDiff,
+          comparison: comparison,
+          tokens: (aiData.usage || {}).output_tokens || 0,
+          createdAt: new Date()
+        });
+    } catch (saveErr) {
+      console.warn('skin-compare save failed:', saveErr.message);
+    }
+
+    return res.status(200).json({
+      ok: true,
+      comparison: comparison,
+      dayDiff: dayDiff,
+      clientName: clientName,
+      usage: aiData.usage || {}
+    });
+
+  } catch (err) {
+    console.error('handleSkinCompare error:', err);
+    return res.status(500).json({ error: '系統錯誤：' + err.message });
+  }
+}
+
+
+// ════════════════════════════════════════
 // 主入口：路由分流
 // ════════════════════════════════════════
 module.exports = async function handler(req, res) {
@@ -2336,10 +2510,12 @@ module.exports = async function handler(req, res) {
         return await handleAbundancePrayer(req, res, apiKey);
       case 'monthly-gift':
         return await handleMonthlyGift(req, res);
+      case 'skin-compare':
+        return await handleSkinCompare(req, res, apiKey);
       default:
         return res.status(400).json({
-          error: '未指定服務類型，請使用 ?type=akashic|yuan-chen|past-life|name|wallpaper|abundance-prayer|monthly-gift',
-          availableTypes: ['akashic', 'yuan-chen', 'past-life', 'name', 'wallpaper', 'abundance-prayer']
+          error: '未指定服務類型，請使用 ?type=akashic|yuan-chen|past-life|name|wallpaper|abundance-prayer|monthly-gift|skin-compare',
+          availableTypes: ['akashic', 'yuan-chen', 'past-life', 'name', 'wallpaper', 'abundance-prayer', 'skin-compare']
         });
     }
   } catch (err) {
