@@ -346,6 +346,10 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
     <section class="glass">
       <h2>您想聽到多深的聲音？</h2>
       <p style="font-size:.9rem;color:var(--ink-s)">張數越多，面向越完整。問卷答案會和牌卡結果一起整合成完整解讀。</p>
+      <!-- 貓咪飼主早期精油安全提示（goScene 進入 scene5 時動態顯示） -->
+      <div id="catSpreadNotice" style="display:none;margin:12px 0 4px;padding:14px 18px;background:rgba(240,160,60,.06);border:1px solid rgba(240,160,60,.2);border-radius:12px;font-size:.82rem;color:rgba(240,160,60,.9);line-height:1.8">
+        🐱 偵測到貓咪飼主：AI 解讀時所有精油建議均已自動切換為貓咪安全版本，請放心。
+      </div>
       <div class="spread-grid">
         <div class="spread-card" onclick="selectSpread(3)"><span class="num">3</span><div class="name">🐾 寵物三塔</div><div class="desc">快速聚焦，三維度聆聽牠的一句話</div><div class="price">NT$199</div></div>
         <div class="spread-card" onclick="selectSpread(5)"><span class="num">5</span><div class="name">🐾 五感覺察</div><div class="desc">五個維度聆聽毛孩，找出什麼失衡了</div><div class="price">NT$399</div></div>
@@ -664,11 +668,15 @@ function initDraw(){
   });
 }
 
-// Override goScene(7) to also init draw
+// Override goScene(7) to also init draw; goScene(5) shows cat notice
 var _origGoScene=goScene;
 goScene=function(n){
   _origGoScene(n);
   if(n===7) setTimeout(initDraw,500);
+  if(n===5){
+    var notice=document.getElementById('catSpreadNotice');
+    if(notice) notice.style.display=detectCat()?'block':'none';
+  }
 };
 
 // ══════ AI Reading ══════
