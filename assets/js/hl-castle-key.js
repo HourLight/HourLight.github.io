@@ -901,13 +901,11 @@
       if(!this.hasKey(roomId))return{ok:false,reason:'no_key'};
       if(!this.canOpen())return{ok:false,reason:'daily_full'};
       state.daily[roomId]='done';
-      // 2026/04/15 點數下修（真金白銀兌換，不能過量）
-      // 基礎 2→1，streak bonus +2→+1，首次進房 +5→+3
-      // 最高 9 點/房 → 5 點/房；每天 3 房最高從 27→15 點
+      // 2026/04/19 逸君回報：一間 6 點 × 17 間 = 102 點/天 破平衡
+      // 砍成固定 1 點/房，不管 streak 不管首次，17 房最多 17 點/天
       var pts=1;
-      if(state.streak>1)pts+=1;
       var first=!state.milestones[roomId];
-      if(first){pts+=3;state.milestones[roomId]=true;}
+      if(first) state.milestones[roomId]=true; // 保留里程碑紀錄但不加分
       state.points+=pts;
       state.totalRooms=(state.totalRooms||0)+1;
       if(question&&answer)appendDiary(roomId,question,answer,insight||'');

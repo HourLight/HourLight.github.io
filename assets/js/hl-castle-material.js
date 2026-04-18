@@ -890,11 +890,10 @@
       rarity: item.rarity, zone: item.zone
     });
 
-    // 觸發 hl-castle-key 點數（掉到稀有材料加點）
+    // 觸發 hl-castle-key 點數（2026/04/19 平衡下修：material 本身就是獎勵，只稀有以上加少量）
     if(window.hlCastle){
-      if(item.rarity === 'rare')      window.hlCastle.addPoints(3);
-      if(item.rarity === 'epic')      window.hlCastle.addPoints(6);
-      if(item.rarity === 'legendary') window.hlCastle.addPoints(10);
+      if(item.rarity === 'epic')      window.hlCastle.addPoints(1);
+      if(item.rarity === 'legendary') window.hlCastle.addPoints(2);
     }
 
     return { ok:true, item:item, newCount: state.inventory[item.id] };
@@ -934,8 +933,8 @@
 
     saveMaterials(state);
 
-    // 成就加點
-    if(window.hlCastle) window.hlCastle.addPoints(20);
+    // 成就加點（2026/04/19 平衡下修：合成傢具 20→3）
+    if(window.hlCastle) window.hlCastle.addPoints(3);
 
     return { ok:true, recipe:recipe };
   }
@@ -1584,7 +1583,7 @@
       if(!mat) return;
       state.inventory[mat.id] = (state.inventory[mat.id] || 0) + 1;
       state.dailyDrops[key] = 1;
-      if(window.hlCastle) window.hlCastle.addPoints(5); // 節氣加 5 點
+      if(window.hlCastle) window.hlCastle.addPoints(1); // 節氣事件 2026/04/19 平衡下修 5→1
       saveMaterials(state);
       // 特別顯示節氣 toast
       showDropToast(Object.assign({}, mat, { name: ev.name + '｜' + mat.name }));
