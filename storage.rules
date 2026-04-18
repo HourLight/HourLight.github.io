@@ -1,0 +1,47 @@
+rules_version = '2';
+
+// ═══════════════════════════════════════
+// Firebase Storage Rules · hourlight-key
+// 2026-04-18 · 鉑金智慧煥顏 Storage 上線
+// ═══════════════════════════════════════
+//
+// 部署方式：Firebase Console → Storage → Rules → 貼上這份內容 → 發佈
+// 或：firebase deploy --only storage
+//
+// 權限設計原則：
+// · 學員只能讀自己 uid 底下的照片
+// · 寫入一律由後端 Admin SDK 執行（前端不能直接上傳）
+// · admin 白名單（逸君）可全讀全寫，做客服 / 備份 / 稽核用
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email in [
+          'judyanee@gmail.com',
+          'info@hourlightkey.com',
+          'judyanee@hotmail.com'
+        ];
+    }
+
+    // 鉑金智慧煥顏照片：skin_reports/{uid}/{reportId}/{n}.jpg
+    // 讀：學員本人 或 admin
+    // 寫：禁止（只有 api/skin-diagnosis.js 用 Admin SDK 寫）
+    match /skin_reports/{uid}/{reportId}/{fileName} {
+      allow read: if request.auth != null
+        && (request.auth.uid == uid || isAdmin());
+      allow write: if false;
+    }
+
+    // admin 工具上傳區（未來 partner-dashboard 擴充預留）
+    match /admin/{allPaths=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // 預設：其他路徑全部禁止（未來擴充時個別開）
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

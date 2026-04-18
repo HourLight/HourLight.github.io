@@ -39,26 +39,64 @@
 //   FIREBASE_SERVICE_ACCOUNT（JSON 字串）
 // ═══════════════════════════════════════
 
-// ── Firebase Admin 懶載入 ──
+// ── Firebase Admin 懶載入（Firestore + Storage）──
 let adminDb = null;
+let adminBucket = null;
 
-function getFirestore() {
-  if (adminDb) return adminDb;
+function initAdmin() {
+  if (adminDb) return { db: adminDb, bucket: adminBucket };
   const SA_JSON = process.env.FIREBASE_SERVICE_ACCOUNT;
-  if (!SA_JSON) return null;
+  if (!SA_JSON) return { db: null, bucket: null };
   try {
     const admin = require('firebase-admin');
     if (!admin.apps.length) {
       admin.initializeApp({
-        credential: admin.credential.cert(JSON.parse(SA_JSON))
+        credential: admin.credential.cert(JSON.parse(SA_JSON)),
+        storageBucket: 'hourlight-key.firebasestorage.app'
       });
     }
     adminDb = admin.firestore();
-    return adminDb;
+    adminBucket = admin.storage().bucket();
+    return { db: adminDb, bucket: adminBucket };
   } catch (err) {
     console.error('Firebase Admin init error:', err.message);
-    return null;
+    return { db: null, bucket: null };
   }
+}
+
+function getFirestore() {
+  return initAdmin().db;
+}
+
+function getStorageBucket() {
+  return initAdmin().bucket;
+}
+
+// ── 照片上傳到 Firebase Storage（平行呼叫，失敗不 block 報告）──
+async function uploadImagesToStorage(images, uid, reportId) {
+  if (!uid || !reportId) return [];
+  const bucket = getStorageBucket();
+  if (!bucket) return [];
+  const paths = [];
+  const createdIso = new Date().toISOString();
+  for (let i = 0; i < images.length; i++) {
+    const clean = images[i].replace(/^data:image\/\w+;base64,/, '');
+    const buf = Buffer.from(clean, 'base64');
+    const path = `skin_reports/${uid}/${reportId}/${i + 1}.jpg`;
+    try {
+      await bucket.file(path).save(buf, {
+        metadata: {
+          contentType: 'image/jpeg',
+          metadata: { uid, reportId, createdAt: createdIso }
+        },
+        resumable: false
+      });
+      paths.push(path);
+    } catch (err) {
+      console.error('Storage upload failed for ' + path + ':', err.message);
+    }
+  }
+  return paths;
 }
 
 // ═══════════════════════════════════════
@@ -366,6 +404,19 @@ module.exports = async function handler(req, res) {
       }
     }
 
+    // ── 預生 reportId（用於 Storage path + Firestore doc ID）──
+    let reportId = null;
+    const _dbEarly = getFirestore();
+    if (_dbEarly) {
+      reportId = _dbEarly.collection('skin_reports').doc().id;
+    }
+
+    // ── 並行啟動 Storage 上傳（只在登入 uid 存在時存檔，匿名試用不存）──
+    // 平行跑：Claude Vision 處理 + Storage 上傳，節省 5-10 秒
+    const storageUploadPromise = (uid && reportId)
+      ? uploadImagesToStorage(images, uid, reportId)
+      : Promise.resolve([]);
+
     // ── 組合 User Message（含照片 + 客人資料）──
     const messageContent = [];
 
@@ -440,8 +491,15 @@ module.exports = async function handler(req, res) {
       return res.status(500).json({ error: '診斷生成失敗，請重新嘗試' });
     }
 
+    // ── 等 Storage 上傳完成（平行啟動 of Claude Vision）──
+    let storagePaths = [];
+    try {
+      storagePaths = await storageUploadPromise;
+    } catch (upErr) {
+      console.error('Storage upload resolve error:', upErr.message);
+    }
+
     // ── 存檔 Firestore ──
-    let reportId = null;
     try {
       const db2 = getFirestore();
       if (db2) {
@@ -453,6 +511,7 @@ module.exports = async function handler(req, res) {
           clientBirth: clientData.birth || '',
           complaint: clientData.complaint || '',
           imageCount: images.length,
+          storagePaths: storagePaths,
           report: reportText,
           unlockCode: unlockCode || '',
           isPaid: !!unlockCode,
@@ -460,8 +519,15 @@ module.exports = async function handler(req, res) {
           createdAt: new Date(),
           source: 'skin-diagnosis'
         };
-        const docRef = await db2.collection('skin_reports').add(reportDoc);
-        reportId = docRef.id;
+
+        if (reportId) {
+          // 用預生 reportId 寫入（跟 Storage path 對齊）
+          await db2.collection('skin_reports').doc(reportId).set(reportDoc);
+        } else {
+          // Fallback：沒預生就 add
+          const docRef = await db2.collection('skin_reports').add(reportDoc);
+          reportId = docRef.id;
+        }
 
         // 學員端副本：users/{uid}/skin_reports/{reportId}
         if (uid) {
@@ -515,6 +581,7 @@ module.exports = async function handler(req, res) {
       report: reportText,
       reportId: reportId || null,
       imageCount: images.length,
+      storagePaths: storagePaths,
       usage: data.usage || {}
     });
 
@@ -522,4 +589,10 @@ module.exports = async function handler(req, res) {
     console.error('skin-diagnosis error:', err);
     return res.status(500).json({ error: '系統錯誤，請稍後再試：' + err.message });
   }
+};
+
+// Vercel function config：Storage 上傳 + Claude Vision 平行最多 ~20s，給 30s buffer
+// Hobby plan 上限為 60 秒，保守給 30 秒避免部署風險
+module.exports.config = {
+  maxDuration: 30
 };
