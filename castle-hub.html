@@ -1012,54 +1012,55 @@ body.cv3-phase-night .cv3-keepsake-title, body.cv3-phase-midnight .cv3-keepsake-
     var ds = (castleData.dailyStats && castleData.dailyStats[TODAY]) || {};
     var exData = (castleData.cv3_exchange && castleData.cv3_exchange[TODAY]) || {};
     var exCount = (exData.common || 0) + (exData.rare || 0) + (exData.legendary || 0);
-    // 35 任務的 progressMap（部分沒 tracker hook 的會顯示 0，等手動完成才算）
+    // 35 任務的 progressMap（2026/4/19 拿掉 cap，讓實際次數流動；done 由 target 判定）
     var progressMap = {
-      visit3rooms:   Math.min(roomsVisited, 3),
-      visit5rooms:   Math.min(roomsVisited, 5),
-      visit_all:     Math.min(roomsVisited, 17),
-      event3:        Math.min(hiddenFound, 3),
-      event5:        Math.min(hiddenFound, 5),
-      draw3cards:    Math.min(ds.draws || 0, 3),
-      draw5cards:    Math.min(ds.draws || 0, 5),
-      draw_spread:   Math.min(ds.draws || 0, 1),
-      draw_tarot:    Math.min(ds.draws || 0, 1),
-      draw_angel:    Math.min(ds.draws || 0, 1),
-      quiz1:         Math.min(ds.quizzes || 0, 1),
-      quiz2:         Math.min(ds.quizzes || 0, 2),
-      quiz_mbti:     Math.min(ds.quizzes || 0, 1),
-      quiz_awareness:Math.min(ds.quizzes || 0, 1),
-      destiny_run:   Math.min(ds.destiny || 0, 1),
-      destiny2:      Math.min(ds.destiny || 0, 2),
-      destiny_match: Math.min(ds.destiny_match || 0, 1),
-      fuling_mima:   Math.min(ds.destiny || 0, 1),
-      furniture1:    Math.min(ds.furniture || 0, 1),
-      furniture2:    Math.min(ds.furniture || 0, 2),
-      upgrade_room:  Math.min(ds.furniture || 0, 1),  // 代用統計
-      collect_rare:  Math.min(3, 0),  // 待實作：材料統計
-      exchange_mat:  Math.min(exCount, 1),
-      feed_pet:      Math.min(ds.pet_feed || 0, 1),
-      pet_play:      Math.min(ds.pet_feed || 0, 1),
-      pet_communicate:Math.min(ds.draws || 0, 1),
-      share_castle:  Math.min(ds.share || 0, 1),
-      share_result:  Math.min(ds.share || 0, 1),
-      invite_friend: Math.min(ds.share || 0, 1),
-      breathe3:      Math.min(ds.breathe || 0, 1),
-      write_journal: Math.min(ds.journal || 0, 1),
-      oil_today:     Math.min(ds.aroma || 0, 1),
-      meditation:    Math.min(ds.meditation || 0, 1),
+      visit3rooms:   roomsVisited,
+      visit5rooms:   roomsVisited,
+      visit_all:     roomsVisited,
+      event3:        hiddenFound,
+      event5:        hiddenFound,
+      draw3cards:    ds.draws || 0,
+      draw5cards:    ds.draws || 0,
+      draw_spread:   ds.draws || 0,
+      draw_tarot:    ds.draws || 0,
+      draw_angel:    ds.draws || 0,
+      quiz1:         ds.quizzes || 0,
+      quiz2:         ds.quizzes || 0,
+      quiz_mbti:     ds.quizzes || 0,
+      quiz_awareness:ds.quizzes || 0,
+      destiny_run:   ds.destiny || 0,
+      destiny2:      ds.destiny || 0,
+      destiny_match: ds.destiny_match || 0,
+      fuling_mima:   ds.destiny || 0,
+      furniture1:    ds.furniture || 0,
+      furniture2:    ds.furniture || 0,
+      upgrade_room:  ds.furniture || 0,
+      collect_rare:  0,  // 待實作：材料統計
+      exchange_mat:  exCount,
+      feed_pet:      ds.pet_feed || 0,
+      pet_play:      ds.pet_feed || 0,
+      pet_communicate:ds.draws || 0,
+      share_castle:  ds.share || 0,
+      share_result:  ds.share || 0,
+      invite_friend: ds.share || 0,
+      breathe3:      ds.breathe || 0,
+      write_journal: ds.journal || 0,
+      oil_today:     ds.aroma || 0,
+      meditation:    ds.meditation || 0,
       all_quests:    0,  // meta 任務：計算其他三任務完成數
-      midnight_visit:Math.min(roomsVisited, 1),  // TODO: 判斷時辰
-      dawn_visit:    Math.min(roomsVisited, 1)
+      midnight_visit:roomsVisited,  // TODO: 判斷時辰
+      dawn_visit:    roomsVisited
     };
 
     var html = '';
     quests.forEach(function(q){
       var prog = progressMap[q.id] || 0;
       var done = prog >= q.target;
+      var displayProg = Math.min(prog, q.target);
       html += '<div class="cv3-quest-item' + (done ? ' cv3-quest-done' : '') + '">' +
         '<div class="cv3-quest-text">' + q.text + '</div>' +
         '<div style="text-align:right">' +
-          '<div class="cv3-quest-progress">' + prog + '/' + q.target + '</div>' +
+          '<div class="cv3-quest-progress">' + displayProg + '/' + q.target + '</div>' +
           '<div class="cv3-quest-reward">+' + q.reward.xp + 'xp · +' + q.reward.points + '點</div>' +
         '</div></div>';
     });
