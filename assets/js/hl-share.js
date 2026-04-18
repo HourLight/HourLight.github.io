@@ -583,13 +583,54 @@ window.shareToThreads=function(){
   else hashtags+=' #自我覺察 #了解自己';
   t+=hashtags;
 
-  try{
-    navigator.clipboard.writeText(t).then(function(){
-      var btn=event&&event.target;
-      if(btn){btn.textContent='✅ 已複製！貼到 Threads 發文';setTimeout(function(){btn.innerHTML='🧵 分享到 Threads';},3000);}
-    });
-  }catch(e){
-    var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
-    alert('已複製！貼到 Threads 發文');
+  var btn=event&&event.target;
+  var origLabel=btn?btn.innerHTML:'';
+  function resetBtn(label,ms){
+    if(!btn)return;
+    btn.textContent=label;
+    setTimeout(function(){btn.innerHTML=origLabel||'🧵 分享到 Threads';},ms||3000);
   }
+  var isMobile=/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  function openIntent(){
+    // Threads intent URL（手機會嘗試打開 Threads app，桌機開網頁版）
+    var intentURL='https://www.threads.net/intent/post?text='+encodeURIComponent(t);
+    window.open(intentURL,'_blank','noopener,noreferrer');
+  }
+  function copyFallback(){
+    try{
+      navigator.clipboard.writeText(t).then(function(){
+        openIntent();
+        resetBtn('✅ 已複製｜Threads 已開啟',4000);
+      }).catch(function(){ legacyCopy(); });
+    }catch(e){ legacyCopy(); }
+  }
+  function legacyCopy(){
+    var ta=document.createElement('textarea');
+    ta.value=t;
+    ta.style.position='fixed';ta.style.top='50%';ta.style.left='50%';ta.style.opacity='.01';
+    ta.setAttribute('readonly','');
+    document.body.appendChild(ta);
+    ta.select();
+    try{document.execCommand('copy');}catch(e){}
+    document.body.removeChild(ta);
+    openIntent();
+    resetBtn('✅ 已複製｜Threads 已開啟',4000);
+  }
+
+  // 手機優先走 Web Share API（系統分享選單：Threads/IG/LINE 都出現）
+  if(isMobile && navigator.share){
+    navigator.share({text:t}).then(function(){
+      resetBtn('✅ 已分享',3000);
+    }).catch(function(err){
+      // 使用者取消不視為錯誤
+      if(err && (err.name==='AbortError'||String(err).indexOf('cancel')>=0)){
+        resetBtn('🧵 分享到 Threads',1);
+        return;
+      }
+      copyFallback();
+    });
+    return;
+  }
+  copyFallback();
 };
