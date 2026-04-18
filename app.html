@@ -759,12 +759,15 @@ async function renderPersonalDashboard(){
     var byType={draw:0,quiz:0,calculator:0,oracle:0,explore:0,premium:0};
     var byTool={};
     var cardFreq={};
+    // 占卜類的 type 實際有 oracle / divination / tool 三種（scan 全站 data-tool-type 結果）
+    var ORACLE_TYPES={oracle:1,divination:1,tool:1};
 
     if(histSnap){
       histSnap.forEach(function(d){
         var x=d.data();
         var t=x.type||'other';
-        if(byType[t]!==undefined)byType[t]++;
+        if(ORACLE_TYPES[t])byType.oracle++;
+        else if(byType[t]!==undefined)byType[t]++;
         var tid=x.toolId||'other';
         if(tid!=='other'){byTool[tid]=(byTool[tid]||0)+1;}
         var obj=x.detail;

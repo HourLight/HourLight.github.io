@@ -799,10 +799,13 @@ async function renderPersonalDashboard(){
     const byTool={};
     const cardFreq={};
     let oldestTs=null;
+    // 占卜類實際 type: oracle / divination / tool（掃全站 data-tool-type 發現）
+    const ORACLE_TYPES={oracle:1,divination:1,tool:1};
     histSnap.forEach(d=>{
       const x=d.data();
       const t=x.type||'other';
-      byType[t]=(byType[t]||0)+1;
+      if(ORACLE_TYPES[t])byType.oracle=(byType.oracle||0)+1;
+      else byType[t]=(byType[t]||0)+1;
       const tid=x.toolId||'other';
       byTool[tid]=(byTool[tid]||0)+1;
       // 統計卡片（抽牌紀錄若有 cards array）
