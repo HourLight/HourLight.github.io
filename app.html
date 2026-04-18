@@ -845,6 +845,81 @@ async function renderPersonalDashboard(){
       tile('🎁',aiBonus,'AI 獎勵次數','來自各種累積')
     ].join('');
 
+    // ✦ 使用類型分布（SVG 柱狀圖）
+    var typeTotal=(byType.draw||0)+(byType.quiz||0)+(byType.calculator||0)+(byType.oracle||0);
+    if(typeTotal>0){
+      var typeData=[
+        {label:'🎴 抽牌',value:byType.draw||0,color:'#c9954a'},
+        {label:'🧩 測驗',value:byType.quiz||0,color:'#8a6dc8'},
+        {label:'🔮 命盤',value:byType.calculator||0,color:'#5588cc'},
+        {label:'✨ 占卜',value:byType.oracle||0,color:'#c97a6d'}
+      ];
+      var typeHtml='<div style="margin-top:22px;padding-top:18px;border-top:1px solid rgba(233,194,125,.15)">'
+        +'<div style="font-size:.88rem;color:var(--dark);font-weight:600;margin-bottom:14px">✦ 你的使用分布</div>'
+        +'<div style="display:flex;flex-direction:column;gap:12px">';
+      typeData.forEach(function(td){
+        var pct=typeTotal>0?Math.round(td.value/typeTotal*100):0;
+        typeHtml+='<div>'
+          +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:.82rem">'
+            +'<span style="color:var(--dark);font-weight:500">'+td.label+'</span>'
+            +'<span style="color:var(--mid);font-size:.78rem">'+td.value+' 次 · <span style="color:'+td.color+';font-weight:600">'+pct+'%</span></span>'
+          +'</div>'
+          +'<div style="height:12px;background:rgba(0,0,0,.05);border-radius:6px;overflow:hidden;position:relative">'
+            +'<div style="width:'+pct+'%;height:100%;background:linear-gradient(90deg,'+td.color+'aa,'+td.color+');border-radius:6px;transition:width 1s ease-out;box-shadow:0 0 8px '+td.color+'44"></div>'
+          +'</div>'
+        +'</div>';
+      });
+      typeHtml+='</div></div>';
+      totalsGrid.insertAdjacentHTML('afterend',typeHtml);
+    }
+
+    // ✦ 最近 90 天活躍熱度（GitHub 貢獻圖風）
+    if(histSnap||drawSnap){
+      var dayMap={};
+      var fill=function(snap,tsField){
+        if(!snap)return;
+        snap.forEach(function(d){
+          var x=d.data();
+          var t=x[tsField];
+          if(t&&t.toDate){
+            var ts=t.toDate();
+            var key=ts.toISOString().slice(0,10);
+            dayMap[key]=(dayMap[key]||0)+1;
+          }
+        });
+      };
+      fill(histSnap,'timestamp');
+      fill(drawSnap,'createdAt');
+      var heatHtml='<div style="margin-top:22px;padding-top:18px;border-top:1px solid rgba(233,194,125,.15)">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+          +'<div style="font-size:.88rem;color:var(--dark);font-weight:600">✦ 最近 90 天熱度</div>'
+          +'<div style="font-size:.7rem;color:var(--light);display:flex;gap:6px;align-items:center">少 '
+            +'<span style="display:inline-block;width:10px;height:10px;background:rgba(233,194,125,.08);border-radius:2px"></span>'
+            +'<span style="display:inline-block;width:10px;height:10px;background:rgba(200,150,80,.3);border-radius:2px"></span>'
+            +'<span style="display:inline-block;width:10px;height:10px;background:rgba(200,150,80,.6);border-radius:2px"></span>'
+            +'<span style="display:inline-block;width:10px;height:10px;background:#c9954a;border-radius:2px"></span>'
+            +' 多</div>'
+        +'</div>'
+        +'<div style="display:grid;grid-template-columns:repeat(30,1fr);gap:3px;margin-bottom:4px">';
+      var today=new Date();
+      for(var i=89;i>=0;i--){
+        var d=new Date(today);d.setDate(d.getDate()-i);
+        var key=d.toISOString().slice(0,10);
+        var cnt=dayMap[key]||0;
+        var bg='rgba(233,194,125,.08)';
+        if(cnt>=5)bg='#c9954a';
+        else if(cnt>=3)bg='rgba(200,150,80,.6)';
+        else if(cnt>=1)bg='rgba(200,150,80,.3)';
+        var dateStr=d.toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'});
+        heatHtml+='<div title="'+dateStr+' · '+cnt+' 次" style="aspect-ratio:1;background:'+bg+';border-radius:2px"></div>';
+      }
+      heatHtml+='</div>'
+        +'<div style="font-size:.7rem;color:var(--light);text-align:center;margin-top:4px">'
+        +'90 天前 ——————————— 今天</div>'
+        +'</div>';
+      totalsGrid.insertAdjacentHTML('afterend',heatHtml);
+    }
+
     var topTools=Object.entries(byTool).filter(function(e){return e[0]&&e[1]>0;}).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
     var topCards=Object.entries(cardFreq).sort(function(a,b){return b[1]-a[1];}).slice(0,3);
 
@@ -855,7 +930,7 @@ async function renderPersonalDashboard(){
       html+='<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">';
       topTools.forEach(function(row,i){
         var id=row[0], cnt=row[1];
-        var nm=(window.TOOL_NAMES&&window.TOOL_NAMES[id])||(id.indexOf('quiz-')===0?'心理測驗':id);
+        var nm=_resolveToolNameApp(id);
         var pct=Math.round(cnt/maxC*100);
         var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
         html+='<div style="display:flex;align-items:center;gap:12px">'
@@ -907,19 +982,48 @@ window.TOOL_NAMES=window.TOOL_NAMES||{
   'wealth-wallpaper':'能量桌布','draw-hl':'馥靈智慧牌',
   'draw-nail':'美甲能量牌','draw-spa':'SPA覺察牌',
   'draw-family':'家族覺察牌','draw-light':'光之牌',
-  'pet-reading':'寵物覺察','destiny-engine':'命盤引擎',
-  'destiny-match':'合盤配對','yijing-oracle':'易經占卜',
-  'phone-oracle':'手機號碼占卜','name-oracle':'姓名占卜',
-  'fuling-mima':'馥靈秘碼','bazi':'八字排盤','ziwei':'紫微斗數',
-  'astro':'西洋占星','hd':'人類圖','maya':'瑪雅曆',
-  'lifepath':'生命路徑','tarot-draw':'塔羅抽牌',
-  'angel-oracle':'天使神諭','bone-casting':'骨牌占卜',
-  'dream-decoder':'夢境解碼','mirror-oracle':'鏡像占卜',
-  'season-oracle':'季節占卜','witch-power':'女巫原力',
-  'projection-cards':'投射卡','triangle-calculator':'三角生命密碼',
-  'qizheng':'七政四餘','numerology':'生命靈數','yuan-chen':'元辰宮',
-  'akashic':'阿卡西紀錄','past-life':'前世故事'
+  'draw-manual':'實體牌卡紀錄','draw-body':'體態覺察牌',
+  'pet-reading':'寵物覺察','family-reading':'家族覺察解讀',
+  'destiny-engine':'命盤引擎','destiny-match':'合盤配對',
+  'yijing-oracle':'易經占卜','phone-oracle':'手機號碼占卜',
+  'name-oracle':'姓名占卜','fuling-mima':'馥靈秘碼',
+  'bazi':'八字排盤','bazi-calculator':'八字排盤',
+  'ziwei':'紫微斗數','ziwei-calculator':'紫微斗數',
+  'astro':'西洋占星','astro-calculator':'西洋占星',
+  'hd':'人類圖','hd-calculator':'人類圖',
+  'maya':'瑪雅曆','maya-calculator':'瑪雅曆',
+  'lifepath':'生命路徑','lifepath-calculator':'生命路徑',
+  'tarot-draw':'塔羅抽牌','angel-oracle':'天使神諭',
+  'bone-casting':'骨牌占卜','dream-decoder':'夢境解碼',
+  'mirror-oracle':'鏡像占卜','season-oracle':'季節占卜',
+  'witch-power':'女巫原力','projection-cards':'投射卡',
+  'triangle-calculator':'三角生命密碼',
+  'qizheng':'七政四餘','qizheng-calculator':'七政四餘',
+  'numerology':'生命靈數','numerology-calculator':'生命靈數',
+  'yuan-chen':'元辰宮','yuan-chen-reading':'元辰宮解讀',
+  'akashic':'阿卡西紀錄','akashic-reading':'阿卡西紀錄',
+  'past-life':'前世故事','poe-blocks':'擲杯占卜',
+  'aura-color':'靈氣色彩','qimen-dunjia':'奇門遁甲',
+  'runes-oracle':'盧恩占卜','chiron-lilith':'凱龍莉莉絲',
+  'aroma-daily':'今日精油','poker-oracle':'撲克占卜',
+  'mirror-scrying':'水晶球占卜','mbti-tarot':'MBTI塔羅',
+  'skin-diagnosis':'鉑金智慧煥顏','book-match':'書籍配對',
+  'fuling-fuyu':'馥靈馥語','rainbow-calculator':'彩虹數字',
+  'color-energy':'色彩能量','digital-energy-analyzer':'數字能量',
+  'compatibility':'相容度測驗','abundance-prayer':'豐盛祈禱',
+  'abundance-prayer-pro':'豐盛祈禱進階','fortune-wealth':'富命覺醒'
 };
+// 工具名稱 resolver（缺名時自動推斷）
+function _resolveToolNameApp(id){
+  if(!id)return '未命名';
+  if(window.TOOL_NAMES[id])return window.TOOL_NAMES[id];
+  if(id.indexOf('quiz-')===0)return '心理測驗';
+  if(id.indexOf('castle-')===0)return '城堡';
+  // 嘗試去除 suffix 再查
+  var stripped=id.replace(/-calculator$|-reading$|-oracle$|-tool$/,'');
+  if(window.TOOL_NAMES[stripped])return window.TOOL_NAMES[stripped];
+  return id;
+}
 
 /* ═══ 📜 會員端：我的解讀紀錄 ═══ */
 async function loadMyReadings(){
