@@ -889,6 +889,8 @@ function generateStory(code) {
       }
       error.style.display = 'block';
       error.textContent = result.data.error || '生成失敗，過一下再試試';
+      cta.style.display = 'block';
+      _resetRedeemBtn();
       return;
     }
 
@@ -900,8 +902,16 @@ function generateStory(code) {
     loading.style.display = 'none';
     error.style.display = 'block';
     error.textContent = '網路錯誤，過一下再試試';
+    cta.style.display = 'block';
+    _resetRedeemBtn();
     console.error('API error:', err);
   });
+}
+
+// 🔧 (2026/4/19) 網路失敗或 API 錯誤時 reset 兌換按鈕，避免卡住
+function _resetRedeemBtn(){
+  var btn = document.getElementById('ycRedeemBtn');
+  if (btn) { btn.disabled = false; btn.textContent = '兌換'; }
 }
 
 function renderStory(storyText) {
