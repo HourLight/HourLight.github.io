@@ -801,9 +801,15 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
         </div>
         <div class="pd-stat">
           <div class="stat-icon blue">👤</div>
-          <div class="stat-label">服務人次</div>
+          <div class="stat-label">服务人次</div>
           <div class="stat-value" id="statClients">-</div>
           <div class="stat-note" id="statClientsNote"></div>
+        </div>
+        <div class="pd-stat">
+          <div class="stat-icon gold">✨</div>
+          <div class="stat-label">焕颜次数</div>
+          <div class="stat-value" id="statSkinReports">-</div>
+          <div class="stat-note" id="statSkinReportsNote"></div>
         </div>
       </div>
 
@@ -1260,6 +1266,25 @@ async function loadOverviewData() {
     document.getElementById('statRevenue').textContent = 'NT$' + totalRevenue.toLocaleString();
     document.getElementById('statPending').textContent = 'NT$' + totalPending.toLocaleString();
     document.getElementById('statClients').textContent = totalClients;
+
+    /* 焕颜次数：读 users/{uid}/skin_reports */
+    try {
+      var skinQ = db.collection('users').doc(currentUser.uid).collection('skin_reports');
+      if (startDate) {
+        skinQ = skinQ
+          .where('createdAt', '>=', firebase.firestore.Timestamp.fromDate(startDate))
+          .where('createdAt', '<=', firebase.firestore.Timestamp.fromDate(endDate));
+      }
+      var skinSnap = await skinQ.get();
+      document.getElementById('statSkinReports').textContent = skinSnap.size;
+      var noteEl = document.getElementById('statSkinReportsNote');
+      if (noteEl) {
+        noteEl.textContent = skinSnap.size > 0 ? '本期产出' : '点合作工具 → 铂金智慧焕颜';
+      }
+    } catch (skinErr) {
+      console.warn('skin_reports query failed:', skinErr.message);
+      document.getElementById('statSkinReports').textContent = '-';
+    }
 
     /* Recent referrals (last 5) */
     recentList.sort(function(a, b) { return toMs(b.createdAt) - toMs(a.createdAt); });
