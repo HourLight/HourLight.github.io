@@ -832,9 +832,41 @@ main { max-width: 900px; margin: 0 auto; padding: 24px 20px 60px; }
         </select>
       </div>
     </div>
+    <div class="row">
+      <div>
+        <label>性別（分析參考）</label>
+        <select id="fGender">
+          <option value="">不填</option>
+          <option value="F">女性</option>
+          <option value="M">男性</option>
+        </select>
+      </div>
+      <div>
+        <label>出生時辰（若記得）</label>
+        <select id="fHour">
+          <option value="">不填</option>
+          <option value="0">子時（23-01）</option>
+          <option value="2">丑時（01-03）</option>
+          <option value="4">寅時（03-05）</option>
+          <option value="6">卯時（05-07）</option>
+          <option value="8">辰時（07-09）</option>
+          <option value="10">巳時（09-11）</option>
+          <option value="12">午時（11-13）</option>
+          <option value="14">未時（13-15）</option>
+          <option value="16">申時（15-17）</option>
+          <option value="18">酉時（17-19）</option>
+          <option value="20">戌時（19-21）</option>
+          <option value="22">亥時（21-23）</option>
+        </select>
+      </div>
+    </div>
     <div>
       <label>客人主訴（最近最困擾的膚況）</label>
       <textarea id="fComplaint" rows="2" placeholder="例：最近暗沉、眼周細紋、T 字區冒痘..."></textarea>
+    </div>
+    <div id="destinyStatus" style="margin-top:12px;font-size:.78rem;color:var(--ink-soft);letter-spacing:.04em;display:none">
+      <span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin-right:6px;vertical-align:middle"></span>
+      <span id="destinyStatusText">內部參考已就緒</span>
     </div>
   </div>
 
@@ -980,6 +1012,127 @@ main { max-width: 900px; margin: 0 auto; padding: 24px 20px 60px; }
   // 存照片 base64（slot 0/1/2）
   var photos = { 0: null, 1: null, 2: null };
 
+  // ── 命盤計算庫延遲載入（lunar.min.js + destiny-calc.js）──
+  var _destinyLibsLoading = null;
+  function ensureDestinyLibs() {
+    if (window.Solar && window.calcFL) return Promise.resolve(true);
+    if (_destinyLibsLoading) return _destinyLibsLoading;
+    _destinyLibsLoading = new Promise(function(resolve){
+      var s1 = document.createElement('script');
+      s1.src = 'js/lunar.min.js';
+      s1.onload = function() {
+        var s2 = document.createElement('script');
+        s2.src = 'js/destiny-calc.js';
+        s2.onload = function(){ resolve(true); };
+        s2.onerror = function(){ resolve(false); };
+        document.head.appendChild(s2);
+      };
+      s1.onerror = function(){ resolve(false); };
+      document.head.appendChild(s1);
+    });
+    return _destinyLibsLoading;
+  }
+
+  // ── 計算內在 context（7 套命理背景，客人端不顯示）──
+  function computeDestinyBackground(birthStr, hourStr, genderStr) {
+    return ensureDestinyLibs().then(function(ok){
+      if (!ok || !window.Solar || !window.calcFL) return null;
+      var m = (birthStr || '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+      if (!m) return null;
+      var Y = parseInt(m[1]), M = parseInt(m[2]), D = parseInt(m[3]);
+      var H = hourStr ? parseInt(hourStr) : 12;
+      var gender = genderStr || 'F';
+      try {
+        var solar = window.Solar.fromYmd(Y, M, D);
+        var lunar = solar.getLunar();
+        var lm = Math.abs(lunar.getMonth());
+        var ld = lunar.getDay();
+
+        var yGZ = lunar.getYearInGanZhi();
+        var TG = '甲乙丙丁戊己庚辛壬癸';
+        var DZ = '子丑寅卯辰巳午未申酉戌亥';
+        var ytI = TG.indexOf(yGZ[0]);
+        var yzI = DZ.indexOf(yGZ[1]);
+
+        var hzI = 0, hourGZ = '';
+        if (hourStr) {
+          try {
+            var sHms = window.Solar.fromYmdHms(Y, M, D, H, 0, 0);
+            var lHms = sHms.getLunar();
+            hourGZ = lHms.getTimeInGanZhi();
+            hzI = DZ.indexOf(hourGZ[1]);
+          } catch (e) {}
+        }
+
+        var result = {
+          birth: { Y: Y, M: M, D: D, lunarMonth: lm, lunarDay: ld },
+          gender: gender,
+          hasHour: !!hourStr,
+          yearGZ: yGZ,
+          hourGZ: hourGZ || null
+        };
+
+        // 紫微（疾厄宮 + 命宮主星）— 需要時辰才準
+        if (hourStr) {
+          try {
+            var zw = window.calcZiwei(lm, ld, ytI, yzI, hzI, gender);
+            result.ziwei = {
+              ming: (zw.palaces[0].ms || []).map(function(s){return s.n + (s.b ? '（' + s.b + '）' : '')}).join('、') || '—',
+              jieE: (zw.palaces[5].ms || []).map(function(s){return s.n + (s.b ? '（' + s.b + '）' : '')}).join('、') || '—',
+              juS: zw.juS || '—',
+              mzhu: zw.mzhu || '',
+              szhu: zw.szhu || ''
+            };
+          } catch (e) { console.warn('calcZiwei fail:', e.message); }
+        }
+
+        // 馥靈秘碼
+        try {
+          var fl = window.calcFL(lm, ld, Y, M, D, H);
+          result.fuling = {
+            H: fl.H.H, O: fl.H.O, U: fl.H.U, R: fl.H.R,
+            L: fl.L.L, I: fl.L.I, G: fl.L.G, fLH: fl.L.H, T: fl.L.T
+          };
+        } catch (e) { console.warn('calcFL fail:', e.message); }
+
+        // 生命靈數
+        try {
+          var num = window.calcNum(Y, M, D, H);
+          result.numerology = num;
+        } catch (e) {}
+
+        // 瑪雅
+        try { result.maya = window.calcMaya(Y, M, D); } catch (e) {}
+        // 生命密碼
+        try {
+          var tri = window.calcTri(Y, M, D);
+          result.triangle = { inner: tri.inner, sub: tri.sub, ext: tri.ext, I: tri.I, J: tri.J, K: tri.K, L: tri.L };
+        } catch (e) {}
+        // 生日色彩
+        try { result.birthColor = window.calcColor(Y, M, D); } catch (e) {}
+
+        // 時辰經絡（當下 + 出生）
+        var meridians = ['膽','肝','肺','大腸','胃','脾','心','小腸','膀胱','腎','心包','三焦'];
+        // 子午流注對照：23-01 膽、01-03 肝、03-05 肺、05-07 大腸、07-09 胃、09-11 脾、
+        // 11-13 心、13-15 小腸、15-17 膀胱、17-19 腎、19-21 心包、21-23 三焦
+        function hourToMeridian(h) {
+          var idx = Math.floor(((h + 1) % 24) / 2);
+          return meridians[idx];
+        }
+        var nowH = new Date().getHours();
+        result.currentMeridian = hourToMeridian(nowH);
+        if (hourStr) result.birthMeridian = hourToMeridian(H);
+
+        var statusEl = document.getElementById('destinyStatus');
+        if (statusEl) statusEl.style.display = 'block';
+        return result;
+      } catch (err) {
+        console.error('computeDestinyBackground failed:', err);
+        return null;
+      }
+    });
+  }
+
   function toast(msg) {
     var t = document.getElementById('toast');
     t.textContent = msg;
@@ -1096,7 +1249,9 @@ main { max-width: 900px; margin: 0 auto; padding: 24px 20px 60px; }
       age: parseInt(document.getElementById('fAge').value) || null,
       birth: document.getElementById('fBirth').value || '',
       complaint: document.getElementById('fComplaint').value.trim(),
-      season: document.getElementById('fSeason').value || ''
+      season: document.getElementById('fSeason').value || '',
+      gender: document.getElementById('fGender').value || '',
+      birthHour: document.getElementById('fHour').value || ''
     };
 
     // 檢查付費 / 計次
@@ -1191,16 +1346,25 @@ main { max-width: 900px; margin: 0 auto; padding: 24px 20px 60px; }
       return b64.replace(/^data:image\/\w+;base64,/, '');
     });
 
-    fetch(API_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        images: cleanImgs,
-        clientData: clientData,
-        unlockCode: unlockCode || '',
-        uid: uid,
-        email: email
-      })
+    // 若有生日，非同步計算內在 context（紫微/馥靈/靈數/瑪雅/生命密碼/生日色彩/經絡）
+    var destinyReady = clientData.birth
+      ? computeDestinyBackground(clientData.birth, clientData.birthHour, clientData.gender)
+          .then(function(d){ if (d) clientData.destiny = d; })
+          .catch(function(){})
+      : Promise.resolve();
+
+    destinyReady.then(function(){
+      return fetch(API_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          images: cleanImgs,
+          clientData: clientData,
+          unlockCode: unlockCode || '',
+          uid: uid,
+          email: email
+        })
+      });
     })
     .then(function(res){ return res.json().then(function(data){ return { status: res.status, data: data }; }); })
     .then(function(r){
