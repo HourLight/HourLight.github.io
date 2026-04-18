@@ -1911,22 +1911,34 @@ function doShareInvite(){
   if(window.hlCastle && hlCastle.shareBonus){ hlCastle.shareBonus(); upd(); }
 }
 
+// ═══ 共用：帶推薦碼的城堡分享 URL ═══
+function _castleShareUrl(){
+  var base = 'https://hourlightkey.com/castle-game.html';
+  if(window.hlReferral && typeof window.hlReferral.appendRefToUrl === 'function'){
+    return window.hlReferral.appendRefToUrl(base);
+  }
+  return base;
+}
+
 // ═══ FB 分享城堡 ═══
 function shareCastleToFB(){
-  var stats = (typeof getCastleStats === 'function') ? getCastleStats() : {rooms:0,totalRooms:9,materials:0};
-  var url = 'https://hourlightkey.com/castle-game.html';
-  var text = '🏰 我的內在城堡已探索 ' + stats.rooms + '/' + stats.totalRooms
-    + ' 間房間，收集了 ' + stats.materials + ' 種材料。你的城堡長什麼樣？來探索看看！';
-  // FB Sharer：u 是必填的網址，quote 是預填文字（FB 在 2018 後不再保證顯示，但留著當提示）
-  var fbUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url) + '&quote=' + encodeURIComponent(text);
-  // 同步把文案複製到剪貼簿，方便用戶貼到 FB 限動或貼文
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text + '\n' + url).catch(function(){});
-  }
-  window.open(fbUrl, '_blank', 'width=600,height=600');
-  if(window.hlCastle && hlCastle.shareBonus){ hlCastle.shareBonus(); upd(); }
-  if(typeof showGameToast === 'function'){
-    showGameToast('已開啟 Facebook', '文案已複製，可以直接貼到限動或貼文。');
+  try{
+    var stats = (typeof getCastleStats === 'function') ? getCastleStats() : {rooms:0,totalRooms:9,materials:0};
+    var url = _castleShareUrl();
+    var text = '🏰 我的內在城堡已探索 ' + stats.rooms + '/' + stats.totalRooms
+      + ' 間房間，收集了 ' + stats.materials + ' 種材料。你的城堡長什麼樣？來探索看看！';
+    var fbUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url) + '&quote=' + encodeURIComponent(text);
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text + '\n' + url).catch(function(){});
+    }
+    window.open(fbUrl, '_blank', 'width=600,height=600');
+    if(window.hlCastle && hlCastle.shareBonus){ hlCastle.shareBonus(); upd(); }
+    if(typeof showGameToast === 'function'){
+      showGameToast('已開啟 Facebook', '文案已複製，可以直接貼到限動或貼文。');
+    }
+  }catch(e){
+    console.warn('shareCastleToFB failed:', e);
+    alert('FB 分享失敗：' + e.message + '\n請改用「截圖分享」或「LINE」');
   }
 }
 
@@ -1956,16 +1968,38 @@ function shareCastleToIG(){
 
 // ═══ Threads 分享城堡 ═══
 function shareCastleToThreads(){
-  var stats = (typeof getCastleStats === 'function') ? getCastleStats() : {rooms:0,totalRooms:9,materials:0};
-  var text = '🏰 我的內在城堡已探索 ' + stats.rooms + '/' + stats.totalRooms
-    + ' 間房間，收集了 ' + stats.materials + ' 種材料。\n\n每天10分鐘，走進自己的城堡 ✨\n\n👉 hourlightkey.com/castle-game.html';
-  // Threads share intent
+  try{
+    var stats = (typeof getCastleStats === 'function') ? getCastleStats() : {rooms:0,totalRooms:9,materials:0};
+    var url = _castleShareUrl();
+    var text = '🏰 我的內在城堡已探索 ' + stats.rooms + '/' + stats.totalRooms
+      + ' 間房間，收集了 ' + stats.materials + ' 種材料。\n\n每天10分鐘，走進自己的城堡 ✨\n\n👉 ' + url;
+    var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if(isMobile && navigator.share){
+      navigator.share({text:text}).then(function(){
+        if(window.hlCastle && hlCastle.shareBonus){ hlCastle.shareBonus(); upd(); }
+      }).catch(function(err){
+        if(err && err.name === 'AbortError') return;
+        // fallback: intent + clipboard
+        _castleThreadsFallback(text);
+      });
+      return;
+    }
+    _castleThreadsFallback(text);
+  }catch(e){
+    console.warn('shareCastleToThreads failed:', e);
+    alert('Threads 分享失敗：' + e.message + '\n請改用「LINE」或「截圖分享」');
+  }
+}
+function _castleThreadsFallback(text){
   var threadsUrl = 'https://www.threads.net/intent/post?text=' + encodeURIComponent(text);
   if(navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(text).catch(function(){});
   }
   window.open(threadsUrl, '_blank');
   if(window.hlCastle && hlCastle.shareBonus){ hlCastle.shareBonus(); upd(); }
+  if(typeof showGameToast === 'function'){
+    showGameToast('已開啟 Threads', '文案已複製，貼上即可發文。');
+  }
 }
 </script>
 <script src="assets/js/hourlight-global.js?v=20260325"></script>
@@ -2626,6 +2660,7 @@ function getCastleStats(){
 }
 
 function shareCastleImage(){
+  try{
   var wrap = document.querySelector('.castle-wrap');
   if(!wrap){ alert('城堡尚未載入'); return; }
 
@@ -2634,11 +2669,12 @@ function shareCastleImage(){
     var s = document.createElement('script');
     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
     s.onload = function(){ shareCastleImage(); };
+    s.onerror = function(){ _castleImageFallback('html2canvas 載入失敗'); };
     document.head.appendChild(s);
     return;
   }
 
-  var stats = getCastleStats();
+  var stats = (typeof getCastleStats === 'function') ? getCastleStats() : {rooms:0,totalRooms:9,materials:0,totalMaterials:30,furniture:0,totalFurniture:10,streak:0};
 
   // 載入提示
   var toast = document.createElement('div');
@@ -2708,31 +2744,61 @@ function shareCastleImage(){
       ctx.fillText(line, finalW / 2, startY + i * lineH);
     });
 
-    // 品牌浮水印
+    // 品牌浮水印（帶推薦碼 URL 提示）
+    var refUrl = _castleShareUrl().replace('https://','');
     ctx.font = Math.round(w * 0.018) + 'px sans-serif';
     ctx.fillStyle = 'rgba(29,53,87,.35)';
-    ctx.fillText('✦ 馥靈之鑰 Hour Light ✦ hourlightkey.com', finalW / 2, finalH - 16);
+    ctx.fillText('✦ 馥靈之鑰 Hour Light ✦ ' + refUrl, finalW / 2, finalH - 16);
 
-    document.body.removeChild(toast);
+    if(toast.parentNode) document.body.removeChild(toast);
 
     // 下載
-    var link = document.createElement('a');
-    link.download = '馥靈之鑰_我的內在城堡_' + new Date().toLocaleDateString('sv-SE') + '.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    try{
+      var link = document.createElement('a');
+      link.download = '馥靈之鑰_我的內在城堡_' + new Date().toLocaleDateString('sv-SE') + '.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }catch(downloadErr){
+      _castleImageFallback('下載失敗: ' + downloadErr.message);
+    }
   }).catch(function(e){
-    document.body.removeChild(toast);
+    if(toast.parentNode) document.body.removeChild(toast);
     console.warn('castle screenshot error:', e);
-    alert('截圖生成失敗，請改用文字分享功能');
+    _castleImageFallback('html2canvas 渲染失敗: ' + (e.message||e));
   });
 
-  // 設定分享文案供 hl-share.js 使用
+  // 設定分享文案供 hl-share.js 使用（帶推薦碼）
   window._resultText = '🏰 我的內在城堡已探索 ' + stats.rooms + '/' + stats.totalRooms
-    + ' 間房間，收集了 ' + stats.materials + ' 種材料。你的城堡長什麼樣？來探索看看 👉 hourlightkey.com/castle-game.html';
+    + ' 間房間，收集了 ' + stats.materials + ' 種材料。你的城堡長什麼樣？來探索看看 👉 ' + _castleShareUrl();
 
   // 分享加分
   if(window.hlCastle && hlCastle.shareBonus) hlCastle.shareBonus();
   if(typeof upd === 'function') upd();
+  }catch(outerErr){
+    console.warn('shareCastleImage outer error:', outerErr);
+    _castleImageFallback('初始化失敗: ' + outerErr.message);
+  }
+}
+
+// 截圖失敗時的 fallback：複製文字＋提示
+function _castleImageFallback(reason){
+  console.warn('[shareCastleImage fallback]', reason);
+  var stats = (typeof getCastleStats === 'function') ? getCastleStats() : {rooms:0,totalRooms:9,materials:0};
+  var text = '🏰 我的內在城堡已探索 ' + stats.rooms + '/' + stats.totalRooms
+    + ' 間房間，收集了 ' + stats.materials + ' 種材料。\n\n你的城堡長什麼樣？來探索看看 👉 ' + _castleShareUrl();
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){
+      if(typeof showGameToast === 'function'){
+        showGameToast('截圖失敗｜已改用文字分享', '文案已複製，可直接貼到社群。');
+      } else {
+        alert('截圖生成失敗｜已幫妳複製文字，直接貼到社群分享即可 ✨');
+      }
+    }).catch(function(){
+      alert('截圖失敗。請複製下方文字：\n\n' + text);
+    });
+  } else {
+    alert('截圖失敗。請複製下方文字：\n\n' + text);
+  }
 }
 
 // 圓角矩形輔助函數
@@ -2752,15 +2818,18 @@ function roundRect(ctx, x, y, w, h, r){
 
 // LINE 分享城堡
 function shareCastleToLine(){
-  var stats = getCastleStats();
-  var text = '🏰 我的內在城堡已探索 ' + stats.rooms + '/' + stats.totalRooms
-    + ' 間房間，收集了 ' + stats.materials + ' 種材料。\n你的城堡長什麼樣？來探索看看';
-  var url = 'https://hourlightkey.com/castle-game.html';
-  window.open('https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(text), '_blank');
-
-  // 分享加分
-  if(window.hlCastle && hlCastle.shareBonus) hlCastle.shareBonus();
-  if(typeof upd === 'function') upd();
+  try{
+    var stats = (typeof getCastleStats === 'function') ? getCastleStats() : {rooms:0,totalRooms:9,materials:0};
+    var text = '🏰 我的內在城堡已探索 ' + stats.rooms + '/' + stats.totalRooms
+      + ' 間房間，收集了 ' + stats.materials + ' 種材料。\n你的城堡長什麼樣？來探索看看';
+    var url = _castleShareUrl();
+    window.open('https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(text), '_blank');
+    if(window.hlCastle && hlCastle.shareBonus) hlCastle.shareBonus();
+    if(typeof upd === 'function') upd();
+  }catch(e){
+    console.warn('shareCastleToLine failed:', e);
+    alert('LINE 分享失敗：' + e.message);
+  }
 }
 
 // ═══ Phase 1: Native Feel Upgrades ═══

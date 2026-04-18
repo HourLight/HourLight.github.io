@@ -13,8 +13,35 @@
  *           動態高度、個性標籤、品牌 Logo 區、更好的中文換行
  */
 
-/* ═══ 儲存圖片 v6.0（Premium Canvas 分享卡）═══ */
+/* ═══ 共用：分享 URL 帶推薦碼 ═══ */
+function _hlShareUrl(baseUrl){
+  baseUrl = baseUrl || (location.href.split('?')[0].split('#')[0]);
+  if (window.hlReferral && typeof window.hlReferral.appendRefToUrl === 'function') {
+    return window.hlReferral.appendRefToUrl(baseUrl);
+  }
+  return baseUrl;
+}
+
+/* ═══ 儲存圖片 v6.1（Premium Canvas 分享卡，加全面防呆）═══ */
 window.saveResultImage=function(){
+  var _btn=(typeof event!=='undefined'&&event)?event.target:null;
+  var _origBtn=_btn?_btn.innerHTML:'';
+  function _resetBtn(label,ms){
+    if(!_btn)return;
+    _btn.textContent=label;
+    setTimeout(function(){_btn.innerHTML=_origBtn||'🖼 儲存圖片';},ms||3000);
+  }
+  function _imageFallbackToText(reason){
+    console.warn('[saveResultImage] '+reason+'，fallback 到文字複製');
+    if(typeof window.copyResult==='function'){
+      _resetBtn('⚠️ 圖片失敗｜已幫妳複製文字',5000);
+      try{window.copyResult();}catch(e){}
+    }else{
+      alert('圖片生成失敗，請改用「複製結果」分享文字版');
+      _resetBtn('⚠️ 圖片失敗',4000);
+    }
+  }
+  try{
   var el=document.getElementById('quizResult')
         ||document.getElementById('result-area')
         ||document.getElementById('ra')
@@ -321,20 +348,32 @@ window.saveResultImage=function(){
   ctx.fillText('hourlightkey.com  ✦  讀懂自己，活對人生',W/2,footerY);
 
   /* ── Web Share API 分享或 Fallback ── */
-  canvas.toBlob(function(blob){
-    if(!blob){_hlFallbackShowImage(canvas);return;}
-
-    var file=new File([blob],'hourlight-result.png',{type:'image/png'});
-    var shareData={files:[file],title:title,text:resultTitle+' - '+title+' | hourlightkey.com'};
-
-    if(navigator.canShare&&navigator.canShare(shareData)){
-      navigator.share(shareData).catch(function(){
-        _hlFallbackShowImage(canvas);
-      });
-    }else{
-      _hlFallbackShowImage(canvas);
-    }
-  },'image/png');
+  try{
+    canvas.toBlob(function(blob){
+      try{
+        if(!blob){_hlFallbackShowImage(canvas);return;}
+        var file=new File([blob],'hourlight-result.png',{type:'image/png'});
+        var shareData={files:[file],title:title,text:resultTitle+' - '+title+' | hourlightkey.com'};
+        if(navigator.canShare&&navigator.canShare(shareData)){
+          navigator.share(shareData).then(function(){
+            _resetBtn('✅ 已分享',3000);
+          }).catch(function(err){
+            if(err&&err.name==='AbortError'){_resetBtn('🖼 儲存圖片',1);return;}
+            _hlFallbackShowImage(canvas);
+          });
+        }else{
+          _hlFallbackShowImage(canvas);
+        }
+      }catch(e){
+        _imageFallbackToText('toBlob callback 失敗: '+e.message);
+      }
+    },'image/png');
+  }catch(e){
+    _imageFallbackToText('canvas.toBlob 呼叫失敗: '+e.message);
+  }
+  }catch(outerErr){
+    _imageFallbackToText('Canvas 渲染失敗: '+outerErr.message);
+  }
 };
 
 /* ── 圓角矩形輔助 ── */
@@ -434,7 +473,7 @@ window.copyResult=function(){
   if(!el){alert('請先完成測驗');return;}
 
   var title=document.title.replace(/[|｜].*/,'').trim();
-  var url=location.href.split('?')[0];
+  var url=_hlShareUrl();
 
   var hero=el.querySelector('.result-hero-title,.rh-type,.result-title,.witch-name,.past-life-title,.result-combo-name');
   var sub=el.querySelector('.result-hero-sub,.rh-sub,.result-sub,.witch-sub,.result-subtitle');
@@ -492,7 +531,7 @@ window.shareToLine=function(){
         ||document.querySelector('.quiz-result.active');
   if(!el) return;
   var title=document.title.replace(/[|｜].*/,'').trim();
-  var url=location.href.split('?')[0];
+  var url=_hlShareUrl();
   var hero=el.querySelector('.result-hero-title,.rh-type,.result-title,.witch-name,.past-life-title,.result-combo-name');
   var sub=el.querySelector('.result-hero-sub,.rh-sub,.result-sub');
   var t='【'+title+'】';
@@ -582,6 +621,7 @@ window.shareToThreads=function(){
   else if(url.indexOf('oil')>=0||url.indexOf('aroma')>=0||url.indexOf('scent')>=0)hashtags+=' #精油 #芳療';
   else hashtags+=' #自我覺察 #了解自己';
   t+=hashtags;
+  t+='\n\n🔗 '+_hlShareUrl();
 
   var btn=event&&event.target;
   var origLabel=btn?btn.innerHTML:'';

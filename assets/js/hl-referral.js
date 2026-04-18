@@ -1042,10 +1042,60 @@
   captureReferralCode();
 
   // 登入用戶自動檢查待啟用獎勵
+  // ═══════════════════════════════════════
+  // 11. 自動 cache 當前用戶推薦碼（供分享系統同步讀取）
+  // ═══════════════════════════════════════
+
+  var MY_CODE_KEY = 'hl_my_ref_code';
+
+  function cacheMyCodeToLocal(code) {
+    if (code) {
+      try { localStorage.setItem(MY_CODE_KEY, code); } catch(e) {}
+    }
+  }
+
+  function getMyRefCode() {
+    try { return localStorage.getItem(MY_CODE_KEY) || null; } catch(e) { return null; }
+  }
+
+  /**
+   * 把推薦碼附加到任意 URL。
+   * 已有 ref 參數時不覆蓋。登入前讀不到也不會錯，直接回原 URL。
+   * @param {string} url
+   * @returns {string}
+   */
+  function appendRefToUrl(url) {
+    if (!url) return url;
+    var code = getMyRefCode();
+    if (!code) return url;
+    // 跳過外部 URL（非 hourlightkey.com 的）
+    try {
+      var u = new URL(url, 'https://hourlightkey.com');
+      if (u.host && u.host !== 'hourlightkey.com' && u.host !== 'www.hourlightkey.com') return url;
+      // 已有 ref 就不覆蓋
+      if (u.searchParams.has('ref') || u.searchParams.has('REF') || u.searchParams.has('Ref')) return url;
+      u.searchParams.set('ref', code);
+      return u.toString();
+    } catch(e) {
+      // URL 物件 fail（相對路徑或特殊字元）— 用簡單 string 拼接
+      var sep = url.indexOf('?') >= 0 ? '&' : '?';
+      return url + sep + 'ref=' + encodeURIComponent(code);
+    }
+  }
+
   try {
     if (window.firebase && firebase.auth) {
       firebase.auth().onAuthStateChanged(function(user) {
-        if (user) checkPendingRewards(user.uid);
+        if (user) {
+          checkPendingRewards(user.uid);
+          // 登入後確保有推薦碼並 cache 到 localStorage
+          ensureUserReferralCode(user.uid, user.email || '').then(function(code) {
+            cacheMyCodeToLocal(code);
+          }).catch(function() {});
+        } else {
+          // 登出清掉
+          try { localStorage.removeItem(MY_CODE_KEY); } catch(e) {}
+        }
       });
     }
   } catch(e) { void 0; }
@@ -1069,11 +1119,13 @@
     copyLink: copyLink,
     copyCode: copyCode,
     getShareUrl: getShareUrl,
+    getMyRefCode: getMyRefCode,
+    appendRefToUrl: appendRefToUrl,
     showToast: showToast,
     FIXED_COST_RATE: FIXED_COST_RATE,
     TIER1_RATE: TIER1_RATE,
     TIER2_RATE: TIER2_RATE,
-    VERSION: '3.1.0'
+    VERSION: '3.2.0'
   };
 
 })();
