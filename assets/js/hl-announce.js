@@ -1,11 +1,11 @@
 /* ═══════════════════════════════════════
-   hl-announce.js — 馥靈全站公告彈窗 v8
-   2026/04/17 更新：占卜計次 Bug 修復 + 鑰友補償 12 次 + 新城堡 + 推薦送大師一天
+   hl-announce.js — 馥靈全站公告彈窗 v9
+   2026/04/18 更新：新城堡整合優化 + 遊戲平衡微調
    ═══════════════════════════════════════ */
 (function(){
 'use strict';
 
-var ANNOUNCE_VER = '2026-04-17-bug-fix-plus12-castle-referral-v8';
+var ANNOUNCE_VER = '2026-04-18-balance-tweak-v9';
 var DISMISS_KEY = 'hl_announce_' + ANNOUNCE_VER;
 
 try { if(sessionStorage.getItem(DISMISS_KEY)) return; } catch(e){}
@@ -20,22 +20,22 @@ overlay.innerHTML = `
   <div class="hla-close" onclick="document.getElementById('hlAnnounce').remove();try{sessionStorage.setItem('${DISMISS_KEY}','1')}catch(e){}" title="關閉">✕</div>
 
   <div class="hla-header">
-    <div class="hla-brand">系統公告 · 2026/04/17</div>
-    <div class="hla-title">占卜修復 · 鑰友補償 · 新城堡</div>
+    <div class="hla-brand">系統公告 · 2026/04/18</div>
+    <div class="hla-title">新城堡整合 · 遊戲平衡微調</div>
   </div>
 
   <div class="hla-body">
     <div class="hla-welcome">
-      占卜計次誤差問題已於今日完整修復。同時新增 60 秒內重複點擊不扣次，讓複製失敗時能安心重試。
+      新城堡 v3 整合優化：21 間房間、小馥管家、9 隻貓咪、合成家具視覺化。為了遊戲平衡，靈感點與折價券機制做了微調。
     </div>
 
     <div class="hla-popular">
-      <div class="hla-popular-title">鑰友補償 ↓</div>
+      <div class="hla-popular-title">遊戲平衡微調 ↓</div>
       <div class="hla-link" style="cursor:default">
-        馥靈鑰友每日占卜次數即日起由 10 次提升為 <strong style="color:#f8dfa5">12 次</strong>，感謝您的耐心。
+        折價券兌換改為<strong style="color:#f8dfa5">方案分級</strong>：免費會員 $199、鑰友加 $399、大師全部解鎖。妳之前累積的點數不變。
       </div>
 
-      <div class="hla-popular-title" style="margin-top:14px">新城堡上線 ↓</div>
+      <div class="hla-popular-title" style="margin-top:14px">新城堡 ↓</div>
       <a href="castle-hub.html" class="hla-link">🏰 內在城堡 v3 — 21 間房間 × 小馥管家 × 9 隻貓咪</a>
       <a href="wealth-wallpaper.html" class="hla-link">🔮 命定豐盛桌布 — 33 套命理合成專屬招財桌布</a>
 
