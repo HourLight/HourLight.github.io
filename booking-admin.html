@@ -187,6 +187,7 @@ a{color:inherit;text-decoration:none}
     <button class="tab" data-tab="staff" onclick="switchTab('staff')"><span class="tab-ico">💁</span>夥伴</button>
     <button class="tab" data-tab="slots" onclick="switchTab('slots')"><span class="tab-ico">🗓</span>班表</button>
     <button class="tab" data-tab="bookings" onclick="switchTab('bookings')"><span class="tab-ico">📅</span>預約</button>
+    <button class="tab" data-tab="clients" onclick="switchTab('clients')"><span class="tab-ico">👤</span>客戶</button>
     <button class="tab" data-tab="courses" onclick="switchTab('courses')"><span class="tab-ico">📚</span>課程</button>
     <button class="tab" data-tab="settings" onclick="switchTab('settings')"><span class="tab-ico">⚙️</span>設定</button>
   </div>
@@ -322,6 +323,20 @@ a{color:inherit;text-decoration:none}
         </div>
       </div>
       <div id="bookingList" class="item-list">
+        <div class="item-empty">載入中⋯</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB: Clients (客戶膚況檔案) ═══ -->
+  <div class="tab-pane" id="tab-clients" style="display:none">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">👤 客戶膚況檔案</div>
+        <button class="btn btn-outline btn-sm" onclick="loadClients()">重新載入</button>
+      </div>
+      <div class="card-desc">依客戶暱稱彙整您的鉑金煥顏報告。點展開看該客戶歷次膚況 + 照片，可跳前後對比分析。</div>
+      <div id="clientList" class="item-list">
         <div class="item-empty">載入中⋯</div>
       </div>
     </div>
@@ -933,8 +948,85 @@ window.switchTab = function(name){
   else if (name==='staff') loadStaff();
   else if (name==='slots') loadSlots();
   else if (name==='bookings') loadBookings();
+  else if (name==='clients') loadClients();
   else if (name==='settings') loadSettings();
 };
+
+// ═══════════════════════════════════════════════════════════════
+//  客戶膚況檔案（輕整合：讀 users/{uid}/skin_reports 依 clientName 分組）
+// ═══════════════════════════════════════════════════════════════
+window.loadClients = function(){
+  var el = document.getElementById('clientList');
+  if (!el) return;
+  el.innerHTML = '<div class="item-empty">載入中⋯</div>';
+  var user = firebase.auth().currentUser;
+  if (!user){
+    el.innerHTML = '<div class="item-empty">請先登入</div>';
+    return;
+  }
+  firebase.firestore()
+    .collection('users').doc(user.uid)
+    .collection('skin_reports')
+    .orderBy('createdAt','desc')
+    .limit(300)
+    .get()
+    .then(function(snap){
+      var reports = [];
+      snap.forEach(function(d){ var x=d.data(); x._id=d.id; reports.push(x); });
+      if (reports.length===0){
+        el.innerHTML = '<div class="item-empty">尚未有任何煥顏紀錄。去 <a href="skin-diagnosis.html" style="color:var(--gold)">鉑金智慧煥顏</a> 產出第一份報告 →</div>';
+        return;
+      }
+      // 依 clientName 分組
+      var groups = {};
+      reports.forEach(function(r){
+        var name = (r.clientName || '').trim() || '（未命名）';
+        if (!groups[name]) groups[name] = [];
+        groups[name].push(r);
+      });
+      var html = '';
+      Object.keys(groups).forEach(function(name){
+        var list = groups[name];
+        var latest = list[0];
+        var latestDate = latest.createdAt
+          ? (latest.createdAt.toDate ? latest.createdAt.toDate() : new Date(latest.createdAt))
+          : null;
+        var latestStr = latestDate ? latestDate.toISOString().slice(0,10) : '—';
+        html += '<div class="item" style="display:block;padding:16px 18px;margin-bottom:10px">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\'">';
+        html += '<div><strong style="font-size:1rem">'+escapeHtml(name)+'</strong>';
+        html += '<div style="font-size:.78rem;color:var(--ink-soft);margin-top:4px">'+list.length+' 份報告 · 最近 '+latestStr+'</div></div>';
+        html += '<div style="font-size:.82rem;color:var(--gold)">展開 ▼</div></div>';
+        html += '<div style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid rgba(184,146,42,.15)">';
+        list.forEach(function(r){
+          var d = r.createdAt ? (r.createdAt.toDate ? r.createdAt.toDate() : new Date(r.createdAt)) : null;
+          var ds = d ? d.toISOString().slice(0,10) : '—';
+          var excerpt = (r.report||'').replace(/\s+/g,' ').slice(0,80);
+          html += '<div style="padding:10px 0;border-bottom:1px dashed rgba(184,146,42,.1)">';
+          html += '<div style="font-size:.88rem;color:var(--ink);margin-bottom:4px">📅 '+ds+'</div>';
+          html += '<div style="font-size:.78rem;color:var(--ink-soft);line-height:1.6">'+escapeHtml(excerpt)+(excerpt.length>=80?'⋯':'')+'</div>';
+          html += '</div>';
+        });
+        if (list.length>=2){
+          html += '<a href="skin-compare.html" style="display:inline-block;margin-top:12px;padding:8px 18px;background:var(--gold);color:#fff;border-radius:20px;text-decoration:none;font-size:.85rem;letter-spacing:1px">開前後對比分析 →</a>';
+        } else {
+          html += '<div style="font-size:.78rem;color:var(--ink-soft);margin-top:10px">再累積一份報告就能做前後對比</div>';
+        }
+        html += '</div></div>';
+      });
+      el.innerHTML = html;
+    })
+    .catch(function(err){
+      console.error('loadClients error:', err);
+      el.innerHTML = '<div class="item-empty">載入失敗：'+err.message+'</div>';
+    });
+};
+
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
 
 // ═══════════════════════════════════════════════════════════════
 //  INIT
