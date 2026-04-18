@@ -402,8 +402,21 @@ a{color:inherit;text-decoration:none}
       </div>
       <div class="field">
         <label class="field-label">LINE Channel Access Token（通知用）</label>
-        <input type="text" class="input" id="bizLineToken" placeholder="等你用電腦時再來填，我會教你去哪拿">
-        <div class="field-hint">先留空。拿到 Token 後貼這裡，客戶預約會自動收到 LINE 推播</div>
+        <input type="text" class="input" id="bizLineToken" placeholder="Channel Access Token（長字串）">
+        <div class="field-hint">
+          填完後：客戶預約完成自動收到 LINE 提醒、取消通知、回訪提醒都會發到他 LINE。<br>
+          <a href="line-integration.html" target="_blank" style="color:var(--gold);text-decoration:underline">📖 第一次設定？看 10 分鐘完成教學 →</a>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">LINE Channel Secret（選填，雙向功能用）</label>
+        <input type="text" class="input" id="bizLineSecret" placeholder="Channel Secret（用於接收客戶訊息）">
+        <div class="field-hint">僅在妳想讓客戶直接在 LINE 對話裡預約時需要（進階功能）</div>
+      </div>
+      <div class="field">
+        <label class="field-label">LINE 官方帳號 Basic ID（讓客人加好友）</label>
+        <input type="text" class="input" id="bizLineBasicId" placeholder="例：@hourlight（含 @ 符號）">
+        <div class="field-hint">客戶預約完成會看到「加我 LINE 收通知 →」按鈕，點了直接加妳</div>
       </div>
 
       <button class="btn btn-gold btn-block" onclick="saveSettings()" id="saveSettingsBtn">💾 儲存設定</button>
@@ -1506,6 +1519,8 @@ function loadSettings(){
     document.getElementById('bizPhone').value = d.phone || '';
     document.getElementById('bizLine').value = d.lineUrl || '';
     document.getElementById('bizLineToken').value = d.lineToken || '';
+    var ls = document.getElementById('bizLineSecret'); if (ls) ls.value = d.lineSecret || '';
+    var lb = document.getElementById('bizLineBasicId'); if (lb) lb.value = d.lineBasicId || '';
     document.getElementById('bizDeposit').value = d.deposit || 'off';
   });
 }
@@ -1519,6 +1534,8 @@ window.saveSettings = function(){
     phone: document.getElementById('bizPhone').value.trim(),
     lineUrl: document.getElementById('bizLine').value.trim(),
     lineToken: document.getElementById('bizLineToken').value.trim(),
+    lineSecret: (document.getElementById('bizLineSecret')||{}).value ? document.getElementById('bizLineSecret').value.trim() : '',
+    lineBasicId: (document.getElementById('bizLineBasicId')||{}).value ? document.getElementById('bizLineBasicId').value.trim() : '',
     deposit: document.getElementById('bizDeposit').value,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   };

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BXP7K53QG6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-BXP7K53QG6');
+</script>
+
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,viewport-fit=cover"/>
+<title>LINE 整合設定教學｜10 分鐘讓客人從 LINE 直接預約｜HOUR LIGHT 未來美容學苑</title>
+<meta name="description" content="學員合作方案內建 LINE 官方帳號整合。手把手教你 10 分鐘設定 LINE Messaging API，讓客人從 LINE 直接預約、自動收提醒、取消通知。免寫程式。"/>
+<meta name="keywords" content="LINE 官方帳號整合, LINE Messaging API, LINE Bot 設定, 沙龍 LINE 預約, 美業 LINE 客戶管理, Channel Access Token, HOUR LIGHT"/>
+<meta name="robots" content="index,follow"/>
+<link rel="icon" href="favicon.ico"/>
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
+<link rel="canonical" href="https://hourlightkey.com/line-integration.html"/>
+
+<meta property="og:type" content="article"/>
+<meta property="og:url" content="https://hourlightkey.com/line-integration.html"/>
+<meta property="og:title" content="LINE 整合設定教學｜HOUR LIGHT 未來美容學苑"/>
+<meta property="og:description" content="10 分鐘讓客人從 LINE 直接預約、自動收通知。免寫程式。"/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Serif+TC:wght@300;400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+<link rel="stylesheet" href="assets/css/hourlight-global.css"/>
+<link rel="stylesheet" href="assets/css/hl-design-tokens.css"/>
+
+<style>
+:root {
+  --bg: #faf9f7;
+  --bg-card: #ffffff;
+  --bg-card-2: #f5f1ea;
+  --ink: #2a2013;
+  --ink-soft: #5a4a32;
+  --gold: #b8902a;
+  --gold-light: #d4a853;
+  --gold-bg: rgba(184,146,42,.08);
+  --border: rgba(184,146,42,.18);
+  --shadow: 0 4px 16px rgba(120,90,40,.08);
+  --line-green: #06c755;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: 'Noto Sans TC', -apple-system, sans-serif;
+  line-height: 1.85; padding-top: 60px; padding-bottom: 80px;
+}
+main { max-width: 820px; margin: 0 auto; padding: 24px 20px 80px; }
+
+.li-hero { text-align: center; padding: 48px 20px 32px; }
+.li-hero .eyebrow {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: .9rem; color: var(--gold);
+  letter-spacing: .42em; text-transform: uppercase;
+  margin-bottom: 18px;
+  display: inline-flex; align-items: center; gap: 18px;
+}
+.li-hero .eyebrow::before, .li-hero .eyebrow::after {
+  content: ""; width: 36px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold) 50%, transparent);
+  display: inline-block;
+}
+.li-hero h1 {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 2rem; font-weight: 400; margin: 0 0 14px;
+  letter-spacing: .14em; line-height: 1.4;
+}
+.li-hero .sub { color: var(--ink-soft); font-size: .95rem; margin: 0; }
+
+.li-callout {
+  background: rgba(6,199,85,.06);
+  border: 1px solid rgba(6,199,85,.2);
+  border-radius: 14px;
+  padding: 22px 24px;
+  margin: 24px 0 40px;
+  display: flex; gap: 16px; align-items: flex-start;
+}
+.li-callout .icon {
+  width: 40px; height: 40px; flex-shrink: 0;
+  background: var(--line-green);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 700; font-size: 1.1rem;
+  font-family: 'Cormorant Garamond', serif;
+}
+.li-callout .content h3 {
+  margin: 0 0 8px; font-family: 'Noto Serif TC', serif;
+  font-size: 1.05rem; font-weight: 500; letter-spacing: .04em;
+}
+.li-callout .content p { margin: 0; font-size: .92rem; color: var(--ink-soft); }
+
+.li-why {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px; margin: 32px 0;
+  box-shadow: var(--shadow);
+}
+.li-why h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: .85rem; letter-spacing: .32em;
+  color: var(--gold); text-transform: uppercase;
+  text-align: center; margin: 0 0 20px;
+}
+.li-why .grid {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+.li-why .grid .item {
+  padding: 16px 18px; background: var(--bg-card-2);
+  border-radius: 10px; font-size: .9rem;
+}
+.li-why .grid .item strong {
+  display: block; font-family: 'Noto Serif TC', serif;
+  font-weight: 500; margin-bottom: 4px; color: var(--ink);
+  letter-spacing: .04em;
+}
+
+.step {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  margin: 20px 0; padding: 28px 30px;
+  box-shadow: var(--shadow);
+  position: relative;
+}
+.step .step-num {
+  position: absolute; top: -14px; left: 26px;
+  background: var(--gold); color: #fff;
+  padding: 4px 16px; border-radius: 14px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: .85rem; letter-spacing: .2em;
+  font-weight: 500;
+}
+.step h3 {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 1.15rem; font-weight: 500;
+  margin: 8px 0 14px; letter-spacing: .04em;
+  color: var(--ink);
+}
+.step p { margin: 0 0 10px; font-size: .92rem; color: var(--ink-soft); line-height: 1.9; }
+.step ol, .step ul { margin: 8px 0 10px; padding-left: 22px; font-size: .92rem; color: var(--ink-soft); line-height: 1.9; }
+.step li { margin: 4px 0; }
+.step a {
+  color: var(--gold); text-decoration: none;
+  border-bottom: 1px solid rgba(184,146,42,.3);
+}
+.step a:hover { border-bottom-color: var(--gold); }
+.step .tip {
+  background: var(--gold-bg);
+  border-left: 3px solid var(--gold);
+  padding: 10px 14px; margin: 12px 0;
+  font-size: .84rem; border-radius: 4px;
+  color: var(--ink);
+}
+.step .url-box {
+  background: #f3f1ec;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: .82rem; color: var(--ink);
+  word-break: break-all;
+  margin: 10px 0;
+  border: 1px dashed var(--border);
+}
+.step .screenshot-note {
+  background: rgba(90,74,50,.04);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: .8rem;
+  color: var(--ink-soft);
+  margin: 8px 0;
+  font-style: italic;
+}
+
+.faq {
+  margin: 40px 0;
+}
+.faq h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: .85rem; letter-spacing: .32em;
+  color: var(--gold); text-transform: uppercase;
+  text-align: center; margin: 0 0 24px;
+}
+.faq-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 10px 0;
+  overflow: hidden;
+}
+.faq-q {
+  padding: 16px 20px; cursor: pointer;
+  font-family: 'Noto Serif TC', serif;
+  font-size: .95rem; font-weight: 500;
+  display: flex; justify-content: space-between;
+  align-items: center; letter-spacing: .04em;
+}
+.faq-q::after {
+  content: "+"; color: var(--gold);
+  font-size: 1.4rem; line-height: 1;
+  transition: transform .2s;
+}
+.faq-item.open .faq-q::after {
+  content: "−"; transform: rotate(180deg);
+}
+.faq-a {
+  padding: 0 20px 18px;
+  font-size: .9rem; color: var(--ink-soft);
+  line-height: 1.85;
+  display: none;
+}
+.faq-item.open .faq-a { display: block; }
+
+.cta {
+  text-align: center; padding: 40px 20px;
+  background: linear-gradient(135deg, #fff8ea 0%, #faf0d5 100%);
+  border-radius: 18px;
+  margin: 40px 0 20px;
+}
+.cta h2 {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 1.3rem; font-weight: 500;
+  color: var(--ink); margin: 0 0 12px;
+  letter-spacing: .14em;
+}
+.cta p { color: var(--ink-soft); font-size: .92rem; margin: 0 0 20px; }
+.cta .buttons { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.cta a {
+  padding: 12px 28px; border-radius: 30px;
+  text-decoration: none; font-size: .92rem;
+  letter-spacing: 1.5px; font-family: 'Noto Serif TC', serif;
+}
+.cta a.primary { background: var(--gold); color: #fff; }
+.cta a.primary:hover { background: var(--gold-light); }
+.cta a.secondary {
+  background: #fff; color: var(--gold);
+  border: 1px solid var(--gold);
+}
+</style>
+</head>
+
+<body>
+
+<main>
+
+  <div class="li-hero">
+    <div class="eyebrow">LINE Integration Guide</div>
+    <h1>LINE 整合設定｜10 分鐘教學</h1>
+    <p class="sub">讓客人從 LINE 直接預約 · 自動收提醒 · 取消通知 · 回訪推播</p>
+  </div>
+
+  <div class="li-callout">
+    <div class="icon">L</div>
+    <div class="content">
+      <h3>為什麼要做 LINE 整合？</h3>
+      <p>沙龍最大的流失發生在「預約後到當天」這段空窗。LINE 整合讓客人預約完 1 分鐘內收到 Flex Message 確認、前一天自動收到提醒、取消/改期直接 LINE 通知妳。單位成本只有「每月抽 10 分鐘維護」。</p>
+    </div>
+  </div>
+
+  <div class="li-why">
+    <h2>Before You Start</h2>
+    <div class="grid">
+      <div class="item">
+        <strong>需要有</strong>
+        LINE 個人帳號（妳自己常用的那支）
+      </div>
+      <div class="item">
+        <strong>需要開</strong>
+        LINE 官方帳號（免費，不是 LINE@）
+      </div>
+      <div class="item">
+        <strong>大概會花</strong>
+        10-15 分鐘，一次設完永久可用
+      </div>
+      <div class="item">
+        <strong>免寫程式</strong>
+        全部複製貼上，有任何問題 LINE 找逸君
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">STEP 01</div>
+    <h3>申請 LINE 官方帳號（如果妳還沒有）</h3>
+    <p>妳店家現在用的 LINE 帳號如果是個人或 LINE@，需要升級到免費的 LINE 官方帳號（Messaging API 相容）。</p>
+    <ol>
+      <li>打開 <a href="https://www.linebiz.com/tw/entry/" target="_blank" rel="noopener">linebiz.com/tw/entry</a> 點「免費註冊」</li>
+      <li>用妳自己的 LINE 掃 QR code 登入</li>
+      <li>填店名 / 業種（選「美容 / 美髮」）/ 國家（台灣）</li>
+      <li>建立完成會拿到一個 Basic ID，例如 <span class="url-box" style="display:inline-block;padding:2px 8px;margin:0">@xxx0000</span></li>
+    </ol>
+    <div class="tip">💡 已經有官方帳號可以跳過，直接去 <a href="https://manager.line.biz/" target="_blank" rel="noopener">LINE Official Account Manager</a> 用現有的。</div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">STEP 02</div>
+    <h3>登入 LINE Developers Console</h3>
+    <p>LINE 官方帳號跟 Messaging API 是兩個地方。我們要在 Developers Console 建立 API 通道。</p>
+    <ol>
+      <li>打開 <a href="https://developers.line.biz/console" target="_blank" rel="noopener">developers.line.biz/console</a></li>
+      <li>用同一支 LINE 掃 QR code 登入</li>
+      <li>第一次進會請妳同意條款，按下一步就好</li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <div class="step-num">STEP 03</div>
+    <h3>建立 Provider（提供者）</h3>
+    <p>Provider 就是「我這個人／這家公司」的意思，一個 Provider 底下可以有多個 Channel。</p>
+    <ol>
+      <li>左上角「Create a new provider」</li>
+      <li>Provider name 填妳店名（可以中文）</li>
+      <li>按 Create</li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <div class="step-num">STEP 04</div>
+    <h3>建立 Messaging API Channel</h3>
+    <p>這是最關鍵的一步。Channel 是 LINE 跟我們系統溝通的橋樑。</p>
+    <ol>
+      <li>進到剛建立的 Provider → 「Create a new channel」</li>
+      <li>選 <strong>Messaging API</strong>（不是 Login、不是 LIFF）</li>
+      <li>Channel name 填妳店名</li>
+      <li>Channel description 簡單寫「客戶預約提醒」</li>
+      <li>Category 選「Health & Beauty」</li>
+      <li>Subcategory 選「Beauty Salon」</li>
+      <li>同意條款 → Create</li>
+    </ol>
+    <div class="tip">💡 建好後進入 channel 的「Basic settings」頁，等下要抄這裡的資料。</div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">STEP 05</div>
+    <h3>取得 Channel Access Token（最重要）</h3>
+    <p>這是給 HOUR LIGHT 系統「代妳發訊息」的鑰匙。</p>
+    <ol>
+      <li>在剛建的 Channel 裡，點上方 tab「Messaging API」</li>
+      <li>捲到最下面「Channel access token (long-lived)」</li>
+      <li>按「Issue」產生一組長字串（170 個字左右）</li>
+      <li>複製整段（按右邊的複製圖示）</li>
+    </ol>
+    <div class="url-box">範例長這樣：<br>eyJhbGciOiJIUzI1NiJ9.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</div>
+    <div class="tip">⚠️ 這組 Token 等同妳的 LINE 店家密碼。不要傳給任何人（包含客人、其他學員）。只貼在 HOUR LIGHT 預約後台。</div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">STEP 06</div>
+    <h3>取得 Channel Secret（進階用，可先跳過）</h3>
+    <p>Channel Secret 用在「客人直接在 LINE 對話裡輸入訊息預約」這種雙向功能。如果妳只要「我的系統推播給客人」，這步可以先跳。</p>
+    <ol>
+      <li>在「Basic settings」tab 捲到「Channel secret」</li>
+      <li>按「Show」看到一組 32 位的字串</li>
+      <li>複製下來存好</li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <div class="step-num">STEP 07</div>
+    <h3>設定 Webhook URL（雙向功能用，現階段 Coming Soon）</h3>
+    <p>雙向預約功能（客人直接在 LINE 聊天窗預約）需要 Webhook。這個功能目前還在 beta，正式上線前不用設。</p>
+    <p>等上線後，貼下面這個 URL 到 Webhook URL 欄位：</p>
+    <div class="url-box">https://app.hourlightkey.com/api/line-webhook?biz=妳的 BUSINESS_ID</div>
+    <div class="screenshot-note">這步驟可以等逸君通知妳再來設，推播功能不需要這步。</div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">STEP 08</div>
+    <h3>切換 LINE 官方帳號回覆模式</h3>
+    <p>LINE 官方帳號預設是「自動回覆」模式，要改成讓 Bot（也就是我們的系統）負責回。</p>
+    <ol>
+      <li>打開 <a href="https://manager.line.biz/" target="_blank" rel="noopener">LINE Official Account Manager</a></li>
+      <li>進到妳的官方帳號 → 右上角「設定」</li>
+      <li>「回應設定」→「回應模式」選 <strong>Bot</strong></li>
+      <li>「Webhook」打開（On）</li>
+      <li>「自動回應訊息」可以關掉（避免跟 Bot 衝突）</li>
+      <li>儲存</li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <div class="step-num">STEP 09</div>
+    <h3>貼到 HOUR LIGHT 預約後台</h3>
+    <p>終點站。把剛剛拿到的兩組資料貼進妳的預約管理後台。</p>
+    <ol>
+      <li>進 <a href="booking-admin.html" target="_blank">booking-admin.html</a></li>
+      <li>切到「⚙️ 設定」tab</li>
+      <li>貼 Channel Access Token（Step 5 那一大串）到「LINE Channel Access Token」欄位</li>
+      <li>貼 Basic ID（Step 1 的 @xxx0000）到「LINE 官方帳號 Basic ID」欄位</li>
+      <li>Channel Secret（Step 6）有拿到就一起貼，沒有可以留空</li>
+      <li>按「儲存設定」</li>
+    </ol>
+    <div class="tip">💡 儲存完可以做一筆測試預約，看 LINE 有沒有發推播給妳（預約人的手機）。</div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">STEP 10</div>
+    <h3>設定完成 · 妳現在可以</h3>
+    <ul>
+      <li>✓ 客戶預約完自動收到 Flex Message 確認</li>
+      <li>✓ 提早 24 小時自動收到 LINE 提醒（避免忘記）</li>
+      <li>✓ 客戶取消 / 改期，妳的 LINE 會收到通知</li>
+      <li>✓ 客戶做完療程 28 天，系統自動發回訪推播（不用妳記）</li>
+      <li>✓ 煥顏報告產出後一併寄到客戶 LINE</li>
+      <li>（Coming Soon）客戶直接在 LINE 對話裡回「我要預約」即可預約</li>
+    </ul>
+  </div>
+
+  <div class="faq">
+    <h2>FAQ</h2>
+
+    <div class="faq-item">
+      <div class="faq-q">我用 LINE@ 可以嗎？</div>
+      <div class="faq-a">不行。LINE@ 在 2020 已停用並自動升級成 LINE 官方帳號。妳進 LINE Official Account Manager 登入會看到現狀。</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Channel Access Token 會過期嗎？</div>
+      <div class="faq-a">Long-lived token 除非妳手動「Reissue」否則不會過期。重新產生會讓舊的失效，要再貼一次到預約後台。</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">客人要先加我 LINE 好友才收得到通知嗎？</div>
+      <div class="faq-a">對。客人預約完，預約完成頁會自動顯示「加我 LINE 收通知 →」按鈕，點了直接變妳的好友。沒加好友的情況只會收到 email 通知。</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">我怕 Token 外流，有安全顧慮怎麼辦？</div>
+      <div class="faq-a">Token 存在 Firestore businesses/{妳的 ID} 的 lineToken 欄位，只有 admin 和妳本人讀得到。真的外流可以到 LINE Developers Console 按「Reissue」作廢，重新發一組貼上。</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">我有兩家店可以用同一個 LINE 帳號嗎？</div>
+      <div class="faq-a">建議一家店一個 LINE 官方帳號，這樣客戶訊息不會混。技術上一個 Token 只綁一個 booking-admin BUSINESS_ID。</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">完全看不懂某一步怎麼辦？</div>
+      <div class="faq-a">拍螢幕截圖傳給逸君的 LINE（<a href="https://lin.ee/RdQBFAN" target="_blank">lin.ee/RdQBFAN</a>）說「LINE 整合卡在第幾步」。她會回妳。</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">LINE 要收費嗎？</div>
+      <div class="faq-a">LINE 官方帳號的「免費方案」每月 500 則推播。若妳客人數超過 500、每月都會爆量再考慮升級到輕用量方案（NT$800/月 4,000 則）。一般沙龍規模免費夠用。</div>
+    </div>
+
+  </div>
+
+  <div class="cta">
+    <h2>卡住了嗎？</h2>
+    <p>LINE 整合不是妳一個人的事，是我們跟妳一起設起來的。</p>
+    <div class="buttons">
+      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener" class="primary">LINE 找逸君問 →</a>
+      <a href="booking-admin.html" class="secondary">去預約後台設定 →</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="hl-footer"><div class="hl-footer-inner"><div class="hl-footer-links"></div></div></footer>
+
+<!-- Hourlight 全站標配 -->
+<script src="assets/js/hl-topnav.js" defer></script>
+<script src="assets/js/hl-bottomnav.js" defer></script>
+<script src="assets/js/hl-email.js" defer></script>
+<script src="assets/js/hl-music.js" defer></script>
+<script src="assets/js/hl-tracker.js" defer></script>
+
+<script>
+'use strict';
+document.querySelectorAll('.faq-item').forEach(function(item){
+  item.querySelector('.faq-q').addEventListener('click', function(){
+    item.classList.toggle('open');
+  });
+});
+</script>
+
+</body>
+</html>
