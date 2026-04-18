@@ -295,6 +295,19 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
 
   <!-- ③ 使用足跡 -->
   <div class="sec" id="sec-history">
+    <!-- 🌟 個人數據儀表板 -->
+    <div class="bcard" id="personalDashCard" style="margin-bottom:16px;display:none">
+      <div class="bcard-title" style="display:flex;align-items:center;gap:10px">✦ 我的足跡數據
+        <span style="font-size:.72rem;color:var(--mid);font-weight:400;letter-spacing:.04em">你累積的使用痕跡</span>
+      </div>
+      <div id="dashTotalsGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:14px"></div>
+      <div id="dashTopTools" style="margin-top:22px"></div>
+      <div id="dashEmpty" style="display:none;text-align:center;padding:40px 20px;color:var(--mid);font-size:.92rem;line-height:1.9">
+        還沒有累積足跡。<br>
+        <span style="font-size:.82rem;color:var(--light)">開始抽牌、做測驗、算命盤，這裡就會長出你的專屬數據 ✨</span>
+      </div>
+    </div>
+
     <div class="bcard">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
         <div class="bcard-title" style="margin-bottom:0">全部記錄</div>
@@ -753,6 +766,180 @@ async function loadHistory(){
     list.innerHTML=snap.docs.map(d=>histHTML(d.data())).join('');
     document.getElementById('loadMoreBtn').style.display=snap.docs.length>=20?'block':'none';
   }catch(e){list.innerHTML='<div class="empty">載入失敗，請重新整理試試</div>';}
+  // 同時渲染個人儀表板（聚合所有 history 資料）
+  renderPersonalDashboard();
+}
+
+/* ══════ 🌟 個人足跡儀表板 ══════ */
+async function renderPersonalDashboard(){
+  const card=document.getElementById('personalDashCard');
+  if(!card||!_uid)return;
+  card.style.display='block';
+  const totalsGrid=document.getElementById('dashTotalsGrid');
+  const topToolsEl=document.getElementById('dashTopTools');
+  const emptyEl=document.getElementById('dashEmpty');
+  totalsGrid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--mid);font-size:.85rem"><span class="spinner"></span> 彙整你的足跡⋯</div>';
+  topToolsEl.innerHTML='';
+
+  try{
+    // 1. 撈全部 history（最多 500 筆）聚合統計
+    const histSnap=await db.collection(`users/${_uid}/history`).orderBy('timestamp','desc').limit(500).get();
+    // 2. 撈 user 基本資料（加入天數、推薦、方案）
+    const userSnap=await db.doc(`users/${_uid}`).get();
+    const userData=userSnap.exists?userSnap.data():{};
+
+    if(histSnap.empty){
+      totalsGrid.innerHTML='';topToolsEl.innerHTML='';
+      emptyEl.style.display='block';return;
+    }
+    emptyEl.style.display='none';
+
+    // 聚合 counts
+    const byType={draw:0,quiz:0,calculator:0,oracle:0,explore:0,premium:0,other:0};
+    const byTool={};
+    const cardFreq={};
+    let oldestTs=null;
+    histSnap.forEach(d=>{
+      const x=d.data();
+      const t=x.type||'other';
+      byType[t]=(byType[t]||0)+1;
+      const tid=x.toolId||'other';
+      byTool[tid]=(byTool[tid]||0)+1;
+      // 統計卡片（抽牌紀錄若有 cards array）
+      let obj=x.detail;
+      if(typeof obj==='string'){try{obj=JSON.parse(obj);}catch(e){obj=null;}}
+      if(obj&&Array.isArray(obj.cards)){
+        obj.cards.forEach(c=>{if(c){cardFreq[c]=(cardFreq[c]||0)+1;}});
+      }
+      if(x.timestamp&&x.timestamp.toDate){
+        const ts=x.timestamp.toDate();
+        if(!oldestTs||ts<oldestTs)oldestTs=ts;
+      }
+    });
+
+    const drawCount=byType.draw||0;
+    const quizCount=byType.quiz||0;
+    const calcCount=byType.calculator||0;
+    const oracleCount=byType.oracle||0;
+
+    // 加入天數
+    let joinDays=0;
+    if(userData.createdAt&&userData.createdAt.toDate){
+      joinDays=Math.max(1,Math.round((Date.now()-userData.createdAt.toDate().getTime())/86400000));
+    }
+    // 推薦人數
+    const referredCount=(userData.referral_stats&&userData.referral_stats.referred_count)||0;
+    const aiBonus=userData.aiBonus||0;
+    // 方案 + 剩餘天數
+    const plan=userData.plan||'free';
+    const PLAN_ICON={pro:'👑 大師',plus:'🔑 鑰友',free:'🌱 訪客'};
+    let planLabel=PLAN_ICON[plan]||'🌱 訪客';
+    if(userData.planExpiry&&userData.planExpiry!=='permanent'){
+      const ed=new Date(userData.planExpiry);
+      if(!isNaN(ed.getTime())){
+        const left=Math.ceil((ed-new Date())/86400000);
+        if(left>0)planLabel+=' · 剩 '+left+' 天';
+      }
+    }else if(userData.planExpiry==='permanent'){
+      planLabel+=' · 永久';
+    }
+
+    // 城堡 LV + 靈感點（從 localStorage）
+    let castleLv=1,castlePoints=0,castleFurniture=0,castleMaterials=0;
+    try{
+      const cv3Raw=localStorage.getItem('hl_castle_v3');
+      if(cv3Raw){const cv3=JSON.parse(cv3Raw);
+        if(cv3.save&&cv3.save.level)castleLv=cv3.save.level;
+        castlePoints=(cv3.save&&cv3.save.points)||cv3.points||0;
+      }
+      const matRaw=localStorage.getItem('hl_materials_v1');
+      if(matRaw){const mat=JSON.parse(matRaw);
+        castleFurniture=(mat.furniture&&mat.furniture.length)||0;
+        if(mat.inventory)castleMaterials=Object.keys(mat.inventory).filter(k=>mat.inventory[k]>0).length;
+      }
+    }catch(e){}
+
+    // Tile helper
+    const tileBg='linear-gradient(135deg,rgba(233,194,125,.08),rgba(233,194,125,.02))';
+    const tile=(icon,num,label,sub)=>`<div style="background:${tileBg};border:1px solid rgba(233,194,125,.22);border-radius:14px;padding:16px 14px;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:4px">${icon}</div>
+      <div style="font-family:var(--display,'Noto Serif TC',serif);font-size:1.55rem;color:var(--gold,#b8922a);font-weight:600;line-height:1">${num}</div>
+      <div style="font-size:.75rem;color:var(--mid);margin-top:4px;letter-spacing:.04em">${label}</div>
+      ${sub?`<div style="font-size:.66rem;color:var(--light);margin-top:2px">${sub}</div>`:''}
+    </div>`;
+
+    totalsGrid.innerHTML=[
+      tile('👑',planLabel.split(' · ')[0],planLabel.includes('·')?planLabel.split(' · ')[1]:'當前方案',''),
+      tile('📅',joinDays,'加入天數','城堡記得你走過的每一天'),
+      tile('🎴',drawCount,'抽牌次數','你的覺察軌跡'),
+      tile('🧩',quizCount,'測驗完成','你認識自己的深度'),
+      tile('🔮',calcCount,'命盤計算','你與座標的對話'),
+      tile('✨',oracleCount,'占卜互動','給你的訊息'),
+      tile('🏰',`Lv ${castleLv}`,'內在城堡','你是自己城堡的主人'),
+      tile('💡',castlePoints,'靈感點','累積的力量'),
+      tile('🪔',castleFurniture,'合成家具','你親手布置的痕跡'),
+      tile('🧪',castleMaterials+' 種','收集材料','越玩越豐富'),
+      tile('👥',referredCount,'推薦人數',referredCount>0?`獲得 ${referredCount*2} 天大師體驗`:'分享給朋友'),
+      tile('🎁',aiBonus,'AI 獎勵次數','來自各種累積')
+    ].join('');
+
+    // Top 5 常用工具
+    const topTools=Object.entries(byTool)
+      .filter(([k,v])=>k&&k!=='other'&&v>0)
+      .sort((a,b)=>b[1]-a[1])
+      .slice(0,10);
+    // Top 3 常抽卡片
+    const topCards=Object.entries(cardFreq).sort((a,b)=>b[1]-a[1]).slice(0,3);
+
+    let topHtml='';
+    if(topTools.length){
+      topHtml+='<div style="font-size:.88rem;color:var(--dark);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px">✦ 你最常用的工具 <span style="font-size:.72rem;color:var(--mid);font-weight:400">Top '+topTools.length+'</span></div>';
+      const maxC=topTools[0][1];
+      topHtml+='<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">';
+      topTools.forEach(([id,cnt],i)=>{
+        const name=resolveToolName(id);
+        const pct=Math.round(cnt/maxC*100);
+        const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
+        topHtml+=`<div style="display:flex;align-items:center;gap:12px">
+          <div style="width:24px;text-align:center;font-size:.85rem">${medal}</div>
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;font-size:.82rem;color:var(--dark);margin-bottom:3px"><span>${name}</span><span style="color:var(--gold);font-weight:600">${cnt} 次</span></div>
+            <div style="height:4px;background:rgba(233,194,125,.12);border-radius:3px;overflow:hidden"><div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#b8922a,#e9c27d);border-radius:3px"></div></div>
+          </div>
+        </div>`;
+      });
+      topHtml+='</div>';
+    }
+    if(topCards.length){
+      topHtml+='<div style="font-size:.88rem;color:var(--dark);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px">✦ 你的命運牌 <span style="font-size:.72rem;color:var(--mid);font-weight:400">最常抽到</span></div>';
+      topHtml+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">';
+      topCards.forEach(([code,cnt],i)=>{
+        const medal=i===0?'🥇':i===1?'🥈':'🥉';
+        topHtml+=`<div style="padding:10px 14px;background:rgba(200,168,120,.08);border:1px solid rgba(200,168,120,.25);border-radius:10px;font-size:.82rem">
+          <span style="margin-right:6px">${medal}</span><span style="color:var(--gold);font-weight:600">${code}</span>
+          <span style="color:var(--mid);margin-left:6px">${cnt} 次</span>
+        </div>`;
+      });
+      topHtml+='</div>';
+    }
+
+    // 馥靈語感金句（隨機一句）
+    const quotes=[
+      '你在這裡的每一天，都被城堡記得。',
+      '每一次抽牌，都是你對自己說的一句話。',
+      '你已走過 '+joinDays+' 天 — 這裡的光，是你自己點亮的。',
+      '你不是在累積數字，是在累積自己。',
+      '每一個足跡，都讓你離自己更近一點。',
+      '你來過，就被記住了。'
+    ];
+    const q=quotes[Math.floor(Math.random()*quotes.length)];
+    topHtml+=`<div style="margin-top:18px;padding:16px 20px;background:linear-gradient(135deg,rgba(200,168,120,.08),rgba(160,124,220,.06));border-left:3px solid var(--gold,#b8922a);border-radius:8px;font-family:'LXGW WenKai TC','Noto Serif TC',serif;font-size:.92rem;color:var(--dark);line-height:1.9;font-style:italic">${q}</div>`;
+
+    topToolsEl.innerHTML=topHtml;
+  }catch(e){
+    console.warn('[PersonalDashboard]',e);
+    totalsGrid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--mid);font-size:.82rem">足跡資料讀取異常，重新整理試試 🙏</div>';
+  }
 }
 
 async function loadMore(){
