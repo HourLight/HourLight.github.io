@@ -75,9 +75,9 @@
     if(!totalActions || totalActions < 10) return;
     var msg;
     if(totalActions >= 100){
-      msg = totalActions + ' 次。你已經不需要別人告訴你你是誰了。';
+      msg = '你已經走過 ' + totalActions + ' 次。這不是累積，是你認識自己的痕跡。';
     } else if(totalActions >= 50){
-      msg = totalActions + ' 次覺察，你比大多數人都更認真地在認識自己。';
+      msg = '第 ' + totalActions + ' 次了。每一次，都是跟自己的一場對話。';
     } else {
       msg = '你已經跟自己對話了 ' + totalActions + ' 次。每一次都算數。';
     }
