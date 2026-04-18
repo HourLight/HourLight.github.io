@@ -521,4 +521,121 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
     }
   })();
 
+  /* ─────────────────────────────────────────
+   * 分享這頁 FAB
+   * 2026-04-19 逸君回報：PWA / 加入桌面的 app 模式下，
+   * 手機瀏覽器沒有「⋯」分享選單，網址分享不出去。
+   * 全站注入一顆右下角浮動分享鈕，navigator.share 優先，
+   * 失敗 / 不支援 → 複製連結 + toast。
+   * ───────────────────────────────────────── */
+  (function injectShareFab(){
+    // 跳過特定頁面（admin / 登入 / 管理後台）
+    var skipPages = ['admin-dashboard.html','member-login.html','platform-admin.html','booking-admin.html','partner-dashboard.html'];
+    if (skipPages.indexOf(currentPage) !== -1) return;
+
+    var SVG_SHARE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>';
+
+    var fab = document.createElement('button');
+    fab.type = 'button';
+    fab.id = 'hl-share-fab';
+    fab.setAttribute('aria-label','分享這頁');
+    fab.innerHTML = SVG_SHARE;
+    fab.style.cssText = 'position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 88px);z-index:9997;'
+      + 'width:42px;height:42px;border-radius:50%;'
+      + 'background:rgba(10,6,24,.88);color:#f0d48a;'
+      + 'border:1px solid rgba(240,212,138,.35);'
+      + 'display:flex;align-items:center;justify-content:center;'
+      + 'cursor:pointer;transition:transform .2s,box-shadow .2s;'
+      + '-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);'
+      + 'box-shadow:0 4px 14px rgba(0,0,0,.3)';
+    fab.addEventListener('mouseenter', function(){
+      fab.style.transform='scale(1.08)';
+      fab.style.boxShadow='0 6px 18px rgba(240,212,138,.25)';
+    });
+    fab.addEventListener('mouseleave', function(){
+      fab.style.transform='scale(1)';
+      fab.style.boxShadow='0 4px 14px rgba(0,0,0,.3)';
+    });
+
+    function showToast(msg){
+      var t = document.getElementById('hl-share-toast');
+      if (!t){
+        t = document.createElement('div');
+        t.id = 'hl-share-toast';
+        t.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:10001;'
+          + 'background:rgba(10,6,24,.95);color:#f0d48a;padding:14px 22px;border-radius:12px;'
+          + 'border:1px solid rgba(240,212,138,.35);font-size:.88rem;letter-spacing:.04em;'
+          + 'box-shadow:0 8px 24px rgba(0,0,0,.5);opacity:0;transition:opacity .25s;pointer-events:none';
+        document.body.appendChild(t);
+      }
+      t.textContent = msg;
+      requestAnimationFrame(function(){ t.style.opacity='1'; });
+      setTimeout(function(){ t.style.opacity='0'; }, 1800);
+    }
+
+    function copyToClipboard(text){
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        return navigator.clipboard.writeText(text);
+      }
+      return new Promise(function(resolve,reject){
+        try{
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.cssText = 'position:fixed;top:50%;left:50%;opacity:.01';
+          ta.setAttribute('readonly','');
+          document.body.appendChild(ta);
+          var range = document.createRange();
+          range.selectNodeContents(ta);
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          ta.setSelectionRange(0, 999999);
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          resolve();
+        }catch(e){ reject(e); }
+      });
+    }
+
+    function getShareData(){
+      var t = document.title || '馥靈之鑰 Hour Light';
+      var desc = '';
+      var m = document.querySelector('meta[name="description"]');
+      if (m) desc = m.getAttribute('content') || '';
+      // 加 ref code 如有
+      var url = location.href;
+      try{
+        if (window.hlReferral && typeof window.hlReferral.appendRefToUrl === 'function'){
+          url = window.hlReferral.appendRefToUrl(url);
+        }
+      }catch(e){}
+      return { title: t, text: desc ? (t + ' — ' + desc) : t, url: url };
+    }
+
+    fab.addEventListener('click', function(){
+      var data = getShareData();
+      if (navigator.share){
+        navigator.share(data).then(function(){
+          try{ if(window.HL_track) HL_track('share_page', {url: data.url, method:'native'}); }catch(e){}
+        }).catch(function(err){
+          if (err && err.name === 'AbortError') return;
+          copyToClipboard(data.url).then(function(){
+            showToast('已複製連結');
+          }).catch(function(){
+            showToast('請長按網址手動複製');
+          });
+        });
+      } else {
+        copyToClipboard(data.url).then(function(){
+          showToast('已複製連結，可貼到 LINE / FB / IG');
+          try{ if(window.HL_track) HL_track('share_page', {url: data.url, method:'copy'}); }catch(e){}
+        }).catch(function(){
+          showToast('請長按網址手動複製');
+        });
+      }
+    });
+
+    document.body.appendChild(fab);
+  })();
+
 })();
