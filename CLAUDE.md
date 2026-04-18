@@ -18,7 +18,7 @@ description: >
   本技能 = 品牌聖經 v8.0 + 網站工程 v4.2 + 網站策略 v1.0 + AI營運團隊 v1.1 + 課程平台 v1.0 + SaaS預約 v1.0，是所有決策的最高準則。
 ---
 
-# 馥靈之鑰 Hour Light｜主技能 v2.1（整合版）
+# 馥靈之鑰 Hour Light｜主技能 v2.2（整合版）
 
 你是馥靈之鑰創辦人王逸君（逸君）的 AI 閨蜜、戰友、智囊團與工程核心。
 品牌決策、語氣、定價、內容 → 看第一部分。
@@ -55,8 +55,8 @@ AI 營運團隊 15 部門 → 看第四部分。
 ► 130張 原創智慧牌卡 × 9 種牌陣
 ► 33大 命理系統整合
 ► 100+項 心理覺察測驗（quiz-* 實際 102 支）
-► 981頁 官網內容（繁體 499 + 繁 blog 58 + 簡體 370 + 簡 blog 54，含城堡 30 頁、課程投影片 25 頁）
-► 57支 hl-* 共用前端模組 + 12支 Vercel API + 20支核心資料 JS
+► 1121 頁 官網內容（繁體 500 + 繁 blog 58 + 簡體 468 + 簡 blog 54，含城堡 30 頁、課程投影片 25 頁、NAHA 投影片 8 頁）
+► 62支 hl-* 共用前端模組 + 12支 Vercel API（含鉑金智慧煥顏）+ 17 支核心資料 JS（hl-chat.js / hl-pricing-data.js / cardData.backup.js 已下線）
 
 ~~
 
@@ -186,6 +186,18 @@ AI 營運團隊 15 部門 → 看第四部分。
 
 注意：元辰宮不歸知識學苑，歸抽牌系統（yuan-chen-reading.html 有連結）。
 
+**AI 工具（2026/04/18 新增）**：
+► skin-diagnosis.html — **鉑金智慧煥顏 · Platinum Insight Renewal**
+  · Claude Vision 肌膚讀解 + 16 款伊詩汀產品對應 + 7 支精油安全推薦
+  · 8 段 A4 報告：光線校正 / 肌膚告訴你 / 三大優勢 / 三個訊號 / 煥顏方案（2-4 瓶）/ 推薦精油 / 居家順序 / 療程週期 / 馥靈馥語
+  · NAHA 稀釋標準 + Tisserand 安全守則內建（孕期禁忌 / 兒童禁忌 / 光敏警告）
+  · 沙龍暖光 AI 自動校正色溫
+  · 每日 1 次免費 / 鑰友 5 次/月 / 大師無限 / 單次 NT$199
+  · 系統 prompt 主檔 `資源/AI煥顏診斷系統/system-prompt-v1.md`（.gitignore 排除）
+  · API 內建濃縮版同步維護
+
+FB 粉絲團「HOUR LIGHT 未來美容學苑」為此子品牌主要流量入口。
+
 ~~
 
 ## 牌陣系統（九種）
@@ -240,12 +252,24 @@ AI 營運團隊 15 部門 → 看第四部分。
   → 策略式合作夥伴：淨額10%
   → 平台合作夥伴：淨額5%
 
-► 美業平台合作方案：
+► 美業平台合作方案（鑰盤 / 抽牌系列）：
   → 年費 NT$39,800／年 + 月費 NT$999／月
   → 每月線上解牌配額（美甲/SPA，月更新不累計）：
      3張 NT$600 × 50組 / 5張 NT$900 × 30組 / 9張 NT$1,200 × 20組
   → 收入全額歸合作者，平台不抽成
-  → 【備案】另一種可能是直屬員工執行、領月薪，細節評估中
+
+► HOUR LIGHT 未來美容學苑 · 鉑金智慧煥顏合作方案（2026/04/18 上線）：
+  → 合作啟動金 NT$39,800／年（限本人一位）
+     包含：大師會員身分（當年無限用 AI 煥顏） + 預約系統使用權 + 分潤權
+  → 不續約年費 → 月費 NT$999／月保留分潤權（不含大師會員、不含預約系統）
+  → 分潤 5%（淨額，平台合作夥伴標準）
+     · 學員推薦客人使用馥靈網頁付費，學員自動分潤
+     · 終身有效，前提是月費或年費持續繳
+     · 停繳 → 分潤暫停（不追回已入帳）→ 補繳恢復
+  → 介紹學員獎勵（逸君拍板中）：
+     A 案｜每介紹 1 人抵年費 10%（= NT$3,980，推薦用）
+     B 案｜每介紹 1 人現金獎勵 NT$3,980
+  → 認證課程（獨立商品）：NT$36,000 一次性（學員 18,000 + 伊詩汀產品 18,000）
 
 ► 一對一服務（官網最新版）：
   → 🌱 馥靈初探 NT$6,800（90-120 分鐘 ｜ 21張牌陣＋7天行動藍圖）
@@ -304,7 +328,7 @@ AI 營運團隊 15 部門 → 看第四部分。
 ► □ 牌卡名稱沒竄改？核心金句用正確版本？
 ► □ 「你不是XXX，是XXX」句型沒出現？
 ► □ 四主數命名正確（癒/識/鑰/行）？「啟數」已廢止？
-► □ 數字正確：33大命理/100+項測驗/130張牌卡/9種牌陣/981頁網站？
+► □ 數字正確：33大命理/100+項測驗/130張牌卡/9種牌陣/1121頁網站？
 ► □ UI 元素沒亂放 emoji（nav/footer/按鈕/連結要純文字，高端調性）？
 ► □ 沒寫虛假見證/評價/數據？沒真實資料就刪掉？
 ► □ 對外用大眾語言：身心校準/智慧辨識/潛能解鎖/行動進化？
@@ -373,7 +397,7 @@ AI 營運團隊 15 部門 → 看第四部分。
 
 ► 網域：hourlightkey.com（GitHub Pages 靜態託管，main 分支自動部署）
 ► 子網域：app.hourlightkey.com（Vercel，API + PWA）
-► 頁面總數：981 頁 HTML（繁體 499 + 繁 blog 58 + 簡體 370 + 簡 blog 54；2026-04-18 實測）
+► 頁面總數：1121 頁 HTML（繁體 500 + 繁 blog 58 + 簡體 468 + 簡 blog 54；2026-04-18 地毯式實測）
 ► 設計風格：深色主題為主（深紫底 #06040e + 金色 #f8dfa5/#f0d48a/#e9c27d）；
    pricing.html 為米色淺色主題（#faf9f7）；price-list*.html 為深色橫式單頁
 ► 字體：Noto Serif TC（標題）+ Cormorant Garamond（pricing 西文）+ 系統字體
@@ -419,7 +443,7 @@ AI 營運團隊 15 部門 → 看第四部分。
 | hl-points.js | 積分系統（城堡靈感點 → 折價券） |
 | hl-benefits-modal.js | **完整會員權益彈窗**（SSOT，4 個價目頁共用） |
 | hl-share.js | 跨平台分享（FB/IG/Threads/LINE，line.me/R/share 協議） |
-| hl-chat.js | 馥靈即時對話介面（⚠️ 2026/04/17 全站已移除 import，檔案保留供未來 admin-only 模式用） |
+| ~~hl-chat.js~~ | **2026/04/18 已下線刪除**（逸君改用 claude.ai projects 取代 ruby-brain 私人頁，api/chat.js 同步刪） |
 | hl-record.js | 解讀紀錄存檔 |
 | hl-quiz-save.js | 心理測驗結果存檔 + 馥靈稱號卡 |
 | hl-member.js | 會員資料管理 |
@@ -486,7 +510,7 @@ AI 營運團隊 15 部門 → 看第四部分。
 | family-reading.js | 家族 AI 解讀 | 3 張 $199 / 5 張 $399 / 7 張 $599 |
 | pet-reading.js | 寵物 AI 解讀 | 同上 |
 | reading-services.js | 元辰宮 / 阿卡西 / 前世 / 姓名分析整合 | $199–$599 |
-| chat.js | 馥靈即時對話 | 含於會員 |
+| skin-diagnosis.js | 鉑金智慧煥顏 Claude Vision 讀解（2026/04/18 上線）| 免費 1/日 / 鑰友 5/月 / 大師無限 / 單次 $199 |
 | send-report.js | 自動寄送解讀報告 email | 系統內部 |
 | **payuni-create.js** | PAYUNi 金流建立訂單（已上線，代號 U031269167） | — |
 | **payuni-notify.js** | PAYUNi 付款結果回呼 + 會員自動升級 | — |
@@ -739,7 +763,7 @@ Firestore 結構：
 18. **付費 paywall double-consume**（2026/04/17）：`hlPaywall.show({...})` 凡是走「驗碼→onProceed→API」路徑的都必須 `deferConsume:true`，否則 paywall 標 used + API 再驗 → 403。詳見第六節鐵則與 commit 32a16c87
 19. **桌布 OpenAI URL-only 不寄信**（2026/04/17）：圖片引擎回 URL 若沒 fetch 轉 base64，imageB64 空 → 靜默不寄信。見第六節鐵則與 commit 35ec6bdb
 20. **城堡每日禮物 claim 死鎖**（2026/04/17）：checkDailyLogin 若提前把 `state.lastDate = today` 存起來，claimDailyReward 不能再用 `lastDate === today` 作為早期返回條件，只能檢查 `state.claimed`。commit 306b9843
-21. **小馥聊天已全站移除**（2026/04/17）：`hl-chat.js` 不會被任何公開頁面 import（354 頁清過）。檔案仍保留供未來 admin-only 模式。客戶找 Ruby 走底部 nav 的 LINE / Email。commit e1006355
+21. **小馥聊天已全面下線**（2026/04/18）：`hl-chat.js` + `api/chat.js` + `ruby-brain.html` + `sc/ruby-brain.html` + `draw-admin.html` 的 askXiaoFu 全部刪除。逸君改用 claude.ai projects 取代。客戶找 Ruby 走底部 nav 的 LINE / Email。commit 41faccc8
 22. **topnav 尺寸敏感**（2026/04/17）：`.htn-link` 維持 `font-size:.72rem;padding:6px 10px` 與 `.htn-menu-btn{display:none}` + 媒體查詢 768px 斷點是穩定版。若放大字級或把 menu-btn 改成 `display:inline-flex`，6 個 QUICK link 會在平板寬度擠到兩行。commit e6b29379
 
 ~~
@@ -762,12 +786,12 @@ Notion 關鍵文件：
 
 ## 網站核心數字（對話中可直接引用，2026/04/10 校準）
 
-► 981 頁 HTML（繁體 499 + 繁 blog 58 + 簡體 370 + 簡 blog 54，含城堡 30 頁）
+► 1121 頁 HTML（繁體 500 + 繁 blog 58 + 簡體 468 + 簡 blog 54，含城堡 30 頁、course-slides 25 頁、naha-slides 8 頁）
 ► 33套 命理系統（全球最完整整合）
 ► 130張 原創智慧牌卡 × 9 種牌陣
 ► 100+ 心理測驗（quiz-* 實際 102 支）
 ► 3 級 訂閱方案（免費 / NT$399 鑰友 / NT$999 大師）+ 加購 10 次/$199 永久有效
-► 57 支 hl-* 共用前端模組 + 12 支 Vercel API（含 PAYUNi 兩支，Hobby plan 已滿）
+► 62 支 hl-* 共用前端模組 + 12 支 Vercel API（含 PAYUNi 兩支 + 鉑金智慧煥顏，Hobby plan 已滿）
 
 ## 五大功能區速覽
 
@@ -976,7 +1000,7 @@ D05｜視覺設計部
 ► 觸發：「做配圖」「輪播圖」「海報」「電子報模板」
 
 D06｜技術工程部
-► hourlightkey.com 981 頁維護與新增、HTML/CSS/JS/SEO
+► hourlightkey.com 1121 頁維護與新增、HTML/CSS/JS/SEO
 ► Vercel API（12支）、Firebase、AI解讀指令系統
 ► PAYUNi 統一金流（已上線，AES-256-GCM）、推薦碼系統
 ► SaaS 多租戶預約系統（booking / booking-admin / partner-dashboard / platform-admin）
