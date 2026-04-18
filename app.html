@@ -736,6 +736,186 @@ function exportReadingsCSV(){
   var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='解讀紀錄_'+new Date().toISOString().slice(0,10)+'.csv';a.click();showToast('CSV 已下載 ✓');
 }
 
+/* ═══ ✦ 個人足跡儀表板 ═══ */
+async function renderPersonalDashboard(){
+  var card=document.getElementById('personalDashCard');
+  if(!card||!currentUser||!db)return;
+  card.style.display='block';
+  var totalsGrid=document.getElementById('dashTotalsGrid');
+  var topToolsEl=document.getElementById('dashTopTools');
+  var emptyEl=document.getElementById('dashEmpty');
+  totalsGrid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--mid);font-size:.85rem">彙整你的足跡⋯</div>';
+  topToolsEl.innerHTML='';
+  try{
+    var uid=currentUser.uid;
+    // 撈 history + draw_history + user doc
+    var pHist=db.collection('users/'+uid+'/history').orderBy('timestamp','desc').limit(500).get();
+    var pDraw=db.collection('users/'+uid+'/draw_history').orderBy('createdAt','desc').limit(500).get();
+    var pUser=db.doc('users/'+uid).get();
+    var results=await Promise.all([pHist.catch(()=>null),pDraw.catch(()=>null),pUser.catch(()=>null)]);
+    var histSnap=results[0], drawSnap=results[1], userSnap=results[2];
+    var userData=(userSnap&&userSnap.exists)?userSnap.data():{};
+
+    var byType={draw:0,quiz:0,calculator:0,oracle:0,explore:0,premium:0};
+    var byTool={};
+    var cardFreq={};
+
+    if(histSnap){
+      histSnap.forEach(function(d){
+        var x=d.data();
+        var t=x.type||'other';
+        if(byType[t]!==undefined)byType[t]++;
+        var tid=x.toolId||'other';
+        if(tid!=='other'){byTool[tid]=(byTool[tid]||0)+1;}
+        var obj=x.detail;
+        if(typeof obj==='string'){try{obj=JSON.parse(obj);}catch(e){obj=null;}}
+        if(obj&&Array.isArray(obj.cards)){
+          obj.cards.forEach(function(c){if(c)cardFreq[c]=(cardFreq[c]||0)+1;});
+        }
+      });
+    }
+    var drawCount=byType.draw||0;
+    if(drawSnap){
+      drawSnap.forEach(function(d){
+        var x=d.data();
+        if(Array.isArray(x.cardCodes)){
+          x.cardCodes.forEach(function(c){if(c)cardFreq[c]=(cardFreq[c]||0)+1;});
+        }
+      });
+      drawCount=Math.max(drawCount,drawSnap.size);
+      if(!byTool['draw-hl'])byTool['draw-hl']=drawSnap.size;
+    }
+
+    if(drawCount===0&&(byType.quiz||0)===0&&(byType.calculator||0)===0){
+      totalsGrid.innerHTML='';topToolsEl.innerHTML='';emptyEl.style.display='block';return;
+    }
+    emptyEl.style.display='none';
+
+    var joinDays=1;
+    if(userData.createdAt&&userData.createdAt.toDate){
+      joinDays=Math.max(1,Math.round((Date.now()-userData.createdAt.toDate().getTime())/86400000));
+    }
+    var referredCount=(userData.referral_stats&&userData.referral_stats.referred_count)||0;
+    var aiBonus=userData.aiBonus||0;
+    var plan=userData.plan||'free';
+    var PLAN_ICON={pro:'👑 大師',plus:'🔑 鑰友',free:'🌱 訪客'};
+    var planLabel=PLAN_ICON[plan]||'🌱 訪客';
+    var planSub='';
+    if(userData.planExpiry&&userData.planExpiry!=='permanent'){
+      var ed=new Date(userData.planExpiry);
+      if(!isNaN(ed.getTime())){
+        var left=Math.ceil((ed-new Date())/86400000);
+        if(left>0)planSub='剩 '+left+' 天';
+      }
+    }else if(userData.planExpiry==='permanent'){planSub='永久';}
+
+    var castleLv=1,castlePoints=0,castleFurniture=0,castleMaterials=0;
+    try{
+      var cv3Raw=localStorage.getItem('hl_castle_v3');
+      if(cv3Raw){var cv3=JSON.parse(cv3Raw);
+        if(cv3.save&&cv3.save.level)castleLv=cv3.save.level;
+        castlePoints=(cv3.save&&cv3.save.points)||cv3.points||0;}
+      var matRaw=localStorage.getItem('hl_materials_v1');
+      if(matRaw){var mat=JSON.parse(matRaw);
+        castleFurniture=(mat.furniture&&mat.furniture.length)||0;
+        if(mat.inventory)castleMaterials=Object.keys(mat.inventory).filter(function(k){return mat.inventory[k]>0;}).length;}
+    }catch(e){}
+
+    var tileBg='linear-gradient(135deg,rgba(233,194,125,.10),rgba(233,194,125,.02))';
+    function tile(icon,num,label,sub){
+      return '<div style="background:'+tileBg+';border:1px solid rgba(233,194,125,.22);border-radius:12px;padding:14px 10px;text-align:center">'
+        +'<div style="font-size:1.4rem;margin-bottom:3px">'+icon+'</div>'
+        +'<div style="font-family:\'Playfair Display\',\'Noto Serif TC\',serif;font-size:1.4rem;color:var(--gold,#c9a060);font-weight:600;line-height:1">'+num+'</div>'
+        +'<div style="font-size:.72rem;color:var(--mid,#6e6259);margin-top:3px;letter-spacing:.04em">'+label+'</div>'
+        +(sub?'<div style="font-size:.64rem;color:var(--light,#968b7e);margin-top:1px">'+sub+'</div>':'')
+        +'</div>';
+    }
+    totalsGrid.innerHTML=[
+      tile('👑',planLabel,'當前方案',planSub),
+      tile('📅',joinDays,'加入天數','每一天都被記得'),
+      tile('🎴',drawCount,'抽牌次數','你的覺察軌跡'),
+      tile('🧩',byType.quiz||0,'測驗完成','認識自己的深度'),
+      tile('🔮',byType.calculator||0,'命盤計算','與座標的對話'),
+      tile('✨',byType.oracle||0,'占卜互動','給你的訊息'),
+      tile('🏰','Lv '+castleLv,'內在城堡','你是城堡的主人'),
+      tile('💡',castlePoints,'靈感點','累積的力量'),
+      tile('🪔',castleFurniture,'合成家具','你布置的痕跡'),
+      tile('🧪',castleMaterials+' 種','收集材料','越玩越豐富'),
+      tile('👥',referredCount,'推薦人數',referredCount>0?'獲得 '+(referredCount*2)+' 天體驗':'分享給朋友'),
+      tile('🎁',aiBonus,'AI 獎勵次數','來自各種累積')
+    ].join('');
+
+    var topTools=Object.entries(byTool).filter(function(e){return e[0]&&e[1]>0;}).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
+    var topCards=Object.entries(cardFreq).sort(function(a,b){return b[1]-a[1];}).slice(0,3);
+
+    var html='';
+    if(topTools.length){
+      html+='<div style="font-size:.88rem;color:var(--dark,#3a2f28);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px">✦ 你最常用的工具 <span style="font-size:.72rem;color:var(--mid);font-weight:400">Top '+topTools.length+'</span></div>';
+      var maxC=topTools[0][1];
+      html+='<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">';
+      topTools.forEach(function(row,i){
+        var id=row[0], cnt=row[1];
+        var nm=(window.TOOL_NAMES&&window.TOOL_NAMES[id])||(id.indexOf('quiz-')===0?'心理測驗':id);
+        var pct=Math.round(cnt/maxC*100);
+        var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
+        html+='<div style="display:flex;align-items:center;gap:12px">'
+          +'<div style="width:26px;text-align:center;font-size:.88rem">'+medal+'</div>'
+          +'<div style="flex:1">'
+          +'<div style="display:flex;justify-content:space-between;font-size:.82rem;color:var(--dark);margin-bottom:3px"><span>'+nm+'</span><span style="color:var(--gold);font-weight:600">'+cnt+' 次</span></div>'
+          +'<div style="height:5px;background:rgba(233,194,125,.12);border-radius:3px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:linear-gradient(90deg,#c9a060,#e9c27d);border-radius:3px"></div></div>'
+          +'</div></div>';
+      });
+      html+='</div>';
+    }
+    if(topCards.length){
+      html+='<div style="font-size:.88rem;color:var(--dark);font-weight:600;margin-bottom:10px">✦ 你的命運牌 <span style="font-size:.72rem;color:var(--mid);font-weight:400">最常抽到</span></div>';
+      html+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">';
+      topCards.forEach(function(row,i){
+        var code=row[0], cnt=row[1];
+        var medal=i===0?'🥇':i===1?'🥈':'🥉';
+        html+='<div style="padding:10px 14px;background:rgba(200,168,120,.10);border:1px solid rgba(200,168,120,.28);border-radius:10px;font-size:.82rem">'
+          +'<span style="margin-right:6px">'+medal+'</span><span style="color:var(--gold);font-weight:600">'+code+'</span>'
+          +'<span style="color:var(--mid);margin-left:6px">'+cnt+' 次</span>'
+          +'</div>';
+      });
+      html+='</div>';
+    }
+    var quotes=[
+      '你在這裡的每一天，都被城堡記得。',
+      '每一次抽牌，都是你對自己說的一句話。',
+      '你已走過 '+joinDays+' 天 — 這裡的光，是你自己點亮的。',
+      '你不是在累積數字，是在累積自己。',
+      '每一個足跡，都讓你離自己更近一點。',
+      '你來過，就被記住了。'
+    ];
+    var q=quotes[Math.floor(Math.random()*quotes.length)];
+    html+='<div style="margin-top:14px;padding:16px 20px;background:linear-gradient(135deg,rgba(200,168,120,.10),rgba(160,124,220,.08));border-left:3px solid var(--gold,#c9a060);border-radius:8px;font-family:\'LXGW WenKai TC\',\'Noto Serif TC\',serif;font-size:.92rem;color:var(--dark,#3a2f28);line-height:1.9;font-style:italic">'+q+'</div>';
+
+    topToolsEl.innerHTML=html;
+  }catch(e){
+    console.warn('[PersonalDashboard]',e);
+    totalsGrid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--mid);font-size:.82rem">足跡資料讀取異常，重新整理試試 🙏</div>';
+  }
+}
+
+window.TOOL_NAMES=window.TOOL_NAMES||{
+  'wealth-wallpaper':'能量桌布','draw-hl':'馥靈智慧牌',
+  'draw-nail':'美甲能量牌','draw-spa':'SPA覺察牌',
+  'draw-family':'家族覺察牌','draw-light':'光之牌',
+  'pet-reading':'寵物覺察','destiny-engine':'命盤引擎',
+  'destiny-match':'合盤配對','yijing-oracle':'易經占卜',
+  'phone-oracle':'手機號碼占卜','name-oracle':'姓名占卜',
+  'fuling-mima':'馥靈秘碼','bazi':'八字排盤','ziwei':'紫微斗數',
+  'astro':'西洋占星','hd':'人類圖','maya':'瑪雅曆',
+  'lifepath':'生命路徑','tarot-draw':'塔羅抽牌',
+  'angel-oracle':'天使神諭','bone-casting':'骨牌占卜',
+  'dream-decoder':'夢境解碼','mirror-oracle':'鏡像占卜',
+  'season-oracle':'季節占卜','witch-power':'女巫原力',
+  'projection-cards':'投射卡','triangle-calculator':'三角生命密碼',
+  'qizheng':'七政四餘','numerology':'生命靈數','yuan-chen':'元辰宮',
+  'akashic':'阿卡西紀錄','past-life':'前世故事'
+};
+
 /* ═══ 📜 會員端：我的解讀紀錄 ═══ */
 async function loadMyReadings(){
   if(!currentUser)return;
@@ -1529,6 +1709,22 @@ async function copyReadingText(readingId){
       <!-- History -->
       <div class="page hide" id="page-history">
         <div class="page-head"><h1>使用足跡</h1><p>您在馥靈留下的每一次覺察，都在這裡。</p></div>
+
+        <!-- 🌟 個人數據儀表板 -->
+        <div class="card" id="personalDashCard" style="margin-bottom:16px;display:none">
+          <div class="card-head">
+            <span class="card-title">✦ 我的足跡數據</span>
+            <span class="card-action" style="color:var(--mid);font-size:.72rem;letter-spacing:.04em">你累積的使用痕跡</span>
+          </div>
+          <div class="card-body">
+            <div id="dashTotalsGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px"></div>
+            <div id="dashTopTools" style="margin-top:22px"></div>
+            <div id="dashEmpty" style="display:none;text-align:center;padding:30px 20px;color:var(--mid);font-size:.92rem;line-height:1.9">
+              還沒有累積足跡。<br>
+              <span style="font-size:.82rem;color:var(--light)">開始抽牌、做測驗、算命盤，這裡就會長出你的專屬數據 ✨</span>
+            </div>
+          </div>
+        </div>
 
         <!-- 我的解讀紀錄 -->
         <div class="card" style="margin-bottom:16px" id="my-readings-card">
@@ -3653,7 +3849,7 @@ function showPage(page) {
   // 載入對應資料
   if (page==='home')         loadHome();
   if (page==='tools')        renderTools('all');
-  if (page==='history')      { loadHistory(true); loadMyReadings(); if(auth&&auth.currentUser) loadHistoryForCalendar(auth.currentUser.uid); }
+  if (page==='history')      { loadHistory(true); loadMyReadings(); if(auth&&auth.currentUser) loadHistoryForCalendar(auth.currentUser.uid); renderPersonalDashboard(); }
   if (page==='mine')         loadMine();
   if (page==='notes')        loadNotes();
   if (page==='subscription') loadSubscription();
