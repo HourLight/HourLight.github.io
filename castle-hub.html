@@ -494,31 +494,16 @@ body.cv3-phase-night .cv3-keepsake-title, body.cv3-phase-midnight .cv3-keepsake-
       </div>
     </div>
 
-    <!-- 折價券兌換入口（累積點數後可換真實折價券，導到 castle-game 原有系統）-->
+    <!-- 折價券兌換入口（2026-04-19 加方案分級解鎖）-->
     <div class="cv3-card" style="border-color:rgba(233,160,96,.3);background:linear-gradient(135deg,rgba(255,248,230,.7),rgba(255,240,214,.5))">
       <div class="cv3-card-title">🎟️ 折價券兌換所（用靈感點換真實折扣）</div>
       <div style="font-size:.82rem;color:var(--cv3-ink-soft);margin-bottom:12px;line-height:1.8">
-        累積到 200 / 400 / 600 點，可換 $199 / $399 / $599 折價券。
-        可用於付費解讀、美甲 / SPA、課程報名等。
+        依會員方案解鎖不同等級折價券，可用於付費解讀、美甲 / SPA、課程報名等。
       </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">
-        <div style="padding:12px 6px;text-align:center;background:#fff;border:1px solid rgba(233,160,96,.25);border-radius:10px">
-          <div style="font-size:.75rem;color:#a07820;margin-bottom:2px">200 點</div>
-          <div style="font-family:var(--cv3-serif);font-size:1rem;color:#5a3c22;font-weight:500">$199</div>
-          <div style="font-size:.68rem;color:var(--cv3-ink-lite);margin-top:2px">3 張牌</div>
-        </div>
-        <div style="padding:12px 6px;text-align:center;background:#fff;border:1px solid rgba(233,160,96,.25);border-radius:10px">
-          <div style="font-size:.75rem;color:#a07820;margin-bottom:2px">400 點</div>
-          <div style="font-family:var(--cv3-serif);font-size:1rem;color:#5a3c22;font-weight:500">$399</div>
-          <div style="font-size:.68rem;color:var(--cv3-ink-lite);margin-top:2px">5 張牌</div>
-        </div>
-        <div style="padding:12px 6px;text-align:center;background:#fff;border:1px solid rgba(233,160,96,.25);border-radius:10px">
-          <div style="font-size:.75rem;color:#a07820;margin-bottom:2px">600 點</div>
-          <div style="font-family:var(--cv3-serif);font-size:1rem;color:#5a3c22;font-weight:500">$599</div>
-          <div style="font-size:.68rem;color:var(--cv3-ink-lite);margin-top:2px">7 張牌</div>
-        </div>
+      <div id="cv3-voucher-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">
+        <!-- 動態渲染（依 plan）-->
       </div>
-      <a href="castle-game.html#redeem" style="display:block;text-align:center;padding:11px;background:linear-gradient(135deg,#e9a060,#d48a44);color:#fff;border-radius:10px;text-decoration:none;font-size:.88rem;font-weight:500;letter-spacing:.04em;box-shadow:0 3px 10px rgba(233,160,96,.25)">前往兌換折價券序號 →</a>
+      <a id="cv3-voucher-cta" href="castle-game.html#redeem" style="display:block;text-align:center;padding:11px;background:linear-gradient(135deg,#e9a060,#d48a44);color:#fff;border-radius:10px;text-decoration:none;font-size:.88rem;font-weight:500;letter-spacing:.04em;box-shadow:0 3px 10px rgba(233,160,96,.25)">前往兌換折價券序號 →</a>
     </div>
   </section>
 
@@ -1108,6 +1093,58 @@ body.cv3-phase-night .cv3-keepsake-title, body.cv3-phase-midnight .cv3-keepsake-
     document.getElementById('cv3-ex-reward-overlay').classList.remove('show');
   };
 
+  // ── 🎟️ 折價券兌換分級渲染（2026/4/19 加 plan 解鎖）──
+  function renderVoucherGrid(){
+    var grid = document.getElementById('cv3-voucher-grid');
+    if (!grid) return;
+    var plan = state.userPlan || 'free';
+    var TIERS = [
+      { cost:200, value:199, cards:'3 張牌', required:'free', label:'$199' },
+      { cost:400, value:399, cards:'5 張牌', required:'plus', label:'$399' },
+      { cost:600, value:599, cards:'7 張牌', required:'pro',  label:'$599' }
+    ];
+    var PLAN_RANK = { free:0, plus:1, pro:2 };
+    var userRank = PLAN_RANK[plan] || 0;
+
+    var html = '';
+    TIERS.forEach(function(t){
+      var requiredRank = PLAN_RANK[t.required];
+      var locked = userRank < requiredRank;
+      var lockMsg = '';
+      if (locked) {
+        lockMsg = t.required === 'plus' ? '升級鑰友解鎖' : '升級大師解鎖';
+      }
+      var bg = locked ? '#f0ece6' : '#fff';
+      var borderColor = locked ? 'rgba(0,0,0,.08)' : 'rgba(233,160,96,.25)';
+      var textColor = locked ? '#aaa' : '#5a3c22';
+      var subColor = locked ? '#bbb' : '#a07820';
+      html += '<div style="padding:12px 6px;text-align:center;background:'+bg+';border:1px solid '+borderColor+';border-radius:10px;position:relative">';
+      if (locked) {
+        html += '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(240,236,230,.88);border-radius:10px;padding:4px">'
+          + '<div style="font-size:1.2rem;margin-bottom:2px">🔒</div>'
+          + '<div style="font-size:.66rem;color:#8a7260;line-height:1.4">'+lockMsg+'</div>'
+          + '</div>';
+      }
+      html += '<div style="font-size:.75rem;color:'+subColor+';margin-bottom:2px">'+t.cost+' 點</div>'
+        + '<div style="font-family:var(--cv3-serif);font-size:1rem;color:'+textColor+';font-weight:500">'+t.label+'</div>'
+        + '<div style="font-size:.68rem;color:var(--cv3-ink-lite);margin-top:2px">'+t.cards+'</div>'
+        + '</div>';
+    });
+    grid.innerHTML = html;
+
+    // CTA 按鈕文字依方案調整
+    var cta = document.getElementById('cv3-voucher-cta');
+    if (cta) {
+      if (plan === 'free') {
+        cta.textContent = '前往兌換 $199 折價券序號 →';
+      } else if (plan === 'plus') {
+        cta.textContent = '前往兌換折價券序號（鑰友可換 $199 / $399） →';
+      } else {
+        cta.textContent = '前往兌換折價券序號（大師全部可換）→';
+      }
+    }
+  }
+
   // ── 小馥 + 寵物面板（9 貓 + 元辰動物）──
   var XIAOFU_FACES = {
     bright: 'fufu-cute.webp',
@@ -1694,6 +1731,13 @@ body.cv3-phase-night .cv3-keepsake-title, body.cv3-phase-midnight .cv3-keepsake-
             .collection('castle_save').doc('state').get();
           if (doc.exists) state.save = doc.data();
         } catch(e){ console.warn('castle_save 讀取失敗：', e.message); }
+        // 2026-04-19 讀取 user plan 供折價券分級解鎖
+        try {
+          var userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
+          if (userDoc.exists) {
+            state.userPlan = userDoc.data().plan || 'free';
+          }
+        } catch(e){ state.userPlan = 'free'; }
       }
       var seedStr = (state.uid || 'guest') + TODAY;
       state.moods = V3.rollDailyMoods(seedStr);
@@ -1704,6 +1748,7 @@ body.cv3-phase-night .cv3-keepsake-title, body.cv3-phase-midnight .cv3-keepsake-
       renderToolsMap('destiny');
       setupToolsMapTabs();
       initShieldSystem();
+      renderVoucherGrid();  // 折價券分級渲染
       tryDailyLoginBonus();
       tryVisitMilestone();
       tryOnboarding();
