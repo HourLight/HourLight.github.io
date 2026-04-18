@@ -1070,7 +1070,7 @@ body.cv3-phase-night .cv3-keepsake-title, body.cv3-phase-midnight .cv3-keepsake-
     wrap.innerHTML = html;
   }
 
-  // ── 材料兌換（真實實作）──
+  // ── 材料兌換（真實實作｜加確認防手滑）──
   window.cv3ExchangeMaterial = function(tier){
     var def = V3.MATERIAL_EXCHANGE[tier];
     if (!def) return;
@@ -1081,6 +1081,15 @@ body.cv3-phase-night .cv3-keepsake-title, body.cv3-phase-midnight .cv3-keepsake-
       toast(({ common:'Common', rare:'Rare', legendary:'Legendary' }[tier] || tier) + ' 今日已達上限 ' + def.dailyLimit + ' 次');
       return;
     }
+    // 🔧 (2026/4/19) 黃兔兔回報「不小心按到」→ 加確認對話框防手滑
+    var tierName = { common:'Common 材料', rare:'Rare 材料', legendary:'Legendary 材料' }[tier] || tier;
+    var remaining = def.dailyLimit - (ex[tier] || 0);
+    var confirmMsg = '確認兌換「' + tierName + '」？\n\n' +
+      '• 花費：' + def.cost + ' 靈感點（目前 ' + pts + ' 點）\n' +
+      '• 今日剩餘次數：' + remaining + ' 次\n' +
+      '• 扣點後無法還原';
+    if (!confirm(confirmMsg)) return;
+
     addPoints(-def.cost);
     var mat = pickMat(tier);
     addMaterial(mat.id);
