@@ -1,0 +1,2461 @@
+<!DOCTYPE html>
+<html lang="zh-Hans-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>馥灵之钥｜预约管理后台 HOUR LIGHT</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="theme-color" content="#faf6ef">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#faf6ef; --bg2:#f3ede3; --card:#ffffff;
+  --border:rgba(184,146,42,.18); --border2:rgba(184,146,42,.35);
+  --gold:#b8922a; --gold-light:#d4ad3a; --gold-bg:rgba(184,146,42,.08);
+  --text:#2a1f0e; --text2:rgba(42,31,14,.68); --text3:rgba(42,31,14,.42);
+  --green:#1a8a4a; --green-bg:rgba(26,138,74,.08);
+  --red:#c04040; --red-bg:rgba(192,64,64,.08);
+  --orange:#b07020; --orange-bg:rgba(176,112,32,.08);
+  --blue:#3060b0; --blue-bg:rgba(48,96,176,.08);
+  --radius:12px; --radius-sm:8px;
+  --shadow:0 2px 8px rgba(42,31,14,.06);
+  --shadow-lg:0 4px 20px rgba(42,31,14,.1);
+}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;min-height:100vh;padding-bottom:100px}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,textarea,select{font-family:inherit;font-size:1rem}
+a{color:inherit;text-decoration:none}
+
+/* ─── Guard Screen ─── */
+.guard{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:24px;z-index:100}
+.guard-box{max-width:420px;width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:40px 28px;text-align:center;box-shadow:var(--shadow-lg)}
+.guard-title{font-family:'Cormorant Garamond','Noto Serif TC',serif;font-size:1.6rem;color:var(--text);margin-bottom:8px;letter-spacing:.05em}
+.guard-sub{font-size:.88rem;color:var(--text2);margin-bottom:28px;line-height:1.8}
+.guard-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:14px 32px;background:var(--gold);color:#fff;border-radius:999px;font-size:1rem;font-weight:500;min-height:48px;min-width:200px;transition:all .2s}
+.guard-btn:hover{background:var(--gold-light);transform:translateY(-1px)}
+.guard-btn:disabled{opacity:.5;cursor:not-allowed}
+.guard-err{color:var(--red);font-size:.85rem;margin-top:12px;min-height:20px}
+.guard-loading{color:var(--text3);font-size:.85rem;margin-top:12px;min-height:20px}
+
+/* ─── Shell ─── */
+.shell{display:none;max-width:1000px;margin:0 auto;padding:20px 16px 0}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;box-shadow:var(--shadow)}
+.topbar-brand{display:flex;align-items:center;gap:10px}
+.topbar-title{font-family:'Cormorant Garamond','Noto Serif TC',serif;font-size:1.1rem;font-weight:500;letter-spacing:.02em}
+.topbar-sub{font-size:.72rem;color:var(--text3);letter-spacing:.08em;margin-top:2px}
+.topbar-user{font-size:.78rem;color:var(--text2)}
+.topbar-logout{color:var(--red);font-size:.78rem;margin-left:12px;padding:6px 12px;border:1px solid var(--border);border-radius:6px;min-height:32px}
+
+/* ─── Tabs ─── */
+.tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:6px;margin-bottom:16px;overflow-x:auto;-webkit-overflow-scrolling:touch;box-shadow:var(--shadow)}
+.tab{flex:1;min-width:90px;padding:12px 8px;font-size:.92rem;color:var(--text2);border-radius:var(--radius-sm);transition:all .2s;white-space:nowrap;min-height:48px;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:500}
+.tab.active{background:var(--gold);color:#fff;font-weight:500}
+.tab-ico{font-size:1.05rem}
+
+/* ─── Cards ─── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border);gap:12px;flex-wrap:wrap}
+.card-title{font-family:'Cormorant Garamond','Noto Serif TC',serif;font-size:1.2rem;color:var(--text);font-weight:500;letter-spacing:.03em;display:flex;align-items:center;gap:8px}
+.card-desc{font-size:.83rem;color:var(--text2);line-height:1.7;margin-bottom:14px}
+.card-body{font-size:.92rem;color:var(--text2)}
+
+/* ─── Buttons ─── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 20px;border-radius:999px;font-size:.92rem;font-weight:500;min-height:44px;transition:all .2s;line-height:1;border:1px solid transparent}
+.btn-gold{background:var(--gold);color:#fff}
+.btn-gold:hover{background:var(--gold-light);transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--text);border-color:var(--border2)}
+.btn-outline:hover{background:var(--gold-bg)}
+.btn-ghost{background:transparent;color:var(--text2);padding:8px 12px;min-height:36px;font-size:.85rem}
+.btn-ghost:hover{color:var(--gold)}
+.btn-red{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,64,64,.2)}
+.btn-red:hover{background:rgba(192,64,64,.12)}
+.btn-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(26,138,74,.2)}
+.btn-green:hover{background:rgba(26,138,74,.12)}
+.btn-sm{padding:8px 14px;font-size:.82rem;min-height:38px}
+.btn-block{width:100%}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ─── Forms ─── */
+.field{margin-bottom:14px}
+.field-label{display:block;font-size:.82rem;color:var(--text2);margin-bottom:6px;font-weight:500}
+.field-label .required{color:var(--red);margin-left:2px}
+.input,.select,.textarea{width:100%;padding:12px 14px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);font-size:1rem;transition:all .2s;min-height:46px}
+.input:focus,.select:focus,.textarea:focus{outline:none;border-color:var(--gold);background:#fff;box-shadow:0 0 0 3px var(--gold-bg)}
+.textarea{resize:vertical;min-height:90px;line-height:1.7}
+.field-hint{font-size:.76rem;color:var(--text3);margin-top:4px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.field-row{grid-template-columns:1fr}}
+
+/* ─── Service Item ─── */
+.item-list{display:flex;flex-direction:column;gap:12px}
+.item{display:flex;align-items:stretch;gap:12px;padding:16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);transition:all .2s}
+.item:hover{border-color:var(--border2);box-shadow:var(--shadow)}
+.item.inactive{opacity:.55}
+.item-color{width:4px;border-radius:2px;flex-shrink:0;background:var(--gold)}
+.item-body{flex:1;min-width:0}
+.item-name{font-weight:500;color:var(--text);font-size:1rem;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.item-category{font-size:.72rem;color:var(--gold);background:var(--gold-bg);padding:2px 8px;border-radius:999px;font-weight:500}
+.item-desc{font-size:.82rem;color:var(--text2);line-height:1.65;margin-bottom:6px}
+.item-meta{font-size:.78rem;color:var(--text3);display:flex;gap:14px;flex-wrap:wrap}
+.item-meta span strong{color:var(--text2)}
+.item-actions{display:flex;flex-direction:column;gap:6px;align-self:flex-start;flex-shrink:0}
+.item-empty{text-align:center;padding:48px 24px;color:var(--text3);font-size:.9rem;background:var(--bg2);border-radius:var(--radius);border:1px dashed var(--border2)}
+
+/* ─── Modal ─── */
+.modal{position:fixed;inset:0;display:none;align-items:flex-end;justify-content:center;background:rgba(42,31,14,.5);z-index:1000;padding:0}
+.modal.open{display:flex}
+.modal-box{width:100%;max-width:520px;background:var(--card);border-radius:var(--radius) var(--radius) 0 0;max-height:92vh;overflow-y:auto;padding:24px 20px 32px;box-shadow:var(--shadow-lg);animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@media(min-width:520px){.modal{align-items:center;padding:20px}.modal-box{border-radius:var(--radius)}}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.modal-title{font-family:'Cormorant Garamond','Noto Serif TC',serif;font-size:1.25rem;font-weight:500;color:var(--text)}
+.modal-close{font-size:1.5rem;color:var(--text3);padding:4px 10px;min-height:36px}
+.modal-actions{display:flex;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+
+/* ─── Toast ─── */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:12px 24px;background:var(--text);color:#fff;border-radius:999px;font-size:.88rem;z-index:2000;box-shadow:var(--shadow-lg);opacity:0;transition:opacity .3s}
+.toast.show{opacity:1}
+.toast.err{background:var(--red)}
+.toast.ok{background:var(--green)}
+
+/* ─── Chip / Tag ─── */
+.chip-group{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chip{padding:6px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:999px;font-size:.78rem;color:var(--text2);cursor:pointer;min-height:34px;display:inline-flex;align-items:center}
+.chip.active{background:var(--gold);color:#fff;border-color:var(--gold)}
+
+/* ─── Status badges ─── */
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:500}
+.badge-pending{background:var(--orange-bg);color:var(--orange)}
+.badge-confirmed{background:var(--green-bg);color:var(--green)}
+.badge-cancelled{background:var(--red-bg);color:var(--red)}
+.badge-completed{background:var(--blue-bg);color:var(--blue)}
+
+/* ─── Hours grid ─── */
+.hours-grid{display:flex;flex-direction:column;gap:8px}
+.hours-row{display:grid;grid-template-columns:50px 1fr 1fr 40px;gap:8px;align-items:center}
+.hours-row .day{font-size:.88rem;color:var(--text2);font-weight:500}
+.hours-row input{padding:8px 10px;font-size:1rem;min-height:40px;border:1px solid var(--border2);border-radius:6px;background:var(--bg)}
+.hours-row input:disabled{background:var(--bg2);color:var(--text3)}
+.hours-toggle{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;font-size:.82rem}
+.hours-toggle.on{background:var(--green-bg);color:var(--green)}
+.hours-toggle.off{background:var(--red-bg);color:var(--red)}
+
+/* ─── Empty state ─── */
+.empty{text-align:center;padding:40px 20px;color:var(--text3)}
+.empty-icon{font-size:2rem;margin-bottom:10px;opacity:.4}
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"首页","item":"https://hourlightkey.com/"},{"@type":"ListItem","position":2,"name":"预约管理后台 HOUR LIGHT","item":"https://hourlightkey.com/sc/booking-admin.html"}]}</script>
+  <meta name="author" content="王逸君">
+<link rel="alternate" hreflang="zh-Hant" href="https://hourlightkey.com/booking-admin.html"/>
+<link rel="alternate" hreflang="zh-Hans" href="https://hourlightkey.com/sc/booking-admin.html"/>
+<link rel="alternate" hreflang="x-default" href="https://hourlightkey.com/booking-admin.html"/>
+</head>
+<body>
+
+<!-- ═══ Guard / Login ═══ -->
+<div class="guard" id="guard">
+  <div class="guard-box">
+    <div class="guard-title">HOUR LIGHT</div>
+    <div class="guard-sub">预约管理后台<br>仅限授权管理员登录</div>
+    <button class="guard-btn" id="loginBtn" onclick="doLogin()">🔑 Google 登录</button>
+    <div class="guard-loading" id="guardLoading"></div>
+    <div class="guard-err" id="guardError"></div>
+  </div>
+</div>
+
+<!-- ═══ Main Shell ═══ -->
+<div class="shell" id="shell">
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div>
+        <div class="topbar-title">HOUR LIGHT</div>
+        <div class="topbar-sub">BOOKING ADMIN</div>
+      </div>
+    </div>
+    <div>
+      <span class="topbar-user" id="topbarUser"></span>
+      <button class="topbar-logout" onclick="doLogout()">注销</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-tab="services" onclick="switchTab('services')"><span class="tab-ico">🌿</span>服务</button>
+    <button class="tab" data-tab="staff" onclick="switchTab('staff')"><span class="tab-ico">💁</span>伙伴</button>
+    <button class="tab" data-tab="slots" onclick="switchTab('slots')"><span class="tab-ico">🗓</span>班表</button>
+    <button class="tab" data-tab="bookings" onclick="switchTab('bookings')"><span class="tab-ico">📅</span>预约</button>
+    <button class="tab" data-tab="clients" onclick="switchTab('clients')"><span class="tab-ico">👤</span>客户</button>
+    <button class="tab" data-tab="courses" onclick="switchTab('courses')"><span class="tab-ico">📚</span>课程</button>
+    <button class="tab" data-tab="settings" onclick="switchTab('settings')"><span class="tab-ico">⚙️</span>设置</button>
+  </div>
+
+  <!-- ═══ TAB: Services ═══ -->
+  <div class="tab-pane" id="tab-services">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">🌿 服务项目</div>
+        <button class="btn btn-gold btn-sm" onclick="openServiceModal()">➕ 添加服务</button>
+      </div>
+      <div class="card-desc">这里管理你提供的所有服务（芳疗／SPA／觉察解读／一对一等等）。每个服务都有独立的价格、时长、描述。客户预约页会读取这里的数据。</div>
+      <div id="serviceList" class="item-list">
+        <div class="item-empty">加载中⋯</div>
+      </div>
+    </div>
+
+    <!-- 附加服务管理 -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">附加服务</div>
+        <button class="btn btn-gold btn-sm" onclick="openAddonModal()">添加附加服务</button>
+      </div>
+      <div class="card-desc">附加服务可在客人预约时加选（如卸甲、加购保养、延长造型等）。会自动加上额外费用和时间。</div>
+      <div id="addonList" class="item-list" style="margin-top:8px">
+        <div class="item-empty">加载中⋯</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB: Staff ═══ -->
+  <div class="tab-pane" id="tab-staff" style="display:none">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">💁 伙伴</div>
+        <button class="btn btn-gold btn-sm" onclick="openStaffModal()">➕ 添加伙伴</button>
+      </div>
+      <div class="card-desc">你和你的女儿们、伙伴团队。每位伙伴可以设置班表，以及她们能够运行哪些服务。</div>
+      <div id="staffList" class="item-list">
+        <div class="item-empty">加载中⋯</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB: Schedule (排班行事历) ═══ -->
+  <div class="tab-pane" id="tab-slots" style="display:none">
+
+    <!-- 班别管理 -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">班别设置</div>
+        <button class="btn btn-gold btn-sm" onclick="openShiftModal()">添加班别</button>
+      </div>
+      <div class="card-desc">定义常用班别（早班、晚班、全天等），排班时直接选用。</div>
+      <div id="shiftList" class="item-list" style="margin-top:8px">
+        <div class="item-empty">加载中⋯</div>
+      </div>
+    </div>
+
+    <!-- 排班行事历 -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">排班行事历</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="scheduleNav(-1)">上周</button>
+          <span id="scheduleWeekLabel" style="font-size:.88rem;color:var(--text2);min-width:140px;text-align:center"></span>
+          <button class="btn btn-outline btn-sm" onclick="scheduleNav(1)">下周</button>
+          <button class="btn btn-outline btn-sm" onclick="scheduleNav(0)">今天</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+        <table id="scheduleTable" style="width:100%;border-collapse:collapse;font-size:.82rem;min-width:640px">
+          <thead id="scheduleHead"></thead>
+          <tbody id="scheduleBody"></tbody>
+        </table>
+      </div>
+      <div class="card-desc" style="margin-top:12px">
+        点击格子指派班别。空白 = 休息。排班后客人端预约页才能看到可预约时段。
+      </div>
+    </div>
+
+    <!-- 旧版时段管理（折叠备用） -->
+    <details style="margin-top:8px">
+      <summary style="cursor:pointer;color:var(--text3);font-size:.82rem;padding:8px 0">旧版时段管理（高端）</summary>
+      <div class="card" style="margin-top:8px">
+        <div class="card-head">
+          <div class="card-title">开放时段（旧版）</div>
+          <button class="btn btn-gold btn-sm" onclick="openSlotModal()">添加时段</button>
+        </div>
+        <div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="openBatchSlotModal()">批量开放</button>
+          <button class="btn btn-outline btn-sm" onclick="loadSlots()">重新加载</button>
+        </div>
+        <div id="slotList" class="item-list">
+          <div class="item-empty">加载中⋯</div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <!-- ═══ TAB: Bookings ═══ -->
+  <div class="tab-pane" id="tab-bookings" style="display:none">
+
+    <!-- 当日预约行事历（对齐美业欧巴「当日预约行事历」） -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">当日预约行事历</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input type="date" id="dailyCalDate" class="input" style="width:auto;padding:8px 12px;font-size:1rem" onchange="loadDailyCalendar()">
+          <button class="btn btn-outline btn-sm" onclick="setDailyCalToday()">今天</button>
+          <button class="btn btn-outline btn-sm" onclick="loadBookings()">重新加载</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+        <div id="dailyCalendar" style="min-width:500px;position:relative">
+          <div style="text-align:center;padding:32px;color:var(--text3)">选择日期后显示行事历</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 预约列表 -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">预约列表</div>
+      </div>
+      <div class="card-desc">客户通过 booking 页面送出的预约会出现在这里。可以一键确认或取消。</div>
+      <div style="margin-bottom:12px">
+        <div class="chip-group" id="bookingFilters">
+          <button class="chip active" onclick="filterBookings('all',this)">全部</button>
+          <button class="chip" onclick="filterBookings('pending',this)">待确认</button>
+          <button class="chip" onclick="filterBookings('confirmed',this)">已确认</button>
+          <button class="chip" onclick="filterBookings('cancelled',this)">已取消</button>
+        </div>
+      </div>
+      <div id="bookingList" class="item-list">
+        <div class="item-empty">加载中⋯</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB: Clients (客户肤况文件) ═══ -->
+  <div class="tab-pane" id="tab-clients" style="display:none">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">👤 客户肤况文件</div>
+        <button class="btn btn-outline btn-sm" onclick="loadClients()">重新加载</button>
+      </div>
+      <div class="card-desc">依客户暱称汇整您的铂金焕颜报告。点展开看该客户历次肤况 + 照片，可跳前后对比分析。</div>
+      <div id="clientList" class="item-list">
+        <div class="item-empty">加载中⋯</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB: Courses (课程管理) ═══ -->
+  <div class="tab-pane" id="tab-courses" style="display:none">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">课程管理</div>
+        <button class="btn btn-gold btn-sm" onclick="openCourseModal()">添加课程</button>
+      </div>
+      <div class="card-desc">管理在线课程。每门课程可包含多个章节（视频 + 文本教材）。学员付费后解锁内容。</div>
+      <div id="courseList" class="item-list">
+        <div class="item-empty">加载中⋯</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB: Settings ═══ -->
+  <div class="tab-pane" id="tab-settings" style="display:none">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">⚙️ 店家设置</div>
+      </div>
+      <div class="card-desc">店家信息会显示在客户预约页的顶端。</div>
+
+      <div class="field">
+        <label class="field-label">店名 <span class="required">*</span></label>
+        <input type="text" class="input" id="bizName" placeholder="HOUR LIGHT">
+      </div>
+      <div class="field">
+        <label class="field-label">副标 / 一句话介绍</label>
+        <input type="text" class="input" id="bizTagline" placeholder="读懂自己，活对人生">
+      </div>
+      <div class="field">
+        <label class="field-label">详细介绍</label>
+        <textarea class="textarea" id="bizDesc" placeholder="我们提供的服务、理念⋯"></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">地址</label>
+          <input type="text" class="input" id="bizAddress" placeholder="桃园市⋯">
+        </div>
+        <div class="field">
+          <label class="field-label">电话</label>
+          <input type="text" class="input" id="bizPhone" placeholder="0912-345-678">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">LINE 官方帐号链接</label>
+        <input type="text" class="input" id="bizLine" placeholder="https://lin.ee/RdQBFAN">
+        <div class="field-hint">客户预约完成后会看到这个链接，方便他们加好友接收通知</div>
+      </div>
+      <div class="field">
+        <label class="field-label">订金功能</label>
+        <select class="select" id="bizDeposit">
+          <option value="off">关闭（到店付款）</option>
+          <option value="optional">可选（由伙伴决定是否收取）</option>
+          <option value="required">强制（年节档期用）</option>
+        </select>
+        <div class="field-hint">目前缺省关闭。年节档期要收订金时切换到「强制」并设置金额</div>
+      </div>
+      <div class="field">
+        <label class="field-label">LINE Channel Access Token（通知用）</label>
+        <input type="text" class="input" id="bizLineToken" placeholder="Channel Access Token（长字符串）">
+        <div class="field-hint">
+          填完后：客户预约完成自动收到 LINE 提醒、取消通知、回访提醒都会发到他 LINE。<br>
+          <a href="../line-integration.html" target="_blank" style="color:var(--gold);text-decoration:underline">📖 第一次设置？看 10 分钟完成教学 →</a>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">LINE Channel Secret（选填，双向功能用）</label>
+        <input type="text" class="input" id="bizLineSecret" placeholder="Channel Secret（用于接收客户消息）">
+        <div class="field-hint">仅在妳想让客户直接在 LINE 对话里预约时需要（高端功能）</div>
+      </div>
+      <div class="field">
+        <label class="field-label">LINE 官方帐号 Basic ID（让客人加好友）</label>
+        <input type="text" class="input" id="bizLineBasicId" placeholder="例：@hourlight（含 @ 符号）">
+        <div class="field-hint">客户预约完成会看到「加我 LINE 收通知 →」按钮，点了直接加妳</div>
+      </div>
+
+      <button class="btn btn-gold btn-block" onclick="saveSettings()" id="saveSettingsBtn">💾 保存设置</button>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">🔗 客户预约页链接</div>
+      </div>
+      <div class="field">
+        <label class="field-label">公开预约页网址</label>
+        <input type="text" class="input" id="publicBookingUrl" readonly onclick="this.select()">
+        <div class="field-hint">把这个网址分享给客户即可。也可以做成 QR code 贴在店里</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ Service Modal ═══ -->
+<div class="modal" id="serviceModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title" id="serviceModalTitle">添加服务</div>
+      <button class="modal-close" onclick="closeServiceModal()">×</button>
+    </div>
+
+    <input type="hidden" id="svcId">
+    <div class="field">
+      <label class="field-label">服务名称 <span class="required">*</span></label>
+      <input type="text" class="input" id="svcName" placeholder="例如：馥灵初探 21 张牌阵觉察">
+    </div>
+    <div class="field">
+      <label class="field-label">服务类别 <span class="required">*</span></label>
+      <select class="input" id="svcCategory">
+        <option value="">请选择</option>
+        <option value="觉察解读">觉察解读（在线）</option>
+        <option value="美甲">美甲（实体）</option>
+        <option value="美容SPA">美容 SPA（实体）</option>
+        <option value="教学课程">教学课程</option>
+        <option value="其他">其他</option>
+      </select>
+      <div class="field-hint">同类别的服务会在客户页集中显示</div>
+    </div>
+    <div class="field">
+      <label class="field-label">服务形式</label>
+      <select class="input" id="svcServiceType">
+        <option value="inperson">实体到店</option>
+        <option value="online">在线（不需到店）</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="field-label">预约模式</label>
+      <select class="input" id="svcBookingMode">
+        <option value="both">指定人员 + 系统安排（两者皆可）</option>
+        <option value="appointment">仅限指定人员预约</option>
+        <option value="dispatch">仅限系统安排（派单）</option>
+      </select>
+      <div class="field-hint">「指定人员」客户自选伙伴/觉察师；「系统安排」由系统分配当班人员</div>
+    </div>
+    <div class="field">
+      <label class="field-label">内容简介</label>
+      <textarea class="textarea" id="svcDesc" placeholder="这个服务会做什么？客户会得到什么？"></textarea>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">价格 NT$ <span class="required">*</span></label>
+        <input type="number" class="input" id="svcPrice" placeholder="5400" min="0">
+      </div>
+      <div class="field">
+        <label class="field-label">时长（分钟）<span class="required">*</span></label>
+        <input type="number" class="input" id="svcDuration" placeholder="120" min="15" step="15">
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">色码（可选）</label>
+      <input type="text" class="input" id="svcColor" placeholder="#b8922a" value="#b8922a">
+      <div class="field-hint">服务在列表上会有这个颜色的左侧色条</div>
+    </div>
+    <div class="field">
+      <label class="field-label">显示顺序</label>
+      <input type="number" class="input" id="svcOrder" placeholder="0" value="0">
+      <div class="field-hint">数字越小越前面</div>
+    </div>
+    <div class="field">
+      <label class="field-label">
+        <input type="checkbox" id="svcActive" checked style="margin-right:6px;width:18px;height:18px;vertical-align:middle">
+        激活（关闭后客户看不到）
+      </label>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeServiceModal()" style="flex:1">取消</button>
+      <button class="btn btn-gold" onclick="saveService()" id="saveSvcBtn" style="flex:1.5">💾 保存</button>
+    </div>
+    <div class="modal-actions" id="svcDeleteRow" style="display:none;margin-top:10px;padding-top:0;border-top:none">
+      <button class="btn btn-red btn-block" onclick="deleteService()">🗑 删除这个服务</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Staff Modal ═══ -->
+<div class="modal" id="staffModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title" id="staffModalTitle">添加伙伴</div>
+      <button class="modal-close" onclick="closeStaffModal()">×</button>
+    </div>
+
+    <input type="hidden" id="stfId">
+    <div class="field">
+      <label class="field-label">伙伴名字 <span class="required">*</span></label>
+      <input type="text" class="input" id="stfName" placeholder="例如：王逸君 Ruby">
+    </div>
+    <div class="field">
+      <label class="field-label">角色 / 职称</label>
+      <select class="input" id="stfRole">
+        <option value="">请选择</option>
+        <option value="觉察师">觉察师</option>
+        <option value="美甲师">美甲师</option>
+        <option value="SPA芳疗师">SPA 芳疗师</option>
+        <option value="教学讲师">教学讲师</option>
+        <option value="全能">全能（多角色）</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="field-label">简介</label>
+      <textarea class="textarea" id="stfBio" placeholder="经历、专长、为什么客户会指名她⋯"></textarea>
+    </div>
+    <div class="field">
+      <label class="field-label">头像 URL（可选）</label>
+      <input type="text" class="input" id="stfAvatar" placeholder="https://⋯.jpg">
+    </div>
+    <div class="field">
+      <label class="field-label">可运行的服务</label>
+      <div id="stfServicesPicker" class="chip-group" style="margin-top:6px">
+        <span style="font-size:.82rem;color:var(--text3)">先添加服务再回来设置</span>
+      </div>
+      <div class="field-hint">点击这位伙伴能做哪些服务，客户预约时只会看到能做该服务的伙伴</div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">每周班表</label>
+      <div class="hours-grid" id="stfHoursGrid"></div>
+      <div class="field-hint">关掉的日子表示休假不接预约</div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">
+        <input type="checkbox" id="stfActive" checked style="margin-right:6px;width:18px;height:18px;vertical-align:middle">
+        激活（关闭后客户看不到这位伙伴）
+      </label>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeStaffModal()" style="flex:1">取消</button>
+      <button class="btn btn-gold" onclick="saveStaff()" id="saveStfBtn" style="flex:1.5">💾 保存</button>
+    </div>
+    <div class="modal-actions" id="stfDeleteRow" style="display:none;margin-top:10px;padding-top:0;border-top:none">
+      <button class="btn btn-red btn-block" onclick="deleteStaff()">🗑 删除这位伙伴</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Slot Modal (单笔) ═══ -->
+<div class="modal" id="slotModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title" id="slotModalTitle">添加时段</div>
+      <button class="modal-close" onclick="closeSlotModal()">×</button>
+    </div>
+
+    <input type="hidden" id="slotId">
+    <div class="field">
+      <label class="field-label">日期 <span class="required">*</span></label>
+      <input type="date" class="input" id="slotDate">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">开始时间 <span class="required">*</span></label>
+        <input type="time" class="input" id="slotStart" value="14:00">
+      </div>
+      <div class="field">
+        <label class="field-label">结束时间 <span class="required">*</span></label>
+        <input type="time" class="input" id="slotEnd" value="17:00">
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">伙伴 <span class="required">*</span></label>
+      <select class="select" id="slotStaff"></select>
+    </div>
+    <div class="field">
+      <label class="field-label">限定服务（不选 = 全部激活中的服务都可）</label>
+      <div id="slotServicesPicker" class="chip-group" style="margin-top:6px">
+        <span style="font-size:.82rem;color:var(--text3)">先添加服务再回来设置</span>
+      </div>
+      <div class="field-hint">点击要开放的服务，不点 = 这个时段全部服务都可以预约</div>
+    </div>
+    <div class="field">
+      <label class="field-label">备注（可选）</label>
+      <input type="text" class="input" id="slotNotes" placeholder="例如：限老客户、新开时段⋯">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeSlotModal()" style="flex:1">取消</button>
+      <button class="btn btn-gold" onclick="saveSlot()" id="saveSlotBtn" style="flex:1.5">💾 保存</button>
+    </div>
+    <div class="modal-actions" id="slotDeleteRow" style="display:none;margin-top:10px;padding-top:0;border-top:none">
+      <button class="btn btn-red btn-block" onclick="deleteSlot()">🗑 关闭此时段</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Course Modal ═══ -->
+<div class="modal" id="courseModal">
+  <div class="modal-box" style="max-width:640px">
+    <div class="modal-head">
+      <div class="modal-title" id="courseModalTitle">添加课程</div>
+      <button class="modal-close" onclick="closeCourseModal()">×</button>
+    </div>
+    <input type="hidden" id="crsId">
+    <div class="field">
+      <label class="field-label">课程名称 <span class="required">*</span></label>
+      <input type="text" class="input" id="crsName" placeholder="例如：馥灵觉察师认证班">
+    </div>
+    <div class="field">
+      <label class="field-label">简介</label>
+      <textarea class="textarea" id="crsDesc" placeholder="这门课程会学到什么？"></textarea>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">价格 NT$ <span class="required">*</span></label>
+        <input type="number" class="input" id="crsPrice" placeholder="12800" min="0">
+      </div>
+      <div class="field">
+        <label class="field-label">分类</label>
+        <select class="input" id="crsCategory">
+          <option value="觉察培训">觉察培训</option>
+          <option value="美甲课程">美甲课程</option>
+          <option value="美容SPA">美容 SPA</option>
+          <option value="品牌经营">品牌经营</option>
+          <option value="其他">其他</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">章节（JSON 格式，每章有 title / content / videoUrl）</label>
+      <textarea class="textarea" id="crsChapters" style="min-height:200px;font-family:monospace;font-size:.82rem" placeholder='[
+  {"title":"第一课：入门概念","content":"<p>欢迎来到第一课...</p>","videoUrl":""},
+  {"title":"第二课：基础练习","content":"<p>这堂课...</p>","videoUrl":"https://vimeo.com/123456"}
+]'></textarea>
+      <div class="field-hint">视频网址支持 Vimeo（推荐，可锁定网域） 或 YouTube。没视频的章节 videoUrl 留空。</div>
+    </div>
+    <div class="field">
+      <label class="field-label">
+        <input type="checkbox" id="crsActive" checked style="margin-right:6px;width:18px;height:18px;vertical-align:middle">
+        上架（关闭后学员看不到）
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeCourseModal()" style="flex:1">取消</button>
+      <button class="btn btn-gold" id="saveCrsBtn" onclick="saveCourse()" style="flex:1">保存</button>
+    </div>
+    <div id="crsDeleteRow" style="display:none;margin-top:12px;text-align:center">
+      <button class="btn btn-red btn-sm" onclick="deleteCourse()">删除此课程</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Add-on Service Modal ═══ -->
+<div class="modal" id="addonModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title" id="addonModalTitle">添加附加服务</div>
+      <button class="modal-close" onclick="closeAddonModal()">×</button>
+    </div>
+    <input type="hidden" id="adnId">
+    <div class="field">
+      <label class="field-label">名称 <span class="required">*</span></label>
+      <input type="text" class="input" id="adnName" placeholder="例如：卸甲、加购保养、延长10指">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">实际价格 NT$</label>
+        <input type="number" class="input" id="adnPrice" placeholder="200" min="0">
+      </div>
+      <div class="field">
+        <label class="field-label">显示价格（选填）</label>
+        <input type="text" class="input" id="adnDisplayPrice" placeholder="例如：+200、免费">
+        <div class="field-hint">客人看到的文本，不填则显示实际价格</div>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">额外时间（分钟）</label>
+        <input type="number" class="input" id="adnDuration" placeholder="15" min="0" step="5">
+      </div>
+      <div class="field">
+        <label class="field-label">排序</label>
+        <input type="number" class="input" id="adnOrder" value="0" min="0">
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">绑定主服务（选填）</label>
+      <div id="adnServicesPicker" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
+      <div class="field-hint">不选 = 所有服务都能加选此附加项目</div>
+    </div>
+    <div class="field">
+      <label class="field-label">
+        <input type="checkbox" id="adnActive" checked style="margin-right:6px;width:18px;height:18px;vertical-align:middle">
+        公开显示（关闭后客人看不到）
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeAddonModal()" style="flex:1">取消</button>
+      <button class="btn btn-gold" id="saveAdnBtn" onclick="saveAddon()" style="flex:1">保存</button>
+    </div>
+    <div id="adnDeleteRow" style="display:none;margin-top:12px;text-align:center">
+      <button class="btn btn-red btn-sm" onclick="deleteAddon()">删除此附加服务</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Shift Template Modal ═══ -->
+<div class="modal" id="shiftModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title" id="shiftModalTitle">添加班别</div>
+      <button class="modal-close" onclick="closeShiftModal()">×</button>
+    </div>
+    <input type="hidden" id="shfId">
+    <div class="field">
+      <label class="field-label">班别名称 <span class="required">*</span></label>
+      <input type="text" class="input" id="shfName" placeholder="例如：早班、晚班、全天">
+    </div>
+    <div class="field">
+      <label class="field-label">代号</label>
+      <input type="text" class="input" id="shfCode" placeholder="例如：D、N、A" maxlength="5">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">开始时间 <span class="required">*</span></label>
+        <input type="time" class="input" id="shfStart" value="10:00">
+      </div>
+      <div class="field">
+        <label class="field-label">结束时间 <span class="required">*</span></label>
+        <input type="time" class="input" id="shfEnd" value="18:00">
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">颜色</label>
+      <input type="color" id="shfColor" value="#f0c040" style="width:60px;height:36px;border:1px solid var(--border);border-radius:6px;cursor:pointer">
+    </div>
+    <div class="field">
+      <label class="field-label">排序</label>
+      <input type="number" class="input" id="shfOrder" value="0" min="0">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeShiftModal()" style="flex:1">取消</button>
+      <button class="btn btn-gold" id="saveShfBtn" onclick="saveShift()" style="flex:1">保存</button>
+    </div>
+    <div id="shfDeleteRow" style="display:none;margin-top:12px;text-align:center">
+      <button class="btn btn-red btn-sm" onclick="deleteShift()">删除此班别</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Schedule Cell Modal (assign shift to staff×date) ═══ -->
+<div class="modal" id="scheduleCellModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title" id="cellModalTitle">指派班别</div>
+      <button class="modal-close" onclick="closeScheduleCellModal()">×</button>
+    </div>
+    <input type="hidden" id="cellStaffId">
+    <input type="hidden" id="cellDate">
+    <div id="cellShiftOptions" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeScheduleCellModal()" style="flex:1">取消</button>
+      <button class="btn btn-red btn-sm" onclick="clearScheduleCell()">清除（休息）</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Batch Slot Modal ═══ -->
+<div class="modal" id="batchSlotModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">批量开放时段</div>
+      <button class="modal-close" onclick="closeBatchSlotModal()">×</button>
+    </div>
+    <div class="card-desc" style="margin-bottom:14px">
+      在一段日期范围内，把选择的「星期几」开放同样的时段。例如：未来 4 周每个周二四下午 2-5 点。
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">起始日 <span class="required">*</span></label>
+        <input type="date" class="input" id="batchFrom">
+      </div>
+      <div class="field">
+        <label class="field-label">结束日 <span class="required">*</span></label>
+        <input type="date" class="input" id="batchTo">
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">选择星期 <span class="required">*</span></label>
+      <div id="batchDays" class="chip-group" style="margin-top:6px">
+        <button type="button" class="chip" data-d="0" onclick="this.classList.toggle('active')">周日</button>
+        <button type="button" class="chip" data-d="1" onclick="this.classList.toggle('active')">周一</button>
+        <button type="button" class="chip" data-d="2" onclick="this.classList.toggle('active')">周二</button>
+        <button type="button" class="chip" data-d="3" onclick="this.classList.toggle('active')">周三</button>
+        <button type="button" class="chip" data-d="4" onclick="this.classList.toggle('active')">周四</button>
+        <button type="button" class="chip" data-d="5" onclick="this.classList.toggle('active')">周五</button>
+        <button type="button" class="chip" data-d="6" onclick="this.classList.toggle('active')">周六</button>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">开始时间 <span class="required">*</span></label>
+        <input type="time" class="input" id="batchStart" value="14:00">
+      </div>
+      <div class="field">
+        <label class="field-label">结束时间 <span class="required">*</span></label>
+        <input type="time" class="input" id="batchEnd" value="17:00">
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">伙伴 <span class="required">*</span></label>
+      <select class="select" id="batchStaff"></select>
+    </div>
+    <div class="field">
+      <label class="field-label">限定服务（不选 = 全部激活中的服务都可）</label>
+      <div id="batchServicesPicker" class="chip-group" style="margin-top:6px"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeBatchSlotModal()" style="flex:1">取消</button>
+      <button class="btn btn-gold" onclick="runBatchSlots()" id="runBatchBtn" style="flex:1.5">🚀 批量开放</button>
+    </div>
+    <div id="batchResult" style="margin-top:12px;font-size:.85rem;color:var(--text2)"></div>
+  </div>
+</div>
+
+<!-- ═══ Toast ═══ -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══ Firebase ═══ -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../assets/js/firebase-config.js"></script>
+
+<script>
+(function(){
+'use strict';
+
+// ─── Firebase Init ───
+if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+var auth = firebase.auth();
+var db = firebase.firestore();
+
+// ─── Config ───
+// Multi-tenant: 从 URL ?biz=xxx 读公司 ID，缺省 hourlight-spa（馥灵之钥自用）
+// 任何公司都可以用 booking-admin.html?biz=their-company-id 开自己的管理后台
+var BUSINESS_ID = new URLSearchParams(location.search).get('biz') || 'hourlight-spa';
+var ADMIN_EMAILS = ['judyanee@gmail.com','info@hourlightkey.com','judyanee@hotmail.com'];
+var DAYS = ['周日','周一','周二','周三','周四','周五','周六'];
+
+// ─── State ───
+var currentUser = null;
+var cachedServices = [];
+var cachedStaff = [];
+var cachedBookings = [];
+var bookingFilter = 'all';
+var editingStaffHours = {};
+
+// ─── DOM ───
+var $guard = document.getElementById('guard');
+var $shell = document.getElementById('shell');
+var $guardErr = document.getElementById('guardError');
+var $guardLoading = document.getElementById('guardLoading');
+var $loginBtn = document.getElementById('loginBtn');
+
+// ═══════════════════════════════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════════════════════════════
+window.doLogin = function(){
+  $guardErr.textContent = '';
+  $guardLoading.textContent = '连接 Google⋯';
+  $loginBtn.disabled = true;
+  var provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).catch(function(err){
+    $guardErr.textContent = '登录失败：' + err.message;
+    $guardLoading.textContent = '';
+    $loginBtn.disabled = false;
+  });
+};
+
+window.doLogout = function(){ auth.signOut(); };
+
+auth.onAuthStateChanged(function(user){
+  if (user && ADMIN_EMAILS.includes(user.email)) {
+    currentUser = user;
+    $guard.style.display = 'none';
+    $shell.style.display = 'block';
+    document.getElementById('topbarUser').textContent = user.email;
+    initApp();
+  } else if (user) {
+    $guardErr.textContent = '此帐号不在管理员名单中：' + user.email;
+    $guardLoading.textContent = '';
+    $loginBtn.disabled = false;
+    auth.signOut();
+  } else {
+    currentUser = null;
+    $guard.style.display = 'flex';
+    $shell.style.display = 'none';
+    $guardLoading.textContent = '';
+    $loginBtn.disabled = false;
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════════════
+function toast(msg, type){
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + (type || '');
+  setTimeout(function(){ el.className = 'toast ' + (type || ''); }, 2600);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════════════════════════
+window.switchTab = function(name){
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelector('.tab[data-tab="'+name+'"]').classList.add('active');
+  document.querySelectorAll('.tab-pane').forEach(function(p){ p.style.display='none'; });
+  document.getElementById('tab-'+name).style.display='block';
+  if (name==='services') loadServices();
+  else if (name==='staff') loadStaff();
+  else if (name==='slots') loadSlots();
+  else if (name==='bookings') loadBookings();
+  else if (name==='clients') loadClients();
+  else if (name==='settings') loadSettings();
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  客户肤况文件（轻集成：读 users/{uid}/skin_reports 依 clientName 分组）
+// ═══════════════════════════════════════════════════════════════
+window.loadClients = function(){
+  var el = document.getElementById('clientList');
+  if (!el) return;
+  el.innerHTML = '<div class="item-empty">加载中⋯</div>';
+  var user = firebase.auth().currentUser;
+  if (!user){
+    el.innerHTML = '<div class="item-empty">请先登录</div>';
+    return;
+  }
+  firebase.firestore()
+    .collection('users').doc(user.uid)
+    .collection('skin_reports')
+    .orderBy('createdAt','desc')
+    .limit(300)
+    .get()
+    .then(function(snap){
+      var reports = [];
+      snap.forEach(function(d){ var x=d.data(); x._id=d.id; reports.push(x); });
+      if (reports.length===0){
+        el.innerHTML = '<div class="item-empty">尚未有任何焕颜纪录。去 <a href="../skin-diagnosis.html" style="color:var(--gold)">铂金智能焕颜</a> 产出第一份报告 →</div>';
+        return;
+      }
+      // 依 clientName 分组
+      var groups = {};
+      reports.forEach(function(r){
+        var name = (r.clientName || '').trim() || '（未命名）';
+        if (!groups[name]) groups[name] = [];
+        groups[name].push(r);
+      });
+      var html = '';
+      Object.keys(groups).forEach(function(name){
+        var list = groups[name];
+        var latest = list[0];
+        var latestDate = latest.createdAt
+          ? (latest.createdAt.toDate ? latest.createdAt.toDate() : new Date(latest.createdAt))
+          : null;
+        var latestStr = latestDate ? latestDate.toISOString().slice(0,10) : '—';
+        html += '<div class="item" style="display:block;padding:16px 18px;margin-bottom:10px">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\'">';
+        html += '<div><strong style="font-size:1rem">'+escapeHtml(name)+'</strong>';
+        html += '<div style="font-size:.78rem;color:var(--ink-soft);margin-top:4px">'+list.length+' 份报告 · 最近 '+latestStr+'</div></div>';
+        html += '<div style="font-size:.82rem;color:var(--gold)">展开 ▼</div></div>';
+        html += '<div style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid rgba(184,146,42,.15)">';
+        list.forEach(function(r){
+          var d = r.createdAt ? (r.createdAt.toDate ? r.createdAt.toDate() : new Date(r.createdAt)) : null;
+          var ds = d ? d.toISOString().slice(0,10) : '—';
+          var excerpt = (r.report||'').replace(/\s+/g,' ').slice(0,80);
+          html += '<div style="padding:10px 0;border-bottom:1px dashed rgba(184,146,42,.1)">';
+          html += '<div style="font-size:.88rem;color:var(--ink);margin-bottom:4px">📅 '+ds+'</div>';
+          html += '<div style="font-size:.78rem;color:var(--ink-soft);line-height:1.6">'+escapeHtml(excerpt)+(excerpt.length>=80?'⋯':'')+'</div>';
+          html += '</div>';
+        });
+        if (list.length>=2){
+          html += '<a href="../skin-compare.html" style="display:inline-block;margin-top:12px;padding:8px 18px;background:var(--gold);color:#fff;border-radius:20px;text-decoration:none;font-size:.85rem;letter-spacing:1px">开前后对比分析 →</a>';
+        } else {
+          html += '<div style="font-size:.78rem;color:var(--ink-soft);margin-top:10px">再累积一份报告就能做前后对比</div>';
+        }
+        html += '</div></div>';
+      });
+      el.innerHTML = html;
+    })
+    .catch(function(err){
+      console.error('loadClients error:', err);
+      el.innerHTML = '<div class="item-empty">加载失败：'+err.message+'</div>';
+    });
+};
+
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+function initApp(){
+  // 显示当前管理的公司 ID
+  var sub = document.querySelector('.topbar-sub');
+  if (sub) sub.textContent = 'BIZ: ' + BUSINESS_ID;
+  ensureBusinessDoc().then(function(){
+    loadServices();
+  });
+}
+
+function ensureBusinessDoc(){
+  var ref = db.collection('businesses').doc(BUSINESS_ID);
+  return ref.get().then(function(doc){
+    if (!doc.exists) {
+      return ref.set({
+        name: 'HOUR LIGHT',
+        slug: BUSINESS_ID,
+        tagline: '读懂自己，活对人生',
+        desc: '',
+        address: '',
+        phone: '',
+        lineUrl: 'https://lin.ee/RdQBFAN',
+        lineToken: '',
+        deposit: 'off',
+        owner: currentUser.email,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SERVICES
+// ═══════════════════════════════════════════════════════════════
+function loadServices(){
+  var listEl = document.getElementById('serviceList');
+  listEl.innerHTML = '<div class="item-empty">加载中⋯</div>';
+  db.collection('businesses').doc(BUSINESS_ID).collection('services')
+    .orderBy('order').get().then(function(snap){
+      cachedServices = [];
+      snap.forEach(function(doc){
+        var d = doc.data();
+        d._id = doc.id;
+        cachedServices.push(d);
+      });
+      renderServices();
+    }).catch(function(e){
+      listEl.innerHTML = '<div class="item-empty" style="color:var(--red)">加载失败：'+e.message+'</div>';
+    });
+}
+
+function renderServices(){
+  var listEl = document.getElementById('serviceList');
+  if (!cachedServices.length) {
+    listEl.innerHTML = '<div class="item-empty"><div class="empty-icon">🌿</div>还没有服务<br><br><button class="btn btn-gold" onclick="openServiceModal()">➕ 添加第一个服务</button></div>';
+    return;
+  }
+  listEl.innerHTML = cachedServices.map(function(s){
+    var cat = s.category ? '<span class="item-category">'+escapeHtml(s.category)+'</span>' : '';
+    var typeLabel = s.serviceType === 'online' ? '在线' : '实体';
+    var modeLabel = s.bookingMode === 'dispatch' ? '派单' : s.bookingMode === 'appointment' ? '指定' : '指定+派单';
+    return '<div class="item '+(s.active===false?'inactive':'')+'">'
+      + '<div class="item-color" style="background:'+(s.color||'#b8922a')+'"></div>'
+      + '<div class="item-body">'
+      +   '<div class="item-name">'+escapeHtml(s.name||'未命名')+cat+'</div>'
+      +   (s.desc?'<div class="item-desc">'+escapeHtml(s.desc)+'</div>':'')
+      +   '<div class="item-meta">'
+      +     '<span><strong>NT$</strong> '+(s.price||0).toLocaleString()+'</span>'
+      +     '<span><strong>时长</strong> '+(s.duration||0)+' 分钟</span>'
+      +     '<span>'+typeLabel+' · '+modeLabel+'</span>'
+      +     (s.active===false?'<span style="color:var(--red)">已停用</span>':'')
+      +   '</div>'
+      + '</div>'
+      + '<div class="item-actions">'
+      +   '<button class="btn btn-outline btn-sm" onclick="openServiceModal(\''+s._id+'\')">编辑</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+window.openServiceModal = function(id){
+  var modal = document.getElementById('serviceModal');
+  var title = document.getElementById('serviceModalTitle');
+  var del = document.getElementById('svcDeleteRow');
+  if (id) {
+    var s = cachedServices.find(function(x){ return x._id === id; });
+    if (!s) return;
+    title.textContent = '编辑服务';
+    document.getElementById('svcId').value = id;
+    document.getElementById('svcName').value = s.name || '';
+    document.getElementById('svcCategory').value = s.category || '';
+    document.getElementById('svcServiceType').value = s.serviceType || 'inperson';
+    document.getElementById('svcBookingMode').value = s.bookingMode || 'both';
+    document.getElementById('svcDesc').value = s.desc || '';
+    document.getElementById('svcPrice').value = s.price || '';
+    document.getElementById('svcDuration').value = s.duration || '';
+    document.getElementById('svcColor').value = s.color || '#b8922a';
+    document.getElementById('svcOrder').value = s.order || 0;
+    document.getElementById('svcActive').checked = s.active !== false;
+    del.style.display = 'flex';
+  } else {
+    title.textContent = '添加服务';
+    document.getElementById('svcId').value = '';
+    document.getElementById('svcName').value = '';
+    document.getElementById('svcCategory').value = '';
+    document.getElementById('svcServiceType').value = 'inperson';
+    document.getElementById('svcBookingMode').value = 'both';
+    document.getElementById('svcDesc').value = '';
+    document.getElementById('svcPrice').value = '';
+    document.getElementById('svcDuration').value = '';
+    document.getElementById('svcColor').value = '#b8922a';
+    document.getElementById('svcOrder').value = cachedServices.length;
+    document.getElementById('svcActive').checked = true;
+    del.style.display = 'none';
+  }
+  modal.classList.add('open');
+};
+
+window.closeServiceModal = function(){
+  document.getElementById('serviceModal').classList.remove('open');
+};
+
+window.saveService = function(){
+  var id = document.getElementById('svcId').value;
+  var name = document.getElementById('svcName').value.trim();
+  var price = parseInt(document.getElementById('svcPrice').value,10) || 0;
+  var duration = parseInt(document.getElementById('svcDuration').value,10) || 0;
+  if (!name) { toast('请填服务名称','err'); return; }
+  if (!duration) { toast('请填时长','err'); return; }
+  var data = {
+    name: name,
+    category: document.getElementById('svcCategory').value.trim(),
+    serviceType: document.getElementById('svcServiceType').value,
+    bookingMode: document.getElementById('svcBookingMode').value,
+    desc: document.getElementById('svcDesc').value.trim(),
+    price: price,
+    duration: duration,
+    color: document.getElementById('svcColor').value.trim() || '#b8922a',
+    order: parseInt(document.getElementById('svcOrder').value,10) || 0,
+    active: document.getElementById('svcActive').checked,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  var btn = document.getElementById('saveSvcBtn');
+  btn.disabled = true; btn.textContent = '保存中⋯';
+  var col = db.collection('businesses').doc(BUSINESS_ID).collection('services');
+  var promise;
+  if (id) {
+    promise = col.doc(id).update(data);
+  } else {
+    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    promise = col.add(data);
+  }
+  promise.then(function(){
+    toast('已保存','ok');
+    closeServiceModal();
+    loadServices();
+  }).catch(function(e){
+    toast('保存失败：'+e.message,'err');
+  }).finally(function(){
+    btn.disabled = false; btn.textContent = '💾 保存';
+  });
+};
+
+window.deleteService = function(){
+  var id = document.getElementById('svcId').value;
+  if (!id) return;
+  if (!confirm('确定删除这个服务？不会影响已经创建的预约，但新客户看不到这个服务了。')) return;
+  db.collection('businesses').doc(BUSINESS_ID).collection('services').doc(id).delete().then(function(){
+    toast('已删除','ok');
+    closeServiceModal();
+    loadServices();
+  }).catch(function(e){
+    toast('删除失败：'+e.message,'err');
+  });
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  STAFF
+// ═══════════════════════════════════════════════════════════════
+function loadStaff(){
+  var listEl = document.getElementById('staffList');
+  listEl.innerHTML = '<div class="item-empty">加载中⋯</div>';
+  db.collection('businesses').doc(BUSINESS_ID).collection('staff')
+    .orderBy('order').get().then(function(snap){
+      cachedStaff = [];
+      snap.forEach(function(doc){
+        var d = doc.data();
+        d._id = doc.id;
+        cachedStaff.push(d);
+      });
+      renderStaff();
+    }).catch(function(e){
+      listEl.innerHTML = '<div class="item-empty" style="color:var(--red)">加载失败：'+e.message+'</div>';
+    });
+}
+
+function renderStaff(){
+  var listEl = document.getElementById('staffList');
+  if (!cachedStaff.length) {
+    listEl.innerHTML = '<div class="item-empty"><div class="empty-icon">💁</div>还没有伙伴<br><br><button class="btn btn-gold" onclick="openStaffModal()">➕ 添加第一位伙伴</button></div>';
+    return;
+  }
+  listEl.innerHTML = cachedStaff.map(function(s){
+    var svcCount = (s.services||[]).length;
+    var openDays = 0;
+    if (s.hours) { for (var i=0;i<7;i++) if (s.hours[i]) openDays++; }
+    return '<div class="item '+(s.active===false?'inactive':'')+'">'
+      + '<div class="item-color" style="background:var(--gold)"></div>'
+      + '<div class="item-body">'
+      +   '<div class="item-name">'+escapeHtml(s.name||'未命名')+(s.role?'<span class="item-category">'+escapeHtml(s.role)+'</span>':'')+'</div>'
+      +   (s.bio?'<div class="item-desc">'+escapeHtml(s.bio.substring(0,80))+(s.bio.length>80?'⋯':'')+'</div>':'')
+      +   '<div class="item-meta">'
+      +     '<span><strong>可做</strong> '+svcCount+' 项服务</span>'
+      +     '<span><strong>每周</strong> '+openDays+' 天上班</span>'
+      +     (s.active===false?'<span style="color:var(--red)">已停用</span>':'')
+      +   '</div>'
+      + '</div>'
+      + '<div class="item-actions">'
+      +   '<button class="btn btn-outline btn-sm" onclick="openStaffModal(\''+s._id+'\')">编辑</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+window.openStaffModal = function(id){
+  var modal = document.getElementById('staffModal');
+  var title = document.getElementById('staffModalTitle');
+  var del = document.getElementById('stfDeleteRow');
+  var s = id ? cachedStaff.find(function(x){ return x._id === id; }) : null;
+  if (s) {
+    title.textContent = '编辑伙伴';
+    document.getElementById('stfId').value = id;
+    document.getElementById('stfName').value = s.name || '';
+    document.getElementById('stfRole').value = s.role || '';
+    document.getElementById('stfBio').value = s.bio || '';
+    document.getElementById('stfAvatar').value = s.avatar || '';
+    document.getElementById('stfActive').checked = s.active !== false;
+    editingStaffHours = s.hours || {};
+    renderStaffServicesPicker(s.services || []);
+    renderStaffHoursGrid();
+    del.style.display = 'flex';
+  } else {
+    title.textContent = '添加伙伴';
+    document.getElementById('stfId').value = '';
+    document.getElementById('stfName').value = '';
+    document.getElementById('stfRole').value = '';
+    document.getElementById('stfBio').value = '';
+    document.getElementById('stfAvatar').value = '';
+    document.getElementById('stfActive').checked = true;
+    editingStaffHours = {
+      0:null,
+      1:{start:'10:00',end:'18:00'},
+      2:{start:'10:00',end:'18:00'},
+      3:{start:'10:00',end:'18:00'},
+      4:{start:'10:00',end:'18:00'},
+      5:{start:'10:00',end:'18:00'},
+      6:{start:'10:00',end:'18:00'}
+    };
+    renderStaffServicesPicker([]);
+    renderStaffHoursGrid();
+    del.style.display = 'none';
+  }
+  modal.classList.add('open');
+};
+
+function renderStaffServicesPicker(selected){
+  var picker = document.getElementById('stfServicesPicker');
+  if (!cachedServices.length) {
+    picker.innerHTML = '<span style="font-size:.82rem;color:var(--text3)">先到「服务」分页添加服务再回来设置</span>';
+    return;
+  }
+  picker.innerHTML = cachedServices.map(function(s){
+    var on = selected.indexOf(s._id) > -1;
+    return '<button type="button" class="chip '+(on?'active':'')+'" data-svc="'+s._id+'" onclick="this.classList.toggle(\'active\')">'+escapeHtml(s.name)+'</button>';
+  }).join('');
+}
+
+function renderStaffHoursGrid(){
+  var grid = document.getElementById('stfHoursGrid');
+  var html = '';
+  for (var i=0;i<7;i++) {
+    var h = editingStaffHours[i];
+    var on = !!h;
+    var start = on ? h.start : '10:00';
+    var end = on ? h.end : '18:00';
+    html += '<div class="hours-row">'
+      + '<div class="day">'+DAYS[i]+'</div>'
+      + '<input type="time" value="'+start+'" data-day="'+i+'" data-part="start" '+(on?'':'disabled')+'>'
+      + '<input type="time" value="'+end+'" data-day="'+i+'" data-part="end" '+(on?'':'disabled')+'>'
+      + '<button type="button" class="hours-toggle '+(on?'on':'off')+'" onclick="toggleHoursDay('+i+')">'+(on?'✓':'×')+'</button>'
+      + '</div>';
+  }
+  grid.innerHTML = html;
+}
+
+window.toggleHoursDay = function(day){
+  if (editingStaffHours[day]) {
+    editingStaffHours[day] = null;
+  } else {
+    editingStaffHours[day] = { start: '10:00', end: '18:00' };
+  }
+  renderStaffHoursGrid();
+};
+
+function collectStaffHours(){
+  var result = {};
+  for (var i=0;i<7;i++) {
+    var toggle = document.querySelector('.hours-toggle[onclick="toggleHoursDay('+i+')"]');
+    if (editingStaffHours[i]) {
+      var startInput = document.querySelector('input[data-day="'+i+'"][data-part="start"]');
+      var endInput = document.querySelector('input[data-day="'+i+'"][data-part="end"]');
+      result[i] = { start: startInput.value, end: endInput.value };
+    } else {
+      result[i] = null;
+    }
+  }
+  return result;
+}
+
+window.closeStaffModal = function(){
+  document.getElementById('staffModal').classList.remove('open');
+};
+
+window.saveStaff = function(){
+  var id = document.getElementById('stfId').value;
+  var name = document.getElementById('stfName').value.trim();
+  if (!name) { toast('请填伙伴名字','err'); return; }
+  var selectedSvcs = [];
+  document.querySelectorAll('#stfServicesPicker .chip.active').forEach(function(c){
+    selectedSvcs.push(c.getAttribute('data-svc'));
+  });
+  var data = {
+    name: name,
+    role: document.getElementById('stfRole').value.trim(),
+    bio: document.getElementById('stfBio').value.trim(),
+    avatar: document.getElementById('stfAvatar').value.trim(),
+    services: selectedSvcs,
+    hours: collectStaffHours(),
+    active: document.getElementById('stfActive').checked,
+    order: id ? (cachedStaff.find(function(x){return x._id===id;}).order || 0) : cachedStaff.length,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  var btn = document.getElementById('saveStfBtn');
+  btn.disabled = true; btn.textContent = '保存中⋯';
+  var col = db.collection('businesses').doc(BUSINESS_ID).collection('staff');
+  var promise;
+  if (id) {
+    promise = col.doc(id).update(data);
+  } else {
+    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    promise = col.add(data);
+  }
+  promise.then(function(){
+    toast('已保存','ok');
+    closeStaffModal();
+    loadStaff();
+  }).catch(function(e){
+    toast('保存失败：'+e.message,'err');
+  }).finally(function(){
+    btn.disabled = false; btn.textContent = '💾 保存';
+  });
+};
+
+window.deleteStaff = function(){
+  var id = document.getElementById('stfId').value;
+  if (!id) return;
+  if (!confirm('确定删除这位伙伴？已创建的预约不受影响。')) return;
+  db.collection('businesses').doc(BUSINESS_ID).collection('staff').doc(id).delete().then(function(){
+    toast('已删除','ok');
+    closeStaffModal();
+    loadStaff();
+  }).catch(function(e){
+    toast('删除失败：'+e.message,'err');
+  });
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  BOOKINGS
+// ═══════════════════════════════════════════════════════════════
+window.loadBookings = function(){
+  var listEl = document.getElementById('bookingList');
+  listEl.innerHTML = '<div class="item-empty">加载中⋯</div>';
+  db.collection('businesses').doc(BUSINESS_ID).collection('bookings')
+    .orderBy('bookingDate','desc').limit(100).get().then(function(snap){
+      cachedBookings = [];
+      snap.forEach(function(doc){
+        var d = doc.data();
+        d._id = doc.id;
+        cachedBookings.push(d);
+      });
+      renderBookings();
+    }).catch(function(e){
+      listEl.innerHTML = '<div class="item-empty" style="color:var(--red)">加载失败：'+e.message+'</div>';
+    });
+};
+
+window.filterBookings = function(f, el){
+  bookingFilter = f;
+  document.querySelectorAll('#bookingFilters .chip').forEach(function(c){ c.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  renderBookings();
+};
+
+function renderBookings(){
+  var listEl = document.getElementById('bookingList');
+  var filtered = cachedBookings.filter(function(b){
+    return bookingFilter === 'all' || b.status === bookingFilter;
+  });
+  if (!filtered.length) {
+    listEl.innerHTML = '<div class="item-empty"><div class="empty-icon">📅</div>'+(bookingFilter==='all'?'还没有预约':'没有符合筛选的预约')+'</div>';
+    return;
+  }
+  listEl.innerHTML = filtered.map(function(b){
+    var st = b.status || 'pending';
+    var badge = '<span class="badge badge-'+st+'">'+({pending:'待确认',confirmed:'已确认',cancelled:'已取消',completed:'已完成'}[st]||st)+'</span>';
+    var actions = '';
+    if (st==='pending') actions = '<button class="btn btn-green btn-sm" onclick="confirmBooking(\''+b._id+'\')">确认</button><button class="btn btn-red btn-sm" onclick="cancelBooking(\''+b._id+'\')">取消</button>';
+    else if (st==='confirmed') actions = '<button class="btn btn-outline btn-sm" onclick="completeBooking(\''+b._id+'\')">标记已完成</button><button class="btn btn-red btn-sm" onclick="cancelBooking(\''+b._id+'\')">取消</button>';
+    return '<div class="item">'
+      + '<div class="item-color" style="background:var(--blue)"></div>'
+      + '<div class="item-body">'
+      +   '<div class="item-name">'+escapeHtml(b.serviceName||'?')+' '+badge+'</div>'
+      +   '<div class="item-desc">👤 '+escapeHtml(b.customerName||'匿名')+(b.customerPhone?' · '+escapeHtml(b.customerPhone):'')+'</div>'
+      +   '<div class="item-meta">'
+      +     '<span><strong>📅</strong> '+(b.bookingDate||'?')+' '+(b.startTime||'')+'</span>'
+      +     '<span><strong>👩</strong> '+escapeHtml(b.staffName||'?')+'</span>'
+      +     '<span><strong>NT$</strong> '+(b.servicePrice||0).toLocaleString()+'</span>'
+      +   '</div>'
+      +   (b.customerNotes?'<div class="item-desc" style="margin-top:8px;padding:8px 10px;background:#fff;border-radius:6px">📝 '+escapeHtml(b.customerNotes)+'</div>':'')
+      + '</div>'
+      + '<div class="item-actions">'+actions+'</div>'
+      + '</div>';
+  }).join('');
+}
+
+window.confirmBooking = function(id){
+  db.collection('businesses').doc(BUSINESS_ID).collection('bookings').doc(id).update({
+    status: 'confirmed',
+    confirmedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){ toast('已确认','ok'); loadBookings(); }).catch(function(e){ toast('失败：'+e.message,'err'); });
+};
+
+window.cancelBooking = function(id){
+  if (!confirm('确定取消这个预约？')) return;
+  db.collection('businesses').doc(BUSINESS_ID).collection('bookings').doc(id).update({
+    status: 'cancelled',
+    cancelledAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){ toast('已取消','ok'); loadBookings(); }).catch(function(e){ toast('失败：'+e.message,'err'); });
+};
+
+window.completeBooking = function(id){
+  db.collection('businesses').doc(BUSINESS_ID).collection('bookings').doc(id).update({
+    status: 'completed',
+    completedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){ toast('已完成','ok'); loadBookings(); }).catch(function(e){ toast('失败：'+e.message,'err'); });
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════════════════════════════════
+function loadSettings(){
+  // 动态设置公开预约页网址（multi-tenant）
+  var pubUrl = document.getElementById('publicBookingUrl');
+  if (pubUrl) pubUrl.value = 'https://hourlightkey.com/booking.html?biz=' + BUSINESS_ID;
+
+  db.collection('businesses').doc(BUSINESS_ID).get().then(function(doc){
+    if (!doc.exists) return;
+    var d = doc.data();
+    document.getElementById('bizName').value = d.name || '';
+    document.getElementById('bizTagline').value = d.tagline || '';
+    document.getElementById('bizDesc').value = d.desc || '';
+    document.getElementById('bizAddress').value = d.address || '';
+    document.getElementById('bizPhone').value = d.phone || '';
+    document.getElementById('bizLine').value = d.lineUrl || '';
+    document.getElementById('bizLineToken').value = d.lineToken || '';
+    var ls = document.getElementById('bizLineSecret'); if (ls) ls.value = d.lineSecret || '';
+    var lb = document.getElementById('bizLineBasicId'); if (lb) lb.value = d.lineBasicId || '';
+    document.getElementById('bizDeposit').value = d.deposit || 'off';
+  });
+}
+
+window.saveSettings = function(){
+  var data = {
+    name: document.getElementById('bizName').value.trim(),
+    tagline: document.getElementById('bizTagline').value.trim(),
+    desc: document.getElementById('bizDesc').value.trim(),
+    address: document.getElementById('bizAddress').value.trim(),
+    phone: document.getElementById('bizPhone').value.trim(),
+    lineUrl: document.getElementById('bizLine').value.trim(),
+    lineToken: document.getElementById('bizLineToken').value.trim(),
+    lineSecret: (document.getElementById('bizLineSecret')||{}).value ? document.getElementById('bizLineSecret').value.trim() : '',
+    lineBasicId: (document.getElementById('bizLineBasicId')||{}).value ? document.getElementById('bizLineBasicId').value.trim() : '',
+    deposit: document.getElementById('bizDeposit').value,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  if (!data.name) { toast('请填店名','err'); return; }
+  var btn = document.getElementById('saveSettingsBtn');
+  btn.disabled = true; btn.textContent = '保存中⋯';
+  db.collection('businesses').doc(BUSINESS_ID).update(data).then(function(){
+    toast('已保存','ok');
+  }).catch(function(e){
+    toast('保存失败：'+e.message,'err');
+  }).finally(function(){
+    btn.disabled = false; btn.textContent = '💾 保存设置';
+  });
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  SLOTS (开放时段)
+// ═══════════════════════════════════════════════════════════════
+var cachedSlots = [];
+
+window.loadSlots = function(){
+  var listEl = document.getElementById('slotList');
+  listEl.innerHTML = '<div class="item-empty">加载中⋯</div>';
+  // Ensure staff and services loaded first (for display names)
+  Promise.all([
+    cachedStaff.length ? Promise.resolve() : db.collection('businesses').doc(BUSINESS_ID).collection('staff').orderBy('order').get().then(function(snap){
+      cachedStaff = []; snap.forEach(function(d){ var x=d.data(); x._id=d.id; cachedStaff.push(x); });
+    }),
+    cachedServices.length ? Promise.resolve() : db.collection('businesses').doc(BUSINESS_ID).collection('services').orderBy('order').get().then(function(snap){
+      cachedServices = []; snap.forEach(function(d){ var x=d.data(); x._id=d.id; cachedServices.push(x); });
+    })
+  ]).then(function(){
+    var today = new Date().toISOString().slice(0,10);
+    return db.collection('businesses').doc(BUSINESS_ID).collection('slots')
+      .where('date','>=',today)
+      .orderBy('date').orderBy('startTime').limit(200).get();
+  }).then(function(snap){
+    cachedSlots = [];
+    snap.forEach(function(doc){
+      var d = doc.data();
+      d._id = doc.id;
+      cachedSlots.push(d);
+    });
+    renderSlots();
+  }).catch(function(e){
+    listEl.innerHTML = '<div class="item-empty" style="color:var(--red)">加载失败：'+e.message+'</div>';
+  });
+};
+
+function renderSlots(){
+  var listEl = document.getElementById('slotList');
+  if (!cachedSlots.length) {
+    listEl.innerHTML = '<div class="item-empty"><div class="empty-icon">🗓</div>还没有开放任何时段<br><br><button class="btn btn-gold" onclick="openSlotModal()">➕ 添加第一个时段</button></div>';
+    return;
+  }
+  // Group by date
+  var groups = {};
+  cachedSlots.forEach(function(s){
+    if (!groups[s.date]) groups[s.date] = [];
+    groups[s.date].push(s);
+  });
+  var dates = Object.keys(groups).sort();
+  listEl.innerHTML = dates.map(function(date){
+    var items = groups[date];
+    var weekday = DAYS[new Date(date+'T00:00:00').getDay()];
+    var dateLabel = date + ' ' + weekday;
+    return '<div style="margin-bottom:6px">'
+      + '<div style="font-size:.85rem;color:var(--text2);font-weight:500;padding:10px 4px 6px;border-bottom:1px solid var(--border)">'+dateLabel+'</div>'
+      + items.map(function(s){
+          var staffName = (cachedStaff.find(function(x){return x._id===s.staffId;})||{}).name || '?';
+          var svcLabel = (s.serviceIds && s.serviceIds.length) ? s.serviceIds.length+' 项服务' : '全部服务';
+          var statusColor = s.status==='booked' ? 'var(--blue)' : 'var(--green)';
+          var statusText = s.status==='booked' ? '已预约' : '可预约';
+          return '<div class="item" style="margin-top:10px">'
+            + '<div class="item-color" style="background:'+statusColor+'"></div>'
+            + '<div class="item-body">'
+            +   '<div class="item-name">'+s.startTime+' - '+s.endTime+' <span class="item-category">'+staffName+'</span></div>'
+            +   '<div class="item-meta">'
+            +     '<span>'+svcLabel+'</span>'
+            +     '<span style="color:'+statusColor+'">●'+statusText+'</span>'
+            +   '</div>'
+            +   (s.notes?'<div class="item-desc" style="margin-top:6px">📝 '+escapeHtml(s.notes)+'</div>':'')
+            + '</div>'
+            + '<div class="item-actions">'
+            +   '<button class="btn btn-outline btn-sm" onclick="openSlotModal(\''+s._id+'\')">编辑</button>'
+            + '</div>'
+            + '</div>';
+        }).join('')
+      + '</div>';
+  }).join('');
+}
+
+window.openSlotModal = function(id){
+  if (!cachedStaff.length) { toast('请先在「伙伴」分页添加伙伴','err'); return; }
+  var modal = document.getElementById('slotModal');
+  var title = document.getElementById('slotModalTitle');
+  var del = document.getElementById('slotDeleteRow');
+  // Populate staff select
+  var staffSel = document.getElementById('slotStaff');
+  staffSel.innerHTML = cachedStaff.filter(function(s){return s.active!==false;}).map(function(s){
+    return '<option value="'+s._id+'">'+escapeHtml(s.name)+'</option>';
+  }).join('');
+  // Populate services picker
+  var picker = document.getElementById('slotServicesPicker');
+  if (cachedServices.length) {
+    picker.innerHTML = cachedServices.filter(function(s){return s.active!==false;}).map(function(s){
+      return '<button type="button" class="chip" data-svc="'+s._id+'" onclick="this.classList.toggle(\'active\')">'+escapeHtml(s.name)+'</button>';
+    }).join('');
+  } else {
+    picker.innerHTML = '<span style="font-size:.82rem;color:var(--text3)">还没有服务，保存时会套用「全部服务」</span>';
+  }
+
+  if (id) {
+    var s = cachedSlots.find(function(x){return x._id===id;});
+    if (!s) return;
+    title.textContent = '编辑时段';
+    document.getElementById('slotId').value = id;
+    document.getElementById('slotDate').value = s.date;
+    document.getElementById('slotStart').value = s.startTime;
+    document.getElementById('slotEnd').value = s.endTime;
+    staffSel.value = s.staffId;
+    document.getElementById('slotNotes').value = s.notes || '';
+    if (s.serviceIds && s.serviceIds.length) {
+      s.serviceIds.forEach(function(sid){
+        var chip = picker.querySelector('.chip[data-svc="'+sid+'"]');
+        if (chip) chip.classList.add('active');
+      });
+    }
+    del.style.display = 'flex';
+  } else {
+    title.textContent = '添加时段';
+    document.getElementById('slotId').value = '';
+    var todayStr = new Date().toISOString().slice(0,10);
+    document.getElementById('slotDate').value = todayStr;
+    document.getElementById('slotStart').value = '14:00';
+    document.getElementById('slotEnd').value = '17:00';
+    document.getElementById('slotNotes').value = '';
+    del.style.display = 'none';
+  }
+  modal.classList.add('open');
+};
+
+window.closeSlotModal = function(){ document.getElementById('slotModal').classList.remove('open'); };
+
+window.saveSlot = function(){
+  var id = document.getElementById('slotId').value;
+  var date = document.getElementById('slotDate').value;
+  var startTime = document.getElementById('slotStart').value;
+  var endTime = document.getElementById('slotEnd').value;
+  var staffId = document.getElementById('slotStaff').value;
+  if (!date || !startTime || !endTime || !staffId) { toast('请填日期、时间、伙伴','err'); return; }
+  if (endTime <= startTime) { toast('结束时间必须晚于开始时间','err'); return; }
+
+  var selectedSvcs = [];
+  document.querySelectorAll('#slotServicesPicker .chip.active').forEach(function(c){
+    selectedSvcs.push(c.getAttribute('data-svc'));
+  });
+
+  var data = {
+    date: date,
+    startTime: startTime,
+    endTime: endTime,
+    staffId: staffId,
+    serviceIds: selectedSvcs,
+    notes: document.getElementById('slotNotes').value.trim(),
+    status: 'open',
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  var btn = document.getElementById('saveSlotBtn');
+  btn.disabled = true; btn.textContent = '保存中⋯';
+  var col = db.collection('businesses').doc(BUSINESS_ID).collection('slots');
+  var promise;
+  if (id) {
+    promise = col.doc(id).update(data);
+  } else {
+    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    promise = col.add(data);
+  }
+  promise.then(function(){
+    toast('已保存','ok');
+    closeSlotModal();
+    loadSlots();
+  }).catch(function(e){
+    toast('保存失败：'+e.message,'err');
+  }).finally(function(){
+    btn.disabled = false; btn.textContent = '💾 保存';
+  });
+};
+
+window.deleteSlot = function(){
+  var id = document.getElementById('slotId').value;
+  if (!id) return;
+  var s = cachedSlots.find(function(x){return x._id===id;});
+  if (s && s.status === 'booked') { toast('此时段已被预约，请到「预约」分页处理','err'); return; }
+  if (!confirm('确定关闭此时段？')) return;
+  db.collection('businesses').doc(BUSINESS_ID).collection('slots').doc(id).delete().then(function(){
+    toast('已关闭','ok');
+    closeSlotModal();
+    loadSlots();
+  }).catch(function(e){
+    toast('失败：'+e.message,'err');
+  });
+};
+
+// ═══ Batch slot creation ═══
+window.openBatchSlotModal = function(){
+  if (!cachedStaff.length) { toast('请先在「伙伴」分页添加伙伴','err'); return; }
+  var modal = document.getElementById('batchSlotModal');
+  var staffSel = document.getElementById('batchStaff');
+  staffSel.innerHTML = cachedStaff.filter(function(s){return s.active!==false;}).map(function(s){
+    return '<option value="'+s._id+'">'+escapeHtml(s.name)+'</option>';
+  }).join('');
+  var picker = document.getElementById('batchServicesPicker');
+  if (cachedServices.length) {
+    picker.innerHTML = cachedServices.filter(function(s){return s.active!==false;}).map(function(s){
+      return '<button type="button" class="chip" data-svc="'+s._id+'" onclick="this.classList.toggle(\'active\')">'+escapeHtml(s.name)+'</button>';
+    }).join('');
+  } else {
+    picker.innerHTML = '<span style="font-size:.82rem;color:var(--text3)">还没有服务，会套用「全部服务」</span>';
+  }
+  // Reset days
+  document.querySelectorAll('#batchDays .chip').forEach(function(c){ c.classList.remove('active'); });
+  document.getElementById('batchFrom').value = new Date().toISOString().slice(0,10);
+  var plus14 = new Date(); plus14.setDate(plus14.getDate()+14);
+  document.getElementById('batchTo').value = plus14.toISOString().slice(0,10);
+  document.getElementById('batchResult').textContent = '';
+  modal.classList.add('open');
+};
+
+window.closeBatchSlotModal = function(){ document.getElementById('batchSlotModal').classList.remove('open'); };
+
+window.runBatchSlots = function(){
+  var from = document.getElementById('batchFrom').value;
+  var to = document.getElementById('batchTo').value;
+  var startTime = document.getElementById('batchStart').value;
+  var endTime = document.getElementById('batchEnd').value;
+  var staffId = document.getElementById('batchStaff').value;
+  var selectedDays = [];
+  document.querySelectorAll('#batchDays .chip.active').forEach(function(c){
+    selectedDays.push(parseInt(c.getAttribute('data-d'),10));
+  });
+  if (!from || !to || !startTime || !endTime || !staffId) { toast('请填完所有字段','err'); return; }
+  if (!selectedDays.length) { toast('请至少选一个星期','err'); return; }
+  if (endTime <= startTime) { toast('结束时间必须晚于开始时间','err'); return; }
+
+  var selectedSvcs = [];
+  document.querySelectorAll('#batchServicesPicker .chip.active').forEach(function(c){
+    selectedSvcs.push(c.getAttribute('data-svc'));
+  });
+
+  // Enumerate dates
+  var fromDate = new Date(from + 'T00:00:00');
+  var toDate = new Date(to + 'T00:00:00');
+  var dates = [];
+  for (var d = new Date(fromDate); d <= toDate; d.setDate(d.getDate()+1)) {
+    if (selectedDays.indexOf(d.getDay()) > -1) {
+      dates.push(d.toISOString().slice(0,10));
+    }
+  }
+  if (!dates.length) { toast('这个范围内没有选中的星期几','err'); return; }
+
+  var btn = document.getElementById('runBatchBtn');
+  btn.disabled = true; btn.textContent = '稍等一下⋯ (0/'+dates.length+')';
+  var resultEl = document.getElementById('batchResult');
+  resultEl.textContent = '';
+
+  var col = db.collection('businesses').doc(BUSINESS_ID).collection('slots');
+  var batch = db.batch();
+  dates.forEach(function(date){
+    var ref = col.doc();
+    batch.set(ref, {
+      date: date,
+      startTime: startTime,
+      endTime: endTime,
+      staffId: staffId,
+      serviceIds: selectedSvcs,
+      notes: '',
+      status: 'open',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  });
+  batch.commit().then(function(){
+    resultEl.textContent = '✅ 已开放 '+dates.length+' 个时段';
+    toast('批量开放 '+dates.length+' 笔','ok');
+    setTimeout(function(){ closeBatchSlotModal(); loadSlots(); }, 900);
+  }).catch(function(e){
+    resultEl.textContent = '❌ 失败：'+e.message;
+    toast('失败','err');
+  }).finally(function(){
+    btn.disabled = false; btn.textContent = '🚀 批量开放';
+  });
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  COURSES (课程管理)
+// ═══════════════════════════════════════════════════════════════
+var cachedCourses = [];
+
+function loadCourses(){
+  var el = document.getElementById('courseList');
+  if (!el) return;
+  el.innerHTML = '<div class="item-empty">加载中⋯</div>';
+  db.collection('courses').orderBy('createdAt','desc').get().then(function(snap){
+    cachedCourses = [];
+    snap.forEach(function(doc){ var d = doc.data(); d._id = doc.id; cachedCourses.push(d); });
+    renderCourses();
+  }).catch(function(e){
+    el.innerHTML = '<div class="item-empty" style="color:var(--red)">加载失败：'+e.message+'</div>';
+  });
+}
+
+function renderCourses(){
+  var el = document.getElementById('courseList');
+  if (!cachedCourses.length) {
+    el.innerHTML = '<div class="item-empty">还没有课程<br><br><button class="btn btn-gold btn-sm" onclick="openCourseModal()">添加第一门课程</button></div>';
+    return;
+  }
+  el.innerHTML = cachedCourses.map(function(c){
+    var chapters = c.chapters || [];
+    return '<div class="item '+(c.active===false?'inactive':'')+'">'
+      + '<div class="item-color" style="background:var(--blue)"></div>'
+      + '<div class="item-body">'
+      +   '<div class="item-name">'+escapeHtml(c.name||'')+(c.category?'<span class="item-category">'+escapeHtml(c.category)+'</span>':'')+'</div>'
+      +   (c.desc?'<div class="item-desc">'+escapeHtml(c.desc.substring(0,60))+'</div>':'')
+      +   '<div class="item-meta">'
+      +     '<span><strong>NT$</strong> '+(c.price||0).toLocaleString()+'</span>'
+      +     '<span>'+chapters.length+' 章节</span>'
+      +     (c.active===false?'<span style="color:var(--red)">已下架</span>':'')
+      +   '</div>'
+      + '</div>'
+      + '<div class="item-actions">'
+      +   '<button class="btn btn-outline btn-sm" onclick="openCourseModal(\''+c._id+'\')">编辑</button>'
+      +   '<a class="btn btn-outline btn-sm" href="course-viewer.html?id='+c._id+'" target="_blank">预览</a>'
+      + '</div></div>';
+  }).join('');
+}
+
+window.openCourseModal = function(id){
+  var modal = document.getElementById('courseModal');
+  var c = id ? cachedCourses.find(function(x){ return x._id === id; }) : null;
+  document.getElementById('courseModalTitle').textContent = c ? '编辑课程' : '添加课程';
+  document.getElementById('crsId').value = c ? id : '';
+  document.getElementById('crsName').value = c ? (c.name||'') : '';
+  document.getElementById('crsDesc').value = c ? (c.desc||'') : '';
+  document.getElementById('crsPrice').value = c ? (c.price||'') : '';
+  document.getElementById('crsCategory').value = c ? (c.category||'觉察培训') : '觉察培训';
+  document.getElementById('crsChapters').value = c && c.chapters ? JSON.stringify(c.chapters, null, 2) : '[]';
+  document.getElementById('crsActive').checked = c ? c.active !== false : true;
+  document.getElementById('crsDeleteRow').style.display = c ? 'block' : 'none';
+  modal.classList.add('open');
+};
+
+window.closeCourseModal = function(){ document.getElementById('courseModal').classList.remove('open'); };
+
+window.saveCourse = function(){
+  var id = document.getElementById('crsId').value;
+  var name = document.getElementById('crsName').value.trim();
+  if (!name) { toast('请填课程名称','err'); return; }
+  var chaptersRaw = document.getElementById('crsChapters').value.trim();
+  var chapters = [];
+  try { chapters = JSON.parse(chaptersRaw || '[]'); } catch(e){ toast('章节 JSON 格式错误：'+e.message,'err'); return; }
+
+  var data = {
+    name: name,
+    desc: document.getElementById('crsDesc').value.trim(),
+    price: parseInt(document.getElementById('crsPrice').value,10) || 0,
+    category: document.getElementById('crsCategory').value,
+    chapters: chapters,
+    active: document.getElementById('crsActive').checked,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  var col = db.collection('courses');
+  var promise = id ? col.doc(id).update(data) : (data.createdAt = firebase.firestore.FieldValue.serverTimestamp(), col.add(data));
+  promise.then(function(){ closeCourseModal(); loadCourses(); toast('课程已保存','ok'); })
+    .catch(function(e){ toast('保存失败：'+e.message,'err'); });
+};
+
+window.deleteCourse = function(){
+  var id = document.getElementById('crsId').value;
+  if (!id || !confirm('确定删除此课程？已购买的学员仍保留访问权。')) return;
+  db.collection('courses').doc(id).delete()
+    .then(function(){ closeCourseModal(); loadCourses(); toast('已删除','ok'); });
+};
+
+// Load courses when tab opens
+var _origSwitchTab = switchTab;
+switchTab = function(name){
+  _origSwitchTab(name);
+  if (name === 'courses') loadCourses();
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  ADD-ON SERVICES (附加服务)
+// ═══════════════════════════════════════════════════════════════
+var cachedAddons = [];
+
+function loadAddons(){
+  var el = document.getElementById('addonList');
+  if (!el) return;
+  el.innerHTML = '<div class="item-empty">加载中⋯</div>';
+  db.collection('businesses').doc(BUSINESS_ID).collection('addons')
+    .orderBy('order').get().then(function(snap){
+      cachedAddons = [];
+      snap.forEach(function(doc){ var d = doc.data(); d._id = doc.id; cachedAddons.push(d); });
+      renderAddons();
+    });
+}
+
+function renderAddons(){
+  var el = document.getElementById('addonList');
+  if (!cachedAddons.length) {
+    el.innerHTML = '<div class="item-empty">还没有附加服务<br><br><button class="btn btn-gold btn-sm" onclick="openAddonModal()">添加第一个附加服务</button></div>';
+    return;
+  }
+  el.innerHTML = cachedAddons.map(function(a){
+    var priceText = a.displayPrice || ('NT$ ' + (a.price||0).toLocaleString());
+    return '<div class="item '+(a.active===false?'inactive':'')+'">'
+      + '<div class="item-color" style="background:var(--orange)"></div>'
+      + '<div class="item-body">'
+      +   '<div class="item-name">' + escapeHtml(a.name||'') + '</div>'
+      +   '<div class="item-meta">'
+      +     '<span><strong>'+priceText+'</strong></span>'
+      +     (a.duration ? '<span>+'+a.duration+' 分钟</span>' : '')
+      +     (a.active===false?'<span style="color:var(--red)">已停用</span>':'')
+      +   '</div>'
+      + '</div>'
+      + '<div class="item-actions"><button class="btn btn-outline btn-sm" onclick="openAddonModal(\''+a._id+'\')">编辑</button></div>'
+      + '</div>';
+  }).join('');
+}
+
+window.openAddonModal = function(id){
+  var modal = document.getElementById('addonModal');
+  var a = id ? cachedAddons.find(function(x){ return x._id === id; }) : null;
+  document.getElementById('addonModalTitle').textContent = a ? '编辑附加服务' : '添加附加服务';
+  document.getElementById('adnId').value = a ? id : '';
+  document.getElementById('adnName').value = a ? (a.name||'') : '';
+  document.getElementById('adnPrice').value = a ? (a.price||'') : '';
+  document.getElementById('adnDisplayPrice').value = a ? (a.displayPrice||'') : '';
+  document.getElementById('adnDuration').value = a ? (a.duration||'') : '';
+  document.getElementById('adnOrder').value = a ? (a.order||0) : cachedAddons.length;
+  document.getElementById('adnActive').checked = a ? a.active !== false : true;
+  document.getElementById('adnDeleteRow').style.display = a ? 'block' : 'none';
+
+  // Render service picker (checkboxes)
+  var selected = a ? (a.services || []) : [];
+  var picker = document.getElementById('adnServicesPicker');
+  if (cachedServices.length) {
+    picker.innerHTML = cachedServices.map(function(s){
+      var checked = selected.indexOf(s._id) !== -1 ? 'checked' : '';
+      return '<label style="display:inline-flex;align-items:center;gap:4px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:.82rem;cursor:pointer">'
+        + '<input type="checkbox" class="adnSvcCheck" value="'+s._id+'" '+checked+' style="width:16px;height:16px"> '
+        + escapeHtml(s.name) + '</label>';
+    }).join('');
+  } else {
+    picker.innerHTML = '<span style="font-size:.82rem;color:var(--text3)">加载服务中⋯</span>';
+  }
+
+  modal.classList.add('open');
+};
+
+window.closeAddonModal = function(){ document.getElementById('addonModal').classList.remove('open'); };
+
+window.saveAddon = function(){
+  var id = document.getElementById('adnId').value;
+  var name = document.getElementById('adnName').value.trim();
+  if (!name) { toast('请填名称','err'); return; }
+
+  var selectedSvcs = [];
+  document.querySelectorAll('.adnSvcCheck:checked').forEach(function(cb){ selectedSvcs.push(cb.value); });
+
+  var data = {
+    name: name,
+    price: parseInt(document.getElementById('adnPrice').value,10) || 0,
+    displayPrice: document.getElementById('adnDisplayPrice').value.trim(),
+    duration: parseInt(document.getElementById('adnDuration').value,10) || 0,
+    order: parseInt(document.getElementById('adnOrder').value,10) || 0,
+    services: selectedSvcs,
+    active: document.getElementById('adnActive').checked,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  var col = db.collection('businesses').doc(BUSINESS_ID).collection('addons');
+  var promise = id ? col.doc(id).update(data) : (data.createdAt = firebase.firestore.FieldValue.serverTimestamp(), col.add(data));
+  promise.then(function(){ closeAddonModal(); loadAddons(); toast('附加服务已保存','ok'); })
+    .catch(function(e){ toast('保存失败：'+e.message,'err'); });
+};
+
+window.deleteAddon = function(){
+  var id = document.getElementById('adnId').value;
+  if (!id || !confirm('确定删除？')) return;
+  db.collection('businesses').doc(BUSINESS_ID).collection('addons').doc(id).delete()
+    .then(function(){ closeAddonModal(); loadAddons(); toast('已删除','ok'); });
+};
+
+// Load addons when services tab opens
+var _origLoadServices = loadServices;
+loadServices = function(){
+  _origLoadServices();
+  loadAddons();
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  SHIFTS (班别管理)
+// ═══════════════════════════════════════════════════════════════
+var cachedShifts = [];
+
+function loadShifts(cb){
+  db.collection('businesses').doc(BUSINESS_ID).collection('shifts')
+    .orderBy('order').get().then(function(snap){
+      cachedShifts = [];
+      snap.forEach(function(doc){ var d = doc.data(); d._id = doc.id; cachedShifts.push(d); });
+      renderShifts();
+      if (cb) cb();
+    });
+}
+
+function renderShifts(){
+  var el = document.getElementById('shiftList');
+  if (!cachedShifts.length) {
+    el.innerHTML = '<div class="item-empty">还没有班别<br><br><button class="btn btn-gold btn-sm" onclick="openShiftModal()">添加第一个班别</button></div>';
+    return;
+  }
+  el.innerHTML = cachedShifts.map(function(s){
+    return '<div class="item"><div class="item-color" style="background:'+(s.color||'#f0c040')+'"></div>'
+      + '<div class="item-body"><div class="item-name">'+escapeHtml(s.name)+(s.code?' <span class="item-category">'+escapeHtml(s.code)+'</span>':'')+'</div>'
+      + '<div class="item-meta"><span>'+(s.startTime||'?')+' - '+(s.endTime||'?')+'</span></div></div>'
+      + '<div class="item-actions"><button class="btn btn-outline btn-sm" onclick="openShiftModal(\''+s._id+'\')">编辑</button></div></div>';
+  }).join('');
+}
+
+window.openShiftModal = function(id){
+  var modal = document.getElementById('shiftModal');
+  var s = id ? cachedShifts.find(function(x){ return x._id === id; }) : null;
+  document.getElementById('shiftModalTitle').textContent = s ? '编辑班别' : '添加班别';
+  document.getElementById('shfId').value = s ? id : '';
+  document.getElementById('shfName').value = s ? (s.name||'') : '';
+  document.getElementById('shfCode').value = s ? (s.code||'') : '';
+  document.getElementById('shfStart').value = s ? (s.startTime||'10:00') : '10:00';
+  document.getElementById('shfEnd').value = s ? (s.endTime||'18:00') : '18:00';
+  document.getElementById('shfColor').value = s ? (s.color||'#f0c040') : '#f0c040';
+  document.getElementById('shfOrder').value = s ? (s.order||0) : cachedShifts.length;
+  document.getElementById('shfDeleteRow').style.display = s ? 'block' : 'none';
+  modal.classList.add('open');
+};
+
+window.closeShiftModal = function(){ document.getElementById('shiftModal').classList.remove('open'); };
+
+window.saveShift = function(){
+  var id = document.getElementById('shfId').value;
+  var name = document.getElementById('shfName').value.trim();
+  if (!name) { toast('请填班别名称','err'); return; }
+  var data = {
+    name: name,
+    code: document.getElementById('shfCode').value.trim(),
+    startTime: document.getElementById('shfStart').value,
+    endTime: document.getElementById('shfEnd').value,
+    color: document.getElementById('shfColor').value,
+    order: parseInt(document.getElementById('shfOrder').value,10)||0,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  var col = db.collection('businesses').doc(BUSINESS_ID).collection('shifts');
+  var promise = id ? col.doc(id).update(data) : (data.createdAt = firebase.firestore.FieldValue.serverTimestamp(), col.add(data));
+  promise.then(function(){ closeShiftModal(); loadShifts(); toast('班别已保存','ok'); })
+    .catch(function(e){ toast('保存失败：'+e.message,'err'); });
+};
+
+window.deleteShift = function(){
+  var id = document.getElementById('shfId').value;
+  if (!id || !confirm('确定删除此班别？')) return;
+  db.collection('businesses').doc(BUSINESS_ID).collection('shifts').doc(id).delete()
+    .then(function(){ closeShiftModal(); loadShifts(); toast('已删除','ok'); });
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  SCHEDULE CALENDAR (排班行事历)
+// ═══════════════════════════════════════════════════════════════
+var scheduleWeekStart = null; // Monday of current view
+var cachedSchedule = {}; // key: 'YYYY-MM-DD_staffId' → { shiftId, shiftName, color, startTime, endTime }
+
+function initScheduleWeek(){
+  var today = new Date();
+  var day = today.getDay(); // 0=Sun
+  var diff = day === 0 ? -6 : 1 - day; // go to Monday
+  scheduleWeekStart = new Date(today);
+  scheduleWeekStart.setDate(today.getDate() + diff);
+  scheduleWeekStart.setHours(0,0,0,0);
+}
+
+window.scheduleNav = function(dir){
+  if (!scheduleWeekStart) initScheduleWeek();
+  if (dir === 0) { initScheduleWeek(); }
+  else { scheduleWeekStart.setDate(scheduleWeekStart.getDate() + dir * 7); }
+  loadSchedule();
+};
+
+function loadSchedule(){
+  if (!scheduleWeekStart) initScheduleWeek();
+  if (!cachedStaff.length || !cachedShifts.length) {
+    // Need staff + shifts first
+    Promise.all([
+      cachedStaff.length ? Promise.resolve() : db.collection('businesses').doc(BUSINESS_ID).collection('staff').orderBy('order').get().then(function(snap){
+        cachedStaff = []; snap.forEach(function(doc){ var d = doc.data(); d._id = doc.id; cachedStaff.push(d); });
+      }),
+      cachedShifts.length ? Promise.resolve() : db.collection('businesses').doc(BUSINESS_ID).collection('shifts').orderBy('order').get().then(function(snap){
+        cachedShifts = []; snap.forEach(function(doc){ var d = doc.data(); d._id = doc.id; cachedShifts.push(d); });
+      })
+    ]).then(function(){ loadScheduleData(); });
+  } else {
+    loadScheduleData();
+  }
+}
+
+function loadScheduleData(){
+  // Load schedule docs for this week (7 days)
+  var dates = [];
+  for (var i = 0; i < 7; i++){
+    var d = new Date(scheduleWeekStart);
+    d.setDate(d.getDate() + i);
+    dates.push(d.toISOString().slice(0,10));
+  }
+
+  var from = dates[0];
+  var to = dates[6];
+
+  db.collection('businesses').doc(BUSINESS_ID).collection('schedule')
+    .where('date','>=',from).where('date','<=',to)
+    .get().then(function(snap){
+      cachedSchedule = {};
+      snap.forEach(function(doc){
+        var d = doc.data();
+        var key = d.date + '_' + d.staffId;
+        d._id = doc.id;
+        cachedSchedule[key] = d;
+      });
+      renderSchedule(dates);
+    }).catch(function(e){
+      document.getElementById('scheduleBody').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--red)">加载失败：'+e.message+'</td></tr>';
+    });
+}
+
+function renderSchedule(dates){
+  var DAYS_SHORT = ['一','二','三','四','五','六','日'];
+
+  // Update week label
+  document.getElementById('scheduleWeekLabel').textContent = dates[0].slice(5) + ' ~ ' + dates[6].slice(5);
+
+  // Header
+  var headHtml = '<tr><th style="padding:10px 8px;border-bottom:2px solid var(--border);text-align:left;font-weight:600;min-width:80px">人员</th>';
+  dates.forEach(function(d, i){
+    var today = new Date().toISOString().slice(0,10) === d;
+    headHtml += '<th style="padding:10px 6px;border-bottom:2px solid var(--border);text-align:center;font-weight:'+(today?'700':'400')+';color:'+(today?'var(--gold)':'var(--text2)')+';font-size:.78rem">'
+      + d.slice(8) + ' ' + DAYS_SHORT[i] + '</th>';
+  });
+  headHtml += '</tr>';
+  document.getElementById('scheduleHead').innerHTML = headHtml;
+
+  // Body
+  var activeStaff = cachedStaff.filter(function(s){ return s.active !== false; });
+  if (!activeStaff.length) {
+    document.getElementById('scheduleBody').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text3)">请先添加服务人员</td></tr>';
+    return;
+  }
+
+  var bodyHtml = activeStaff.map(function(staff){
+    var row = '<tr><td style="padding:8px;border-bottom:1px solid var(--border);font-weight:500;font-size:.85rem">' + escapeHtml(staff.name) + '</td>';
+    dates.forEach(function(d){
+      var key = d + '_' + staff._id;
+      var sch = cachedSchedule[key];
+      var cellStyle = 'padding:6px 4px;border-bottom:1px solid var(--border);text-align:center;cursor:pointer;min-height:40px;transition:background .2s;';
+      if (sch) {
+        cellStyle += 'background:' + (sch.color || '#f0c040') + '22;';
+        row += '<td style="'+cellStyle+'" onclick="openScheduleCell(\''+staff._id+'\',\''+d+'\')">'
+          + '<div style="font-size:.72rem;font-weight:600;color:'+(sch.color||'#b8922a')+'">' + escapeHtml(sch.shiftName||sch.shiftId||'') + '</div>'
+          + '<div style="font-size:.66rem;color:var(--text3)">' + (sch.startTime||'') + '-' + (sch.endTime||'') + '</div>'
+          + '</td>';
+      } else {
+        row += '<td style="'+cellStyle+'" onclick="openScheduleCell(\''+staff._id+'\',\''+d+'\')" onmouseover="this.style.background=\'rgba(184,146,42,.06)\'" onmouseout="this.style.background=\'transparent\'"></td>';
+      }
+    });
+    row += '</tr>';
+    return row;
+  }).join('');
+
+  document.getElementById('scheduleBody').innerHTML = bodyHtml;
+}
+
+window.openScheduleCell = function(staffId, date){
+  document.getElementById('cellStaffId').value = staffId;
+  document.getElementById('cellDate').value = date;
+  var staffName = (cachedStaff.find(function(s){ return s._id === staffId; }) || {}).name || '';
+  document.getElementById('cellModalTitle').textContent = staffName + ' · ' + date.slice(5);
+
+  var optHtml = cachedShifts.map(function(sh){
+    return '<button class="btn btn-outline" style="justify-content:flex-start;gap:10px;border-color:'+sh.color+'44" onclick="assignShift(\''+sh._id+'\')">'
+      + '<span style="width:14px;height:14px;border-radius:50%;background:'+sh.color+';flex-shrink:0"></span>'
+      + escapeHtml(sh.name) + ' (' + (sh.startTime||'?') + '-' + (sh.endTime||'?') + ')'
+      + '</button>';
+  }).join('');
+  if (!optHtml) optHtml = '<div style="color:var(--text3);font-size:.85rem">请先添加班别</div>';
+  document.getElementById('cellShiftOptions').innerHTML = optHtml;
+  document.getElementById('scheduleCellModal').classList.add('open');
+};
+
+window.closeScheduleCellModal = function(){ document.getElementById('scheduleCellModal').classList.remove('open'); };
+
+window.assignShift = function(shiftId){
+  var staffId = document.getElementById('cellStaffId').value;
+  var date = document.getElementById('cellDate').value;
+  var shift = cachedShifts.find(function(s){ return s._id === shiftId; });
+  if (!shift) return;
+
+  var docId = date + '_' + staffId;
+  db.collection('businesses').doc(BUSINESS_ID).collection('schedule').doc(docId).set({
+    date: date,
+    staffId: staffId,
+    shiftId: shiftId,
+    shiftName: shift.name,
+    startTime: shift.startTime,
+    endTime: shift.endTime,
+    color: shift.color,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    closeScheduleCellModal();
+    // Update local cache
+    cachedSchedule[docId] = { date:date, staffId:staffId, shiftId:shiftId, shiftName:shift.name, startTime:shift.startTime, endTime:shift.endTime, color:shift.color };
+    var dates = [];
+    for (var i = 0; i < 7; i++){ var d = new Date(scheduleWeekStart); d.setDate(d.getDate()+i); dates.push(d.toISOString().slice(0,10)); }
+    renderSchedule(dates);
+    toast(shift.name + ' 已排班','ok');
+  }).catch(function(e){ toast('排班失败：'+e.message,'err'); });
+};
+
+window.clearScheduleCell = function(){
+  var staffId = document.getElementById('cellStaffId').value;
+  var date = document.getElementById('cellDate').value;
+  var docId = date + '_' + staffId;
+  db.collection('businesses').doc(BUSINESS_ID).collection('schedule').doc(docId).delete().then(function(){
+    closeScheduleCellModal();
+    delete cachedSchedule[docId];
+    var dates = [];
+    for (var i = 0; i < 7; i++){ var d = new Date(scheduleWeekStart); d.setDate(d.getDate()+i); dates.push(d.toISOString().slice(0,10)); }
+    renderSchedule(dates);
+    toast('已清除排班','ok');
+  });
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  DAILY CALENDAR (当日预约行事历)
+// ═══════════════════════════════════════════════════════════════
+window.setDailyCalToday = function(){
+  document.getElementById('dailyCalDate').value = new Date().toISOString().slice(0,10);
+  loadDailyCalendar();
+};
+
+window.loadDailyCalendar = function(){
+  var dateStr = document.getElementById('dailyCalDate').value;
+  if (!dateStr) return;
+  var container = document.getElementById('dailyCalendar');
+  container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3)">加载中⋯</div>';
+
+  // Ensure staff loaded
+  var staffPromise = cachedStaff.length ? Promise.resolve() :
+    db.collection('businesses').doc(BUSINESS_ID).collection('staff').where('active','==',true).orderBy('order').get().then(function(snap){
+      cachedStaff = []; snap.forEach(function(doc){ var d = doc.data(); d._id = doc.id; cachedStaff.push(d); });
+    });
+
+  staffPromise.then(function(){
+    // Load bookings for this date
+    return db.collection('businesses').doc(BUSINESS_ID).collection('bookings')
+      .where('date','==',dateStr)
+      .get();
+  }).then(function(snap){
+    var bookings = [];
+    snap.forEach(function(doc){ var d = doc.data(); d._id = doc.id; bookings.push(d); });
+
+    // Also load schedule for this date to show shift background
+    return db.collection('businesses').doc(BUSINESS_ID).collection('schedule')
+      .where('date','==',dateStr)
+      .get().then(function(schSnap){
+        var schedules = {};
+        schSnap.forEach(function(doc){ var d = doc.data(); schedules[d.staffId] = d; });
+        renderDailyCalendar(dateStr, bookings, schedules);
+      });
+  }).catch(function(e){
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--red)">加载失败：'+e.message+'</div>';
+  });
+};
+
+function renderDailyCalendar(dateStr, bookings, schedules){
+  var container = document.getElementById('dailyCalendar');
+  var activeStaff = cachedStaff.filter(function(s){ return s.active !== false; });
+
+  if (!activeStaff.length) {
+    container.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text3)">请先添加服务人员</div>';
+    return;
+  }
+
+  // Time range: 8:00 - 22:00 (every 30 min = 28 rows)
+  var START_HOUR = 8, END_HOUR = 22, STEP = 30;
+  var timeSlots = [];
+  for (var h = START_HOUR; h < END_HOUR; h++){
+    timeSlots.push(h + ':00');
+    timeSlots.push(h + ':30');
+  }
+
+  // Build header
+  var html = '<table style="width:100%;border-collapse:collapse;font-size:.78rem">';
+  html += '<thead><tr><th style="padding:8px 4px;border-bottom:2px solid var(--border);text-align:left;width:50px;font-weight:600;position:sticky;left:0;background:var(--card);z-index:1">时间</th>';
+  activeStaff.forEach(function(s){
+    var sch = schedules[s._id];
+    var headerBg = sch ? (sch.color || '#f0c040') + '18' : 'transparent';
+    html += '<th style="padding:8px 4px;border-bottom:2px solid var(--border);text-align:center;font-weight:600;min-width:100px;background:'+headerBg+'">'
+      + escapeHtml(s.name)
+      + (sch ? '<div style="font-size:.66rem;font-weight:400;color:var(--text3)">' + (sch.startTime||'') + '-' + (sch.endTime||'') + '</div>' : '')
+      + '</th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  // Build rows
+  timeSlots.forEach(function(t){
+    var isHour = t.endsWith(':00');
+    html += '<tr>';
+    html += '<td style="padding:4px;border-bottom:1px solid '+(isHour?'var(--border)':'var(--border) transparent')+';font-size:.72rem;color:var(--text3);position:sticky;left:0;background:var(--card);z-index:1">'
+      + (isHour ? t : '') + '</td>';
+
+    activeStaff.forEach(function(s){
+      // Check if this staff has a booking at this time
+      var booking = bookings.find(function(b){
+        return (b.staffId === s._id || b.staffName === s.name) && b.time === t;
+      });
+      // Check if within shift
+      var sch = schedules[s._id];
+      var inShift = false;
+      if (sch && sch.startTime && sch.endTime) {
+        inShift = t >= sch.startTime && t < sch.endTime;
+      }
+
+      var cellBg = 'transparent';
+      if (booking && (booking.status === 'confirmed' || booking.status === 'pending_payment' || booking.status === 'pending')) {
+        cellBg = booking.status === 'confirmed' ? 'var(--green-bg)' : 'var(--orange-bg)';
+      } else if (inShift) {
+        cellBg = (sch.color || '#f0c040') + '08';
+      }
+
+      html += '<td style="padding:3px 4px;border-bottom:1px solid '+(isHour?'var(--border)':'rgba(0,0,0,.03)')+';background:'+cellBg+';font-size:.72rem;vertical-align:top;min-height:24px">';
+      if (booking) {
+        var statusIcon = booking.status === 'confirmed' ? '●' : '○';
+        var statusColor = booking.status === 'confirmed' ? 'var(--green)' : 'var(--orange)';
+        html += '<div style="color:'+statusColor+';font-weight:500;line-height:1.4">'
+          + '<span style="font-size:.6rem">'+statusIcon+'</span> '
+          + escapeHtml(booking.customerName||'客人')
+          + '<div style="font-size:.66rem;color:var(--text3);font-weight:400">' + escapeHtml(booking.serviceName||'') + '</div>'
+          + '</div>';
+      }
+      html += '</td>';
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+// Auto-set today when bookings tab loads
+var _origLoadBookings = typeof loadBookings === 'function' ? loadBookings : null;
+
+// Override loadSlots to also load schedule
+var _origLoadSlots = typeof loadSlots === 'function' ? loadSlots : null;
+function loadSlots(){
+  // Load shifts + schedule calendar
+  loadShifts(function(){ loadSchedule(); });
+  // Also load old slots list
+  if (_origLoadSlots) _origLoadSlots();
+  else {
+    var listEl = document.getElementById('slotList');
+    if (listEl) listEl.innerHTML = '<div class="item-empty">旧版时段列表</div>';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════════════════════════
+function escapeHtml(s){
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+})();
+</script>
+
+<footer class="hl-footer">
+  <div class="hl-footer-inner">
+    <div class="hl-footer-brand">
+      <div class="hl-footer-logo"><img src="../LOGO-1.png" alt="" class="hl-logo-icon" aria-hidden="true" loading="lazy">馥灵之钥 Hour Light</div>
+      <div class="hl-footer-tagline">读懂自己，活对人生｜创办人 王逸君</div>
+    </div>
+    <div class="hl-footer-links">
+      <a href="../index.html">首页</a>
+      <a href="../booking.html">在线预约</a>
+      <a href="../services.html">服务项目</a>
+      <a href="../pricing.html">服务价目</a>
+      <a href="../draw-hl.html">在线抽牌</a>
+      <a href="../member-dashboard.html">会员中心</a>
+      <a href="../partner-dashboard.html">伙伴控制台</a>
+      <a href="https://lin.ee/RdQBFAN" target="_blank" rel="noopener">LINE 咨询</a>
+    </div>
+    <div class="hl-footer-copyright">© 2026 馥灵之钥国际有限公司 Hour Light International Co., Ltd.｜统编：60303284<br>All Rights Reserved.</div>
+  </div>
+</footer>
+
+<link rel="stylesheet" href="../assets/css/hl-footer.css">
+<script src="../assets/js/hl-topnav.js"></script>
+<script src="../assets/js/hl-bottomnav.js"></script>
+</body>
+</html>
