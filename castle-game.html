@@ -710,6 +710,18 @@ select,input[type=text],input[type=number],input[type=date],input[type=email],te
     <div id="compFill" style="height:100%;width:0%;border-radius:4px;background:linear-gradient(90deg,var(--teal),var(--amber),var(--rose));background-size:200% auto;animation:completenessShine 4s linear infinite;transition:width .9s cubic-bezier(.23,1,.32,1)"></div>
   </div>
   <div id="compDesc" style="font-size:.68rem;color:var(--muted);margin-top:6px;text-align:center"></div>
+
+  <!-- ── 馥靈大師進度（城堡 100% 後的延伸成長路徑）── -->
+  <div id="masterProgressWrap" style="margin-top:12px;padding-top:12px;border-top:1px dashed rgba(240,165,0,.18);display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <span style="font-size:.72rem;letter-spacing:.08em;color:var(--muted)">✦ 馥靈大師進度</span>
+      <span style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;background:linear-gradient(135deg,#c9954a,#f8dfa5);-webkit-background-clip:text;background-clip:text;color:transparent" id="masterPct">0%</span>
+    </div>
+    <div style="height:6px;background:rgba(160,124,220,.1);border-radius:4px;overflow:hidden;position:relative">
+      <div id="masterFill" style="height:100%;width:0%;border-radius:4px;background:linear-gradient(90deg,#c9954a,#f8dfa5,#a07cdc);background-size:200% auto;animation:completenessShine 5s linear infinite;transition:width .9s cubic-bezier(.23,1,.32,1)"></div>
+    </div>
+    <div id="masterDesc" style="font-size:.66rem;color:var(--muted);margin-top:6px;text-align:center;line-height:1.5"></div>
+  </div>
 </div>
 
 <!-- L.I.G.H.T. 覺察殿堂入口 -->
@@ -1123,6 +1135,89 @@ function renderCompleteness(){
     castleImg.style.filter = f;
     castleImg.style.transition = 'filter 1.2s ease';
   }
+
+  // 城堡 100% 後解鎖馥靈大師進度（延伸成長路徑）
+  if(c >= 100){
+    renderMasterProgress();
+  }
+}
+
+// 讀取任意 localStorage JSON（安全版）
+function _lsReadJson(key){
+  try{ var raw=localStorage.getItem(key); return raw?JSON.parse(raw):null; }catch(e){ return null; }
+}
+
+// 馥靈大師進度：城堡 100% 後的延伸（新城堡活動累積）
+function calcMasterProgress(){
+  // 每日簽到累積天數（最多 30 天 → 20 分）
+  var daily = _lsReadJson('hl_castle_daily') || {};
+  var signDays = 0;
+  try{
+    Object.keys(daily).forEach(function(k){
+      if(/^\d{4}-\d{2}-\d{2}$/.test(k) && daily[k] && daily[k].claimed) signDays++;
+    });
+  }catch(e){}
+  var signScore = Math.min(20, Math.round(signDays / 30 * 20));
+
+  // 寵物收集（hl_pets_v1.owned 最多 9 隻 → 20 分）
+  var pets = _lsReadJson('hl_pets_v1') || {};
+  var petCount = 0;
+  try{
+    if(Array.isArray(pets.owned)) petCount = pets.owned.length;
+    else if(pets.owned && typeof pets.owned==='object') petCount = Object.keys(pets.owned).length;
+  }catch(e){}
+  var petScore = Math.min(20, Math.round(petCount / 9 * 20));
+
+  // 君主等級（hl_castle_v3.save.level 最多 10 → 20 分）
+  var cv3 = _lsReadJson('hl_castle_v3') || {};
+  var level = (cv3.save && cv3.save.level) || cv3.level || 1;
+  var levelScore = Math.min(20, Math.round(Math.max(0, level - 1) / 9 * 20));
+
+  // Keepsakes 紀念品（hl_castle_keepsakes_v1 最多 10 件 → 20 分）
+  var keepsakes = _lsReadJson('hl_castle_keepsakes_v1') || [];
+  var keepsakeCount = Array.isArray(keepsakes) ? keepsakes.length : 0;
+  var keepsakeScore = Math.min(20, Math.round(keepsakeCount / 10 * 20));
+
+  // Hub 訪問 + 探索紀錄（最多 50 → 20 分）
+  var visits = _lsReadJson('hl_castle_hub_visits') || {};
+  var explorations = _lsReadJson('hl_castle_explorations') || {};
+  var exploreCount = 0;
+  try{
+    exploreCount += Object.keys(visits).length;
+    exploreCount += Array.isArray(explorations) ? explorations.length
+      : (explorations && typeof explorations==='object' ? Object.keys(explorations).length : 0);
+  }catch(e){}
+  var exploreScore = Math.min(20, Math.round(exploreCount / 50 * 20));
+
+  return {
+    total: Math.min(100, signScore + petScore + levelScore + keepsakeScore + exploreScore),
+    parts: {
+      sign: signScore, pet: petScore, level: levelScore,
+      keepsake: keepsakeScore, explore: exploreScore
+    },
+    raw: { signDays: signDays, petCount: petCount, level: level, keepsakeCount: keepsakeCount, exploreCount: exploreCount }
+  };
+}
+
+function renderMasterProgress(){
+  var wrap = document.getElementById('masterProgressWrap');
+  var fill = document.getElementById('masterFill');
+  var pct = document.getElementById('masterPct');
+  var desc = document.getElementById('masterDesc');
+  if(!wrap) return;
+  var m = calcMasterProgress();
+  wrap.style.display = 'block';
+  fill.style.width = m.total + '%';
+  pct.textContent = m.total + '%';
+  var msg = m.total >= 100 ? '✦ 你已是馥靈大師 ✦' :
+            m.total >= 70  ? '大師的腳印，已經深深踏下' :
+            m.total >= 40  ? '你正在成為那個人' :
+            m.total >= 10  ? '每一個習慣，都在雕刻你' :
+                             '持續來，你會看見自己的樣子';
+  // 細項：簽到 X 天 · 寵物 X/9 · 君主 Lv · Keepsake X · Hub X
+  var detail = '簽到 ' + m.raw.signDays + ' 天 · 寵物 ' + m.raw.petCount + '/9 · 等級 Lv' + m.raw.level +
+               ' · Keepsake ' + m.raw.keepsakeCount + '/10 · Hub ' + m.raw.exploreCount;
+  desc.innerHTML = msg + '<br><span style="font-size:.62rem;color:rgba(0,0,0,.35)">' + detail + '</span>';
 }
 
 
