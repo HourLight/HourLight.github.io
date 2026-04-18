@@ -137,6 +137,75 @@
     document.body.appendChild(card);
   }
 
+  // 把所有 matched 家具視覺化：右側直排小圓框
+  function renderRoomFurnitureDeco(matchedFurniture){
+    if(!matchedFurniture || matchedFurniture.length === 0) return;
+    injectFurnitureStyles();
+
+    var dock = document.createElement('div');
+    dock.id = 'hl-room-furniture-dock';
+    dock.className = 'rf-dock';
+    matchedFurniture.forEach(function(f, i){
+      var item = document.createElement('div');
+      item.className = 'rf-item';
+      item.style.animationDelay = (i * 0.12) + 's';
+      item.innerHTML =
+        '<span class="rf-icon">' + (f.icon || '✨') + '</span>' +
+        '<span class="rf-name">' + f.name + '</span>';
+      dock.appendChild(item);
+    });
+    document.body.appendChild(dock);
+  }
+
+  function injectFurnitureStyles(){
+    if(document.getElementById('hl-room-furniture-style')) return;
+    var style = document.createElement('style');
+    style.id = 'hl-room-furniture-style';
+    style.textContent = [
+      '.rf-dock{',
+      '  position:fixed;right:10px;top:50%;transform:translateY(-50%);',
+      '  z-index:140;',
+      '  display:flex;flex-direction:column;gap:8px;',
+      '  pointer-events:none;',
+      '}',
+      '.rf-item{',
+      '  display:flex;align-items:center;gap:6px;',
+      '  padding:6px 10px 6px 7px;',
+      '  background:linear-gradient(135deg,rgba(253,246,239,.96),rgba(247,237,226,.96));',
+      '  border:1.5px solid rgba(200,134,42,.3);',
+      '  border-radius:22px;',
+      '  box-shadow:0 3px 14px rgba(200,134,42,.18);',
+      '  font-family:"Noto Serif TC",serif;',
+      '  font-size:.72rem;color:#3e2a1a;',
+      '  opacity:0;',
+      '  animation:rfSlideIn .8s cubic-bezier(.34,1.56,.64,1) forwards;',
+      '}',
+      '.rf-icon{',
+      '  font-size:1.1rem;',
+      '  filter:drop-shadow(0 0 4px rgba(200,134,42,.4));',
+      '  animation:rfGlow 3s ease-in-out infinite;',
+      '}',
+      '.rf-name{',
+      '  font-weight:600;color:#c8862a;',
+      '  white-space:nowrap;',
+      '}',
+      '@keyframes rfSlideIn{',
+      '  from{opacity:0;transform:translateX(30px)}',
+      '  to{opacity:1;transform:translateX(0)}',
+      '}',
+      '@keyframes rfGlow{',
+      '  0%,100%{filter:drop-shadow(0 0 4px rgba(200,134,42,.3))}',
+      '  50%{filter:drop-shadow(0 0 10px rgba(200,134,42,.7))}',
+      '}',
+      '@media(max-width:520px){',
+      '  .rf-dock{right:6px;gap:6px}',
+      '  .rf-item{padding:5px 8px 5px 6px;font-size:.66rem}',
+      '  .rf-icon{font-size:1rem}',
+      '}'
+    ].join('\n');
+    document.head.appendChild(style);
+  }
+
   function getRoomStarCount(slug) {
     var state;
     try {
@@ -192,6 +261,7 @@
 
     if(matched.length > 0){
       renderDecorCard(matched);
+      renderRoomFurnitureDeco(matched);
     }
     renderRoomStars(slug);
   }
