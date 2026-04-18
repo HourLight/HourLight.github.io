@@ -2425,6 +2425,13 @@ async function triggerAIReading() {
     // 留存 AI 回應到 Firestore（防消費糾紛）
     updateDrawAIResponse(data.reading || '');
 
+    // 🎯 付費深度任務追蹤（2026/4/19）
+    if(window.HL_track && n>1){
+      var paidKey = n>=7?'draw7':n>=5?'draw5':'draw3';
+      var paidPrice = n>=7?599:n>=5?399:199;
+      HL_track('paid_reading_complete', {paidToolId:paidKey, price:paidPrice, cards:n});
+    }
+
     // 滾動到結果
     document.getElementById('aiResultBlock').scrollIntoView({ behavior: 'smooth', block: 'start' });
 

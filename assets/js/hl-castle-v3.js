@@ -441,50 +441,58 @@
   // ═══════════════════════════════════════
   var DAILY_QUEST_POOL = [
     // ── 探訪類（房間互動）- 門檻 +50% 左右 ──
-    { id:'visit3rooms',   text:'今日探訪 5 個不同房間',           target:5, type:'room_visit',    reward:{ xp:25, points:2 } },
-    { id:'visit5rooms',   text:'深度巡禮 8 個房間',               target:8, type:'room_visit',    reward:{ xp:40, points:4 } },
+    { id:'visit3rooms',   text:'今日探訪 5 個不同房間',           target:5, type:'room_visit',    reward:{ xp:12, points:1 } },
+    { id:'visit5rooms',   text:'深度巡禮 8 個房間',               target:8, type:'room_visit',    reward:{ xp:10, points:1 } },
     { id:'visit_all',     text:'巡遊所有 21 個房間',              target:21,type:'room_visit',    reward:{ xp:200, points:20 } },
-    { id:'event3',        text:'觸發 5 個房間事件',                target:5, type:'event',         reward:{ xp:22, points:2 } },
-    { id:'event5',        text:'觸發 8 個房間事件',                target:8, type:'event',         reward:{ xp:38, points:4 } },
+    { id:'event3',        text:'觸發 5 個房間事件',                target:5, type:'event',         reward:{ xp:11, points:1 } },
+    { id:'event5',        text:'觸發 8 個房間事件',                target:8, type:'event',         reward:{ xp:10, points:1 } },
     // ── 抽牌類 - 門檻翻倍 ──
-    { id:'draw3cards',    text:'抽 5 張馥靈牌（單張）',           target:5, type:'draw_card',     reward:{ xp:15, points:2 } },
-    { id:'draw5cards',    text:'抽 10 張馥靈牌',                   target:10,type:'draw_card',     reward:{ xp:25, points:2 } },
-    { id:'draw_spread',   text:'完成 2 次 3 張牌陣占卜',           target:2, type:'draw_spread',   reward:{ xp:30, points:3 } },
-    { id:'draw_tarot',    text:'抽 3 張塔羅牌',                    target:3, type:'draw_card',     reward:{ xp:12, points:2 } },
-    { id:'draw_angel',    text:'抽 3 張天使卡',                    target:3, type:'draw_card',     reward:{ xp:12, points:2 } },
+    { id:'draw3cards',    text:'抽 5 張馥靈牌（單張）',           target:5, type:'draw_card',     reward:{ xp:8, points:1 } },
+    { id:'draw5cards',    text:'抽 10 張馥靈牌',                   target:10,type:'draw_card',     reward:{ xp:12, points:1 } },
+    { id:'draw_spread',   text:'完成 2 次 3 張牌陣占卜',           target:2, type:'draw_spread',   reward:{ xp:10, points:1 } },
+    { id:'draw_tarot',    text:'抽 3 張塔羅牌',                    target:3, type:'draw_card',     reward:{ xp:6, points:1 } },
+    { id:'draw_angel',    text:'抽 3 張天使卡',                    target:3, type:'draw_card',     reward:{ xp:6, points:1 } },
     // ── 測驗類 - 量 +100% ──
-    { id:'quiz1',         text:'完成 2 個心理測驗',                target:2, type:'quiz_complete', reward:{ xp:15, points:2 } },
-    { id:'quiz2',         text:'完成 3 個不同測驗',                target:3, type:'quiz_complete', reward:{ xp:35, points:4 } },
-    { id:'quiz_mbti',     text:'完成 MBTI 或九型人格測驗',         target:1, type:'quiz_complete', reward:{ xp:20, points:2 } },
-    { id:'quiz_awareness',text:'完成 2 個深潛覺察測驗',             target:2, type:'quiz_complete', reward:{ xp:25, points:2 } },
+    { id:'quiz1',         text:'完成 2 個心理測驗',                target:2, type:'quiz_complete', reward:{ xp:8, points:1 } },
+    { id:'quiz2',         text:'完成 3 個不同測驗',                target:3, type:'quiz_complete', reward:{ xp:9, points:1 } },
+    { id:'quiz_mbti',     text:'完成 MBTI 或九型人格測驗',         target:1, type:'quiz_complete', reward:{ xp:10, points:1 } },
+    { id:'quiz_awareness',text:'完成 2 個深潛覺察測驗',             target:2, type:'quiz_complete', reward:{ xp:12, points:1 } },
     // ── 命理類 - 難度提高 ──
-    { id:'destiny_run',   text:'計算 3 次命盤（任一工具）',         target:3, type:'destiny',        reward:{ xp:20, points:2 } },
-    { id:'destiny2',      text:'使用 4 套不同命理工具',             target:4, type:'destiny',        reward:{ xp:40, points:4 } },
-    { id:'destiny_match', text:'計算 2 次合盤（你與某人）',         target:2, type:'destiny_match',  reward:{ xp:30, points:3 } },
-    { id:'fuling_mima',   text:'查看自己的馥靈秘碼 2 次',           target:2, type:'destiny',        reward:{ xp:15, points:2 } },
+    { id:'destiny_run',   text:'計算 3 次命盤（任一工具）',         target:3, type:'destiny',        reward:{ xp:10, points:1 } },
+    { id:'destiny2',      text:'使用 4 套不同命理工具',             target:4, type:'destiny',        reward:{ xp:10, points:1 } },
+    { id:'destiny_match', text:'計算 2 次合盤（你與某人）',         target:2, type:'destiny_match',  reward:{ xp:10, points:1 } },
+    { id:'fuling_mima',   text:'查看自己的馥靈秘碼 2 次',           target:2, type:'destiny',        reward:{ xp:8, points:1 } },
     // ── 傢具 / 材料類 - 翻倍以上 ──
-    { id:'furniture1',    text:'合成 2 件傢具',                    target:2, type:'furniture',     reward:{ xp:30, points:3 } },
-    { id:'furniture2',    text:'合成 4 件傢具',                    target:4, type:'furniture',     reward:{ xp:60, points:6 } },
-    { id:'upgrade_room',  text:'升級任一房間 2 次',                 target:2, type:'room_upgrade',  reward:{ xp:50, points:5 } },
-    { id:'collect_rare',  text:'集滿 5 個 Rare 材料',              target:5, type:'material',      reward:{ xp:35, points:4 } },
-    { id:'exchange_mat',  text:'在兌換所換取 2 次材料',             target:2, type:'exchange',      reward:{ xp:20, points:0 } },
+    { id:'furniture1',    text:'合成 2 件傢具',                    target:2, type:'furniture',     reward:{ xp:10, points:1 } },
+    { id:'furniture2',    text:'合成 4 件傢具',                    target:4, type:'furniture',     reward:{ xp:20, points:2 } },
+    { id:'upgrade_room',  text:'升級任一房間 2 次',                 target:2, type:'room_upgrade',  reward:{ xp:20, points:2 } },
+    { id:'collect_rare',  text:'集滿 5 個 Rare 材料',              target:5, type:'material',      reward:{ xp:9, points:1 } },
+    { id:'exchange_mat',  text:'在兌換所換取 2 次材料',             target:2, type:'exchange',      reward:{ xp:20, points:1 } },
     // ── 寵物類 ──
-    { id:'feed_pet',      text:'餵食寵物 2 次',                    target:2, type:'pet_feed',      reward:{ xp:15, points:2 } },
-    { id:'pet_play',      text:'陪寵物玩耍 2 次',                   target:2, type:'pet_play',      reward:{ xp:12, points:2 } },
-    { id:'pet_communicate',text:'做 2 次寵物溝通抽牌',              target:2, type:'pet_draw',      reward:{ xp:25, points:2 } },
+    { id:'feed_pet',      text:'餵食寵物 2 次',                    target:2, type:'pet_feed',      reward:{ xp:8, points:1 } },
+    { id:'pet_play',      text:'陪寵物玩耍 2 次',                   target:2, type:'pet_play',      reward:{ xp:6, points:1 } },
+    { id:'pet_communicate',text:'做 2 次寵物溝通抽牌',              target:2, type:'pet_draw',      reward:{ xp:12, points:1 } },
     // ── 社交分享類 ──
-    { id:'share_castle',  text:'分享你的城堡給 2 個朋友',           target:2, type:'share',         reward:{ xp:50, points:8 } },
-    { id:'share_result',  text:'分享 2 次測驗或命盤結果',           target:2, type:'share',         reward:{ xp:30, points:4 } },
-    { id:'invite_friend', text:'邀請 1 位朋友加入馥靈之鑰',         target:1, type:'invite',        reward:{ xp:100, points:15 } },
+    { id:'share_castle',  text:'分享你的城堡給 2 個朋友',           target:2, type:'share',         reward:{ xp:19, points:3 } },
+    { id:'share_result',  text:'分享 2 次測驗或命盤結果',           target:2, type:'share',         reward:{ xp:8, points:1 } },
+    { id:'invite_friend', text:'邀請 1 位朋友加入馥靈之鑰',         target:1, type:'invite',        reward:{ xp:33, points:5 } },
     // ── 覺察行動類 ──
-    { id:'breathe3',      text:'做 3 次 3 分鐘呼吸練習',            target:3, type:'breathe',       reward:{ xp:18, points:2 } },
-    { id:'write_journal', text:'寫 2 段今日覺察日記',               target:2, type:'journal',       reward:{ xp:22, points:2 } },
-    { id:'oil_today',     text:'查看今日精油建議',                  target:1, type:'aroma',         reward:{ xp:12, points:2 } },
-    { id:'meditation',    text:'進行 2 次冥想引導',                 target:2, type:'meditation',    reward:{ xp:25, points:2 } },
+    { id:'breathe3',      text:'做 3 次 3 分鐘呼吸練習',            target:3, type:'breathe',       reward:{ xp:9, points:1 } },
+    { id:'write_journal', text:'寫 2 段今日覺察日記',               target:2, type:'journal',       reward:{ xp:11, points:1 } },
+    { id:'oil_today',     text:'查看今日精油建議',                  target:1, type:'aroma',         reward:{ xp:6, points:1 } },
+    { id:'meditation',    text:'進行 2 次冥想引導',                 target:2, type:'meditation',    reward:{ xp:12, points:1 } },
+    // ── 付費深度任務（有付 $ → 有點數｜2026/4/19 加）──
+    { id:'paid_yuan_chen', text:'完整完成元辰宮解讀（$599）',       target:1, type:'paid_reading',  reward:{ xp:80, points:8 } },
+    { id:'paid_akashic',   text:'完整完成阿卡西紀錄解讀（$599）',   target:1, type:'paid_reading',  reward:{ xp:80, points:8 } },
+    { id:'paid_past_life', text:'完整完成前世故事解讀（$399）',     target:1, type:'paid_reading',  reward:{ xp:50, points:5 } },
+    { id:'paid_draw7',     text:'完成 7 張牌 AI 深度解讀（$599）',  target:1, type:'paid_reading',  reward:{ xp:70, points:7 } },
+    { id:'paid_draw5',     text:'完成 5 張牌 AI 即時解讀（$399）',  target:1, type:'paid_reading',  reward:{ xp:40, points:4 } },
+    { id:'paid_draw3',     text:'完成 3 張牌 AI 即時解讀（$199）',  target:1, type:'paid_reading',  reward:{ xp:20, points:2 } },
+
     // ── 彩蛋 / 進階類 ──
-    { id:'all_quests',    text:'今日三任務全達成（元任務）',        target:3, type:'quest_complete',reward:{ xp:75, points:8 } },
-    { id:'midnight_visit',text:'在子時（23:00-01:00）探訪 2 個房間',target:2, type:'room_visit',    reward:{ xp:40, points:5 } },
-    { id:'dawn_visit',    text:'在辰時（07:00-09:00）探訪 2 個房間',target:2, type:'room_visit',    reward:{ xp:30, points:4 } }
+    { id:'all_quests',    text:'今日三任務全達成（元任務）',        target:3, type:'quest_complete',reward:{ xp:28, points:3 } },
+    { id:'midnight_visit',text:'在子時（23:00-01:00）探訪 2 個房間',target:2, type:'room_visit',    reward:{ xp:16, points:2 } },
+    { id:'dawn_visit',    text:'在辰時（07:00-09:00）探訪 2 個房間',target:2, type:'room_visit',    reward:{ xp:8, points:1 } }
   ];
   function pickDailyQuests(seedStr, count){
     count = count || 3;

@@ -72,6 +72,13 @@
             if (eventType === 'aroma_view')         st.aroma = (st.aroma || 0) + 1;
             if (eventType === 'journal_write')      st.journal = (st.journal || 0) + 1;
             if (eventType === 'meditation_complete')st.meditation = (st.meditation || 0) + 1;
+            // 🎯 付費深度任務追蹤（2026/4/19）
+            if (eventType === 'paid_reading_complete' && detail && detail.paidToolId){
+              var ptid = detail.paidToolId;
+              // 合法的付費工具 ID：yuan_chen / akashic / past_life / draw3 / draw5 / draw7
+              var key = 'paid_' + ptid;
+              st[key] = (st[key] || 0) + 1;
+            }
             localStorage.setItem('hl_castle_v3', JSON.stringify(cd));
           } catch(e) {}
         };
