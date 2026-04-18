@@ -5142,8 +5142,17 @@ function pickDur(btn){
 function updateExpiryPreview(){
   const el=document.getElementById('expiry-preview');
   if(selectedDur===0){el.textContent='到期日：永久有效';return;}
-  const d=new Date();d.setMonth(d.getMonth()+selectedDur);
-  el.textContent='到期日：'+d.toLocaleDateString('zh-TW')+' ('+selectedDur+'個月後)';
+  // 🔧 修正 (2026/4/18)：從「max(今天, 原到期日)」累加，避免縮短既有期限
+  const now=new Date();
+  let base=now;
+  if(window._currentExpiryForModal){
+    const curExp=new Date(window._currentExpiryForModal);
+    if(!isNaN(curExp.getTime()) && curExp>now) base=curExp;
+  }
+  const d=new Date(base);
+  d.setMonth(d.getMonth()+selectedDur);
+  const fromText=(base===now)?'從今天':'從原到期日 '+base.toLocaleDateString('zh-TW');
+  el.textContent='新到期日：'+d.toLocaleDateString('zh-TW')+'（'+fromText+' +'+selectedDur+' 個月）';
 }
 function openRoleModal(uid,name,currentRole,currentPlan,currentExpiry) {
   editingUid=uid;
@@ -5153,15 +5162,31 @@ function openRoleModal(uid,name,currentRole,currentPlan,currentExpiry) {
   document.getElementById('role-err').textContent='';
   selectedDur=1;
   document.querySelectorAll('.dur-btn').forEach(b=>b.classList.toggle('on',b.dataset.dur==='1'));
+  // 🔧 (2026/4/18) 記錄原到期日供累加計算使用
+  window._currentExpiryForModal=null;
+  if(currentExpiry&&currentExpiry!=='permanent'){
+    const testDate=new Date(currentExpiry);
+    if(!isNaN(testDate.getTime())) window._currentExpiryForModal=currentExpiry;
+  }
   toggleDuration();
-  // 顯示現有到期資訊
+  // 顯示現有到期資訊（檢查 Invalid Date）
   const infoEl=document.getElementById('current-expiry-info');
   if(currentExpiry&&currentPlan!=='free'){
-    const exp=new Date(currentExpiry);
-    const now=new Date();
-    const left=Math.ceil((exp-now)/(1000*60*60*24));
-    infoEl.style.display='block';
-    infoEl.innerHTML='📌 目前方案到期：'+exp.toLocaleDateString('zh-TW')+(left>0?' （剩 '+left+' 天）':' <span style="color:#d93025">（已過期）</span>');
+    if(currentExpiry==='permanent'){
+      infoEl.style.display='block';
+      infoEl.innerHTML='📌 目前方案：<strong>永久有效</strong>';
+    }else{
+      const exp=new Date(currentExpiry);
+      if(isNaN(exp.getTime())){
+        infoEl.style.display='block';
+        infoEl.innerHTML='⚠️ 目前到期日資料異常：'+currentExpiry+'｜確認後請重新設定';
+      }else{
+        const now=new Date();
+        const left=Math.ceil((exp-now)/(1000*60*60*24));
+        infoEl.style.display='block';
+        infoEl.innerHTML='📌 目前方案到期：'+exp.toLocaleDateString('zh-TW')+(left>0?' （剩 '+left+' 天）｜調整時會從此日期累加':' <span style="color:#d93025">（已過期，將從今天重新計算）</span>');
+      }
+    }
   }else{infoEl.style.display='none';}
   openModal('modal-role');
 }
@@ -5176,14 +5201,22 @@ async function saveRole() {
     }else if(selectedDur===0){
       data.planExpiry='permanent';
     }else{
-      const exp=new Date();exp.setMonth(exp.getMonth()+selectedDur);
+      // 🔧 修正 (2026/4/18)：從「max(今天, 原到期日)」累加，避免縮短既有期限
+      const now=new Date();
+      let base=now;
+      if(window._currentExpiryForModal){
+        const curExp=new Date(window._currentExpiryForModal);
+        if(!isNaN(curExp.getTime()) && curExp>now) base=curExp;
+      }
+      const exp=new Date(base);
+      exp.setMonth(exp.getMonth()+selectedDur);
       data.planExpiry=exp.toISOString();
     }
     await db.collection('users').doc(editingUid).update(data);
     const r=HL_ROLES[newRole]||HL_ROLES.guest;
     const p=HL_PLANS[newPlan]||HL_PLANS.free;
     closeModal('modal-role');
-    const durLabel=newPlan==='free'?'':selectedDur===0?' 永久':' '+selectedDur+'個月';
+    const durLabel=newPlan==='free'?'':selectedDur===0?' 永久':' +'+selectedDur+' 個月（已累加於既有期限）';
     showToast('已更新：'+r.icon+' '+r.name+' ＋ '+p.icon+' '+p.name+durLabel);
     loadAdminMembers();
   } catch(e) { document.getElementById('role-err').textContent='更新失敗：'+e.message; }

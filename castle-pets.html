@@ -399,16 +399,27 @@ function renderDragon(birthYear){
 
   var state = hlPets.getState();
   var totalRooms = window.hlCastle ? hlCastle.getState().totalRooms : 0;
-  var progPct = Math.min(100, Math.round(totalRooms / 100 * 100));
+  // LV 制：每 10 次探索升 1 級，無上限
+  var PER_LV = 10;
+  var dragonLv = Math.floor(totalRooms / PER_LV) + 1;
+  var remaining = totalRooms % PER_LV;
+  var progPct = Math.max(0, Math.min(100, Math.round(remaining / PER_LV * 100)));
+  if(totalRooms > 0 && totalRooms % PER_LV === 0){
+    dragonLv = totalRooms / PER_LV;
+    progPct = 100;
+  }
+  // LV 階段名（隨等級變化，持續延展）
+  var stages = ['', '雛龍', '幼龍', '少龍', '青龍', '壯龍', '成龍', '靈龍', '神龍', '天龍', '無極之龍'];
+  var stageName = stages[Math.min(dragonLv, stages.length - 1)] || '無極之龍';
 
   container.innerHTML =
-    '<div class="section-head"><h2>賦賦</h2><span>你的天賦之龍</span></div>' +
+    '<div class="section-head"><h2>賦賦 · LV ' + dragonLv + ' ' + stageName + '</h2><span>你的天賦之龍</span></div>' +
     '<div class="dragon-card">' +
     '<div class="dragon-icon">🐉</div>' +
     '<div class="dragon-name">賦賦</div>' +
     '<div class="dragon-story">' + dragon.storyText + '</div>' +
     '<div class="dragon-progress"><div class="dragon-prog-fill" style="width:' + progPct + '%"></div></div>' +
-    '<div class="dragon-prog-label">探索 ' + totalRooms + ' 次，賦賦在長大中...</div>' +
+    '<div class="dragon-prog-label">LV ' + dragonLv + ' · 累積探索 ' + totalRooms + ' 次｜每 ' + PER_LV + ' 次升級</div>' +
     '<div class="cat-modal-quote" style="margin-top:14px"><p>' + dragon.quote + '</p></div>' +
     '</div>';
 }
