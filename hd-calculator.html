@@ -1223,18 +1223,40 @@ function copyData(id,btn){
 function downloadChart(){
   var el=document.getElementById('result');
   if(!el||!el.classList.contains('show')){alert('請先計算人類圖');return;}
-  var btn=event.target;btn.textContent='圖表生成中...';btn.disabled=true;
-  html2canvas(el,{backgroundColor:'#faf9f7',scale:2,useCORS:true}).then(function(canvas){
-    var link=document.createElement('a');
-    link.download='我的人類圖_馥靈之鑰.png';
-    link.href=canvas.toDataURL('image/png');
-    link.click();
-    btn.textContent='下載我的圖表';btn.disabled=false;
-  }).catch(function(e){
-    console.error('Download error:',e);
-    btn.textContent='下載我的圖表';btn.disabled=false;
-    alert('圖表生成失敗，請重試');
-  });
+  var btn=event.target;
+  var origLabel=btn.textContent;
+  btn.textContent='圖表生成中...';btn.disabled=true;
+  if(typeof html2canvas==='undefined'){
+    btn.textContent=origLabel;btn.disabled=false;
+    alert('截圖模組載入中，請稍等 3 秒再試 🙏');
+    return;
+  }
+  try{
+    html2canvas(el,{backgroundColor:'#faf9f7',scale:2,useCORS:true,logging:false}).then(function(canvas){
+      try{
+        var link=document.createElement('a');
+        link.download='我的人類圖_馥靈之鑰.png';
+        link.href=canvas.toDataURL('image/png');
+        link.click();
+        btn.textContent='✅ 已下載';
+        setTimeout(function(){btn.textContent=origLabel;btn.disabled=false;},2000);
+      }catch(dlErr){
+        btn.textContent=origLabel;btn.disabled=false;
+        _hdChartFallback(dlErr);
+      }
+    }).catch(function(e){
+      console.warn('downloadChart error:',e);
+      btn.textContent=origLabel;btn.disabled=false;
+      _hdChartFallback(e);
+    });
+  }catch(outer){
+    btn.textContent=origLabel;btn.disabled=false;
+    _hdChartFallback(outer);
+  }
+}
+function _hdChartFallback(err){
+  // 截圖失敗，改用手機螢幕截圖保存（iOS: Power+Vol, Android: Power+Vol-）
+  alert('圖表生成失敗｜可能是瀏覽器限制。\n\n請改用「手機螢幕截圖」功能保存：\niOS：側邊鍵 + 音量上鍵\nAndroid：電源鍵 + 音量下鍵\n\n桌機：Ctrl+Shift+S 或使用剪切工具');
 }
 </script>
 <script src="assets/js/hl-result-cta.js"></script>

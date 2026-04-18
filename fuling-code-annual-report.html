@@ -477,23 +477,32 @@ function generateReport() {
 /* ═══ 下載報告 ═══ */
 function downloadReport() {
   var el = document.getElementById('report-capture');
-  if (!el || typeof html2canvas === 'undefined') {
-    alert('下載功能載入中，請稍候再試。');
+  if (!el) { alert('報告尚未生成，請先填寫完整資料。'); return; }
+  if (typeof html2canvas === 'undefined') {
+    alert('截圖模組載入中，請稍等 3 秒再試 🙏');
     return;
   }
-  html2canvas(el, {
-    scale: 2,
-    backgroundColor: '#ffffff',
-    useCORS: true,
-    logging: false
-  }).then(function(canvas) {
-    var link = document.createElement('a');
-    link.download = '2026-馥靈年度秘碼報告.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  }).catch(function() {
-    alert('截圖失敗，請嘗試用手機螢幕截圖保存。');
-  });
+  try {
+    html2canvas(el, {
+      scale: 2,
+      backgroundColor: '#ffffff',
+      useCORS: true,
+      logging: false
+    }).then(function(canvas) {
+      try {
+        var link = document.createElement('a');
+        link.download = '2026-馥靈年度秘碼報告.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } catch (dlErr) { _reportFallback(dlErr); }
+    }).catch(function(e) {
+      console.warn('downloadReport error:', e);
+      _reportFallback(e);
+    });
+  } catch (outer) { _reportFallback(outer); }
+}
+function _reportFallback(err){
+  alert('報告截圖失敗｜可能是瀏覽器限制。\n\n請改用「手機螢幕截圖」保存：\niOS：側邊鍵 + 音量上鍵\nAndroid：電源鍵 + 音量下鍵\n\n桌機：Ctrl+Shift+S 或使用剪切工具');
 }
 </script>
 
