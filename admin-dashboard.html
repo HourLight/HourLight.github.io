@@ -6110,5 +6110,179 @@ function loadReferralQuickStats() {
 })();
 </script>
 
+<!-- ═══ 沉睡客戶喚回 · 批次產碼 + CSV 匯出（2026-04-19） ═══ -->
+<script>
+(function(){
+  'use strict';
+  var sleepingResults = []; // { uid, email, displayName, lastSeenStr, plan, unlockCode }
+
+  function daysAgo(n){
+    var d = new Date();
+    d.setTime(d.getTime() - n*24*3600*1000);
+    return d;
+  }
+  function fmtDate(ts){
+    if (!ts) return '從未';
+    try{
+      var d = ts.toDate ? ts.toDate() : new Date(ts);
+      return d.toISOString().slice(0,10);
+    }catch(_){ return '-'; }
+  }
+  function randomCodeBody(len){
+    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    var s = '';
+    for (var i=0;i<len;i++) s += chars[Math.floor(Math.random()*chars.length)];
+    return s;
+  }
+
+  window.scanSleepingMembers = function(){
+    var days = parseInt(document.getElementById('sleepDays').value) || 30;
+    var planFilter = document.getElementById('sleepPlan').value;
+    var resultEl = document.getElementById('sleepingResult');
+    var btnCSV = document.getElementById('btnExportCSV');
+    var btnSend = document.getElementById('btnSendRecall');
+    btnCSV.style.display = 'none';
+    btnSend.style.display = 'none';
+    resultEl.innerHTML = '<div class="adm-loading"><div class="adm-spinner"></div> 掃描中...</div>';
+    sleepingResults = [];
+
+    var cutoff = daysAgo(days);
+
+    db.collection('users').get().then(function(snap){
+      snap.forEach(function(doc){
+        var d = doc.data() || {};
+        var ls = d.lastSeen ? (d.lastSeen.toDate ? d.lastSeen.toDate() : new Date(d.lastSeen)) : null;
+        var created = d.createdAt ? (d.createdAt.toDate ? d.createdAt.toDate() : new Date(d.createdAt)) : null;
+        var effective = ls || created;
+        if (!effective) return; // 沒資料跳過
+        if (effective >= cutoff) return; // 不算沉睡
+        if (!d.email) return; // 沒 email 寄不了
+
+        var plan = d.plan || 'free';
+        if (planFilter === 'free' && plan !== 'free') return;
+        if (planFilter === 'paid' && plan === 'free') return;
+
+        sleepingResults.push({
+          uid: doc.id,
+          email: d.email,
+          displayName: d.displayName || d.name || '',
+          plan: plan,
+          lastSeenStr: fmtDate(ls || created),
+          unlockCode: null
+        });
+      });
+
+      if (sleepingResults.length === 0){
+        resultEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--adm-text-lite)">沒有符合條件的沉睡會員</div>';
+        return;
+      }
+
+      var rows = sleepingResults.slice(0, 20).map(function(u){
+        return '<tr><td>'+u.email+'</td><td>'+(u.displayName||'-')+'</td><td>'+u.plan+'</td><td>'+u.lastSeenStr+'</td></tr>';
+      }).join('');
+
+      resultEl.innerHTML =
+        '<div style="margin-bottom:12px;color:var(--adm-text);font-size:.95rem">'+
+          '✅ 找到 <strong style="color:var(--adm-gold);font-size:1.1rem">'+sleepingResults.length+'</strong> 位沉睡會員（超過 '+days+' 天沒登入）'+
+        '</div>'+
+        '<div style="max-height:340px;overflow:auto;border:1px solid var(--adm-border);border-radius:6px">'+
+        '<table style="width:100%;font-size:.82rem;border-collapse:collapse">'+
+          '<thead style="background:var(--adm-bg2);position:sticky;top:0">'+
+            '<tr><th style="padding:8px;text-align:left">Email</th><th style="padding:8px;text-align:left">名稱</th><th style="padding:8px;text-align:left">方案</th><th style="padding:8px;text-align:left">最後上線</th></tr>'+
+          '</thead>'+
+          '<tbody>'+rows+'</tbody>'+
+        '</table></div>'+
+        (sleepingResults.length > 20 ? '<div style="margin-top:6px;font-size:.75rem;color:var(--adm-text-lite)">（僅顯示前 20 筆，CSV 會匯出全部）</div>' : '');
+
+      btnCSV.style.display = 'inline-block';
+      btnSend.style.display = 'inline-block';
+    }).catch(function(e){
+      resultEl.innerHTML = '<div style="color:#c0334d">掃描失敗：'+(e.message||e)+'</div>';
+    });
+  };
+
+  window.exportSleepingCSV = async function(){
+    if (!sleepingResults || sleepingResults.length === 0){
+      toast('請先掃描名單');
+      return;
+    }
+    var btnCSV = document.getElementById('btnExportCSV');
+    var originalText = btnCSV.textContent;
+    btnCSV.disabled = true;
+    btnCSV.textContent = '產碼中 0/'+sleepingResults.length;
+
+    // 為每人產生 HRC7 代碼（NT$599 / 7 張牌）
+    var success = 0, failed = 0;
+    for (var i=0; i<sleepingResults.length; i++){
+      var u = sleepingResults[i];
+      if (u.unlockCode) { success++; continue; } // 已產過就跳過
+
+      var code = 'HRC7-' + randomCodeBody(6);
+      try{
+        await db.collection('reading_codes').doc(code).set({
+          code: code,
+          service: 'reading',
+          n: 7,
+          spreads: 7,
+          price: 599,
+          used: false,
+          usedAt: null,
+          usedBy: null,
+          createdFor: u.email,
+          memo: '沉睡喚回 · 2026-04-19',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          createdBy: currentUser.email
+        });
+        u.unlockCode = code;
+        success++;
+      }catch(e){
+        console.error('產碼失敗', u.email, e);
+        failed++;
+      }
+      btnCSV.textContent = '產碼中 '+(success+failed)+'/'+sleepingResults.length;
+    }
+
+    // 組 CSV
+    var csvLines = ['email,displayName,plan,lastSeen,unlock_code'];
+    sleepingResults.forEach(function(u){
+      var safe = function(v){ v=String(v||''); return v.indexOf(',')>-1||v.indexOf('"')>-1 ? '"'+v.replace(/"/g,'""')+'"' : v; };
+      csvLines.push([safe(u.email), safe(u.displayName), u.plan, u.lastSeenStr, u.unlockCode||''].join(','));
+    });
+    var csv = '\ufeff' + csvLines.join('\n'); // BOM for Excel UTF-8
+    var blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'sleeping-users-'+new Date().toISOString().slice(0,10)+'.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    btnCSV.disabled = false;
+    btnCSV.textContent = originalText;
+    toast('✅ 已產碼 '+success+' 筆 / 失敗 '+failed+' 筆，CSV 已下載');
+  };
+
+  window.sendRecallEmails = function(){
+    if (!sleepingResults || sleepingResults.length === 0){
+      toast('請先掃描名單');
+      return;
+    }
+    // 不直接走 send-report（要寫 Vercel 函式且 rate limit 控制複雜）
+    // 指引逸君走 MailerLite 流程
+    var msg =
+      '📧 批次寄信建議流程：\n\n'+
+      '1. 先按「下載 CSV」按鈕，會自動為每個人產一組 HRC7 代碼並下載\n'+
+      '2. 去 MailerLite → Subscribers → Import CSV\n'+
+      '3. 自訂欄位 `unlock_code` 對映到 CSV 的 unlock_code 欄\n'+
+      '4. Campaigns → New → 貼上 docs/沉睡客戶喚回劇本-馥靈語感版.md 裡的 HTML 模板\n'+
+      '5. MailerLite 會自動把 {{fields.unlock_code}} 替換成每人專屬代碼\n\n'+
+      '（直接在後台群發的功能還沒做 — 需要走 Vercel cron + rate limit 設計，今晚先用 MailerLite）';
+    alert(msg);
+  };
+})();
+</script>
+
 </body>
 </html>
